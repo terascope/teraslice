@@ -20,7 +20,6 @@ export const toBooleanConfig: FieldTransformConfig = {
         FieldType.Number,
         FieldType.String,
     ],
-    // TODO: fix this
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

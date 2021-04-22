@@ -7,15 +7,26 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export const trimEndConfig: FieldTransformConfig = {
+export interface TrimEndArgs {
+    chars?: string;
+}
+
+export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
     name: 'trimEnd',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Trims whitespace from end of string',
-    create() {
-        return trimEnd;
+    description: 'Trims whitespace or characters from end of string',
+    create({ chars } = {}) {
+        return (input: unknown) => trimEnd(input, chars);
     },
     accepts: [FieldType.String],
+    argument_schema: {
+        chars: {
+            type: FieldType.String,
+            array: false,
+            description: 'The characters to remove, defaults to whitespace'
+        }
+    },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

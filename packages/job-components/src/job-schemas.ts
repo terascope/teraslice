@@ -1,14 +1,16 @@
 import os from 'os';
 import convict from 'convict';
 import {
-    getField,
-    flatten,
-    getTypeOf,
-    isPlainObject,
-    dataEncodings,
-    isString,
     DataEncoding,
+    dataEncodings,
+    flatten,
+    getField,
+    getTypeOf,
+    hasOwn,
     isNotNil,
+    isNumber,
+    isPlainObject,
+    isString,
 } from '@terascope/utils';
 import { Context } from './interfaces';
 
@@ -110,7 +112,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: `An array of apis to load and any configurations they require.
             Validated similar to operations, with the exception of no apis are required.
-            The _name property is required, and it is required to be unqiue
+            The _name property is required, and it is required to be unique
             but can be suffixed with a identifier by using the format "example:0",
             anything after the ":" is stripped out when searching for the file or folder.`,
             format(arr: any[]) {
@@ -164,7 +166,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         },
         labels: {
             default: null,
-            doc: 'An array of arrays containing key value pairs used to label kubetnetes resources.',
+            doc: 'An array of arrays containing key value pairs used to label kubernetes resources.',
             // TODO: Refactor this out as format, copied from env_vars
             format(obj: any[]) {
                 if (obj != null) {
@@ -208,7 +210,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
     if (clusteringType === 'kubernetes') {
         schemas.targets = {
             default: [],
-            doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
+            doc: 'array of key/value labels used for targeting teraslice jobs to nodes',
             format(arr: any[]) {
                 if (!Array.isArray(arr)) {
                     throw new Error('must be array');
@@ -254,17 +256,43 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 // processor requires port X this code should throw an error.
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
-                        throw new Error('external_ports is required to be an array');
+                        throw new Error('external_ports is required to be an array of numbers or objects like {name: \'myJob\', port: 9000}.');
                     }
-                    if (arr.includes(45680)) {
-                        throw new Error('Port 45680 cannot be included in external_ports, it is reserved by Teraslice.');
+                    for (const portValue of arr) {
+                        if (isNumber(portValue)) {
+                            if (portValue === 45680) {
+                                throw new Error('Port 45680 cannot be included in external_ports, it is reserved by Teraslice.');
+                            }
+                        } else if (isPlainObject(portValue)) {
+                            Object.entries(portValue).forEach(([key, val]) => {
+                                if (key == null || key === '') {
+                                    throw new Error('key must be not empty');
+                                }
+
+                                if (val == null || val === '') {
+                                    throw new Error(`value for key "${key}" must be not empty`);
+                                }
+                                if (hasOwn(portValue, 'name') && hasOwn(portValue, 'port')) {
+                                    if (!isNumber(portValue.port)) {
+                                        throw new Error('The port set on an external_ports object must be a number.');
+                                    }
+                                    if (portValue.name === '' || !isString(portValue.name)) {
+                                        throw new Error('The name set on an external ports object must be a non empty string.');
+                                    }
+                                } else {
+                                    throw new Error('An external_ports entry must be an object like {name: \'myJob\', port: 9000} or a number.');
+                                }
+                            });
+                        } else {
+                            throw new Error('An external_ports entry must be a number or an object like {name: \'myJob\', port: 9000}.');
+                        }
                     }
                 }
             }
         };
 
         schemas.memory = {
-            doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
+            doc: 'memory, in bytes, to reserve per teraslice worker in Kubernetes',
             default: undefined,
             format: 'Number',
         };
@@ -341,7 +369,7 @@ export const opSchema: convict.Schema<any> = {
 export const apiSchema: convict.Schema<any> = {
     _name: {
         default: '',
-        doc: `The _name property is required, and it is required to be unqiue
+        doc: `The _name property is required, and it is required to be unique
         but can be suffixed with a identifier by using the format "example:0",
         anything after the ":" is stripped out when searching for the file or folder.`,
         format: 'required_String',

@@ -17,7 +17,10 @@ import {
     isMacAddress,
     isUrl,
     isUUID,
-    contains
+    contains,
+    trim,
+    trimStart,
+    trimEnd
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -81,6 +84,8 @@ describe('String Utils', () => {
             ['HelloThere', 'helloThere'],
             ['hello_there', 'helloThere'],
             ['hello there', 'helloThere'],
+            ['hello THERE', 'helloThere'],
+            ['HELLO THERE', 'helloThere'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toCamelCase(input)).toEqual(expected);
         });
@@ -260,49 +265,83 @@ describe('String Utils', () => {
             [12345],
         ])('should return false for invalid urls', (input) => {
             expect(isUrl(input)).toEqual(false);
+    });
+
+    describe('isUUID', () => {
+        test.each([
+            ['95ecc380-afe9-11e4-9b6c-751b66dd541e'],
+            ['0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'],
+            ['123e4567-e89b-82d3-f456-426655440000']
+        ])('should return true for valid UUIDs', (input) => {
+            expect(isUUID(input)).toEqual(true);
         });
 
-        describe('isUUID', () => {
-            test.each([
-                ['95ecc380-afe9-11e4-9b6c-751b66dd541e'],
-                ['0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'],
-                ['123e4567-e89b-82d3-f456-426655440000']
-            ])('should return true for valid UUIDs', (input) => {
-                expect(isUUID(input)).toEqual(true);
-            });
+        test.each([
+            [''],
+            ['95ecc380:afe9:11e4:9b6c:751b66dd541e'],
+            ['123e4567-e89b-x2d3-0456-426655440000'],
+            ['123e4567-e89b-12d3-a456-42600'],
+            [undefined],
+            ['randomstring'],
+            [true],
+            [{}],
+        ])('should return false for non UUIDs', (input) => {
+            expect(isUUID(input)).toEqual(false);
+        });
+    });
 
-            test.each([
-                [''],
-                ['95ecc380:afe9:11e4:9b6c:751b66dd541e'],
-                ['123e4567-e89b-x2d3-0456-426655440000'],
-                ['123e4567-e89b-12d3-a456-42600'],
-                [undefined],
-                ['randomstring'],
-                [true],
-                [{}],
-            ])('should return false for non UUIDs', (input) => {
-                expect(isUUID(input)).toEqual(false);
-            });
+    describe('contains', () => {
+        test.each([
+            ['thisisastring', 'this'],
+            ['a new string', 'new'],
+            ['12345', '23']
+        ])('should return true for strings that contains  the substring', (input, substr) => {
+            expect(contains(input, substr)).toEqual(true);
         });
 
-        describe('contains', () => {
-            test.each([
-                ['thisisastring', 'this'],
-                ['a new string', 'new'],
-                ['12345', '23']
-            ])('should return true for strings that contains  the substring', (input, substr) => {
-                expect(contains(input, substr)).toEqual(true);
-            });
+        test.each([
+            ['this is a string', 'foo'],
+            ['', 'foo'],
+            [['one', 'two', 'three'], 'one'],
+            [undefined, 'hello'],
+            [12345, '123']
+        ])('should return false if input is not a string or does not contain substring', (input, substr) => {
+            expect(contains(input, substr)).toEqual(false);
+    });
 
-            test.each([
-                ['this is a string', 'foo'],
-                ['', 'foo'],
-                [['one', 'two', 'three'], 'one'],
-                [undefined, 'hello'],
-                [12345, '123']
-            ])('should return false if input is not a string or does not contain substring', (input, substr) => {
-                expect(contains(input, substr)).toEqual(false);
-            });
+    describe('trim', () => {
+        test.each([
+            ['  _key    ', '_key', undefined],
+            ['      hello-there', 'hello-there', undefined],
+            ['helloThere', 'Ther', 'hello'],
+            ['aastuffaa', 'stuff', 'a'],
+            ['abastuffa a', 'bastuffa ', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trim(input, char)).toEqual(expected);
+        });
+    });
+
+    describe('trimStart', () => {
+        test.each([
+            ['  _key    ', '_key    ', undefined],
+            ['      hello-there', 'hello-there', undefined],
+            ['helloThere', 'There', 'hello'],
+            ['aastuffaa', 'stuffaa', 'a'],
+            ['abastuffa a', 'bastuffa a', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trimStart(input, char)).toEqual(expected);
+        });
+    });
+
+    describe('trimEnd', () => {
+        test.each([
+            ['  _key    ', '  _key', undefined],
+            ['      hello-there', '      hello-there', undefined],
+            ['helloTherehello', 'helloTher', 'hello'],
+            ['aastuffaa', 'aastuff', 'a'],
+            ['abastuffa a', 'abastuffa ', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trimEnd(input, char)).toEqual(expected);
         });
     });
 });

@@ -28,7 +28,7 @@ describe('toUpperCaseConfig', () => {
     it('can transform values', () => {
         const values = ['hello', 'billy', 'hey'];
         const expected = ['HELLO', 'BILLY', 'HEY'];
-        const toUpperCase = toUpperCaseConfig.create();
+        const toUpperCase = toUpperCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toUpperCase(val)).toEqual(expected[ind]);
@@ -36,7 +36,7 @@ describe('toUpperCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toUpperCase = toUpperCaseConfig.create();
+        const toUpperCase = toUpperCaseConfig.create({});
 
         expect(() => toUpperCase(3)).toThrowError('Invalid input 3, expected string got Number');
         expect(() => toUpperCase({})).toThrowError('Invalid input {}, expected string got Object');

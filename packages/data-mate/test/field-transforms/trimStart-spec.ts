@@ -33,7 +33,7 @@ describe('trimStartConfig', () => {
             '',
             ''
         ];
-        const trimStart = trimStartConfig.create();
+        const trimStart = trimStartConfig.create({});
 
         values.forEach((val, ind) => {
             expect(trimStart(val)).toEqual(expected[ind]);

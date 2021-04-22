@@ -6,6 +6,8 @@ const path = require('path');
 const barbe = require('barbe');
 const _ = require('lodash');
 
+const { isNumber } = require('@terascope/utils');
+
 const { safeEncode } = require('../../../../../utils/encoding_utils');
 const { setMaxOldSpaceViaEnv } = require('./utils');
 
@@ -183,9 +185,19 @@ class K8sResource {
 
     _setExternalPorts() {
         if (this.execution.external_ports) {
-            _.forEach(this.execution.external_ports, (port) => {
-                this.resource.spec.template.spec.containers[0].ports
-                    .push({ containerPort: port });
+            _.forEach(this.execution.external_ports, (portValue) => {
+                if (isNumber(portValue)) {
+                    this.resource.spec.template.spec.containers[0].ports
+                        .push({ containerPort: portValue });
+                } else {
+                    this.resource.spec.template.spec.containers[0].ports
+                        .push(
+                            {
+                                name: portValue.name,
+                                containerPort: portValue.port
+                            }
+                        );
+                }
             });
         }
     }

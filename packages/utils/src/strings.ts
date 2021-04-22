@@ -99,16 +99,34 @@ export function primitiveToString(value: unknown): string {
 }
 
 /** safely trims whitespace from an input */
-export function trim(input: unknown): string {
-    return lTrim(primitiveToString(input));
+export function trim(input: unknown, char = ' '): string {
+    return lTrim(primitiveToString(input), char);
 }
 
-export function trimStart(input: unknown): string {
-    return lTrimStart(primitiveToString(input));
+export function trimFP(char = ' ') {
+    return function _trim(input: unknown): string {
+        return trim(input, char);
+    };
 }
 
-export function trimEnd(input: unknown): string {
-    return lTrimEnd(primitiveToString(input));
+export function trimStart(input: unknown, char = ' '): string {
+    return lTrimStart(primitiveToString(input), char);
+}
+
+export function trimStartFP(char = ' ') {
+    return function _trimStart(input: unknown): string {
+        return trimStart(input, char);
+    };
+}
+
+export function trimEnd(input: unknown, char = ' '): string {
+    return lTrimEnd(primitiveToString(input), char);
+}
+
+export function trimEndFP(char = ' ') {
+    return function _trimEnd(input: unknown): string {
+        return trimEnd(input, char);
+    };
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -293,7 +311,7 @@ export const WORD_CHARS = {
 */
 export function getWordParts(input: string): string[] {
     if (!isString(input)) {
-        throw new Error(`Expected string, got "${input}"`);
+        throw new Error(`Expected string, got ${getTypeOf(input)}`);
     }
 
     const parts: string[] = [];
@@ -336,16 +354,16 @@ export function getWordParts(input: string): string[] {
 }
 
 export function toCamelCase(input: string): string {
-    return firstToLower(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
-    }).join(''));
+    return getWordParts(input).map((str, i) => {
+        if (i === 0) return str.toLowerCase();
+        return firstToUpper(str.toLowerCase());
+    }).join('');
 }
 
 export function toPascalCase(input: string): string {
     return firstToUpper(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
+        if (i === 0) return str.toLowerCase();
+        return firstToUpper(str.toLowerCase());
     }).join(''));
 }
 
@@ -358,7 +376,7 @@ export function toSnakeCase(input: string): string {
 }
 
 export function toTitleCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str)).join(' '));
+    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str.toLowerCase())).join(' '));
 }
 
 /**
