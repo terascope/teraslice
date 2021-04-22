@@ -7,17 +7,18 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export interface EncodeSHA1Config {
+export interface EncodeSHAConfig {
+    hash?: string;
     digest?: string;
 }
 
-export const encodeSHAConfig: FieldTransformConfig<EncodeSHA1Config> = {
+export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
     name: 'encodeSHA',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Converts to a SHA encoded value',
-    create({ digest = 'hex' } = {}) {
-        return (input: unknown) => encodeBase(input, digest as BinaryToTextEncoding);
+    create({ hash = 'sha256', digest = 'hex' } = {}) {
+        return (input: unknown) => encodeBase(input, hash, digest as BinaryToTextEncoding);
     },
     accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
@@ -32,6 +33,6 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHA1Config> = {
     }
 };
 
-function encodeBase(input: unknown, digest: BinaryToTextEncoding) {
-    return crypto.createHash('sha1').update(input as string).digest(digest);
+function encodeBase(input: unknown, hash: string, digest: BinaryToTextEncoding) {
+    return crypto.createHash(hash).update(input as string).digest(digest);
 }

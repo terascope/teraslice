@@ -22,7 +22,7 @@ describe('toLowerCaseConfig', () => {
         const values = ['HELLO', 'biLLy', 'Hey There'];
         const expected = ['hello', 'billy', 'hey there'];
 
-        const toUpperCase = toLowerCaseConfig.create();
+        const toUpperCase = toLowerCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toUpperCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toLowerCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toLowerCase = toLowerCaseConfig.create();
+        const toLowerCase = toLowerCaseConfig.create({});
 
         expect(() => toLowerCase(3)).toThrowError('Invalid input 3, expected string got Number');
         expect(() => toLowerCase({})).toThrowError('Invalid input {}, expected string got Object');

@@ -22,7 +22,7 @@ describe('toKebabCaseConfig', () => {
         const values = ['HELLO there', 'billy', 'Hey There'];
         const expected = ['hello-there', 'billy', 'hey-there'];
 
-        const toKebabCase = toKebabCaseConfig.create();
+        const toKebabCase = toKebabCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toKebabCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toKebabCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toKebabCase = toKebabCaseConfig.create();
+        const toKebabCase = toKebabCaseConfig.create({});
 
         expect(() => toKebabCase(3)).toThrowError('Expected string, got Number');
         expect(() => toKebabCase({})).toThrowError('Expected string, got Object');

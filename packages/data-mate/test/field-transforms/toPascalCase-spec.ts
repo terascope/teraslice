@@ -22,7 +22,7 @@ describe('toPascalCaseConfig', () => {
         const values = ['HELLO there', 'billy', 'Hey There'];
         const expected = ['HelloThere', 'Billy', 'HeyThere'];
 
-        const toPascalCase = toPascalCaseConfig.create();
+        const toPascalCase = toPascalCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toPascalCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toPascalCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toPascalCase = toPascalCaseConfig.create();
+        const toPascalCase = toPascalCaseConfig.create({});
 
         expect(() => toPascalCase(3)).toThrowError('Expected string, got Number');
         expect(() => toPascalCase({})).toThrowError('Expected string, got Object');

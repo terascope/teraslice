@@ -17,10 +17,11 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Truncate a string value, by default it will add an ellipsis (...) if truncated.',
-    create({ len, ellipsis } = {}) {
+    create({ len, ellipsis }: TruncateConfig) {
         return (input: unknown) => truncate(input as string, len, ellipsis);
     },
     accepts: [FieldType.String],
+    required_arguments: ['len'],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

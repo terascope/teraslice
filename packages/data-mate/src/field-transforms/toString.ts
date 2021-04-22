@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 
 export const toStringConfig: FieldTransformConfig = {
-    name: 'toJSON',
+    name: 'toString',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'converts input values to strings',

@@ -29,7 +29,7 @@ describe('decodeHexConfig', () => {
     });
 
     it('can decode hex values', () => {
-        const decodeHex = decodeHexConfig.create();
+        const decodeHex = decodeHexConfig.create({});
 
         testValues.forEach((val, ind) => {
             expect(decodeHex(val)).toEqual(originalValues[ind]);
