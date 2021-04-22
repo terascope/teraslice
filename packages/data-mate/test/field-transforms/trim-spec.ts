@@ -33,7 +33,7 @@ describe('trimConfig', () => {
             '',
             ''
         ];
-        const trim = trimConfig.create();
+        const trim = trimConfig.create({});
 
         values.forEach((val, ind) => {
             expect(trim(val)).toEqual(expected[ind]);

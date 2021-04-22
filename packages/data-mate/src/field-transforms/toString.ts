@@ -1,4 +1,4 @@
-import { trim } from '@terascope/utils';
+import { toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,26 +7,15 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export interface TrimArgs {
-    chars?: string;
-}
-
-export const trimConfig: FieldTransformConfig<TrimArgs> = {
-    name: 'trim',
+export const toStringConfig: FieldTransformConfig = {
+    name: 'toString',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Trims whitespace or characters from string',
-    create({ chars } = {}) {
-        return (input: unknown) => trim(input, chars);
+    description: 'converts input values to strings',
+    create() {
+        return (input: unknown) => toString(input);
     },
-    accepts: [FieldType.String],
-    argument_schema: {
-        chars: {
-            type: FieldType.String,
-            array: false,
-            description: 'The characters to remove, defaults to whitespace'
-        }
-    },
+    accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

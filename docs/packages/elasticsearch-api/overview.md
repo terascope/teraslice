@@ -17,20 +17,19 @@ npm install --save @terascope/elasticsearch-api
 ## Usage
 
 ```js
-const elasticsearch = require('@terascope/elasticsearch-api');
+const { Client } = require('elasticsearch');
+const elasticsearchAPI = require('@terascope/elasticsearch-api');
 const bunyan = require('bunyan');
 
-const logger = logger = bunyan.createLogger({name: 'someName'});
-const client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
-const opConfig = {full_response: false};
+const logger = bunyan.createLogger({ name: 'someName' });
+const client = new Client({ host: ["127.0.0.1:9200"] });
+const opConfig = { full_response: false };
 
-const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+const elasticsearch = elasticsearchAPI(client, logger, opConfig);
+
 const query = elasticsearch.buildQuery(opConfig, msg);
-
-elasticsearch.search(query)
-    .then(function(results){
-        console.log(results)
-    })
+const results = await elasticsearch.search(query);
+console.log(results);
 ```
 
 ## Configuration

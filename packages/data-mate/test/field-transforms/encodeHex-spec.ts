@@ -31,7 +31,7 @@ describe('encodeHexConfig', () => {
     });
 
     it('can encode hex values', () => {
-        const encodeHex = encodeHexConfig.create();
+        const encodeHex = encodeHexConfig.create({});
 
         originalValues.slice().forEach((val, ind) => {
             expect(encodeHex(val)).toEqual(encodedValues[ind]);

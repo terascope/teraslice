@@ -98,16 +98,34 @@ export function primitiveToString(value: unknown): string {
 }
 
 /** safely trims whitespace from an input */
-export function trim(input: unknown): string {
-    return lTrim(primitiveToString(input));
+export function trim(input: unknown, char = ' '): string {
+    return lTrim(primitiveToString(input), char);
 }
 
-export function trimStart(input: unknown): string {
-    return lTrimStart(primitiveToString(input));
+export function trimFP(char = ' ') {
+    return function _trim(input: unknown): string {
+        return trim(input, char);
+    };
 }
 
-export function trimEnd(input: unknown): string {
-    return lTrimEnd(primitiveToString(input));
+export function trimStart(input: unknown, char = ' '): string {
+    return lTrimStart(primitiveToString(input), char);
+}
+
+export function trimStartFP(char = ' ') {
+    return function _trimStart(input: unknown): string {
+        return trimStart(input, char);
+    };
+}
+
+export function trimEnd(input: unknown, char = ' '): string {
+    return lTrimEnd(primitiveToString(input), char);
+}
+
+export function trimEndFP(char = ' ') {
+    return function _trimEnd(input: unknown): string {
+        return trimEnd(input, char);
+    };
 }
 
 /** safely trim and to lower a input, useful for string comparison */

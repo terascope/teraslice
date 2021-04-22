@@ -4,7 +4,7 @@ sidebar_label: Kubernetes Clustering
 ---
 
 Teraslice supports the use of Kubernetes as a cluster manager. The following
-versions of Kuberenetes have been used:
+versions of Kubernetes have been used:
 
 * `1.19.*`
 * `1.18.*`
@@ -78,7 +78,7 @@ The Teraslice master node needs to be deployed in k8s by the user.  It should
 be deployed in a namespace mentioned above.  It should have a k8s service that
 exposes port `5678` for user interaction.  The cluster master will only show
 up in cluster state if it is deployed with the label `clusterName` set to the
-clustername modified as follows:
+cluster name modified as follows:
 
 ```js
 clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63)
@@ -108,7 +108,7 @@ Note that the `assets_volume` should also be mounted to your Teraslice master po
 
 Targets specified in the `execution_controller_targets` setting will result in
 required NodeAffinities and tolerations being added to the execution controller
-Jobs so that they can be targetted to specific parts of your k8s infrastructure.
+Jobs so that they can be targeted to specific parts of your k8s infrastructure.
 
 ## Teraslice Job Properties
 
@@ -118,7 +118,7 @@ Teraslice job definition.  These are outlined below.
 ### Ephemeral Storage
 
 If your Teraslice job uses a processor that needs temporary local storage that
-persists in the Kubernets Pod across container restarts, you can set the
+persists in the Kubernetes Pod across container restarts, you can set the
 Teraslice Job Property `ephemeral_storage` to `true` on your job as shown
 below.  This will create an [`emptyDir`](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir)
 style Ephemeral Volume accessible in your pod at the path `/ephemeral0`.
@@ -126,6 +126,35 @@ style Ephemeral Volume accessible in your pod at the path `/ephemeral0`.
 ```json
     "ephemeral_storage": true
 ```
+
+### External Ports
+
+If for some reason you need to expose ports on your Teraslice workers in
+Kubernetes, you can do so with the `external_ports` job property.  You can
+provide either a simple number (that matches the port) or you can specify an
+object with `name` (a string) and `port` (a number) properties.
+
+```json
+    "external_ports": [
+        9090,
+        {"name": "metrics", "port": 3333}
+    ]
+```
+
+A job containing the `external_ports` shown above would result in the following
+Kubernetes snippet:
+
+```yaml
+    ports:
+    - containerPort: 9090
+      protocol: TCP
+    - containerPort: 3333
+      name: metrics
+      protocol: TCP
+```
+
+The reason this was added was to expose a Prometheus exporter on Teraslice
+worker pods.
 
 ### Labels
 
@@ -180,7 +209,7 @@ following resource requests and limits:
 
 These defaults can be overridden either in your Teraslice Job or in the
 Teraslice Master configuration.  Settings on your Teraslice Job override the
-settings in the Master configuration.  The behaviour of these two settings is
+settings in the Master configuration.  The behavior of these two settings is
 the same as the Worker settings with the exception of the default being applied
 in the Execution Controller case.
 
@@ -267,7 +296,7 @@ translated into the Kubernetes manifest.  Those details are described below.
 
 #### Details of the `required` constraint
 
-For each entry in `targets` without a `constraint` or if `contraint` is set to
+For each entry in `targets` without a `constraint` or if `constraint` is set to
 `required`, the pod spec will include an entry in the `matchExpressions` list
 under the `requiredDuringSchedulingIgnoredDuringExecution` affinity property.
 The example below is what you would get if you provided two `required` targets:

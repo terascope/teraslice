@@ -1,4 +1,4 @@
-import { trimEnd } from '@terascope/utils';
+import crypto, { BinaryToTextEncoding } from 'crypto';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,26 +7,19 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export interface TrimEndArgs {
-    chars?: string;
+export interface EncodeSHA1Config {
+    digest?: string;
 }
 
-export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
-    name: 'trimEnd',
+export const encodeSHAConfig: FieldTransformConfig<EncodeSHA1Config> = {
+    name: 'encodeSHA',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Trims whitespace or characters from end of string',
-    create({ chars } = {}) {
-        return (input: unknown) => trimEnd(input, chars);
+    description: 'Converts to a SHA encoded value',
+    create({ digest = 'hex' } = {}) {
+        return (input: unknown) => encodeBase(input, digest as BinaryToTextEncoding);
     },
-    accepts: [FieldType.String],
-    argument_schema: {
-        chars: {
-            type: FieldType.String,
-            array: false,
-            description: 'The characters to remove, defaults to whitespace'
-        }
-    },
+    accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 
@@ -38,3 +31,7 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
         };
     }
 };
+
+function encodeBase(input: unknown, digest: BinaryToTextEncoding) {
+    return crypto.createHash('sha1').update(input as string).digest(digest);
+}

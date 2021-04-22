@@ -14,7 +14,10 @@ import {
     joinList,
     isString,
     isEmail,
-    isMacAddress
+    isMacAddress,
+    trim,
+    trimStart,
+    trimEnd
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -182,7 +185,7 @@ describe('String Utils', () => {
             ['cal+henderson@iamcalx.com', true],
             ['customer/department=shipping@example.com', true],
             ['user@blah.com/junk.junk?a=<tag value="junk"', false],
-            ['Abc\@def  @  example.com', false],
+            ['Abc@def  @  example.com', false],
             ['bad email address', false],
             [undefined, false],
             [12345, false],
@@ -231,6 +234,42 @@ describe('String Utils', () => {
 
         ])('should validate based on delimiter', (input, delimiter: any, expected) => {
             expect(isMacAddress(input, delimiter)).toEqual(expected);
+        });
+    });
+
+    describe('trim', () => {
+        test.each([
+            ['  _key    ', '_key', undefined],
+            ['      hello-there', 'hello-there', undefined],
+            ['helloThere', 'Ther', 'hello'],
+            ['aastuffaa', 'stuff', 'a'],
+            ['abastuffa a', 'bastuffa ', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trim(input, char)).toEqual(expected);
+        });
+    });
+
+    describe('trimStart', () => {
+        test.each([
+            ['  _key    ', '_key    ', undefined],
+            ['      hello-there', 'hello-there', undefined],
+            ['helloThere', 'There', 'hello'],
+            ['aastuffaa', 'stuffaa', 'a'],
+            ['abastuffa a', 'bastuffa a', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trimStart(input, char)).toEqual(expected);
+        });
+    });
+
+    describe('trimEnd', () => {
+        test.each([
+            ['  _key    ', '  _key', undefined],
+            ['      hello-there', '      hello-there', undefined],
+            ['helloTherehello', 'helloTher', 'hello'],
+            ['aastuffaa', 'aastuff', 'a'],
+            ['abastuffa a', 'abastuffa ', 'a'],
+        ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
+            expect(trimEnd(input, char)).toEqual(expected);
         });
     });
 });

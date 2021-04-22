@@ -40,7 +40,7 @@ describe('toGeoPointConfig', () => {
             { lon: 60, lat: 40 },
             { lon: 50, lat: 60 }
         ];
-        const toGeoPoint = toGeoPointConfig.create();
+        const toGeoPoint = toGeoPointConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toGeoPoint(val)).toEqual(expected[ind]);

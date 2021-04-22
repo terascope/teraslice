@@ -1,4 +1,3 @@
-import { trimEnd } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,26 +6,15 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export interface TrimEndArgs {
-    chars?: string;
-}
-
-export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
-    name: 'trimEnd',
+export const decodeURLConfig: FieldTransformConfig = {
+    name: 'decodeURL',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Trims whitespace or characters from end of string',
-    create({ chars } = {}) {
-        return (input: unknown) => trimEnd(input, chars);
+    description: 'decodes a URL encoded value',
+    create() {
+        return (input: unknown) => decodeURIComponent(input as string);
     },
     accepts: [FieldType.String],
-    argument_schema: {
-        chars: {
-            type: FieldType.String,
-            array: false,
-            description: 'The characters to remove, defaults to whitespace'
-        }
-    },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

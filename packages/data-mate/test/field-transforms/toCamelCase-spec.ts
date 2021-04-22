@@ -22,7 +22,7 @@ describe('toCamelCaseConfig', () => {
         const values = ['HELLO there', 'billy', 'Hey There'];
         const expected = ['helloThere', 'billy', 'heyThere'];
 
-        const toCamelCase = toCamelCaseConfig.create();
+        const toCamelCase = toCamelCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toCamelCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toCamelCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toCamelCase = toCamelCaseConfig.create();
+        const toCamelCase = toCamelCaseConfig.create({});
 
         expect(() => toCamelCase(3)).toThrowError('Expected string, got Number');
         expect(() => toCamelCase({})).toThrowError('Expected string, got Object');

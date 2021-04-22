@@ -22,7 +22,7 @@ describe('toTitleCaseConfig', () => {
         const values = ['HELLO there', 'billy', 'Hey There'];
         const expected = ['Hello There', 'Billy', 'Hey There'];
 
-        const toTitleCase = toTitleCaseConfig.create();
+        const toTitleCase = toTitleCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toTitleCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toTitleCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toTitleCase = toTitleCaseConfig.create();
+        const toTitleCase = toTitleCaseConfig.create({});
 
         expect(() => toTitleCase(3)).toThrowError('Expected string, got Number');
         expect(() => toTitleCase({})).toThrowError('Expected string, got Object');

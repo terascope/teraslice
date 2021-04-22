@@ -1,4 +1,4 @@
-import { trimEnd } from '@terascope/utils';
+import { truncate } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,26 +7,21 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export interface TrimEndArgs {
-    chars?: string;
+export interface TruncateConfig {
+    len: number;
+    ellipsis?: boolean;
 }
 
-export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
-    name: 'trimEnd',
+export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
+    name: 'truncate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Trims whitespace or characters from end of string',
-    create({ chars } = {}) {
-        return (input: unknown) => trimEnd(input, chars);
+    description: 'Truncate a string value, by default it will add an ellipsis (...) if truncated.',
+    create({ len, ellipsis }: TruncateConfig) {
+        return (input: unknown) => truncate(input as string, len, ellipsis);
     },
     accepts: [FieldType.String],
-    argument_schema: {
-        chars: {
-            type: FieldType.String,
-            array: false,
-            description: 'The characters to remove, defaults to whitespace'
-        }
-    },
+    required_arguments: ['len'],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

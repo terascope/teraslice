@@ -22,7 +22,7 @@ describe('toSnakeCaseConfig', () => {
         const values = ['HELLO there', 'billy', 'Hey There'];
         const expected = ['hello_there', 'billy', 'hey_there'];
 
-        const toSnakeCase = toSnakeCaseCaseConfig.create();
+        const toSnakeCase = toSnakeCaseCaseConfig.create({});
 
         values.forEach((val, ind) => {
             expect(toSnakeCase(val)).toEqual(expected[ind]);
@@ -30,7 +30,7 @@ describe('toSnakeCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toSnakeCase = toSnakeCaseCaseConfig.create();
+        const toSnakeCase = toSnakeCaseCaseConfig.create({});
 
         expect(() => toSnakeCase(3)).toThrowError('Expected string, got Number');
         expect(() => toSnakeCase({})).toThrowError('Expected string, got Object');
