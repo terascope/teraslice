@@ -34,7 +34,7 @@
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "js-yaml": "^4.1.0",
-        "mongoose": "~5.11.12",
+        "mongoose": "~5.12.4",
         "nanoid": "^3.1.21",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
