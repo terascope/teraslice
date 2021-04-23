@@ -1,3 +1,4 @@
+import { isBigInt, bigIntToJSON, isNil } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -12,7 +13,15 @@ export const toJSONConfig: FieldTransformConfig = {
     process_mode: ProcessMode.FULL_VALUES,
     description: 'converts input to JSON',
     create() {
-        return (input: unknown) => JSON.parse(input as string);
+        return (input: unknown) => {
+            if (isNil(input)) return null;
+
+            if (isBigInt(input)) {
+                return bigIntToJSON(input);
+            }
+
+            return JSON.stringify(input as string);
+        };
     },
     accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
