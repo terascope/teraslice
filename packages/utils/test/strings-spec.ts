@@ -19,6 +19,7 @@ import {
     isUUID,
     isBase64,
     isFQDN,
+    isCountryCode,
     contains,
     trim,
     trimStart,
@@ -335,6 +336,33 @@ describe('String Utils', () => {
             [{}],
         ])('should return false for non base64 inputs', (input) => {
             expect(isFQDN(input)).toEqual(false);
+        });
+    });
+
+    describe('isCountryCode', () => {
+        test.each([
+            ['US'],
+            ['IN'],
+            ['GB'],
+            ['JP'],
+            ['ZM']
+        ])('should return true for valid ISO31661Alpha2 country codes', (input) => {
+            expect(isCountryCode(input)).toEqual(true);
+        });
+
+        test.each([
+            ['USA'],
+            ['UK'],
+            [true],
+            [null],
+            ['II'],
+            ['longerstring'],
+            ['12345US234'],
+            [12345],
+            [''],
+            [{ in: 'US' }]
+        ])('should return false for non base64 inputs', (input) => {
+            expect(isCountryCode(input)).toEqual(false);
         });
     });
 

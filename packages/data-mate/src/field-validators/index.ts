@@ -11,6 +11,7 @@ import { isBase64Config } from './isBase64';
 import { containsConfig } from './contains';
 import { equalsConfig } from './equals';
 import { isFQDNConfig } from './isFQDN';
+import { isCountryCodeConfig } from './isCountryCode';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
@@ -24,6 +25,7 @@ export const fieldValidationRepository = {
     isUUID: isUUIDConfig,
     isBase64: isBase64Config,
     isFQDN: isFQDNConfig,
+    isCountryCode: isCountryCodeConfig,
     contains: containsConfig,
     equals: equalsConfig
 } as const;

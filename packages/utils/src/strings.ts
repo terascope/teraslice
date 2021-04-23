@@ -500,6 +500,10 @@ export function isFQDN(input: unknown): boolean {
     return isString(input) && validator.isFQDN(input);
 }
 
+export function isCountryCode(input: unknown): boolean {
+    return isString(input) && validator.isISO31661Alpha2(input);
+}
+
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
