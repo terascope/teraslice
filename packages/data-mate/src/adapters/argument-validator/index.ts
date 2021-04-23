@@ -9,7 +9,7 @@ import {
     isObjectEntity,
     isIP,
     joinList, getTypeOf, isEmpty, isBigInt,
-    isArray
+    isArray,
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {

@@ -3,6 +3,7 @@ import {
     trimEnd as lTrimEnd,
     trimStart as lTrimStart
 } from 'lodash';
+import PhoneValidator from 'awesome-phonenumber';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
@@ -516,4 +517,17 @@ export function joinList(input: (string|number|boolean|symbol|null|undefined)[],
         }
         return `${acc}${sep} ${curr}`;
     }, '');
+}
+
+export function parsePhoneNumber(input: string|number): string {
+    let testNumber = toString(input).trim();
+    if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
+
+    // needs to start with a +
+    if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
+
+    const fullNumber = new PhoneValidator(testNumber).getNumber();
+    if (fullNumber) return String(fullNumber).slice(1);
+
+    throw Error('Could not determine the incoming phone number');
 }

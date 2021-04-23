@@ -18,8 +18,6 @@ import {
     VectorType,
 } from '../../vector/interfaces';
 
-// @TODO: fix this
-
 const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
     [FieldType.String]: VectorType.String,
     [FieldType.Text]: VectorType.String,
