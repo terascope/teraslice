@@ -4,7 +4,6 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 export const toTitleCaseConfig: FieldTransformConfig = {
@@ -17,14 +16,4 @@ export const toTitleCaseConfig: FieldTransformConfig = {
         return (input: unknown) => toTitleCase(input as string);
     },
     accepts: [FieldType.String],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
 };

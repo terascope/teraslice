@@ -3,8 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    FunctionDefinitionType
 } from '../interfaces';
 
 export interface TrimArgs {
@@ -26,15 +25,5 @@ export const trimConfig: FieldTransformConfig<TrimArgs> = {
             array: false,
             description: 'The characters to remove, defaults to whitespace'
         }
-    },
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
     }
 };

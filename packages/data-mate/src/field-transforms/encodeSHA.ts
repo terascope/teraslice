@@ -21,14 +21,27 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
         return (input: unknown) => encodeBase(input, hash, digest as BinaryToTextEncoding);
     },
     accepts: [],
+    argument_schema: {
+        hash: {
+            type: FieldType.String,
+            array: false,
+            description: 'Which has hashing algorithm to use, defaults to sha256'
+        },
+        digest: {
+            type: FieldType.String,
+            array: false,
+            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+        }
+    },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
+        const { field_config, child_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
                 type: FieldType.String
             },
+            child_config
         };
     }
 };

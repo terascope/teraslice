@@ -4,7 +4,6 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 function _toLowerCase(input: unknown): string {
@@ -22,16 +21,5 @@ export const toLowerCaseConfig: FieldTransformConfig = {
     create() {
         return _toLowerCase;
     },
-    accepts: [FieldType.String],
-    // TODO: fix this
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
+    accepts: [FieldType.String]
 };

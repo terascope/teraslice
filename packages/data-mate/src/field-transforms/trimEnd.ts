@@ -4,7 +4,6 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 export interface TrimEndArgs {
@@ -27,14 +26,4 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
             description: 'The characters to remove, defaults to whitespace'
         }
     },
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
 };
