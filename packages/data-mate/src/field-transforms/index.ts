@@ -13,6 +13,7 @@ import { trimConfig } from './trim';
 import { trimStartConfig } from './trimStart';
 import { trimEndConfig } from './trimEnd';
 import { decodeHexConfig } from './decodeHex';
+import { incrementConfig } from './increment';
 
 export const fieldTransformsRepository = {
     toUpperCase: toUpperCaseConfig,
@@ -29,5 +30,6 @@ export const fieldTransformsRepository = {
     trimStart: trimStartConfig,
     trimEnd: trimEndConfig,
     decodeHex: decodeHexConfig,
-    decrement: decrementConfig
+    decrement: decrementConfig,
+    increment: incrementConfig,
 };

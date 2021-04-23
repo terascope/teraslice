@@ -48,9 +48,9 @@ export const incrementConfig: FieldTransformConfig<IncrementArgs> = {
 };
 
 function add(num: number, by: number) {
-    return num - by;
+    return num + by;
 }
 
 function addBigInt(num: bigint, by: bigint) {
-    return num - by;
+    return num + by;
 }
