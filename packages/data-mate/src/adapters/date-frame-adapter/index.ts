@@ -133,6 +133,7 @@ function transformColumnData(
         output,
         fn: transformFn
     };
+
     // TODO: consider if we should move mapVector logic here
     return new Column(
         mapVector(

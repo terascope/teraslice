@@ -1,11 +1,10 @@
 import 'jest-extended';
 import {
-    FieldType, DataTypeConfig, Maybe
+    FieldType, DataTypeFields, Maybe
 } from '@terascope/types';
-import { LATEST_VERSION } from '@terascope/data-types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dateFrameAdapter
 } from '../../src';
 
 const toJSONConfig = functionConfigRepository.toJSON;
@@ -35,20 +34,6 @@ describe('toJSONConfig', () => {
     });
 
     describe('can work with dataFrameAdapter', () => {
-        const field = 'someField';
-
-        const frameTestConfig: DataTypeConfig = {
-            version: LATEST_VERSION,
-            fields: {
-                [field]: {
-                    type: FieldType.String
-                },
-                num: {
-                    type: FieldType.Long
-                }
-            }
-        };
-
         it('should be able to transform a column of Long Values using toJSON', () => {
             const multiplier = BigInt(20);
             const values: Maybe<bigint>[] = [
@@ -73,8 +58,14 @@ describe('toJSONConfig', () => {
             ]);
         });
 
-        fit('should be able to transform a column of array values using toJSON', () => {
-            const values: Maybe<boolean[]>[] = [[true, false], [false], undefined, [true, true, true]];
+        it('should be able to transform a column of array values using toJSON', () => {
+            const values: Maybe<boolean[]>[] = [
+                [true, false],
+                [false],
+                undefined,
+                [true, true, true]
+            ];
+
             const col = Column.fromJSON<boolean[]>('myBool', {
                 type: FieldType.Boolean,
                 array: true
@@ -82,15 +73,52 @@ describe('toJSONConfig', () => {
             const api = dateFrameAdapter(toJSONConfig);
             const newCol = api.column(col);
 
+            const { type, array } = newCol.config;
+
+            expect(type).toEqual(FieldType.String);
+            expect(array).toBeFalsy();
+
             expect(newCol.toJSON()).toEqual([
-                '1208925819614629174706175',
-                '278218429446951548637196400',
-                '37589973457545958193355600',
+                '[true,false]',
+                '[false]',
                 undefined,
-                '3833759992447475122175',
+                '[true,true,true]'
             ]);
         });
 
-        it.todo('should be able to transform a dataFrame using toJSON');
+        it('should be able to transforms a column of objects, and deal with child_configs', () => {
+            const frameTestChildConfig: DataTypeFields = {
+                foo: {
+                    type: FieldType.String
+                },
+                num: {
+                    type: FieldType.Number
+                }
+            };
+
+            const values = [
+                { foo: 'bar', num: 3 },
+                { foo: 'baz' },
+                null,
+                { num: 938383 }
+            ];
+            const expectedValues = values.map((obj: unknown) => {
+                if (obj) return JSON.stringify(obj);
+                return;
+            });
+            const col = Column.fromJSON('myObj', {
+                type: FieldType.Object,
+            }, values, 1, frameTestChildConfig);
+
+            const api = dateFrameAdapter(toJSONConfig);
+            const newCol = api.column(col);
+
+            const { type, array } = newCol.config;
+
+            expect(type).toEqual(FieldType.String);
+            expect(array).toBeFalsy();
+
+            expect(newCol.toJSON()).toEqual(expectedValues);
+        });
     });
 });

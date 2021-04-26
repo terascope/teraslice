@@ -24,13 +24,11 @@ export const toJSONConfig: FieldTransformConfig = {
         };
     },
     accepts: [],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
+    output_type(_inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         return {
             field_config: {
-                ...field_config,
-                type: FieldType.String
+                type: FieldType.String,
+                array: false
             },
         };
     }
