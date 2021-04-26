@@ -474,17 +474,18 @@ export function toLowerCase(input: StringInput, _parentContext?: unknown): strin
  */
 
 export function trim(
-    input: StringInput
+    input: StringInput, parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
     if (ts.isNil(input)) return null;
+    const char: string = (args?.char && isString(args.char)) ? args.char : ' ';
 
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            .map((str: string) => ts.trim(str));
+            .map((str: string) => ts.trim(str, char));
     }
 
-    return ts.trim(input);
+    return ts.trim(input, char);
 }
 
 /**
@@ -504,19 +505,20 @@ export function trim(
  */
 
 export function trimStart(
-    input: StringInput
+    input: StringInput, _parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
     if (ts.isNil(input)) return null;
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            .map((str: any) => ts.trimStart(str));
+            .map((str: any) => ts.trimStart(str, args?.char));
     }
 
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
 
-    return ts.trimStart(input);
+    return ts.trimStart(input, args?.char);
 }
 
 /**
@@ -535,19 +537,20 @@ export function trimStart(
  */
 
 export function trimEnd(
-    input: StringInput
+    input: StringInput, _parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
     if (ts.isNil(input)) return null;
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            .map((str: any) => ts.trimEnd(str));
+            .map((str: any) => ts.trimEnd(str, args?.char));
     }
 
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
 
-    return ts.trimEnd(input);
+    return ts.trimEnd(input, args?.char);
 }
 
 /**

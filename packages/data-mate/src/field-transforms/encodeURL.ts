@@ -16,13 +16,14 @@ export const encodeURLConfig: FieldTransformConfig = {
     },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
+        const { field_config, child_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
                 type: FieldType.String
             },
+            child_config
         };
     }
 };

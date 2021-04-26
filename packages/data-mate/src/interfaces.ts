@@ -81,7 +81,6 @@ export interface FieldValidateConfig<
     create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
-        outputConfig?: DataTypeFieldAndChildren,
     ) => (value: unknown) => boolean
 }
 

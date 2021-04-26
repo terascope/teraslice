@@ -1,10 +1,11 @@
-import { trimStart } from '@terascope/utils';
+import {
+    isNotNil, isString, trimStart, getTypeOf
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 export interface TrimStartArgs {
@@ -27,14 +28,9 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
             description: 'The characters to remove, defaults to whitespace'
         }
     },
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
+    validate_arguments({ chars } = {}) {
+        if (isNotNil(chars) && !isString(chars)) {
+            throw new Error(`Invalid parameter chars, if provided it must be of type string, got ${getTypeOf(chars)}`);
+        }
     }
 };

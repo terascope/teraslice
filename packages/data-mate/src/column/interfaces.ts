@@ -1,5 +1,6 @@
 import {
-    DataTypeFieldConfig, DataTypeVersion, Maybe, ReadonlyDataTypeFields,
+    DataTypeFieldConfig, DataTypeVersion, Maybe,
+    ReadonlyDataTypeFields
 } from '@terascope/types';
 
 /**
@@ -46,15 +47,12 @@ export type ColumnTransformFn<
     R,
 > = {
     mode: TransformMode.EACH;
-    output?: Partial<DataTypeFieldConfig>;
     fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>;
 }|{
     mode: TransformMode.EACH_VALUE;
-    output?: Partial<DataTypeFieldConfig>;
     fn: (value: T) => Maybe<R>;
 }|{
     mode: TransformMode.NONE;
-    output?: Partial<DataTypeFieldConfig>;
 };
 
 /**

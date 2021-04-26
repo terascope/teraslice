@@ -7,7 +7,7 @@ import {
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
-    FieldValidateConfig, FunctionDefinitions, isFieldOperation
+    FieldValidateConfig, FunctionDefinitions, isFieldOperation, DataTypeFieldAndChildren
 } from '../../interfaces';
 
 import {
@@ -17,8 +17,6 @@ import {
 import {
     VectorType,
 } from '../../vector/interfaces';
-
-// @TODO: fix this
 
 const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
     [FieldType.String]: VectorType.String,
@@ -40,8 +38,8 @@ const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
     [FieldType.Byte]: VectorType.Int,
     [FieldType.Short]: VectorType.Int,
     [FieldType.Integer]: VectorType.Int,
-    [FieldType.Long]: VectorType.Boolean,
-    [FieldType.Double]: VectorType.Boolean,
+    [FieldType.Long]: VectorType.BigInt,
+    [FieldType.Double]: VectorType.BigInt,
     [FieldType.GeoJSON]: VectorType.GeoJSON,
     [FieldType.GeoPoint]: VectorType.GeoPoint,
     [FieldType.Boundary]: VectorType.GeoPoint,
@@ -98,17 +96,24 @@ function transformColumnData(
         getVectorType(transformConfig.accepts),
         column.vector
     );
+
     const mode = getMode(transformConfig);
-    let output: DataTypeFieldConfig;
+
+    let inputConfig: DataTypeFieldAndChildren;
 
     if (transformConfig.output_type) {
-        // TODO: do I really need this outputConfig in create()
-        const outputConfig = transformConfig.output_type(
-            { field_config: { type: FieldType.String } }
+        inputConfig = transformConfig.output_type(
+            {
+                field_config: column.config,
+                child_config: column.vector.childConfig
+            },
+            args
         );
-        output = outputConfig.field_config;
     } else {
-        output = column.config;
+        inputConfig = {
+            field_config: column.config,
+            child_config: column.vector.childConfig
+        };
     }
 
     const options: ColumnOptions = {
@@ -117,20 +122,22 @@ function transformColumnData(
     };
 
     const transformFn = transformConfig.create(
-        { ...args }
+        { ...args },
+        inputConfig
     );
 
+    // TODO: does output that only has DateFieldTypes enough, will it need more?
     const columnTransformConfig: ColumnTransformFn<unknown, unknown> = {
         mode,
-        output,
         fn: transformFn
     };
+
     // TODO: consider if we should move mapVector logic here
     return new Column(
         mapVector(
             column.vector,
             columnTransformConfig,
-            output,
+            inputConfig,
         ),
         options
     );
@@ -146,20 +153,24 @@ function validateColumnData(
         column.vector
     );
     const mode = getMode(validationConfig);
-    const output = column.config;
 
     const options: ColumnOptions = {
         name: column.name,
         version: column.version,
     };
 
+    const inputConfig = {
+        field_config: column.config,
+        child_config: column.vector.childConfig
+    };
+
     const validatorFn = validationConfig.create(
-        { ...args }
+        { ...args },
+        inputConfig
     );
 
     const columnValidationConfig: ColumnTransformFn<unknown, unknown> = {
         mode,
-        output,
         fn: validatorFn
     };
 
@@ -178,7 +189,7 @@ function validateColumnData(
         mapVector(
             column.vector,
             transform,
-            output,
+            inputConfig,
         ),
         options
     );

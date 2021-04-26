@@ -8,14 +8,14 @@ import {
     isGeoPoint,
     isObjectEntity,
     isIP,
-    joinList, getTypeOf, isEmpty,
+    joinList, getTypeOf, isEmpty, isBigInt,
+    isArray,
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
     FunctionDefinitions,
 } from '../../interfaces';
 
-// TODO: what about bigint?
 // TODO: migrate IPRange to IP?
 function getType(
     argFieldType: DataTypeFieldConfig,
@@ -42,12 +42,13 @@ function getType(
             return isBoolean;
         case FieldType.Float:
         case FieldType.Number:
-        case FieldType.Double:
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-        case FieldType.Long:
             return isNumber;
+        case FieldType.Long:
+        case FieldType.Double:
+            return (input) => isBigInt(input) || isNumber(input);
         case FieldType.Geo:
         case FieldType.GeoPoint:
         case FieldType.Boundary:
@@ -57,15 +58,11 @@ function getType(
         case FieldType.Object:
             return isObjectEntity;
         case FieldType.Tuple:
-            return isNumberTuple;
+            return isArray;
         default:
             // equivalent to an any-builder
             return () => true;
     }
-}
-
-function isNumberTuple(input: unknown): boolean {
-    return Array.isArray(input) && input.length === 2;
 }
 
 function isEmptyLike(input: unknown): boolean {

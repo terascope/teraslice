@@ -11,23 +11,31 @@ export interface EncodeSHA1Config {
     digest?: string;
 }
 
-export const encodeSHAConfig: FieldTransformConfig<EncodeSHA1Config> = {
-    name: 'encodeSHA',
+export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
+    name: 'encodeSHA1',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts to a SHA encoded value',
+    description: 'Converts to a SHA1 encoded value',
     create({ digest = 'hex' } = {}) {
         return (input: unknown) => encodeBase(input, digest as BinaryToTextEncoding);
     },
     accepts: [],
+    argument_schema: {
+        digest: {
+            type: FieldType.String,
+            array: false,
+            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+        }
+    },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
+        const { field_config, child_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
                 type: FieldType.String
             },
+            child_config
         };
     }
 };
