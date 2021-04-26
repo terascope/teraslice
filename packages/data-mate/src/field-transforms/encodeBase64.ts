@@ -16,13 +16,14 @@ export const encodeBase64Config: FieldTransformConfig = {
     },
     accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
+        const { field_config, child_config } = inputConfig;
+        // NOTE: encoding might need to mutate child_config
         return {
             field_config: {
                 ...field_config,
                 type: FieldType.String
             },
+            child_config
         };
     }
 };

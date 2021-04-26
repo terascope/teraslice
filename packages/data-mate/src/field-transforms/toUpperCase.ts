@@ -4,7 +4,6 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 function _toUpperCase(input: unknown): string {
@@ -23,14 +22,4 @@ export const toUpperCaseConfig: FieldTransformConfig = {
         return _toUpperCase;
     },
     accepts: [FieldType.String],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
 };

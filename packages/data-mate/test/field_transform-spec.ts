@@ -131,67 +131,67 @@ describe('field FieldTransforms', () => {
         });
     });
 
-    // describe('trim should', () => {
-    //     it('trim left and right spaces from a string', () => {
-    //         expect(FieldTransform.trim('   string    ')).toBe('string');
-    //         expect(FieldTransform.trim('   left')).toBe('left');
-    //         expect(FieldTransform.trim('right    ')).toBe('right');
-    //         expect(FieldTransform.trim('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race ');
-    //         expect(FieldTransform.trim('.*.*a regex test.*.*.*.* stuff', {}, { char: '.*' })).toBe('a regex test');
-    //         expect(FieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' })).toBe('trim this');
-    //         expect(FieldTransform.trim('        ')).toBe('');
-    //     });
+    describe('trim should', () => {
+        it('trim left and right spaces from a string', () => {
+            expect(FieldTransform.trim('   string    ')).toBe('string');
+            expect(FieldTransform.trim('   left')).toBe('left');
+            expect(FieldTransform.trim('right    ')).toBe('right');
+            expect(FieldTransform.trim('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race ');
+            expect(FieldTransform.trim('.*.*a regex test.*.*.*.* stuff', {}, { char: '.*' })).toBe('a regex test');
+            expect(FieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' })).toBe('trim this');
+            expect(FieldTransform.trim('        ')).toBe('');
+        });
 
-    //     it('should return the string if char is not found', () => {
-    //         expect(FieldTransform.trim('this is a string', {}, { char: 'b' })).toBe('this is a string');
-    //     });
+        it('should return the string if char is not found', () => {
+            expect(FieldTransform.trim('this is a string', {}, { char: 'b' })).toBe('this is a string');
+        });
 
-    //     it('trims an array of values, ignores undefined/null', () => {
-    //         expect(FieldTransform.trim(['   string    ', undefined, 'right    '] as any)).toEqual(['string', 'right']);
-    //     });
-    // });
+        it('trims an array of values, ignores undefined/null', () => {
+            expect(FieldTransform.trim(['   string    ', undefined, 'right    '] as any)).toEqual(['string', 'right']);
+        });
+    });
 
-    // describe('trimStart should', () => {
-    //     it('should return the string trimmed from the start', () => {
-    //         expect(FieldTransform.trimStart('thisisastring', {}, { char: 's' })).toBe('isastring');
-    //         expect(FieldTransform.trimStart('thisisastring', {}, { char: 'isa' })).toBe('string');
-    //         expect(FieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
-    //         expect(FieldTransform.trimStart('iiii-wordiwords-iii', {}, { char: 'i' })).toBe('-wordiwords-iii');
-    //         expect(FieldTransform.trimStart('__--__--__some__--__word', {}, { char: '__--' })).toBe('__some__--__word');
-    //         expect(FieldTransform.trimStart('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race fast');
-    //         expect(FieldTransform.trimStart('        ')).toBe('');
-    //         expect(FieldTransform.trimStart('start    ')).toBe('start    ');
-    //         expect(FieldTransform.trimStart('     start')).toBe('start');
-    //     });
+    describe('trimStart should', () => {
+        it('should return the string trimmed from the start', () => {
+            expect(FieldTransform.trimStart('thisisastring', {}, { char: 's' })).toBe('isastring');
+            expect(FieldTransform.trimStart('thisisastring', {}, { char: 'isa' })).toBe('string');
+            expect(FieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
+            expect(FieldTransform.trimStart('iiii-wordiwords-iii', {}, { char: 'i' })).toBe('-wordiwords-iii');
+            expect(FieldTransform.trimStart('__--__--__some__--__word', {}, { char: '__--' })).toBe('__some__--__word');
+            expect(FieldTransform.trimStart('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race fast');
+            expect(FieldTransform.trimStart('        ')).toBe('');
+            expect(FieldTransform.trimStart('start    ')).toBe('start    ');
+            expect(FieldTransform.trimStart('     start')).toBe('start');
+        });
 
-    //     it('should return the string if char is not found', () => {
-    //         expect(FieldTransform.trimStart('this is a string', {}, { char: 'b' })).toBe('this is a string');
-    //     });
+        it('should return the string if char is not found', () => {
+            expect(FieldTransform.trimStart('this is a string', {}, { char: 'b' })).toBe('this is a string');
+        });
 
-    //     it('trims an array of values at start, ignores undefined/null', () => {
-    //         expect(FieldTransform.trimStart(['    Hello Bob    ', undefined, '     start'] as any)).toEqual(['Hello Bob    ', 'start']);
-    //     });
-    // });
+        it('trims an array of values at start, ignores undefined/null', () => {
+            expect(FieldTransform.trimStart(['    Hello Bob    ', undefined, '     start'] as any)).toEqual(['Hello Bob    ', 'start']);
+        });
+    });
 
-    // describe('trimEnd should', () => {
-    //     it('should return the string trimmed from the end', () => {
-    //         expect(FieldTransform.trimEnd('this is a string', {}, { char: 's' })).toBe('this is a ');
-    //         expect(FieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
-    //         expect(FieldTransform.trimEnd('*****Hello****Bob*****', {}, { char: '*' })).toBe('*****Hello****Bob');
-    //         expect(FieldTransform.trimEnd('fast cars race fast', {}, { char: 'fast' })).toBe('fast cars race ');
-    //         expect(FieldTransform.trimEnd('        ')).toBe('');
-    //         expect(FieldTransform.trimEnd('    end')).toBe('    end');
-    //         expect(FieldTransform.trimEnd('end    ')).toBe('end');
-    //     });
+    describe('trimEnd should', () => {
+        it('should return the string trimmed from the end', () => {
+            expect(FieldTransform.trimEnd('this is a string', {}, { char: 's' })).toBe('this is a ');
+            expect(FieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
+            expect(FieldTransform.trimEnd('*****Hello****Bob*****', {}, { char: '*' })).toBe('*****Hello****Bob');
+            expect(FieldTransform.trimEnd('fast cars race fast', {}, { char: 'fast' })).toBe('fast cars race ');
+            expect(FieldTransform.trimEnd('        ')).toBe('');
+            expect(FieldTransform.trimEnd('    end')).toBe('    end');
+            expect(FieldTransform.trimEnd('end    ')).toBe('end');
+        });
 
-    //     it('should return the string if char is not found', () => {
-    //         expect(FieldTransform.trimEnd('this is a string', {}, { char: 'b' })).toBe('this is a string');
-    //     });
+        it('should return the string if char is not found', () => {
+            expect(FieldTransform.trimEnd('this is a string', {}, { char: 'b' })).toBe('this is a string');
+        });
 
-    //     it('trims an array of values at end, ignores undefined/null', () => {
-    //         expect(FieldTransform.trimEnd(['    Hello Bob    ', undefined, 'end    '] as any)).toEqual(['    Hello Bob', 'end']);
-    //     });
-    // });
+        it('trims an array of values at end, ignores undefined/null', () => {
+            expect(FieldTransform.trimEnd(['    Hello Bob    ', undefined, 'end    '] as any)).toEqual(['    Hello Bob', 'end']);
+        });
+    });
 
     describe('truncate should', () => {
         it('return string of designated length', () => {

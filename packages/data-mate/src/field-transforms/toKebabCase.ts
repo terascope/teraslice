@@ -4,7 +4,6 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
 } from '../interfaces';
 
 export const toKebabCaseConfig: FieldTransformConfig = {
@@ -16,15 +15,5 @@ export const toKebabCaseConfig: FieldTransformConfig = {
         // toKebabCase handles cases input is not string
         return (input: unknown) => toKebabCase(input as string);
     },
-    accepts: [FieldType.String],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
+    accepts: [FieldType.String]
 };

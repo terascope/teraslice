@@ -15,18 +15,14 @@ export const toBooleanConfig: FieldTransformConfig = {
     create() {
         return toBoolean;
     },
-    accepts: [
-        FieldType.Boolean,
-        FieldType.Number,
-        FieldType.String,
-    ],
+    accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.String
+                type: FieldType.Boolean
             },
         };
     }

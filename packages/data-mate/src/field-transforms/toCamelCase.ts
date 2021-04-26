@@ -3,8 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    FunctionDefinitionType
 } from '../interfaces';
 
 export const toCamelCaseConfig: FieldTransformConfig = {
@@ -17,14 +16,4 @@ export const toCamelCaseConfig: FieldTransformConfig = {
         return (input: unknown) => toCamelCase(input as string);
     },
     accepts: [FieldType.String],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
 };

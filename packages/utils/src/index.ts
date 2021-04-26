@@ -23,6 +23,7 @@ export * from './json';
 export * from './logger';
 export * from './numbers';
 export * from './objects';
+export * from './phone-number';
 export * from './promises';
 export * from './regex';
 export * from './queue';

@@ -1,4 +1,4 @@
-import { toString } from '@terascope/utils';
+import { parsePhoneNumber } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,16 +7,24 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export const decodeBase64Config: FieldTransformConfig = {
-    name: 'decodeBase64',
+export const toISDNConfig: FieldTransformConfig = {
+    name: 'toISDN',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts a base64 hash back to its value',
+    description: 'Parses a string or number to a fully validated phone number',
     create() {
-        // @ts-expect-error
         return (input: unknown) => parsePhoneNumber(input as string);
     },
-    accepts: [FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.String,
+        FieldType.Number,
+        FieldType.Byte,
+        FieldType.Short,
+        FieldType.Integer,
+        FieldType.Float,
+        FieldType.Long,
+        FieldType.Double
+    ],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 
@@ -24,23 +32,7 @@ export const decodeBase64Config: FieldTransformConfig = {
             field_config: {
                 ...field_config,
                 type: FieldType.String
-            },
+            }
         };
     }
 };
-
-// import PhoneValidator from 'awesome-phonenumber';
-
-
-// function parsePhoneNumber(str: any) {
-//     let testNumber = toString(str).trim();
-//     if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
-
-//     // needs to start with a +
-//     if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
-
-//     const fullNumber = new PhoneValidator(testNumber).getNumber();
-//     if (fullNumber) return String(fullNumber).slice(1);
-
-//     throw Error('Could not determine the incoming phone number');
-// }

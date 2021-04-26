@@ -4,7 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+
 } from '../interfaces';
 
 export const toPascalCaseConfig: FieldTransformConfig = {
@@ -16,15 +16,5 @@ export const toPascalCaseConfig: FieldTransformConfig = {
         // toPascalCase handles cases input is not string
         return (input: unknown) => toPascalCase(input as string);
     },
-    accepts: [FieldType.String],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config } = inputConfig;
-
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.String
-            },
-        };
-    }
+    accepts: [FieldType.String]
 };

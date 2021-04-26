@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { isArrayLike, joinList, toString } from '@terascope/utils';
 import {
-    DataTypeFieldConfig, DataTypeFields, Maybe
+    DataTypeFields, Maybe
 } from '@terascope/types';
 import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
 import {
@@ -10,6 +10,7 @@ import {
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 import { WritableData } from '../core';
+import { DataTypeFieldAndChildren } from '../interfaces';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -26,13 +27,14 @@ export function getVectorId(vector: Vector<any>): string {
 export function mapVector<T, R = T>(
     vector: Vector<T>,
     transform: ColumnTransformFn<T, R>,
-    config?: Partial<DataTypeFieldConfig>,
+    config: DataTypeFieldAndChildren,
 ): Vector<R> {
+    const { field_config, child_config: childConfig = {} } = config;
     const builder = Builder.make<R>(
         new WritableData(vector.size),
         {
-            childConfig: vector.childConfig,
-            config: { ...vector.config, ...config, ...transform.output },
+            childConfig,
+            config: { ...vector.config, ...field_config, },
             name: vector.name,
         },
     );
