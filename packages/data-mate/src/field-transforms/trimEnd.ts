@@ -1,4 +1,6 @@
-import { trimEnd } from '@terascope/utils';
+import {
+    trimEnd, isNotNil, isString, getTypeOf
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -26,4 +28,9 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
             description: 'The characters to remove, defaults to whitespace'
         }
     },
+    validate_arguments({ chars } = {}) {
+        if (isNotNil(chars) && !isString(chars)) {
+            throw new Error(`Invalid parameter chars, if provided it must be of type string, got ${getTypeOf(chars)}`);
+        }
+    }
 };

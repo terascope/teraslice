@@ -120,7 +120,6 @@ function transformColumnData(
         name: column.name,
         version: column.version,
     };
-    const output = inputConfig.field_config;
 
     const transformFn = transformConfig.create(
         { ...args },
@@ -130,7 +129,6 @@ function transformColumnData(
     // TODO: does output that only has DateFieldTypes enough, will it need more?
     const columnTransformConfig: ColumnTransformFn<unknown, unknown> = {
         mode,
-        output,
         fn: transformFn
     };
 
@@ -139,7 +137,7 @@ function transformColumnData(
         mapVector(
             column.vector,
             columnTransformConfig,
-            output,
+            inputConfig,
         ),
         options
     );
@@ -155,7 +153,6 @@ function validateColumnData(
         column.vector
     );
     const mode = getMode(validationConfig);
-    const output = column.config;
 
     const options: ColumnOptions = {
         name: column.name,
@@ -174,7 +171,6 @@ function validateColumnData(
 
     const columnValidationConfig: ColumnTransformFn<unknown, unknown> = {
         mode,
-        output,
         fn: validatorFn
     };
 
@@ -193,7 +189,7 @@ function validateColumnData(
         mapVector(
             column.vector,
             transform,
-            output,
+            inputConfig,
         ),
         options
     );

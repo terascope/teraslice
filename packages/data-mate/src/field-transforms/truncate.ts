@@ -1,4 +1,4 @@
-import { isNil, truncate } from '@terascope/utils';
+import { truncate } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -29,7 +29,7 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     },
     validate_arguments(args) {
         if (args.size <= 0) {
-            throw new Error(`Invalid parameter size, expected a positive integer, got ${args.size}`)
+            throw new Error(`Invalid parameter size, expected a positive integer, got ${args.size}`);
         }
     }
 };

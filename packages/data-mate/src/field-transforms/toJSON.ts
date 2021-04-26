@@ -11,7 +11,7 @@ export const toJSONConfig: FieldTransformConfig = {
     name: 'toJSON',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
-    description: 'converts input to JSON',
+    description: 'converts whole input to JSON format',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

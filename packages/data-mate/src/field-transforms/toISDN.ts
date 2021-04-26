@@ -15,16 +15,24 @@ export const toISDNConfig: FieldTransformConfig = {
     create() {
         return (input: unknown) => parsePhoneNumber(input as string);
     },
-    accepts: [FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.String,
+        FieldType.Number,
+        FieldType.Byte,
+        FieldType.Short,
+        FieldType.Integer,
+        FieldType.Float,
+        FieldType.Long,
+        FieldType.Double
+    ],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config, child_config } = inputConfig;
+        const { field_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
                 type: FieldType.String
-            },
-            child_config
+            }
         };
     }
 };
