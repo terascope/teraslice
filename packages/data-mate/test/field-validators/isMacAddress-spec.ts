@@ -45,7 +45,7 @@ describe('isHashConfig', () => {
 
         values.forEach(([val, delimiter]) => {
             const isMacAddress = isMacAddressConfig.create({ delimiter });
-    
+
             expect(isMacAddress(val)).toEqual(true);
         });
     });
@@ -58,7 +58,7 @@ describe('isHashConfig', () => {
 
         values.forEach(([val, delimiter]) => {
             const isMacAddress = isMacAddressConfig.create({ delimiter });
-    
+
             expect(isMacAddress(val)).toEqual(false);
         });
     });
@@ -66,7 +66,7 @@ describe('isHashConfig', () => {
     describe('when paired with fieldFunctionAdapter', () => {
         it('should return a function to execute', () => {
             const api = functionAdapter(isMacAddressConfig, { args: { delimiter: 'colon' } });
-    
+
             expect(api).toBeDefined();
             expect(api).toHaveProperty('rows');
             expect(api).toHaveProperty('column');
@@ -83,7 +83,7 @@ describe('isHashConfig', () => {
         it('should be able to call the fnDef validate_arguments', () => {
             expect(
                 () => functionAdapter(isMacAddressConfig, { args: { delimiter: 'hello' } } as any)
-            ).toThrowError('Invalid mac address delimiter, must be a list of or one of space, colon, dash, dot, none and any')
+            ).toThrowError('Invalid mac address delimiter, must be a list of or one of space, colon, dash, dot, none and any');
         });
     });
 });

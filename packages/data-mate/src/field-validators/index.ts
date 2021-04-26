@@ -1,10 +1,17 @@
 import { isBooleanConfig } from './isBoolean';
 import { isHashConfig } from './isHash';
-import { isStringConfig } from './isString'; 
+import { isStringConfig } from './isString';
 import { isEmailConfig } from './isEmail';
 import { isEmptyConfig } from './isEmpty';
 import { isLengthConfig } from './isLength';
-import { isMACAddress } from './isMacAddress';
+import { isMACAddressConfig } from './isMacAddress';
+import { isUrlConfig } from './isUrl';
+import { isUUIDConfig } from './isUUID';
+import { isBase64Config } from './isBase64';
+import { containsConfig } from './contains';
+import { equalsConfig } from './equals';
+import { isFQDNConfig } from './isFQDN';
+import { isCountryCodeConfig } from './isCountryCode';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
@@ -13,5 +20,12 @@ export const fieldValidationRepository = {
     isEmail: isEmailConfig,
     isEmpty: isEmptyConfig,
     isLength: isLengthConfig,
-    isMacAddress: isMACAddress
+    isMacAddress: isMACAddressConfig,
+    isUrl: isUrlConfig,
+    isUUID: isUUIDConfig,
+    isBase64: isBase64Config,
+    isFQDN: isFQDNConfig,
+    isCountryCode: isCountryCodeConfig,
+    contains: containsConfig,
+    equals: equalsConfig
 } as const;

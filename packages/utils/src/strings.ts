@@ -1,10 +1,11 @@
+import validator from 'validator';
 import {
     trim as lTrim,
     trimEnd as lTrimEnd,
     trimStart as lTrimStart
 } from 'lodash';
 import { MACDelimiter } from '@terascope/types';
-import { isArrayLike } from './arrays';
+import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
 
 /** A simplified implementation of lodash isString */
@@ -466,6 +467,41 @@ export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
     return function _isMacAddressFP(input: unknown): input is string {
         return isMacAddress(input, args);
     };
+}
+
+export function isUrl(input: unknown): boolean {
+    return isString(input) && validator.isURL(input);
+}
+
+export function isUUID(input: unknown): boolean {
+    return isString(input) && validator.isUUID(input);
+}
+
+export function contains(input: unknown, substring: string): boolean {
+    return isString(input) && includes(input, substring);
+}
+
+export function isBase64(input: unknown): boolean {
+    if (!isString(input)) return false;
+
+    const validatorValid = validator.isBase64(input);
+
+    if (validatorValid) {
+        const decode = Buffer.from(input, 'base64').toString('utf8');
+        const encode = Buffer.from(decode, 'utf8').toString('base64');
+
+        return input === encode;
+    }
+
+    return false;
+}
+
+export function isFQDN(input: unknown): boolean {
+    return isString(input) && validator.isFQDN(input);
+}
+
+export function isCountryCode(input: unknown): boolean {
+    return isString(input) && validator.isISO31661Alpha2(input);
 }
 
 /**

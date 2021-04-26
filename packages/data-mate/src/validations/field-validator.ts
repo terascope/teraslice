@@ -810,7 +810,6 @@ export function isInteger(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isString(17.343); // false
  *
  * @param {*} input
- * @returns {boolean} boolean
  */
 
 export function isString(input: unknown, _parentContext?: unknown): input is string {
@@ -1017,7 +1016,7 @@ export function isASCII(input: unknown, _parentContext?: unknown): boolean {
  *
  * @example
  * FieldValidator.isBase64('ZWFzdXJlLg=='); // true
- * FieldValidator.isBase64('not base 64'); // false\
+ * FieldValidator.isBase64('not base 64'); // false\ 
  * FieldValidator.isBase64(['ZWFzdXJlLg==', 'ZWFzdXJlLg==']); // true
  *
  * @param {*} input
