@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { isEmpty } from '@terascope/utils';
+import { toString, isEmpty } from '@terascope/utils';
 import {
     FieldType, DataTypeFields, Maybe
 } from '@terascope/types';
@@ -8,34 +8,34 @@ import {
     ProcessMode, Column, dateFrameAdapter
 } from '../../src';
 
-const toJSONConfig = functionConfigRepository.toJSON;
+const toStringConfig = functionConfigRepository.toString;
 
-describe('toJSONConfig', () => {
+describe('toStringConfig', () => {
     const originalValues = [true, 'chilly', 1234123, { hello: 'world' }];
     const testValues = originalValues
-        .map((val) => JSON.stringify(val));
+        .map((val) => toString(val));
 
     it('has proper configuration', () => {
-        expect(toJSONConfig).toBeDefined();
-        expect(toJSONConfig).toHaveProperty('name', 'toJSON');
-        expect(toJSONConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
-        expect(toJSONConfig).toHaveProperty('process_mode', ProcessMode.FULL_VALUES);
-        expect(toJSONConfig).toHaveProperty('description');
-        expect(toJSONConfig).toHaveProperty('accepts', []);
-        expect(toJSONConfig).toHaveProperty('create');
-        expect(toJSONConfig.create).toBeFunction();
+        expect(toStringConfig).toBeDefined();
+        expect(toStringConfig).toHaveProperty('name', 'toString');
+        expect(toStringConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
+        expect(toStringConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(toStringConfig).toHaveProperty('description');
+        expect(toStringConfig).toHaveProperty('accepts', []);
+        expect(toStringConfig).toHaveProperty('create');
+        expect(toStringConfig.create).toBeFunction();
     });
 
-    it('can convert values to JSON', () => {
-        const toJSON = toJSONConfig.create({});
+    it('can values to string', () => {
+        const toStringFn = toStringConfig.create({});
 
         originalValues.forEach((val, ind) => {
-            expect(toJSON(val)).toEqual(testValues[ind]);
+            expect(toStringFn(val)).toEqual(testValues[ind]);
         });
     });
 
     describe('can work with dataFrameAdapter', () => {
-        it('should be able to transform a column of Long Values using toJSON', () => {
+        it('should be able to transform a column of Long Values using toString', () => {
             const multiplier = BigInt(20);
             const values: Maybe<bigint>[] = [
                 BigInt(16) ** multiplier,
@@ -47,7 +47,7 @@ describe('toJSONConfig', () => {
             const col = Column.fromJSON<bigint>('score', {
                 type: FieldType.Long,
             }, values);
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dateFrameAdapter(toStringConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -59,7 +59,7 @@ describe('toJSONConfig', () => {
             ]);
         });
 
-        it('should be able to transform a column of array values using toJSON', () => {
+        it('should be able to transform a column of array values using toString', () => {
             const values: Maybe<boolean[]>[] = [
                 [true, false],
                 [false],
@@ -71,19 +71,19 @@ describe('toJSONConfig', () => {
                 type: FieldType.Boolean,
                 array: true
             }, values);
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dateFrameAdapter(toStringConfig);
             const newCol = api.column(col);
 
             const { type, array } = newCol.config;
 
             expect(type).toEqual(FieldType.String);
-            expect(array).toBeFalsy();
+            expect(array).toBeTrue();
 
             expect(newCol.toJSON()).toEqual([
-                '[true,false]',
-                '[false]',
+                ['true', 'false'],
+                ['false'],
                 undefined,
-                '[true,true,true]'
+                ['true', 'true', 'true']
             ]);
         });
 
@@ -111,7 +111,7 @@ describe('toJSONConfig', () => {
                 type: FieldType.Object,
             }, values, 1, frameTestChildConfig);
 
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dateFrameAdapter(toStringConfig);
             const newCol = api.column(col);
 
             const { type, array, childConfig } = newCol.config;
