@@ -44,7 +44,7 @@ export const equalsConfig: FieldValidateConfig<IncludesArgs> = {
         value: {
             type: FieldType.Any,
             array: false,
-            description: 'any value'
+            description: 'Value to use in the comparison'
         }
     }
 };
