@@ -4,15 +4,6 @@ import {
 } from './jexl';
 import { FieldTransform, RecordTransform } from './transforms';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame';
-import { fieldValidationRepository } from './field-validators';
-import { fieldTransformsRepository } from './field-transforms';
-import { recordValidationRepository } from './record-validators';
-
-export const functionConfigRepository = {
-    ...fieldValidationRepository,
-    ...fieldTransformsRepository,
-    ...recordValidationRepository
-} as const;
 
 FieldTransform.repository.extract = extractConfig;
 FieldTransform.extract = extract;
@@ -83,4 +74,4 @@ export {
 };
 
 export * from './adapters';
-export * from './field-validators';
+export * from './function-configs';

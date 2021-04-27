@@ -8,7 +8,7 @@ import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, FunctionDefinitions, isFieldOperation, DataTypeFieldAndChildren
-} from '../../interfaces';
+} from '../../function-configs/interfaces';
 
 import {
     TransformMode, ColumnTransformFn

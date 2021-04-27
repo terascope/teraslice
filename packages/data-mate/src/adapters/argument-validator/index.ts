@@ -14,7 +14,7 @@ import {
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
     FunctionDefinitions,
-} from '../../interfaces';
+} from '../../function-configs/interfaces';
 
 // TODO: migrate IPRange to IP?
 function getType(

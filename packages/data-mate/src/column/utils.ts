@@ -10,7 +10,7 @@ import {
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 import { WritableData } from '../core';
-import { DataTypeFieldAndChildren } from '../interfaces';
+import { DataTypeFieldAndChildren } from '../function-configs';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {

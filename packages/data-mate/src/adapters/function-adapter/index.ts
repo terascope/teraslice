@@ -24,7 +24,7 @@ import {
     RecordTransformConfig,
     isRecordValidation,
     ProcessMode
-} from '../../interfaces';
+} from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 
 // @TODO: fix any type
