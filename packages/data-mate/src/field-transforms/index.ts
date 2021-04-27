@@ -11,6 +11,7 @@ import { encodeURLConfig } from './encodeURL';
 import { extractConfig } from './extract';
 import { incrementConfig } from './increment';
 import { parseJSONConfig } from './parseJSON';
+import { reverseConfig } from './reverse';
 import { toBooleanConfig } from './toBoolean';
 import { toCamelCaseConfig } from './toCamelCase';
 import { toGeoPointConfig } from './toGeoPoint';
@@ -42,6 +43,7 @@ export const fieldTransformsRepository = {
     extract: extractConfig,
     increment: incrementConfig,
     parseJSON: parseJSONConfig,
+    reverse: reverseConfig,
     toBoolean: toBooleanConfig,
     toCamelCase: toCamelCaseConfig,
     toGeoPoint: toGeoPointConfig,
