@@ -75,6 +75,7 @@ export class AssetSrc {
 
     async build(): Promise<ZipResults> {
         let zipOutput;
+
         const outputFileName = path.join(this.buildDir, this.zipFileName);
 
         if (await fs.pathExists(outputFileName)) {
@@ -87,6 +88,7 @@ export class AssetSrc {
         } catch (err) {
             throw new Error(`Failed to create directory ${this.buildDir}: ${err}`);
         }
+
         // make temp dir
         const tmpDir = tmp.dirSync();
 
@@ -97,6 +99,10 @@ export class AssetSrc {
 
         const assetJSON = await fs.readJSON(path.join(tmpDir.name, 'asset', 'asset.json'));
 
+        // NOTE: The asset.json for bundled assets sets platform and arch to
+        // false because bundled assets use WASM to avoid node-gyp.  If an asset
+        // included an actual platform specific binary, it use the original
+        // unbundled asset type
         if (!this.devMode) {
             const restrictions:string[] = [];
             if (assetJSON.node_version === undefined) {
@@ -105,12 +111,12 @@ export class AssetSrc {
             }
 
             if (assetJSON.platform === undefined) {
-                assetJSON.platform = process.platform;
+                assetJSON.platform = (this.bundle ? process.platform : false);
                 restrictions.push('platform');
             }
 
             if (assetJSON.arch === undefined) {
-                assetJSON.arch = process.arch;
+                assetJSON.arch = (this.bundle ? process.arch : false);
                 restrictions.push('arch');
             }
             if (restrictions.length && !isCI) {
@@ -122,97 +128,7 @@ export class AssetSrc {
             }
         }
 
-        await fs.writeJSON(path.join(tmpDir.name, 'asset', 'asset.json'), assetJSON, {
-            spaces: 4,
-        });
-
-        // remove srcDir/asset/node_modules
-        await fs.remove(path.join(tmpDir.name, 'asset', 'node_modules'));
-
-        // run yarn --cwd srcDir --prod --silent --no-progress asset:build
-        if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
-            reply.info('* running yarn asset:build');
-            await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
-        }
-
-        if (await fs.pathExists(path.join(tmpDir.name, '.yarnclean'))) {
-            reply.info('* running yarn autoclean --force');
-            await this._yarnCmd(tmpDir.name, ['autoclean', '--force']);
-        }
-
-        // run npm --cwd srcDir/asset --prod --silent --no-progress
-        reply.info('* running yarn --prod --no-progress');
-        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
-
-        // run yarn --cwd srcDir --prod --silent --no-progress asset:post-build
-        if (this.packageJson?.scripts && this.packageJson.scripts['asset:post-build']) {
-            reply.info('* running yarn asset:post-build');
-            await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
-        }
-
-        try {
-            reply.info('* zipping the asset bundle');
-            // create zipfile
-            zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
-            // remove temp directory
-            await fs.remove(tmpDir.name);
-        } catch (err) {
-            throw new TSError(err, {
-                reason: 'Failure creating asset zipfile'
-            });
-        }
-        return zipOutput;
-    }
-
-    async buildBundle(): Promise<ZipResults> {
-        let zipOutput;
-        const outputFileName = path.join(this.buildDir, this.zipFileName);
-
-        if (await fs.pathExists(outputFileName)) {
-            throw new Error(`Zipfile already exists "${outputFileName}"`);
-        }
-
-        try {
-            // make sure the build dir exists in the srcDir directory
-            await fs.ensureDir(this.buildDir);
-        } catch (err) {
-            throw new Error(`Failed to create directory ${this.buildDir}: ${err}`);
-        }
-        // make temp dir
-        const tmpDir = tmp.dirSync();
-
-        reply.info(`* copying files to the tmp directory "${tmpDir.name}"`);
-
-        // copy entire asset dir (srcDir) to tmpdir
-        await fs.copy(this.srcDir, tmpDir.name);
-
-        const assetJSON = await fs.readJSON(path.join(tmpDir.name, 'asset', 'asset.json'));
-
-        if (!this.devMode) {
-            const restrictions:string[] = [];
-            if (assetJSON.node_version === undefined) {
-                assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
-                restrictions.push('node_version');
-            }
-
-            if (assetJSON.platform === undefined) {
-                assetJSON.platform = false;
-                restrictions.push('platform');
-            }
-
-            if (assetJSON.arch === undefined) {
-                assetJSON.arch = false;
-                restrictions.push('arch');
-            }
-            if (restrictions.length && !isCI) {
-                reply.info(
-                    `[NOTE] Automatically added ${restrictions.join(', ')} restrictions for the asset`
-                    + ' Use --dev to temporarily disable this,'
-                    + ` or put false for the values ${restrictions.join(', ')} in the asset.json`
-                );
-            }
-        }
-
+        // write asset.json into tmpDir
         await fs.writeJSON(path.join(tmpDir.name, 'asset', 'asset.json'), assetJSON, {
             spaces: 4,
         });
@@ -238,47 +154,63 @@ export class AssetSrc {
             await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
         }
 
-        const bundleDir = tmp.dirSync();
-        reply.info(`* making tmp bundle directory "${bundleDir.name}"`);
-        // NOTE: `dest` can't be a directory when `src` is a file
-        // https://github.com/jprichardson/node-fs-extra/issues/323
-        // await fs.copy(
-        //     path.join(tmpDir.name, 'asset', 'asset.json'),
-        //     path.join(bundleDir.name, 'asset.json'),
-        // );
+        if (this.bundle) {
+            const bundleDir = tmp.dirSync();
+            reply.info(`* making tmp bundle directory "${bundleDir.name}"`);
 
-        await fs.writeJSON(path.join(bundleDir.name, 'asset.json'), assetJSON, {
-            spaces: 4,
-        });
-
-        // FIXME: This currently assumes that asset/dist/index.js exists, it
-        // will not exist in the following cases:
-        //  * asset was not built from typescript (index.js is elsewhere)
-        //  * many assets don't have a top level index.js (maybe we can require it)
-        const result = await build({
-            bundle: true,
-            entryPoints: [path.join(tmpDir.name, 'asset', 'dist', 'index.js')],
-            outdir: bundleDir.name,
-            platform: 'node',
-            sourcemap: false,
-            target: 'node12.21',
-        });
-
-        if (result.warnings.length > 0) {
-            reply.warning(result.warnings);
-        }
-
-        try {
-            reply.info('* zipping the asset bundle');
-            // create zipfile
-            zipOutput = await AssetSrc.zip(path.join(bundleDir.name), outputFileName);
-            // remove temp directories
-            // await fs.remove(tmpDir.name);
-            // await fs.remove(bundleDir.name);
-        } catch (err) {
-            throw new TSError(err, {
-                reason: 'Failure creating asset zipfile'
+            // write asset.json into bundleDir
+            await fs.writeJSON(path.join(bundleDir.name, 'asset.json'), assetJSON, {
+                spaces: 4,
             });
+
+            // FIXME: This currently assumes that asset/dist/index.js exists, it
+            // will not exist in the following cases:
+            //  * asset was not built from typescript (index.js is elsewhere)
+            //  * many assets don't have a top level index.js (maybe we can require it)
+            const result = await build({
+                bundle: true,
+                entryPoints: [path.join(tmpDir.name, 'asset', 'dist', 'index.js')],
+                outdir: bundleDir.name,
+                platform: 'node',
+                sourcemap: false,
+                // FIXME: target shouldn't be hard coded, it should be driven
+                // by something else
+                target: 'node12.21',
+            });
+
+            // FIXME ... I need to test load the asset here ...
+            // node -p -e "require('./out.js').ASSETS"
+            // const r = await execa('node', ['-p', `"require('${bundleDir.name}/index.js').ASSETS"`]);
+            // console.log(r);
+
+            if (result.warnings.length > 0) {
+                reply.warning(result.warnings);
+            }
+
+            try {
+                reply.info('* zipping the asset bundle');
+                // create zipfile
+                zipOutput = await AssetSrc.zip(path.join(bundleDir.name), outputFileName);
+                // remove temp directories
+                // await fs.remove(tmpDir.name);
+                // await fs.remove(bundleDir.name);
+            } catch (err) {
+                throw new TSError(err, {
+                    reason: 'Failure creating asset zipfile'
+                });
+            }
+        } else {
+            try {
+                reply.info('* zipping the asset bundle');
+                // create zipfile
+                zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
+                // remove temp directory
+                await fs.remove(tmpDir.name);
+            } catch (err) {
+                throw new TSError(err, {
+                    reason: 'Failure creating asset zipfile'
+                });
+            }
         }
         return zipOutput;
     }
