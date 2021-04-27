@@ -20,6 +20,10 @@ import {
     isBase64,
     isFQDN,
     isCountryCode,
+    isAlphaNumeric,
+    isPostalCode,
+    isPort,
+    isMimeType,
     contains,
     trim,
     trimStart,
@@ -363,6 +367,101 @@ describe('String Utils', () => {
             [{ in: 'US' }]
         ])('should return false for non base64 inputs', (input) => {
             expect(isCountryCode(input)).toEqual(false);
+        });
+    });
+
+    describe('isAlphanumeric', () => {
+        test.each([
+            ['example'],
+            ['123456'],
+            ['example123456']
+        ])('should return true for valid alphanumeric inputs and no locale', (input) => {
+           expect(isAlphaNumeric(input)).toEqual(true);
+        });
+    
+        test.each([
+            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl' ]
+        ])('should return true for valid alphanumeric inputs with a locale', (input, locale) => {
+           expect(isAlphaNumeric(input as any, locale as any)).toEqual(true);
+        });
+
+        test.each([
+            ['no_underscores.com'],
+            [true],
+            [123456],
+            [undefined],
+            [{}],
+        ])('should return false for invalid alphanumeric inputs', (input) => {
+            expect(isAlphaNumeric(input)).toEqual(false);
+        });
+
+        test.each([
+            ['ThisiZĄĆĘŚŁ1234', 'en-HK' ]
+        ])('should return false for alphanumeric inputs with incorrect locale', (input, locale) => {
+           expect(isAlphaNumeric(input as any, locale as any)).toEqual(false);
+        });
+    });
+
+    describe('isPostalCode', () => {
+        test.each([
+            ['85249'],
+            [85249],
+            ['75008']
+        ])('should return true for valid postal codes and no locale', (input) => {
+           expect(isPostalCode(input)).toEqual(true);
+        });
+
+        test.each([
+            ['85249', 'US'],
+            ['75008', 'FR'],
+            ['191123', 'RU']
+        ])('should return true for valid postal codes with locale', (input, locale) => {
+           expect(isPostalCode(input, locale as any)).toEqual(true);
+        });
+
+        test.each([
+            [12345689],
+            [false],
+            ['bobsyouruncle'],
+            [undefined],
+            ['somebadstring'],
+            [[]],
+            [{ code: '12345' }],
+        ])('should return false for invalid postal codes', (input) => {
+           expect(isPostalCode(input)).toEqual(false);
+        });
+
+        test.each([
+            ['85249', 'RU'],
+            ['8524933', 'US'],
+            ['8524', 'CN'],
+            ['this is not a postal code', 'CN'],
+            [undefined, 'US']
+        ])('should return false for invalid postal codes with locale', (input, locale) => {
+           expect(isPostalCode(input, locale as any)).toEqual(false);
+        });
+    });
+
+
+    fdescribe('isPort', () => {
+        test.each([
+            ['49151'],
+            ['0'],
+            [8080],
+            [80]
+        ])('should return true valid port number or number string', (input) => {
+           expect(isPort(input)).toEqual(true);
+        });
+
+        test.each([
+            ['65536'],
+            ['-110'],
+            ['not a port'],
+            [808000],
+            [false],
+            [null],
+        ])('should return true for a valid port number or number string', (input) => {
+           expect(isPort(input)).toEqual(false);
         });
     });
 
