@@ -33,10 +33,10 @@ describe('toISDN', () => {
         const values = ['+33-1-22-33-44-55', '1(800)FloWErs'];
         const expected = ['33122334455', '18003569377'];
 
-        const toKebabCase = toISDNConfig.create({});
+        const toISDN = toISDNConfig.create({});
 
         values.forEach((val, ind) => {
-            expect(toKebabCase(val)).toEqual(expected[ind]);
+            expect(toISDN(val)).toEqual(expected[ind]);
         });
     });
 

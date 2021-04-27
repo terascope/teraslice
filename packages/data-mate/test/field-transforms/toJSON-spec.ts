@@ -114,7 +114,7 @@ describe('toJSONConfig', () => {
             const api = dateFrameAdapter(toJSONConfig);
             const newCol = api.column(col);
 
-            const { type, array, childConfig } = newCol.config;
+            const { config: { type, array }, vector: { childConfig } } = newCol;
 
             expect(type).toEqual(FieldType.String);
             expect(array).toBeFalsy();
