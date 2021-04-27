@@ -77,7 +77,9 @@ export function validateFunctionArgs(
     // check required fields
     if (fnDef?.required_arguments?.length) {
         if (isNil(args)) {
-            throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(fnDef.required_arguments)} to be set`);
+            throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(
+                fnDef.required_arguments as string[]
+            )} to be set`);
         }
 
         for (const field of fnDef.required_arguments) {

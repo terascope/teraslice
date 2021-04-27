@@ -51,7 +51,7 @@ const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
     [FieldType.Tuple]: VectorType.Any,
 };
 
-function getVectorType(input: FieldType[]): VectorType[] {
+function getVectorType(input: readonly FieldType[]): VectorType[] {
     return input.map((fType) => {
         const type = FieldTypeToVectorDict[fType];
         if (isNil(type)) {

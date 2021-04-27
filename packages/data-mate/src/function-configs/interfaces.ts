@@ -16,6 +16,21 @@ export enum ProcessMode {
     FULL_VALUES = 'FULL_VALUES'
 }
 
+export interface FunctionDefinitionExample {
+    /**
+     * An example input value that will be pretty printed for documentation.
+    */
+    readonly input: unknown;
+    /**
+     * The outputted value that will be pretty printed for documentation
+    */
+    readonly output: unknown;
+    /**
+     * Optionally describe the behavior of this example
+    */
+    readonly description?: string;
+}
+
 export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /**
      * The name of the function
@@ -25,6 +40,11 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     readonly type: FunctionDefinitionType;
     /** Used to generate documentation */
     readonly description: string;
+    /**
+     * Examples that will be used in the documentation and potentially
+     * in the automated tests
+    */
+    readonly examples?: readonly FunctionDefinitionExample[];
     /**
      * Used for validating and defining the types of the input arguments,
      * please include description field when creating the schema
