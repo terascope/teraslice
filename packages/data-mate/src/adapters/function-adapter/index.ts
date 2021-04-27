@@ -15,7 +15,6 @@ import {
     FunctionAdapterOptions, RecordFunctionAdapterOperation, FieldFunctionAdapterOperation
 } from './interfaces';
 import {
-    FunctionDefinitions,
     FieldValidateConfig,
     FieldTransformConfig,
     isFieldValidation,
@@ -23,32 +22,24 @@ import {
     RecordValidationConfig,
     RecordTransformConfig,
     isRecordValidation,
-    ProcessMode
+    ProcessMode,
+    FunctionDefinitionConfig
 } from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 
-// @TODO: fix any type
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldValidateConfig<T>,
+    fnDef: FieldValidateConfig<T>|FieldTransformConfig<T>,
     options?: FunctionAdapterOptions<T>
 ): FieldFunctionAdapterOperation
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldTransformConfig<T>,
-    options?: FunctionAdapterOptions<T>
-): FieldFunctionAdapterOperation
-export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: RecordValidationConfig<T>,
-    options?: FunctionAdapterOptions<T>
-): RecordFunctionAdapterOperation
-export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: RecordTransformConfig<T>,
+    fnDef: RecordValidationConfig<T>|RecordTransformConfig<T>|FunctionDefinitionConfig<T>,
     options?: FunctionAdapterOptions<T>
 ): RecordFunctionAdapterOperation
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     /** The field validation or transform function definition */
-    fnDef: FunctionDefinitions,
+    fnDef: FunctionDefinitionConfig<T>,
     options: FunctionAdapterOptions<T> = {}
-): any {
+): RecordFunctionAdapterOperation|FieldFunctionAdapterOperation {
     const {
         args,
         field,
@@ -76,7 +67,6 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
                 fn, preserveNulls, preserveEmptyObjects, field
             ),
             column: fieldValidationColumnExecution(fn, preserveNulls)
-
         };
     }
 
@@ -104,7 +94,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     if (isRecordValidation(fnDef)) {
         const fn = fnDef.create(args ?? {});
         return {
-            rows: recordValidationExecution(fn, preserveNulls)
+            rows: recordValidationExecution(fn)
         };
     }
 

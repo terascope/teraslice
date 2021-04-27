@@ -6,7 +6,7 @@ import {
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dataFrameAdapter, DataFrame, VectorType
 } from '../../../src';
 
 const encodeURLConfig = functionConfigRepository.encodeURL;
@@ -66,7 +66,7 @@ describe('encodeURLConfig', () => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, originalValues.slice());
-            const api = dateFrameAdapter(encodeURLConfig);
+            const api = dataFrameAdapter(encodeURLConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual(encodedValues);
@@ -74,7 +74,7 @@ describe('encodeURLConfig', () => {
 
         it('should be able to transform a dataFrame using encodeURL', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
-            const api = dateFrameAdapter(encodeURLConfig, { field });
+            const api = dataFrameAdapter(encodeURLConfig, { field });
             const newFrame = api.frame(frame);
 
             const results = newFrame.toJSON();

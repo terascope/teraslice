@@ -3,7 +3,7 @@ import { FieldType, Maybe } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter,
     FunctionDefinitionType, ProcessMode,
-    dateFrameAdapter, Column
+    dataFrameAdapter, Column
 } from '../../../src';
 
 const isHashConfig = functionConfigRepository.isHash;
@@ -78,7 +78,7 @@ describe('isHashConfig', () => {
         });
     });
 
-    describe('when paired with dateFrameAdapter', () => {
+    describe('when paired with dataFrameAdapter', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
@@ -97,7 +97,7 @@ describe('isHashConfig', () => {
         });
 
         it('should be able to validate using isHash', () => {
-            const api = dateFrameAdapter(isHashConfig, { args: { algo } });
+            const api = dataFrameAdapter(isHashConfig, { args: { algo } });
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([

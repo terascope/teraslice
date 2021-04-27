@@ -5,7 +5,7 @@ import {
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dataFrameAdapter, DataFrame, VectorType
 } from '../../../src';
 
 const decodeHexConfig = functionConfigRepository.decodeHex;
@@ -58,7 +58,7 @@ describe('decodeHexConfig', () => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, testValues);
-            const api = dateFrameAdapter(decodeHexConfig);
+            const api = dataFrameAdapter(decodeHexConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual(originalValues);
@@ -67,7 +67,7 @@ describe('decodeHexConfig', () => {
         it('should be able to transform a dataFrame using decodeHex', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
 
-            const api = dateFrameAdapter(decodeHexConfig, { field });
+            const api = dataFrameAdapter(decodeHexConfig, { field });
             const newFrame = api.frame(frame);
 
             expect(newFrame.toJSON()).toEqual([

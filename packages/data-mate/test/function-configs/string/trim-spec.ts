@@ -5,7 +5,7 @@ import {
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dataFrameAdapter, DataFrame, VectorType
 } from '../../../src';
 
 const trimConfig = functionConfigRepository.trim;
@@ -70,7 +70,7 @@ describe('trimConfig', () => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, values);
-            const api = dateFrameAdapter(trimConfig);
+            const api = dataFrameAdapter(trimConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -85,7 +85,7 @@ describe('trimConfig', () => {
         it('should be able to transform a dataFrame using trim', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
 
-            const api = dateFrameAdapter(trimConfig, { field });
+            const api = dataFrameAdapter(trimConfig, { field });
             const newFrame = api.frame(frame);
 
             expect(newFrame.toJSON()).toEqual([

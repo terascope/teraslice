@@ -1,17 +1,16 @@
 import { isObjectEntity, cloneDeep } from '@terascope/utils';
 
-export function recordValidationExecution(
-    fn: (input: Record<string, unknown>) => boolean,
-    preserveNulls: boolean
+export function recordValidationExecution<T extends Record<string, any>>(
+    fn: (input: T) => boolean,
 ) {
     return function _row(
-        input: Record<string, unknown>[]
-    ): (Record<string, unknown> | null)[] {
+        input: T[]
+    ): Record<string, unknown>[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
         }
 
-        const results: (Record<string, unknown>|null)[] = [];
+        const results: T[] = [];
 
         for (const record of input) {
             if (!isObjectEntity(record)) {
@@ -23,8 +22,6 @@ export function recordValidationExecution(
             // TODO: how much error handling should be here vs the function
             if (fn(clone)) {
                 results.push(clone);
-            } else if (preserveNulls) {
-                results.push(null);
             }
         }
 

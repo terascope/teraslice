@@ -3,7 +3,7 @@ import { FieldType, Maybe } from '@terascope/types';
 import { bigIntToJSON } from '@terascope/utils';
 import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    dateFrameAdapter, Column
+    dataFrameAdapter, Column
 } from '../../../src';
 
 describe('subtract', () => {
@@ -46,7 +46,7 @@ describe('subtract', () => {
             });
 
             it('should be able to transform the column using subtract', () => {
-                const subtract = dateFrameAdapter(subtractConfigConfig).column;
+                const subtract = dataFrameAdapter(subtractConfigConfig).column;
                 const newCol = subtract(col);
 
                 expect(newCol.id).not.toBe(col.id);
@@ -60,7 +60,7 @@ describe('subtract', () => {
 
             it('should be able to transform the column using subtract(by: 1.5)', () => {
                 const args = { by: 1.5 };
-                const subtract = dateFrameAdapter(subtractConfigConfig, { args }).column;
+                const subtract = dataFrameAdapter(subtractConfigConfig, { args }).column;
 
                 const newCol = subtract(col);
 
@@ -92,7 +92,7 @@ describe('subtract', () => {
 
             it('should be able to transform the column using subtract(by: 1.5)', () => {
                 const args = { by: 1.5 };
-                const subtract = dateFrameAdapter(subtractConfigConfig, { args }).column;
+                const subtract = dataFrameAdapter(subtractConfigConfig, { args }).column;
 
                 const newCol = subtract(col);
 
@@ -124,7 +124,7 @@ describe('subtract', () => {
 
             it('should be able to transform the column using subtract(by: 100)', () => {
                 const args = { by: 100 };
-                const subtract = dateFrameAdapter(subtractConfigConfig, { args }).column;
+                const subtract = dataFrameAdapter(subtractConfigConfig, { args }).column;
 
                 const newCol = subtract(col);
                 expect(newCol.id).not.toBe(col.id);

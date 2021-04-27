@@ -3,7 +3,7 @@ import {
     FieldType, Maybe
 } from '@terascope/types'; import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    Column, dateFrameAdapter
+    Column, dataFrameAdapter
 } from '../../../src';
 
 const toISDNConfig = functionConfigRepository.toISDN;
@@ -52,7 +52,7 @@ describe('toISDN', () => {
                 type: FieldType.Number,
             }, values);
 
-            const api = dateFrameAdapter(toISDNConfig);
+            const api = dataFrameAdapter(toISDNConfig);
             const newCol = api.column(col);
 
             const { type, array } = newCol.config;

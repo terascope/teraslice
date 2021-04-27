@@ -8,13 +8,13 @@ import {
     unset
 } from '@terascope/utils';
 
-export function fieldTransformRowExecution(
+export function fieldTransformRowExecution<T extends Record<string, any>>(
     fn: (input: unknown) => unknown,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
-    field?: string
-): (input: unknown[]) => unknown[] {
-    return function _wholeFieldTransformRowExecution(input: unknown[]): unknown[] {
+    field?: keyof T
+): (input: T[]) => T[] {
+    return function _wholeFieldTransformRowExecution(input: T[]): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
@@ -29,7 +29,7 @@ export function fieldTransformRowExecution(
                 throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
             }
 
-            const value = get(clone, field);
+            const value: unknown = get(clone, field);
 
             try {
                 if (Array.isArray(value)) {
@@ -107,13 +107,13 @@ export function fieldTransformRowExecution(
     };
 }
 
-export function wholeFieldTransformRowExecution(
+export function wholeFieldTransformRowExecution<T extends Record<string, any>>(
     fn: (input: unknown) => unknown,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
-    field?: string
-): (input: unknown[]) => unknown[] {
-    return function _wholeFieldTransformRowExecution(input: unknown[]): unknown[] {
+    field?: keyof T
+): (input: T[]) => T[] {
+    return function _wholeFieldTransformRowExecution(input: T[]): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
@@ -166,15 +166,16 @@ export function wholeFieldTransformRowExecution(
 }
 
 export function wholeFieldTransformColumnExecution(
-    fn: (input: unknown) => unknown, preserveNulls: boolean
+    fn: (input: unknown) => unknown,
+    preserveNulls: boolean
 ) {
     return function _wholeFieldTransformColumnExecution(
         input: unknown[]
-    ): (unknown|null)[] {
+    ): unknown[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }
-        const results = [];
+        const results: unknown[] = [];
 
         for (const value of input) {
             if (isNotNil(value)) {

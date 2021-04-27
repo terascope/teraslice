@@ -7,7 +7,8 @@ import {
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
-    FieldValidateConfig, FunctionDefinitions, isFieldOperation, DataTypeFieldAndChildren
+    FieldValidateConfig, isFieldOperation,
+    DataTypeFieldAndChildren, FunctionDefinitionConfig
 } from '../../function-configs/interfaces';
 
 import {
@@ -50,7 +51,7 @@ const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
     [FieldType.Tuple]: VectorType.Any,
 };
 
-function getVectorType(input: FieldType[]): VectorType[] {
+function getVectorType(input: readonly FieldType[]): VectorType[] {
     return input.map((fType) => {
         const type = FieldTypeToVectorDict[fType];
         if (isNil(type)) {
@@ -60,7 +61,7 @@ function getVectorType(input: FieldType[]): VectorType[] {
     });
 }
 
-export interface DateFrameAdapterOptions<T extends Record<string, any>> {
+export interface DataFrameAdapterOptions<T extends Record<string, any>> {
     args?: T,
     inputConfig?: DataTypeFieldConfig,
     field?: string;
@@ -76,7 +77,9 @@ export interface FrameAdapterFn extends ColumnAdapterFn {
     ): DataFrame<Record<string, unknown>>
 }
 
-function getMode(fnDef: FunctionDefinitions): TransformMode {
+function getMode<T extends Record<string, any>>(
+    fnDef: FunctionDefinitionConfig<T>
+): TransformMode {
     if (isFieldOperation(fnDef)) {
         const mode = fnDef.process_mode;
         if (mode === ProcessMode.INDIVIDUAL_VALUES) {
@@ -242,17 +245,9 @@ function transformFrame(
     };
 }
 
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldValidateConfig<T>,
-    options?: DateFrameAdapterOptions<T>
-): FrameAdapterFn
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldTransformConfig<T>,
-    options?: DateFrameAdapterOptions<T>
-): FrameAdapterFn
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FunctionDefinitions,
-    options: DateFrameAdapterOptions<T> = {}
+export function dataFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FunctionDefinitionConfig<T>,
+    options: DataFrameAdapterOptions<T> = {}
 ): FrameAdapterFn {
     const { field, args } = options;
 

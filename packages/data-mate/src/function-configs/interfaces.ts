@@ -1,4 +1,6 @@
-import { DataTypeFieldConfig, FieldType, DataTypeFields } from '@terascope/types';
+import {
+    DataTypeFieldConfig, FieldType, DataTypeFields, ReadonlyDataTypeFields
+} from '@terascope/types';
 
 export enum FunctionDefinitionType {
     FIELD_TRANSFORM = 'FIELD_TRANSFORM',
@@ -14,63 +16,90 @@ export enum ProcessMode {
     FULL_VALUES = 'FULL_VALUES'
 }
 
+export interface FunctionDefinitionExample {
+    /**
+     * An example input value that will be pretty printed for documentation.
+    */
+    readonly input: unknown;
+    /**
+     * The outputted value that will be pretty printed for documentation
+    */
+    readonly output: unknown;
+    /**
+     * Optionally describe the behavior of this example
+    */
+    readonly description?: string;
+}
+
 export interface FunctionDefinitionConfig<T extends Record<string, any>> {
-    name: string,
+    /**
+     * The name of the function
+    */
+    readonly name: string;
     /** Type of operation that will be preformed */
-    type: FunctionDefinitionType,
+    readonly type: FunctionDefinitionType;
     /** Used to generate documentation */
-    description: string,
-    /** Used for validating and defining the types of the input arguments,
-     * please include description field when creating the schema */
-    argument_schema?: DataTypeFields,
-    /** Used to determine what of the possible args are required, as DataType configs does not have
+    readonly description: string;
+    /**
+     * Examples that will be used in the documentation and potentially
+     * in the automated tests
+    */
+    readonly examples?: readonly FunctionDefinitionExample[];
+    /**
+     * Used for validating and defining the types of the input arguments,
+     * please include description field when creating the schema
+     */
+    readonly argument_schema?: DataTypeFields;
+    /**
+     * Used to determine what of the possible args are required, as DataType configs does not have
      * a mechanism to specify what is required
      */
-    required_arguments?: string[]
-    /** Can be used in strongly typed contexts to throw early, some types
+    readonly required_arguments?: readonly string[];
+    /**
+     * Can be used in strongly typed contexts to throw early, some types
      * or only compatible with a given operation
      */
-    accepts: FieldType[],
+    readonly accepts: readonly FieldType[];
     /** Used for additional custom validation of args, called after generic arg validation */
-    validate_arguments?: (args: T) => void
+    readonly validate_arguments?: (args: T) => void;
 }
 
 export interface FieldValidateConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode,
-    create: (
+    readonly type: FunctionDefinitionType.FIELD_VALIDATION;
+    readonly process_mode: ProcessMode;
+    readonly create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
-    ) => (value: unknown) => boolean
+    ) => (value: unknown) => boolean;
 }
 
 export interface FieldTransformConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode,
-    output_type?: (
+    readonly type: FunctionDefinitionType.FIELD_TRANSFORM,
+    readonly process_mode: ProcessMode,
+    readonly output_type?: (
         inputConfig: DataTypeFieldAndChildren,
         args?: T
-    ) => DataTypeFieldAndChildren,
-    create: (
+    ) => DataTypeFieldAndChildren;
+    readonly create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
-    ) => (value: unknown) => unknown
+    ) => (value: unknown) => unknown;
 }
 
 export interface RecordTransformConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    type: FunctionDefinitionType.RECORD_TRANSFORM,
-    output_type: (
+    readonly type: FunctionDefinitionType.RECORD_TRANSFORM,
+    readonly output_type: (
         inputConfig: DataTypeFieldAndChildren,
         args?: T
     ) => DataTypeFieldAndChildren,
-    create: (
+    readonly create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
@@ -80,8 +109,8 @@ export interface RecordTransformConfig<
 export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
-    type: FunctionDefinitionType.RECORD_VALIDATION,
-    create: (
+    readonly type: FunctionDefinitionType.RECORD_VALIDATION,
+    readonly create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
@@ -96,52 +125,47 @@ export interface OutputType<T> {
 }
 
 export interface DataTypeFieldAndChildren {
-    field_config: DataTypeFieldConfig,
-    child_config?: DataTypeFields
+    readonly field_config: Readonly<DataTypeFieldConfig>,
+    readonly child_config?: ReadonlyDataTypeFields
 }
-// Make a separate one for record level adapters
-export type FunctionDefinitions = FieldValidateConfig<Record<string, unknown>>
-| FieldTransformConfig<Record<string, unknown>>
-| RecordValidationConfig<Record<string, unknown>>
-| RecordTransformConfig<Record<string, unknown>>
 
 // TODO: verify this type
 export interface FunctionConfigRepository {
-    [key: string]: FunctionDefinitions;
+    readonly [key: string]: FunctionDefinitionConfig<Record<string, unknown>>;
 }
 
-export function isFieldValidation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldValidation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is FieldValidateConfig {
     return input && input.type === FunctionDefinitionType.FIELD_VALIDATION;
 }
 
-export function isFieldTransform(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldTransform<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is FieldTransformConfig {
     return input && input.type === FunctionDefinitionType.FIELD_TRANSFORM;
 }
 
-export function isFieldOperation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldOperation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is (FieldValidateConfig | FieldValidateConfig) {
     return isFieldValidation(input) || isFieldTransform(input);
 }
 
-export function isRecordTransform(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isRecordTransform<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is RecordTransformConfig {
     return input && input.type === FunctionDefinitionType.RECORD_TRANSFORM;
 }
 
-export function isRecordValidation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isRecordValidation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is RecordValidationConfig {
     return input && input.type === FunctionDefinitionType.RECORD_VALIDATION;
 }
 
-export function isTransformOperation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isTransformOperation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is (RecordTransformConfig | FieldTransformConfig) {
     return isFieldTransform(input) || isRecordValidation(input);
 }

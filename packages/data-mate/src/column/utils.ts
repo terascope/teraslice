@@ -121,6 +121,7 @@ export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>
 ): void {
     if (!accepts?.length) return;
+
     // if the type is a List, then we need to give the child type
     const type = vector.type === VectorType.List ? Vector.make([], {
         config: { ...vector.config, array: false }

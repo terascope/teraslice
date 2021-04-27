@@ -6,7 +6,7 @@ import {
 
 const isEmptyConfig = functionConfigRepository.isEmpty;
 
-describe('isHashConfig', () => {
+describe('isEmpty', () => {
     it('has proper configuration', () => {
         expect(isEmptyConfig).toBeDefined();
         expect(isEmptyConfig).toHaveProperty('name', 'isEmpty');
@@ -61,7 +61,7 @@ describe('isHashConfig', () => {
             const results = api.column(fullColumnData);
             const results2 = api.column(emptyColumnData);
 
-            expect(results).toBeNull();
+            expect(results).toEqual([null, null]);
             expect(results2).toEqual(emptyColumnData);
         });
     });

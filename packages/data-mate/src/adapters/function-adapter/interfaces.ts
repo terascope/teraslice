@@ -9,7 +9,7 @@ export interface FunctionAdapterOptions<T extends Record<string, any>> {
 }
 
 export interface RecordFunctionAdapterOperation {
-    rows(records: Record<string, unknown>[]): Record<string, unknown>[];
+    rows<T extends Record<string, any>>(records: T[]): Record<string, unknown>[];
 }
 
 export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOperation {

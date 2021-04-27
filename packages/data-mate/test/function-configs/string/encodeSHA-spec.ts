@@ -6,7 +6,7 @@ import {
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dataFrameAdapter, DataFrame, VectorType
 } from '../../../src';
 import { encodeSHA } from '../../../src/function-configs/string/encodeSHA';
 
@@ -63,7 +63,7 @@ describe('EncodeSHA1Config', () => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, originalValues.slice());
-            const api = dateFrameAdapter(encodeSHAConfig);
+            const api = dataFrameAdapter(encodeSHAConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual(encodedValues);
@@ -71,7 +71,7 @@ describe('EncodeSHA1Config', () => {
 
         it('should be able to transform a dataFrame using encodeSHA', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
-            const api = dateFrameAdapter(encodeSHAConfig, { field });
+            const api = dataFrameAdapter(encodeSHAConfig, { field });
             const newFrame = api.frame(frame);
 
             const results = newFrame.toJSON();
