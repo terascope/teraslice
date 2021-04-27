@@ -53,6 +53,11 @@ export default class Options {
                     + ' directory is used if no argument is passed to this option',
             type: 'boolean'
         }),
+        bundle: () => ({
+            describe: 'Build the new smaller esbuild asset bundle style asset',
+            default: false,
+            type: 'boolean'
+        }),
         'config-dir': () => ({
             alias: 'd',
             describe: 'Config directory',
@@ -62,7 +67,7 @@ export default class Options {
         file: () => ({
             alias: 'f',
             describe: 'When specified with a path to an asset file, uploads provided'
-                    + ' asset without retriving from GitHub.  Useful for offline use.',
+                    + ' asset without retrieving from GitHub.  Useful for offline use.',
             nargs: 1,
             type: 'string'
         }),
@@ -194,7 +199,7 @@ export default class Options {
             type: 'string'
         }),
         'asset-id': () => ({
-            describe: 'Hexidecimal ID of asset.',
+            describe: 'Hexadecimal ID of asset.',
             nargs: 1,
             type: 'string'
         }),
