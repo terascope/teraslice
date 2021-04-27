@@ -2,7 +2,7 @@ import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter
+    ProcessMode, Column, dataFrameAdapter
 } from '../../../src';
 
 const truncateConfig = functionConfigRepository.truncate;
@@ -44,7 +44,7 @@ describe('truncateConfig', () => {
 
         it('can shorten strings', () => {
             const args = { size: 3 };
-            const api = dateFrameAdapter(truncateConfig, { args });
+            const api = dataFrameAdapter(truncateConfig, { args });
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -57,15 +57,15 @@ describe('truncateConfig', () => {
         });
 
         it('should throw if improper args are given', () => {
-            expect(() => dateFrameAdapter(truncateConfig, { })).toThrowError(
+            expect(() => dataFrameAdapter(truncateConfig, { })).toThrowError(
                 'No arguments were provided but truncate requires size to be set'
             );
 
-            expect(() => dateFrameAdapter(truncateConfig, { args: { size: 'ha' as unknown as number } })).toThrowError(
+            expect(() => dataFrameAdapter(truncateConfig, { args: { size: 'ha' as unknown as number } })).toThrowError(
                 'Invalid argument value set at key size, expected String to be compatible with type Number'
             );
 
-            expect(() => dateFrameAdapter(truncateConfig, { args: { size: -1231 } })).toThrowError(
+            expect(() => dataFrameAdapter(truncateConfig, { args: { size: -1231 } })).toThrowError(
                 'Invalid parameter size, expected a positive integer, got -1231'
             );
         });

@@ -7,7 +7,7 @@ import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, FieldType, Maybe } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
+    ProcessMode, Column, dataFrameAdapter, DataFrame, VectorType
 } from '../../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -209,7 +209,7 @@ describe('toUpperCaseConfig', () => {
         });
     });
 
-    describe('when paired with dateFrameAdapter', () => {
+    describe('when paired with dataFrameAdapter', () => {
         let col: Column<string>;
 
         const values: Maybe<string>[] = [
@@ -242,7 +242,7 @@ describe('toUpperCaseConfig', () => {
         });
 
         it('should be able to transform a column using toUpperCase', () => {
-            const api = dateFrameAdapter(toUpperCaseConfig);
+            const api = dataFrameAdapter(toUpperCaseConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -257,7 +257,7 @@ describe('toUpperCaseConfig', () => {
         it('should be able to transform a dataFrame using toUpperCase', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
 
-            const api = dateFrameAdapter(toUpperCaseConfig, { field });
+            const api = dataFrameAdapter(toUpperCaseConfig, { field });
             const newFrame = api.frame(frame);
 
             expect(newFrame.toJSON()).toEqual([

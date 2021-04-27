@@ -13,7 +13,7 @@ import {
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
-    FunctionDefinitions,
+    FunctionDefinitionConfig,
 } from '../../function-configs/interfaces';
 
 // TODO: migrate IPRange to IP?
@@ -70,7 +70,10 @@ function isEmptyLike(input: unknown): boolean {
     return isNil(input) || (!isBoolean(input) && !isNumber(input) && isEmpty(input));
 }
 
-export function validateFunctionArgs(fnDef: FunctionDefinitions, args?: Record<string, any>): void {
+export function validateFunctionArgs(
+    fnDef: FunctionDefinitionConfig<any>,
+    args?: Record<string, any>
+): void {
     // check required fields
     if (fnDef?.required_arguments?.length) {
         if (isNil(args)) {

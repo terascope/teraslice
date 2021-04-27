@@ -8,7 +8,7 @@ import {
 } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter
+    ProcessMode, Column, dataFrameAdapter
 } from '../../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -186,7 +186,7 @@ describe('toGeoPointConfig', () => {
         });
     });
 
-    describe('when paired with dateFrameAdapter', () => {
+    describe('when paired with dataFrameAdapter', () => {
         let stringCol: Column<string>;
         let objCol: Column<GeoPointInput>;
         let tupleCol: Column<number[]>;
@@ -218,7 +218,7 @@ describe('toGeoPointConfig', () => {
         });
 
         it('should be able to transform using toGeoPoint', () => {
-            const api = dateFrameAdapter(toGeoPointConfig);
+            const api = dataFrameAdapter(toGeoPointConfig);
 
             const geoStringResults = api.column(stringCol);
 

@@ -3,7 +3,7 @@ import {
     FieldType, Maybe, DataTypeFields
 } from '@terascope/types'; import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    Column, dateFrameAdapter
+    Column, dataFrameAdapter
 } from '../../../src';
 
 const parseJSONConfig = functionConfigRepository.parseJSON;
@@ -43,7 +43,7 @@ describe('parseJSON', () => {
                 type: FieldType.String,
             }, values);
 
-            const api = dateFrameAdapter(parseJSONConfig);
+            const api = dataFrameAdapter(parseJSONConfig);
             const newCol = api.column(col);
 
             const { type } = newCol.config;
@@ -72,7 +72,7 @@ describe('parseJSON', () => {
                 type: FieldType.Integer,
                 array: true
             };
-            const api = dateFrameAdapter(parseJSONConfig, { args });
+            const api = dataFrameAdapter(parseJSONConfig, { args });
             const newCol = api.column(col);
 
             const { type, array } = newCol.config;
@@ -112,7 +112,7 @@ describe('parseJSON', () => {
                 type: FieldType.Object,
                 child_config: frameTestChildConfig
             };
-            const api = dateFrameAdapter(parseJSONConfig, { args });
+            const api = dataFrameAdapter(parseJSONConfig, { args });
             const newCol = api.column(col);
 
             const { config: { type }, vector: { childConfig } } = newCol;

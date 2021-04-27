@@ -18,6 +18,7 @@ export function fieldValidationColumnExecution(
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }
+
         const results: (boolean | null)[] = [];
 
         for (const value of input) {
@@ -36,25 +37,21 @@ export function wholeFieldValidationColumnExecution(
     fn: (input: unknown) => unknown,
 ) {
     return function _fieldValidationColumnExecution(
-        input: unknown | null | unknown[]
-    ): unknown | unknown[] {
-        if (fn(input)) {
-            return input;
-        }
-
-        return null;
+        input: unknown[]
+    ): unknown[] {
+        return input.map((value) => (fn(value) ? value : null));
     };
 }
 
-export function wholeFieldValidationRowExecution(
+export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
     fn: (input: unknown) => unknown,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
-): (input: unknown[]) => unknown[] {
+): (input: T[]) => T[] {
     return function _wholeFieldValidationRowExecution(
-        input: unknown[]
-    ): unknown[] {
+        input: T[]
+    ): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
@@ -96,21 +93,21 @@ export function wholeFieldValidationRowExecution(
     };
 }
 
-export function fieldValidationRowExecution(
-    fn: (input: unknown) => unknown,
+export function fieldValidationRowExecution<T extends Record<string, any>>(
+    fn: (input: T) => unknown,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
-): (input: unknown[]) => unknown[] {
+): (input: T[]) => T[] {
     return function _wholeFieldValidationRowExecution(
-        input: unknown[]
-    ): unknown[] {
+        input: T[]
+    ): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
         }
 
-        const results = [];
+        const results: T[] = [];
 
         for (const record of input) {
             const clone = cloneDeep(record);
@@ -119,7 +116,7 @@ export function fieldValidationRowExecution(
                 throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
             }
 
-            const value = get(clone, field);
+            const value: unknown = get(clone, field);
 
             if (Array.isArray(value)) {
                 const fieldList: unknown[] = [];
@@ -150,7 +147,7 @@ export function fieldValidationRowExecution(
                     }
                 }
             } else {
-                const isValid = fn(value);
+                const isValid = fn(value as T);
                 // if it fails validation and we keep null
                 if (!isValid && preserveNulls) {
                     set(clone, field, null);

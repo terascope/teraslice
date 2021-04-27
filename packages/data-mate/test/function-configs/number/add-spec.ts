@@ -3,7 +3,7 @@ import { FieldType, Maybe } from '@terascope/types';
 import { bigIntToJSON } from '@terascope/utils';
 import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    dateFrameAdapter, Column
+    dataFrameAdapter, Column
 } from '../../../src';
 
 describe('add', () => {
@@ -46,7 +46,7 @@ describe('add', () => {
             });
 
             it('should be able to transform the column using add', () => {
-                const add = dateFrameAdapter(addConfigConfig).column;
+                const add = dataFrameAdapter(addConfigConfig).column;
                 const newCol = add(col);
 
                 expect(newCol.id).not.toBe(col.id);
@@ -60,7 +60,7 @@ describe('add', () => {
 
             it('should be able to transform the column using add(by: 1.5)', () => {
                 const args = { by: 1.5 };
-                const add = dateFrameAdapter(addConfigConfig, { args }).column;
+                const add = dataFrameAdapter(addConfigConfig, { args }).column;
 
                 const newCol = add(col);
 
@@ -92,7 +92,7 @@ describe('add', () => {
 
             it('should be able to transform the column using add(by: 1.5)', () => {
                 const args = { by: 1.5 };
-                const add = dateFrameAdapter(addConfigConfig, { args }).column;
+                const add = dataFrameAdapter(addConfigConfig, { args }).column;
 
                 const newCol = add(col);
 
@@ -124,7 +124,7 @@ describe('add', () => {
 
             it('should be able to transform the column using add(by: 100)', () => {
                 const args = { by: 100 };
-                const add = dateFrameAdapter(addConfigConfig, { args }).column;
+                const add = dataFrameAdapter(addConfigConfig, { args }).column;
 
                 const newCol = add(col);
                 expect(newCol.id).not.toBe(col.id);

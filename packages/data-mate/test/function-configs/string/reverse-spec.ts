@@ -2,7 +2,7 @@ import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    Column, dateFrameAdapter,
+    Column, dataFrameAdapter,
 } from '../../../src';
 
 const reverseConfig = functionConfigRepository.reverse;
@@ -44,7 +44,7 @@ describe('reverseConfig', () => {
                 type: FieldType.String
             }, values);
 
-            const api = dateFrameAdapter(reverseConfig);
+            const api = dataFrameAdapter(reverseConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -61,7 +61,7 @@ describe('reverseConfig', () => {
                 type: FieldType.Number
             }, [12, 34234, undefined, 1324234234]);
 
-            const api = dateFrameAdapter(reverseConfig);
+            const api = dataFrameAdapter(reverseConfig);
             expect(() => api.column(col)).toThrowError('Incompatible with field type Float, must be String');
         });
     });

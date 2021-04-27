@@ -99,49 +99,44 @@ export interface DataTypeFieldAndChildren {
     field_config: DataTypeFieldConfig,
     child_config?: DataTypeFields
 }
-// Make a separate one for record level adapters
-export type FunctionDefinitions = FieldValidateConfig<Record<string, unknown>>
-| FieldTransformConfig<Record<string, unknown>>
-| RecordValidationConfig<Record<string, unknown>>
-| RecordTransformConfig<Record<string, unknown>>
 
 // TODO: verify this type
 export interface FunctionConfigRepository {
-    [key: string]: FunctionDefinitions;
+    [key: string]: FunctionDefinitionConfig<Record<string, unknown>>;
 }
 
-export function isFieldValidation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldValidation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is FieldValidateConfig {
     return input && input.type === FunctionDefinitionType.FIELD_VALIDATION;
 }
 
-export function isFieldTransform(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldTransform<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is FieldTransformConfig {
     return input && input.type === FunctionDefinitionType.FIELD_TRANSFORM;
 }
 
-export function isFieldOperation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isFieldOperation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is (FieldValidateConfig | FieldValidateConfig) {
     return isFieldValidation(input) || isFieldTransform(input);
 }
 
-export function isRecordTransform(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isRecordTransform<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is RecordTransformConfig {
     return input && input.type === FunctionDefinitionType.RECORD_TRANSFORM;
 }
 
-export function isRecordValidation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isRecordValidation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is RecordValidationConfig {
     return input && input.type === FunctionDefinitionType.RECORD_VALIDATION;
 }
 
-export function isTransformOperation(
-    input: FunctionDefinitionConfig<Record<string, unknown>>
+export function isTransformOperation<T extends Record<string, any>>(
+    input: FunctionDefinitionConfig<T>
 ): input is (RecordTransformConfig | FieldTransformConfig) {
     return isFieldTransform(input) || isRecordValidation(input);
 }

@@ -5,7 +5,7 @@ import {
 } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter
+    ProcessMode, Column, dataFrameAdapter
 } from '../../../src';
 
 const toJSONConfig = functionConfigRepository.toJSON;
@@ -47,7 +47,7 @@ describe('toJSONConfig', () => {
             const col = Column.fromJSON<bigint>('score', {
                 type: FieldType.Long,
             }, values);
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dataFrameAdapter(toJSONConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
@@ -71,7 +71,7 @@ describe('toJSONConfig', () => {
                 type: FieldType.Boolean,
                 array: true
             }, values);
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dataFrameAdapter(toJSONConfig);
             const newCol = api.column(col);
 
             const { type, array } = newCol.config;
@@ -111,7 +111,7 @@ describe('toJSONConfig', () => {
                 type: FieldType.Object,
             }, values, 1, frameTestChildConfig);
 
-            const api = dateFrameAdapter(toJSONConfig);
+            const api = dataFrameAdapter(toJSONConfig);
             const newCol = api.column(col);
 
             const { config: { type, array }, vector: { childConfig } } = newCol;
