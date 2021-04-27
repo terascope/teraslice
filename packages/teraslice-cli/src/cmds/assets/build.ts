@@ -37,13 +37,8 @@ export = {
                 cliConfig.args.bundle
             );
 
-            if (cliConfig.args.bundle) {
-                reply.green('Beginning bundled asset build.');
-                buildResult = await asset.buildBundle();
-            } else {
-                reply.green('Beginning asset build.');
-                buildResult = await asset.build();
-            }
+            reply.green('Beginning asset build.');
+            buildResult = await asset.build();
             reply.green(`Asset created:\n\t${buildResult.name} (${buildResult.bytes})`);
         } catch (err) {
             reply.fatal(`Error building asset: ${err}`);
