@@ -2,28 +2,38 @@ import { contains } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
 
-/**
- * Validates if substring is in a string
- * item and substring must be strings
- *
- * @example
- * contains('hello', 'll') // true
- * contains('hello', 'foo') // false
- *
- * @param {*} input
- * @param {{ substr: string }} { substr }
- * @returns {boolean} boolean
- */
-
-export interface IncludesArgs {
-    substr: string;
+export interface ContainsArgs {
+    readonly substr: string;
 }
 
-export const containsConfig: FieldValidateConfig<IncludesArgs> = {
-    name: 'includes',
+export const containsConfig: FieldValidateConfig<ContainsArgs> = {
+    name: 'contains',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Checks to see if string contains substring',
+    description: 'Checks to see if string contains substring. This operations is case-sensitive',
+    examples: [
+        {
+            args: { substr: 'ample' },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: 'example'
+        },
+        {
+            args: { substr: 'example' },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: 'example'
+        },
+        {
+            args: { substr: 'test' },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: null
+        },
+    ],
     create({ substr }) {
         return (input: unknown) => contains(input, substr);
     },
@@ -32,7 +42,7 @@ export const containsConfig: FieldValidateConfig<IncludesArgs> = {
         substr: {
             type: FieldType.String,
             array: false,
-            description: 'substr should be a string'
+            description: 'A string that must partially or completely match'
         }
     }
 };
