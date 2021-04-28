@@ -53,6 +53,7 @@ export interface IsHashArgs {
  * @param string input
  * @returns {boolean} boolean
  */
+
 export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
     name: 'isHash',
     type: FunctionDefinitionType.FIELD_VALIDATION,

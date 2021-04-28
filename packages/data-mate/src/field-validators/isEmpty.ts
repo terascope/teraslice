@@ -21,6 +21,7 @@ export interface EmptyArgs {
  * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimmed
  * @returns {boolean} boolean
  */
+
 export const isEmptyConfig: FieldValidateConfig<EmptyArgs> = {
     name: 'isEmpty',
     type: FunctionDefinitionType.FIELD_VALIDATION,

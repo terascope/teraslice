@@ -13,6 +13,7 @@ import { equalsConfig } from './equals';
 import { isFQDNConfig } from './isFQDN';
 import { isCountryCodeConfig } from './isCountryCode';
 import { isMimeTypeConfig } from './isMimeType';
+import { isAlphaNumericConfig } from './isAlphaNumeric';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
@@ -28,6 +29,7 @@ export const fieldValidationRepository = {
     isFQDN: isFQDNConfig,
     isCountryCode: isCountryCodeConfig,
     isMimeType: isMimeTypeConfig,
+    isAlphaNumeric: isAlphaNumericConfig,
     contains: containsConfig,
     equals: equalsConfig
 } as const;

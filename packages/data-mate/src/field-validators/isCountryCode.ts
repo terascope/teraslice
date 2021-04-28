@@ -22,7 +22,7 @@ import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../int
  */
 
 export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isFQDN',
+    name: 'isCountryCode',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',

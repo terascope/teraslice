@@ -5,10 +5,10 @@ import {
 
 const isCountryCodeConfig = functionConfigRepository.isCountryCode;
 
-describe('isFQDN', () => {
+describe('isCountryCode', () => {
     it('has proper configuration', () => {
         expect(isCountryCodeConfig).toBeDefined();
-        expect(isCountryCodeConfig).toHaveProperty('name', 'isFQDN');
+        expect(isCountryCodeConfig).toHaveProperty('name', 'isCountryCode');
         expect(isCountryCodeConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isCountryCodeConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isCountryCodeConfig).toHaveProperty('description');
