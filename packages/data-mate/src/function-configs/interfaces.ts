@@ -17,6 +17,15 @@ export enum ProcessMode {
     FULL_VALUES = 'FULL_VALUES'
 }
 
+export enum FunctionDefinitionCategory {
+    BOOLEAN = 'BOOLEAN',
+    GEO = 'GEO',
+    JSON = 'JSON',
+    NUMERIC = 'NUMERIC',
+    OBJECT = 'OBJECT',
+    STRING = 'STRING',
+}
+
 export interface FunctionDefinitionExample<T extends Record<string, any>> {
     /**
      * The example arguments passed to the function
@@ -72,7 +81,7 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
      * The category of operation, for documentation purposes
      * FIXME make this non-optional
     */
-    readonly category?: string;
+    readonly category?: FunctionDefinitionCategory;
     /**
      * Examples that will be used in the documentation and potentially
      * in the automated tests.
