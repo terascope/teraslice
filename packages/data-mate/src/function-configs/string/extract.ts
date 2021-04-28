@@ -1,10 +1,11 @@
-import { toBoolean, match } from '@terascope/utils';
+import { match } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface ExtractArgs {

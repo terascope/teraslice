@@ -4,7 +4,8 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface EncodeSHA1Config {
@@ -18,6 +19,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Converts to a SHA1 encoded value',
+    category: FunctionDefinitionCategory.STRING,
     create({ digest = defaultDigest } = {}) {
         return (input: unknown) => encodeSHA1(input, digest as BinaryToTextEncoding);
     },

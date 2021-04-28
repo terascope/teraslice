@@ -2,7 +2,7 @@ import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, FunctionDefinitionType,
-    ProcessMode, DataTypeFieldAndChildren
+    ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces';
 
 function divideReducer(
@@ -23,6 +23,7 @@ export const divideConfig:FieldTransformConfig = {
     name: 'divide',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
+    category: FunctionDefinitionCategory.NUMERIC,
     description: 'Divide one or more values in a vector',
     create() {
         return divideFn;

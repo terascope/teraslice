@@ -4,10 +4,11 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
-export interface IncrementArgs {
-    by?: number
+export interface AddArgs {
+    readonly by?: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
@@ -15,10 +16,11 @@ function isLargeNumberType(type: FieldType|undefined) {
     return type === FieldType.Long || type === FieldType.Double;
 }
 
-export const addConfig: FieldTransformConfig<IncrementArgs> = {
+export const addConfig: FieldTransformConfig<AddArgs> = {
     name: 'add',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.NUMERIC,
     description: 'add to a numeric value',
     create({ by = 1 } = {}, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType)) {

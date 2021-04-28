@@ -6,6 +6,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 export interface TrimEndArgs {
@@ -16,6 +17,7 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
     name: 'trimEnd',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from end of string',
     create({ chars } = {}) {
         return (input: unknown) => trimEnd(input, chars);

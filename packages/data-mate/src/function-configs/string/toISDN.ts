@@ -4,13 +4,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const toISDNConfig: FieldTransformConfig = {
     name: 'toISDN',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Parses a string or number to a fully validated phone number',
     create() {
         return (input: unknown) => parsePhoneNumber(input as string);

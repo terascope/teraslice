@@ -3,22 +3,22 @@ import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
 
-const isUrlConfig = functionConfigRepository.isUrl;
+const isURLConfig = functionConfigRepository.isURL;
 
-describe('isUUIDConfig', () => {
+describe('isURLConfig', () => {
     it('has proper configuration', () => {
-        expect(isUrlConfig).toBeDefined();
-        expect(isUrlConfig).toHaveProperty('name', 'isUrl');
-        expect(isUrlConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
-        expect(isUrlConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
-        expect(isUrlConfig).toHaveProperty('description');
-        expect(isUrlConfig).toHaveProperty('accepts', []);
-        expect(isUrlConfig).toHaveProperty('create');
-        expect(isUrlConfig.create).toBeFunction();
+        expect(isURLConfig).toBeDefined();
+        expect(isURLConfig).toHaveProperty('name', 'isURL');
+        expect(isURLConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
+        expect(isURLConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(isURLConfig).toHaveProperty('description');
+        expect(isURLConfig).toHaveProperty('accepts', []);
+        expect(isURLConfig).toHaveProperty('create');
+        expect(isURLConfig.create).toBeFunction();
     });
 
     it('can validate values', () => {
-        const isUrl = isUrlConfig.create({});
+        const isURL = isURLConfig.create({});
 
         [
             ['http://someurl.com', true],
@@ -38,13 +38,13 @@ describe('isUUIDConfig', () => {
             [{ url: 'http:thisisaurl.com' }, false],
             [12345, false]
         ].forEach(([input, expected]) => {
-            expect(isUrl(input)).toEqual(expected);
+            expect(isURL(input)).toEqual(expected);
         });
     });
 
     describe('when paired with fieldFunctionAdapter', () => {
         it('should return a function to execute', () => {
-            const api = functionAdapter(isUrlConfig);
+            const api = functionAdapter(isURLConfig);
             expect(api).toBeDefined();
             expect(api).toHaveProperty('rows');
             expect(api).toHaveProperty('column');

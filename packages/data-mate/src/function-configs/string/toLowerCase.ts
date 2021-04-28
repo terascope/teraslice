@@ -4,6 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 function _toLowerCase(input: unknown): string {
@@ -17,6 +18,7 @@ export const toLowerCaseConfig: FieldTransformConfig = {
     name: 'toLowerCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Converts a string to lower case characters',
     create() {
         return _toLowerCase;

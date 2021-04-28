@@ -6,6 +6,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 export interface TrimStartArgs {
@@ -16,6 +17,7 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
     name: 'trimStart',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from start of string',
     create({ chars } = {}) {
         return (input: unknown) => trimStart(input, chars);

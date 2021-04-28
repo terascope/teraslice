@@ -4,6 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 function _toUpperCase(input: unknown): string {
@@ -17,6 +18,7 @@ export const toUpperCaseConfig: FieldTransformConfig = {
     name: 'toUpperCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Converts a string to upper case characters',
     create() {
         return _toUpperCase;

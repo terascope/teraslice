@@ -3,13 +3,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const decodeBase64Config: FieldTransformConfig = {
     name: 'decodeBase64',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Converts a base64 hash back to its value',
     create() {
         return (input: unknown) => Buffer.from(input as string, 'base64').toString('utf8');

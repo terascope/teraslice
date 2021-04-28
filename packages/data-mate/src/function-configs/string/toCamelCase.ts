@@ -3,14 +3,16 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
-    FunctionDefinitionType
+    FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const toCamelCaseConfig: FieldTransformConfig = {
     name: 'toCamelCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts a string to camel case characters',
+    category: FunctionDefinitionCategory.STRING,
+    description: 'Converts multiple words into a single word joined with each starting character capitalized, excluding the first character which is always lowercase',
     create() {
         // toCamelCase handles cases input is not string
         return (input: unknown) => toCamelCase(input as string);
