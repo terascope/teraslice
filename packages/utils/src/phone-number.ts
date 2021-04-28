@@ -1,5 +1,6 @@
 import PhoneValidator from 'awesome-phonenumber';
-import { toString } from './strings';
+import { toString, isString } from './strings';
+import { isNumber } from './numbers';
 
 export function parsePhoneNumber(input: string|number): string {
     let testNumber = toString(input).trim();
@@ -12,4 +13,17 @@ export function parsePhoneNumber(input: string|number): string {
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');
+}
+
+export function isISDN(input: unknown): boolean {
+    if (input == null) return false;
+
+    if (isString(input) || isNumber(input)) {
+        const isdn = new PhoneValidator(`+${input}`);
+
+        return isdn.isValid();
+    }
+
+    return false;
+
 }

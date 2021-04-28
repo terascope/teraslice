@@ -1,4 +1,4 @@
-import { parsePhoneNumber } from '../src';
+import { parsePhoneNumber, isISDN } from '../src';
 
 describe('parsePhoneNumber', () => {
     it('return phone number without dashes, spaces, or +', () => {
@@ -38,5 +38,34 @@ describe('parsePhoneNumber', () => {
         try {
             parsePhoneNumber('+467+070+123+4567');
         } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+    });
+});
+
+describe('isISDN', () => {
+    test.each([
+        ['46707123456', true],
+        ['1 808 915 6800', true],
+        ['1-808-915-6800', true],
+        ['+18089156800', true],
+        ['+7-952-5554-602', true],
+        ['79525554602', true],
+        [79525554602, true],
+        ['unknown', false],
+        ['52', false],
+        ['34000000000', false],
+        ['4900000000000', false],
+        ['1234', false],
+        ['22345', false],
+        ['223457', false],
+        ['2234578', false],
+        ['123', false],
+        ['5', false],
+        ['011', false],
+        [7, false],
+        [true, false],
+        [{}, false],
+        [[], false],
+    ])('validate ISDN numbers', (input, expected) => {
+        expect(isISDN(input)).toEqual(expected);
     });
 });

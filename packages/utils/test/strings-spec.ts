@@ -443,7 +443,7 @@ describe('String Utils', () => {
     });
 
 
-    fdescribe('isPort', () => {
+    describe('isPort', () => {
         test.each([
             ['49151'],
             ['0'],
@@ -462,6 +462,27 @@ describe('String Utils', () => {
             [null],
         ])('should return true for a valid port number or number string', (input) => {
            expect(isPort(input)).toEqual(false);
+        });
+    });
+
+    describe('isMimeType', () => {
+        test.each([
+            ['application/javascript'],
+            ['application/graphql'],
+            ['text/html'],
+            ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        ])('should return true for valid MIME types', (input) => {
+           expect(isMimeType(input)).toEqual(true);
+        });
+
+        test.each([
+            ['application'],
+            [''],
+            [false],
+            [{}],
+            [12345],
+        ])('should return true for a valid port number or number string', (input) => {
+           expect(isMimeType(input)).toEqual(false);
         });
     });
 
