@@ -39,6 +39,8 @@ export function functionTestHarness<T extends Record<string, any>>(
                 [c.input, c.args, c]
             ));
 
+        if (!successCases.length) return;
+
         describe('when using the function adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
