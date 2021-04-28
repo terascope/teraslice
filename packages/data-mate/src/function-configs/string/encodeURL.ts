@@ -3,13 +3,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const encodeURLConfig: FieldTransformConfig = {
     name: 'encodeURL',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'URL encodes a value',
     create() {
         return (input: unknown) => encodeURIComponent(input as string);

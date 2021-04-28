@@ -4,34 +4,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
-
-/**
- * Converts the value into a geo-point
- * if given an array it will convert everything in the array
- *
- * @example
- *
- *      const toGeoPoint = toGeoPointConfig.create();
- *
- *      toGeoPoint('60, 40'); // { lon: 40, lat: 60 };
- *      toGeoPoint([40, 60]); // { lon: 40, lat: 60 };
- *      toGeoPoint({ lat: 40, lon: 60 }); // { lon: 60, lat: 40 };
- *      toGeoPoint({ latitude: 40, longitude: 60 }); // { lon: 60, lat: 40 }
- *
- *      const results = toGeoPoint(['60, 40', null, [50, 60]]);
- *      results === [{ lon: 40, lat: 60 }, null { lon: 50, lat: 60 }];
- *
- * @param {*} input
- * @returns {{ lat: number, lon: number } | { lat: number, lon: number }[] | null }
- * returns null if input is null/undefined
- */
 
 export const toGeoPointConfig: FieldTransformConfig = {
     name: 'toGeoPoint',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
+    category: FunctionDefinitionCategory.GEO,
     description: 'Converts a truthy or falsy value to boolean',
     create() {
         return (input: unknown) => {

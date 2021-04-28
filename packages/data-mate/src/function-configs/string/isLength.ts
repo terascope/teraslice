@@ -1,7 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { isString, isNil } from '@terascope/utils';
 import validator from 'validator';
-import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
+import {
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+} from '../interfaces';
 
 export interface LengthArgs {
     /** Check to see if it exactly matches size */
@@ -10,23 +12,11 @@ export interface LengthArgs {
     max?: number;
 }
 
-/**
- * Check to see if input is a string with given length ranges, or a list of valid lengths
- * @example
- *      isLength('astring', { size: 7 }); // true
- *      isLength('astring', { min: 3, max: 10 }); // true
- *      isLength('astring', { size: 10 }); // false
- *      isLength('astring',  { min: 8 }); // false
- *      isLength(['astring', 'stuff', 'hi'], { min: 3 }); // true
- *
- * @param {*} input
- * @param {LengthConfig} { size, min, max }
- * @returns {boolean} boolean
- */
 export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
     name: 'isLength',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input either matches a certain length, or is within a range',
     accepts: [],
     create(args) {

@@ -16,7 +16,7 @@ import { isHashConfig } from './isHash';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMACAddress';
 import { isStringConfig } from './isString';
-import { isUrlConfig } from './isUrl';
+import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
 import { reverseConfig } from './reverse';
 import { toCamelCaseConfig } from './toCamelCase';
@@ -52,7 +52,7 @@ export const stringRepository = {
     isLength: isLengthConfig,
     isMACAddress: isMACAddressConfig,
     isString: isStringConfig,
-    isUrl: isUrlConfig,
+    isURL: isURLConfig,
     isUUID: isUUIDConfig,
     reverse: reverseConfig,
     toCamelCase: toCamelCaseConfig,

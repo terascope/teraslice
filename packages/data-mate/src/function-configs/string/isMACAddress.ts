@@ -1,25 +1,8 @@
 import { isMacAddress, isString, joinList } from '@terascope/utils';
 import { MACDelimiter, FieldType } from '@terascope/types';
-import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
-
-/**
- * Checks if value is a valid MacAddress, option to pass in delimiter or a list of delimiters
- *
- * @example
- * isMACAddress('00:1f:f3:5b:2b:1f'); // true
- * isMACAddress('001ff35b2b1f'); // true
- * isMACAddress('00-1f-f3-5b-2b-1f'); // true
- * isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' }); // true
- * isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon']} ); // true
- *
- * isMACAddress('004231f3f325b12211'} ); // false
- * isMACAddress(12345); // false
- * isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dot', 'colon']} ); // false
- *
- * @param {*} input
- * @param {{delimiter}} [{ delimiter?: string}] may be set to 'colon'|'space'|'dash'|'dot'|'none'
- * @returns {boolean} boolean
- */
+import {
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+} from '../interfaces';
 
 export interface IsMacArgs {
     delimiter?: string | string[];
@@ -31,6 +14,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     name: 'isMACAddress',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid mac address',
     create({ delimiter }: IsMacArgs) {
         return (input: unknown) => isString(input)

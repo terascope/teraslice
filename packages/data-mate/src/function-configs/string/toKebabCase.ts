@@ -4,13 +4,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 export const toKebabCaseConfig: FieldTransformConfig = {
     name: 'toKebabCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts a string to kebab case characters',
+    category: FunctionDefinitionCategory.STRING,
+    description: 'Converts on ore more words into a single word joined by dashes',
     create() {
         // toKebabCase handles cases input is not string
         return (input: unknown) => toKebabCase(input as string);
