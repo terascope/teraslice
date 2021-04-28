@@ -90,10 +90,10 @@ function getMode<T extends Record<string, any>>(
     return TransformMode.EACH;
 }
 
-function transformColumnData(
+function transformColumnData<T extends Record<string, any>>(
     column: Column,
-    transformConfig: FieldTransformConfig,
-    args?: Record<string, unknown>
+    transformConfig: FieldTransformConfig<T>,
+    args?: T
 ): Column {
     validateFieldTransformType(
         getVectorType(transformConfig.accepts),
@@ -125,7 +125,7 @@ function transformColumnData(
     };
 
     const transformFn = transformConfig.create(
-        { ...args },
+        { ...args } as T,
         inputConfig
     );
 
@@ -146,10 +146,10 @@ function transformColumnData(
     );
 }
 
-function validateColumnData(
+function validateColumnData<T extends Record<string, any>>(
     column: Column,
-    validationConfig: FieldValidateConfig,
-    args?: Record<string, unknown>
+    validationConfig: FieldValidateConfig<T>,
+    args?: T
 ): Column {
     validateFieldTransformType(
         getVectorType(validationConfig.accepts),
@@ -168,7 +168,7 @@ function validateColumnData(
     };
 
     const validatorFn = validationConfig.create(
-        { ...args },
+        { ...args } as T,
         inputConfig
     );
 
@@ -198,24 +198,25 @@ function validateColumnData(
     );
 }
 
-function validateColumn(
-    config: FieldValidateConfig,
-    args?: Record<string, unknown>,
+function validateColumn<T extends Record<string, any>>(
+    config: FieldValidateConfig<T>, args?: T,
 ) {
     return function _validateColumn(column: Column<any>): Column<any> {
         return validateColumnData(column, config, args);
     };
 }
 
-function transformColumn(config: FieldTransformConfig, args?: Record<string, unknown>) {
+function transformColumn<T extends Record<string, any>>(
+    config: FieldTransformConfig<T>, args?: T
+) {
     return function _transformColumn(column: Column): Column {
         return transformColumnData(column, config, args);
     };
 }
 
-function validateFrame(
-    fnDef: FieldValidateConfig,
-    args?: Record<string, unknown>,
+function validateFrame<T extends Record<string, any>>(
+    fnDef: FieldValidateConfig<T>,
+    args?: T,
     field?: string
 ) {
     return function _validateFrame(
@@ -229,9 +230,9 @@ function validateFrame(
     };
 }
 
-function transformFrame(
-    fnDef: FieldTransformConfig,
-    args?: Record<string, unknown>,
+function transformFrame<T extends Record<string, any>>(
+    fnDef: FieldTransformConfig<T>,
+    args?: T,
     field?: string
 ) {
     return function _transformFrame(

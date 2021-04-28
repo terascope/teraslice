@@ -70,13 +70,13 @@ function isEmptyLike(input: unknown): boolean {
     return isNil(input) || (!isBoolean(input) && !isNumber(input) && isEmpty(input));
 }
 
-export function validateFunctionArgs(
-    fnDef: FunctionDefinitionConfig<any>,
-    args?: Record<string, any>
-): void {
+export function validateFunctionArgs<T extends Record<string, any>>(
+    fnDef: FunctionDefinitionConfig<T>,
+    args?: T
+): asserts args is T {
     // check required fields
     if (fnDef?.required_arguments?.length) {
-        if (isNil(args)) {
+        if (isNil(args) || !Object.keys(args).length) {
             throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(
                 fnDef.required_arguments as string[]
             )} to be set`);
@@ -109,6 +109,6 @@ export function validateFunctionArgs(
     }
 
     if (fnDef.validate_arguments) {
-        fnDef.validate_arguments(args ?? {});
+        fnDef.validate_arguments(args ?? ({} as T));
     }
 }
