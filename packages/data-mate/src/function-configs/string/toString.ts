@@ -4,14 +4,16 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const toStringConfig: FieldTransformConfig = {
     name: 'toString',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'converts input values to strings',
+    category: FunctionDefinitionCategory.STRING,
+    description: 'Converts input values to strings',
     create() {
         return (input: unknown) => {
             if (isBigInt(input)) {

@@ -3,13 +3,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const encodeHexConfig: FieldTransformConfig = {
     name: 'encodeHex',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Converts value to a hexadecimal hash',
     create() {
         return (input: unknown) => Buffer.from(input as string).toString('hex');

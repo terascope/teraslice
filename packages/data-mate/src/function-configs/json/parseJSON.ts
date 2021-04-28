@@ -8,7 +8,8 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface ParseJSONArgs {
@@ -27,6 +28,7 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     name: 'parseJSON',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
+    category: FunctionDefinitionCategory.JSON,
     description: 'parses JSON input',
     create() {
         return (input: unknown) => {

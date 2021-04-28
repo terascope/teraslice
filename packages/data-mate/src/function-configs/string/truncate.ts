@@ -4,6 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 export interface TruncateConfig {
@@ -14,6 +15,7 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     name: 'truncate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Truncate a string value',
     create({ size }: TruncateConfig) {
         return (input: unknown) => truncate(input as string, size, false);

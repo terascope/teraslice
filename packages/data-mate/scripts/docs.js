@@ -52,7 +52,7 @@ function generateExamples(fnDef, examples) {
 function generateFunctionDoc(fnDef) {
     return [
         `
-### \`${fnDef.name}\`
+### \`${fnDef.name}\` (${fnDef.type})
 
 > ${fnDef.description}`.trim(),
         ...generateExamples(fnDef, fnDef.examples)
@@ -63,7 +63,7 @@ function generateDocsForCategory([category, fnsByType]) {
     const fns = _.flatten(Object.values(fnsByType));
 
     return [
-        `## ${toTitleCase(category.toLowerCase())}`,
+        `## CATEGORY: ${toTitleCase(category.toLowerCase())}`,
         ...fns.map(generateFunctionDoc)
     ];
 }

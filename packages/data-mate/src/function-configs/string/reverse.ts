@@ -4,6 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 function _reverse(input: unknown): string|null {
@@ -26,6 +27,7 @@ export const reverseConfig: FieldTransformConfig = {
     name: 'reverse',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'reverses the string value',
     create() {
         return _reverse;

@@ -4,13 +4,15 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const toBooleanConfig: FieldTransformConfig = {
     name: 'toBoolean',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.BOOLEAN,
     description: 'Converts a truthy or falsy value to boolean',
     create() {
         return toBoolean;

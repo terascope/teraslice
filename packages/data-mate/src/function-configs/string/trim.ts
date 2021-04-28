@@ -5,7 +5,8 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
-    FunctionDefinitionType
+    FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface TrimArgs {
@@ -16,6 +17,7 @@ export const trimConfig: FieldTransformConfig<TrimArgs> = {
     name: 'trim',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from string',
     create({ chars } = {}) {
         return (input: unknown) => trim(input, chars);

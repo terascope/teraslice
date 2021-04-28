@@ -4,7 +4,8 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const extractConfig: FieldTransformConfig = {
@@ -12,6 +13,7 @@ export const extractConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Extract values from strings and objects',
+    category: FunctionDefinitionCategory.STRING,
     create() {
         return toBoolean;
     },
