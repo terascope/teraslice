@@ -15,7 +15,7 @@ import {
     isString,
     isEmail,
     isMacAddress,
-    isUrl,
+    isURL,
     isUUID,
     isBase64,
     isFQDN,
@@ -247,7 +247,7 @@ describe('String Utils', () => {
         });
     });
 
-    describe('isUrl', () => {
+    describe('isURL', () => {
         test.each([
             ['http://someurl.com', true],
             ['http://someurl.com.uk', true],
@@ -266,7 +266,7 @@ describe('String Utils', () => {
             [{ url: 'http:thisisaurl.com' }, false],
             [12345, false],
         ])('should return true for valid urls', (input, expected) => {
-            expect(isUrl(input)).toEqual(expected);
+            expect(isURL(input)).toEqual(expected);
         });
     });
 

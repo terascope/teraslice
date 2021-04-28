@@ -10,7 +10,7 @@ import {
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 import { WritableData } from '../core';
-import { DataTypeFieldAndChildren } from '../interfaces';
+import { DataTypeFieldAndChildren } from '../function-configs';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -30,6 +30,7 @@ export function mapVector<T, R = T>(
     config: DataTypeFieldAndChildren,
 ): Vector<R> {
     const { field_config, child_config: childConfig = {} } = config;
+
     const builder = Builder.make<R>(
         new WritableData(vector.size),
         {
@@ -64,9 +65,11 @@ export function mapVectorEach<T, R = T>(
     fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>,
 ): Vector<R> {
     let i = 0;
+
     for (const value of vector) {
         builder.set(i++, fn(value));
     }
+
     return builder.toVector();
 }
 
@@ -81,6 +84,7 @@ export function mapVectorEachValue<T, R = T>(
                 v != null ? fn(v) : null
             ));
         }
+
         return fn(value as T);
     }
 
@@ -117,6 +121,7 @@ export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>
 ): void {
     if (!accepts?.length) return;
+
     // if the type is a List, then we need to give the child type
     const type = vector.type === VectorType.List ? Vector.make([], {
         config: { ...vector.config, array: false }

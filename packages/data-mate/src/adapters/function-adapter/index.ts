@@ -1,3 +1,4 @@
+import { DataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
 import {
     fieldValidationRowExecution,
     fieldValidationColumnExecution,
@@ -15,7 +16,6 @@ import {
     FunctionAdapterOptions, RecordFunctionAdapterOperation, FieldFunctionAdapterOperation
 } from './interfaces';
 import {
-    FunctionDefinitions,
     FieldValidateConfig,
     FieldTransformConfig,
     isFieldValidation,
@@ -23,44 +23,39 @@ import {
     RecordValidationConfig,
     RecordTransformConfig,
     isRecordValidation,
-    ProcessMode
-} from '../../interfaces';
+    ProcessMode,
+    FunctionDefinitionConfig,
+    DataTypeFieldAndChildren
+} from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
+import { getChildDataTypeConfig } from '../../core';
 
-// @TODO: fix any type
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldValidateConfig<T>,
+    fnDef: FieldValidateConfig<T>|FieldTransformConfig<T>,
     options?: FunctionAdapterOptions<T>
 ): FieldFunctionAdapterOperation
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldTransformConfig<T>,
-    options?: FunctionAdapterOptions<T>
-): FieldFunctionAdapterOperation
-export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: RecordValidationConfig<T>,
-    options?: FunctionAdapterOptions<T>
-): RecordFunctionAdapterOperation
-export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: RecordTransformConfig<T>,
+    fnDef: RecordValidationConfig<T>|RecordTransformConfig<T>|FunctionDefinitionConfig<T>,
     options?: FunctionAdapterOptions<T>
 ): RecordFunctionAdapterOperation
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     /** The field validation or transform function definition */
-    fnDef: FunctionDefinitions,
+    fnDef: FunctionDefinitionConfig<T>,
     options: FunctionAdapterOptions<T> = {}
-): any {
+): RecordFunctionAdapterOperation|FieldFunctionAdapterOperation {
     const {
-        args,
         field,
+        config,
         preserveNulls = true,
         preserveEmptyObjects = true,
     } = options;
 
+    const args = { ...options.args } as T;
     validateFunctionArgs(fnDef, args);
 
     if (isFieldValidation(fnDef)) {
         // creating fn here ensures better typing of what fn is
-        const fn = fnDef.create(args ?? {});
+        const fn = fnDef.create(args, getDataTypeFieldAndChildren(config, field));
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
@@ -76,12 +71,11 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
                 fn, preserveNulls, preserveEmptyObjects, field
             ),
             column: fieldValidationColumnExecution(fn, preserveNulls)
-
         };
     }
 
     if (isFieldTransform(fnDef)) {
-        const fn = fnDef.create(args ?? {});
+        const fn = fnDef.create(args, getDataTypeFieldAndChildren(config, field));
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
@@ -97,18 +91,29 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
                 fn as any, preserveNulls, preserveEmptyObjects, field
             ),
             column: fieldTransformColumnExecution(fn as any, preserveNulls)
-
         };
     }
 
     if (isRecordValidation(fnDef)) {
-        const fn = fnDef.create(args ?? {});
+        const fn = fnDef.create(args, config?.fields);
         return {
-            rows: recordValidationExecution(fn, preserveNulls)
+            rows: recordValidationExecution(fn)
         };
     }
 
     throw new Error(`Function definition ${JSON.stringify(fnDef, null, 4)} is not currently supported`);
+}
+
+export function getDataTypeFieldAndChildren(
+    config: DataTypeConfig|undefined, field: string|undefined
+): DataTypeFieldAndChildren|undefined {
+    if (!field || !config) return;
+    const fieldConfig = config.fields[field];
+    if (!fieldConfig) return;
+    const childConfig: DataTypeFields|undefined = getChildDataTypeConfig(
+        config.fields, field, fieldConfig.type as FieldType
+    );
+    return { field_config: fieldConfig, child_config: childConfig };
 }
 
 // RecordValidation preserveNull true

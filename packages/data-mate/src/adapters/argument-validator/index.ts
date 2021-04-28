@@ -13,8 +13,8 @@ import {
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
-    FunctionDefinitions,
-} from '../../interfaces';
+    FunctionDefinitionConfig,
+} from '../../function-configs/interfaces';
 
 // TODO: migrate IPRange to IP?
 function getType(
@@ -70,11 +70,16 @@ function isEmptyLike(input: unknown): boolean {
     return isNil(input) || (!isBoolean(input) && !isNumber(input) && isEmpty(input));
 }
 
-export function validateFunctionArgs(fnDef: FunctionDefinitions, args?: Record<string, any>): void {
+export function validateFunctionArgs<T extends Record<string, any>>(
+    fnDef: FunctionDefinitionConfig<T>,
+    args?: T
+): asserts args is T {
     // check required fields
     if (fnDef?.required_arguments?.length) {
-        if (isNil(args)) {
-            throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(fnDef.required_arguments)} to be set`);
+        if (isNil(args) || !Object.keys(args).length) {
+            throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(
+                fnDef.required_arguments as string[]
+            )} to be set`);
         }
 
         for (const field of fnDef.required_arguments) {
@@ -104,6 +109,6 @@ export function validateFunctionArgs(fnDef: FunctionDefinitions, args?: Record<s
     }
 
     if (fnDef.validate_arguments) {
-        fnDef.validate_arguments(args ?? {});
+        fnDef.validate_arguments(args ?? ({} as T));
     }
 }

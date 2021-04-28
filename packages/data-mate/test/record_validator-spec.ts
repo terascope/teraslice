@@ -1,4 +1,5 @@
 import { RecordValidator } from '../src';
+
 describe('record validators', () => {
     describe('required', () => {
         it('should filter records that do not have the fields', () => {
