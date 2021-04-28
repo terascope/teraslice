@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
-} from '../../src';
+} from '../../../src';
 
 const isMimeTypeConfig = functionConfigRepository.isMimeType;
 

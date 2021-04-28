@@ -8,6 +8,7 @@ import { encodeSHAConfig } from './encodeSHA';
 import { encodeSHA1Config } from './encodeSHA1';
 import { encodeURLConfig } from './encodeURL';
 import { extractConfig } from './extract';
+import { isAlphaNumericConfig } from './isAlphaNumeric';
 import { isBase64Config } from './isBase64';
 import { isCountryCodeConfig } from './isCountryCode';
 import { isEmailConfig } from './isEmail';
@@ -15,6 +16,9 @@ import { isFQDNConfig } from './isFQDN';
 import { isHashConfig } from './isHash';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMACAddress';
+import { isMimeTypeConfig } from './isMimeType';
+import { isPortConfig } from './isPort';
+import { isPostalCodeConfig } from './isPostalCode';
 import { isStringConfig } from './isString';
 import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
@@ -33,6 +37,8 @@ import { trimEndConfig } from './trimEnd';
 import { trimStartConfig } from './trimStart';
 import { truncateConfig } from './truncate';
 
+// isPort,
+
 export const stringRepository = {
     contains: containsConfig,
     decodeBase64: decodeBase64Config,
@@ -44,6 +50,7 @@ export const stringRepository = {
     encodeSHA1: encodeSHA1Config,
     encodeURL: encodeURLConfig,
     extract: extractConfig,
+    isAlphaNumeric: isAlphaNumericConfig,
     isBase64: isBase64Config,
     isCountryCode: isCountryCodeConfig,
     isEmail: isEmailConfig,
@@ -51,6 +58,9 @@ export const stringRepository = {
     isHash: isHashConfig,
     isLength: isLengthConfig,
     isMACAddress: isMACAddressConfig,
+    isMimeType: isMimeTypeConfig,
+    isPort: isPortConfig,
+    isPostalCode: isPostalCodeConfig,
     isString: isStringConfig,
     isURL: isURLConfig,
     isUUID: isUUIDConfig,

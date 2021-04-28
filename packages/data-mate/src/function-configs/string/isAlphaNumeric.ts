@@ -1,27 +1,7 @@
 import { isAlphaNumeric, joinList, isString } from '@terascope/utils';
-import { FieldType } from 'packages/types/dist/src';
+import { FieldType } from '@terascope/types';
 import validator from 'validator';
 import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
-
-/**
- * Validates that the input is a valid MIME Type
- *
- * @example
- *
- *  isAlphaNumeric('example')  // true
- *  isAlphaNumeric('123456')  // true
- *  isAlphaNumeric('example123456')  // true
- *  isAlphaNumeric('no_underscores.com')  // false
- *  isAlphaNumeric(true)  // false
- *  isAlphaNumeric(123456)  // false
- *  isAlphaNumeric('ThisiZĄĆĘŚŁ1234', 'pl-Pl')  // true
- *  isAlphaNumeric('ThisiZĄĆĘŚŁ1234', 'en-HK')  // false
- *     
- * @param {*} input  // false
- * @param {{ locale }} // country locale, defaults to en-US
- * @returns {boolean} boolean
- *
- */
 
  export interface AlphaNumericLocale {
     locale?: validator.AlphanumericLocale;
@@ -45,7 +25,7 @@ export const isAlphaNumericConfig: FieldValidateConfig = {
         if (locale == null) return;
 
         if (!isString(locale) || !locales.includes(locale)) {
-            throw new Error(`Invalid locale, local options are ${joinList(locales)}`);   
+            throw new Error(`Invalid locale, locale options are ${joinList(locales)}`);   
         }
     }
 };
