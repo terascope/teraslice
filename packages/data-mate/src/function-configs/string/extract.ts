@@ -56,7 +56,6 @@ const examples: FunctionDefinitionExample<ExtractArgs>[] = [
         input: '<hello> some stuff <world>',
         output: ['hello', 'world']
     },
-
 ];
 
 export const extractConfig: FieldTransformConfig<ExtractArgs> = {

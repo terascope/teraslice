@@ -20,10 +20,41 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Converts to a SHA1 encoded value',
     category: FunctionDefinitionCategory.STRING,
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: '{ "some": "data" }',
+            output: 'e8cb1404796eba6779a276377cce99a502a36481',
+            description: 'If digest is not provided, it defaults to hex'
+        },
+        {
+            args: { digest: 'base64' },
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: '{ "some": "data" }',
+            output: '6MsUBHluumd5onY3fM6ZpQKjZIE='
+        }
+    ],
     create({ digest = defaultDigest } = {}) {
         return (input: unknown) => encodeSHA1(input, digest as BinaryToTextEncoding);
     },
-    accepts: [],
+    accepts: [FieldType.String],
     argument_schema: {
         digest: {
             type: FieldType.String,

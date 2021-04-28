@@ -1,4 +1,5 @@
 import { isBase64 } from '@terascope/utils';
+import { FieldType } from 'packages/types/dist/src';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -10,5 +11,5 @@ export const isBase64Config: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid base64 string',
     create() { return isBase64; },
-    accepts: [],
+    accepts: [FieldType.String],
 };

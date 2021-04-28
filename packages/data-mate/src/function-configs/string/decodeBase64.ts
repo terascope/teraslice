@@ -13,6 +13,23 @@ export const decodeBase64Config: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts a base64 hash back to its value',
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: 'c29tZSBzdHJpbmc=',
+            output: 'some string',
+
+        }
+    ],
     create() {
         return (input: unknown) => Buffer.from(input as string, 'base64').toString('utf8');
     },
@@ -27,5 +44,5 @@ export const decodeBase64Config: FieldTransformConfig = {
             },
             child_config
         };
-    }
+    },
 };

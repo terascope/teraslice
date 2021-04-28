@@ -40,7 +40,7 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
     create({ substr }) {
         return (input: unknown) => contains(input, substr);
     },
-    accepts: [],
+    accepts: [FieldType.String],
     argument_schema: {
         substr: {
             type: FieldType.String,
