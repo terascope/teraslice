@@ -25,11 +25,14 @@ export class AssetSrc {
     assetPackageJson: any;
     name: string;
     version: string;
-    devMode = false;
     bundle?: boolean;
+    bundleTarget?: string;
 
-    constructor(srcDir: string, devMode = false, bundle = false) {
+    devMode = false;
+
+    constructor(srcDir: string, devMode = false, bundle = false, bundleTarget = undefined) {
         this.bundle = bundle;
+        this.bundleTarget = bundleTarget;
         this.devMode = devMode;
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
@@ -51,11 +54,13 @@ export class AssetSrc {
     }
 
     get zipFileName(): string {
-        const nodeVersion = process.version.split('.')[0].substr(1);
         let zipName;
+        let nodeVersion;
         if (this.bundle) {
-            zipName = `${this.name}-v${this.version}-node-${nodeVersion}-bundle.zip`;
+            nodeVersion = this.bundleTarget;
+            zipName = `${this.name}-v${this.version}-${nodeVersion}-bundle.zip`;
         } else {
+            nodeVersion = process.version.split('.')[0].substr(1);
             zipName = `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
         }
         return zipName;
@@ -106,17 +111,21 @@ export class AssetSrc {
         if (!this.devMode) {
             const restrictions:string[] = [];
             if (assetJSON.node_version === undefined) {
-                assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+                if (this.bundle) {
+                    assetJSON.node_version = toInteger(this.bundleTarget?.replace('node', ''));
+                } else {
+                    assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+                }
                 restrictions.push('node_version');
             }
 
             if (assetJSON.platform === undefined) {
-                assetJSON.platform = (this.bundle ? process.platform : false);
+                assetJSON.platform = (this.bundle ? false : process.platform);
                 restrictions.push('platform');
             }
 
             if (assetJSON.arch === undefined) {
-                assetJSON.arch = (this.bundle ? process.arch : false);
+                assetJSON.arch = (this.bundle ? false : process.arch);
                 restrictions.push('arch');
             }
             if (restrictions.length && !isCI) {
@@ -163,24 +172,24 @@ export class AssetSrc {
                 spaces: 4,
             });
 
-            // FIXME: This currently assumes that asset/dist/index.js exists, it
-            // will not exist in the following cases:
-            //  * asset was not built from typescript (index.js is elsewhere)
-            //  * many assets don't have a top level index.js (maybe we can require it)
+            // FIXME: I think this still assumes a typescript asset with a `dist`
+            // subdirectory, anything other than tmp/asset/dist failed to build
+            // maybe a fallthrough of many dirs would work here
             const result = await build({
                 bundle: true,
-                entryPoints: [path.join(tmpDir.name, 'asset', 'dist', 'index.js')],
+                entryPoints: [require.resolve(path.join(tmpDir.name, 'asset', 'dist'))],
                 outdir: bundleDir.name,
                 platform: 'node',
                 sourcemap: false,
-                // FIXME: target shouldn't be hard coded, it should be driven
-                // by something else
-                target: 'node12.21',
+                target: this.bundleTarget,
             });
 
-            // FIXME ... I need to test load the asset here ...
+            // TODO ... Peter asked that I test load the asset here ...
             // node -p -e "require('./out.js').ASSETS"
-            // const r = await execa('node', ['-p', `"require('${bundleDir.name}/index.js').ASSETS"`]);
+            // const r = await execa(
+            //     'node', ['-p', `"require('${bundleDir.name}/index.js').ASSETS"`]
+            // );
+            // eslint-disable-next-line no-console
             // console.log(r);
 
             if (result.warnings.length > 0) {
@@ -192,8 +201,8 @@ export class AssetSrc {
                 // create zipfile
                 zipOutput = await AssetSrc.zip(path.join(bundleDir.name), outputFileName);
                 // remove temp directories
-                // await fs.remove(tmpDir.name);
-                // await fs.remove(bundleDir.name);
+                await fs.remove(tmpDir.name);
+                await fs.remove(bundleDir.name);
             } catch (err) {
                 throw new TSError(err, {
                     reason: 'Failure creating asset zipfile'

@@ -11,6 +11,7 @@ export = {
     describe: 'Builds asset bundle.\n',
     builder(yargs) {
         yargs.option('bundle', yargsOptions.buildOption('bundle'));
+        yargs.option('bundleTarget', yargsOptions.buildOption('bundleTarget'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('quiet', yargsOptions.buildOption('quiet'));
@@ -34,7 +35,8 @@ export = {
             const asset = new AssetSrc(
                 cliConfig.args.srcDir,
                 cliConfig.args.dev,
-                cliConfig.args.bundle
+                cliConfig.args.bundle,
+                cliConfig.args.bundleTarget
             );
 
             reply.green('Beginning asset build.');

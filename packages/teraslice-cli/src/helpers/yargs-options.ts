@@ -58,6 +58,17 @@ export default class Options {
             default: false,
             type: 'boolean'
         }),
+        bundleTarget: () => ({
+            describe: 'Specify which version of node is used as the target for esbuild',
+            default: 'node12',
+            choices: [
+                'node10',
+                'node12',
+                'node14',
+                'node16'
+            ],
+            type: 'string',
+        }),
         'config-dir': () => ({
             alias: 'd',
             describe: 'Config directory',
