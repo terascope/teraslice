@@ -57,8 +57,8 @@ export class AssetSrc {
         let zipName;
         let nodeVersion;
         if (this.bundle) {
-            nodeVersion = this.bundleTarget;
-            zipName = `${this.name}-v${this.version}-${nodeVersion}-bundle.zip`;
+            nodeVersion = this.bundleTarget?.replace('node', '');
+            zipName = `${this.name}-v${this.version}-node-${nodeVersion}-bundle.zip`;
         } else {
             nodeVersion = process.version.split('.')[0].substr(1);
             zipName = `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
