@@ -15,7 +15,7 @@ function prettyPrint(input) {
     if (Array.isArray(input)) return `[${input.map(prettyPrint)}]`;
     return Object.entries(input).map(([key, value]) => (
         `${key}: ${prettyPrint(value)}`
-    )).join('\n');
+    )).join(', ');
 }
 
 /**
