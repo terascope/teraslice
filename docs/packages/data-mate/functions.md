@@ -107,7 +107,7 @@ sidebar_label: Functions
 
 > Checks to see if input is a string
 
-### `isUrl` (FIELD_VALIDATION)
+### `isURL` (FIELD_VALIDATION)
 
 > Checks to see if input is a string
 
@@ -206,5 +206,3 @@ sidebar_label: Functions
 ### `truncate` (FIELD_TRANSFORM)
 
 > Truncate a string value
-
-

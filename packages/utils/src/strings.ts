@@ -469,7 +469,7 @@ export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
     };
 }
 
-export function isUrl(input: unknown): boolean {
+export function isURL(input: unknown): boolean {
     return isString(input) && validator.isURL(input);
 }
 
