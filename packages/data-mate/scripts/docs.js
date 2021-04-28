@@ -41,7 +41,7 @@ ${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // 
 function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
-        '#### Examples',
+        '##### Examples',
         ...examples.map(generateExample(fnDef))
     ];
 }
@@ -52,7 +52,7 @@ function generateExamples(fnDef, examples) {
 function generateFunctionDoc(fnDef) {
     return [
         `
-### \`${fnDef.name}\` (${fnDef.type})
+#### \`${fnDef.name}\` (${fnDef.type})
 
 > ${fnDef.description}`.trim(),
         ...generateExamples(fnDef, fnDef.examples)
@@ -63,7 +63,7 @@ function generateDocsForCategory([category, fnsByType]) {
     const fns = _.flatten(Object.values(fnsByType));
 
     return [
-        `## CATEGORY: ${toTitleCase(category.toLowerCase())}`,
+        `### CATEGORY: ${toTitleCase(category.toLowerCase())}`,
         ...fns.map(generateFunctionDoc)
     ];
 }

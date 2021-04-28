@@ -3,65 +3,65 @@ title: Data-Mate Functions
 sidebar_label: Functions
 ---
 
-## CATEGORY: Boolean
+### CATEGORY: Boolean
 
-### `isBoolean` (FIELD_VALIDATION)
+#### `isBoolean` (FIELD_VALIDATION)
 
 > Checks to see if input is a boolean
 
-### `toBoolean` (FIELD_TRANSFORM)
+#### `toBoolean` (FIELD_TRANSFORM)
 
 > Converts a truthy or falsy value to boolean
 
-## CATEGORY: Geo
+### CATEGORY: Geo
 
-### `toGeoPoint` (FIELD_TRANSFORM)
+#### `toGeoPoint` (FIELD_TRANSFORM)
 
 > Converts a truthy or falsy value to boolean
 
-## CATEGORY: Json
+### CATEGORY: Json
 
-### `parseJSON` (FIELD_TRANSFORM)
+#### `parseJSON` (FIELD_TRANSFORM)
 
 > parses JSON input
 
-## CATEGORY: Misc
+### CATEGORY: Misc
 
-### `toJSON` (FIELD_TRANSFORM)
+#### `toJSON` (FIELD_TRANSFORM)
 
 > converts whole input to JSON format
 
-## CATEGORY: Numeric
+### CATEGORY: Numeric
 
-### `add` (FIELD_TRANSFORM)
+#### `add` (FIELD_TRANSFORM)
 
 > add to a numeric value
 
-### `divide` (FIELD_TRANSFORM)
+#### `divide` (FIELD_TRANSFORM)
 
 > Divide one or more values in a vector
 
-### `subtract` (FIELD_TRANSFORM)
+#### `subtract` (FIELD_TRANSFORM)
 
 > subtract a numeric value
 
-## CATEGORY: Object
+### CATEGORY: Object
 
-### `equals` (FIELD_VALIDATION)
+#### `equals` (FIELD_VALIDATION)
 
 > Checks to see if input matches the value
 
-### `isEmpty` (FIELD_VALIDATION)
+#### `isEmpty` (FIELD_VALIDATION)
 
 > Checks to see if input is empty
 
-## CATEGORY: String
+### CATEGORY: String
 
-### `contains` (FIELD_VALIDATION)
+#### `contains` (FIELD_VALIDATION)
 
 > Checks to see if string contains substring. This operations is case-sensitive
 
-#### Examples
+##### Examples
 
 ```ts
 "example" => contains(substr: "ample") // outputs "example"
@@ -75,135 +75,135 @@ sidebar_label: Functions
 "example" => contains(substr: "test") // outputs null
 ```
 
-### `isBase64` (FIELD_VALIDATION)
+#### `isBase64` (FIELD_VALIDATION)
 
 > Checks to see if input is a valid base64 string
 
-### `isCountryCode` (FIELD_VALIDATION)
+#### `isCountryCode` (FIELD_VALIDATION)
 
 > Checks to see if input is a valid ISO 3166-1 alpha-2 country code
 
-### `isEmail` (FIELD_VALIDATION)
+#### `isEmail` (FIELD_VALIDATION)
 
 > Checks to see if input is an email
 
-### `isFQDN` (FIELD_VALIDATION)
+#### `isFQDN` (FIELD_VALIDATION)
 
 > Checks to see if input is a fully qualified domain name
 
-### `isHash` (FIELD_VALIDATION)
+#### `isHash` (FIELD_VALIDATION)
 
 > Checks to see if input is a hash
 
-### `isLength` (FIELD_VALIDATION)
+#### `isLength` (FIELD_VALIDATION)
 
 > Checks to see if input either matches a certain length, or is within a range
 
-### `isMACAddress` (FIELD_VALIDATION)
+#### `isMACAddress` (FIELD_VALIDATION)
 
 > Checks to see if input is a valid mac address
 
-### `isString` (FIELD_VALIDATION)
+#### `isString` (FIELD_VALIDATION)
 
 > Checks to see if input is a string
 
-### `isURL` (FIELD_VALIDATION)
+#### `isURL` (FIELD_VALIDATION)
 
 > Checks to see if input is a string
 
-### `isUUID` (FIELD_VALIDATION)
+#### `isUUID` (FIELD_VALIDATION)
 
 > Checks to see if input is a UUID
 
-### `decodeBase64` (FIELD_TRANSFORM)
+#### `decodeBase64` (FIELD_TRANSFORM)
 
 > Converts a base64 hash back to its value
 
-### `decodeHex` (FIELD_TRANSFORM)
+#### `decodeHex` (FIELD_TRANSFORM)
 
 > Converts a hexadecimal hash back to its value
 
-### `decodeURL` (FIELD_TRANSFORM)
+#### `decodeURL` (FIELD_TRANSFORM)
 
 > decodes a URL encoded value
 
-### `encodeBase64` (FIELD_TRANSFORM)
+#### `encodeBase64` (FIELD_TRANSFORM)
 
 > Converts value to a base64 hash
 
-### `encodeHex` (FIELD_TRANSFORM)
+#### `encodeHex` (FIELD_TRANSFORM)
 
 > Converts value to a hexadecimal hash
 
-### `encodeSHA` (FIELD_TRANSFORM)
+#### `encodeSHA` (FIELD_TRANSFORM)
 
 > Converts to a SHA encoded value
 
-### `encodeSHA1` (FIELD_TRANSFORM)
+#### `encodeSHA1` (FIELD_TRANSFORM)
 
 > Converts to a SHA1 encoded value
 
-### `encodeURL` (FIELD_TRANSFORM)
+#### `encodeURL` (FIELD_TRANSFORM)
 
 > URL encodes a value
 
-### `extract` (FIELD_TRANSFORM)
+#### `extract` (FIELD_TRANSFORM)
 
 > Extract values from strings and objects
 
-### `reverse` (FIELD_TRANSFORM)
+#### `reverse` (FIELD_TRANSFORM)
 
 > reverses the string value
 
-### `toCamelCase` (FIELD_TRANSFORM)
+#### `toCamelCase` (FIELD_TRANSFORM)
 
 > Converts multiple words into a single word joined with each starting character capitalized, excluding the first character which is always lowercase
 
-### `toISDN` (FIELD_TRANSFORM)
+#### `toISDN` (FIELD_TRANSFORM)
 
 > Parses a string or number to a fully validated phone number
 
-### `toKebabCase` (FIELD_TRANSFORM)
+#### `toKebabCase` (FIELD_TRANSFORM)
 
 > Converts on ore more words into a single word joined by dashes
 
-### `toLowerCase` (FIELD_TRANSFORM)
+#### `toLowerCase` (FIELD_TRANSFORM)
 
 > Converts a string to lower case characters
 
-### `toPascalCase` (FIELD_TRANSFORM)
+#### `toPascalCase` (FIELD_TRANSFORM)
 
 > Converts one or more words into a single word joined with each starting character capitalized
 
-### `toSnakeCase` (FIELD_TRANSFORM)
+#### `toSnakeCase` (FIELD_TRANSFORM)
 
 > Converts one or more words into a single word joined by underscores
 
-### `toString` (FIELD_TRANSFORM)
+#### `toString` (FIELD_TRANSFORM)
 
 > Converts input values to strings
 
-### `toTitleCase` (FIELD_TRANSFORM)
+#### `toTitleCase` (FIELD_TRANSFORM)
 
 > Converts one or more words into a whitespace separated word with each word starting with a capital letter
 
-### `toUpperCase` (FIELD_TRANSFORM)
+#### `toUpperCase` (FIELD_TRANSFORM)
 
 > Converts a string to upper case characters
 
-### `trim` (FIELD_TRANSFORM)
+#### `trim` (FIELD_TRANSFORM)
 
 > Trims whitespace or characters from string
 
-### `trimEnd` (FIELD_TRANSFORM)
+#### `trimEnd` (FIELD_TRANSFORM)
 
 > Trims whitespace or characters from end of string
 
-### `trimStart` (FIELD_TRANSFORM)
+#### `trimStart` (FIELD_TRANSFORM)
 
 > Trims whitespace or characters from start of string
 
-### `truncate` (FIELD_TRANSFORM)
+#### `truncate` (FIELD_TRANSFORM)
 
 > Truncate a string value
 
