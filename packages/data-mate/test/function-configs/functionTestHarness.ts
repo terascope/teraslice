@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { isObjectEntity } from '@terascope/utils';
 import {
     functionAdapter,

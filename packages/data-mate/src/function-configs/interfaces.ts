@@ -63,8 +63,14 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /** Used to generate documentation */
     readonly description: string;
     /**
+     * The category of operation, for documentation purposes
+     * FIXME make this non-optional
+    */
+    readonly category?: string;
+    /**
      * Examples that will be used in the documentation and potentially
-     * in the automated tests
+     * in the automated tests.
+     * FIXME make this non-optional
     */
     readonly examples?: readonly FunctionDefinitionExample<T>[];
     /**
