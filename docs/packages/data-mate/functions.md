@@ -185,7 +185,7 @@ sidebar_label: Functions
 
 ### `toTitleCase` (FIELD_TRANSFORM)
 
-> Converts one or more words into a space separated word with each word starting with a capital letter
+> Converts one or more words into a whitespace separated word with each word starting with a capital letter
 
 ### `toUpperCase` (FIELD_TRANSFORM)
 
@@ -206,3 +206,5 @@ sidebar_label: Functions
 ### `truncate` (FIELD_TRANSFORM)
 
 > Truncate a string value
+
+
