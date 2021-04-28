@@ -2,7 +2,7 @@
 
 'use strict';
 
-const { isPrimitiveValue, toTitleCase } = require('@terascope/utils');
+const { isPrimitiveValue, toTitleCase, isEmpty } = require('@terascope/utils');
 /* @ts-check */
 
 const _ = require('lodash');
@@ -26,10 +26,11 @@ function generateExample(fnDef) {
      * @param example {import('..').FunctionDefinitionExample}
     */
     return function _generateExample(example) {
+        const out = example.fails ? `throws ${example.output}` : `outputs ${prettyPrint(example.output)}`;
         return `
 ${example.description || ''}
 \`\`\`ts
-${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // outputs ${prettyPrint(example.output)}
+${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // ${out}
 \`\`\`
         `.trim();
     };
@@ -49,12 +50,46 @@ function generateExamples(fnDef, examples) {
 /**
  * @param fnDef {import('..').FunctionDefinitionConfig}
 */
+function generateArgDocs(fnDef) {
+    if (isEmpty(fnDef.argument_schema)) return [];
+
+    function isRequired(field) {
+        if (!fnDef.required_arguments || !fnDef.required_arguments.length) return false;
+        return fnDef.required_arguments.includes(field);
+    }
+
+    return [
+        '##### Arguments',
+        ...Object.entries(fnDef.argument_schema).map(([field, fieldConfig]) => {
+            const typeVal = fieldConfig.array ? `${fieldConfig.type}[]` : fieldConfig.type;
+            const desc = fieldConfig.description ? ` - ${fieldConfig.description}` : '';
+            return ` - **${field}**: ${isRequired(field) ? '(required)' : ''} \`${typeVal}\`${desc}`;
+        })
+    ];
+}
+
+/**
+ * @param fnDef {import('..').FunctionDefinitionConfig}
+*/
+function generateAccepts(fnDef) {
+    if (!fnDef.accepts || !fnDef.accepts.length) return [];
+    return [
+        '##### Accepts',
+        fnDef.accepts.map((type) => `- \`${type}\``).join('\n'),
+    ];
+}
+
+/**
+ * @param fnDef {import('..').FunctionDefinitionConfig}
+*/
 function generateFunctionDoc(fnDef) {
     return [
         `
 #### \`${fnDef.name}\` (${fnDef.type})
 
 > ${fnDef.description}`.trim(),
+        ...generateArgDocs(fnDef),
+        ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
     ];
 }
