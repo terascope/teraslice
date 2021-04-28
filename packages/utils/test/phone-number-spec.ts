@@ -1,4 +1,4 @@
-import { parsePhoneNumber, isISDN } from '../src';
+import { parsePhoneNumber, isISDN, isPhoneNumberLike } from '../src';
 
 describe('parsePhoneNumber', () => {
     it('return phone number without dashes, spaces, or +', () => {
@@ -67,5 +67,28 @@ describe('isISDN', () => {
         [[], false],
     ])('validate ISDN numbers', (input, expected) => {
         expect(isISDN(input)).toEqual(expected);
+    });
+});
+
+describe('isPhoneNumberLike', () => {
+    test.each([
+        ['46707123456', true],
+        ['1 808 915 6800', true],
+        ['1-808-915-6800', true],
+        ['+18089156800', true],
+        ['+7-952-5554-602', true],
+        [79525554602, true],
+        ['4900000000000', true],
+        ['2234578', true],
+        ['223457823432432423324', false],
+        ['unknown', false],
+        ['52', false],
+        ['123', false],
+        [7, false],
+        [true, false],
+        [{}, false],
+        [[], false],
+    ])('validate inputs that resemble phone numbers, less strict than isISDN', (input, expected) => {
+        expect(isPhoneNumberLike(input)).toEqual(expected);
     });
 });

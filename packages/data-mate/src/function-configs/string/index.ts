@@ -14,9 +14,11 @@ import { isCountryCodeConfig } from './isCountryCode';
 import { isEmailConfig } from './isEmail';
 import { isFQDNConfig } from './isFQDN';
 import { isHashConfig } from './isHash';
+import { isISDNConfig } from './isISDN';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMACAddress';
 import { isMimeTypeConfig } from './isMimeType';
+import { isPhoneNumberLikeConfig } from './isPhoneNumberLike';
 import { isPortConfig } from './isPort';
 import { isPostalCodeConfig } from './isPostalCode';
 import { isStringConfig } from './isString';
@@ -37,8 +39,6 @@ import { trimEndConfig } from './trimEnd';
 import { trimStartConfig } from './trimStart';
 import { truncateConfig } from './truncate';
 
-// isPort,
-
 export const stringRepository = {
     contains: containsConfig,
     decodeBase64: decodeBase64Config,
@@ -56,9 +56,11 @@ export const stringRepository = {
     isEmail: isEmailConfig,
     isFQDN: isFQDNConfig,
     isHash: isHashConfig,
+    isISDN: isISDNConfig,
     isLength: isLengthConfig,
     isMACAddress: isMACAddressConfig,
     isMimeType: isMimeTypeConfig,
+    isPhoneNumberLike: isPhoneNumberLikeConfig,
     isPort: isPortConfig,
     isPostalCode: isPostalCodeConfig,
     isString: isStringConfig,

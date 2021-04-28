@@ -1,6 +1,7 @@
 import PhoneValidator from 'awesome-phonenumber';
 import { toString, isString } from './strings';
-import { isNumber } from './numbers';
+
+import { isNumber, inNumberRange } from './numbers';
 
 export function parsePhoneNumber(input: string|number): string {
     let testNumber = toString(input).trim();
@@ -25,5 +26,10 @@ export function isISDN(input: unknown): boolean {
     }
 
     return false;
+}
 
+export function isPhoneNumberLike(input: unknown): boolean {
+    const testValue = toString(input).trim().replace(/\D/g,'');
+
+    return inNumberRange(testValue.length, { min: 7, max: 20, inclusive: true });
 }
