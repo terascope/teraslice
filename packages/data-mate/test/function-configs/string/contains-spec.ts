@@ -4,5 +4,4 @@ import {
 } from '../../../src';
 import { functionTestHarness } from '../functionTestHarness';
 
-functionTestHarness(functionConfigRepository.contains, [
-]);
+functionTestHarness(functionConfigRepository.contains);

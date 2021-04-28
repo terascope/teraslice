@@ -45,7 +45,13 @@ export interface FunctionDefinitionExample<T extends Record<string, any>> {
      * In the case of validators, this should be either
      * the input or null (which indicates it is invalid)
     */
-    readonly output: unknown;
+    readonly output?: unknown;
+
+    /**
+     * If this is set to true, the output is not required. If output
+     * is specified it should be the error message
+    */
+    readonly fails?: boolean;
 
     /**
      * Optionally describe the behavior of this example
