@@ -1,4 +1,4 @@
-import { toBoolean } from '@terascope/utils';
+import { toBoolean, match } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,19 +7,21 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export const extractConfig: FieldTransformConfig = {
+export interface ExtractArgs {
+    regex?: string;
+    start?: string;
+    end?: string;
+}
+
+export const extractConfig: FieldTransformConfig<ExtractArgs> = {
     name: 'extract',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Extract values from strings and objects',
-    create() {
-        return toBoolean;
+    description: 'Extract values from strings',
+    create(args) {
+        return _extract(args);
     },
-    accepts: [
-        FieldType.Boolean,
-        FieldType.Number,
-        FieldType.String,
-    ],
+    accepts: [FieldType.String],
     // TODO: fix this
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
@@ -30,5 +32,23 @@ export const extractConfig: FieldTransformConfig = {
                 type: FieldType.String
             },
         };
-    }
+    },
+    argument_schema: {
+
+    },
+    validate_arguments() {}
 };
+
+function _extract(args: ExtractArgs) {
+    if (args.regex) return extractByRegex(args.regex);
+    if (args.start && args.end) return extractMarkers(args.start, args.end);
+    throw new Error('Invalid config for extract, must provide either "regex" or "start" and "end"')
+}
+
+function extractByRegex(regex: RegExp|string) {
+    return (input: string) => match(regex, input);
+}
+
+function extractMarkers(start: string, end: string) {
+
+}
