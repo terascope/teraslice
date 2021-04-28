@@ -17,9 +17,14 @@ import {
 */
 export function functionTestHarness<T extends Record<string, any>>(
     fnDef: FunctionDefinitionConfig<T>,
+    expectedName: string,
     cases: readonly FunctionDefinitionExample<T>[] = [],
 ): void {
     describe(fnDef.name, () => {
+        it('should have the correct name in the registry', () => {
+            expect(fnDef.name).toEqual(expectedName);
+        });
+
         type Case = [
             unknown, T, FunctionDefinitionExample<T>
         ];

@@ -32,7 +32,7 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
             field: 'example',
             input: 'example',
             output: null
-        }
+        },
     ],
     create({ substr }) {
         return (input: unknown) => contains(input, substr);
