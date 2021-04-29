@@ -2,7 +2,7 @@ import { isString, isRegExpLike } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample
+    FunctionDefinitionExample, FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface ReplaceRegexArgs {
@@ -49,6 +49,7 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     name: 'replaceRegex',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'This function replaces chars in a string based off the regex value provided',
     create({
         replace,

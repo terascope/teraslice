@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample
+    FunctionDefinitionExample, FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface SplitStringArgs {
@@ -44,6 +44,7 @@ export const splitStringConfig: FieldTransformConfig<SplitStringArgs> = {
     name: 'splitString',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: ' Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char',
     examples,
     create({ delimiter = '' }) {

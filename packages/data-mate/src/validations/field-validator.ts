@@ -689,7 +689,7 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
 }
 
 interface MACAddressArgs {
-    delimiter?: MACDelimiter | MACDelimiter[];
+    delimiter?: MACDelimiter;
 }
 
 /**
@@ -700,12 +700,12 @@ interface MACAddressArgs {
  * FieldValidator.isMACAddress('001ff35b2b1f'); // true
  * FieldValidator.isMACAddress('001f.f35b.2b1f',{}, { delimiter: 'dot' }); // true
  *
- * const manyDelimiters = { delimiter: ['dash', 'colon', 'space'] }
+ * const manyDelimiters = { delimiter: 'any' }
  * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, manyDelimiters); // true
  * FieldValidator.isMACAddress(12345); // false
  *
  * // specified colon and space delimiter only
- * const twoDelimiters = { delimiter: ['colon', 'space'] };
+ * const twoDelimiters = { delimiter: 'any };
  * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimiters ); // false,
  * FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
  *

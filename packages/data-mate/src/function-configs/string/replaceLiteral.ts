@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample
+    FunctionDefinitionExample, FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface ReplaceLiteralArgs {
@@ -31,6 +31,7 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     name: 'replaceLiteral',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.STRING,
     description: 'Replaces the searched value with the replace value',
     examples,
     create({ replace, search }) {
