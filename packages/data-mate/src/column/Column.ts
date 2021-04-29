@@ -267,6 +267,20 @@ export class Column<T = unknown, N extends NameType = string> {
         };
         return JSON.stringify(column);
     }
+
+    /**
+     * return an empty column with the same size and metadata as the previous one
+    */
+
+    clearAll(): Column<T, N> {
+        return this.fork(
+            this.vector.fork(
+                [new ReadableData(
+                    new WritableData(this.size)
+                )]
+            )
+        );
+    }
 }
 
 function vectorFromColumnJSON<T>(
