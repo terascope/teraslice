@@ -1,4 +1,6 @@
 import { isURL } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -10,5 +12,7 @@ export const isURLConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a string',
     create() { return isURL; },
-    accepts: [],
+    accepts: [
+        FieldType.String
+    ],
 };

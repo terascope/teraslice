@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isBase64Config', () => {
         expect(isBase64Config).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isBase64Config).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isBase64Config).toHaveProperty('description');
-        expect(isBase64Config).toHaveProperty('accepts', []);
+        expect(isBase64Config).toHaveProperty('accepts', [FieldType.String]);
         expect(isBase64Config).toHaveProperty('create');
         expect(isBase64Config.create).toBeFunction();
     });

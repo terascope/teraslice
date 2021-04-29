@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isURLConfig', () => {
         expect(isPortConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isPortConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isPortConfig).toHaveProperty('description');
-        expect(isPortConfig).toHaveProperty('accepts', []);
+        expect(isPortConfig).toHaveProperty('accepts', [FieldType.String, FieldType.Number]);
         expect(isPortConfig).toHaveProperty('create');
         expect(isPortConfig.create).toBeFunction();
     });

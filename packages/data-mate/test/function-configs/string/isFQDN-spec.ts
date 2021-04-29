@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isFQDNConfig', () => {
         expect(isFQDNConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isFQDNConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isFQDNConfig).toHaveProperty('description');
-        expect(isFQDNConfig).toHaveProperty('accepts', []);
+        expect(isFQDNConfig).toHaveProperty('accepts', [FieldType.String]);
         expect(isFQDNConfig).toHaveProperty('create');
         expect(isFQDNConfig.create).toBeFunction();
     });

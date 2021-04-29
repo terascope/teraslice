@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isCountryCodeConfig', () => {
         expect(isCountryCodeConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isCountryCodeConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isCountryCodeConfig).toHaveProperty('description');
-        expect(isCountryCodeConfig).toHaveProperty('accepts', []);
+        expect(isCountryCodeConfig).toHaveProperty('accepts', [FieldType.String]);
         expect(isCountryCodeConfig).toHaveProperty('create');
         expect(isCountryCodeConfig.create).toBeFunction();
     });

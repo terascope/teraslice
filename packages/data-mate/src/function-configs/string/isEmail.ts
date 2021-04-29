@@ -1,4 +1,6 @@
 import { isEmail } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -12,5 +14,7 @@ export const isEmailConfig: FieldValidateConfig = {
     create() {
         return isEmail;
     },
-    accepts: [],
+    accepts: [
+        FieldType.String
+    ],
 };

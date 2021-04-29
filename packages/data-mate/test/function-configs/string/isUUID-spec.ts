@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isUUIDConfig', () => {
         expect(isUUIDConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isUUIDConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isUUIDConfig).toHaveProperty('description');
-        expect(isUUIDConfig).toHaveProperty('accepts', []);
+        expect(isUUIDConfig).toHaveProperty('accepts', [FieldType.String]);
         expect(isUUIDConfig).toHaveProperty('create');
         expect(isUUIDConfig.create).toBeFunction();
     });

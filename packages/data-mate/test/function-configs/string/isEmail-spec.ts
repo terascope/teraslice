@@ -1,4 +1,6 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
+
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,7 +14,7 @@ describe('isEmailConfig', () => {
         expect(isEmailConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isEmailConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isEmailConfig).toHaveProperty('description');
-        expect(isEmailConfig).toHaveProperty('accepts', []);
+        expect(isEmailConfig).toHaveProperty('accepts', [FieldType.String]);
         expect(isEmailConfig).toHaveProperty('create');
         expect(isEmailConfig.create).toBeFunction();
     });

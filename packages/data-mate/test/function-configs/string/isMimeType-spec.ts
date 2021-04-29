@@ -1,25 +1,26 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
 
-const isMimeTypeConfig = functionConfigRepository.isMimeType;
+const isMIMETypeConfig = functionConfigRepository.isMIMEType;
 
-describe('isMimeTypeConfig', () => {
+describe('isMIMETypeConfig', () => {
     it('has proper configuration', () => {
-        expect(isMimeTypeConfig).toBeDefined();
-        expect(isMimeTypeConfig).toHaveProperty('name', 'isMimeType');
-        expect(isMimeTypeConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
-        expect(isMimeTypeConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
-        expect(isMimeTypeConfig).toHaveProperty('description');
-        expect(isMimeTypeConfig).toHaveProperty('accepts', []);
-        expect(isMimeTypeConfig).toHaveProperty('create');
-        expect(isMimeTypeConfig.create).toBeFunction();
+        expect(isMIMETypeConfig).toBeDefined();
+        expect(isMIMETypeConfig).toHaveProperty('name', 'isMIMEType');
+        expect(isMIMETypeConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
+        expect(isMIMETypeConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(isMIMETypeConfig).toHaveProperty('description');
+        expect(isMIMETypeConfig).toHaveProperty('accepts', [FieldType.String]);
+        expect(isMIMETypeConfig).toHaveProperty('create');
+        expect(isMIMETypeConfig.create).toBeFunction();
     });
 
     describe('when paired with fieldFunctionAdapter', () => {
         it('should return a function to execute', () => {
-            const api = functionAdapter(isMimeTypeConfig);
+            const api = functionAdapter(isMIMETypeConfig);
 
             expect(api).toBeDefined();
             expect(api).toHaveProperty('rows');
@@ -30,8 +31,8 @@ describe('isMimeTypeConfig', () => {
     });
 });
 
-describe('isMimeType', () => {
-    const isMimeType = isMimeTypeConfig.create({});
+describe('isMIMEType', () => {
+    const isMIMEType = isMIMETypeConfig.create({});
 
     test.each([
         ['application/javascript', true],
@@ -40,6 +41,6 @@ describe('isMimeType', () => {
         ['', false],
         [false, false],
     ])('should validate MIME types', (input, expected) => {
-        expect(isMimeType(input)).toEqual(expected);
+        expect(isMIMEType(input)).toEqual(expected);
     });
 });

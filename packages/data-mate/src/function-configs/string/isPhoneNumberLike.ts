@@ -1,4 +1,6 @@
 import { isPhoneNumberLike } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -12,5 +14,8 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     create() {
         return isPhoneNumberLike;
     },
-    accepts: [],
+    accepts: [
+        FieldType.String,
+        FieldType.Number
+    ],
 };

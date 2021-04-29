@@ -23,7 +23,7 @@ import {
     isAlphaNumeric,
     isPostalCode,
     isPort,
-    isMimeType,
+    isMIMEType,
     contains,
     trim,
     trimStart,
@@ -414,7 +414,7 @@ describe('String Utils', () => {
         });
     });
 
-    describe('isMimeType', () => {
+    describe('isMIMEType', () => {
         test.each([
             ['application/javascript', true],
             ['application/graphql', true],
@@ -426,7 +426,7 @@ describe('String Utils', () => {
             [{}, false],
             [12345, false],
         ])('should return true for valid MIME types', (input, expected) => {
-            expect(isMimeType(input)).toEqual(expected);
+            expect(isMIMEType(input)).toEqual(expected);
         });
     });
 

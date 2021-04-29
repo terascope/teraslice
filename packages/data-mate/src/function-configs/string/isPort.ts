@@ -1,4 +1,6 @@
 import { isPort } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -10,5 +12,8 @@ export const isPortConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid port',
     create() { return isPort; },
-    accepts: [],
+    accepts: [
+        FieldType.String,
+        FieldType.Number
+    ],
 };

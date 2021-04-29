@@ -1,28 +1,27 @@
 import { parsePhoneNumber, isISDN, isPhoneNumberLike } from '../src';
 
 describe('parsePhoneNumber', () => {
-    it('return phone number without dashes, spaces, or +', () => {
-        expect(parsePhoneNumber('4917600000000')).toBe('4917600000000');
-        expect(parsePhoneNumber('    1 (555) 555 2311     ')).toBe('15555552311');
-        expect(parsePhoneNumber('+33-1-22-33-44-55')).toBe('33122334455');
-        expect(parsePhoneNumber('+11 7 812 222 2323')).toBe('178122222323');
-        expect(parsePhoneNumber('1.555.555.2311')).toBe('15555552311');
-        expect(parsePhoneNumber('1234')).toBe('1234');
-        expect(parsePhoneNumber('86 591 83123456')).toBe('8659183123456');
-        expect(parsePhoneNumber('33 08 54 23 12 00')).toBe('33854231200');
-        expect(parsePhoneNumber('+330854231200')).toBe('33854231200');
-        expect(parsePhoneNumber('49 116 4331 12348')).toBe('49116433112348');
-        expect(parsePhoneNumber('1(800)FloWErs')).toBe('18003569377');
-        expect(parsePhoneNumber('86 598 13411-859395')).toBe('8659813411859395');
-        expect(parsePhoneNumber('467*(070)1.23[45]/67')).toBe('4670701234567');
+    test.each([
+        ['4917600000000', '4917600000000'],
+        ['    1 (555) 555 2311     ', '15555552311'],
+        ['+33-1-22-33-44-55', '33122334455'],
+        ['+11 7 812 222 2323', '178122222323'],
+        ['1.555.555.2311', '15555552311'],
+        ['1234', '1234'],
+        ['86 591 83123456', '8659183123456'],
+        ['33 08 54 23 12 00', '33854231200'],
+        ['+330854231200', '33854231200'],
+        ['49 116 4331 12348', '49116433112348'],
+        ['1(800)FloWErs', '18003569377'],
+        ['86 598 13411-859395', '8659813411859395'],
+        ['467*(070)1.23[45]/67', '4670701234567'],
+        [4917600000000, '4917600000000'],
+        [49187484, '49187484']
+    ])('should return a string of digits from the ISDN input', (input, expected) => {
+        expect(parsePhoneNumber(input)).toEqual(expected);
     });
 
-    it('return phone number if input is a number', () => {
-        expect(parsePhoneNumber(4917600000000)).toBe('4917600000000');
-        expect(parsePhoneNumber(49187484)).toBe('49187484');
-    });
-
-    it('throw an error when it can not determine the phone number', () => {
+    it('should throw an error when it can not determine the phone number', () => {
         try {
             parsePhoneNumber('34');
         } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
@@ -65,8 +64,22 @@ describe('isISDN', () => {
         [true, false],
         [{}, false],
         [[], false],
-    ])('validate ISDN numbers', (input, expected) => {
+    ])('validate ISDN numbers without country code', (input, expected) => {
         expect(isISDN(input)).toEqual(expected);
+    });
+
+    test.each([
+        ['46707123456', 'SE', true],
+        ['1 808 915 6800', 'US', true],
+        ['+18089156800', 'US', true],
+        [79525554602, 'RU', true],
+        ['46707123456', 'US', false],
+        ['1 808 915 6800', 'RU', false],
+        [79525554602, 'FR', false],
+        ['unknown', 'US', false],
+        ['18089156800', 'InvalidCountryCode', false]
+    ])('validate ISDN numbers with country code', (input, country, expected) => {
+        expect(isISDN(input, country)).toEqual(expected);
     });
 });
 

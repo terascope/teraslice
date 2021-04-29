@@ -4,23 +4,28 @@ import { toString, isString } from './strings';
 import { isNumber, inNumberRange } from './numbers';
 
 export function parsePhoneNumber(input: string|number): string {
-    let testNumber = toString(input).trim();
-    if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
+    const preppedInput = _prepPhoneNumber(toString(input).trim());
 
-    // needs to start with a +
-    if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
+    const fullNumber = new PhoneValidator(preppedInput).getNumber();
 
-    const fullNumber = new PhoneValidator(testNumber).getNumber();
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');
 }
 
-export function isISDN(input: unknown): boolean {
-    if (input == null) return false;
+function _prepPhoneNumber(input: string): string {
+    let testNumber = input;
 
+    if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
+
+    if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
+
+    return testNumber;
+}
+
+export function isISDN(input: unknown, country?: string): boolean {
     if (isString(input) || isNumber(input)) {
-        const isdn = new PhoneValidator(`+${input}`);
+        const isdn = country ? new PhoneValidator(toString(input), country) : new PhoneValidator(`+${input}`);
 
         return isdn.isValid();
     }

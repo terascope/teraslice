@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../../src';
@@ -12,12 +13,21 @@ describe('isURLConfig', () => {
         expect(isISDNConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isISDNConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isISDNConfig).toHaveProperty('description');
-        expect(isISDNConfig).toHaveProperty('accepts', []);
+        expect(isISDNConfig).toHaveProperty('accepts', [
+            FieldType.String,
+            FieldType.Number
+        ]);
         expect(isISDNConfig).toHaveProperty('create');
         expect(isISDNConfig.create).toBeFunction();
     });
 
-    it('can validate values', () => {
+    it('should throw if country is not a ISO 3166-1 alpha-2', () => {
+        expect(
+            () => functionAdapter(isISDNConfig, { args: { country: 'USA' } } as any)
+        ).toThrowError();
+    });
+
+    it('can validate values without a country arg', () => {
         const isISDN = isISDNConfig.create({});
 
         [
@@ -30,6 +40,19 @@ describe('isURLConfig', () => {
             ['4900000000000', false],
             ['22345', false]
         ].forEach(([input, expected]) => {
+            expect(isISDN(input)).toEqual(expected);
+        });
+    });
+
+    it('can validate values with a country arg', () => {
+        [
+            ['1 808 915 6800', 'US', true],
+            ['+18089156800', 'US', true],
+            [79525554602, 'RU', true],
+            ['4900000000000', 'RU', false],
+        ].forEach(([input, country, expected]) => {
+            const isISDN = isISDNConfig.create({ country });
+
             expect(isISDN(input)).toEqual(expected);
         });
     });

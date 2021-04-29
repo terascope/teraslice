@@ -1,4 +1,6 @@
 import { isUUID } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -10,5 +12,7 @@ export const isUUIDConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a UUID',
     create() { return isUUID; },
-    accepts: [],
+    accepts: [
+        FieldType.String
+    ],
 };

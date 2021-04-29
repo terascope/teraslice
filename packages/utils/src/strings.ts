@@ -517,7 +517,7 @@ export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLo
     return isString(input) && validator.isAlphanumeric(input, locale);
 }
 
-export function isMimeType(input: unknown): boolean {
+export function isMIMEType(input: unknown): boolean {
     return validator.isMimeType(toString(input));
 }
 

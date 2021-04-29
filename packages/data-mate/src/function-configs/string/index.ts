@@ -17,7 +17,7 @@ import { isHashConfig } from './isHash';
 import { isISDNConfig } from './isISDN';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMACAddress';
-import { isMimeTypeConfig } from './isMimeType';
+import { isMIMETypeConfig } from './isMIMEType';
 import { isPhoneNumberLikeConfig } from './isPhoneNumberLike';
 import { isPortConfig } from './isPort';
 import { isPostalCodeConfig } from './isPostalCode';
@@ -59,7 +59,7 @@ export const stringRepository = {
     isISDN: isISDNConfig,
     isLength: isLengthConfig,
     isMACAddress: isMACAddressConfig,
-    isMimeType: isMimeTypeConfig,
+    isMIMEType: isMIMETypeConfig,
     isPhoneNumberLike: isPhoneNumberLikeConfig,
     isPort: isPortConfig,
     isPostalCode: isPostalCodeConfig,
