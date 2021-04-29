@@ -1,6 +1,9 @@
 import { isString, isRegExpLike } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { FieldTransformConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
+import {
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionExample
+} from '../interfaces';
 
 export interface ReplaceRegexArgs {
     regex: string;
@@ -8,6 +11,39 @@ export interface ReplaceRegexArgs {
     ignoreCase?: boolean;
     global?: boolean
 }
+
+const examples: FunctionDefinitionExample<ReplaceRegexArgs>[] = [
+    {
+        args: { regex: 's|e', replace: 'd' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'somestring',
+        output: 'domestring'
+    },
+    {
+        args: { regex: 's|e', replace: 'd', global: true },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'somestring',
+        output: 'domddtring'
+    },
+    {
+        args: {
+            regex: 'm|t', replace: 'W', global: true, ignoreCase: true
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'soMesTring',
+        output: 'soWesWring'
+    },
+    {
+        args: { regex: '\\*', replace: '', global: true },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'a***a***a',
+        output: 'aaa'
+    },
+];
 
 export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     name: 'replaceRegex',
@@ -22,6 +58,7 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     }) {
         return (input: unknown) => replaceFn(input as string, replace, regex, ignoreCase, global);
     },
+    examples,
     accepts: [FieldType.String],
     argument_schema: {
         regex: {

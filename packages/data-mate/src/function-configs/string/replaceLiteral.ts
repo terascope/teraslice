@@ -1,16 +1,38 @@
 import { FieldType } from '@terascope/types';
-import { FieldTransformConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
+import {
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionExample
+} from '../interfaces';
 
 export interface ReplaceLiteralArgs {
     search: string;
     replace: string;
 }
 
+const examples: FunctionDefinitionExample<ReplaceLiteralArgs>[] = [
+    {
+        args: { search: 'bob', replace: 'mel' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'Hi bob',
+        output: 'Hi mel'
+    },
+    {
+        args: { search: 'bob', replace: 'mel' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'Hi Bob',
+        output: 'Hi Bob',
+        description: 'Does not replace as it is not an exact match'
+    },
+];
+
 export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     name: 'replaceLiteral',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Replaces the searched value with the replace value',
+    examples,
     create({ replace, search }) {
         return (input: unknown) => replaceFn(input as string, search, replace);
     },

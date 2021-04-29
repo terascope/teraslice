@@ -13,6 +13,29 @@ export const toTitleCaseConfig: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts one or more words into a whitespace separated word with each word starting with a capital letter',
+    examples: [
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'HELLO there',
+            output: 'Hello There'
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'billy',
+            output: 'Billy',
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'Hey There',
+            output: 'Hey There'
+        },
+    ],
     create() {
         // toTitleCase handles cases input is not string
         return (input: unknown) => toTitleCase(input as string);

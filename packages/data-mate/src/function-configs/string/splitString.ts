@@ -1,15 +1,51 @@
 import { FieldType } from '@terascope/types';
-import { FieldTransformConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
+import {
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionExample
+} from '../interfaces';
 
 export interface SplitStringArgs {
-    delimiter: string;
+    delimiter?: string;
 }
+
+const examples: FunctionDefinitionExample<SplitStringArgs>[] = [
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'astring',
+        output: ['a', 's', 't', 'r', 'i', 'n', 'g']
+    },
+    {
+        args: { delimiter: ',' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'astring',
+        output: ['astring'],
+        description: 'Delimiter is not found, so it is not split'
+    },
+    {
+        args: { delimiter: '-' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'a-stri-ng',
+        output: ['a', 'stri', 'ng']
+    },
+    {
+        args: { delimiter: ' ' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'a string',
+        output: ['a', 'string']
+    },
+];
 
 export const splitStringConfig: FieldTransformConfig<SplitStringArgs> = {
     name: 'splitString',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: ' Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char',
+    examples,
     create({ delimiter = '' }) {
         return (input: unknown) => splitFn(input as string, delimiter);
     },

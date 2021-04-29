@@ -5,6 +5,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    FunctionDefinitionExample
 } from '../interfaces';
 
 function _reverse(input: unknown): string|null {
@@ -23,12 +24,30 @@ function _reverse(input: unknown): string|null {
     return results;
 }
 
+const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'hello',
+        output: 'olleh'
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String, array: true } } },
+        field: 'testField',
+        input: ['hello', 'more'],
+        output: ['olleh', 'erom']
+    },
+];
+
 export const reverseConfig: FieldTransformConfig = {
     name: 'reverse',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'reverses the string value',
+    examples,
     create() {
         return _reverse;
     },
