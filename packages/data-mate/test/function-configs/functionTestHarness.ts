@@ -38,10 +38,8 @@ export function functionTestHarness<T extends Record<string, any>>(
             .map((c) => (
                 [c.input, c.args, c]
             ));
-                console.log('what is successCases', successCases)
-                console.log('what is failureCases', failureCases)
 
-        // if (!successCases.length) return;
+        if (!successCases.length) return;
 
         describe('when using the function adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
@@ -129,7 +127,7 @@ export function functionTestHarness<T extends Record<string, any>>(
 
             if (!failureCases.length) return;
 
-            test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
+            test.each(failureCases)('should handle the input %p with args %p', (input, _a, testCase) => {
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field
