@@ -25,7 +25,7 @@ describe('encodeHexConfig', () => {
         expect(encodeHexConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
         expect(encodeHexConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(encodeHexConfig).toHaveProperty('description');
-        expect(encodeHexConfig).toHaveProperty('accepts', []);
+        expect(encodeHexConfig).toHaveProperty('accepts', [FieldType.String]);
         expect(encodeHexConfig).toHaveProperty('create');
         expect(encodeHexConfig.create).toBeFunction();
     });

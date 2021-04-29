@@ -12,7 +12,7 @@ import { encodeSHA1 } from '../../../src/function-configs/string/encodeSHA1';
 
 const encodeSHA1Config = functionConfigRepository.encodeSHA1;
 
-describe('EncodeSHA1Config', () => {
+describe('encodeSHA1Config', () => {
     const originalValues = ['some', 'stuff'];
     const encodedValues = originalValues.map((val) => encodeSHA1(val));
 
@@ -22,7 +22,7 @@ describe('EncodeSHA1Config', () => {
         expect(encodeSHA1Config).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
         expect(encodeSHA1Config).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(encodeSHA1Config).toHaveProperty('description');
-        expect(encodeSHA1Config).toHaveProperty('accepts', []);
+        expect(encodeSHA1Config).toHaveProperty('accepts', [FieldType.String]);
         expect(encodeSHA1Config).toHaveProperty('create');
         expect(encodeSHA1Config.create).toBeFunction();
     });
