@@ -1,26 +1,64 @@
 'use strict';
 
+const { isEmpty } = require('@terascope/utils');
+const { FieldType } = require('@terascope/types');
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
-const { DataFrame, ColumnTransform } = require('./src');
+const {
+    DataFrame, functionConfigRepository,
+    FunctionDefinitionType, dataFrameAdapter
+} = require('./src');
+
+/**
+ * @todo add tuple support
+ * @param fieldType {import('@terascope/types').FieldType}
+*/
+function getFieldType(fieldType) {
+    if (fieldType === FieldType.Long) return FieldType.Number;
+    if (fieldType === FieldType.Byte) return FieldType.Number;
+    if (fieldType === FieldType.Short) return FieldType.Number;
+    if (fieldType === FieldType.Float) return FieldType.Number;
+    if (fieldType === FieldType.Double) return FieldType.Number;
+    if (fieldType === FieldType.Integer) return FieldType.Number;
+    if (fieldType === FieldType.Domain) return FieldType.String;
+    if (fieldType === FieldType.Keyword) return FieldType.String;
+    if (fieldType === FieldType.KeywordCaseInsensitive) return FieldType.String;
+    if (fieldType === FieldType.KeywordPathAnalyzer) return FieldType.String;
+    if (fieldType === FieldType.KeywordCaseInsensitive) return FieldType.String;
+    if (fieldType === FieldType.KeywordTokens) return FieldType.String;
+    if (fieldType === FieldType.KeywordTokensCaseInsensitive) return FieldType.String;
+    if (fieldType === FieldType.Hostname) return FieldType.String;
+    if (fieldType === FieldType.Text) return FieldType.String;
+    return fieldType;
+}
 
 const run = async () => {
-    const suite = Suite('Transform Column');
+    const suite = Suite('Transform/Validate Column');
 
     const dataFrame = DataFrame.fromJSON(config, data);
     for (const column of dataFrame.columns) {
         const fieldInfo = `${column.name} (${column.config.type}${column.config.array ? '[]' : ''})`;
-        Object.entries(ColumnTransform)
-            .filter(([, transform]) => {
-                if (!transform.accepts || !transform.accepts.length) return false;
-                if (!transform.accepts.includes(column.vector.type)) return false;
-                if (transform.required_args && transform.required_args.length) return false;
+        Object.entries(functionConfigRepository)
+            .filter(([, fnDef]) => {
+                if (fnDef.type !== FunctionDefinitionType.FIELD_TRANSFORM
+                    && fnDef.type !== FunctionDefinitionType.FIELD_VALIDATION) {
+                    return false;
+                }
+                if (fnDef.required_arguments && fnDef.required_arguments.length) {
+                    return false;
+                }
+                if (
+                    !isEmpty(fnDef.accepts)
+                    && !fnDef.accepts.includes(getFieldType(column.config.type))
+                ) {
+                    return false;
+                }
                 return true;
             })
-            .forEach(([name, transform]) => {
+            .forEach(([name, fnDef]) => {
                 suite.add(`${fieldInfo} ${name}`, {
                     fn() {
-                        column.transform(transform);
+                        dataFrameAdapter(fnDef).column(column);
                     }
                 });
             });
