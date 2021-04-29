@@ -25,7 +25,7 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
     create({ hash = hashDefault, digest = digestDefault } = {}) {
         return (input: unknown) => encodeSHA(input, hash, digest as BinaryToTextEncoding);
     },
-    accepts: [],
+    accepts: [FieldType.String],
     argument_schema: {
         hash: {
             type: FieldType.String,

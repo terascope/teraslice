@@ -16,7 +16,7 @@ export const encodeHexConfig: FieldTransformConfig = {
     create() {
         return (input: unknown) => Buffer.from(input as string).toString('hex');
     },
-    accepts: [],
+    accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config, child_config } = inputConfig;
 
