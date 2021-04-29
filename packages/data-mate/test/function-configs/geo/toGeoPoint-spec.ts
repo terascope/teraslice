@@ -62,8 +62,8 @@ describe('toGeoPointConfig', () => {
 
         const columnTests: ColumnTests[] = [
             {
-                column: ['60,40', 'false', 'blah', null, undefined, 1234],
-                result: [{ lon: 40, lat: 60 }, null, null, null, null, null]
+                column: ['60,40', null, undefined],
+                result: [{ lon: 40, lat: 60 }, null, null]
             }
         ];
 

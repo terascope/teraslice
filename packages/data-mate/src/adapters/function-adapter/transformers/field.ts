@@ -52,7 +52,11 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
                     }
                 }
             } else {
-                const data = fn(value);
+                let data: unknown = null;
+
+                if (!isNil(value)) {
+                    data = fn(value);
+                }
 
                 if (isNil(data)) {
                     if (preserveNulls) {

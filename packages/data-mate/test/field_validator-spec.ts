@@ -572,7 +572,7 @@ describe('field validators', () => {
             expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'space' })).toBe(true);
             expect(FieldValidator.isMACAddress('001f.f35b.2b1f', {}, { delimiter: 'dot' })).toBe(true);
             expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'none' })).toBe(true);
-            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'dash' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'colon' })).toBe(true);
             expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'dash' })).toBe(false);
             expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'colon' })).toBe(false);
             expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'colon' })).toBe(false);
