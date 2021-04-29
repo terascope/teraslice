@@ -17,7 +17,7 @@ import { isHashConfig } from './isHash';
 import { isISDNConfig } from './isISDN';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMACAddress';
-import { isMIMETypeConfig } from './isMimeType';
+import { isMIMETypeConfig } from './isMIMEType';
 import { isPhoneNumberLikeConfig } from './isPhoneNumberLike';
 import { isPortConfig } from './isPort';
 import { isPostalCodeConfig } from './isPostalCode';
