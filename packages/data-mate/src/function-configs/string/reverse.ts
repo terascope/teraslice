@@ -34,6 +34,13 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     },
     {
         args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'more words',
+        output: 'sdrow erom',
+    },
+    {
+        args: {},
         config: { version: 1, fields: { testField: { type: FieldType.String, array: true } } },
         field: 'testField',
         input: ['hello', 'more'],
