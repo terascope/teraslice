@@ -46,7 +46,7 @@ describe('isHashConfig', () => {
 
     describe('should validate alpha-numeric strings', () => {
         const isPostalCode = isPostalCodeConfig.create({});
-    
+
         test.each([
             [85249, true],
             ['75008', true],

@@ -356,14 +356,14 @@ describe('String Utils', () => {
             [undefined, false],
             [{}, false],
         ])('should return true for valid alphanumeric inputs and no locale', (input, expected) => {
-           expect(isAlphaNumeric(input)).toEqual(expected);
+            expect(isAlphaNumeric(input)).toEqual(expected);
         });
-    
+
         test.each([
-            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl' , true],
-            ['ThisiZĄĆĘŚŁ1234', 'en-HK', false ]
+            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl', true],
+            ['ThisiZĄĆĘŚŁ1234', 'en-HK', false]
         ])('should return true for valid alphanumeric inputs with a locale', (input, locale, expected) => {
-           expect(isAlphaNumeric(input as any, locale as any)).toEqual(expected);
+            expect(isAlphaNumeric(input as any, locale as any)).toEqual(expected);
         });
     });
 
@@ -380,7 +380,7 @@ describe('String Utils', () => {
             [[], false],
             [{ code: '12345' }, false],
         ])('should return true for valid postal codes and no locale', (input, expected) => {
-           expect(isPostalCode(input)).toEqual(expected);
+            expect(isPostalCode(input)).toEqual(expected);
         });
 
         test.each([
@@ -393,10 +393,9 @@ describe('String Utils', () => {
             ['this is not a postal code', 'CN', false],
             [undefined, 'US', false]
         ])('should return true for valid postal codes with locale', (input, locale, expected) => {
-           expect(isPostalCode(input, locale as any)).toEqual(expected);
+            expect(isPostalCode(input, locale as any)).toEqual(expected);
         });
     });
-
 
     describe('isPort', () => {
         test.each([
@@ -411,7 +410,7 @@ describe('String Utils', () => {
             [false, false],
             [null, false],
         ])('should return true valid port number or number string', (input, expected) => {
-           expect(isPort(input)).toEqual(expected);
+            expect(isPort(input)).toEqual(expected);
         });
     });
 
@@ -427,7 +426,7 @@ describe('String Utils', () => {
             [{}, false],
             [12345, false],
         ])('should return true for valid MIME types', (input, expected) => {
-           expect(isMimeType(input)).toEqual(expected);
+            expect(isMimeType(input)).toEqual(expected);
         });
     });
 

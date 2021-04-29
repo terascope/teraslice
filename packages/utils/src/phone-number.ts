@@ -29,7 +29,7 @@ export function isISDN(input: unknown): boolean {
 }
 
 export function isPhoneNumberLike(input: unknown): boolean {
-    const testValue = toString(input).trim().replace(/\D/g,'');
+    const testValue = toString(input).trim().replace(/\D/g, '');
 
     return inNumberRange(testValue.length, { min: 7, max: 20, inclusive: true });
 }

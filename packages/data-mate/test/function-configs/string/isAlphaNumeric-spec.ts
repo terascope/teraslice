@@ -46,23 +46,23 @@ describe('isHashConfig', () => {
 
     describe('should validate alpha-numeric strings', () => {
         const isAlphaNumeric = isAlphaNumericConfig.create({});
-    
+
         test.each([
             ['example123456', true],
             ['no_underscores.com', false],
             [true, false]
         ])('should return true for valid alphanumeric inputs and no locale', (input, expected) => {
-           expect(isAlphaNumeric(input)).toEqual(expected);
+            expect(isAlphaNumeric(input)).toEqual(expected);
         });
     });
 
     describe('should validate alpha-numeric strings with args', () => {
         const isAlphaNumeric = isAlphaNumericConfig.create({ locale: 'pl-Pl' });
-    
+
         test.each([
             ['ThisiZĄĆĘŚŁ1234', true]
         ])('should return true for valid alphanumeric inputs with a locale', (input, expected) => {
-           expect(isAlphaNumeric(input)).toEqual(expected);
+            expect(isAlphaNumeric(input)).toEqual(expected);
         });
     });
 });

@@ -40,6 +40,6 @@ describe('isMimeType', () => {
         ['', false],
         [false, false],
     ])('should validate MIME types', (input, expected) => {
-       expect(isMimeType(input)).toEqual(expected);
+        expect(isMimeType(input)).toEqual(expected);
     });
 });
