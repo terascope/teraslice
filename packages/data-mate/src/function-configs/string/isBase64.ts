@@ -6,20 +6,20 @@ import {
 } from '../interfaces';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
-    // {
-    //     args: {},
-    //     config: {
-    //         version: 1,
-    //         fields: {
-    //             testField: {
-    //                 type: FieldType.String
-    //             }
-    //         }
-    //     },
-    //     field: 'testField',
-    //     input: 'ZnJpZW5kbHlOYW1lNw==',
-    //     output: 'ZnJpZW5kbHlOYW1lNw=='
-    // },
+    {
+        args: {},
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.String
+                }
+            }
+        },
+        field: 'testField',
+        input: 'ZnJpZW5kbHlOYW1lNw==',
+        output: 'ZnJpZW5kbHlOYW1lNw=='
+    },
     {
         args: {},
         config: {
@@ -46,7 +46,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
         },
         field: 'testField',
         input: 1234123,
-        fails: true
+        output: null
     }
 ];
 

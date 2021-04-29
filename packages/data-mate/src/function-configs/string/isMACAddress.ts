@@ -49,7 +49,7 @@ const examples: FunctionDefinitionExample<IsMacArgs>[] = [
         output: '00-1f-f3-5b-2b-1f',
     },
     {
-        args: { delimiter: ['dash', 'colon'] },
+        args: { delimiter: 'dash' },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '00-1f-f3-5b-2b-1f',
@@ -101,7 +101,6 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
         delimiter: {
             type: FieldType.String,
             description: `Specify delimiter character for mac address format, may be set to one of ${joinList(delimiterOptions)}`,
-            array: true,
         }
     },
     required_arguments: [],

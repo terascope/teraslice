@@ -26,14 +26,14 @@ export const isStringConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Object } } },
             field: 'testField',
             input: { hello: 'i am an object' },
             output: null,
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Number } } },
             field: 'testField',
             input: 1234,
             output: null,

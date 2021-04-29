@@ -40,7 +40,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Number
+                    type: FieldType.String
                 }
             }
         },

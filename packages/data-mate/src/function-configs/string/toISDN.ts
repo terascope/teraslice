@@ -43,7 +43,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: 'something',
-        output: null
+        output: null,
+        fails: true
     },
 ];
 

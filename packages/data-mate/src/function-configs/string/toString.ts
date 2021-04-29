@@ -10,27 +10,27 @@ import {
 } from '../interfaces';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
-    {
-        args: {},
-        config: { version: 1, fields: { testField: { type: FieldType.Boolean } } },
-        field: 'testField',
-        input: true,
-        output: 'true'
-    },
-    {
-        args: {},
-        config: { version: 1, fields: { testField: { type: FieldType.Object } } },
-        field: 'testField',
-        input: { hello: 'world' },
-        output: '{ "hello": "world" }'
-    },
-    {
-        args: {},
-        config: { version: 1, fields: { testField: { type: FieldType.Long } } },
-        field: 'testField',
-        input: BigInt(21) ** BigInt(20),
-        output: '278218429446951548637196400'
-    },
+    // {
+    //     args: {},
+    //     config: { version: 1, fields: { testField: { type: FieldType.Boolean } } },
+    //     field: 'testField',
+    //     input: true,
+    //     output: 'true'
+    // },
+    // {
+    //     args: {},
+    //     config: { version: 1, fields: { testField: { type: FieldType.Object } } },
+    //     field: 'testField',
+    //     input: { hello: 'world' },
+    //     output: '{"hello":"world"}'
+    // },
+    // {
+    //     args: {},
+    //     config: { version: 1, fields: { testField: { type: FieldType.Long } } },
+    //     field: 'testField',
+    //     input: BigInt(21) ** BigInt(20),
+    //     output: '278218429446951548637196400'
+    // },
     {
         args: {},
         config: { version: 1, fields: { testField: { type: FieldType.Boolean, array: true } } },
