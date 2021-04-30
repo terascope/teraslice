@@ -23,7 +23,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
     create({ digest = defaultDigest } = {}) {
         return (input: unknown) => encodeSHA1(input, digest as BinaryToTextEncoding);
     },
-    accepts: [],
+    accepts: [FieldType.String],
     argument_schema: {
         digest: {
             type: FieldType.String,
