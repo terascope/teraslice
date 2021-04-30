@@ -444,7 +444,7 @@ const macAddressDelimiters = {
     none: /^([0-9a-fA-F]){12}$/
 } as const;
 
-export function isMacAddress(
+export function isMACAddress(
     input: unknown, delimiter?: MACDelimiter
 ): input is string {
     if (!isString(input)) return false;
@@ -459,9 +459,9 @@ export function isMacAddress(
 /**
  * A functional version of isMacAddress
 */
-export function isMacAddressFP(args?: MACDelimiter) {
+export function isMACAddressFP(args?: MACDelimiter) {
     return function _isMacAddressFP(input: unknown): input is string {
-        return isMacAddress(input, args);
+        return isMACAddress(input, args);
     };
 }
 
