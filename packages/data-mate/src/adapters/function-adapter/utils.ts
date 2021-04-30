@@ -24,6 +24,7 @@ export function callValue(
             results.push(...mappedInput);
         }
     } else if (isValidator) {
+        // validating a nil value is useless, no reason to execute function
         if (!isNil(input) && fn(input)) {
             results.push(input);
         } else if (preserveNulls) {
