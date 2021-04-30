@@ -18,21 +18,21 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
         {
             args: { substr: 'ample' },
             config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
+            field: 'testField',
             input: 'example',
             output: 'example'
         },
         {
             args: { substr: 'example' },
             config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
+            field: 'testField',
             input: 'example',
             output: 'example'
         },
         {
             args: { substr: 'test' },
             config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
+            field: 'testField',
             input: 'example',
             output: null
         },
