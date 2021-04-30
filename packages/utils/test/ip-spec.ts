@@ -1,0 +1,286 @@
+import 'jest-extended';
+
+import {
+    isIP,
+    isIPV6,
+    isIPV4,
+    isCIDR,
+    inIPRange,
+    isRoutableIP,
+    isNonRoutableIP
+} from '../src/ip';
+
+describe('IP Utils', () => {
+    describe('isIP', () => {
+        test.each([
+            ['8.8.8.8', true],
+            ['192.172.1.18', true],
+            ['11.0.1.18', true],
+            ['2001:db8::1', true],
+            ['2001:db8:85a3:8d3:1319:8a2e:370:7348', true],
+            ['fe80::1ff:fe23:4567:890a%eth2', true],
+            ['2001:DB8::1', true],
+            ['fc00:db8::1', true],
+            ['FC00:DB8::1', true],
+            ['::192.168.1.18', true],
+            ['::FFFF:12.155.166.101', true]
+        ])('should return true for valid ip address', (input, expected) => {
+            expect(isIP(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['NA', false],
+            ['', false],
+            ['172.394.0.1', false],
+            [undefined, false],
+            ['ZXXY:db8:85a3:8d3:1319:8a2e:370:7348', false],
+            ['11.222.33.001', false],
+            ['87', false],
+            ['02751178', false],
+            [true, false],
+            [{}, false],
+            [[], false],
+            [123456678, false],
+            [12.4345, false]
+        ])('should return false for invalid ip address', (input, expected) => {
+            expect(isIP(input)).toEqual(expected);
+        });
+    });
+
+    describe('isIPV6', () => {
+        test.each([
+            ['2001:db8::1', true],
+            ['2001:db8:85a3:8d3:1319:8a2e:370:7348', true],
+            ['fe80::1ff:fe23:4567:890a%eth2', true],
+            ['2001:DB8::1', true],
+            ['fc00:db8::1', true],
+            ['FC00:DB8::1', true],
+            ['::192.168.1.18', true],
+            ['::FFFF:12.155.166.101', true]
+        ])('should return true for valid ipv6 address', (input, expected) => {
+            expect(isIPV6(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['8.8.8.8', false],
+            ['', false],
+            ['172.394.0.1', false],
+            [undefined, false],
+            ['ZXXY:db8:85a3:8d3:1319:8a2e:370:7348', false],
+            ['02751178', false],
+            [true, false],
+            [123456678, false],
+        ])('should return false for invalid ipv6 address', (input, expected) => {
+            expect(isIPV6(input)).toEqual(expected);
+        });
+    });
+
+    describe('isIPV4', () => {
+        test.each([
+            ['8.8.8.8', true],
+            ['192.172.1.18', true],
+            ['11.0.1.18', true],
+        ])('should return true for valid ipv6 address', (input, expected) => {
+            expect(isIPV4(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['172.394.0.1', false],
+            [undefined, false],
+            ['ZXXY:db8:85a3:8d3:1319:8a2e:370:7348', false],
+            ['02751178', false],
+            [true, false],
+            [1234.56678, false],
+            ['fc00:db8::1', false],
+            ['::192.168.1.18', false],
+            ['::FFFF:12.155.166.101', false]
+        ])('should return false for invalid ipv6 address', (input, expected) => {
+            expect(isIPV4(input)).toEqual(expected);
+        });
+    });
+
+    describe('isCIDR', () => {
+        test.each([
+            ['1.2.3.4/32', true],
+            ['8.8.0.0/12', true],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/128', true],
+            ['2001::1234:5678/128', true]
+        ])('should return true for valid ip range in CIDR notation', (input, expected) => {
+            expect(isCIDR(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['1.2.3.4/128', false],
+            ['notanipaddress/12', false],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/412', false],
+            ['2001::1234:5678/b', false],
+            ['8.8.8.10', false],
+            [true, false],
+            [{}, false],
+        ])('should return false for an invalid ip range in CIDR notation', (input, expected) => {
+            expect(isCIDR(input)).toEqual(expected);
+        });
+    });
+
+    describe('inIPRange', () => {
+        test.each([
+            ['8.8.8.8', '8.8.8.0/24', true],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678', '2001:0db8:0123:4567:89ab:cdef:1234:0/112', true],
+            ['8.8.10.8', '8.8.8.0/24', false],
+            ['2001:0dff:0123:4567:89ab:cdef:1234:5678', '2001:0db8:0123:4567:89ab:cdef:1234:0/112', false],
+            ['2001:0dff:0123:4567:89ab:cdef:1234:5678', 'badCidrInfo', false]
+        ])('should return true if ip address is in specified CIDR range', (input, cidr, expected) => {
+            expect(inIPRange(input, { cidr })).toEqual(expected);
+        });
+
+        test.each([
+            ['8.8.8.8', '8.8.8.0', '8.8.8.64', true],
+            ['fd00::b000', 'fd00::123', 'fd00::ea00', true],
+            ['8.8.8.8', '8.8.8.9', '8.8.8.64', false],
+            ['fd00::b000', 'fd00::d000', 'fd00::ea00', false],
+            ['fd00::b000', 'fd00::d000', 'badIPAddress', false],
+            ['fd00::b000', 'badIPaddress', 'fd00::ea00', false],
+        ])('should return true if ip address is between min, max', (input, min, max, expected) => {
+            expect(inIPRange(input, { min, max })).toEqual(expected);
+        });
+
+        test.each([
+            ['8.8.8.8', '8.8.8.0', true],
+            ['fd00::b000', 'fd00::a000', true],
+            ['8.8.4.8', '8.8.8.0', false],
+            ['fd00::a000', 'fd00::a1da', false],
+            ['fd00::a000', 'badIpAddress', false],
+        ])('should return true if ip address is higher than min', (input, min, expected) => {
+            expect(inIPRange(input, { min })).toEqual(expected);
+        });
+
+        test.each([
+            ['8.8.8.8', '8.8.8.10', true],
+            ['fd00::b000', 'fd00::b009', true],
+            ['8.8.8.11', '8.8.8.10', false],
+            ['fd00::b0ff', 'fd00::b009', false],
+            ['fd00::b0ff', 'badIpAddress', false],
+        ])('should return true if ip address is lower than max', (input, max, expected) => {
+            expect(inIPRange(input, { max })).toEqual(expected);
+        });
+    });
+
+    describe('isRoutableIP', () => {
+        test.each([
+            ['8.8.8.8', true],
+            ['172.35.12.18', true],
+            ['192.172.1.18', true],
+            ['11.0.1.18', true],
+            ['::2', true],
+            ['::abcd', true],
+            ['65:ff9b::ffff:ffff', true],
+            ['99::', true],
+            ['faff::12bc', true],
+            ['2620:4f:123::', true],
+            ['2003::', true],
+            ['fe79::ffff', true],
+            ['2001:2ff::ffff', true],
+            ['::FFFF:12.155.166.101', true],
+            ['::ffff:4.108.10.2', true],
+            ['0.0.0.1', false],
+            ['0.220.5.132', false],
+            ['0.0.0.0', false],
+            ['10.0.0.1', false],
+            ['10.22.23.123', false],
+            ['100.64.123.123', false],
+            ['100.127.255.250', false],
+            ['127.0.0.1', false],
+            ['127.230.10.19', false],
+            ['169.254.0.1', false],
+            ['169.254.250.127', false],
+            ['172.16.0.1', false],
+            ['172.31.250.192', false],
+            ['192.0.0.1', false],
+            ['192.0.0.254', false],
+            ['192.0.2.1', false],
+            ['192.0.2.182', false],
+            ['192.31.196.1', false],
+            ['192.31.196.254', false],
+            ['192.52.193.1', false],
+            ['192.52.193.254', false],
+            ['192.88.99.1', false],
+            ['192.88.99.254', false],
+            ['192.168.0.1', false],
+            ['192.168.255.254', false],
+            ['192.175.48.1', false],
+            ['192.175.48.254', false],
+            ['198.18.0.1', false],
+            ['198.19.255.254', false],
+            ['198.51.100.1', false],
+            ['198.51.100.254', false],
+            ['203.0.113.1', false],
+            ['203.0.113.254', false],
+            ['240.0.0.1', false],
+            ['255.255.255.254', false],
+            ['255.255.255.255', false],
+            ['224.0.0.1', false],
+            ['224.255.255.254', false],
+            ['::1', false],
+            ['::', false],
+            ['64:ff9b::', false],
+            ['64:ff9b::ffff:ffff', false],
+            ['64:ff9b:1::', false],
+            ['64:ff9b:1:ffff:ffff:ffff:ffff:ffff', false],
+            ['100::', false],
+            ['100::ffff:ffff:ffff:ffff', false],
+            ['2001::', false],
+            ['2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:0:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:1::1', false],
+            ['2001:1::2', false],
+            ['2001:2::', false],
+            ['2001:2:0:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:3::', false],
+            ['2001:3:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:4:112::', false],
+            ['2001:4:112:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:10::', false],
+            ['2001:1f:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:20::', false],
+            ['2001:2f:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2001:db8::', false],
+            ['2001:db8:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2002::', false],
+            ['2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['2620:4f:8000::', false],
+            ['2620:4f:8000:ffff:ffff:ffff:ffff:ffff', false],
+            ['fc00::', false],
+            ['fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['fe80::', false],
+            ['febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff', false],
+            ['::FFFF:192.52.193.1', false],
+            ['::192.168.1.18', false],
+            ['::ffff:0.0.0.0', false],
+            ['badIpAddress', false]
+        ])('should return true for routable ip addresses', (input, expected) => {
+            expect(isRoutableIP(input)).toEqual(expected);
+        });
+    });
+
+    describe('isNonRoutableIP', () => {
+        test.each([
+            ['192.168.0.1', true],
+            ['10.16.32.210', true],
+            ['172.18.12.74', true],
+            ['fc00:db8::1', true],
+            ['10.1.3.4', true],
+            ['172.28.4.1', true],
+            ['127.0.1.2', true],
+            ['2001:db8::1', true],
+            ['2001:3:ffff:ffff:ffff:ffff:ffff:ffff', true],
+            ['192.88.99.1', true],
+            ['2001:2::', true],
+            ['8.8.8.8', false],
+            ['172.194.0.1', false],
+            ['badIpaddress', false],
+            ['2001:2ff::ffff', false],
+        ])('return true for non-routable ip addresses', (input, expected) => {
+            expect(isNonRoutableIP(input)).toEqual(expected);
+        });
+    });
+});

@@ -5,15 +5,15 @@ import validateCidr from 'is-cidr';
 import { isString } from './strings';
 
 export function isIP(input: unknown): boolean {
-    return isString(input) && _isIP(input) != null;
+    return isString(input) && _isIP(input);
 }
 
 export function isIPV6(input: unknown): boolean {
-    return isString(input) && _isIP.v6(input) != null;
+    return isString(input) && _isIP.v6(input);
 }
 
 export function isIPV4(input: unknown): boolean {
-    return isString(input) && _isIP.v4(input) != null;
+    return isString(input) && _isIP.v4(input);
 }
 
 export function isCIDR(input: unknown): boolean {
@@ -24,31 +24,37 @@ export function inIPRange(
     input: string,
     args: { min?: string; max?: string; cidr?: string }
 ): boolean {
-    const MIN_IPV4_IP = '0.0.0.0';
-    const MAX_IPV4_IP = '255.255.255.255';
-    const MIN_IPV6_IP = '::';
-    const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
-
     if (!isIP(input)) return false;
 
-    // assign min/max IP range values
     if (args.cidr) {
-        if (!isCIDR(args.cidr)) return false;
-        return ip6addr.createCIDR(args.cidr).contains(input);
+        return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input);
     }
 
-    // assign upper/lower bound even if min or max is missing
-    let { min, max } = args;
-    if (!min) min = _isIP.v6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = _isIP.v6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    const ipType = _isIP.version(input);
 
-    // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || _isIP.v6(min) !== _isIP.v6(max)
-        || ip6addr.compare(max, min) === -1) {
-        return false;
-    }
+    const min = args.min || _assignMin(ipType as number);
+    const max = args.max || _assignMax(ipType as number);
 
-    return ip6addr.createAddrRange(min, max).contains(input);
+    return _validMinAndMax(min, max)
+        && ip6addr.createAddrRange(min, max).contains(input);
+}
+
+function _assignMin(ipType: number): string {
+    if (ipType === 4) return '0.0.0.0';
+
+    return '::';
+}
+
+function _assignMax(ipType: number): string {
+    if (ipType === 4) return '255.255.255.255';
+
+    return 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff';
+}
+
+function _validMinAndMax(min: string, max: string): boolean {
+    return isIP(min) && isIP(max)
+        && _isIP.version(min) === _isIP.version(max)
+        && ip6addr.compare(min, max) === -1;
 }
 
 export function isRoutableIP(input: unknown):boolean {
@@ -57,7 +63,7 @@ export function isRoutableIP(input: unknown):boolean {
     return !_privateIP(input as string);
 }
 
-export function isNONRoutableIP(input: unknown):boolean {
+export function isNonRoutableIP(input: unknown):boolean {
     if (!isIP(input)) return false;
 
     return _privateIP(input as string);
@@ -104,23 +110,25 @@ function _inPrivateIPRange(ipRange: string): boolean {
     ].includes(ipRange);
 }
 
+// parse the ranges here
+// to avoid having to parse every time the function is called
+const ipv4RestrictedRanges = [
+    ipaddr.parseCIDR('192.31.196.0/24'),
+    ipaddr.parseCIDR('192.52.193.0/24'),
+    ipaddr.parseCIDR('192.175.48.0/24'),
+    ipaddr.parseCIDR('198.18.0.0/15'),
+    ipaddr.parseCIDR('224.0.0.0/8')
+];
+
+const ipv6RestrictedRanges = [
+    ipaddr.parseCIDR('64:ff9b:1::/48'),
+    ipaddr.parseCIDR('100::/64'),
+    ipaddr.parseCIDR('2001::/23'),
+    ipaddr.parseCIDR('2620:4f:8000::/48')
+];
+
 function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6): boolean {
-    const ipv4RestrictedRanges = [
-        '192.31.196.0/24',
-        '192.52.193.0/24',
-        '192.175.48.0/24',
-        '198.18.0.0/15',
-        '224.0.0.0/8'
-    ];
-
-    const ipv6RestrictedRanges = [
-        '64:ff9b:1::/48',
-        '100::/64',
-        '2001::/23',
-        '2620:4f:8000::/48'
-    ];
-
     const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
 
-    return rangesToCheck.some((ipRange) => parsedIp.match(ipaddr.parseCIDR(ipRange)));
+    return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
 }
