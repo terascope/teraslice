@@ -2,7 +2,8 @@ import { FieldType } from '@terascope/types';
 import { isString, joinList } from '@terascope/utils';
 import validator from 'validator';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export type HashConfigAlgorithms =
@@ -46,6 +47,22 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a hash',
+    examples: [
+        {
+            args: { algo: 'sha256' },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+            output: '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+        },
+        {
+            args: { algo: 'md5' },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+            output: null
+        }
+    ],
     create({ algo }: IsHashArgs) {
         return (input: unknown) => isString(input) && validator.isHash(
             input, algo as validator.HashAlgorithm

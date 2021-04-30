@@ -5,8 +5,9 @@ import {
     isNotNil,
     cloneDeep,
     isNil,
-    unset
+    unset,
 } from '@terascope/utils';
+import { callValue } from '../utils';
 
 export function fieldTransformRowExecution<T extends Record<string, any>>(
     fn: (input: unknown) => unknown,
@@ -14,7 +15,7 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
     preserveEmptyObjects: boolean,
     field?: keyof T
 ): (input: T[]) => T[] {
-    return function _wholeFieldTransformRowExecution(input: T[]): T[] {
+    return function _fieldTransformRowExecution(input: T[]): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
@@ -31,74 +32,51 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
 
             const value: unknown = get(clone, field);
 
-            try {
-                if (Array.isArray(value)) {
-                    const fieldList: unknown[] = [];
+            if (Array.isArray(value)) {
+                const fieldList = callValue(fn, input, preserveNulls);
 
-                    for (const item of value) {
-                        const newValue = fn(item);
-
-                        if (!isNil(newValue)) {
-                            fieldList.push(newValue);
-                        } else if (preserveNulls) {
-                            fieldList.push(null);
-                        }
-                    }
-                    // we have results in list or we don't care if its an empty list here
-                    if (fieldList.length > 0) {
-                        set(clone, field, fieldList);
-                        results.push(clone);
-                    } else {
-                        unset(clone, field);
-
-                        if (preserveEmptyObjects) {
-                            results.push(clone);
-                        } else {
-                            const hasKeys = Object.keys(clone).length !== 0;
-                            if (hasKeys) {
-                                results.push(clone);
-                            }
-                        }
-                    }
-                } else {
-                    const data = fn(value);
-
-                    if (isNil(data)) {
-                        if (preserveNulls) {
-                            set(clone, field, null);
-                        } else {
-                            unset(clone, field);
-                        }
-
-                        if (preserveEmptyObjects) {
-                            results.push(clone);
-                        } else {
-                            const hasKeys = Object.keys(clone).length !== 0;
-
-                            if (hasKeys) {
-                                results.push(clone);
-                            }
-                        }
-                    } else {
-                        set(clone, field, data);
-                        results.push(clone);
-                    }
-                }
-            } catch (_err) {
-                if (preserveNulls) {
-                    set(clone, field, null);
-                } else {
-                    unset(clone, field);
-                }
-
-                if (preserveEmptyObjects) {
+                // we have results in list or we don't care if its an empty list here
+                if (fieldList.length > 0) {
+                    set(clone, field, fieldList);
                     results.push(clone);
                 } else {
-                    const hasKeys = Object.keys(clone).length !== 0;
+                    unset(clone, field);
 
-                    if (hasKeys) {
+                    if (preserveEmptyObjects) {
                         results.push(clone);
+                    } else {
+                        const hasKeys = Object.keys(clone).length !== 0;
+                        if (hasKeys) {
+                            results.push(clone);
+                        }
                     }
+                }
+            } else {
+                let data: unknown = null;
+
+                if (!isNil(value)) {
+                    data = fn(value);
+                }
+
+                if (isNil(data)) {
+                    if (preserveNulls) {
+                        set(clone, field, null);
+                    } else {
+                        unset(clone, field);
+                    }
+
+                    if (preserveEmptyObjects) {
+                        results.push(clone);
+                    } else {
+                        const hasKeys = Object.keys(clone).length !== 0;
+
+                        if (hasKeys) {
+                            results.push(clone);
+                        }
+                    }
+                } else {
+                    set(clone, field, data);
+                    results.push(clone);
                 }
             }
         }
@@ -130,24 +108,16 @@ export function wholeFieldTransformRowExecution<T extends Record<string, any>>(
 
             const value = get(clone, field);
 
-            try {
-                const data = fn(value);
+            const data = fn(value);
 
-                if (isNil(data)) {
-                    if (preserveNulls) {
-                        set(clone, field, null);
-                    } else {
-                        unset(clone, field);
-                    }
-                } else {
-                    set(clone, field, data);
-                }
-            } catch (_err) {
+            if (isNil(data)) {
                 if (preserveNulls) {
                     set(clone, field, null);
                 } else {
                     unset(clone, field);
                 }
+            } else {
+                set(clone, field, data);
             }
 
             if (preserveEmptyObjects) {
@@ -179,16 +149,12 @@ export function wholeFieldTransformColumnExecution(
 
         for (const value of input) {
             if (isNotNil(value)) {
-                try {
-                    const newValue = fn(value);
+                const newValue = fn(value);
 
-                    if (!isNil(newValue)) {
-                        results.push(newValue);
-                    } else if (preserveNulls) {
-                        results.push(null);
-                    }
-                } catch (_err) {
-                    if (preserveNulls) results.push(null);
+                if (!isNil(newValue)) {
+                    results.push(newValue);
+                } else if (preserveNulls) {
+                    results.push(null);
                 }
             } else if (preserveNulls) {
                 results.push(null);
@@ -212,27 +178,8 @@ export function fieldTransformColumnExecution(
 
         for (const value of input) {
             if (isNotNil(value)) {
-                // @TODO: handle deeper array of arrays?
                 if (Array.isArray(value)) {
-                    const fieldList: unknown[] = [];
-
-                    for (const item of value) {
-                        if (isNotNil(item)) {
-                            try {
-                                const newValue = fn(value);
-
-                                if (!isNil(newValue)) {
-                                    fieldList.push(newValue);
-                                } else if (preserveNulls) {
-                                    fieldList.push(null);
-                                }
-                            } catch (_err) {
-                                if (preserveNulls) fieldList.push(null);
-                            }
-                        } else if (preserveNulls) {
-                            fieldList.push(null);
-                        }
-                    }
+                    const fieldList = callValue(fn, input, preserveNulls);
 
                     if (fieldList.length > 0) {
                         results.push(fieldList);
@@ -240,17 +187,8 @@ export function fieldTransformColumnExecution(
                         results.push(null);
                     }
                 } else {
-                    try {
-                        const newValue = fn(value);
-
-                        if (!isNil(newValue)) {
-                            results.push(newValue);
-                        } else if (preserveNulls) {
-                            results.push(null);
-                        }
-                    } catch (_err) {
-                        if (preserveNulls) results.push(null);
-                    }
+                    const newValue = callValue(fn, value, preserveNulls);
+                    results.push(...newValue);
                 }
             } else if (preserveNulls) {
                 results.push(null);

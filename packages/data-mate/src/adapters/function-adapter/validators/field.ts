@@ -7,6 +7,7 @@ import {
     isNil,
     unset
 } from '@terascope/utils';
+import { callValue } from '../utils';
 
 export function fieldValidationColumnExecution(
     fn: (input: unknown) => unknown,
@@ -19,11 +20,19 @@ export function fieldValidationColumnExecution(
             throw new Error('Invalid input, expected an array of values');
         }
 
-        const results: (boolean | null)[] = [];
+        const results: (unknown | null)[] = [];
 
         for (const value of input) {
-            if (isNotNil(value) && fn(value)) {
-                results.push(value);
+            if (Array.isArray(value)) {
+                const fieldList = callValue(fn, value, preserveNulls, true);
+
+                if (fieldList.length > 0) {
+                    results.push(fieldList);
+                } else if (preserveNulls) {
+                    results.push(null);
+                }
+            } else if (isNotNil(value) && fn(value)) {
+                results.push(...callValue(fn, value, preserveNulls, true));
             } else if (preserveNulls) {
                 results.push(null);
             }
@@ -94,7 +103,7 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
 }
 
 export function fieldValidationRowExecution<T extends Record<string, any>>(
-    fn: (input: T) => unknown,
+    fn: (input: unknown) => unknown,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
@@ -119,17 +128,8 @@ export function fieldValidationRowExecution<T extends Record<string, any>>(
             const value: unknown = get(clone, field);
 
             if (Array.isArray(value)) {
-                const fieldList: unknown[] = [];
+                const fieldList = callValue(fn, value, preserveNulls, true);
 
-                for (const item of value) {
-                    const isValid = fn(item);
-
-                    if (isValid) {
-                        fieldList.push(item);
-                    } else if (preserveNulls) {
-                        fieldList.push(null);
-                    }
-                }
                 // we have results in list or we don't care if its an empty list here
                 if (fieldList.length > 0) {
                     set(clone, field, fieldList);

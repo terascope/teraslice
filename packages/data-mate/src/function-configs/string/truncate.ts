@@ -4,7 +4,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface TruncateConfig {
@@ -17,6 +17,22 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Truncate a string value',
+    examples: [
+        {
+            args: { size: 4 },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'thisisalongstring',
+            output: 'this'
+        },
+        {
+            args: { size: 8 },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'Hello world',
+            output: 'Hello wo'
+        },
+    ],
     create({ size }: TruncateConfig) {
         return truncateFP(size, false) as (value: unknown) => string;
     },

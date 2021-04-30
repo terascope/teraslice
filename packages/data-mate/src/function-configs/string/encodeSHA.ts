@@ -22,6 +22,37 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts to a SHA encoded value',
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: '{ "some": "data" }',
+            output: 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5',
+            description: 'hashing algorithm defaults to sha256, and digest defaults to hex'
+        },
+        {
+            args: { digest: 'base64' },
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: '{ "some": "data" }',
+            output: '5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U=',
+        }
+    ],
     create({ hash = hashDefault, digest = digestDefault } = {}) {
         return (input: unknown) => encodeSHA(input, hash, digest as BinaryToTextEncoding);
     },

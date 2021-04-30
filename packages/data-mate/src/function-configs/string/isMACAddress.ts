@@ -1,7 +1,8 @@
-import { isMacAddress, isString, joinList } from '@terascope/utils';
+import { isMACAddress, isString, joinList } from '@terascope/utils';
 import { MACDelimiter, FieldType } from '@terascope/types';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces';
 
 export interface IsMacArgs {
@@ -10,21 +11,96 @@ export interface IsMacArgs {
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 
+const examples: FunctionDefinitionExample<IsMacArgs>[] = [
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '00:1f:f3:5b:2b:1f',
+        output: '00:1f:f3:5b:2b:1f',
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '001ff35b2b1f',
+        output: '001ff35b2b1f',
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '00-1f-f3-5b-2b-1f',
+        output: '00-1f-f3-5b-2b-1f',
+    },
+
+    {
+        args: { delimiter: 'colon' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '00-1f-f3-5b-2b-1f',
+        output: null,
+    },
+    {
+        args: { delimiter: 'any' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '00-1f-f3-5b-2b-1f',
+        output: '00-1f-f3-5b-2b-1f',
+    },
+    {
+        args: { delimiter: 'dash' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '00-1f-f3-5b-2b-1f',
+        output: '00-1f-f3-5b-2b-1f',
+    },
+    {
+        args: { delimiter: 'dot' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '001f.f35b.2b1f',
+        output: '001f.f35b.2b1f',
+    },
+    {
+        args: { delimiter: 'none' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '001ff35b2b1f',
+        output: '001ff35b2b1f',
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'aString',
+        output: null,
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.Number } } },
+        field: 'testField',
+        input: 4,
+        output: null,
+    },
+];
+
 export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     name: 'isMACAddress',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid mac address',
+    examples,
     create({ delimiter }: IsMacArgs) {
         return (input: unknown) => isString(input)
-            && isMacAddress(input, delimiter as MACDelimiter);
+            && isMACAddress(input, delimiter as MACDelimiter);
     },
     accepts: [FieldType.String],
     argument_schema: {
         delimiter: {
-            type: FieldType.Any,
-            description: 'Specify delimiter character for mac address format'
+            type: FieldType.String,
+            description: `Specify delimiter character for mac address format, may be set to one of ${joinList(delimiterOptions)}`,
         }
     },
     required_arguments: [],
@@ -33,8 +109,11 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
 
         if (!delimiter) return;
 
-        if (delimiter && !Array.isArray(delimiter)) delimiterValues = [delimiter];
-        else delimiterValues = delimiter as string[];
+        if (delimiter && !Array.isArray(delimiter)) {
+            delimiterValues = [delimiter];
+        } else {
+            delimiterValues = delimiter as string[];
+        }
 
         delimiterValues.forEach((value) => {
             if (!delimiterOptions.includes(value)) {

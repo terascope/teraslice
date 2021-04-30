@@ -13,6 +13,22 @@ export const encodeBase64Config: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts value to a base64 hash',
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: 'some string',
+            output: 'c29tZSBzdHJpbmc='
+        }
+    ],
     create() {
         return (input: unknown) => encodeBase64(input as string);
     },
@@ -27,7 +43,7 @@ export const encodeBase64Config: FieldTransformConfig = {
             },
             child_config
         };
-    }
+    },
 };
 
 export function encodeBase64(input: string): string {

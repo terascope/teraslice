@@ -13,6 +13,22 @@ export const decodeURLConfig: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'decodes a URL encoded value',
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: 'google.com%3Fq%3DHELLO%20AND%20GOODBYE',
+            output: 'google.com?q=HELLO AND GOODBYE',
+        }
+    ],
     create() {
         return (input: unknown) => decodeURIComponent(input as string);
     },

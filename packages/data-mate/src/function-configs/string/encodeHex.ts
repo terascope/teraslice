@@ -13,6 +13,22 @@ export const encodeHexConfig: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts value to a hexadecimal hash',
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.String
+                    }
+                }
+            },
+            field: 'testField',
+            input: 'some value for hex encoding',
+            output: '736f6d652076616c756520666f722068657820656e636f64696e67'
+        }
+    ],
     create() {
         return (input: unknown) => Buffer.from(input as string).toString('hex');
     },

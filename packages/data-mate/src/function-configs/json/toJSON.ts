@@ -4,7 +4,8 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const toJSONConfig: FieldTransformConfig = {
@@ -12,6 +13,7 @@ export const toJSONConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     description: 'converts whole input to JSON format',
+    category: FunctionDefinitionCategory.JSON,
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

@@ -2,7 +2,7 @@ import { FieldType, DataTypeFieldConfig } from '@terascope/types';
 import { isNil } from '@terascope/utils';
 import { validateFunctionArgs } from '../argument-validator';
 import {
-    Column, validateFieldTransformType, ColumnOptions, mapVector
+    Column, validateFieldTransformType, ColumnOptions, mapVector,
 } from '../../column';
 import { DataFrame } from '../../data-frame';
 import {
@@ -95,10 +95,12 @@ function transformColumnData<T extends Record<string, any>>(
     transformConfig: FieldTransformConfig<T>,
     args?: T
 ): Column {
-    validateFieldTransformType(
+    const err = validateFieldTransformType(
         getVectorType(transformConfig.accepts),
-        column.vector
+        column.vector,
     );
+
+    if (err) throw err;
 
     const mode = getMode(transformConfig);
 
@@ -151,16 +153,23 @@ function validateColumnData<T extends Record<string, any>>(
     validationConfig: FieldValidateConfig<T>,
     args?: T
 ): Column {
-    validateFieldTransformType(
+    const err = validateFieldTransformType(
         getVectorType(validationConfig.accepts),
-        column.vector
+        column.vector,
     );
-    const mode = getMode(validationConfig);
+
+    if (err) {
+        // if there is an error, there is a type mismatch
+        // there is no need to execute, just return an empty column
+        return column.clearAll();
+    }
 
     const options: ColumnOptions = {
         name: column.name,
         version: column.version,
     };
+
+    const mode = getMode(validationConfig);
 
     const inputConfig = {
         field_config: column.config,

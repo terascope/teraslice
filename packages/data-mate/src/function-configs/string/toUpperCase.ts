@@ -20,6 +20,29 @@ export const toUpperCaseConfig: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts a string to upper case characters',
+    examples: [
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'hello',
+            output: 'HELLO'
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'billy',
+            output: 'BILLY',
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'Hey There',
+            output: 'HEY THERE'
+        },
+    ],
     create() {
         return _toUpperCase;
     },

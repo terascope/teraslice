@@ -59,8 +59,8 @@ describe('toUpperCaseConfig', () => {
 
         const columnTests: ColumnTests[] = [
             {
-                column: [true, 'false', 'blah', 'true', null, undefined, 1234],
-                result: [null, 'FALSE', 'BLAH', 'TRUE', null, null, null]
+                column: ['false', 'blah', 'true'],
+                result: ['FALSE', 'BLAH', 'TRUE']
             }
         ];
 
@@ -203,8 +203,8 @@ describe('toUpperCaseConfig', () => {
                 const data = [{ [field]: true }, 'hello'] as Record<string, unknown>[];
                 const data2 = [{ [field]: true }, null] as Record<string, unknown>[];
 
-                expect(() => api.rows(data)).toThrowError('Invalid record "hello", expected an array of simple objects or data-entities');
-                expect(() => api.rows(data2)).toThrowError('Invalid record null, expected an array of simple objects or data-entities');
+                expect(() => api.rows(data)).toThrowError('Invalid input true, expected string got Boolean');
+                expect(() => api.rows(data2)).toThrowError('Invalid input true, expected string got Boolean');
             });
         });
     });
