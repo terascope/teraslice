@@ -719,10 +719,10 @@ export function isMACAddress(
 ): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
-        return _lift(ts.isMacAddressFP(args?.delimiter), input, _parentContext);
+        return _lift(ts.isMACAddressFP(args?.delimiter), input, _parentContext);
     }
 
-    return ts.isMacAddress(input, args?.delimiter);
+    return ts.isMACAddress(input, args?.delimiter);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { isMacAddress, isString, joinList } from '@terascope/utils';
+import { isMACAddress, isString, joinList } from '@terascope/utils';
 import { MACDelimiter, FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
@@ -94,7 +94,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     examples,
     create({ delimiter }: IsMacArgs) {
         return (input: unknown) => isString(input)
-            && isMacAddress(input, delimiter as MACDelimiter);
+            && isMACAddress(input, delimiter as MACDelimiter);
     },
     accepts: [FieldType.String],
     argument_schema: {
