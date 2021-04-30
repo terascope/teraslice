@@ -20,14 +20,10 @@ export function callValue(
             results.push(...mappedInput);
         }
     } else if (isValidator) {
-        try {
-            if (!isNil(input) && fn(input)) {
-                results.push(input);
-            } else if (preserveNulls) {
-                results.push(null);
-            }
-        } catch (_err) {
-            if (preserveNulls) results.push(null);
+        if (!isNil(input) && fn(input)) {
+            results.push(input);
+        } else if (preserveNulls) {
+            results.push(null);
         }
     } else {
         const newValue = fn(input);
