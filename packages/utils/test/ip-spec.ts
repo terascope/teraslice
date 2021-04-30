@@ -7,7 +7,8 @@ import {
     isCIDR,
     inIPRange,
     isRoutableIP,
-    isNonRoutableIP
+    isNonRoutableIP,
+    reverseIP
 } from '../src/ip';
 
 describe('IP Utils', () => {
@@ -281,6 +282,14 @@ describe('IP Utils', () => {
             ['2001:2ff::ffff', false],
         ])('return true for non-routable ip addresses', (input, expected) => {
             expect(isNonRoutableIP(input)).toEqual(expected);
+        });
+    });
+
+    fdescribe('reverseIP', () => {
+        test.each([
+            ['10.16.32.210', '210.32.16.10'],
+        ])('returns the octets/ parts in revers order', (input, expected) => {
+            expect(reverseIP(input)).toEqual(expected);
         });
     });
 });

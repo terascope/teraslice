@@ -1,5 +1,5 @@
 import _isIP from 'is-ip';
-import ipaddr from 'ipaddr.js';
+import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
@@ -18,6 +18,31 @@ export function isIPV4(input: unknown): boolean {
 
 export function isCIDR(input: unknown): boolean {
     return isString(input) && validateCidr(input) > 0;
+}
+
+export function reverseIP(input: string): string {
+    if (!isIP(input)) throw Error('input must be a valid ip address');
+
+    const parsedIp = ipaddr.parse(input);
+
+    if (parsedIp.kind() === 'ipv4') {
+        return _reverseIPv4(parsedIp as IPv4).join('.');
+    }
+
+    return _reverseIPv6(input);
+}
+
+function _reverseIPv4(ip: ipaddr.IPv4) {
+    return ip.octets.reverse();
+}
+
+function _reverseIPv6(ip: ipaddr.IPv6): string {
+    // 4 digits for each  group
+    // 8 groups total
+    // search for ::
+    // if :: expand ip address to full size
+    const string = ip.toNormalizedString();
+
 }
 
 export function inIPRange(
@@ -39,13 +64,17 @@ export function inIPRange(
         && ip6addr.createAddrRange(min, max).contains(input);
 }
 
-function _assignMin(ipType: number): string {
+function _assignMin(ipType: number, min?: string): string {
+    if (min) return min;
+
     if (ipType === 4) return '0.0.0.0';
 
     return '::';
 }
 
-function _assignMax(ipType: number): string {
+function _assignMax(ipType: number, max?: string): string {
+    if (max) return max;
+
     if (ipType === 4) return '255.255.255.255';
 
     return 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff';
