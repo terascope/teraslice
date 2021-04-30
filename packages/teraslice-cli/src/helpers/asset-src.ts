@@ -5,7 +5,7 @@ import path from 'path';
 import tmp from 'tmp';
 import { isCI, toInteger, TSError } from '@terascope/utils';
 import { build } from 'esbuild';
-import { getPackage } from '../helpers/utils';
+import { wasmPlugin, getPackage } from '../helpers/utils';
 import reply from './reply';
 
 interface ZipResults {
@@ -182,6 +182,7 @@ export class AssetSrc {
                 platform: 'node',
                 sourcemap: false,
                 target: this.bundleTarget,
+                plugins: [wasmPlugin]
             });
 
             // TODO ... Peter asked that I test load the asset here ...
