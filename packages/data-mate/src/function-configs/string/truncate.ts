@@ -20,29 +20,6 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     create({ size }: TruncateConfig) {
         return truncateFP(size, false) as (value: unknown) => string;
     },
-    examples: [
-        {
-            args: { size: 2 },
-            config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
-            input: 'example',
-            output: 'ex'
-        },
-        {
-            args: { size: 7 },
-            config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
-            input: 'example',
-            output: 'example'
-        },
-        {
-            args: { size: 100 },
-            config: { version: 1, fields: { example: { type: FieldType.String } } },
-            field: 'example',
-            input: 'example',
-            output: 'example'
-        },
-    ],
     accepts: [FieldType.String],
     required_arguments: ['size'],
     argument_schema: {
