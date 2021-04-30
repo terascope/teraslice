@@ -202,8 +202,8 @@ export function startsWithFP(val: string) {
 /**
  * Truncate a string value, by default it will add an ellipsis (...) if truncated.
 */
-export function truncate(value: string, len: number, ellipsis = true): string {
-    if (!value) return value;
+export function truncate(value: unknown, len: number, ellipsis = true): string {
+    if (value == null || value === '') return '';
     if (!isString(value)) {
         throw new SyntaxError(`Expected string value to truncate, got ${getTypeOf(value)}`);
     }
@@ -218,7 +218,7 @@ export function truncate(value: string, len: number, ellipsis = true): string {
  * A functional version of truncate
 */
 export function truncateFP(len: number, ellipsis = true) {
-    return function _truncateFP(value: string): string {
+    return function _truncateFP(value: unknown): string {
         return truncate(value, len, ellipsis);
     };
 }

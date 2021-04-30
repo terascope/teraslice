@@ -7,9 +7,9 @@ import {
 
 export interface LengthArgs {
     /** Check to see if it exactly matches size */
-    size?: number;
-    min?: number;
-    max?: number;
+    readonly size?: number;
+    readonly min?: number;
+    readonly max?: number;
 }
 
 export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
@@ -79,7 +79,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
     },
     validate_arguments({ min, max, size }) {
         if (isNil(max) && isNil(min) && isNil(size)) {
-            throw new Error('Invalid arguments, must either specify "size" for exact match, or specify at least "min" or "mix" for checking a range');
+            throw new Error('Invalid arguments, must either specify "size" for exact match, or specify at least "min" or "max" for checking a range');
         }
     }
 };
