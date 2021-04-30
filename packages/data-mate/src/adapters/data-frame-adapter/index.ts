@@ -95,11 +95,12 @@ function transformColumnData<T extends Record<string, any>>(
     transformConfig: FieldTransformConfig<T>,
     args?: T
 ): Column {
-    validateFieldTransformType(
+    const err = validateFieldTransformType(
         getVectorType(transformConfig.accepts),
         column.vector,
-        true
     );
+
+    if (err) throw err;
 
     const mode = getMode(transformConfig);
 
@@ -155,19 +156,18 @@ function validateColumnData<T extends Record<string, any>>(
     const err = validateFieldTransformType(
         getVectorType(validationConfig.accepts),
         column.vector,
-        false
     );
-
-    const options: ColumnOptions = {
-        name: column.name,
-        version: column.version,
-    };
 
     if (err) {
         // if there is an error, there is a type mismatch
         // there is no need to execute, just return an empty column
         return column.clearAll();
     }
+
+    const options: ColumnOptions = {
+        name: column.name,
+        version: column.version,
+    };
 
     const mode = getMode(validationConfig);
 

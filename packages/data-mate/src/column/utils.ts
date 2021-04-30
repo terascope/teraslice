@@ -118,7 +118,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
 }
 
 export function validateFieldTransformType(
-    accepts: VectorType[], vector: Vector<any>, shouldThrow = true
+    accepts: VectorType[], vector: Vector<any>
 ): Error | undefined {
     if (!accepts?.length) return;
 
@@ -132,8 +132,6 @@ export function validateFieldTransformType(
     if (!accepts.includes(type)) {
         err = new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
     }
-
-    if (shouldThrow && err) throw err;
 
     return err;
 }

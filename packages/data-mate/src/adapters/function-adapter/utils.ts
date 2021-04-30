@@ -3,6 +3,10 @@ import {
     flatten
 } from '@terascope/utils';
 
+/** This function is used to call a function on a value or recursively on a list/sub-list of values
+ * This is more equivalent to ProcessMode.INDIVIDUAL_VALUES for the function adapter
+*/
+
 export function callValue(
     fn:(input: unknown) => unknown,
     input: unknown| unknown[],
