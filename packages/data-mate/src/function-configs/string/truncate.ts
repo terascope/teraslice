@@ -1,4 +1,4 @@
-import { truncate } from '@terascope/utils';
+import { truncateFP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -18,8 +18,31 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Truncate a string value',
     create({ size }: TruncateConfig) {
-        return (input: unknown) => truncate(input as string, size, false);
+        return truncateFP(size, false) as (value: unknown) => string;
     },
+    examples: [
+        {
+            args: { size: 2 },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: 'ex'
+        },
+        {
+            args: { size: 7 },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: 'example'
+        },
+        {
+            args: { size: 100 },
+            config: { version: 1, fields: { example: { type: FieldType.String } } },
+            field: 'example',
+            input: 'example',
+            output: 'example'
+        },
+    ],
     accepts: [FieldType.String],
     required_arguments: ['size'],
     argument_schema: {
