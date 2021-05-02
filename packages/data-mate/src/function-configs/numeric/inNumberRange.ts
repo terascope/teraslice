@@ -60,7 +60,6 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
     },
     accepts: [
         FieldType.Number,
-        FieldType.Long,
     ],
     argument_schema: {
         min: {
