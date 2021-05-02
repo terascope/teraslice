@@ -224,10 +224,10 @@ export interface InNumberRangeArg {
  *      inNumberRange(42, { min: 0, max: 42, inclusive: true }) // true
 */
 export function inNumberRange(input: unknown, args: InNumberRangeArg): input is number {
-    if (!isNumber(input)) return false;
+    if (!isNumber(input) && !isBigInt(input)) return false;
 
-    const min = args.min == null ? -Infinity : args.min;
-    const max = args.max == null ? Infinity : args.max;
+    const min = args.min == null ? Number.NEGATIVE_INFINITY : args.min;
+    const max = args.max == null ? Number.POSITIVE_INFINITY : args.max;
 
     if (args.inclusive) {
         return (input >= min && input <= max);
@@ -237,7 +237,7 @@ export function inNumberRange(input: unknown, args: InNumberRangeArg): input is 
 }
 
 export function inNumberRangeFP(args: InNumberRangeArg) {
-    return function _inNumberRangeFP(input: number): input is number {
+    return function _inNumberRangeFP(input: unknown): input is number {
         return inNumberRange(input, args);
     };
 }
