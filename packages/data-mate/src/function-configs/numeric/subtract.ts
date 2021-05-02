@@ -13,7 +13,7 @@ export interface SubtractArgs {
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;
-    return type === FieldType.Long || type === FieldType.Double;
+    return type === FieldType.Long;
 }
 
 export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
@@ -21,24 +21,48 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'subtract a numeric value',
+    description: 'Subtract a numeric value',
+    examples: [
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 9
+        },
+        {
+            args: { by: 5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Short } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 5
+        },
+        {
+            args: { by: -5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 15
+        }
+    ],
     create({ by = 1 } = {}, inputConfig) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType)) {
-            const decrementVal = toBigIntOrThrow(by);
-            return (input: unknown) => subtractBigInt(input as bigint, decrementVal);
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+            return subtractFP(toBigIntOrThrow(by));
         }
 
-        const decrementVal = by;
-        return (input: unknown) => subtract(input as number, decrementVal);
+        return subtractFP(by);
     },
     accepts: [
         FieldType.Number,
-        FieldType.Byte,
-        FieldType.Short,
-        FieldType.Integer,
-        FieldType.Float,
-        FieldType.Long,
-        FieldType.Double
     ],
     argument_schema: {
         by: {
@@ -49,10 +73,10 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     },
 };
 
-function subtract(num: number, by: number) {
-    return num - by;
-}
-
-function subtractBigInt(num: bigint, by: bigint) {
-    return num - by;
+function subtractFP(by: bigint): (input: unknown) => bigint;
+function subtractFP(by: number): (input: unknown) => number;
+function subtractFP(by: number|bigint): (input: unknown) => number|bigint {
+    return function _subtract(num) {
+        return (num as number) - (by as number);
+    };
 }

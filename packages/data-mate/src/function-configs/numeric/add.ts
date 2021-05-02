@@ -13,7 +13,7 @@ export interface AddArgs {
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;
-    return type === FieldType.Long || type === FieldType.Double;
+    return type === FieldType.Long;
 }
 
 export const addConfig: FieldTransformConfig<AddArgs> = {
@@ -21,24 +21,48 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'add to a numeric value',
+    description: 'Add a numeric value to another',
+    examples: [
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 11
+        },
+        {
+            args: { by: 5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Short } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 15
+        },
+        {
+            args: { by: -5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 5
+        }
+    ],
     create({ by = 1 } = {}, inputConfig) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType)) {
-            const incrementVal = toBigIntOrThrow(by);
-            return (input: unknown) => addBigInt(input as bigint, incrementVal);
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+            return addFP(toBigIntOrThrow(by));
         }
 
-        const incrementVal = by;
-        return (input: unknown) => add(input as number, incrementVal);
+        return addFP(by);
     },
     accepts: [
         FieldType.Number,
-        FieldType.Byte,
-        FieldType.Short,
-        FieldType.Integer,
-        FieldType.Float,
-        FieldType.Long,
-        FieldType.Double
     ],
     argument_schema: {
         by: {
@@ -49,10 +73,10 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     },
 };
 
-function add(num: number, by: number) {
-    return num + by;
-}
-
-function addBigInt(num: bigint, by: bigint) {
-    return num + by;
+function addFP(by: bigint): (input: unknown) => bigint;
+function addFP(by: number): (input: unknown) => number;
+function addFP(by: number|bigint): (input: unknown) => number|bigint {
+    return function _add(num) {
+        return (num as number) + (by as number);
+    };
 }
