@@ -5,26 +5,26 @@ import {
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
 } from '../interfaces';
 
-function divideValuesReducer(
+function multiplyValuesReducer(
     acc: number,
     curr: number|bigint
 ): number {
     if (acc == null) return toFloatOrThrow(curr);
-    return acc / toFloatOrThrow(curr);
+    return acc * toFloatOrThrow(curr);
 }
 
-function divideValuesFn(value: unknown): bigint|number|null {
+function multiplyValuesFn(value: unknown): bigint|number|null {
     if (!Array.isArray(value)) return null;
 
-    return value.reduce(divideValuesReducer) ?? null;
+    return value.reduce(multiplyValuesReducer) ?? null;
 }
 
-export const divideValuesConfig: FieldTransformConfig = {
-    name: 'divideValues',
+export const multiplyValuesConfig: FieldTransformConfig = {
+    name: 'multiplyValues',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Divide the values with a given field, this requires an array to function correctly',
+    description: 'multiply the values with a given field, this requires an array to function correctly',
     examples: [
         {
             args: {},
@@ -34,7 +34,7 @@ export const divideValuesConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [100, 10],
-            output: 10
+            output: 1000
         },
         {
             args: {},
@@ -54,16 +54,16 @@ export const divideValuesConfig: FieldTransformConfig = {
                     testField: { type: FieldType.Tuple },
                     'testField.0': { type: FieldType.Byte, array: true },
                     'testField.1': { type: FieldType.Integer },
-                    'testField.2': { type: FieldType.Long }
+                    'testField.2': { type: FieldType.Long },
                 }
             },
             field: 'testField',
             input: [10, 100000, 2],
-            output: 0.00005
+            output: 2000000
         }
     ],
     create() {
-        return divideValuesFn;
+        return multiplyValuesFn;
     },
     argument_schema: {},
     accepts: [FieldType.Number],

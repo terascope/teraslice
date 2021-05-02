@@ -22,6 +22,28 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
     description: 'divide a numeric value',
+    examples: [
+        {
+            args: { by: 5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Short } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 2
+        },
+        {
+            args: { by: 1 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 10
+        }
+    ],
     create({ by = 1 } = {}, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
             return divideFP(toBigIntOrThrow(by));
