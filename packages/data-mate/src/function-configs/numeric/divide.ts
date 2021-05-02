@@ -1,44 +1,51 @@
-import { toFloatOrThrow } from '@terascope/utils';
+import { toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig, FunctionDefinitionType,
-    ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
+    FieldTransformConfig,
+    ProcessMode,
+    FunctionDefinitionType,
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
-function divideReducer(
-    acc: number,
-    curr: number|bigint
-): number {
-    if (acc == null) return toFloatOrThrow(curr);
-    return acc / toFloatOrThrow(curr);
+export interface DivideArgs {
+    readonly by?: number
 }
 
-function divideFn(value: unknown): bigint|number|null {
-    if (!Array.isArray(value)) return null;
-
-    return value.reduce(divideReducer) ?? null;
+function isLargeNumberType(type: FieldType|undefined) {
+    if (type == null) return false;
+    return type === FieldType.Long;
 }
 
-export const divideConfig:FieldTransformConfig = {
+export const divideConfig: FieldTransformConfig<DivideArgs> = {
     name: 'divide',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Divide one or more values in a vector',
-    create() {
-        return divideFn;
-    },
-    argument_schema: {},
-    accepts: [FieldType.Number],
-    output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
-        const { field_config, child_config } = inputConfig;
+    description: 'divide a numeric value',
+    create({ by = 1 } = {}, inputConfig) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+            return divideFP(toBigIntOrThrow(by));
+        }
 
-        return {
-            field_config: {
-                ...field_config,
-                type: FieldType.Number
-            },
-            child_config
-        };
-    }
+        return divideFP(by);
+    },
+    accepts: [
+        FieldType.Number,
+    ],
+    argument_schema: {
+        by: {
+            type: FieldType.Number,
+            array: false,
+            description: 'How much to divide'
+        }
+    },
+    required_arguments: ['by']
 };
+
+function divideFP(by: bigint): (input: unknown) => bigint;
+function divideFP(by: number): (input: unknown) => number;
+function divideFP(by: number|bigint): (input: unknown) => number|bigint {
+    return function _divide(num) {
+        return (num as number) / (by as number);
+    };
+}
