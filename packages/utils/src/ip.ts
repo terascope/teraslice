@@ -26,37 +26,32 @@ export function reverseIP(input: string): string {
     const parsedIp = ipaddr.parse(input);
 
     if (parsedIp.kind() === 'ipv4') {
-        return _reverseIPv4(parsedIp as IPv4);
+        return (parsedIp as IPv4).octets.reverse().join('.');
     }
 
     return _reverseIPv6(parsedIp as IPv6);
 }
 
-function _reverseIPv4(ip: ipaddr.IPv4): string {
-    return ip.octets.reverse().join('.');
-}
-
 function _reverseIPv6(ip: ipaddr.IPv6): string {
-    const ipParts = ip.toNormalizedString().split(':');
+    return ip.toNormalizedString().split(':').reduce((parts: string[], part: string) => {
+        parts.push(expandIPv6Part(part));
 
-    const nIP: string[] = [];
-
-    for (const p of ipParts) {
-        const expanded = expandIpv6(p);
-        nIP.push(expanded);
-    }
-
-    return nIP.join('').split('').reverse().join('.');
+        return parts;
+    }, [])
+        .join('')
+        .split('')
+        .reverse()
+        .join('.');
 }
 
-function expandIpv6(part: string) {
-    let c = part;
+function expandIPv6Part(part: string) {
+    let expandedPart = part;
 
-    while (c.length < 4) {
-        c = `0${c}`;
+    while (expandedPart.length < 4) {
+        expandedPart = `0${expandedPart}`;
     }
 
-    return c;
+    return expandedPart;
 }
 
 export function inIPRange(
