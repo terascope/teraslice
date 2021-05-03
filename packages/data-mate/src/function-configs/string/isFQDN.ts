@@ -114,5 +114,7 @@ export const isFQDNConfig: FieldValidateConfig = {
     description: 'Checks to see if input is a fully qualified domain name',
     examples,
     create() { return isFQDN; },
-    accepts: [FieldType.String],
+    accepts: [
+        FieldType.String
+    ],
 };

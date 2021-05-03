@@ -1,4 +1,5 @@
 import validator from 'validator';
+
 import {
     trim as lTrim,
     trimEnd as lTrimEnd,
@@ -498,6 +499,22 @@ export function isFQDN(input: unknown): boolean {
 
 export function isCountryCode(input: unknown): boolean {
     return isString(input) && validator.isISO31661Alpha2(input);
+}
+
+export function isPostalCode(input: unknown, locale: validator.PostalCodeLocale | 'any' = 'any'): boolean {
+    return validator.isPostalCode(toString(input), locale);
+}
+
+export function isPort(input: unknown): boolean {
+    return validator.isPort(toString(input));
+}
+
+export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLocale): boolean {
+    return isString(input) && validator.isAlphanumeric(input, locale);
+}
+
+export function isMIMEType(input: unknown): boolean {
+    return validator.isMimeType(toString(input));
 }
 
 /**

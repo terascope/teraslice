@@ -1,5 +1,6 @@
-import { isCountryCode } from '@terascope/utils';
+import { isPort } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
@@ -17,50 +18,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'US',
-        output: 'US'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'ZM',
-        output: 'ZM'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'GB',
-        output: 'GB'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'UK',
-        output: null
+        input: '49151',
+        output: '49151'
     },
     {
         args: {},
@@ -73,20 +32,49 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 12345,
+        input: 8080,
+        output: 8080
+    },
+    {
+        args: {},
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.String
+                }
+            }
+        },
+        field: 'testField',
+        input: '65536',
+        output: null
+    },
+    {
+        args: {},
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.String
+                }
+            }
+        },
+        field: 'testField',
+        input: 'not a port',
         output: null
     }
 ];
 
-export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isCountryCode',
+export const isPortConfig: FieldValidateConfig = {
+    name: 'isPort',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
+    description: 'Checks to see if input is a valid port',
     examples,
-    description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
-    create() { return isCountryCode; },
+    create() { return isPort; },
     accepts: [
-        FieldType.String
+        FieldType.String,
+        FieldType.Number
     ],
 };

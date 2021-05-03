@@ -58,5 +58,7 @@ export const isBase64Config: FieldValidateConfig = {
     examples,
     description: 'Checks to see if input is a valid base64 string',
     create() { return isBase64; },
-    accepts: [FieldType.String],
+    accepts: [
+        FieldType.String
+    ],
 };

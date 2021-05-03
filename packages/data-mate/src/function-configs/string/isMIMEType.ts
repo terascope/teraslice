@@ -1,8 +1,8 @@
-import { isCountryCode } from '@terascope/utils';
+import { isMIMEType } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, FunctionDefinitionExample
+    FieldValidateConfig, ProcessMode, FunctionDefinitionExample,
+    FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
@@ -17,8 +17,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'US',
-        output: 'US'
+        input: 'application/javascript',
+        output: 'application/javascript'
     },
     {
         args: {},
@@ -31,8 +31,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'ZM',
-        output: 'ZM'
+        input: 'text/html',
+        output: 'text/html'
     },
     {
         args: {},
@@ -45,21 +45,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'GB',
-        output: 'GB'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'UK',
+        input: 'application',
         output: null
     },
     {
@@ -68,25 +54,25 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Number
+                    type: FieldType.String
                 }
             }
         },
         field: 'testField',
-        input: 12345,
+        input: '',
         output: null
     }
 ];
 
-export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isCountryCode',
+export const isMIMETypeConfig: FieldValidateConfig = {
+    name: 'isMIMEType',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     examples,
-    description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
-    create() { return isCountryCode; },
     accepts: [
         FieldType.String
     ],
+    create() { return isMIMEType; },
+    description: 'Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type',
 };

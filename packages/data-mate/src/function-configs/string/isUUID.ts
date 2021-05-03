@@ -51,5 +51,7 @@ export const isUUIDConfig: FieldValidateConfig = {
     description: 'Checks to see if input is a UUID',
     examples,
     create() { return isUUID; },
-    accepts: [FieldType.String],
+    accepts: [
+        FieldType.String
+    ],
 };

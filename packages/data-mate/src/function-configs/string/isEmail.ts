@@ -144,5 +144,7 @@ export const isEmailConfig: FieldValidateConfig = {
     create() {
         return isEmail;
     },
-    accepts: [FieldType.String],
+    accepts: [
+        FieldType.String
+    ],
 };
