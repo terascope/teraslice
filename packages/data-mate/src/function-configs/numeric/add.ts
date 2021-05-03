@@ -1,4 +1,4 @@
-import { toBigIntOrThrow } from '@terascope/utils';
+import { isBigInt, toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -8,12 +8,12 @@ import {
 } from '../interfaces';
 
 export interface AddArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;
-    return type === FieldType.Long || type === FieldType.Double;
+    return type === FieldType.Long;
 }
 
 export const addConfig: FieldTransformConfig<AddArgs> = {
@@ -21,38 +21,77 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'add to a numeric value',
-    create({ by = 1 } = {}, inputConfig) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType)) {
-            const incrementVal = toBigIntOrThrow(by);
-            return (input: unknown) => addBigInt(input as bigint, incrementVal);
+    description: 'Add a numeric value to another',
+    examples: [
+        {
+            args: { value: 1 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 11
+        },
+        {
+            args: { value: 5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Short } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 15
+        },
+        {
+            args: { value: -5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 5
+        },
+        {
+            args: { value: 12 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Long } }
+            },
+            field: 'testField',
+            input: 12,
+            output: 24
+        }
+    ],
+    create({ value }, inputConfig) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+            return addFP(toBigIntOrThrow(value));
         }
 
-        const incrementVal = by;
-        return (input: unknown) => add(input as number, incrementVal);
+        return addFP(value);
     },
     accepts: [
         FieldType.Number,
-        FieldType.Byte,
-        FieldType.Short,
-        FieldType.Integer,
-        FieldType.Float,
-        FieldType.Long,
-        FieldType.Double
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to add, defaults to 1'
+            description: 'Value to add to the input'
         }
     },
+    required_arguments: ['value']
 };
 
-function add(num: number, by: number) {
-    return num + by;
-}
-
-function addBigInt(num: bigint, by: bigint) {
-    return num + by;
+function addFP(value: bigint): (input: unknown) => bigint;
+function addFP(value: number): (input: unknown) => number;
+function addFP(value: number|bigint): (input: unknown) => number|bigint {
+    const bigInt = isBigInt(value);
+    return function _add(num) {
+        if (bigInt && !isBigInt(num)) {
+            return toBigIntOrThrow(num) + (value as bigint);
+        }
+        return (num as number) + (value as number);
+    };
 }

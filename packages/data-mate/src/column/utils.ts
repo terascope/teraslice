@@ -1,12 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import { isArrayLike, joinList, toString } from '@terascope/utils';
 import {
-    DataTypeFields, Maybe
+    DataTypeFieldConfig,
+    DataTypeFields, FieldType, Maybe, ReadonlyDataTypeFields
 } from '@terascope/types';
 import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
 import {
     ListVector,
-    Vector, VectorType
+    Vector
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 import { WritableData } from '../core';
@@ -117,21 +118,60 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-export function validateFieldTransformType(
-    accepts: VectorType[], vector: Vector<any>
-): Error | undefined {
-    if (!accepts?.length) return;
+const numericTypes: ReadonlySet<FieldType> = new Set([
+    FieldType.Any,
+    FieldType.Number,
+    FieldType.Short,
+    FieldType.Integer,
+    FieldType.Float,
+    FieldType.Double,
+    FieldType.Byte,
+    FieldType.Long,
+]);
 
-    // if the type is a List, then we need to give the child type
-    const type = vector.type === VectorType.List ? Vector.make([], {
-        config: { ...vector.config, array: false }
-    }).type : vector.type;
+const stringTypes: ReadonlySet<FieldType> = new Set([
+    FieldType.Any,
+    FieldType.String,
+    FieldType.Text,
+    FieldType.Keyword,
+    FieldType.KeywordCaseInsensitive,
+    FieldType.KeywordPathAnalyzer,
+    FieldType.KeywordTokens,
+    FieldType.KeywordTokensCaseInsensitive,
+    FieldType.Domain,
+    FieldType.Hostname,
+]);
 
-    let err: Error|undefined;
-
-    if (!accepts.includes(type)) {
-        err = new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
+/**
+ * This was created for validating the accepts
+*/
+export function getFieldTypesFromFieldConfigAndChildConfig(
+    config: Readonly<DataTypeFieldConfig>,
+    childConfig: DataTypeFields|ReadonlyDataTypeFields|undefined
+): readonly FieldType[] {
+    if (config.type !== FieldType.Tuple || !childConfig) {
+        return [config.type as FieldType];
     }
 
-    return err;
+    return Object.values(childConfig).map((c) => c.type as FieldType);
+}
+
+export function validateAccepts(
+    accepts: readonly FieldType[], types: readonly FieldType[]
+): Error | undefined {
+    if (!accepts?.length || !types.length) return;
+
+    for (const acceptType of accepts) {
+        if (acceptType === FieldType.Number && types.every((type) => numericTypes.has(type))) {
+            return;
+        }
+        if (acceptType === FieldType.String && types.every((type) => stringTypes.has(type))) {
+            return;
+        }
+        if (types.every((type) => type === acceptType)) {
+            return;
+        }
+    }
+
+    return new Error(`Incompatible with field type ${joinList(types)}, must be ${joinList(accepts)}`);
 }

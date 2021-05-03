@@ -1,4 +1,4 @@
-import { toBigIntOrThrow } from '@terascope/utils';
+import { isBigInt, toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -8,12 +8,12 @@ import {
 } from '../interfaces';
 
 export interface SubtractArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;
-    return type === FieldType.Long || type === FieldType.Double;
+    return type === FieldType.Long;
 }
 
 export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
@@ -21,38 +21,76 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'subtract a numeric value',
-    create({ by = 1 } = {}, inputConfig) {
-        if (isLargeNumberType(inputConfig?.field_config.type as FieldType)) {
-            const decrementVal = toBigIntOrThrow(by);
-            return (input: unknown) => subtractBigInt(input as bigint, decrementVal);
+    description: 'Subtract a numeric value',
+    examples: [
+        {
+            args: { value: 1 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 9
+        },
+        {
+            args: { value: 5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Short } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 5
+        },
+        {
+            args: { value: -5 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 15
+        },
+        {
+            args: { value: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Long } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 8
+        }
+    ],
+    create({ value }, inputConfig) {
+        if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
+            return subtractFP(toBigIntOrThrow(value));
         }
 
-        const decrementVal = by;
-        return (input: unknown) => subtract(input as number, decrementVal);
+        return subtractFP(value);
     },
     accepts: [
         FieldType.Number,
-        FieldType.Byte,
-        FieldType.Short,
-        FieldType.Integer,
-        FieldType.Float,
-        FieldType.Long,
-        FieldType.Double
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to subtract, defaults to 1'
+            description: 'Value to subtract from the input'
         }
     },
 };
 
-function subtract(num: number, by: number) {
-    return num - by;
-}
-
-function subtractBigInt(num: bigint, by: bigint) {
-    return num - by;
+function subtractFP(value: bigint): (input: unknown) => bigint;
+function subtractFP(value: number): (input: unknown) => number;
+function subtractFP(value: number|bigint): (input: unknown) => number|bigint {
+    const bigInt = isBigInt(value);
+    return function _subtract(num) {
+        if (bigInt && !isBigInt(num)) {
+            return toBigIntOrThrow(num) - (value as bigint);
+        }
+        return (num as number) - (value as number);
+    };
 }

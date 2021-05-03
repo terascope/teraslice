@@ -70,38 +70,52 @@ export interface FunctionDefinitionExample<T extends Record<string, any>> {
 
 export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /**
-     * The name of the function
+     * The name of the function, this should be considered case-insensitive,
+     * since some languages like SQL are case insensitive.
     */
     readonly name: string;
+
+    /**
+     * Optionally specify other known aliases to this function
+    */
+    readonly aliases?: readonly string[];
+
     /** Type of operation that will be preformed */
     readonly type: FunctionDefinitionType;
+
     /** Used to generate documentation */
     readonly description: string;
+
     /**
      * The category of operation, for documentation purposes
     */
     readonly category: FunctionDefinitionCategory;
+
     /**
      * Examples that will be used in the documentation and potentially
      * in the automated tests.
      * FIXME make this non-optional
     */
     readonly examples?: readonly FunctionDefinitionExample<T>[];
+
     /**
      * Used for validating and defining the types of the input arguments,
      * please include description field when creating the schema
      */
     readonly argument_schema?: DataTypeFields;
+
     /**
      * Used to determine what of the possible args are required, as DataType configs does not have
      * a mechanism to specify what is required
      */
     readonly required_arguments?: readonly string[];
+
     /**
      * Can be used in strongly typed contexts to throw early, some types
      * or only compatible with a given operation
      */
     readonly accepts: readonly FieldType[];
+
     /** Used for additional custom validation of args, called after generic arg validation */
     readonly validate_arguments?: (args: T) => void;
 }

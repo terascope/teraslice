@@ -538,10 +538,15 @@ export function parseList(input: unknown): string[] {
     return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
+type JoinListType = string|number|boolean|symbol|null|undefined;
 /**
  * Create a sentence from a list (all items will be unique, empty values will be skipped)
 */
-export function joinList(input: (string|number|boolean|symbol|null|undefined)[], sep = ',', join = 'and'): string {
+export function joinList(
+    input: (JoinListType)[]|readonly (JoinListType)[],
+    sep = ',',
+    join = 'and'
+): string {
     if (!Array.isArray(input)) {
         throw new Error('joinList requires input to be a array');
     }

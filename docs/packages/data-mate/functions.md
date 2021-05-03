@@ -3,23 +3,29 @@ title: Data-Mate Functions
 sidebar_label: Functions
 ---
 
-### CATEGORY: Boolean
+## CATEGORY: Boolean
 
-#### `isBoolean` (FIELD_VALIDATION)
+### `isBoolean`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a boolean
 
-#### `toBoolean` (FIELD_TRANSFORM)
+### `toBoolean`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a truthy or falsy value to boolean
 
-### CATEGORY: Geo
+## CATEGORY: Geo
 
-#### `toGeoPoint` (FIELD_TRANSFORM)
+### `toGeoPoint`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a truthy or falsy value to boolean
 
-##### Accepts
+#### Accepts
 
 - `String`
 - `Object`
@@ -27,13 +33,15 @@ sidebar_label: Functions
 - `Number`
 - `Float`
 
-### CATEGORY: Json
+## CATEGORY: JSON
 
-#### `parseJSON` (FIELD_TRANSFORM)
+### `parseJSON`
 
-> parses JSON input
+**Type:** `FIELD_TRANSFORM`
 
-##### Arguments
+> Parses JSON input
+
+#### Arguments
 
  - **type**:  `String` - The type of field, defaults to Any, you may need to specify the type for better execution optimization
 
@@ -54,93 +62,727 @@ Must be represented in a Language Tags (BCP 47)
 
  - **child_config**:  `Object` - If parsing an object, you can specify the DataTypeFields of the key/values of the object. This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above (ie type, array, locale, format but not child_config).
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-#### `toJSON` (FIELD_TRANSFORM)
+### `toJSON`
 
-> converts whole input to JSON format
+**Type:** `FIELD_TRANSFORM`
 
-### CATEGORY: Numeric
+> Converts whole input to JSON format
 
-#### `add` (FIELD_TRANSFORM)
+## CATEGORY: Numeric
 
-> add to a numeric value
+### `abs`
 
-##### Arguments
+**Type:** `FIELD_TRANSFORM`
 
- - **by**:  `Number` - How much to add, defaults to 1
+> Returns the absolute value of a number. That is, it returns x if x is positive or zero, and the negation of x if x is negative
 
-##### Accepts
-
-- `Number`
-- `Byte`
-- `Short`
-- `Integer`
-- `Float`
-- `Long`
-- `Double`
-
-#### `divide` (FIELD_TRANSFORM)
-
-> Divide one or more values in a vector
-
-##### Accepts
+#### Accepts
 
 - `Number`
 
-#### `subtract` (FIELD_TRANSFORM)
+#### Examples
 
-> subtract a numeric value
+```ts
+-1 => abs() // outputs 1
+```
 
-##### Arguments
+### `acos`
 
- - **by**:  `Number` - How much to subtract, defaults to 1
+**Type:** `FIELD_TRANSFORM`
 
-##### Accepts
+> Returns a numeric value between 0 and π radians for x between -1 and 1
+
+#### Accepts
 
 - `Number`
-- `Byte`
-- `Short`
-- `Integer`
-- `Float`
-- `Long`
-- `Double`
 
-### CATEGORY: Object
+#### Examples
 
-#### `equals` (FIELD_VALIDATION)
+```ts
+-1 => acos() // outputs 3.141592653589793
+```
+
+### `acosh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, it will throw.
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => acosh() // outputs 0
+```
+
+```ts
+0 => acosh() // throws Expected value greater than or equal to 0, got 0
+```
+
+### `add`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Add a numeric value to another
+
+#### Arguments
+
+ - **value**: (required) `Number` - Value to add to the input
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => add(value: 1) // outputs 11
+```
+
+```ts
+10 => add(value: 5) // outputs 15
+```
+
+```ts
+10 => add(value: -5) // outputs 5
+```
+
+```ts
+12 => add(value: 12) // outputs 24
+```
+
+### `addValues`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Add the values with a given field, this requires an array to function correctly
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[100, 10] => addValues() // outputs 110
+```
+
+```ts
+[10] => addValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => addValues() // outputs 100012
+```
+
+```ts
+[[10, null], 100000, [2], null] => addValues() // outputs 100012
+```
+
+```ts
+2 => addValues() // outputs 2
+```
+
+### `asin`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the arcsine (in radians) of the given number if it's between -1 and 1
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => asin() // outputs 1.5707963267948966
+```
+
+### `asinh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hyperbolic arcsine of the given number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => asinh() // outputs 0.881373587019543
+```
+
+### `atan`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the arctangent (in radians) of the given number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => atan() // outputs 0.7853981633974483
+```
+
+### `divide`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Divide a numeric value
+
+#### Arguments
+
+ - **value**: (required) `Number` - Value to divide against the input
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => divide(value: 5) // outputs 2
+```
+
+```ts
+10 => divide(value: 1) // outputs 10
+```
+
+```ts
+10 => divide(value: 2) // outputs 5
+```
+
+### `divideValues`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Divide the values with a given field, this requires an array to function correctly
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[100, 10] => divideValues() // outputs 10
+```
+
+```ts
+[10] => divideValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => divideValues() // outputs 0.00005
+```
+
+```ts
+[[10, null], 100000, [2], null] => divideValues() // outputs 0.00005
+```
+
+```ts
+2 => divideValues() // outputs 2
+```
+
+### `modulus`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Calculate the modulus from the specified value
+
+#### Arguments
+
+ - **value**: (required) `Number` - How much to modulus
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => modulus(value: 2) // outputs 0
+```
+
+```ts
+9 => modulus(value: 2) // outputs 1
+```
+
+```ts
+10 => modulus(value: -5) // outputs 0
+```
+
+```ts
+101 => modulus(value: 10) // outputs 1
+```
+
+### `multiply`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Multiply a numeric value
+
+#### Arguments
+
+ - **value**: (required) `Number` - Value to multiply against the input
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => multiply(value: 5) // outputs 50
+```
+
+```ts
+10 => multiply(value: -2) // outputs -20
+```
+
+```ts
+10 => multiply(value: 2) // outputs 20
+```
+
+### `multiplyValues`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Multiply the values with a given field, this requires an array to function correctly
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[100, 10] => multiplyValues() // outputs 1000
+```
+
+```ts
+[10] => multiplyValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => multiplyValues() // outputs 2000000
+```
+
+```ts
+[[10, null], 100000, [2], null] => multiplyValues() // outputs 2000000
+```
+
+```ts
+2 => multiplyValues() // outputs 2
+```
+
+### `subtract`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Subtract a numeric value
+
+#### Arguments
+
+ - **value**:  `Number` - Value to subtract from the input
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => subtract(value: 1) // outputs 9
+```
+
+```ts
+10 => subtract(value: 5) // outputs 5
+```
+
+```ts
+10 => subtract(value: -5) // outputs 15
+```
+
+```ts
+10 => subtract(value: 2) // outputs 8
+```
+
+### `subtractValues`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Subtract the values with a given field, this requires an array to function correctly
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[100, 10] => subtractValues() // outputs 90
+```
+
+```ts
+[10] => subtractValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => subtractValues() // outputs -99992
+```
+
+```ts
+[[10, null], 100000, [2], null] => subtractValues() // outputs -99992
+```
+
+```ts
+2 => subtractValues() // outputs 2
+```
+
+### `toCelsius`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Convert a fahrenheit value to celsius
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+32 => toCelsius() // outputs 0
+```
+
+```ts
+69.8 => toCelsius() // outputs 21
+```
+
+### `toFahrenheit`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Convert a celsius value to fahrenheit
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => toFahrenheit() // outputs 32
+```
+
+```ts
+22 => toFahrenheit() // outputs 71.6
+```
+
+### `toPrecision`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified
+
+#### Arguments
+
+ - **digits**: (required) `Number` - The number of decimal places to keep. This value must be between 0-100
+
+ - **truncate**:  `Boolean` - If set to true rounding will be disabled
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+"10.123444" => toPrecision(digits: 1, truncate: false) // outputs 10.1
+```
+
+```ts
+10.253444 => toPrecision(digits: 1, truncate: true) // outputs 10.2
+```
+
+```ts
+10.253444 => toPrecision(digits: 1, truncate: false) // outputs 10.3
+```
+
+```ts
+3.141592653589793 => toPrecision(digits: 2) // outputs 3.14
+```
+
+```ts
+3.141592653589793 => toPrecision(digits: 0) // outputs 3
+```
+
+```ts
+23.4 => toPrecision(digits: -1) // throws Expected digits to be between 0-100
+```
+
+```ts
+23.4 => toPrecision(digits: 1000) // throws Expected digits to be between 0-100
+```
+
+### `inNumberRange`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if a number is within a given min and max value, optionally inclusive or exclusive
+
+#### Arguments
+
+ - **min**:  `Number` - The maximum value allowed in the range, defaults to Negative Infinity
+
+ - **max**:  `Number` - The minimum value allowed in the range, defaults to Positive Infinity
+
+ - **inclusive**:  `Boolean` - Whether not the min and max values should be included in the range
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => inNumberRange(min: 100, max: 110) // outputs null
+```
+
+```ts
+100 => inNumberRange(min: 100) // outputs null
+```
+
+```ts
+100 => inNumberRange(min: 100, inclusive: true) // outputs 100
+```
+
+```ts
+10 => inNumberRange(min: 0, max: 100) // outputs 10
+```
+
+### `isEven`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is even
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+100 => isEven() // outputs 100
+```
+
+```ts
+99 => isEven() // outputs null
+```
+
+### `isGreaterThan`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is greater than the specified value
+
+#### Arguments
+
+ - **value**: (required) `Number`
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => isGreaterThan(value: 100) // outputs null
+```
+
+```ts
+50 => isGreaterThan(value: 50) // outputs null
+```
+
+```ts
+120 => isGreaterThan(value: 110) // outputs 120
+```
+
+```ts
+151 => isGreaterThan(value: 150) // outputs 151
+```
+
+### `isGreaterThanOrEqualTo`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is greater than or equal to the specified value
+
+#### Arguments
+
+ - **value**: (required) `Number`
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => isGreaterThanOrEqualTo(value: 100) // outputs null
+```
+
+```ts
+50 => isGreaterThanOrEqualTo(value: 50) // outputs 50
+```
+
+```ts
+120 => isGreaterThanOrEqualTo(value: 110) // outputs 120
+```
+
+```ts
+151 => isGreaterThanOrEqualTo(value: 150) // outputs 151
+```
+
+### `isLessThan`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is less than the specified value
+
+#### Arguments
+
+ - **value**: (required) `Number`
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+110 => isLessThan(value: 100) // outputs null
+```
+
+```ts
+50 => isLessThan(value: 50) // outputs null
+```
+
+```ts
+100 => isLessThan(value: 110) // outputs 100
+```
+
+```ts
+149 => isLessThan(value: 150) // outputs 149
+```
+
+### `isLessThanOrEqualTo`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is less than or equal to the specified value
+
+#### Arguments
+
+ - **value**: (required) `Number`
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+110 => isLessThanOrEqualTo(value: 100) // outputs null
+```
+
+```ts
+50 => isLessThanOrEqualTo(value: 50) // outputs 50
+```
+
+```ts
+100 => isLessThanOrEqualTo(value: 110) // outputs 100
+```
+
+```ts
+149 => isLessThanOrEqualTo(value: 150) // outputs 149
+```
+
+### `isOdd`
+
+**Type:** `FIELD_VALIDATION`
+
+> Check if a number is odd
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+100 => isOdd() // outputs null
+```
+
+```ts
+99 => isOdd() // outputs 99
+```
+
+## CATEGORY: Object
+
+### `equals`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input matches the value
 
-##### Arguments
+#### Arguments
 
  - **value**:  `Any` - Value to use in the comparison
 
-#### `isEmpty` (FIELD_VALIDATION)
+### `isEmpty`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is empty
 
-##### Arguments
+#### Arguments
 
  - **ignoreWhitespace**:  `Boolean` - If input is a string, it will attempt to trim it before validating it
 
-### CATEGORY: String
+## CATEGORY: String
 
-#### `contains` (FIELD_VALIDATION)
+### `contains`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if string contains substring. This operations is case-sensitive
 
-##### Arguments
+#### Arguments
 
  - **substr**:  `String` - A string that must partially or completely match
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "example" => contains(substr: "ample") // outputs "example"
@@ -154,15 +796,49 @@ Must be represented in a Language Tags (BCP 47)
 "example" => contains(substr: "test") // outputs null
 ```
 
-#### `isBase64` (FIELD_VALIDATION)
+### `isAlphaNumeric`
 
-> Checks to see if input is a valid base64 string
+**Type:** `FIELD_VALIDATION`
 
-##### Accepts
+> Checks to see if input is a string composed of only alpha-numeric characters
+
+#### Arguments
+
+ - **locale**:  `String` - Specify locale to check for valid alpha-numeric characters, defaults to en-US if not provided
+
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
+
+```ts
+"example123456" => isAlphaNumeric() // outputs "example123456"
+```
+
+```ts
+"ThisiZĄĆĘŚŁ1234" => isAlphaNumeric(locale: "pl-Pl") // outputs "ThisiZĄĆĘŚŁ1234"
+```
+
+```ts
+"not_alphanumeric.com" => isAlphaNumeric() // outputs null
+```
+
+```ts
+true => isAlphaNumeric() // outputs null
+```
+
+### `isBase64`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid base64 string
+
+#### Accepts
+
+- `String`
+
+#### Examples
 
 ```ts
 "ZnJpZW5kbHlOYW1lNw==" => isBase64() // outputs "ZnJpZW5kbHlOYW1lNw=="
@@ -176,15 +852,17 @@ Must be represented in a Language Tags (BCP 47)
 1234123 => isBase64() // outputs null
 ```
 
-#### `isCountryCode` (FIELD_VALIDATION)
+### `isCountryCode`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a valid ISO 3166-1 alpha-2 country code
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "US" => isCountryCode() // outputs "US"
@@ -206,15 +884,17 @@ Must be represented in a Language Tags (BCP 47)
 12345 => isCountryCode() // outputs null
 ```
 
-#### `isEmail` (FIELD_VALIDATION)
+### `isEmail`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is an email
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "string@gmail.com" => isEmail() // outputs "string@gmail.com"
@@ -252,15 +932,17 @@ Must be represented in a Language Tags (BCP 47)
 12345 => isEmail() // outputs null
 ```
 
-#### `isFQDN` (FIELD_VALIDATION)
+### `isFQDN`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a fully qualified domain name
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "example.com" => isFQDN() // outputs "example.com"
@@ -290,19 +972,21 @@ Must be represented in a Language Tags (BCP 47)
 12345 => isFQDN() // outputs null
 ```
 
-#### `isHash` (FIELD_VALIDATION)
+### `isHash`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a hash
 
-##### Arguments
+#### Arguments
 
  - **algo**: (required) `String` - Which algorithm to check values against
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isHash(algo: "sha256") // outputs "85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33"
@@ -312,11 +996,42 @@ Must be represented in a Language Tags (BCP 47)
 "85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isHash(algo: "md5") // outputs null
 ```
 
-#### `isLength` (FIELD_VALIDATION)
+### `isISDN`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number
+
+#### Accepts
+
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"46707123456" => isISDN() // outputs "46707123456"
+```
+
+```ts
+"1-808-915-6800" => isISDN() // outputs "1-808-915-6800"
+```
+
+```ts
+"8089156800" => isISDN(country: "US") // outputs "8089156800"
+```
+
+```ts
+"8089156800" => isISDN() // outputs null
+```
+
+### `isLength`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input either matches a certain length, or is within a range
 
-##### Arguments
+#### Arguments
 
  - **size**:  `Number` - The value's length must exact match this parameter if specified
 
@@ -324,11 +1039,11 @@ Must be represented in a Language Tags (BCP 47)
 
  - **max**:  `Number` - The value's length must be lesser than or equal to this parameter if specified
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "iam8char" => isLength(size: 8) // outputs "iam8char"
@@ -350,19 +1065,21 @@ Must be represented in a Language Tags (BCP 47)
 4 => isLength(min: 3, max: 5) // outputs null
 ```
 
-#### `isMACAddress` (FIELD_VALIDATION)
+### `isMACAddress`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a valid mac address
 
-##### Arguments
+#### Arguments
 
  - **delimiter**:  `String` - Specify delimiter character for mac address format, may be set to one of space, colon, dash, dot, none and any
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "00:1f:f3:5b:2b:1f" => isMACAddress() // outputs "00:1f:f3:5b:2b:1f"
@@ -404,15 +1121,140 @@ Must be represented in a Language Tags (BCP 47)
 4 => isMACAddress() // outputs null
 ```
 
-#### `isString` (FIELD_VALIDATION)
+### `isMIMEType`
 
-> Checks to see if input is a string
+**Type:** `FIELD_VALIDATION`
 
-##### Accepts
+> Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type
+
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
+
+```ts
+"application/javascript" => isMIMEType() // outputs "application/javascript"
+```
+
+```ts
+"text/html" => isMIMEType() // outputs "text/html"
+```
+
+```ts
+"application" => isMIMEType() // outputs null
+```
+
+```ts
+"" => isMIMEType() // outputs null
+```
+
+### `isPhoneNumberLike`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input looks like a phone number
+
+#### Accepts
+
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"46707123456" => isPhoneNumberLike() // outputs "46707123456"
+```
+
+```ts
+"1-808-915-6800" => isPhoneNumberLike() // outputs "1-808-915-6800"
+```
+
+```ts
+"79525554602" => isPhoneNumberLike() // outputs "79525554602"
+```
+
+```ts
+"223457823432432423324" => isPhoneNumberLike() // outputs null
+```
+
+```ts
+"2234" => isPhoneNumberLike() // outputs null
+```
+
+### `isPort`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid port
+
+#### Accepts
+
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"49151" => isPort() // outputs "49151"
+```
+
+```ts
+"80" => isPort() // outputs "80"
+```
+
+```ts
+"65536" => isPort() // outputs null
+```
+
+```ts
+"not a port" => isPort() // outputs null
+```
+
+### `isPostalCode`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid postal code
+
+#### Arguments
+
+ - **locale**:  `String` - Specify locale to check for postal code, defaults to any if locale is not provided
+
+#### Accepts
+
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"85249" => isPostalCode() // outputs "85249"
+```
+
+```ts
+"191123" => isPostalCode(locale: "RU") // outputs "191123"
+```
+
+```ts
+"bobsyouruncle" => isPostalCode() // outputs null
+```
+
+```ts
+"this is not a postal code" => isPostalCode(locale: "CN") // outputs null
+```
+
+### `isString`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a string
+
+#### Accepts
+
+- `String`
+
+#### Examples
 
 ```ts
 "this is a string" => isString() // outputs "this is a string"
@@ -431,18 +1273,20 @@ hello: "i am an object" => isString() // outputs null
 ```
 
 ```ts
-["12345","some more stuff"] => isString() // outputs ["12345","some more stuff"]
+["12345", "some more stuff"] => isString() // outputs ["12345", "some more stuff"]
 ```
 
-#### `isURL` (FIELD_VALIDATION)
+### `isURL`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a string
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "http://someurl.com.uk" => isURL() // outputs "http://someurl.com.uk"
@@ -476,15 +1320,17 @@ hello: "i am an object" => isString() // outputs null
 "hello://validuri.com" => isURL() // outputs null
 ```
 
-#### `isUUID` (FIELD_VALIDATION)
+### `isUUID`
+
+**Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a UUID
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "95ecc380-afe9-11e4-9b6c-751b66dd541e" => isUUID() // outputs "95ecc380-afe9-11e4-9b6c-751b66dd541e"
@@ -506,91 +1352,103 @@ hello: "i am an object" => isString() // outputs null
 "randomstring" => isUUID() // outputs null
 ```
 
-#### `decodeBase64` (FIELD_TRANSFORM)
+### `decodeBase64`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a base64 hash back to its value
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "c29tZSBzdHJpbmc=" => decodeBase64() // outputs "some string"
 ```
 
-#### `decodeHex` (FIELD_TRANSFORM)
+### `decodeHex`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a hexadecimal hash back to its value
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "736f6d652076616c756520666f722068657820656e636f64696e67" => decodeHex() // outputs "some value for hex encoding"
 ```
 
-#### `decodeURL` (FIELD_TRANSFORM)
+### `decodeURL`
 
-> decodes a URL encoded value
+**Type:** `FIELD_TRANSFORM`
 
-##### Accepts
+> Decodes a URL encoded value
+
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "google.com%3Fq%3DHELLO%20AND%20GOODBYE" => decodeURL() // outputs "google.com?q=HELLO AND GOODBYE"
 ```
 
-#### `encodeBase64` (FIELD_TRANSFORM)
+### `encodeBase64`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts value to a base64 hash
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "some string" => encodeBase64() // outputs "c29tZSBzdHJpbmc="
 ```
 
-#### `encodeHex` (FIELD_TRANSFORM)
+### `encodeHex`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts value to a hexadecimal hash
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "some value for hex encoding" => encodeHex() // outputs "736f6d652076616c756520666f722068657820656e636f64696e67"
 ```
 
-#### `encodeSHA` (FIELD_TRANSFORM)
+### `encodeSHA`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts to a SHA encoded value
 
-##### Arguments
+#### Arguments
 
  - **hash**:  `String` - Which has hashing algorithm to use, defaults to sha256
 
  - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 hashing algorithm defaults to sha256, and digest defaults to hex
 ```ts
@@ -601,19 +1459,21 @@ hashing algorithm defaults to sha256, and digest defaults to hex
 "{ "some": "data" }" => encodeSHA(digest: "base64") // outputs "5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U="
 ```
 
-#### `encodeSHA1` (FIELD_TRANSFORM)
+### `encodeSHA1`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts to a SHA1 encoded value
 
-##### Arguments
+#### Arguments
 
  - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 If digest is not provided, it defaults to hex
 ```ts
@@ -624,25 +1484,29 @@ If digest is not provided, it defaults to hex
 "{ "some": "data" }" => encodeSHA1(digest: "base64") // outputs "6MsUBHluumd5onY3fM6ZpQKjZIE="
 ```
 
-#### `encodeURL` (FIELD_TRANSFORM)
+### `encodeURL`
+
+**Type:** `FIELD_TRANSFORM`
 
 > URL encodes a value
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "google.com?q=HELLO AND GOODBYE" => encodeURL() // outputs "google.com%3Fq%3DHELLO%20AND%20GOODBYE"
 ```
 
-#### `extract` (FIELD_TRANSFORM)
+### `extract`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Extract values from strings
 
-##### Arguments
+#### Arguments
 
  - **regex**:  `String` - The regex expression to execute, if set, do not use "start/end"
 
@@ -652,11 +1516,11 @@ If digest is not provided, it defaults to hex
 
  - **global**:  `Boolean` - If set to true, it will return an array of all possible extractions, defaults to false
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "<hello>" => extract(start: "<", end: ">") // outputs "hello"
@@ -667,22 +1531,24 @@ If digest is not provided, it defaults to hex
 ```
 
 ```ts
-"Hello World some other things" => extract(regex: "/([A-Z]\w+)/", global: true) // outputs ["Hello","World"]
+"Hello World some other things" => extract(regex: "/([A-Z]\w+)/", global: true) // outputs ["Hello", "World"]
 ```
 
 ```ts
-"<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello","world"]
+"<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello", "world"]
 ```
 
-#### `reverse` (FIELD_TRANSFORM)
+### `reverse`
 
-> reverses the string value
+**Type:** `FIELD_TRANSFORM`
 
-##### Accepts
+> Reverses the string value
+
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "hello" => reverse() // outputs "olleh"
@@ -693,18 +1559,20 @@ If digest is not provided, it defaults to hex
 ```
 
 ```ts
-["hello","more"] => reverse() // outputs ["olleh","erom"]
+["hello", "more"] => reverse() // outputs ["olleh", "erom"]
 ```
 
-#### `toCamelCase` (FIELD_TRANSFORM)
+### `toCamelCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts multiple words into a single word joined with each starting character capitalized, excluding the first character which is always lowercase
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toCamelCase() // outputs "helloThere"
@@ -718,11 +1586,13 @@ If digest is not provided, it defaults to hex
 "Hey There" => toCamelCase() // outputs "heyThere"
 ```
 
-#### `toISDN` (FIELD_TRANSFORM)
+### `toISDN`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Parses a string or number to a fully validated phone number
 
-##### Accepts
+#### Accepts
 
 - `String`
 - `Number`
@@ -733,7 +1603,7 @@ If digest is not provided, it defaults to hex
 - `Long`
 - `Double`
 
-##### Examples
+#### Examples
 
 ```ts
 "+33-1-22-33-44-55" => toISDN() // outputs "33122334455"
@@ -755,15 +1625,17 @@ If digest is not provided, it defaults to hex
 "something" => toISDN() // throws null
 ```
 
-#### `toKebabCase` (FIELD_TRANSFORM)
+### `toKebabCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts on ore more words into a single word joined by dashes
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toKebabCase() // outputs "hello-there"
@@ -777,15 +1649,17 @@ If digest is not provided, it defaults to hex
 "Hey There" => toKebabCase() // outputs "hey-there"
 ```
 
-#### `toLowerCase` (FIELD_TRANSFORM)
+### `toLowerCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a string to lower case characters
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toLowerCase() // outputs "hello there"
@@ -795,15 +1669,17 @@ If digest is not provided, it defaults to hex
 "biLLy" => toLowerCase() // outputs "billy"
 ```
 
-#### `toPascalCase` (FIELD_TRANSFORM)
+### `toPascalCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts one or more words into a single word joined with each starting character capitalized
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toPascalCase() // outputs "HelloThere"
@@ -817,15 +1693,17 @@ If digest is not provided, it defaults to hex
 "Hey There" => toPascalCase() // outputs "HeyThere"
 ```
 
-#### `toSnakeCase` (FIELD_TRANSFORM)
+### `toSnakeCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts one or more words into a single word joined by underscores
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toSnakeCase() // outputs "hello_there"
@@ -839,11 +1717,13 @@ If digest is not provided, it defaults to hex
 "Hey There" => toSnakeCase() // outputs "hey_there"
 ```
 
-#### `toString` (FIELD_TRANSFORM)
+### `toString`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts input values to strings
 
-##### Examples
+#### Examples
 
 ```ts
 true => toString() // outputs "true"
@@ -858,18 +1738,20 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 ```
 
 ```ts
-[true,false] => toString() // outputs ["true","false"]
+[true, false] => toString() // outputs ["true", "false"]
 ```
 
-#### `toTitleCase` (FIELD_TRANSFORM)
+### `toTitleCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts one or more words into a whitespace separated word with each word starting with a capital letter
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "HELLO there" => toTitleCase() // outputs "Hello There"
@@ -883,15 +1765,17 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 "Hey There" => toTitleCase() // outputs "Hey There"
 ```
 
-#### `toUpperCase` (FIELD_TRANSFORM)
+### `toUpperCase`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Converts a string to upper case characters
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "hello" => toUpperCase() // outputs "HELLO"
@@ -905,19 +1789,21 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 "Hey There" => toUpperCase() // outputs "HEY THERE"
 ```
 
-#### `trim` (FIELD_TRANSFORM)
+### `trim`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Trims whitespace or characters from string
 
-##### Arguments
+#### Arguments
 
  - **chars**:  `String` - The characters to remove, defaults to whitespace
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "   other_things         " => trim() // outputs "other_things"
@@ -960,19 +1846,21 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ".*.*a test.*.*.*.*" => trim(chars: ".*") // outputs "a test"
 ```
 
-#### `trimEnd` (FIELD_TRANSFORM)
+### `trimEnd`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Trims whitespace or characters from end of string
 
-##### Arguments
+#### Arguments
 
  - **chars**:  `String` - The characters to remove, defaults to whitespace
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "   left" => trimEnd() // outputs "   left"
@@ -994,19 +1882,21 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 "fast cars race fast" => trimEnd(chars: "fast") // outputs "fast cars race "
 ```
 
-#### `trimStart` (FIELD_TRANSFORM)
+### `trimStart`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Trims whitespace or characters from start of string
 
-##### Arguments
+#### Arguments
 
  - **chars**:  `String` - The characters to remove, defaults to whitespace
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "    Hello Bob    " => trimStart() // outputs "Hello Bob    "
@@ -1024,19 +1914,21 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 "*****Hello****Bob*****" => trimStart(chars: "*") // outputs "Hello****Bob*****"
 ```
 
-#### `truncate` (FIELD_TRANSFORM)
+### `truncate`
+
+**Type:** `FIELD_TRANSFORM`
 
 > Truncate a string value
 
-##### Arguments
+#### Arguments
 
  - **size**: (required) `Number` - How long the string should be
 
-##### Accepts
+#### Accepts
 
 - `String`
 
-##### Examples
+#### Examples
 
 ```ts
 "thisisalongstring" => truncate(size: 4) // outputs "this"

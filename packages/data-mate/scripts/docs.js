@@ -9,7 +9,8 @@ const {
     toTitleCase,
     isEmpty,
     flatten,
-    flattenDeep
+    flattenDeep,
+    firstToUpper
 } = require('@terascope/utils');
 const { functionConfigRepository } = require('..');
 
@@ -17,7 +18,7 @@ function prettyPrint(input) {
     if (input == null) return 'null';
     if (isString(input)) return `"${input}"`;
     if (isPrimitiveValue(input)) return `${primitiveToString(input)}`;
-    if (Array.isArray(input)) return `[${input.map(prettyPrint)}]`;
+    if (Array.isArray(input)) return `[${input.map(prettyPrint).join(', ')}]`;
     return Object.entries(input).map(([key, value]) => (
         `${key}: ${prettyPrint(value)}`
     )).join(', ');
@@ -47,7 +48,7 @@ ${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // 
 function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
-        '##### Examples',
+        '#### Examples',
         ...examples.map(generateExample(fnDef))
     ];
 }
@@ -64,7 +65,7 @@ function generateArgDocs(fnDef) {
     }
 
     return [
-        '##### Arguments',
+        '#### Arguments',
         ...Object.entries(fnDef.argument_schema).map(([field, fieldConfig]) => {
             const typeVal = fieldConfig.array ? `${fieldConfig.type}[]` : fieldConfig.type;
             const desc = fieldConfig.description ? ` - ${fieldConfig.description}` : '';
@@ -79,9 +80,17 @@ function generateArgDocs(fnDef) {
 function generateAccepts(fnDef) {
     if (!fnDef.accepts || !fnDef.accepts.length) return [];
     return [
-        '##### Accepts',
+        '#### Accepts',
         fnDef.accepts.map((type) => `- \`${type}\``).join('\n'),
     ];
+}
+
+/**
+ * @param fnDef {import('..').FunctionDefinitionConfig}
+*/
+function generateAliases(fnDef) {
+    if (!fnDef.aliases || !fnDef.aliases.length) return '';
+    return `**Aliases:** ${fnDef.aliases.map((alias) => `\`${alias}\``).join(', ')}\n`;
 }
 
 /**
@@ -90,9 +99,11 @@ function generateAccepts(fnDef) {
 function generateFunctionDoc(fnDef) {
     return [
         `
-#### \`${fnDef.name}\` (${fnDef.type})
+### \`${fnDef.name}\`
 
-> ${fnDef.description}`.trim(),
+**Type:** \`${fnDef.type}\`
+${generateAliases(fnDef)}
+> ${firstToUpper(fnDef.description)}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
@@ -103,7 +114,8 @@ function generateDocsForCategory([category, fnsByType]) {
     const fns = flatten(Object.values(fnsByType));
 
     return [
-        `### CATEGORY: ${toTitleCase(category.toLowerCase())}`,
+        `## CATEGORY: ${category === 'JSON'
+            ? category : toTitleCase(category.toLowerCase())}`,
         ...fns.map(generateFunctionDoc)
     ];
 }
