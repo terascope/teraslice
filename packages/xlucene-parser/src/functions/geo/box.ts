@@ -1,5 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, pointInBoundingBoxFP } from '@terascope/utils';
+import { parseGeoPoint, inGeoBoundingBoxFP } from '@terascope/utils';
 import * as i from '../../interfaces';
 import { getFieldValue, logger } from '../../utils';
 
@@ -47,7 +47,7 @@ const geoBox: i.FunctionDefinition = {
         }
 
         return {
-            match: pointInBoundingBoxFP(top_left, bottom_right),
+            match: inGeoBoundingBoxFP(top_left, bottom_right),
             toElasticsearchQuery
         };
     }

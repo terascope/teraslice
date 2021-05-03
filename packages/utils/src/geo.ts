@@ -13,7 +13,7 @@ import {
     GeoShapePolygon,
     GeoShapeMultiPolygon,
     ESGeoShape,
-    CoordinateTuple
+    CoordinateTuple,
 } from '@terascope/types';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
@@ -33,7 +33,8 @@ import {
     Feature,
     Properties,
     Polygon,
-    Geometry
+    Geometry,
+    Point
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
@@ -54,17 +55,17 @@ export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
     return geoJSONTypes.includes(type.toLowerCase());
 }
 
-export function isGeoShapePoint(input: JoinGeoShape): input is GeoShapePoint {
+export function isGeoShapePoint(input: unknown): input is GeoShapePoint {
     return isGeoJSON(input)
     && (input.type === GeoShapeType.Point || input.type === ESGeoShapeType.Point);
 }
 
-export function isGeoShapePolygon(input: JoinGeoShape): input is GeoShapePolygon {
+export function isGeoShapePolygon(input: unknown): input is GeoShapePolygon {
     return isGeoJSON(input)
     && (input.type === GeoShapeType.Polygon || input.type === ESGeoShapeType.Polygon);
 }
 
-export function isGeoShapeMultiPolygon(input: JoinGeoShape): input is GeoShapeMultiPolygon {
+export function isGeoShapeMultiPolygon(input: unknown): input is GeoShapeMultiPolygon {
     return isGeoJSON(input)
     && (input.type === GeoShapeType.MultiPolygon || input.type === ESGeoShapeType.MultiPolygon);
 }
@@ -178,7 +179,7 @@ export function makeGeoBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon
     return bboxPolygon(box);
 }
 
-export function pointInBoundingBox(
+export function inGeoBoundingBox(
     top_left: GeoPointInput, bottom_right: GeoPointInput, point: GeoPointInput
 ): boolean {
     const topLeft = parseGeoPoint(top_left);
@@ -192,7 +193,7 @@ export function pointInBoundingBox(
     return polyHasPoint(polygon)(point);
 }
 
-export function pointInBoundingBoxFP(
+export function inGeoBoundingBoxFP(
     top_left: GeoPointInput, bottom_right: GeoPointInput
 ): (input: GeoPointInput) => boolean {
     const topLeft = parseGeoPoint(top_left);
@@ -216,5 +217,42 @@ function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G>|G) {
         const point = parseGeoPoint(fieldData, false);
         if (!point) return false;
         return pointInPolygon(makeCoordinatesFromGeoPoint(point), polygon);
+    };
+}
+
+export function geoContainsPoint(
+    geoShape: JoinGeoShape, point: GeoPointInput
+): boolean {
+    const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
+    const turfPoint = tPoint(geoPoint);
+    return pointInGeoShape(turfPoint)(geoShape);
+}
+
+export function geoContainsPointFP(
+    point: GeoPointInput
+): (shape: unknown) => boolean {
+    const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
+    const turfPoint = tPoint(geoPoint);
+    return pointInGeoShape(turfPoint);
+}
+
+function pointInGeoShape(searchPoint: Feature<any, Properties>|Geometry) {
+    return (geoShape: unknown): boolean => {
+        let polygon: any;
+
+        if (isGeoShapePoint(geoShape)) {
+            return equal(searchPoint, tPoint(geoShape.coordinates));
+        }
+
+        if (isGeoShapeMultiPolygon(geoShape)) {
+            polygon = multiPolygon(geoShape.coordinates);
+        }
+
+        if (isGeoShapePolygon(geoShape)) {
+            polygon = tPolygon(geoShape.coordinates);
+        }
+        // Nothing matches so return false
+        if (!polygon) return false;
+        return pointInPolygon(searchPoint as any, polygon);
     };
 }

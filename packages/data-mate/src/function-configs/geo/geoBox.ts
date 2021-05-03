@@ -1,4 +1,4 @@
-import { pointInBoundingBoxFP, isGeoPoint } from '@terascope/utils';
+import { inGeoBoundingBoxFP, isGeoPoint } from '@terascope/utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
     FieldValidateConfig,
@@ -15,8 +15,8 @@ export interface PointInBoundingBoxArgs {
 // TODO: have a test example with FieldType.GeoPoint will cause the date-frame
 // to convert it to a parsed geoPoint, but the functionAdapter will not do so
 
-export const pointInBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
-    name: 'pointInBoundingBox',
+export const geoBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
+    name: 'geoBox',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
@@ -45,7 +45,7 @@ export const pointInBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArg
     ],
     description: 'Checks to see if input is within the geo bounding-box',
     create({ top_left, bottom_right }) {
-        const fn = pointInBoundingBoxFP(top_left, bottom_right);
+        const fn = inGeoBoundingBoxFP(top_left, bottom_right);
         return (input: unknown) => fn(input as GeoPointInput);
     },
     accepts: [
