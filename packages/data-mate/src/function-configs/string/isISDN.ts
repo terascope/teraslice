@@ -39,20 +39,6 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
         output: '1-808-915-6800'
     },
     {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Number
-                }
-            }
-        },
-        field: 'testField',
-        input: 79525554602,
-        output: 79525554602
-    },
-    {
         args: { country: 'US' },
         config: {
             version: 1,

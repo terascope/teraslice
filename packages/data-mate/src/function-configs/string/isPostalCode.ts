@@ -26,20 +26,6 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
         output: '85249'
     },
     {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Number
-                }
-            }
-        },
-        field: 'testField',
-        input: 85249,
-        output: 85249
-    },
-    {
         args: { locale: 'RU' },
         config: {
             version: 1,
@@ -104,8 +90,9 @@ export const isPostalCodeConfig: FieldValidateConfig = {
         FieldType.Number
     ],
     required_arguments: [],
-    validate_arguments({ locale }) {
-        if (locale == null || (isString(locale) && locale in validator.isPostalCodeLocales)) {
+    validate_arguments({ locale }: PostalCodeLocale) {
+        if (locale == null || (isString(locale)
+            && validator.isPostalCodeLocales.includes(locale))) {
             return;
         }
 

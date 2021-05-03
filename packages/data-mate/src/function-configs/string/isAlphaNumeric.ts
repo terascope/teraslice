@@ -87,8 +87,9 @@ export const isAlphaNumericConfig: FieldValidateConfig = {
     examples,
     accepts: [FieldType.String],
     required_arguments: [],
-    validate_arguments({ locale }) {
-        if (locale == null || (isString(locale) && locale in validator.isAlphanumericLocales)) {
+    validate_arguments({ locale }: AlphaNumericLocale) {
+        if (locale == null || (isString(locale)
+            && validator.isAlphanumericLocales.includes(locale))) {
             return;
         }
 

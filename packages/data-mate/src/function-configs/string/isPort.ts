@@ -27,13 +27,13 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Number
+                    type: FieldType.String
                 }
             }
         },
         field: 'testField',
-        input: 8080,
-        output: 8080
+        input: '80',
+        output: '80'
     },
     {
         args: {},
