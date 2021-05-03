@@ -48,7 +48,7 @@ ${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // 
 function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
-        '##### Examples',
+        '#### Examples',
         ...examples.map(generateExample(fnDef))
     ];
 }
@@ -65,7 +65,7 @@ function generateArgDocs(fnDef) {
     }
 
     return [
-        '##### Arguments',
+        '#### Arguments',
         ...Object.entries(fnDef.argument_schema).map(([field, fieldConfig]) => {
             const typeVal = fieldConfig.array ? `${fieldConfig.type}[]` : fieldConfig.type;
             const desc = fieldConfig.description ? ` - ${fieldConfig.description}` : '';
@@ -80,7 +80,7 @@ function generateArgDocs(fnDef) {
 function generateAccepts(fnDef) {
     if (!fnDef.accepts || !fnDef.accepts.length) return [];
     return [
-        '##### Accepts',
+        '#### Accepts',
         fnDef.accepts.map((type) => `- \`${type}\``).join('\n'),
     ];
 }
@@ -99,7 +99,9 @@ function generateAliases(fnDef) {
 function generateFunctionDoc(fnDef) {
     return [
         `
-#### \`${fnDef.name}\` (${fnDef.type})
+### \`${fnDef.name}\`
+
+**Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
 > ${firstToUpper(fnDef.description)}`.trim(),
         ...generateArgDocs(fnDef),
@@ -112,7 +114,8 @@ function generateDocsForCategory([category, fnsByType]) {
     const fns = flatten(Object.values(fnsByType));
 
     return [
-        `### CATEGORY: ${toTitleCase(category.toLowerCase())}`,
+        `## CATEGORY: ${category === 'JSON'
+            ? category : toTitleCase(category.toLowerCase())}`,
         ...fns.map(generateFunctionDoc)
     ];
 }
