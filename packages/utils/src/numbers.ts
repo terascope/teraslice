@@ -50,6 +50,10 @@ const _maxBigInt: bigint = supportsBigInt
 
 /** Convert any input to a bigint */
 export function toBigIntOrThrow(input: unknown): bigint {
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
     if (isBigInt(input)) return input;
     if (!supportsBigInt) {
         throw new Error('BigInt isn\'t supported in this environment');
@@ -123,6 +127,10 @@ export function toInteger(input: unknown): number | false {
 
 /** Convert an input to a integer or throw */
 export function toIntegerOrThrow(input: unknown): number {
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
     if (isInteger(input)) return input;
 
     if (isBigInt(input)) {
@@ -162,6 +170,10 @@ export function toFloat(input: unknown): number | false {
 
 /** Convert an input to a float or throw */
 export function toFloatOrThrow(input: unknown): number {
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
     if (isFloat(input)) return input;
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);

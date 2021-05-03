@@ -1,4 +1,4 @@
-import { toFloatOrThrow } from '@terascope/utils';
+import { isBigInt, isNumber, toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, FunctionDefinitionType,
@@ -7,16 +7,18 @@ import {
 
 function subtractValuesReducer(
     acc: number,
-    curr: number|bigint
+    curr: (number|bigint)[]|(number|bigint)
 ): number {
-    if (acc == null) return toFloatOrThrow(curr);
-    return acc - toFloatOrThrow(curr);
+    const currValue = (Array.isArray(curr) ? subtractValuesFn(curr) : curr) ?? 0;
+    if (acc == null) return toFloatOrThrow(currValue);
+    return acc - toFloatOrThrow(currValue);
 }
 
 function subtractValuesFn(value: unknown): bigint|number|null {
+    if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 
-    return value.reduce(subtractValuesReducer) ?? null;
+    return value.reduce(subtractValuesReducer, undefined) ?? null;
 }
 
 export const subtractValuesConfig: FieldTransformConfig = {
@@ -60,6 +62,33 @@ export const subtractValuesConfig: FieldTransformConfig = {
             field: 'testField',
             input: [10, 100000, 2],
             output: -99992
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: { type: FieldType.Tuple },
+                    'testField.0': { type: FieldType.Byte, array: true },
+                    'testField.1': { type: FieldType.Integer },
+                    'testField.2': { type: FieldType.Long, array: true }
+                }
+            },
+            field: 'testField',
+            input: [[10], 100000, [2]],
+            output: -99992
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: { type: FieldType.Byte },
+                }
+            },
+            field: 'testField',
+            input: 2,
+            output: 2
         }
     ],
     create() {
