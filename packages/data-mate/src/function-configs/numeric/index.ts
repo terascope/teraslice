@@ -7,6 +7,7 @@ import { isGreaterThanConfig } from './isGreaterThan';
 import { isGreaterThanOrEqualToConfig } from './isGreaterThanOrEqual';
 import { isLessThanConfig } from './isLessThan';
 import { isLessThanOrEqualToConfig } from './isLessThanOrEqual';
+import { modulusConfig } from './modulus';
 import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
 import { subtractConfig } from './subtract';
@@ -22,6 +23,7 @@ export const numericRepository = {
     isGreaterThanOrEqualTo: isGreaterThanOrEqualToConfig,
     isLessThan: isLessThanConfig,
     isLessThanOrEqualTo: isLessThanOrEqualToConfig,
+    modulus: modulusConfig,
     multiply: multiplyConfig,
     multiplyValues: multiplyValuesConfig,
     subtract: subtractConfig,
