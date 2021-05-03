@@ -6,10 +6,11 @@ import {
 } from '../interfaces';
 
 function subtractValuesReducer(
-    acc: number,
-    curr: (number|bigint)[]|(number|bigint)
-): number {
-    const currValue = (Array.isArray(curr) ? subtractValuesFn(curr) : curr) ?? 0;
+    acc: number|null,
+    curr: (number|bigint|null)[]|(number|bigint|null)
+): number|null {
+    const currValue = (Array.isArray(curr) ? subtractValuesFn(curr) : curr);
+    if (currValue == null) return acc;
     if (acc == null) return toFloatOrThrow(currValue);
     return acc - toFloatOrThrow(currValue);
 }
@@ -18,7 +19,7 @@ function subtractValuesFn(value: unknown): bigint|number|null {
     if (isNumber(value) || isBigInt(value)) return value;
     if (!Array.isArray(value)) return null;
 
-    return value.reduce(subtractValuesReducer, undefined) ?? null;
+    return value.reduce(subtractValuesReducer, null);
 }
 
 export const subtractValuesConfig: FieldTransformConfig = {
@@ -71,11 +72,12 @@ export const subtractValuesConfig: FieldTransformConfig = {
                     testField: { type: FieldType.Tuple },
                     'testField.0': { type: FieldType.Byte, array: true },
                     'testField.1': { type: FieldType.Integer },
-                    'testField.2': { type: FieldType.Long, array: true }
+                    'testField.2': { type: FieldType.Long, array: true },
+                    'testField.3': { type: FieldType.Short }
                 }
             },
             field: 'testField',
-            input: [[10], 100000, [2]],
+            input: [[10, null], 100000, [2], null],
             output: -99992
         },
         {
