@@ -730,6 +730,36 @@ Must be represented in a Language Tags (BCP 47)
 "example" => contains(substr: "test") // outputs null
 ```
 
+#### `isAlphaNumeric` (FIELD_VALIDATION)
+
+> Checks to see if input is a string composed of only alpha-numeric characters
+
+##### Arguments
+
+ - **locale**:  `String` - Specify locale to check for valid alpha-numeric characters, defaults to en-US if not provided
+
+##### Accepts
+
+- `String`
+
+##### Examples
+
+```ts
+"example123456" => isAlphaNumeric() // outputs "example123456"
+```
+
+```ts
+"ThisiZĄĆĘŚŁ1234" => isAlphaNumeric(locale: "pl-Pl") // outputs "ThisiZĄĆĘŚŁ1234"
+```
+
+```ts
+"not_alphanumeric.com" => isAlphaNumeric() // outputs null
+```
+
+```ts
+true => isAlphaNumeric() // outputs null
+```
+
 #### `isBase64` (FIELD_VALIDATION)
 
 > Checks to see if input is a valid base64 string
@@ -888,6 +918,33 @@ Must be represented in a Language Tags (BCP 47)
 "85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isHash(algo: "md5") // outputs null
 ```
 
+#### `isISDN` (FIELD_VALIDATION)
+
+> Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number
+
+##### Accepts
+
+- `String`
+- `Number`
+
+##### Examples
+
+```ts
+"46707123456" => isISDN() // outputs "46707123456"
+```
+
+```ts
+"1-808-915-6800" => isISDN() // outputs "1-808-915-6800"
+```
+
+```ts
+"8089156800" => isISDN(country: "US") // outputs "8089156800"
+```
+
+```ts
+"8089156800" => isISDN() // outputs null
+```
+
 #### `isLength` (FIELD_VALIDATION)
 
 > Checks to see if input either matches a certain length, or is within a range
@@ -978,6 +1035,121 @@ Must be represented in a Language Tags (BCP 47)
 
 ```ts
 4 => isMACAddress() // outputs null
+```
+
+#### `isMIMEType` (FIELD_VALIDATION)
+
+> Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type
+
+##### Accepts
+
+- `String`
+
+##### Examples
+
+```ts
+"application/javascript" => isMIMEType() // outputs "application/javascript"
+```
+
+```ts
+"text/html" => isMIMEType() // outputs "text/html"
+```
+
+```ts
+"application" => isMIMEType() // outputs null
+```
+
+```ts
+"" => isMIMEType() // outputs null
+```
+
+#### `isPhoneNumberLike` (FIELD_VALIDATION)
+
+> Checks to see if input looks like a phone number
+
+##### Accepts
+
+- `String`
+- `Number`
+
+##### Examples
+
+```ts
+"46707123456" => isPhoneNumberLike() // outputs "46707123456"
+```
+
+```ts
+"1-808-915-6800" => isPhoneNumberLike() // outputs "1-808-915-6800"
+```
+
+```ts
+"79525554602" => isPhoneNumberLike() // outputs "79525554602"
+```
+
+```ts
+"223457823432432423324" => isPhoneNumberLike() // outputs null
+```
+
+```ts
+"2234" => isPhoneNumberLike() // outputs null
+```
+
+#### `isPort` (FIELD_VALIDATION)
+
+> Checks to see if input is a valid port
+
+##### Accepts
+
+- `String`
+- `Number`
+
+##### Examples
+
+```ts
+"49151" => isPort() // outputs "49151"
+```
+
+```ts
+"80" => isPort() // outputs "80"
+```
+
+```ts
+"65536" => isPort() // outputs null
+```
+
+```ts
+"not a port" => isPort() // outputs null
+```
+
+#### `isPostalCode` (FIELD_VALIDATION)
+
+> Checks to see if input is a valid postal code
+
+##### Arguments
+
+ - **locale**:  `String` - Specify locale to check for postal code, defaults to any if locale is not provided
+
+##### Accepts
+
+- `String`
+- `Number`
+
+##### Examples
+
+```ts
+"85249" => isPostalCode() // outputs "85249"
+```
+
+```ts
+"191123" => isPostalCode(locale: "RU") // outputs "191123"
+```
+
+```ts
+"bobsyouruncle" => isPostalCode() // outputs null
+```
+
+```ts
+"this is not a postal code" => isPostalCode(locale: "CN") // outputs null
 ```
 
 #### `isString` (FIELD_VALIDATION)
