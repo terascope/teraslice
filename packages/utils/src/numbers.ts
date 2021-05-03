@@ -253,3 +253,53 @@ export function inNumberRangeFP(args: InNumberRangeArg) {
         return inNumberRange(input, args);
     };
 }
+
+/**
+ * Returns a truncated number to nth decimal places.
+ *
+ * @param fractionDigits The number of decimal points to round to.
+ * @param truncate If this is true the number will not be rounded
+*/
+export function toPrecision(
+    input: unknown,
+    fractionDigits: number,
+    truncate = false
+): number {
+    const num = toFloatOrThrow(input);
+    if (!truncate) {
+        return parseFloat(num.toFixed(fractionDigits));
+    }
+    return parseFloat(
+        toPrecisionFromString(num.toString(), fractionDigits)
+    );
+}
+
+/**
+ * A functional programming version of toPrecision
+ *
+ * @param fractionDigits The number of decimal points to round to.
+ * @param truncate If this is true the number will not be rounded
+*/
+export function toPrecisionFP(
+    fractionDigits: number,
+    truncate = false
+): (input: unknown) => number {
+    return function _toPrecision(input) {
+        return toPrecision(input, fractionDigits, truncate);
+    };
+}
+
+/**
+ * this will always truncate (not round)
+*/
+function toPrecisionFromString(
+    input: string,
+    fractionDigits: number,
+): string {
+    const [int, points] = input.toString().split('.');
+    if (!points) return int || '0';
+
+    const remainingPoints = points.slice(0, fractionDigits);
+    if (!remainingPoints) return int || '0';
+    return `${int || '0'}.${remainingPoints}`;
+}

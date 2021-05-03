@@ -12,6 +12,7 @@ import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
 import { subtractConfig } from './subtract';
 import { subtractValuesConfig } from './subtractValues';
+import { toPrecisionConfig } from './toPrecision';
 
 export const numericRepository = {
     add: addConfig,
@@ -28,4 +29,5 @@ export const numericRepository = {
     multiplyValues: multiplyValuesConfig,
     subtract: subtractConfig,
     subtractValues: subtractValuesConfig,
+    toPrecision: toPrecisionConfig,
 };

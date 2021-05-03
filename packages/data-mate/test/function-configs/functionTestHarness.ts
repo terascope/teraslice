@@ -131,7 +131,7 @@ export function functionTestHarness<T extends Record<string, any>>(
 
             if (!failureCases.length) return;
 
-            test.each(failureCases)('should handle the input %p with args %p', (input, _a, testCase) => {
+            test.each(failureCases)('should throw if given the input %p with args %p', (input, _a, testCase) => {
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field

@@ -7,7 +7,8 @@ import {
     toBigInt,
     bigIntToJSON,
     isBigInt,
-    inNumberRange
+    inNumberRange,
+    toPrecision
 } from '../src/numbers';
 
 describe('Numbers', () => {
@@ -186,6 +187,19 @@ describe('Numbers', () => {
             [10.09373, { min: 10, max: 20.234 }, true],
         ])('should convert %p to be %p', (input, args, expected) => {
             expect(inNumberRange(input, args)).toEqual(expected);
+        });
+    });
+
+    describe('toPrecision', () => {
+        test.each([
+            [10.123, 2, false, 10.12],
+            [10.123, 2, true, 10.12],
+            [10.125, 2, false, 10.13],
+            [10.125, 2, true, 10.12],
+            [Math.PI, 0, true, 3],
+            [1000, 10, true, 1000],
+        ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
+            expect(toPrecision(input, digits, truncate)).toEqual(expected);
         });
     });
 });
