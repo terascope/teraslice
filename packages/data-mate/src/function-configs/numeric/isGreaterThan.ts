@@ -69,6 +69,7 @@ export const isGreaterThanConfig: FieldValidateConfig<GreaterThanArgs> = {
             type: FieldType.Number,
         }
     },
+    required_arguments: ['value']
 };
 
 function isGreaterThan(value: number) {

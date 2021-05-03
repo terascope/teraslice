@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 
 export interface DivideArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
@@ -24,7 +24,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
     description: 'divide a numeric value',
     examples: [
         {
-            args: { by: 5 },
+            args: { value: 5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Short } }
@@ -34,7 +34,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
             output: 2
         },
         {
-            args: { by: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -44,30 +44,30 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
             output: 10
         }
     ],
-    create({ by = 1 } = {}, inputConfig) {
+    create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
-            return divideFP(toBigIntOrThrow(by));
+            return divideFP(toBigIntOrThrow(value));
         }
 
-        return divideFP(by);
+        return divideFP(value);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
             description: 'How much to divide'
         }
     },
-    required_arguments: ['by']
+    required_arguments: ['value']
 };
 
-function divideFP(by: bigint): (input: unknown) => bigint;
-function divideFP(by: number): (input: unknown) => number;
-function divideFP(by: number|bigint): (input: unknown) => number|bigint {
+function divideFP(value: bigint): (input: unknown) => bigint;
+function divideFP(value: number): (input: unknown) => number;
+function divideFP(value: number|bigint): (input: unknown) => number|bigint {
     return function _divide(num) {
-        return (num as number) / (by as number);
+        return (num as number) / (value as number);
     };
 }

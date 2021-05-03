@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 
 export interface AddArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
@@ -24,7 +24,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     description: 'Add a numeric value to another',
     examples: [
         {
-            args: { },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Byte } }
@@ -34,7 +34,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
             output: 11
         },
         {
-            args: { by: 5 },
+            args: { value: 5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Short } }
@@ -44,7 +44,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
             output: 15
         },
         {
-            args: { by: -5 },
+            args: { value: -5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -54,23 +54,24 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
             output: 5
         }
     ],
-    create({ by = 1 } = {}, inputConfig) {
+    create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
-            return addFP(toBigIntOrThrow(by));
+            return addFP(toBigIntOrThrow(value));
         }
 
-        return addFP(by);
+        return addFP(value);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to add, defaults to 1'
+            description: 'How much to add'
         }
     },
+    required_arguments: ['value']
 };
 
 function addFP(by: bigint): (input: unknown) => bigint;

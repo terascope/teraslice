@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 
 export interface MultiplyArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
@@ -23,7 +23,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
     category: FunctionDefinitionCategory.NUMERIC,
     description: 'multiply a numeric value',
     examples: [{
-        args: { by: 5 },
+        args: { value: 5 },
         config: {
             version: 1,
             fields: { testField: { type: FieldType.Short } }
@@ -33,7 +33,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         output: 50
     },
     {
-        args: { by: -2 },
+        args: { value: -2 },
         config: {
             version: 1,
             fields: { testField: { type: FieldType.Number } }
@@ -42,30 +42,30 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         input: 10,
         output: -20
     }],
-    create({ by = 1 } = {}, inputConfig) {
+    create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
-            return multiplyFP(toBigIntOrThrow(by));
+            return multiplyFP(toBigIntOrThrow(value));
         }
 
-        return multiplyFP(by);
+        return multiplyFP(value);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
             description: 'How much to multiply'
         }
     },
-    required_arguments: ['by']
+    required_arguments: ['value']
 };
 
-function multiplyFP(by: bigint): (input: unknown) => bigint;
-function multiplyFP(by: number): (input: unknown) => number;
-function multiplyFP(by: number|bigint): (input: unknown) => number|bigint {
+function multiplyFP(value: bigint): (input: unknown) => bigint;
+function multiplyFP(value: number): (input: unknown) => number;
+function multiplyFP(value: number|bigint): (input: unknown) => number|bigint {
     return function _multiply(num) {
-        return (num as number) * (by as number);
+        return (num as number) * (value as number);
     };
 }

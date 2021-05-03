@@ -69,6 +69,7 @@ export const isLessThanConfig: FieldValidateConfig<LessThanArgs> = {
             type: FieldType.Number,
         }
     },
+    required_arguments: ['value']
 };
 
 function isLessThan(value: number) {

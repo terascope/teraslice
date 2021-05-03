@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 
 export interface SubtractArgs {
-    readonly by?: number
+    readonly value: number
 }
 
 function isLargeNumberType(type: FieldType|undefined) {
@@ -24,7 +24,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     description: 'Subtract a numeric value',
     examples: [
         {
-            args: { },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Byte } }
@@ -34,7 +34,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
             output: 9
         },
         {
-            args: { by: 5 },
+            args: { value: 5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Short } }
@@ -44,7 +44,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
             output: 5
         },
         {
-            args: { by: -5 },
+            args: { value: -5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -54,18 +54,18 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
             output: 15
         }
     ],
-    create({ by = 1 } = {}, inputConfig) {
+    create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
-            return subtractFP(toBigIntOrThrow(by));
+            return subtractFP(toBigIntOrThrow(value));
         }
 
-        return subtractFP(by);
+        return subtractFP(value);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {
-        by: {
+        value: {
             type: FieldType.Number,
             array: false,
             description: 'How much to subtract, defaults to 1'
@@ -73,10 +73,10 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     },
 };
 
-function subtractFP(by: bigint): (input: unknown) => bigint;
-function subtractFP(by: number): (input: unknown) => number;
-function subtractFP(by: number|bigint): (input: unknown) => number|bigint {
+function subtractFP(value: bigint): (input: unknown) => bigint;
+function subtractFP(value: number): (input: unknown) => number;
+function subtractFP(value: number|bigint): (input: unknown) => number|bigint {
     return function _subtract(num) {
-        return (num as number) - (by as number);
+        return (num as number) - (value as number);
     };
 }
