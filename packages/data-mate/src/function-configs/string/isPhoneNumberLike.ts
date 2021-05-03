@@ -1,5 +1,6 @@
-import { isCountryCode } from '@terascope/utils';
+import { isPhoneNumberLike } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
@@ -17,8 +18,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'US',
-        output: 'US'
+        input: '46707123456',
+        output: '46707123456'
     },
     {
         args: {},
@@ -31,8 +32,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'ZM',
-        output: 'ZM'
+        input: '1-808-915-6800',
+        output: '1-808-915-6800'
     },
     {
         args: {},
@@ -45,8 +46,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'GB',
-        output: 'GB'
+        input: '79525554602',
+        output: '79525554602'
     },
     {
         args: {},
@@ -59,7 +60,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'UK',
+        input: '223457823432432423324',
         output: null
     },
     {
@@ -68,23 +69,26 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Number
+                    type: FieldType.String
                 }
             }
         },
         field: 'testField',
-        input: 12345,
+        input: '2234',
         output: null
     }
 ];
 
-export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isCountryCode',
+export const isPhoneNumberLikeConfig: FieldValidateConfig = {
+    name: 'isPhoneNumberLike',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
+    description: 'Checks to see if input looks like a phone number',
     examples,
-    description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
-    create() { return isCountryCode; },
-    accepts: [FieldType.String]
+    create() { return isPhoneNumberLike; },
+    accepts: [
+        FieldType.String,
+        FieldType.Number
+    ],
 };

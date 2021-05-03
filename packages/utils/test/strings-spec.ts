@@ -20,6 +20,10 @@ import {
     isBase64,
     isFQDN,
     isCountryCode,
+    isAlphaNumeric,
+    isPostalCode,
+    isPort,
+    isMIMEType,
     contains,
     trim,
     trimStart,
@@ -245,144 +249,199 @@ describe('String Utils', () => {
 
     describe('isURL', () => {
         test.each([
-            ['http://someurl.com'],
-            ['http://someurl.com.uk'],
-            ['https://someurl.cc.ru.ch'],
-            ['ftp://someurl.bom:8080?some=bar&hi=bob'],
-            ['http://xn--fsqu00a.xn--3lr804guic'],
-            ['http://example.com/hello%20world'],
-            ['bob.com'],
-        ])('should return true for valid urls', (input) => {
-            expect(isURL(input)).toEqual(true);
-        });
-
-        test.each([
-            ['somerandomstring'],
-            [null],
-            [true],
-            ['isthis_valid_uri.com'],
-            ['http://sthis valid uri.com'],
-            ['htp://validuri.com'],
-            ['hello://validuri.com'],
-            [{ url: 'http:thisisaurl.com' }],
-            [12345],
-        ])('should return false for invalid urls', (input) => {
-            expect(isURL(input)).toEqual(false);
+            ['http://someurl.com', true],
+            ['http://someurl.com.uk', true],
+            ['https://someurl.cc.ru.ch', true],
+            ['ftp://someurl.bom:8080?some=bar&hi=bob', true],
+            ['http://xn--fsqu00a.xn--3lr804guic', true],
+            ['http://example.com/hello%20world', true],
+            ['bob.com', true],
+            ['somerandomstring', false],
+            [null, false],
+            [true, false],
+            ['isthis_valid_uri.com', false],
+            ['http://sthis valid uri.com', false],
+            ['htp://validuri.com', false],
+            ['hello://validuri.com', false],
+            [{ url: 'http:thisisaurl.com' }, false],
+            [12345, false],
+        ])('should return true for valid urls', (input, expected) => {
+            expect(isURL(input)).toEqual(expected);
         });
     });
 
     describe('isUUID', () => {
         test.each([
-            ['95ecc380-afe9-11e4-9b6c-751b66dd541e'],
-            ['0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'],
-            ['123e4567-e89b-82d3-f456-426655440000']
-        ])('should return true for valid UUIDs', (input) => {
-            expect(isUUID(input)).toEqual(true);
-        });
-
-        test.each([
-            [''],
-            ['95ecc380:afe9:11e4:9b6c:751b66dd541e'],
-            ['123e4567-e89b-x2d3-0456-426655440000'],
-            ['123e4567-e89b-12d3-a456-42600'],
-            [undefined],
-            ['randomstring'],
-            [true],
-            [{}],
-        ])('should return false for non UUIDs', (input) => {
-            expect(isUUID(input)).toEqual(false);
+            ['95ecc380-afe9-11e4-9b6c-751b66dd541e', true],
+            ['0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B', true],
+            ['123e4567-e89b-82d3-f456-426655440000', true],
+            ['', false],
+            ['95ecc380:afe9:11e4:9b6c:751b66dd541e', false],
+            ['123e4567-e89b-x2d3-0456-426655440000', false],
+            ['123e4567-e89b-12d3-a456-42600', false],
+            [undefined, false],
+            ['randomstring', false],
+            [true, false],
+            [{}, false],
+        ])('should return true for valid UUIDs', (input, expected) => {
+            expect(isUUID(input)).toEqual(expected);
         });
     });
 
     describe('isBase64', () => {
         test.each([
-            ['ZnJpZW5kbHlOYW1lNw=='],
-            ['bW9kZWxVUkwx'],
-        ])('should return true for valid base64 strings', (input) => {
-            expect(isBase64(input)).toEqual(true);
-        });
-
-        test.each([
-            ['manufacturerUrl7'],
-            ['undefined'],
-            [true],
-            [12345],
-            [undefined],
-            ['randomstring'],
-            [{}],
-        ])('should return false for non base64 inputs', (input) => {
-            expect(isBase64(input)).toEqual(false);
+            ['ZnJpZW5kbHlOYW1lNw==', true],
+            ['bW9kZWxVUkwx', true],
+            ['manufacturerUrl7', false],
+            ['undefined', false],
+            [true, false],
+            [12345, false],
+            [undefined, false],
+            ['randomstring', false],
+            [{}, false],
+        ])('should return true for valid base64 strings', (input, expected) => {
+            expect(isBase64(input)).toEqual(expected);
         });
     });
 
     describe('isFQDN', () => {
         test.each([
-            ['example.com'],
-            ['international-example.com.br'],
-            ['some.other.domain.uk'],
-            ['1234.com']
-        ])('should return true for valid domains', (input) => {
-            expect(isFQDN(input)).toEqual(true);
-        });
-
-        test.each([
-            ['no_underscores.com'],
-            ['undefined'],
-            [true],
-            [12345],
-            [undefined],
-            ['**.bad.domain.com'],
-            ['example.0'],
-            [{}],
-        ])('should return false for non base64 inputs', (input) => {
-            expect(isFQDN(input)).toEqual(false);
+            ['example.com', true],
+            ['international-example.com.br', true],
+            ['some.other.domain.uk', true],
+            ['1234.com', true],
+            ['no_underscores.com', false],
+            ['undefined', false],
+            [true, false],
+            [12345, false],
+            [undefined, false],
+            ['**.bad.domain.com', false],
+            ['example.0', false],
+            [{}, false],
+        ])('should return true for valid domains', (input, expected) => {
+            expect(isFQDN(input)).toEqual(expected);
         });
     });
 
     describe('isCountryCode', () => {
         test.each([
-            ['US'],
-            ['IN'],
-            ['GB'],
-            ['JP'],
-            ['ZM']
-        ])('should return true for valid ISO31661Alpha2 country codes', (input) => {
-            expect(isCountryCode(input)).toEqual(true);
+            ['US', true],
+            ['IN', true],
+            ['GB', true],
+            ['JP', true],
+            ['ZM', true],
+            ['USA', false],
+            ['UK', false],
+            [true, false],
+            [null, false],
+            ['II', false],
+            ['longerstring', false],
+            ['12345US234', false],
+            [12345, false],
+            ['', false],
+            [{ in: 'US' }, false]
+        ])('should return true for valid ISO31661Alpha2 country codes', (input, expected) => {
+            expect(isCountryCode(input)).toEqual(expected);
+        });
+    });
+
+    describe('isAlphanumeric', () => {
+        test.each([
+            ['example', true],
+            ['123456', true],
+            ['example123456', true],
+            ['no_underscores.com', false],
+            [true, false],
+            [123456, false],
+            [undefined, false],
+            [{}, false],
+        ])('should return true for valid alphanumeric inputs and no locale', (input, expected) => {
+            expect(isAlphaNumeric(input)).toEqual(expected);
         });
 
         test.each([
-            ['USA'],
-            ['UK'],
-            [true],
-            [null],
-            ['II'],
-            ['longerstring'],
-            ['12345US234'],
-            [12345],
-            [''],
-            [{ in: 'US' }]
-        ])('should return false for non base64 inputs', (input) => {
-            expect(isCountryCode(input)).toEqual(false);
+            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl', true],
+            ['ThisiZĄĆĘŚŁ1234', 'en-HK', false]
+        ])('should return true for valid alphanumeric inputs with a locale', (input, locale, expected) => {
+            expect(isAlphaNumeric(input as any, locale as any)).toEqual(expected);
+        });
+    });
+
+    describe('isPostalCode', () => {
+        test.each([
+            ['85249', true],
+            [85249, true],
+            ['75008', true],
+            [12345689, false],
+            [false, false],
+            ['bobsyouruncle', false],
+            [undefined, false],
+            ['somebadstring', false],
+            [[], false],
+            [{ code: '12345' }, false],
+        ])('should return true for valid postal codes and no locale', (input, expected) => {
+            expect(isPostalCode(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['85249', 'US', true],
+            ['75008', 'FR', true],
+            ['191123', 'RU', true],
+            ['85249', 'RU', false],
+            ['8524933', 'US', false],
+            ['8524', 'CN', false],
+            ['this is not a postal code', 'CN', false],
+            [undefined, 'US', false]
+        ])('should return true for valid postal codes with locale', (input, locale, expected) => {
+            expect(isPostalCode(input, locale as any)).toEqual(expected);
+        });
+    });
+
+    describe('isPort', () => {
+        test.each([
+            ['49151', true],
+            ['0', true],
+            [8080, true],
+            [80, true],
+            ['65536', false],
+            ['-110', false],
+            ['not a port', false],
+            [808000, false],
+            [false, false],
+            [null, false],
+        ])('should return true valid port number or number string', (input, expected) => {
+            expect(isPort(input)).toEqual(expected);
+        });
+    });
+
+    describe('isMIMEType', () => {
+        test.each([
+            ['application/javascript', true],
+            ['application/graphql', true],
+            ['text/html', true],
+            ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true],
+            ['application', false],
+            ['', false],
+            [false, false],
+            [{}, false],
+            [12345, false],
+        ])('should return true for valid MIME types', (input, expected) => {
+            expect(isMIMEType(input)).toEqual(expected);
         });
     });
 
     describe('contains', () => {
         test.each([
-            ['thisisastring', 'this'],
-            ['a new string', 'new'],
-            ['12345', '23']
-        ])('should return true for strings that contains  the substring', (input, substr) => {
-            expect(contains(input, substr)).toEqual(true);
-        });
-
-        test.each([
-            ['this is a string', 'foo'],
-            ['', 'foo'],
-            [['one', 'two', 'three'], 'one'],
-            [undefined, 'hello'],
-            [12345, '123']
-        ])('should return false if input is not a string or does not contain substring', (input, substr) => {
-            expect(contains(input, substr)).toEqual(false);
+            ['thisisastring', 'this', true],
+            ['a new string', 'new', true],
+            ['12345', '23', true],
+            ['this is a string', 'foo', false],
+            ['', 'foo', false],
+            [['one', 'two', 'three'], 'one', false],
+            [undefined, 'hello', false],
+            [12345, '123', false]
+        ])('should return true for strings that contains  the substring', (input, substr, expected) => {
+            expect(contains(input, substr)).toEqual(expected);
         });
     });
 
