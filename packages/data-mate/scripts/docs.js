@@ -2,16 +2,21 @@
 
 'use strict';
 
-const { isPrimitiveValue, toTitleCase, isEmpty } = require('@terascope/utils');
-/* @ts-check */
-
-const _ = require('lodash');
+const {
+    isString,
+    isPrimitiveValue,
+    primitiveToString,
+    toTitleCase,
+    isEmpty,
+    flatten,
+    flattenDeep
+} = require('@terascope/utils');
 const { functionConfigRepository } = require('..');
 
 function prettyPrint(input) {
     if (input == null) return 'null';
-    if (_.isString(input)) return `"${input}"`;
-    if (isPrimitiveValue(input)) return `${toString(input)}`;
+    if (isString(input)) return `"${input}"`;
+    if (isPrimitiveValue(input)) return `${primitiveToString(input)}`;
     if (Array.isArray(input)) return `[${input.map(prettyPrint)}]`;
     return Object.entries(input).map(([key, value]) => (
         `${key}: ${prettyPrint(value)}`
@@ -95,7 +100,7 @@ function generateFunctionDoc(fnDef) {
 }
 
 function generateDocsForCategory([category, fnsByType]) {
-    const fns = _.flatten(Object.values(fnsByType));
+    const fns = flatten(Object.values(fnsByType));
 
     return [
         `### CATEGORY: ${toTitleCase(category.toLowerCase())}`,
@@ -131,7 +136,7 @@ sidebar_label: Functions
 function generateDocs() {
     return [
         generateHeader(),
-        ..._.flattenDeep(generateAllFunctionsDocs()),
+        ...flattenDeep(generateAllFunctionsDocs()),
         '',
     ].join('\n\n');
 }
