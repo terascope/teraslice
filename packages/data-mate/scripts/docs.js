@@ -17,7 +17,7 @@ function prettyPrint(input) {
     if (input == null) return 'null';
     if (isString(input)) return `"${input}"`;
     if (isPrimitiveValue(input)) return `${primitiveToString(input)}`;
-    if (Array.isArray(input)) return `[${input.map(prettyPrint)}]`;
+    if (Array.isArray(input)) return `[${input.map(prettyPrint).join(', ')}]`;
     return Object.entries(input).map(([key, value]) => (
         `${key}: ${prettyPrint(value)}`
     )).join(', ');

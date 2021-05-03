@@ -66,47 +66,535 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `add` (FIELD_TRANSFORM)
 
-> add to a numeric value
+> Add a numeric value to another
 
 ##### Arguments
 
- - **by**:  `Number` - How much to add, defaults to 1
+ - **value**: (required) `Number` - How much to add
 
 ##### Accepts
 
 - `Number`
-- `Byte`
-- `Short`
-- `Integer`
-- `Float`
-- `Long`
-- `Double`
+
+##### Examples
+
+```ts
+10 => add(value: 1) // outputs 11
+```
+
+```ts
+10 => add(value: 5) // outputs 15
+```
+
+```ts
+10 => add(value: -5) // outputs 5
+```
+
+```ts
+12 => add(value: 12) // outputs 24
+```
+
+#### `addValues` (FIELD_TRANSFORM)
+
+> Add the values with a given field, this requires an array to function correctly
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+[100, 10] => addValues() // outputs 110
+```
+
+```ts
+[10] => addValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => addValues() // outputs 100012
+```
+
+```ts
+[[10, null], 100000, [2], null] => addValues() // outputs 100012
+```
+
+```ts
+2 => addValues() // outputs 2
+```
 
 #### `divide` (FIELD_TRANSFORM)
 
-> Divide one or more values in a vector
-
-##### Accepts
-
-- `Number`
-
-#### `subtract` (FIELD_TRANSFORM)
-
-> subtract a numeric value
+> divide a numeric value
 
 ##### Arguments
 
- - **by**:  `Number` - How much to subtract, defaults to 1
+ - **value**: (required) `Number` - How much to divide
 
 ##### Accepts
 
 - `Number`
-- `Byte`
-- `Short`
-- `Integer`
-- `Float`
-- `Long`
-- `Double`
+
+##### Examples
+
+```ts
+10 => divide(value: 5) // outputs 2
+```
+
+```ts
+10 => divide(value: 1) // outputs 10
+```
+
+```ts
+10 => divide(value: 2) // outputs 5
+```
+
+#### `divideValues` (FIELD_TRANSFORM)
+
+> Divide the values with a given field, this requires an array to function correctly
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+[100, 10] => divideValues() // outputs 10
+```
+
+```ts
+[10] => divideValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => divideValues() // outputs 0.00005
+```
+
+```ts
+[[10, null], 100000, [2], null] => divideValues() // outputs 0.00005
+```
+
+```ts
+2 => divideValues() // outputs 2
+```
+
+#### `modulus` (FIELD_TRANSFORM)
+
+> Calculate the modulus from the specified value
+
+##### Arguments
+
+ - **value**: (required) `Number` - How much to modulus
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => modulus(value: 2) // outputs 0
+```
+
+```ts
+9 => modulus(value: 2) // outputs 1
+```
+
+```ts
+10 => modulus(value: -5) // outputs 0
+```
+
+```ts
+101 => modulus(value: 10) // outputs 1
+```
+
+#### `multiply` (FIELD_TRANSFORM)
+
+> multiply a numeric value
+
+##### Arguments
+
+ - **value**: (required) `Number` - How much to multiply
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => multiply(value: 5) // outputs 50
+```
+
+```ts
+10 => multiply(value: -2) // outputs -20
+```
+
+```ts
+10 => multiply(value: 2) // outputs 20
+```
+
+#### `multiplyValues` (FIELD_TRANSFORM)
+
+> multiply the values with a given field, this requires an array to function correctly
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+[100, 10] => multiplyValues() // outputs 1000
+```
+
+```ts
+[10] => multiplyValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => multiplyValues() // outputs 2000000
+```
+
+```ts
+[[10, null], 100000, [2], null] => multiplyValues() // outputs 2000000
+```
+
+```ts
+2 => multiplyValues() // outputs 2
+```
+
+#### `subtract` (FIELD_TRANSFORM)
+
+> Subtract a numeric value
+
+##### Arguments
+
+ - **value**:  `Number` - How much to subtract, defaults to 1
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => subtract(value: 1) // outputs 9
+```
+
+```ts
+10 => subtract(value: 5) // outputs 5
+```
+
+```ts
+10 => subtract(value: -5) // outputs 15
+```
+
+```ts
+10 => subtract(value: 2) // outputs 8
+```
+
+#### `subtractValues` (FIELD_TRANSFORM)
+
+> subtract the values with a given field, this requires an array to function correctly
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+[100, 10] => subtractValues() // outputs 90
+```
+
+```ts
+[10] => subtractValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => subtractValues() // outputs -99992
+```
+
+```ts
+[[10, null], 100000, [2], null] => subtractValues() // outputs -99992
+```
+
+```ts
+2 => subtractValues() // outputs 2
+```
+
+#### `toCelsius` (FIELD_TRANSFORM)
+
+> Convert a fahrenheit value to celsius
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+32 => toCelsius() // outputs 0
+```
+
+```ts
+69.8 => toCelsius() // outputs 21
+```
+
+#### `toFahrenheit` (FIELD_TRANSFORM)
+
+> Convert a celsius value to fahrenheit
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+0 => toFahrenheit() // outputs 32
+```
+
+```ts
+22 => toFahrenheit() // outputs 71.6
+```
+
+#### `toPrecision` (FIELD_TRANSFORM)
+
+> Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified
+
+##### Arguments
+
+ - **digits**: (required) `Number` - The number of decimal places to keep. This value must be between 0-100
+
+ - **truncate**:  `Boolean` - If set to true rounding will be disabled
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+"10.123444" => toPrecision(digits: 1, truncate: false) // outputs 10.1
+```
+
+```ts
+10.253444 => toPrecision(digits: 1, truncate: true) // outputs 10.2
+```
+
+```ts
+10.253444 => toPrecision(digits: 1, truncate: false) // outputs 10.3
+```
+
+```ts
+3.141592653589793 => toPrecision(digits: 2) // outputs 3.14
+```
+
+```ts
+3.141592653589793 => toPrecision(digits: 0) // outputs 3
+```
+
+```ts
+23.4 => toPrecision(digits: -1) // throws Expected digits to be between 0-100
+```
+
+```ts
+23.4 => toPrecision(digits: 1000) // throws Expected digits to be between 0-100
+```
+
+#### `inNumberRange` (FIELD_VALIDATION)
+
+> Check to see if a number exists within a given min and max value, this can configured to be inclusive or exclusive
+
+##### Arguments
+
+ - **min**:  `Number` - The maximum value allowed in the range, defaults to Negative Infinity
+
+ - **max**:  `Number` - The minimum value allowed in the range, defaults to Positive Infinity
+
+ - **inclusive**:  `Boolean` - Whether not the min and max values should be included in the range
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => inNumberRange(min: 100, max: 110) // outputs null
+```
+
+```ts
+100 => inNumberRange(min: 100) // outputs null
+```
+
+```ts
+100 => inNumberRange(min: 100, inclusive: true) // outputs 100
+```
+
+```ts
+10 => inNumberRange(min: 0, max: 100) // outputs 10
+```
+
+#### `isEven` (FIELD_VALIDATION)
+
+> Check to see if a number is even
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+100 => isEven() // outputs 100
+```
+
+```ts
+99 => isEven() // outputs null
+```
+
+#### `isGreaterThan` (FIELD_VALIDATION)
+
+> Check to see if a number is greater than the specified value
+
+##### Arguments
+
+ - **value**: (required) `Number`
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => isGreaterThan(value: 100) // outputs null
+```
+
+```ts
+50 => isGreaterThan(value: 50) // outputs null
+```
+
+```ts
+120 => isGreaterThan(value: 110) // outputs 120
+```
+
+```ts
+151 => isGreaterThan(value: 150) // outputs 151
+```
+
+#### `isGreaterThanOrEqualTo` (FIELD_VALIDATION)
+
+> Check to see if a number is greater than or equal to the specified value
+
+##### Arguments
+
+ - **value**: (required) `Number`
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+10 => isGreaterThanOrEqualTo(value: 100) // outputs null
+```
+
+```ts
+50 => isGreaterThanOrEqualTo(value: 50) // outputs 50
+```
+
+```ts
+120 => isGreaterThanOrEqualTo(value: 110) // outputs 120
+```
+
+```ts
+151 => isGreaterThanOrEqualTo(value: 150) // outputs 151
+```
+
+#### `isLessThan` (FIELD_VALIDATION)
+
+> Check to see if a number is less than the specified value
+
+##### Arguments
+
+ - **value**: (required) `Number`
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+110 => isLessThan(value: 100) // outputs null
+```
+
+```ts
+50 => isLessThan(value: 50) // outputs null
+```
+
+```ts
+100 => isLessThan(value: 110) // outputs 100
+```
+
+```ts
+149 => isLessThan(value: 150) // outputs 149
+```
+
+#### `isLessThanOrEqualTo` (FIELD_VALIDATION)
+
+> Check to see if a number is less than or equal to the specified value
+
+##### Arguments
+
+ - **value**: (required) `Number`
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+110 => isLessThanOrEqualTo(value: 100) // outputs null
+```
+
+```ts
+50 => isLessThanOrEqualTo(value: 50) // outputs 50
+```
+
+```ts
+100 => isLessThanOrEqualTo(value: 110) // outputs 100
+```
+
+```ts
+149 => isLessThanOrEqualTo(value: 150) // outputs 149
+```
+
+#### `isOdd` (FIELD_VALIDATION)
+
+> Check to see if a number is even
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+100 => isOdd() // outputs null
+```
+
+```ts
+99 => isOdd() // outputs 99
+```
 
 ### CATEGORY: Object
 
@@ -431,7 +919,7 @@ hello: "i am an object" => isString() // outputs null
 ```
 
 ```ts
-["12345","some more stuff"] => isString() // outputs ["12345","some more stuff"]
+["12345", "some more stuff"] => isString() // outputs ["12345", "some more stuff"]
 ```
 
 #### `isURL` (FIELD_VALIDATION)
@@ -667,11 +1155,11 @@ If digest is not provided, it defaults to hex
 ```
 
 ```ts
-"Hello World some other things" => extract(regex: "/([A-Z]\w+)/", global: true) // outputs ["Hello","World"]
+"Hello World some other things" => extract(regex: "/([A-Z]\w+)/", global: true) // outputs ["Hello", "World"]
 ```
 
 ```ts
-"<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello","world"]
+"<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello", "world"]
 ```
 
 #### `reverse` (FIELD_TRANSFORM)
@@ -693,7 +1181,7 @@ If digest is not provided, it defaults to hex
 ```
 
 ```ts
-["hello","more"] => reverse() // outputs ["olleh","erom"]
+["hello", "more"] => reverse() // outputs ["olleh", "erom"]
 ```
 
 #### `toCamelCase` (FIELD_TRANSFORM)
@@ -858,7 +1346,7 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 ```
 
 ```ts
-[true,false] => toString() // outputs ["true","false"]
+[true, false] => toString() // outputs ["true", "false"]
 ```
 
 #### `toTitleCase` (FIELD_TRANSFORM)
