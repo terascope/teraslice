@@ -1,6 +1,9 @@
 import 'jest-extended';
 import { GeoPoint, GeoPointInput, GeoShapeType } from '@terascope/types';
-import { isGeoPoint, parseGeoPoint } from '../src/geo';
+import {
+    isGeoPoint, parseGeoPoint, pointInBoundingBox,
+    pointInBoundingBoxFP
+} from '../src/geo';
 
 describe('geo utils', () => {
     describe('->parseGeoPoint', () => {
@@ -116,6 +119,62 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, input, output) => {
             expect(isGeoPoint(input)).toEqual(output);
+        });
+    });
+
+    describe('->pointInBoundingBox', () => {
+        type Case = [
+            msg: string,
+            topLeft: GeoPointInput,
+            bottomRight: GeoPointInput,
+            input: GeoPointInput, output: boolean];
+        const testCases: Case[] = [
+            [
+                'parse a geo point in a string',
+                '33.906320,-112.758421',
+                '32.813646,-111.058902',
+                '33,-112',
+                true
+            ],
+            [
+                'input is outside bounding box',
+                '33.906320,-112.758421',
+                '32.813646,-111.058902',
+                '43,-132',
+                false
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+            expect(pointInBoundingBox(topLeft, bottomRight, input)).toEqual(output);
+        });
+    });
+
+    describe('->pointInBoundingBoxFP', () => {
+        type Case = [
+            msg: string,
+            topLeft: GeoPointInput,
+            bottomRight: GeoPointInput,
+            input: GeoPointInput, output: boolean];
+        const testCases: Case[] = [
+            [
+                'parse a geo point in a string',
+                '33.906320,-112.758421',
+                '32.813646,-111.058902',
+                '33,-112',
+                true
+            ],
+            [
+                'input is outside bounding box',
+                '33.906320,-112.758421',
+                '32.813646,-111.058902',
+                '43,-132',
+                false
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+            expect(pointInBoundingBoxFP(topLeft, bottomRight)(input)).toEqual(output);
         });
     });
 });

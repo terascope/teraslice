@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     GeoDistanceUnit,
     GEO_DISTANCE_UNITS,
@@ -11,8 +12,31 @@ import {
     GeoShapePoint,
     GeoShapePolygon,
     GeoShapeMultiPolygon,
-    ESGeoShape
+    ESGeoShape,
+    CoordinateTuple
 } from '@terascope/types';
+import bbox from '@turf/bbox';
+import bboxPolygon from '@turf/bbox-polygon';
+import equal from '@turf/boolean-equal';
+import createCircle from '@turf/circle';
+import pointInPolygon from '@turf/boolean-point-in-polygon';
+import within from '@turf/boolean-within';
+import contains from '@turf/boolean-contains';
+import disjoint from '@turf/boolean-disjoint';
+import intersect from '@turf/boolean-overlap';
+import {
+    lineString,
+    multiPolygon,
+    polygon as tPolygon,
+    point as tPoint,
+    MultiPolygon,
+    Feature,
+    Properties,
+    Polygon,
+    Geometry
+} from '@turf/helpers';
+import lineToPolygon from '@turf/line-to-polygon';
+import { getCoords } from '@turf/invariant';
 import { isArrayLike } from './arrays';
 import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
@@ -142,4 +166,55 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
 
 export function isGeoPoint(input: unknown): boolean {
     return parseGeoPoint(input as GeoPointInput, false) != null;
+}
+
+export function makeGeoBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, Properties> {
+    const line = lineString([
+        makeCoordinatesFromGeoPoint(point1),
+        makeCoordinatesFromGeoPoint(point2)
+    ]);
+    const box = bbox(line);
+
+    return bboxPolygon(box);
+}
+
+export function pointInBoundingBox(
+    top_left: GeoPointInput, bottom_right: GeoPointInput, point: GeoPointInput
+): boolean {
+    const topLeft = parseGeoPoint(top_left);
+    const bottomRight = parseGeoPoint(bottom_right);
+
+    const polygon = makeGeoBBox(topLeft, bottomRight);
+    if (polygon == null) {
+        throw new Error(`Invalid bounding box created from topLeft: ${topLeft}, bottomRight: ${bottomRight}`);
+    }
+
+    return polyHasPoint(polygon)(point);
+}
+
+export function pointInBoundingBoxFP(
+    top_left: GeoPointInput, bottom_right: GeoPointInput
+): (input: GeoPointInput) => boolean {
+    const topLeft = parseGeoPoint(top_left);
+    const bottomRight = parseGeoPoint(bottom_right);
+
+    const polygon = makeGeoBBox(topLeft, bottomRight);
+
+    if (polygon == null) {
+        throw new Error(`Invalid bounding box created from topLeft: ${topLeft}, bottomRight: ${bottomRight}`);
+    }
+
+    return polyHasPoint(polygon);
+}
+
+export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {
+    return [point.lon, point.lat];
+}
+
+function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G>|G) {
+    return (fieldData: GeoPointInput): boolean => {
+        const point = parseGeoPoint(fieldData, false);
+        if (!point) return false;
+        return pointInPolygon(makeCoordinatesFromGeoPoint(point), polygon);
+    };
 }

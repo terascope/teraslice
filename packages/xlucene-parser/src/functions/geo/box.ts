@@ -1,6 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint } from '@terascope/utils';
-import { polyHasPoint, makeBBox } from './helpers';
+import { parseGeoPoint, pointInBoundingBoxFP } from '@terascope/utils';
 import * as i from '../../interfaces';
 import { getFieldValue, logger } from '../../utils';
 
@@ -47,15 +46,8 @@ const geoBox: i.FunctionDefinition = {
             return { query };
         }
 
-        function matcher() {
-            const polygon = makeBBox(top_left, bottom_right);
-            // Nothing matches so return false
-            if (polygon == null) return () => false;
-            return polyHasPoint(polygon);
-        }
-
         return {
-            match: matcher(),
+            match: pointInBoundingBoxFP(top_left, bottom_right),
             toElasticsearchQuery
         };
     }
