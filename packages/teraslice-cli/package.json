@@ -54,13 +54,13 @@
         "yargs": "^16.2.0",
         "yeoman-environment": "^2.10.3",
         "yeoman-generator": "^4.13.0",
-        "yo": "^3.1.1"
+        "yo": "^4.1.0"
     },
     "devDependencies": {
         "@types/decompress": "^4.2.3",
         "@types/easy-table": "^0.0.32",
         "@types/js-yaml": "^4.0.1",
-        "@types/prompts": "^2.0.9",
+        "@types/prompts": "^2.0.11",
         "@types/signale": "^1.4.0",
         "@types/tmp": "^0.2.0",
         "@types/yargs": "^16.0.1",
