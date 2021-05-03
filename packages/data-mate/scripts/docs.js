@@ -89,7 +89,7 @@ function generateAccepts(fnDef) {
 */
 function generateAliases(fnDef) {
     if (!fnDef.aliases || !fnDef.aliases.length) return '';
-    return `Aliases: ${fnDef.aliases.map((alias) => `\`${alias}\``).join(', ')}\n`;
+    return `**Aliases:** ${fnDef.aliases.map((alias) => `\`${alias}\``).join(', ')}\n`;
 }
 
 /**

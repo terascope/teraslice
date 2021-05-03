@@ -131,7 +131,7 @@ export function toIntegerOrThrow(input: unknown): number {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
     }
 
-    if (isInteger(input)) return input;
+    if (isNumber(input)) return Math.trunc(input);
 
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);

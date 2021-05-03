@@ -1,5 +1,10 @@
+import { absConfig } from './abs';
+import { acosConfig } from './acos';
+import { acoshConfig } from './acosh';
 import { addConfig } from './add';
 import { addValuesConfig } from './addValues';
+import { asinConfig } from './asin';
+import { asinhConfig } from './asinh';
 import { divideConfig } from './divide';
 import { divideValuesConfig } from './divideValues';
 import { inNumberRangeConfig } from './inNumberRange';
@@ -19,8 +24,13 @@ import { toFahrenheitConfig } from './toFahrenheit';
 import { toPrecisionConfig } from './toPrecision';
 
 export const numericRepository = {
+    abs: absConfig,
+    acos: acosConfig,
+    acosh: acoshConfig,
     add: addConfig,
     addValues: addValuesConfig,
+    asin: asinConfig,
+    asinh: asinhConfig,
     divide: divideConfig,
     divideValues: divideValuesConfig,
     inNumberRange: inNumberRangeConfig,
