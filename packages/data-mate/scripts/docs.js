@@ -87,11 +87,19 @@ function generateAccepts(fnDef) {
 /**
  * @param fnDef {import('..').FunctionDefinitionConfig}
 */
+function generateAliases(fnDef) {
+    if (!fnDef.aliases || !fnDef.aliases.length) return '';
+    return `Aliases: ${fnDef.aliases.map((alias) => `\`${alias}\``).join(', ')}\n`;
+}
+
+/**
+ * @param fnDef {import('..').FunctionDefinitionConfig}
+*/
 function generateFunctionDoc(fnDef) {
     return [
         `
 #### \`${fnDef.name}\` (${fnDef.type})
-
+${generateAliases(fnDef)}
 > ${fnDef.description}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
