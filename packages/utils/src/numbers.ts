@@ -303,3 +303,19 @@ function toPrecisionFromString(
     if (!remainingPoints) return int || '0';
     return `${int || '0'}.${remainingPoints}`;
 }
+
+/**
+ * Convert a fahrenheit value to celsius
+*/
+export function toCelsius(input: unknown): number {
+    const num = toFloatOrThrow(input);
+    return (num - 32) * (5 / 9);
+}
+
+/**
+ * Convert a celsius value to fahrenheit
+*/
+export function toFahrenheit(input: unknown): number {
+    const num = toFloatOrThrow(input);
+    return ((9 / 5) * num) + 32;
+}

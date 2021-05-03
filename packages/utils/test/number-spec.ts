@@ -8,7 +8,9 @@ import {
     bigIntToJSON,
     isBigInt,
     inNumberRange,
-    toPrecision
+    toPrecision,
+    toFahrenheit,
+    toCelsius
 } from '../src/numbers';
 
 describe('Numbers', () => {
@@ -202,4 +204,28 @@ describe('Numbers', () => {
             expect(toPrecision(input, digits, truncate)).toEqual(expected);
         });
     });
+
+    describe('toCelsius', () => {
+        test.each([
+            [32, 0],
+            [69.8, 21],
+            [26.42, -3.1],
+        ])('should convert %p to %p', (input, expected) => {
+            expect(trunc(toCelsius(input))).toEqual(expected);
+        });
+    });
+
+    describe('toFahrenheit', () => {
+        test.each([
+            [0, 32],
+            [21, 69.8],
+            [-3.1, 26.42],
+        ])('should convert %p to %p', (input, expected) => {
+            expect(trunc(toFahrenheit(input))).toEqual(expected);
+        });
+    });
 });
+
+function trunc(num: number) {
+    return Math.round(num * 1000) / 1000;
+}

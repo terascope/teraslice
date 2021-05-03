@@ -14,6 +14,8 @@ import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
 import { subtractConfig } from './subtract';
 import { subtractValuesConfig } from './subtractValues';
+import { toCelsiusConfig } from './toCelsius';
+import { toFahrenheitConfig } from './toFahrenheit';
 import { toPrecisionConfig } from './toPrecision';
 
 export const numericRepository = {
@@ -33,5 +35,7 @@ export const numericRepository = {
     multiplyValues: multiplyValuesConfig,
     subtract: subtractConfig,
     subtractValues: subtractValuesConfig,
+    toCelsius: toCelsiusConfig,
+    toFahrenheit: toFahrenheitConfig,
     toPrecision: toPrecisionConfig,
 };
