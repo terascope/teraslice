@@ -86,9 +86,7 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input looks like a phone number',
     examples,
-    create() {
-        return isPhoneNumberLike;
-    },
+    create() { return isPhoneNumberLike; },
     accepts: [
         FieldType.String,
         FieldType.Number

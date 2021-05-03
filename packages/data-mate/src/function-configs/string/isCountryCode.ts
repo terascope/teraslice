@@ -86,7 +86,5 @@ export const isCountryCodeConfig: FieldValidateConfig = {
     examples,
     description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
     create() { return isCountryCode; },
-    accepts: [
-        FieldType.String
-    ],
+    accepts: [FieldType.String]
 };

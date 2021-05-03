@@ -70,9 +70,7 @@ export const isMIMETypeConfig: FieldValidateConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     examples,
-    accepts: [
-        FieldType.String
-    ],
+    accepts: [FieldType.String],
     create() { return isMIMEType; },
     description: 'Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type',
 };
