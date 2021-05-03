@@ -285,7 +285,7 @@ describe('IP Utils', () => {
         });
     });
 
-    fdescribe('reverseIP', () => {
+    describe('reverseIP', () => {
         test.each([
             ['10.16.32.210', '210.32.16.10'],
             ['8.15.2.4', '4.2.15.8'],
