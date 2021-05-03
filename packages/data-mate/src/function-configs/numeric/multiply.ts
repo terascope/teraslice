@@ -21,7 +21,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'multiply a numeric value',
+    description: 'Multiply a numeric value',
     examples: [{
         args: { value: 5 },
         config: {

@@ -7,12 +7,12 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces';
 
-export const asinhConfig: FieldTransformConfig = {
-    name: 'asinh',
+export const atanConfig: FieldTransformConfig = {
+    name: 'atan',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arcsine of the given number',
+    description: 'Returns the arctangent (in radians) of the given number',
     examples: [
         {
             args: {},
@@ -22,11 +22,11 @@ export const asinhConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: 1,
-            output: 0.881373587019543
+            output: 0.7853981633974483
         }
     ],
     create() {
-        return asinh;
+        return atan;
     },
     accepts: [
         FieldType.Number,
@@ -42,6 +42,6 @@ export const asinhConfig: FieldTransformConfig = {
     }
 };
 
-function asinh(num: unknown): number {
-    return Math.asinh(toFloatOrThrow(num));
+function atan(num: unknown): number {
+    return Math.atan(toFloatOrThrow(num));
 }

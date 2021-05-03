@@ -43,6 +43,14 @@ export const acoshConfig: FieldTransformConfig = {
         FieldType.Number,
     ],
     argument_schema: {},
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.Float
+            }
+        };
+    }
 };
 
 function acosh(num: unknown): number {

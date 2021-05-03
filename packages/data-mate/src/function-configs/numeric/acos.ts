@@ -32,6 +32,14 @@ export const acosConfig: FieldTransformConfig = {
         FieldType.Number,
     ],
     argument_schema: {},
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.Float
+            }
+        };
+    }
 };
 
 function acos(num: unknown): number {

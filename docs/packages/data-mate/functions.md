@@ -31,7 +31,7 @@ sidebar_label: Functions
 
 #### `parseJSON` (FIELD_TRANSFORM)
 
-> parses JSON input
+> Parses JSON input
 
 ##### Arguments
 
@@ -60,9 +60,55 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `toJSON` (FIELD_TRANSFORM)
 
-> converts whole input to JSON format
+> Converts whole input to JSON format
 
 ### CATEGORY: Numeric
+
+#### `abs` (FIELD_TRANSFORM)
+
+> Returns the absolute value of a number. That is, it returns x if x is positive or zero, and the negation of x if x is negative
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+-1 => abs() // outputs 1
+```
+
+#### `acos` (FIELD_TRANSFORM)
+
+> Returns a numeric value between 0 and π radians for x between -1 and 1
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+-1 => acos() // outputs 3.141592653589793
+```
+
+#### `acosh` (FIELD_TRANSFORM)
+
+> Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, it will throw.
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+1 => acosh() // outputs 0
+```
+
+```ts
+0 => acosh() // throws Expected value greater than or equal to 0, got 0
+```
 
 #### `add` (FIELD_TRANSFORM)
 
@@ -124,9 +170,51 @@ Must be represented in a Language Tags (BCP 47)
 2 => addValues() // outputs 2
 ```
 
+#### `asin` (FIELD_TRANSFORM)
+
+> Returns the arcsine (in radians) of the given number if it's between -1 and 1
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+1 => asin() // outputs 1.5707963267948966
+```
+
+#### `asinh` (FIELD_TRANSFORM)
+
+> Returns the hyperbolic arcsine of the given number
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+1 => asinh() // outputs 0.881373587019543
+```
+
+#### `atan` (FIELD_TRANSFORM)
+
+> Returns the arctangent (in radians) of the given number
+
+##### Accepts
+
+- `Number`
+
+##### Examples
+
+```ts
+1 => atan() // outputs 0.7853981633974483
+```
+
 #### `divide` (FIELD_TRANSFORM)
 
-> divide a numeric value
+> Divide a numeric value
 
 ##### Arguments
 
@@ -212,7 +300,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `multiply` (FIELD_TRANSFORM)
 
-> multiply a numeric value
+> Multiply a numeric value
 
 ##### Arguments
 
@@ -238,7 +326,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `multiplyValues` (FIELD_TRANSFORM)
 
-> multiply the values with a given field, this requires an array to function correctly
+> Multiply the values with a given field, this requires an array to function correctly
 
 ##### Accepts
 
@@ -298,7 +386,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `subtractValues` (FIELD_TRANSFORM)
 
-> subtract the values with a given field, this requires an array to function correctly
+> Subtract the values with a given field, this requires an array to function correctly
 
 ##### Accepts
 
@@ -580,7 +668,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isOdd` (FIELD_VALIDATION)
 
-> Check to see if a number is even
+> Check to see if a number is odd
 
 ##### Accepts
 
@@ -1024,7 +1112,7 @@ hello: "i am an object" => isString() // outputs null
 
 #### `decodeURL` (FIELD_TRANSFORM)
 
-> decodes a URL encoded value
+> Decodes a URL encoded value
 
 ##### Accepts
 
@@ -1164,7 +1252,7 @@ If digest is not provided, it defaults to hex
 
 #### `reverse` (FIELD_TRANSFORM)
 
-> reverses the string value
+> Reverses the string value
 
 ##### Accepts
 

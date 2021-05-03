@@ -9,7 +9,8 @@ const {
     toTitleCase,
     isEmpty,
     flatten,
-    flattenDeep
+    flattenDeep,
+    firstToUpper
 } = require('@terascope/utils');
 const { functionConfigRepository } = require('..');
 
@@ -100,7 +101,7 @@ function generateFunctionDoc(fnDef) {
         `
 #### \`${fnDef.name}\` (${fnDef.type})
 ${generateAliases(fnDef)}
-> ${fnDef.description}`.trim(),
+> ${firstToUpper(fnDef.description)}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)

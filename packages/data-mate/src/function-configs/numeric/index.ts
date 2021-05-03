@@ -5,6 +5,7 @@ import { addConfig } from './add';
 import { addValuesConfig } from './addValues';
 import { asinConfig } from './asin';
 import { asinhConfig } from './asinh';
+import { atanConfig } from './atan';
 import { divideConfig } from './divide';
 import { divideValuesConfig } from './divideValues';
 import { inNumberRangeConfig } from './inNumberRange';
@@ -31,6 +32,7 @@ export const numericRepository = {
     addValues: addValuesConfig,
     asin: asinConfig,
     asinh: asinhConfig,
+    atan: atanConfig,
     divide: divideConfig,
     divideValues: divideValuesConfig,
     inNumberRange: inNumberRangeConfig,
