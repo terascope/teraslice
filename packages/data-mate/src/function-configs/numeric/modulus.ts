@@ -7,7 +7,7 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces';
 
-export interface DivideArgs {
+export interface ModulusArgs {
     readonly value: number
 }
 
@@ -16,50 +16,60 @@ function isLargeNumberType(type: FieldType|undefined) {
     return type === FieldType.Long;
 }
 
-export const divideConfig: FieldTransformConfig<DivideArgs> = {
-    name: 'divide',
+export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
+    name: 'modulus',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'divide a numeric value',
+    description: 'Calculate the modulus from the specified value',
     examples: [
         {
-            args: { value: 5 },
+            args: { value: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 0
+        },
+        {
+            args: { value: 2 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Short } }
             },
             field: 'testField',
-            input: 10,
-            output: 2
+            input: 9,
+            output: 1
         },
         {
-            args: { value: 1 },
+            args: { value: -5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
             },
             field: 'testField',
             input: 10,
-            output: 10
+            output: 0
         },
         {
-            args: { value: 2 },
+            args: { value: 10 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Long } }
             },
             field: 'testField',
-            input: 10,
-            output: 5
+            input: 101,
+            output: 1
         }
     ],
     create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
-            return divideFP(toBigIntOrThrow(value));
+            return modulusFP(toBigIntOrThrow(value));
         }
 
-        return divideFP(value);
+        return modulusFP(value);
     },
     accepts: [
         FieldType.Number,
@@ -68,20 +78,20 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'Value to divide against the input'
+            description: 'How much to modulus'
         }
     },
     required_arguments: ['value']
 };
 
-function divideFP(value: bigint): (input: unknown) => bigint;
-function divideFP(value: number): (input: unknown) => number;
-function divideFP(value: number|bigint): (input: unknown) => number|bigint {
+function modulusFP(value: bigint): (input: unknown) => bigint;
+function modulusFP(value: number): (input: unknown) => number;
+function modulusFP(value: number|bigint): (input: unknown) => number|bigint {
     const bigInt = isBigInt(value);
-    return function _divide(num) {
+    return function _modulus(num) {
         if (bigInt && !isBigInt(num)) {
-            return toBigIntOrThrow(num) / (value as bigint);
+            return toBigIntOrThrow(num) % (value as bigint);
         }
-        return (num as number) / (value as number);
+        return (num as number) % (value as number);
     };
 }

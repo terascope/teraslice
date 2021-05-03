@@ -71,5 +71,5 @@ export const isURLConfig: FieldValidateConfig = {
     description: 'Checks to see if input is a string',
     examples,
     create() { return isURL; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String]
 };

@@ -1,9 +1,13 @@
-import { isCountryCode } from '@terascope/utils';
+import { isISDN, isCountryCode } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces';
+
+export interface ISDNCountry {
+    country?: string;
+}
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -17,8 +21,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'US',
-        output: 'US'
+        input: '46707123456',
+        output: '46707123456'
     },
     {
         args: {},
@@ -31,8 +35,22 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'ZM',
-        output: 'ZM'
+        input: '1-808-915-6800',
+        output: '1-808-915-6800'
+    },
+    {
+        args: { country: 'US' },
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.String
+                }
+            }
+        },
+        field: 'testField',
+        input: '8089156800',
+        output: '8089156800'
     },
     {
         args: {},
@@ -45,46 +63,29 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'GB',
-        output: 'GB'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'UK',
-        output: null
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Number
-                }
-            }
-        },
-        field: 'testField',
-        input: 12345,
+        input: '8089156800',
         output: null
     }
 ];
 
-export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isCountryCode',
+export const isISDNConfig: FieldValidateConfig = {
+    name: 'isISDN',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
+    description: 'Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number',
+    create({ country }: ISDNCountry) {
+        return (input: unknown) => isISDN(input, country);
+    },
     examples,
-    description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
-    create() { return isCountryCode; },
-    accepts: [FieldType.String]
+    accepts: [
+        FieldType.String,
+        FieldType.Number
+    ],
+    required_arguments: [],
+    validate_arguments({ country }) {
+        if (country != null && !isCountryCode(country)) {
+            throw new Error('Invalid country, the country must be a ISO 3166-1 alpha-2 officially assigned country code');
+        }
+    }
 };

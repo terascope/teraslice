@@ -1,5 +1,6 @@
-import { isCountryCode } from '@terascope/utils';
+import { isPort } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
+
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
@@ -17,8 +18,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'US',
-        output: 'US'
+        input: '49151',
+        output: '49151'
     },
     {
         args: {},
@@ -31,8 +32,8 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'ZM',
-        output: 'ZM'
+        input: '80',
+        output: '80'
     },
     {
         args: {},
@@ -45,21 +46,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             }
         },
         field: 'testField',
-        input: 'GB',
-        output: 'GB'
-    },
-    {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.String
-                }
-            }
-        },
-        field: 'testField',
-        input: 'UK',
+        input: '65536',
         output: null
     },
     {
@@ -68,23 +55,26 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Number
+                    type: FieldType.String
                 }
             }
         },
         field: 'testField',
-        input: 12345,
+        input: 'not a port',
         output: null
     }
 ];
 
-export const isCountryCodeConfig: FieldValidateConfig = {
-    name: 'isCountryCode',
+export const isPortConfig: FieldValidateConfig = {
+    name: 'isPort',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
+    description: 'Checks to see if input is a valid port',
     examples,
-    description: 'Checks to see if input is a valid ISO 3166-1 alpha-2 country code',
-    create() { return isCountryCode; },
-    accepts: [FieldType.String]
+    create() { return isPort; },
+    accepts: [
+        FieldType.String,
+        FieldType.Number
+    ],
 };

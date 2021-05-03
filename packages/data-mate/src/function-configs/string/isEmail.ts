@@ -141,8 +141,6 @@ export const isEmailConfig: FieldValidateConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is an email',
     examples,
-    create() {
-        return isEmail;
-    },
+    create() { return isEmail; },
     accepts: [FieldType.String],
 };

@@ -1,8 +1,10 @@
-import { FieldType, DataTypeFieldConfig } from '@terascope/types';
+import { DataTypeFieldConfig } from '@terascope/types';
 import { isNil } from '@terascope/utils';
 import { validateFunctionArgs } from '../argument-validator';
 import {
-    Column, validateFieldTransformType, ColumnOptions, mapVector,
+    Column, validateAccepts,
+    getFieldTypesFromFieldConfigAndChildConfig,
+    ColumnOptions, mapVector,
 } from '../../column';
 import { DataFrame } from '../../data-frame';
 import {
@@ -14,52 +16,6 @@ import {
 import {
     TransformMode, ColumnTransformFn
 } from '../../column/interfaces';
-
-import {
-    VectorType,
-} from '../../vector/interfaces';
-
-const FieldTypeToVectorDict: Record<FieldType, VectorType> = {
-    [FieldType.String]: VectorType.String,
-    [FieldType.Text]: VectorType.String,
-    [FieldType.Keyword]: VectorType.String,
-    [FieldType.KeywordCaseInsensitive]: VectorType.String,
-    [FieldType.KeywordTokens]: VectorType.String,
-    [FieldType.KeywordTokensCaseInsensitive]: VectorType.String,
-    [FieldType.KeywordPathAnalyzer]: VectorType.String,
-    [FieldType.Domain]: VectorType.String,
-    [FieldType.Hostname]: VectorType.String,
-    [FieldType.NgramTokens]: VectorType.String,
-    [FieldType.IP]: VectorType.IP,
-    [FieldType.IPRange]: VectorType.IPRange,
-    [FieldType.Date]: VectorType.Date,
-    [FieldType.Boolean]: VectorType.Boolean,
-    [FieldType.Float]: VectorType.Float,
-    [FieldType.Number]: VectorType.Int,
-    [FieldType.Byte]: VectorType.Int,
-    [FieldType.Short]: VectorType.Int,
-    [FieldType.Integer]: VectorType.Int,
-    [FieldType.Long]: VectorType.BigInt,
-    [FieldType.Double]: VectorType.BigInt,
-    [FieldType.GeoJSON]: VectorType.GeoJSON,
-    [FieldType.GeoPoint]: VectorType.GeoPoint,
-    [FieldType.Boundary]: VectorType.GeoPoint,
-    [FieldType.Geo]: VectorType.GeoPoint,
-    [FieldType.Object]: VectorType.Object,
-    [FieldType.Any]: VectorType.Any,
-    /** FieldType tuple is not the same a VectorType Tuple */
-    [FieldType.Tuple]: VectorType.Any,
-};
-
-function getVectorType(input: readonly FieldType[]): VectorType[] {
-    return input.map((fType) => {
-        const type = FieldTypeToVectorDict[fType];
-        if (isNil(type)) {
-            throw new Error(`FieldType ${fType} is not supported with DataFrames`);
-        }
-        return type;
-    });
-}
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
     args?: T,
@@ -95,9 +51,12 @@ function transformColumnData<T extends Record<string, any>>(
     transformConfig: FieldTransformConfig<T>,
     args?: T
 ): Column {
-    const err = validateFieldTransformType(
-        getVectorType(transformConfig.accepts),
-        column.vector,
+    const err = validateAccepts(
+        transformConfig.accepts,
+        getFieldTypesFromFieldConfigAndChildConfig(
+            column.vector.config,
+            column.vector.childConfig,
+        ),
     );
 
     if (err) throw err;
@@ -153,9 +112,9 @@ function validateColumnData<T extends Record<string, any>>(
     validationConfig: FieldValidateConfig<T>,
     args?: T
 ): Column {
-    const err = validateFieldTransformType(
-        getVectorType(validationConfig.accepts),
-        column.vector,
+    const err = validateAccepts(
+        validationConfig.accepts,
+        getFieldTypesFromFieldConfigAndChildConfig(column.vector.config, column.vector.childConfig),
     );
 
     if (err) {
