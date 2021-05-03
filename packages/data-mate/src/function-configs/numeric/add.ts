@@ -1,4 +1,4 @@
-import { toBigIntOrThrow } from '@terascope/utils';
+import { isBigInt, toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -52,6 +52,16 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
             field: 'testField',
             input: 10,
             output: 5
+        },
+        {
+            args: { value: 12 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Long } }
+            },
+            field: 'testField',
+            input: 12,
+            output: 24
         }
     ],
     create({ value }, inputConfig) {
@@ -74,10 +84,14 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     required_arguments: ['value']
 };
 
-function addFP(by: bigint): (input: unknown) => bigint;
-function addFP(by: number): (input: unknown) => number;
-function addFP(by: number|bigint): (input: unknown) => number|bigint {
+function addFP(value: bigint): (input: unknown) => bigint;
+function addFP(value: number): (input: unknown) => number;
+function addFP(value: number|bigint): (input: unknown) => number|bigint {
+    const bigInt = isBigInt(value);
     return function _add(num) {
-        return (num as number) + (by as number);
+        if (bigInt && !isBigInt(num)) {
+            return toBigIntOrThrow(num) + (value as bigint);
+        }
+        return (num as number) + (value as number);
     };
 }

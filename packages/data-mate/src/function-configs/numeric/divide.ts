@@ -1,4 +1,4 @@
-import { toBigIntOrThrow } from '@terascope/utils';
+import { isBigInt, toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -42,6 +42,16 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
             field: 'testField',
             input: 10,
             output: 10
+        },
+        {
+            args: { value: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Long } }
+            },
+            field: 'testField',
+            input: 10,
+            output: 5
         }
     ],
     create({ value }, inputConfig) {
@@ -67,7 +77,11 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
 function divideFP(value: bigint): (input: unknown) => bigint;
 function divideFP(value: number): (input: unknown) => number;
 function divideFP(value: number|bigint): (input: unknown) => number|bigint {
+    const bigInt = isBigInt(value);
     return function _divide(num) {
+        if (bigInt && !isBigInt(num)) {
+            return toBigIntOrThrow(num) / (value as bigint);
+        }
         return (num as number) / (value as number);
     };
 }

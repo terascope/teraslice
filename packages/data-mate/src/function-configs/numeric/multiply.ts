@@ -1,4 +1,4 @@
-import { toBigIntOrThrow } from '@terascope/utils';
+import { isBigInt, toBigIntOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -41,6 +41,15 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         field: 'testField',
         input: 10,
         output: -20
+    }, {
+        args: { value: 2 },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Long } }
+        },
+        field: 'testField',
+        input: 10,
+        output: 20
     }],
     create({ value }, inputConfig) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
@@ -65,7 +74,11 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
 function multiplyFP(value: bigint): (input: unknown) => bigint;
 function multiplyFP(value: number): (input: unknown) => number;
 function multiplyFP(value: number|bigint): (input: unknown) => number|bigint {
+    const bigInt = isBigInt(value);
     return function _multiply(num) {
+        if (bigInt && !isBigInt(num)) {
+            return toBigIntOrThrow(num) * (value as bigint);
+        }
         return (num as number) * (value as number);
     };
 }
