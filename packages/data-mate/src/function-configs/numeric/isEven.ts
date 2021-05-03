@@ -11,7 +11,7 @@ export const isEvenConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Check to see if a number is even',
+    description: 'Check if a number is even',
     examples: [
         {
             args: {},

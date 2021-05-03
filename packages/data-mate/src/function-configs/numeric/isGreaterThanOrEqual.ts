@@ -15,7 +15,7 @@ export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqua
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Check to see if a number is greater than or equal to the specified value',
+    description: 'Check if a number is greater than or equal to the specified value',
     examples: [
         {
             args: { value: 100 },

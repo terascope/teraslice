@@ -68,7 +68,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to divide'
+            description: 'Value to divide against the input'
         }
     },
     required_arguments: ['value']

@@ -78,7 +78,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to add'
+            description: 'Value to add to the input'
         }
     },
     required_arguments: ['value']

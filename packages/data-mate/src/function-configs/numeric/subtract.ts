@@ -78,7 +78,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to subtract, defaults to 1'
+            description: 'Value to subtract from the input'
         }
     },
 };

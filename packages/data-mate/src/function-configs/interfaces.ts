@@ -70,7 +70,8 @@ export interface FunctionDefinitionExample<T extends Record<string, any>> {
 
 export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /**
-     * The name of the function, this should be consider case-insensitive
+     * The name of the function, this should be considered case-insensitive,
+     * since some languages like SQL are case insensitive.
     */
     readonly name: string;
 

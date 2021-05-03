@@ -12,7 +12,7 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Check to see if a number exists within a given min and max value, this can configured to be inclusive or exclusive',
+    description: 'Checks if a number is within a given min and max value, optionally inclusive or exclusive',
     examples: [
         {
             args: { min: 100, max: 110 },

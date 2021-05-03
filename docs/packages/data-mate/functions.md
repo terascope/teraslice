@@ -116,7 +116,7 @@ Must be represented in a Language Tags (BCP 47)
 
 ##### Arguments
 
- - **value**: (required) `Number` - How much to add
+ - **value**: (required) `Number` - Value to add to the input
 
 ##### Accepts
 
@@ -218,7 +218,7 @@ Must be represented in a Language Tags (BCP 47)
 
 ##### Arguments
 
- - **value**: (required) `Number` - How much to divide
+ - **value**: (required) `Number` - Value to divide against the input
 
 ##### Accepts
 
@@ -304,7 +304,7 @@ Must be represented in a Language Tags (BCP 47)
 
 ##### Arguments
 
- - **value**: (required) `Number` - How much to multiply
+ - **value**: (required) `Number` - Value to multiply against the input
 
 ##### Accepts
 
@@ -360,7 +360,7 @@ Must be represented in a Language Tags (BCP 47)
 
 ##### Arguments
 
- - **value**:  `Number` - How much to subtract, defaults to 1
+ - **value**:  `Number` - Value to subtract from the input
 
 ##### Accepts
 
@@ -496,7 +496,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `inNumberRange` (FIELD_VALIDATION)
 
-> Check to see if a number exists within a given min and max value, this can configured to be inclusive or exclusive
+> Checks if a number is within a given min and max value, optionally inclusive or exclusive
 
 ##### Arguments
 
@@ -530,7 +530,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isEven` (FIELD_VALIDATION)
 
-> Check to see if a number is even
+> Check if a number is even
 
 ##### Accepts
 
@@ -548,7 +548,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isGreaterThan` (FIELD_VALIDATION)
 
-> Check to see if a number is greater than the specified value
+> Check if a number is greater than the specified value
 
 ##### Arguments
 
@@ -578,7 +578,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isGreaterThanOrEqualTo` (FIELD_VALIDATION)
 
-> Check to see if a number is greater than or equal to the specified value
+> Check if a number is greater than or equal to the specified value
 
 ##### Arguments
 
@@ -608,7 +608,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isLessThan` (FIELD_VALIDATION)
 
-> Check to see if a number is less than the specified value
+> Check if a number is less than the specified value
 
 ##### Arguments
 
@@ -638,7 +638,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isLessThanOrEqualTo` (FIELD_VALIDATION)
 
-> Check to see if a number is less than or equal to the specified value
+> Check if a number is less than or equal to the specified value
 
 ##### Arguments
 
@@ -668,7 +668,7 @@ Must be represented in a Language Tags (BCP 47)
 
 #### `isOdd` (FIELD_VALIDATION)
 
-> Check to see if a number is odd
+> Check if a number is odd
 
 ##### Accepts
 
@@ -1529,7 +1529,14 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"	trim this" => trim(chars: "") // outputs "	trim this"
+"
+
+trim this
+
+" => trim(chars: "
+") // outputs "
+
+trim this"
 ```
 
 ```ts
@@ -1621,5 +1628,3 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```ts
 "Hello world" => truncate(size: 8) // outputs "Hello wo"
 ```
-
-
