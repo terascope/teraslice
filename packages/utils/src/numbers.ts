@@ -131,8 +131,6 @@ export function toIntegerOrThrow(input: unknown): number {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
     }
 
-    if (isNumber(input)) return Math.trunc(input);
-
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);
         if (typeof val === 'string') {
@@ -140,6 +138,8 @@ export function toIntegerOrThrow(input: unknown): number {
         }
         return val;
     }
+
+    if (isInteger(input) || isFloat(input)) return Math.trunc(input);
 
     if (!isNumberLike(input)) {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
