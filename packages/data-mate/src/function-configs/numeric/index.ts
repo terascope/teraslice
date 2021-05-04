@@ -25,6 +25,10 @@ import { isGreaterThanOrEqualToConfig } from './isGreaterThanOrEqual';
 import { isLessThanConfig } from './isLessThan';
 import { isLessThanOrEqualToConfig } from './isLessThanOrEqual';
 import { isOddConfig } from './isOdd';
+import { logConfig } from './log';
+import { log10Config } from './log10';
+import { log1pConfig } from './log1p';
+import { log2Config } from './log2';
 import { modulusConfig } from './modulus';
 import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
@@ -62,6 +66,10 @@ export const numericRepository = {
     isLessThan: isLessThanConfig,
     isLessThanOrEqualTo: isLessThanOrEqualToConfig,
     isOdd: isOddConfig,
+    log: logConfig,
+    log1p: log1pConfig,
+    log2: log2Config,
+    log10: log10Config,
     modulus: modulusConfig,
     multiply: multiplyConfig,
     multiplyValues: multiplyValuesConfig,
