@@ -32,6 +32,8 @@ import { log2Config } from './log2';
 import { modulusConfig } from './modulus';
 import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
+import { powConfig } from './pow';
+import { roundConfig } from './round';
 import { subtractConfig } from './subtract';
 import { subtractValuesConfig } from './subtractValues';
 import { toCelsiusConfig } from './toCelsius';
@@ -73,6 +75,8 @@ export const numericRepository = {
     modulus: modulusConfig,
     multiply: multiplyConfig,
     multiplyValues: multiplyValuesConfig,
+    pow: powConfig,
+    round: roundConfig,
     subtract: subtractConfig,
     subtractValues: subtractValuesConfig,
     toCelsius: toCelsiusConfig,
