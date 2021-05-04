@@ -6,6 +6,11 @@ import { addValuesConfig } from './addValues';
 import { asinConfig } from './asin';
 import { asinhConfig } from './asinh';
 import { atanConfig } from './atan';
+import { cbrtConfig } from './cbrt';
+import { ceilConfig } from './ceil';
+import { clz32Config } from './clz32';
+import { cosConfig } from './cos';
+import { coshConfig } from './cosh';
 import { divideConfig } from './divide';
 import { divideValuesConfig } from './divideValues';
 import { inNumberRangeConfig } from './inNumberRange';
@@ -32,6 +37,11 @@ export const numericRepository = {
     addValues: addValuesConfig,
     asin: asinConfig,
     asinh: asinhConfig,
+    cbrt: cbrtConfig,
+    ceil: ceilConfig,
+    clz32: clz32Config,
+    cos: cosConfig,
+    cosh: coshConfig,
     atan: atanConfig,
     divide: divideConfig,
     divideValues: divideValuesConfig,
