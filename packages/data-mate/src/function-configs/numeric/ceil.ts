@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const ceilConfig: FieldTransformConfig = {
     name: 'ceil',
@@ -46,7 +46,7 @@ export const ceilConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return ceil;
+        return runMathFn(Math.ceil);
     },
     accepts: [
         FieldType.Number,
@@ -61,7 +61,3 @@ export const ceilConfig: FieldTransformConfig = {
         };
     }
 };
-
-function ceil(num: unknown): number {
-    return Math.ceil(toFloatOrThrow(num));
-}

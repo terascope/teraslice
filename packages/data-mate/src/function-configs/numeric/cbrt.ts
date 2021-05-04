@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const cbrtConfig: FieldTransformConfig = {
     name: 'cbrt',
@@ -36,7 +36,7 @@ export const cbrtConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return cbrt;
+        return runMathFn(Math.cbrt);
     },
     accepts: [
         FieldType.Number,
@@ -51,11 +51,3 @@ export const cbrtConfig: FieldTransformConfig = {
         };
     }
 };
-
-function cbrt(num: unknown): number|null {
-    const value = Math.cbrt(toFloatOrThrow(num));
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}

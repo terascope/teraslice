@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const cosConfig: FieldTransformConfig = {
     name: 'cos',
@@ -46,7 +46,7 @@ export const cosConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return cos;
+        return runMathFn(Math.cos);
     },
     accepts: [
         FieldType.Number,
@@ -61,11 +61,3 @@ export const cosConfig: FieldTransformConfig = {
         };
     }
 };
-
-function cos(num: unknown): number|null {
-    const value = Math.cos(toFloatOrThrow(num));
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}

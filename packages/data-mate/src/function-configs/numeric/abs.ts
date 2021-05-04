@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const absConfig: FieldTransformConfig = {
     name: 'abs',
@@ -26,14 +26,10 @@ export const absConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return abs;
+        return runMathFn(Math.abs);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {},
 };
-
-function abs(num: unknown): number {
-    return Math.abs(toFloatOrThrow(num));
-}

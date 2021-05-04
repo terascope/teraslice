@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const clz32Config: FieldTransformConfig = {
     name: 'clz32',
@@ -46,7 +46,7 @@ export const clz32Config: FieldTransformConfig = {
         }
     ],
     create() {
-        return clz32;
+        return runMathFn(Math.clz32);
     },
     accepts: [
         FieldType.Number,
@@ -61,7 +61,3 @@ export const clz32Config: FieldTransformConfig = {
         };
     }
 };
-
-function clz32(num: unknown): number {
-    return Math.clz32(toFloatOrThrow(num));
-}

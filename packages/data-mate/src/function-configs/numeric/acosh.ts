@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const acoshConfig: FieldTransformConfig = {
     name: 'acosh',
@@ -33,11 +33,14 @@ export const acoshConfig: FieldTransformConfig = {
             field: 'testField',
             input: 0,
             fails: true,
-            output: 'Expected value greater than or equal to 0, got 0'
+            output: 'Expected value greater than 0, got 0'
         }
     ],
     create() {
-        return acosh;
+        return runMathFn(Math.acosh, (num) => {
+            if (num > 0) return;
+            throw new TypeError(`Expected value greater than 0, got ${num}`);
+        });
     },
     accepts: [
         FieldType.Number,
@@ -52,15 +55,3 @@ export const acoshConfig: FieldTransformConfig = {
         };
     }
 };
-
-function acosh(num: unknown): number|null {
-    const float = toFloatOrThrow(num);
-    if (float < 1) {
-        throw new TypeError(`Expected value greater than or equal to 0, got ${float}`);
-    }
-    const value = Math.acosh(float);
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}

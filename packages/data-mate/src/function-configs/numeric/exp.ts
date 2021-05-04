@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const expConfig: FieldTransformConfig = {
     name: 'exp',
@@ -36,7 +36,7 @@ export const expConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return exp;
+        return runMathFn(Math.exp);
     },
     accepts: [
         FieldType.Number,
@@ -51,11 +51,3 @@ export const expConfig: FieldTransformConfig = {
         };
     }
 };
-
-function exp(num: unknown): number|null {
-    const value = Math.exp(toFloatOrThrow(num));
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}

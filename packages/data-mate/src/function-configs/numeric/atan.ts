@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const atanConfig: FieldTransformConfig = {
     name: 'atan',
@@ -26,7 +26,7 @@ export const atanConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return atan;
+        return runMathFn(Math.atan);
     },
     accepts: [
         FieldType.Number,
@@ -41,11 +41,3 @@ export const atanConfig: FieldTransformConfig = {
         };
     }
 };
-
-function atan(num: unknown): number|null {
-    const value = Math.atan(toFloatOrThrow(num));
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}

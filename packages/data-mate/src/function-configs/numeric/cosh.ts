@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const coshConfig: FieldTransformConfig = {
     name: 'cosh',
@@ -36,7 +36,7 @@ export const coshConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return cosh;
+        return runMathFn(Math.cosh);
     },
     accepts: [
         FieldType.Number,
@@ -51,11 +51,3 @@ export const coshConfig: FieldTransformConfig = {
         };
     }
 };
-
-function cosh(num: unknown): number|null {
-    const value = Math.cosh(toFloatOrThrow(num));
-    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
-        return null;
-    }
-    return value;
-}
