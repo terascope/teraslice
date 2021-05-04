@@ -34,6 +34,7 @@ import { modulusConfig } from './modulus';
 import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
 import { powConfig } from './pow';
+import { randomConfig } from './random';
 import { roundConfig } from './round';
 import { signConfig } from './sign';
 import { sinConfig } from './sin';
@@ -84,6 +85,7 @@ export const numericRepository = {
     multiply: multiplyConfig,
     multiplyValues: multiplyValuesConfig,
     pow: powConfig,
+    random: randomConfig,
     round: roundConfig,
     sign: signConfig,
     sin: sinConfig,
