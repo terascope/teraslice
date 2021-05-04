@@ -34,7 +34,7 @@ export const isCIDRConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.Number } } },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'badIPAddress/24',
             output: null,

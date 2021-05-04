@@ -33,7 +33,7 @@ export const inIPRangeConfig: FieldValidateConfig = {
         },
         {
             args: { min: 'fd00::123' },
-            config: { version: 1, fields: { testField: { type: FieldType.Number } } },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'fd00::b000',
             output: 'fd00::b000',

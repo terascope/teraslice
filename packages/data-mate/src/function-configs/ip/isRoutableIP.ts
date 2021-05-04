@@ -34,7 +34,7 @@ export const isRoutableIPConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.Number } } },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2001:4:112::',
             output: null,

@@ -34,7 +34,7 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.Number } } },
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '8.8.8.8',
             output: null,

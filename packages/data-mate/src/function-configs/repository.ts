@@ -4,6 +4,7 @@ import { jsonRepository } from './json';
 import { numericRepository } from './numeric';
 import { objectRepository } from './object';
 import { stringRepository } from './string';
+import { ipRepository } from './ip';
 
 export const functionConfigRepository = {
     ...booleanRepository,
@@ -11,5 +12,6 @@ export const functionConfigRepository = {
     ...jsonRepository,
     ...numericRepository,
     ...objectRepository,
-    ...stringRepository
+    ...stringRepository,
+    ...ipRepository
 } as const;
