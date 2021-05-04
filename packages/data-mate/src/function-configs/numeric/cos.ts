@@ -62,6 +62,10 @@ export const cosConfig: FieldTransformConfig = {
     }
 };
 
-function cos(num: unknown): number {
-    return Math.cos(toFloatOrThrow(num));
+function cos(num: unknown): number|null {
+    const value = Math.cos(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

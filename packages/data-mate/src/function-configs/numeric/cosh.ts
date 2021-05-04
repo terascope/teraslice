@@ -52,6 +52,10 @@ export const coshConfig: FieldTransformConfig = {
     }
 };
 
-function cosh(num: unknown): number {
-    return Math.cosh(toFloatOrThrow(num));
+function cosh(num: unknown): number|null {
+    const value = Math.cosh(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

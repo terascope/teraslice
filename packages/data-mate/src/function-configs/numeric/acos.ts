@@ -42,6 +42,10 @@ export const acosConfig: FieldTransformConfig = {
     }
 };
 
-function acos(num: unknown): number {
-    return Math.acos(toFloatOrThrow(num));
+function acos(num: unknown): number|null {
+    const value = Math.acos(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

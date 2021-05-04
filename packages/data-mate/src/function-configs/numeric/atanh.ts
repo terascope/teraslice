@@ -7,12 +7,12 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces';
 
-export const acoshConfig: FieldTransformConfig = {
-    name: 'acosh',
+export const atanhConfig: FieldTransformConfig = {
+    name: 'atanh',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, it will throw.',
+    description: 'Returns the arctangent (in radians) of the given number',
     examples: [
         {
             args: {},
@@ -21,8 +21,8 @@ export const acoshConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: 1,
-            output: 0
+            input: 0.5,
+            output: 0.5493061443340548
         },
         {
             args: {},
@@ -31,13 +31,13 @@ export const acoshConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: 0,
-            fails: true,
-            output: 'Expected value greater than or equal to 0, got 0'
+            input: -1,
+            output: null,
+            description: 'Typically this would return -Infinity but that cannot be stored or serialized so null is returned'
         }
     ],
     create() {
-        return acosh;
+        return atanh;
     },
     accepts: [
         FieldType.Number,
@@ -47,18 +47,14 @@ export const acoshConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Float
+                type: FieldType.Number
             }
         };
     }
 };
 
-function acosh(num: unknown): number|null {
-    const float = toFloatOrThrow(num);
-    if (float < 1) {
-        throw new TypeError(`Expected value greater than or equal to 0, got ${float}`);
-    }
-    const value = Math.acosh(float);
+function atanh(num: unknown): number|null {
+    const value = Math.atanh(toFloatOrThrow(num));
     if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
         return null;
     }

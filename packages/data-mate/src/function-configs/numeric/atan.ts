@@ -42,6 +42,10 @@ export const atanConfig: FieldTransformConfig = {
     }
 };
 
-function atan(num: unknown): number {
-    return Math.atan(toFloatOrThrow(num));
+function atan(num: unknown): number|null {
+    const value = Math.atan(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

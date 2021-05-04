@@ -42,6 +42,10 @@ export const asinhConfig: FieldTransformConfig = {
     }
 };
 
-function asinh(num: unknown): number {
-    return Math.asinh(toFloatOrThrow(num));
+function asinh(num: unknown): number|null {
+    const value = Math.asinh(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

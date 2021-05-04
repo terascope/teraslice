@@ -52,6 +52,10 @@ export const cbrtConfig: FieldTransformConfig = {
     }
 };
 
-function cbrt(num: unknown): number {
-    return Math.cbrt(toFloatOrThrow(num));
+function cbrt(num: unknown): number|null {
+    const value = Math.cbrt(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }

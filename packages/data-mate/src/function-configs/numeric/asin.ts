@@ -34,6 +34,10 @@ export const asinConfig: FieldTransformConfig = {
     argument_schema: {},
 };
 
-function asin(num: unknown): number {
-    return Math.asin(toFloatOrThrow(num));
+function asin(num: unknown): number|null {
+    const value = Math.asin(toFloatOrThrow(num));
+    if (value === Number.NEGATIVE_INFINITY || value === Number.POSITIVE_INFINITY) {
+        return null;
+    }
+    return value;
 }
