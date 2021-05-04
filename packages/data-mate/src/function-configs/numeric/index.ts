@@ -14,6 +14,8 @@ import { cosConfig } from './cos';
 import { coshConfig } from './cosh';
 import { divideConfig } from './divide';
 import { divideValuesConfig } from './divideValues';
+import { expConfig } from './exp';
+import { expm1Config } from './expm1';
 import { inNumberRangeConfig } from './inNumberRange';
 import { isEvenConfig } from './isEven';
 import { isGreaterThanConfig } from './isGreaterThan';
@@ -47,6 +49,8 @@ export const numericRepository = {
     cosh: coshConfig,
     divide: divideConfig,
     divideValues: divideValuesConfig,
+    exp: expConfig,
+    expm1: expm1Config,
     inNumberRange: inNumberRangeConfig,
     isEven: isEvenConfig,
     isGreaterThan: isGreaterThanConfig,
