@@ -34,8 +34,14 @@ import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
 import { powConfig } from './pow';
 import { roundConfig } from './round';
+import { signConfig } from './sign';
+import { sinConfig } from './sin';
+import { sinhConfig } from './sinh';
+import { sqrtConfig } from './sqrt';
 import { subtractConfig } from './subtract';
 import { subtractValuesConfig } from './subtractValues';
+import { tanConfig } from './tan';
+import { tanhConfig } from './tanh';
 import { toCelsiusConfig } from './toCelsius';
 import { toFahrenheitConfig } from './toFahrenheit';
 import { toPrecisionConfig } from './toPrecision';
@@ -77,8 +83,14 @@ export const numericRepository = {
     multiplyValues: multiplyValuesConfig,
     pow: powConfig,
     round: roundConfig,
+    sign: signConfig,
+    sin: sinConfig,
+    sinh: sinhConfig,
+    sqrt: sqrtConfig,
     subtract: subtractConfig,
     subtractValues: subtractValuesConfig,
+    tan: tanConfig,
+    tanh: tanhConfig,
     toCelsius: toCelsiusConfig,
     toFahrenheit: toFahrenheitConfig,
     toPrecision: toPrecisionConfig,
