@@ -1,4 +1,5 @@
 import validator from 'validator';
+
 import {
     trim as lTrim,
     trimEnd as lTrimEnd,
@@ -500,6 +501,22 @@ export function isCountryCode(input: unknown): boolean {
     return isString(input) && validator.isISO31661Alpha2(input);
 }
 
+export function isPostalCode(input: unknown, locale: validator.PostalCodeLocale | 'any' = 'any'): boolean {
+    return validator.isPostalCode(toString(input), locale);
+}
+
+export function isPort(input: unknown): boolean {
+    return validator.isPort(toString(input));
+}
+
+export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLocale): boolean {
+    return isString(input) && validator.isAlphanumeric(input, locale);
+}
+
+export function isMIMEType(input: unknown): boolean {
+    return validator.isMimeType(toString(input));
+}
+
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
@@ -521,10 +538,15 @@ export function parseList(input: unknown): string[] {
     return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
+type JoinListType = string|number|boolean|symbol|null|undefined;
 /**
  * Create a sentence from a list (all items will be unique, empty values will be skipped)
 */
-export function joinList(input: (string|number|boolean|symbol|null|undefined)[], sep = ',', join = 'and'): string {
+export function joinList(
+    input: (JoinListType)[]|readonly (JoinListType)[],
+    sep = ',',
+    join = 'and'
+): string {
     if (!Array.isArray(input)) {
         throw new Error('joinList requires input to be a array');
     }

@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { isObjectEntity } from '@terascope/utils';
+import {
+    bigIntToJSON, hasOwn, isBigInt, isObjectEntity
+} from '@terascope/utils';
 import {
     functionAdapter,
     dataFrameAdapter,
@@ -44,11 +46,13 @@ export function functionTestHarness<T extends Record<string, any>>(
         describe('when using the function adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
-                    expect(functionAdapter(fnDef, {
-                        args: testCase.args,
-                        field: testCase.field,
-                        config: testCase.config
-                    }).column([input])).toEqual([testCase.output]);
+                    expect(serializeBigIntegers(
+                        functionAdapter(fnDef, {
+                            args: testCase.args,
+                            field: testCase.field,
+                            config: testCase.config
+                        }).column([input])
+                    )).toEqual([testCase.output]);
                 } else {
                     verifyObjectEntity(input);
                     expect(functionAdapter(fnDef, {
@@ -127,7 +131,7 @@ export function functionTestHarness<T extends Record<string, any>>(
 
             if (!failureCases.length) return;
 
-            test.each(failureCases)('should handle the input %p with args %p', (input, _a, testCase) => {
+            test.each(failureCases)('should throw if given the input %p with args %p', (input, _a, testCase) => {
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field
@@ -174,4 +178,20 @@ export function functionTestHarness<T extends Record<string, any>>(
 function verifyObjectEntity(data: unknown): asserts data is Record<string, unknown> {
     if (isObjectEntity(data)) return;
     throw new Error('Record transformations require record data as test input');
+}
+
+function serializeBigIntegers(input: unknown): any {
+    if (isBigInt(input)) return bigIntToJSON(input);
+
+    if (input == null || typeof input !== 'object') return input;
+    if (Array.isArray(input)) {
+        return input.map(serializeBigIntegers);
+    }
+    const obj = {};
+    for (const prop in obj) {
+        if (hasOwn(obj, prop)) {
+            obj[prop] = serializeBigIntegers(obj[prop]);
+        }
+    }
+    return obj;
 }
