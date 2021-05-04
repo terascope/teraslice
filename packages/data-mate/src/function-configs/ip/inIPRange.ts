@@ -47,7 +47,9 @@ export const inIPRangeConfig: FieldValidateConfig = {
         }
     ],
     description: 'Checks if the ip is within a range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa.',
-    create() { return inIPRange; },
+    create(args: InIPRangeArgs) {
+        return (input: unknown) => inIPRange(input, args);
+    },
     accepts: [FieldType.String],
     argument_schema: {
         min: {

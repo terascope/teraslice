@@ -20,10 +20,10 @@ export function isCIDR(input: unknown): boolean {
     return isString(input) && validateCidr(input) > 0;
 }
 
-export function reverseIP(input: string): string {
+export function reverseIP(input: unknown): string {
     if (!isIP(input)) throw Error('input must be a valid ip address');
 
-    const parsedIp = ipaddr.parse(input);
+    const parsedIp = ipaddr.parse(input as string);
 
     if (parsedIp.kind() === 'ipv4') {
         return (parsedIp as IPv4).octets.reverse().join('.');
@@ -55,22 +55,22 @@ function expandIPv6Part(part: string) {
 }
 
 export function inIPRange(
-    input: string,
+    input: unknown,
     args: { min?: string; max?: string; cidr?: string }
 ): boolean {
     if (!isIP(input)) return false;
 
     if (args.cidr) {
-        return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input);
+        return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input as string);
     }
 
-    const ipType = _isIP.version(input);
+    const ipType = _isIP.version(input as string);
 
     const min = args.min || _assignMin(ipType as number);
     const max = args.max || _assignMax(ipType as number);
 
     return _validMinAndMax(min, max)
-        && ip6addr.createAddrRange(min, max).contains(input);
+        && ip6addr.createAddrRange(min, max).contains(input as string);
 }
 
 function _assignMin(ipType: number, min?: string): string {

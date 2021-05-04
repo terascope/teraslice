@@ -2,12 +2,12 @@ import { reverseIP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const reverseIPConfig: FieldValidateConfig = {
+export const reverseIPConfig: FieldTransformConfig = {
     name: 'reverseIP',
-    type: FunctionDefinitionType.FIELD_VALIDATION,
+    type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.IP,
     examples: [
