@@ -6,6 +6,7 @@ import { addValuesConfig } from './addValues';
 import { asinConfig } from './asin';
 import { asinhConfig } from './asinh';
 import { atanConfig } from './atan';
+import { atan2Config } from './atan2';
 import { atanhConfig } from './atanh';
 import { cbrtConfig } from './cbrt';
 import { ceilConfig } from './ceil';
@@ -18,6 +19,7 @@ import { expConfig } from './exp';
 import { expm1Config } from './expm1';
 import { floorConfig } from './floor';
 import { froundConfig } from './fround';
+import { hypotConfig } from './hypot';
 import { inNumberRangeConfig } from './inNumberRange';
 import { isEvenConfig } from './isEven';
 import { isGreaterThanConfig } from './isGreaterThan';
@@ -57,6 +59,7 @@ export const numericRepository = {
     asin: asinConfig,
     asinh: asinhConfig,
     atan: atanConfig,
+    atan2: atan2Config,
     atanh: atanhConfig,
     cbrt: cbrtConfig,
     ceil: ceilConfig,
@@ -69,6 +72,7 @@ export const numericRepository = {
     expm1: expm1Config,
     floor: floorConfig,
     fround: froundConfig,
+    hypot: hypotConfig,
     inNumberRange: inNumberRangeConfig,
     isEven: isEvenConfig,
     isGreaterThan: isGreaterThanConfig,
