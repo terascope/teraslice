@@ -1,4 +1,3 @@
-import { getTypeOf, isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -8,10 +7,7 @@ import {
 } from '../interfaces';
 
 function _toLowerCase(input: unknown): string {
-    if (!isString(input)) {
-        throw new Error(`Invalid input ${JSON.stringify(input)}, expected string got ${getTypeOf(input)}`);
-    }
-    return input.toLowerCase();
+    return String(input).toLowerCase();
 }
 
 export const toLowerCaseConfig: FieldTransformConfig = {

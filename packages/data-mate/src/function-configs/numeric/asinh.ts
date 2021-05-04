@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const asinhConfig: FieldTransformConfig = {
     name: 'asinh',
@@ -26,7 +26,7 @@ export const asinhConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return asinh;
+        return runMathFn(Math.asinh);
     },
     accepts: [
         FieldType.Number,
@@ -41,7 +41,3 @@ export const asinhConfig: FieldTransformConfig = {
         };
     }
 };
-
-function asinh(num: unknown): number {
-    return Math.asinh(toFloatOrThrow(num));
-}

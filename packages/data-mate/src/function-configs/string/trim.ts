@@ -1,5 +1,5 @@
 import {
-    trim, isNotNil, isString, getTypeOf
+    trimFP, isNotNil, isString, getTypeOf
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -95,8 +95,8 @@ export const trimConfig: FieldTransformConfig<TrimArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from string',
     examples,
-    create({ chars } = {}) {
-        return (input: unknown) => trim(input, chars);
+    create({ chars }) {
+        return trimFP(chars);
     },
     accepts: [FieldType.String],
     argument_schema: {

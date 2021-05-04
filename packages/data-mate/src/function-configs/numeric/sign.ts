@@ -7,22 +7,37 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const acoshConfig: FieldTransformConfig = {
-    name: 'acosh',
+export const signConfig: FieldTransformConfig = {
+    name: 'sign',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned',
+    description: `Returns a number representing the sign of the given argument:
+- If the argument is positive, returns 1
+- If the argument is negative, returns -1
+- If the argument is positive zero, returns 0
+- If the argument is negative zero, returns -0
+- Otherwise, null is returned`,
     examples: [
         {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.Float } }
+                fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
-            input: 1,
-            output: 0
+            input: 3,
+            output: 1
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: -3,
+            output: -1
         },
         {
             args: {},
@@ -32,12 +47,11 @@ export const acoshConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: 0,
-            output: null,
-            description: 'Since this function doesn\'t work with numbers <=0, null will be returned'
+            output: 0
         }
     ],
     create() {
-        return runMathFn(Math.acosh);
+        return runMathFn(Math.sign);
     },
     accepts: [
         FieldType.Number,
@@ -47,7 +61,7 @@ export const acoshConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Float
+                type: FieldType.Byte
             }
         };
     }

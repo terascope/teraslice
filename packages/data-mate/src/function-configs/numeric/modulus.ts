@@ -18,6 +18,7 @@ function isLargeNumberType(type: FieldType|undefined) {
 
 export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
     name: 'modulus',
+    aliases: ['mod'],
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,

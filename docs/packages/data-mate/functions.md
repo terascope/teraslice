@@ -110,7 +110,7 @@ Must be represented in a Language Tags (BCP 47)
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, it will throw.
+> Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned
 
 #### Accepts
 
@@ -122,8 +122,9 @@ Must be represented in a Language Tags (BCP 47)
 1 => acosh() // outputs 0
 ```
 
+Since this function doesn't work with numbers <=0, null will be returned
 ```ts
-0 => acosh() // throws Expected value greater than or equal to 0, got 0
+0 => acosh() // outputs null
 ```
 
 ### `add`
@@ -238,6 +239,163 @@ Must be represented in a Language Tags (BCP 47)
 1 => atan() // outputs 0.7853981633974483
 ```
 
+### `atan2`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the angle in the plane (in radians) between the positive x-axis and the ray from (0,0) to the point (x,y), for atan2(y,x)
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[15, 90] => atan2() // outputs 1.4056476493802699
+```
+
+```ts
+[90, 15] => atan2() // outputs 0.16514867741462683
+```
+
+```ts
+[-90, null] => atan2() // throws Expected (x, y) coordinates, got [-90,null] (Array)
+```
+
+### `atanh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the arctangent (in radians) of the given number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0.5 => atanh() // outputs 0.5493061443340548
+```
+
+Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+```ts
+-1 => atanh() // outputs null
+```
+
+### `cbrt`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the cube root of a number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+64 => cbrt() // outputs 4
+```
+
+```ts
+1 => cbrt() // outputs 1
+```
+
+### `ceil`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Rounds a number up to the next largest integer
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0.95 => ceil() // outputs 1
+```
+
+```ts
+0.1 => ceil() // outputs 1
+```
+
+```ts
+-7.004 => ceil() // outputs -7
+```
+
+### `clz32`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the number of leading zero bits in the 32-bit binary representation of a number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => clz32() // outputs 31
+```
+
+```ts
+1000 => clz32() // outputs 22
+```
+
+```ts
+4 => clz32() // outputs 29
+```
+
+### `cos`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the cosine of the specified angle, which must be specified in radians
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => cos() // outputs 1
+```
+
+```ts
+3.141592653589793 => cos() // outputs -1
+```
+
+```ts
+6.283185307179586 => cos() // outputs 1
+```
+
+### `cosh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hyperbolic cosine of a number, that can be expressed using the constant e
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => cosh() // outputs 1
+```
+
+```ts
+3.141592653589793 => cosh() // outputs 11.591953275521519
+```
+
 ### `divide`
 
 **Type:** `FIELD_TRANSFORM`
@@ -298,9 +456,258 @@ Must be represented in a Language Tags (BCP 47)
 2 => divideValues() // outputs 2
 ```
 
+### `exp`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a number representing `e^x`, where `e` is Euler's number and `x` is the argument
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => exp() // outputs 1
+```
+
+```ts
+1 => exp() // outputs 2.718281828459045
+```
+
+### `expm1`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a number representing `e^x - 1`, where `e` is Euler's number and `x` is the argument.
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => expm1() // outputs 0
+```
+
+```ts
+1 => expm1() // outputs 1.718281828459045
+```
+
+### `floor`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Rounds a number down to the next largest integer
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0.95 => floor() // outputs 0
+```
+
+```ts
+0.1 => floor() // outputs 0
+```
+
+```ts
+-7.004 => floor() // outputs -8
+```
+
+### `fround`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the nearest 32-bit single precision float representation of the given number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+5.5 => fround() // outputs 5.5
+```
+
+```ts
+-5.05 => fround() // outputs -5.050000190734863
+```
+
+### `hypot`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the square root of the sum of squares of the given arguments. If at least one of the arguments cannot be converted to a number, null is returned
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[3, 4] => hypot() // outputs 5
+```
+
+```ts
+[5, 12] => hypot() // outputs 13
+```
+
+```ts
+[3, 4, null, 5] => hypot() // outputs 7.0710678118654755
+```
+
+```ts
+null => hypot() // outputs null
+```
+
+### `log`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the natural logarithm (base e) of the given number. If the number is negative, null is returned
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => log() // outputs 0
+```
+
+```ts
+10 => log() // outputs 2.302585092994046
+```
+
+```ts
+-1 => log() // outputs null
+```
+
+### `log1p`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the natural logarithm (base e) of 1 plus the given number. If the number is less than -1, null is returned.
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => log1p() // outputs 0.6931471805599453
+```
+
+```ts
+0 => log1p() // outputs 0
+```
+
+Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+```ts
+-1 => log1p() // outputs null
+```
+
+Typically this would return NaN but that cannot be stored or serialized so null is returned
+```ts
+-2 => log1p() // outputs null
+```
+
+### `log2`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the base 2 logarithm of the given number. If the number is negative, null is returned
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+2 => log2() // outputs 1
+```
+
+Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+```ts
+0 => log2() // outputs null
+```
+
+```ts
+-2 => log2() // outputs null
+```
+
+### `log10`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the base 10 logarithm of the given number. If the number is negative, null is returned
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+10 => log10() // outputs 1
+```
+
+Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+```ts
+0 => log10() // outputs null
+```
+
+```ts
+-2 => log10() // outputs null
+```
+
+### `minValues`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Get the minimum value in an array, this requires an array to function correctly
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+[100, 10] => minValues() // outputs 10
+```
+
+```ts
+[10] => minValues() // outputs 10
+```
+
+```ts
+[10, 100000, 2] => minValues() // outputs 2
+```
+
+```ts
+[[10, null], 100000, [2], null] => minValues() // outputs 2
+```
+
+```ts
+2 => minValues() // outputs 2
+```
+
 ### `modulus`
 
 **Type:** `FIELD_TRANSFORM`
+**Aliases:** `mod`
 
 > Calculate the modulus from the specified value
 
@@ -390,6 +797,174 @@ Must be represented in a Language Tags (BCP 47)
 2 => multiplyValues() // outputs 2
 ```
 
+### `pow`
+
+**Type:** `FIELD_TRANSFORM`
+**Aliases:** `power`
+
+> Returns a number representing the given base taken to the power of the given exponent
+
+#### Arguments
+
+ - **exp**: (required) `Integer` - The exponent used to raise the base
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+7 => pow(exp: 3) // outputs 343
+```
+
+```ts
+4 => pow(exp: 0.5) // outputs 2
+```
+
+### `random`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Generate a random number between a given range
+
+#### Arguments
+
+ - **min**: (required) `Number` - The minimum value in the range
+
+ - **max**: (required) `Number` - The maximum value in the range
+
+#### Examples
+
+```ts
+1 => random(min: 1, max: 1) // outputs 1
+```
+
+### `round`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the value of a number rounded to the nearest integer.
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0.95 => round() // outputs 1
+```
+
+```ts
+0.1 => round() // outputs 0
+```
+
+```ts
+-7.004 => round() // outputs -7
+```
+
+### `sign`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a number representing the sign of the given argument:
+>- If the argument is positive, returns 1
+>- If the argument is negative, returns -1
+>- If the argument is positive zero, returns 0
+>- If the argument is negative zero, returns -0
+>- Otherwise, null is returned
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+3 => sign() // outputs 1
+```
+
+```ts
+-3 => sign() // outputs -1
+```
+
+```ts
+0 => sign() // outputs 0
+```
+
+### `sin`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the sine of the given number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => sin() // outputs 0
+```
+
+```ts
+1 => sin() // outputs 0.8414709848078965
+```
+
+```ts
+1.5707963267948966 => sin() // outputs 1
+```
+
+### `sinh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hyperbolic sine of a number, that can be expressed using the constant e
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+0 => sinh() // outputs 0
+```
+
+```ts
+1 => sinh() // outputs 1.1752011936438014
+```
+
+```ts
+-1 => sinh() // outputs -1.1752011936438014
+```
+
+### `sqrt`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the square root of a number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+9 => sqrt() // outputs 3
+```
+
+```ts
+2 => sqrt() // outputs 1.4142135623730951
+```
+
+```ts
+-1 => sqrt() // outputs null
+```
+
 ### `subtract`
 
 **Type:** `FIELD_TRANSFORM`
@@ -452,6 +1027,42 @@ Must be represented in a Language Tags (BCP 47)
 
 ```ts
 2 => subtractValues() // outputs 2
+```
+
+### `tan`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the tangent of a number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+1 => tan() // outputs 1.5574077246549023
+```
+
+### `tanh`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hyperbolic tangent of a number
+
+#### Accepts
+
+- `Number`
+
+#### Examples
+
+```ts
+-1 => tanh() // outputs -0.7615941559557649
+```
+
+```ts
+0 => tanh() // outputs 0
 ```
 
 ### `toCelsius`
@@ -1562,6 +2173,39 @@ If digest is not provided, it defaults to hex
 ["hello", "more"] => reverse() // outputs ["olleh", "erom"]
 ```
 
+### `split`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char
+
+#### Arguments
+
+ - **delimiter**:  `String` - The char used to identify where to split the string
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+"astring" => split() // outputs ["a", "s", "t", "r", "i", "n", "g"]
+```
+
+Delimiter is not found so the whole input is returned
+```ts
+"astring" => split(delimiter: ",") // outputs ["astring"]
+```
+
+```ts
+"a-stri-ng" => split(delimiter: "-") // outputs ["a", "stri", "ng"]
+```
+
+```ts
+"a string" => split(delimiter: " ") // outputs ["a", "string"]
+```
+
 ### `toCamelCase`
 
 **Type:** `FIELD_TRANSFORM`
@@ -1839,7 +2483,14 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"	trim this" => trim(chars: "") // outputs "	trim this"
+"
+
+trim this
+
+" => trim(chars: "
+") // outputs "
+
+trim this"
 ```
 
 ```ts
@@ -1937,5 +2588,3 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```ts
 "Hello world" => truncate(size: 8) // outputs "Hello wo"
 ```
-
-

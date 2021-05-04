@@ -7,13 +7,23 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const atanConfig: FieldTransformConfig = {
-    name: 'atan',
+export const expm1Config: FieldTransformConfig = {
+    name: 'expm1',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the arctangent (in radians) of the given number',
+    description: 'Returns a number representing `e^x - 1`, where `e` is Euler\'s number and `x` is the argument.',
     examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 0,
+            output: 0
+        },
         {
             args: {},
             config: {
@@ -22,11 +32,11 @@ export const atanConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: 1,
-            output: 0.7853981633974483
+            output: 1.718281828459045
         }
     ],
     create() {
-        return runMathFn(Math.atan);
+        return runMathFn(Math.expm1);
     },
     accepts: [
         FieldType.Number,

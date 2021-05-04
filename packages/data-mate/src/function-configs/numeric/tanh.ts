@@ -7,26 +7,36 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const atanConfig: FieldTransformConfig = {
-    name: 'atan',
+export const tanhConfig: FieldTransformConfig = {
+    name: 'tanh',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the arctangent (in radians) of the given number',
+    description: 'Returns the hyperbolic tangent of a number',
     examples: [
         {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.Float } }
+                fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
-            input: 1,
-            output: 0.7853981633974483
+            input: -1,
+            output: -0.7615941559557649
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 0,
+            output: 0
         }
     ],
     create() {
-        return runMathFn(Math.atan);
+        return runMathFn(Math.tanh);
     },
     accepts: [
         FieldType.Number,

@@ -7,12 +7,12 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const atanConfig: FieldTransformConfig = {
-    name: 'atan',
+export const froundConfig: FieldTransformConfig = {
+    name: 'fround',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the arctangent (in radians) of the given number',
+    description: 'Returns the nearest 32-bit single precision float representation of the given number',
     examples: [
         {
             args: {},
@@ -21,12 +21,22 @@ export const atanConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: 1,
-            output: 0.7853981633974483
-        }
+            input: 5.5,
+            output: 5.5
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Float } }
+            },
+            field: 'testField',
+            input: -5.05,
+            output: -5.050000190734863
+        },
     ],
     create() {
-        return runMathFn(Math.atan);
+        return runMathFn(Math.fround);
     },
     accepts: [
         FieldType.Number,

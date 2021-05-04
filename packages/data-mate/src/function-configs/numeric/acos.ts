@@ -1,4 +1,3 @@
-import { toFloatOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -6,6 +5,7 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory,
 } from '../interfaces';
+import { runMathFn } from './utils';
 
 export const acosConfig: FieldTransformConfig = {
     name: 'acos',
@@ -26,7 +26,7 @@ export const acosConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return acos;
+        return runMathFn(Math.acos);
     },
     accepts: [
         FieldType.Number,
@@ -41,7 +41,3 @@ export const acosConfig: FieldTransformConfig = {
         };
     }
 };
-
-function acos(num: unknown): number {
-    return Math.acos(toFloatOrThrow(num));
-}
