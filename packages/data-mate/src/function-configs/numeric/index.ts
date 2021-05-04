@@ -16,6 +16,8 @@ import { divideConfig } from './divide';
 import { divideValuesConfig } from './divideValues';
 import { expConfig } from './exp';
 import { expm1Config } from './expm1';
+import { floorConfig } from './floor';
+import { froundConfig } from './fround';
 import { inNumberRangeConfig } from './inNumberRange';
 import { isEvenConfig } from './isEven';
 import { isGreaterThanConfig } from './isGreaterThan';
@@ -51,6 +53,8 @@ export const numericRepository = {
     divideValues: divideValuesConfig,
     exp: expConfig,
     expm1: expm1Config,
+    floor: floorConfig,
+    fround: froundConfig,
     inNumberRange: inNumberRangeConfig,
     isEven: isEvenConfig,
     isGreaterThan: isGreaterThanConfig,
