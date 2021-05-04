@@ -7,22 +7,33 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const acoshConfig: FieldTransformConfig = {
-    name: 'acosh',
+export const log10Config: FieldTransformConfig = {
+    name: 'log10',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned',
+    description: 'Returns the base 10 logarithm of the given number. If the number is negative, null is returned',
     examples: [
         {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.Float } }
+                fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
-            input: 1,
-            output: 0
+            input: 10,
+            output: 1
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Byte } }
+            },
+            field: 'testField',
+            input: 0,
+            output: null,
+            description: 'Typically this would return -Infinity but that cannot be stored or serialized so null is returned'
         },
         {
             args: {},
@@ -31,13 +42,12 @@ export const acoshConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: 0,
-            output: null,
-            description: 'Since this function doesn\'t work with numbers <=0, null will be returned'
-        }
+            input: -2,
+            output: null
+        },
     ],
     create() {
-        return runMathFn(Math.acosh);
+        return runMathFn(Math.log10);
     },
     accepts: [
         FieldType.Number,

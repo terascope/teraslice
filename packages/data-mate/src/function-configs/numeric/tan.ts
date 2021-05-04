@@ -7,26 +7,26 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const atanConfig: FieldTransformConfig = {
-    name: 'atan',
+export const tanConfig: FieldTransformConfig = {
+    name: 'tan',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the arctangent (in radians) of the given number',
+    description: 'Returns the tangent of a number',
     examples: [
         {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.Float } }
+                fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
             input: 1,
-            output: 0.7853981633974483
+            output: 1.5574077246549023
         }
     ],
     create() {
-        return runMathFn(Math.atan);
+        return runMathFn(Math.tan);
     },
     accepts: [
         FieldType.Number,

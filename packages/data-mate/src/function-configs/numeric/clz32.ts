@@ -7,22 +7,32 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const acoshConfig: FieldTransformConfig = {
-    name: 'acosh',
+export const clz32Config: FieldTransformConfig = {
+    name: 'clz32',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned',
+    description: 'Returns the number of leading zero bits in the 32-bit binary representation of a number',
     examples: [
         {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.Float } }
+                fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
             input: 1,
-            output: 0
+            output: 31
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: 1000,
+            output: 22
         },
         {
             args: {},
@@ -31,13 +41,12 @@ export const acoshConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: 0,
-            output: null,
-            description: 'Since this function doesn\'t work with numbers <=0, null will be returned'
+            input: 4,
+            output: 29
         }
     ],
     create() {
-        return runMathFn(Math.acosh);
+        return runMathFn(Math.clz32);
     },
     accepts: [
         FieldType.Number,
@@ -47,7 +56,7 @@ export const acoshConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Float
+                type: FieldType.Byte
             }
         };
     }

@@ -7,12 +7,12 @@ import {
 } from '../interfaces';
 import { runMathFn } from './utils';
 
-export const atanConfig: FieldTransformConfig = {
-    name: 'atan',
+export const cbrtConfig: FieldTransformConfig = {
+    name: 'cbrt',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the arctangent (in radians) of the given number',
+    description: 'Returns the cube root of a number',
     examples: [
         {
             args: {},
@@ -21,12 +21,22 @@ export const atanConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
+            input: 64,
+            output: 4
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Float } }
+            },
+            field: 'testField',
             input: 1,
-            output: 0.7853981633974483
+            output: 1
         }
     ],
     create() {
-        return runMathFn(Math.atan);
+        return runMathFn(Math.cbrt);
     },
     accepts: [
         FieldType.Number,
@@ -36,7 +46,7 @@ export const atanConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Float
+                type: FieldType.Number
             }
         };
     }
