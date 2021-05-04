@@ -4,12 +4,17 @@ import {
 } from '@terascope/types';
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
-    inGeoBoundingBoxFP, geoContainsPoint, geoContainsPointFP
+    inGeoBoundingBoxFP, geoContainsPoint, geoContainsPointFP,
+    geoPointWithinRange, geoPointWithinRangeFP
 } from '../src/geo';
 
 describe('geo utils', () => {
     describe('->parseGeoPoint', () => {
-        type Case = [msg: string, input: GeoPointInput, output: GeoPoint|null];
+        type Case = [
+            msg: string,
+            input: GeoPointInput,
+            output: GeoPoint|null
+        ];
         const testCases: Case[] = [
             [
                 'parse a geo point in array',
@@ -129,7 +134,9 @@ describe('geo utils', () => {
             msg: string,
             topLeft: GeoPointInput,
             bottomRight: GeoPointInput,
-            input: GeoPointInput, output: boolean];
+            input: GeoPointInput,
+            output: boolean
+        ];
         const testCases: Case[] = [
             [
                 'parse a geo point in a string',
@@ -157,7 +164,9 @@ describe('geo utils', () => {
             msg: string,
             topLeft: GeoPointInput,
             bottomRight: GeoPointInput,
-            input: GeoPointInput, output: boolean];
+            input: GeoPointInput,
+            output: boolean
+        ];
         const testCases: Case[] = [
             [
                 'parse a geo point in a string',
@@ -184,7 +193,9 @@ describe('geo utils', () => {
         type Case = [
             msg: string,
             shape: GeoShape,
-            input: GeoPointInput, output: boolean];
+            input: GeoPointInput,
+            output: boolean
+        ];
         const testCases: Case[] = [
             [
                 'point matches multi-polygon',
@@ -257,7 +268,9 @@ describe('geo utils', () => {
         type Case = [
             msg: string,
             shape: GeoShape,
-            input: GeoPointInput, output: boolean];
+            input: GeoPointInput,
+            output: boolean
+        ];
         const testCases: Case[] = [
             [
                 'point matches multi-polygon',
@@ -323,6 +336,66 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, shape, input, output) => {
             expect(geoContainsPointFP(input)(shape)).toEqual(output);
+        });
+    });
+
+    describe('->geoPointWithinRange', () => {
+        type Case = [
+            msg: string,
+            point: GeoPointInput,
+            distance: string,
+            input: GeoPointInput,
+            output: boolean
+        ];
+        const testCases: Case[] = [
+            [
+                'parse a geo point in a string',
+                '33.435518,-111.873616',
+                '5000m',
+                '33.435967,-111.867710',
+                true
+            ],
+            [
+                'parse a geo point in a string',
+                '33.435518,-111.873616',
+                '5000m',
+                '22.435967,-150.867710',
+                false
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+            expect(geoPointWithinRange(topLeft, bottomRight, input)).toEqual(output);
+        });
+    });
+
+    describe('->geoPointWithinRangeFP', () => {
+        type Case = [
+            msg: string,
+            point: GeoPointInput,
+            distance: string,
+            input: GeoPointInput,
+            output: boolean
+        ];
+        const testCases: Case[] = [
+            [
+                'parse a geo point in a string',
+                '33.435518,-111.873616',
+                '5000m',
+                '33.435967,-111.867710',
+                true
+            ],
+            [
+                'parse a geo point in a string',
+                '33.435518,-111.873616',
+                '5000m',
+                '22.435967,-150.867710',
+                false
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+            expect(geoPointWithinRangeFP(topLeft, bottomRight)(input)).toEqual(output);
         });
     });
 });

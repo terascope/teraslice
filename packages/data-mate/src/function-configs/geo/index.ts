@@ -1,4 +1,5 @@
 import { geoBoxConfig } from './geoBox';
+import { geoDistanceConfig } from './geoDistance';
 import { geoContainsPointConfig } from './geoShapeContainsPoint';
 import { isGeoJSONConfig } from './isGeoJSON';
 import { isGeoPointConfig } from './isGeoPoint';
@@ -9,6 +10,7 @@ import { toGeoPointConfig } from './toGeoPoint';
 
 export const geoRepository = {
     geoBox: geoBoxConfig,
+    geoDistance: geoDistanceConfig,
     geoContainsPoint: geoContainsPointConfig,
     isGeoJSON: isGeoJSONConfig,
     isGeoPoint: isGeoPointConfig,

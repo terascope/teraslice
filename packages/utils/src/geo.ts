@@ -200,7 +200,6 @@ export function inGeoBoundingBoxFP(
     const bottomRight = parseGeoPoint(bottom_right);
 
     const polygon = makeGeoBBox(topLeft, bottomRight);
-
     if (polygon == null) {
         throw new Error(`Invalid bounding box created from topLeft: ${topLeft}, bottomRight: ${bottomRight}`);
     }
@@ -225,6 +224,11 @@ export function geoContainsPoint(
 ): boolean {
     const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
     const turfPoint = tPoint(geoPoint);
+
+    if (turfPoint == null) {
+        throw new Error(`Invalid point: ${point}`);
+    }
+
     return pointInGeoShape(turfPoint)(geoShape);
 }
 
@@ -233,6 +237,11 @@ export function geoContainsPointFP(
 ): (shape: unknown) => boolean {
     const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
     const turfPoint = tPoint(geoPoint);
+
+    if (turfPoint == null) {
+        throw new Error(`Invalid point: ${point}`);
+    }
+
     return pointInGeoShape(turfPoint);
 }
 
@@ -255,4 +264,42 @@ function pointInGeoShape(searchPoint: Feature<any, Properties>|Geometry) {
         if (!polygon) return false;
         return pointInPolygon(searchPoint as any, polygon);
     };
+}
+
+export function makeGeoCircle(
+    point: GeoPoint, distance: number, unitVal?: GeoDistanceUnit
+): Feature<Polygon>|undefined {
+    // There is a mismatch between elasticsearch and turf on "inch" naming
+    const units = unitVal === 'inch' ? 'inches' : unitVal;
+    return createCircle(makeCoordinatesFromGeoPoint(point), distance, { units });
+}
+
+export function geoPointWithinRange(
+    startingPoint: GeoPointInput, distanceValue: string, point: GeoPointInput
+): boolean {
+    const sPoint = parseGeoPoint(startingPoint);
+    const { distance, unit } = parseGeoDistance(distanceValue);
+
+    const polygon = makeGeoCircle(sPoint, distance, unit);
+
+    if (polygon == null) {
+        throw new Error(`Invalid startingPoint: ${startingPoint}`);
+    }
+
+    return polyHasPoint(polygon)(point);
+}
+
+export function geoPointWithinRangeFP(
+    startingPoint: GeoPointInput, distanceValue: string
+): (input: GeoPointInput) => boolean {
+    const sPoint = parseGeoPoint(startingPoint);
+    const { distance, unit } = parseGeoDistance(distanceValue);
+
+    const polygon = makeGeoCircle(sPoint, distance, unit);
+
+    if (polygon == null) {
+        throw new Error(`Invalid startingPoint: ${startingPoint}`);
+    }
+
+    return polyHasPoint(polygon);
 }
