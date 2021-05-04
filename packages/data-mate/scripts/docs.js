@@ -103,7 +103,7 @@ function generateFunctionDoc(fnDef) {
 
 **Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
-> ${firstToUpper(fnDef.description)}`.trim(),
+> ${firstToUpper(fnDef.description).split('\n').join('\n>')}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
