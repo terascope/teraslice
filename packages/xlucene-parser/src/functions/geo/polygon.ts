@@ -1,10 +1,12 @@
 import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
-import { toString } from '@terascope/utils';
 import {
-    polyHasPoint,
-    makeShape,
-    polyHasShape,
+    toString,
+    makeGeoShape,
+    geoPolygonFP,
+    geoPolyHasPoint
+} from '@terascope/utils';
+import {
     validateListCoords
 } from './helpers';
 import * as i from '../../interfaces';
@@ -209,22 +211,22 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function polyToGeoPointMatcher() {
-            const polygon = makeShape(polygonShape);
+            const polygon = makeGeoShape(polygonShape);
             // Nothing matches so return false
             if (polygon == null) return () => false;
-            return polyHasPoint(polygon);
+            return geoPolyHasPoint(polygon);
         }
 
-        function polyToGeoShapeMatcher() {
-            const polygon = makeShape(polygonShape);
-            // Nothing matches so return false
-            if (polygon == null) return () => false;
-            return polyHasShape(polygon, relation);
+        if (targetIsGeoPoint) {
+            return {
+                match: polyToGeoPointMatcher(),
+                toElasticsearchQuery: esPolyToPointQuery
+            };
         }
 
         return {
-            match: targetIsGeoPoint ? polyToGeoPointMatcher() : polyToGeoShapeMatcher(),
-            toElasticsearchQuery: targetIsGeoPoint ? esPolyToPointQuery : esPolyToPolyQuery
+            match: geoPolygonFP(polygonShape, relation),
+            toElasticsearchQuery: esPolyToPolyQuery
         };
     }
 };
