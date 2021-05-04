@@ -25,6 +25,7 @@ import { isStringConfig } from './isString';
 import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
 import { reverseConfig } from './reverse';
+import { splitConfig } from './split';
 import { toCamelCaseConfig } from './toCamelCase';
 import { toISDNConfig } from './toISDN';
 import { toKebabCaseConfig } from './toKebabCase';
@@ -67,6 +68,7 @@ export const stringRepository = {
     isURL: isURLConfig,
     isUUID: isUUIDConfig,
     reverse: reverseConfig,
+    split: splitConfig,
     toCamelCase: toCamelCaseConfig,
     toISDN: toISDNConfig,
     toKebabCase: toKebabCaseConfig,

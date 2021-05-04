@@ -1,5 +1,5 @@
 import {
-    trimEnd, isNotNil, isString, getTypeOf
+    trimEndFP, isNotNil, isString, getTypeOf
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -58,8 +58,8 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from end of string',
     examples,
-    create({ chars } = {}) {
-        return (input: unknown) => trimEnd(input, chars);
+    create({ chars }) {
+        return trimEndFP(chars);
     },
     accepts: [FieldType.String],
     argument_schema: {

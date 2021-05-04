@@ -2173,6 +2173,39 @@ If digest is not provided, it defaults to hex
 ["hello", "more"] => reverse() // outputs ["olleh", "erom"]
 ```
 
+### `split`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char
+
+#### Arguments
+
+ - **delimiter**:  `String` - The char used to identify where to split the string
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+"astring" => split() // outputs ["a", "s", "t", "r", "i", "n", "g"]
+```
+
+Delimiter is not found so the whole input is returned
+```ts
+"astring" => split(delimiter: ",") // outputs ["astring"]
+```
+
+```ts
+"a-stri-ng" => split(delimiter: "-") // outputs ["a", "stri", "ng"]
+```
+
+```ts
+"a string" => split(delimiter: " ") // outputs ["a", "string"]
+```
+
 ### `toCamelCase`
 
 **Type:** `FIELD_TRANSFORM`
@@ -2450,7 +2483,14 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"	trim this" => trim(chars: "") // outputs "	trim this"
+"
+
+trim this
+
+" => trim(chars: "
+") // outputs "
+
+trim this"
 ```
 
 ```ts
@@ -2548,5 +2588,3 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```ts
 "Hello world" => truncate(size: 8) // outputs "Hello wo"
 ```
-
-

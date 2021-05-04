@@ -4,11 +4,11 @@ import {
     FunctionDefinitionExample, FunctionDefinitionCategory
 } from '../interfaces';
 
-export interface SplitStringArgs {
+export interface SplitArgs {
     delimiter?: string;
 }
 
-const examples: FunctionDefinitionExample<SplitStringArgs>[] = [
+const examples: FunctionDefinitionExample<SplitArgs>[] = [
     {
         args: {},
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
@@ -22,7 +22,7 @@ const examples: FunctionDefinitionExample<SplitStringArgs>[] = [
         field: 'testField',
         input: 'astring',
         output: ['astring'],
-        description: 'Delimiter is not found, so it is not split'
+        description: 'Delimiter is not found so the whole input is returned'
     },
     {
         args: { delimiter: '-' },
@@ -40,15 +40,15 @@ const examples: FunctionDefinitionExample<SplitStringArgs>[] = [
     },
 ];
 
-export const splitStringConfig: FieldTransformConfig<SplitStringArgs> = {
-    name: 'splitString',
+export const splitConfig: FieldTransformConfig<SplitArgs> = {
+    name: 'split',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: ' Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char',
+    description: 'Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char',
     examples,
     create({ delimiter = '' }) {
-        return (input: unknown) => splitFn(input as string, delimiter);
+        return splitFn(delimiter);
     },
     accepts: [FieldType.String],
     argument_schema: {
@@ -68,6 +68,8 @@ export const splitStringConfig: FieldTransformConfig<SplitStringArgs> = {
     }
 };
 
-function splitFn(input: string, delimiter: string) {
-    input.split(delimiter);
+function splitFn(delimiter: string): (input: unknown) => string[] {
+    return function _split(input) {
+        return String(input).split(delimiter);
+    };
 }
