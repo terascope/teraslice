@@ -29,6 +29,7 @@ import { logConfig } from './log';
 import { log10Config } from './log10';
 import { log1pConfig } from './log1p';
 import { log2Config } from './log2';
+import { minValuesConfig } from './minValues';
 import { modulusConfig } from './modulus';
 import { multiplyConfig } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
@@ -78,6 +79,7 @@ export const numericRepository = {
     log1p: log1pConfig,
     log2: log2Config,
     log10: log10Config,
+    minValues: minValuesConfig,
     modulus: modulusConfig,
     multiply: multiplyConfig,
     multiplyValues: multiplyValuesConfig,
