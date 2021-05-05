@@ -166,7 +166,7 @@ export function CIDRMax(input: unknown): string {
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
-export function CIDRBroadcastAddress(input: unknown): string {
+export function CIDRBroadcast(input: unknown): string {
     if (isCIDR(input)) {
         const asCIDR = createCIDR(input as string);
 
@@ -178,7 +178,7 @@ export function CIDRBroadcastAddress(input: unknown): string {
     throw Error('input must be a valid IPv4 address in CIDR notation');
 }
 
-export function CIDRNetworkAddress(input: unknown): string {
+export function CIDRNetwork(input: unknown): string {
     if (isCIDR(input)) {
         const asCIDR = createCIDR(input as string);
 
