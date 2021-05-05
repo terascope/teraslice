@@ -49,7 +49,7 @@ function getMode<T extends Record<string, any>>(
 function transformColumnData<T extends Record<string, any>>(
     column: Column,
     transformConfig: FieldTransformConfig<T>,
-    args?: T
+    args: T
 ): Column {
     const err = validateAccepts(
         transformConfig.accepts,
@@ -63,21 +63,19 @@ function transformColumnData<T extends Record<string, any>>(
 
     const mode = getMode(transformConfig);
 
-    let inputConfig: DataTypeFieldAndChildren;
+    const inputConfig: DataTypeFieldAndChildren = {
+        field_config: column.config,
+        child_config: column.vector.childConfig
+    };
+    let outputConfig: DataTypeFieldAndChildren;
 
     if (transformConfig.output_type) {
-        inputConfig = transformConfig.output_type(
-            {
-                field_config: column.config,
-                child_config: column.vector.childConfig
-            },
+        outputConfig = transformConfig.output_type(
+            inputConfig,
             args
         );
     } else {
-        inputConfig = {
-            field_config: column.config,
-            child_config: column.vector.childConfig
-        };
+        outputConfig = inputConfig;
     }
 
     const options: ColumnOptions = {
@@ -101,7 +99,7 @@ function transformColumnData<T extends Record<string, any>>(
         mapVector(
             column.vector,
             columnTransformConfig,
-            inputConfig,
+            outputConfig,
         ),
         options
     );
@@ -175,7 +173,7 @@ function validateColumn<T extends Record<string, any>>(
 }
 
 function transformColumn<T extends Record<string, any>>(
-    config: FieldTransformConfig<T>, args?: T
+    config: FieldTransformConfig<T>, args: T
 ) {
     return function _transformColumn(column: Column): Column {
         return transformColumnData(column, config, args);
@@ -200,7 +198,7 @@ function validateFrame<T extends Record<string, any>>(
 
 function transformFrame<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
-    args?: T,
+    args: T,
     field?: string
 ) {
     return function _transformFrame(

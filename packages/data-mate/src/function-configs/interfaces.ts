@@ -24,6 +24,7 @@ export enum FunctionDefinitionCategory {
     NUMERIC = 'NUMERIC',
     OBJECT = 'OBJECT',
     STRING = 'STRING',
+    DATE = 'DATE',
 }
 
 export interface FunctionDefinitionExample<T extends Record<string, any>> {
@@ -138,7 +139,7 @@ export interface FieldTransformConfig<
     readonly process_mode: ProcessMode,
     readonly output_type?: (
         inputConfig: DataTypeFieldAndChildren,
-        args?: T
+        args: T
     ) => DataTypeFieldAndChildren;
     readonly create: (
         args: T,

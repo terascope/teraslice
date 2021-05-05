@@ -10,7 +10,7 @@ import {
     Vector
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
-import { WritableData } from '../core';
+import { numericTypes, stringTypes, WritableData } from '../core';
 import { DataTypeFieldAndChildren } from '../function-configs';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
@@ -28,9 +28,9 @@ export function getVectorId(vector: Vector<any>): string {
 export function mapVector<T, R = T>(
     vector: Vector<T>,
     transform: ColumnTransformFn<T, R>,
-    config: DataTypeFieldAndChildren,
+    outputConfig: DataTypeFieldAndChildren,
 ): Vector<R> {
-    const { field_config, child_config: childConfig = {} } = config;
+    const { field_config, child_config: childConfig = {} } = outputConfig;
 
     const builder = Builder.make<R>(
         new WritableData(vector.size),
@@ -118,30 +118,6 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-const numericTypes: ReadonlySet<FieldType> = new Set([
-    FieldType.Any,
-    FieldType.Number,
-    FieldType.Short,
-    FieldType.Integer,
-    FieldType.Float,
-    FieldType.Double,
-    FieldType.Byte,
-    FieldType.Long,
-]);
-
-const stringTypes: ReadonlySet<FieldType> = new Set([
-    FieldType.Any,
-    FieldType.String,
-    FieldType.Text,
-    FieldType.Keyword,
-    FieldType.KeywordCaseInsensitive,
-    FieldType.KeywordPathAnalyzer,
-    FieldType.KeywordTokens,
-    FieldType.KeywordTokensCaseInsensitive,
-    FieldType.Domain,
-    FieldType.Hostname,
-]);
-
 /**
  * This was created for validating the accepts
 */
@@ -168,7 +144,7 @@ export function validateAccepts(
         if (acceptType === FieldType.String && types.every((type) => stringTypes.has(type))) {
             return;
         }
-        if (types.every((type) => type === acceptType)) {
+        if (types.every((type) => type === acceptType || type === FieldType.Any)) {
             return;
         }
     }
