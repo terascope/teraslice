@@ -1,4 +1,4 @@
-import { DateFormat, FieldType, TimeResolution } from '@terascope/types';
+import { DateFormat, FieldType } from '@terascope/types';
 import { isUnixTimeFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
@@ -13,7 +13,7 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.',
+    description: 'Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number.',
     examples: [{
         args: { },
         config: {
@@ -81,20 +81,6 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
         field: 'testField',
         input: -102390933,
         output: -102390933
-    }, {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Date,
-                    time_resolution: TimeResolution.SECONDS
-                }
-            }
-        },
-        field: 'testField',
-        input: 102390933,
-        output: null
     }],
     argument_schema: {
         allowBefore1970: {
@@ -107,7 +93,6 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
             inputConfig?.field_config?.type === FieldType.Date && (
                 inputConfig.field_config.format === DateFormat.epoch
                 || inputConfig.field_config.format === DateFormat.seconds
-                || inputConfig.field_config.time_resolution === TimeResolution.SECONDS
             )
         ) {
             return alwaysFalse;

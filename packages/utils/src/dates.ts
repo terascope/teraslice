@@ -1,4 +1,5 @@
 import { bigIntToJSON, toInteger } from './numbers';
+import { isString } from './strings';
 
 /**
  * A helper function for making an ISODate string
@@ -80,6 +81,15 @@ export function isUnixTimeFP(allowBefore1970?: boolean) {
     return function _isUnixTime(input: unknown): input is number {
         return isUnixTime(input, allowBefore1970);
     };
+}
+
+/**
+ * Checks to see if an input is a ISO 8061 date
+*/
+export function isISO8061(input: unknown): input is string {
+    if (!isString(input)) return false;
+
+    return new Date(input).toISOString() === input;
 }
 
 /**

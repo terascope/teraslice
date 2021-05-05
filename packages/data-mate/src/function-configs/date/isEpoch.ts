@@ -1,4 +1,4 @@
-import { DateFormat, FieldType, TimeResolution } from '@terascope/types';
+import { DateFormat, FieldType } from '@terascope/types';
 import { isUnixTimeFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
@@ -82,20 +82,6 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
         field: 'testField',
         input: -102390933,
         output: -102390933
-    }, {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Date,
-                    time_resolution: TimeResolution.MILLISECONDS
-                }
-            }
-        },
-        field: 'testField',
-        input: 102390933,
-        output: null
     }],
     argument_schema: {
         allowBefore1970: {
@@ -108,7 +94,6 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
             inputConfig?.field_config?.type === FieldType.Date && (
                 inputConfig.field_config.format === DateFormat.epoch_millis
                 || inputConfig.field_config.format === DateFormat.milliseconds
-                || inputConfig.field_config.time_resolution === TimeResolution.MILLISECONDS
             )
         ) {
             return alwaysFalse;
