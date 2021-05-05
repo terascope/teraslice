@@ -1,3 +1,5 @@
+import { bigIntToJSON, toInteger } from './numbers';
+
 /**
  * A helper function for making an ISODate string
  */
@@ -27,6 +29,12 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
         return val;
     }
 
+    if (typeof val === 'bigint') {
+        // eslint-disable-next-line no-param-reassign
+        val = bigIntToJSON(val);
+        if (typeof val === 'string') return false;
+    }
+
     if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
         return false;
     }
@@ -53,6 +61,25 @@ export function getUnixTime(val?: string|number|Date): number | false {
     const time = getTime(val);
     if (time !== false) return Math.floor(time / 1000);
     return time;
+}
+
+/**
+ * Checks to see if an input is a unix time
+*/
+export function isUnixTime(input: unknown, allowBefore1970 = true): input is number {
+    const value = toInteger(input);
+    if (value === false) return false;
+    if (allowBefore1970) return true;
+    return value >= 0;
+}
+
+/**
+ * A functional version of isUnixTime
+*/
+export function isUnixTimeFP(allowBefore1970?: boolean) {
+    return function _isUnixTime(input: unknown): input is number {
+        return isUnixTime(input, allowBefore1970);
+    };
 }
 
 /**

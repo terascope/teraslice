@@ -47,6 +47,15 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         input: 102390933000,
         output: '1973-03-31T01:55:33.000Z'
     }, {
+        args: { resolution: TimeResolution.MILLISECONDS },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Long } }
+        },
+        field: 'testField',
+        input: 102390933000,
+        output: '1973-03-31T01:55:33.000Z'
+    }, {
         args: {},
         config: {
             version: 1,

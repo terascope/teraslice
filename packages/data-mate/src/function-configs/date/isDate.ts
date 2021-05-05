@@ -65,7 +65,7 @@ Default: iso_8601 for strings and epoch_millis for number`
             return isValidDate;
         }
 
-        return function _isDate(input: unknown): boolean {
+        return function isDate(input: unknown): boolean {
             return isMatch(primitiveToString(input), format);
         };
     },
