@@ -2,13 +2,11 @@ import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
 import {
     toString,
-    makeGeoShape,
+    makeGeoFeature,
     geoPolygonFP,
-    geoPolyHasPoint
-} from '@terascope/utils';
-import {
+    geoPolyHasPoint,
     validateListCoords
-} from './helpers';
+} from '@terascope/utils';
 import * as i from '../../interfaces';
 import { getFieldValue, logger } from '../../utils';
 
@@ -211,7 +209,7 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function polyToGeoPointMatcher() {
-            const polygon = makeGeoShape(polygonShape);
+            const polygon = makeGeoFeature(polygonShape);
             // Nothing matches so return false
             if (polygon == null) return () => false;
             return geoPolyHasPoint(polygon);

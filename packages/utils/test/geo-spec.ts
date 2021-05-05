@@ -1,11 +1,13 @@
 import 'jest-extended';
 import {
-    GeoPoint, GeoPointInput, GeoShape, GeoShapeType
+    GeoPoint, GeoPointInput, GeoShape, GeoShapeType,
+    ESGeoShapeType, JoinGeoShape
 } from '@terascope/types';
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoContainsPoint, geoContainsPointFP,
-    geoPointWithinRange, geoPointWithinRangeFP
+    geoPointWithinRange, geoPointWithinRangeFP,
+    toGeoJSON,
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -396,6 +398,61 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
             expect(geoPointWithinRangeFP(topLeft, bottomRight)(input)).toEqual(output);
+        });
+    });
+
+    describe('->toGeoJSON', () => {
+        type Case = [
+            msg: string,
+            input: GeoPointInput | JoinGeoShape |GeoPointInput[],
+            output: GeoShape
+        ];
+        const testCases: Case[] = [
+            [
+                'parse a geo point to a geoJSON point',
+                '33.435518,-111.873616',
+                {
+                    type: GeoShapeType.Point,
+                    coordinates: [-111.873616, 33.435518]
+                }
+            ],
+            [
+                'parse a list geo point to a geoJSON polygon',
+                ['10,10', '10,50', '50,50', '50,10', '10,10'],
+                {
+                    type: GeoShapeType.Polygon,
+                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+                }
+            ],
+            [
+                'converts an Elasticsearch multi-polygon to a geoJSON multi-polygon',
+                {
+                    type: ESGeoShapeType.MultiPolygon,
+                    coordinates: [
+                        [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ],
+                        [
+                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        ]
+                    ]
+                },
+                {
+                    type: GeoShapeType.MultiPolygon,
+                    coordinates: [
+                        [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ],
+                        [
+                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        ]
+                    ]
+                }
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, input, output) => {
+            expect(toGeoJSON(input)).toEqual(output);
         });
     });
 });

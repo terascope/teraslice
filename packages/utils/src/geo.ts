@@ -310,18 +310,19 @@ export function geoPolygon(
     relation: GeoShapeRelation,
     inputShape: JoinGeoShape
 ): boolean {
-    const polygon = makeGeoShape(geoShape, true);
+    const polygon = makeGeoFeature(geoShape, true);
     return geoMatchesShape(polygon as Feature<any, Properties>, relation)(inputShape);
 }
 
 export function geoPolygonFP(
     geoShape: JoinGeoShape, relation: GeoShapeRelation
 ): (input: JoinGeoShape) => boolean {
-    const polygon = makeGeoShape(geoShape, true);
+    const polygon = makeGeoFeature(geoShape, true);
     return geoMatchesShape(polygon as Feature<any, Properties>, relation);
 }
 
-export function makeGeoShape(
+/** Converts a geoJSON object to its turf geo feature counterpart */
+export function makeGeoFeature(
     geoShape: JoinGeoShape, shouldThrowIfInvalid = true
 ): Feature<any>|undefined {
     if (isGeoShapePoint(geoShape)) {
@@ -348,7 +349,7 @@ export function geoMatchesShape(
 ): (fieldData: JoinGeoShape) => boolean {
     const match = getRelationFn(relation, queryPolygon);
     return (input) => {
-        const feature = makeGeoShape(input, false);
+        const feature = makeGeoFeature(input, false);
         // Nothing matches so return false
         if (!feature) return false;
         try {
@@ -392,4 +393,55 @@ export function getRelationFn(
     relation: GeoShapeRelation, queryPolygon: Feature<any>
 ): (field: Feature<any>) => boolean {
     return relationOptions[relation](queryPolygon);
+}
+
+const esTypeMap = {
+    [ESGeoShapeType.Point]: GeoShapeType.Point,
+    [ESGeoShapeType.MultiPolygon]: GeoShapeType.MultiPolygon,
+    [ESGeoShapeType.Polygon]: GeoShapeType.Polygon,
+} as const;
+
+/** Only able to convert geo-points to either a geo-json point or a simple polygon.
+ * There is no current support for creating polygon with holes or multi-polygon
+ * as of right now. geoJSON input is made sure to be properly formatted for its type value
+ */
+export function toGeoJSON(input: unknown): GeoShape {
+    if (isGeoJSON(input)) {
+        const { type: inputType } = input;
+        const type = esTypeMap[inputType] ? esTypeMap[inputType] : inputType;
+        return { ...input, type };
+    }
+
+    if (isGeoPoint(input)) {
+        const coordinates = makeCoordinatesFromGeoPoint(parseGeoPoint(input as GeoPointInput));
+        return {
+            type: GeoShapeType.Point,
+            coordinates
+        };
+    }
+
+    if (Array.isArray(input)) {
+        const points = input.map((point) => makeCoordinatesFromGeoPoint(
+            parseGeoPoint(point as GeoPointInput)
+        ));
+
+        const coordinates = validateListCoords(points);
+
+        return {
+            type: GeoShapeType.Polygon,
+            coordinates
+        };
+    }
+
+    throw new Error(`Cannot convert ${JSON.stringify(input)} to a geo-shape`);
+}
+
+export function validateListCoords(coords: CoordinateTuple[]): any[] {
+    if (coords.length < 3) {
+        throw new Error('Points parameter for a geoPolygon query must have at least three geo-points');
+    }
+    const line = lineString(coords);
+    const polygon = lineToPolygon(line);
+    // @ts-expect-error
+    return getCoords(polygon);
 }

@@ -15,8 +15,9 @@ export interface GeoPointWithinRangeArgs {
     distance: string
 }
 
-export const geoDistanceConfig: FieldValidateConfig<GeoPointWithinRangeArgs> = {
-    name: 'geoDistance',
+export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeArgs> = {
+    name: 'geoPointWithinRange',
+    aliases: ['geoDistance'],
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
@@ -36,7 +37,7 @@ export const geoDistanceConfig: FieldValidateConfig<GeoPointWithinRangeArgs> = {
             output: null,
         },
     ],
-    description: 'Checks to see if input geo-point is within range of the point and distance values',
+    description: 'Checks to see if input geo-point is within range of the point and distance values provided',
     create({ point, distance }) {
         const fn = geoPointWithinRangeFP(point, distance);
         return (input: unknown) => fn(input as GeoPointInput);

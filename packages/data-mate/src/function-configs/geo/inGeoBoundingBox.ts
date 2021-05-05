@@ -15,9 +15,10 @@ export interface PointInBoundingBoxArgs {
 // TODO: have a test example with FieldType.GeoPoint will cause the date-frame
 // to convert it to a parsed geoPoint, but the functionAdapter will not do so
 
-export const geoBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
-    name: 'geoBox',
+export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
+    name: 'inGeoBoundingBox',
     type: FunctionDefinitionType.FIELD_VALIDATION,
+    aliases: ['geoBox'],
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples: [

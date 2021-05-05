@@ -1,6 +1,6 @@
-import { geoBoxConfig } from './geoBox';
-import { geoDistanceConfig } from './geoDistance';
+import { geoPointWithinRangeConfig } from './geoPointWithinRange';
 import { geoContainsPointConfig } from './geoShapeContainsPoint';
+import { inGeoBoundingBoxConfig } from './inGeoBoundingBox';
 import { isGeoJSONConfig } from './isGeoJSON';
 import { isGeoPointConfig } from './isGeoPoint';
 import { isGeoShapeMultiPolygonConfig } from './isGeoShapeMultiPolygon';
@@ -9,9 +9,9 @@ import { isGeoShapePolygonConfig } from './isGeoShapePolygon';
 import { toGeoPointConfig } from './toGeoPoint';
 
 export const geoRepository = {
-    geoBox: geoBoxConfig,
-    geoDistance: geoDistanceConfig,
+    geoPointWithinRange: geoPointWithinRangeConfig,
     geoContainsPoint: geoContainsPointConfig,
+    inGeoBoundingBox: inGeoBoundingBoxConfig,
     isGeoJSON: isGeoJSONConfig,
     isGeoPoint: isGeoPointConfig,
     isGeoShapeMultiPolygon: isGeoShapeMultiPolygonConfig,
