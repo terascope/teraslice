@@ -1,8 +1,10 @@
 import _isIP from 'is-ip';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
+import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
+import { toInteger } from './numbers';
 
 export function isIP(input: unknown): boolean {
     return isString(input) && _isIP(input);
@@ -18,6 +20,56 @@ export function isIPV4(input: unknown): boolean {
 
 export function isCIDR(input: unknown): boolean {
     return isString(input) && validateCidr(input) > 0;
+}
+
+export function ipToInt(input: unknown): bigint {
+    if (isIP(input)) {
+        return parse(input as string).number;
+    }
+
+    throw Error('input must be a valid ip address');
+}
+
+export function intToIP(input: unknown, ipVersion: string | number): string {
+    const asInt = toInteger(input);
+
+    const version = validVersion(ipVersion);
+
+    if (asInt) {
+        return stringify({ number: BigInt(asInt), version });
+    }
+
+    throw Error('input must be an integer that can be converted to an ip address');
+}
+
+export function isMappedIPV4(input: unknown): boolean {
+    if (isIPV6(input)) {
+        const parsed = ipaddr.parse(input as string) as IPv6;
+
+        return parsed.isIPv4MappedAddress();
+    }
+
+    return false;
+}
+
+export function extractMappedIPV4(input: unknown): string {
+    if (isIPV6(input) && isMappedIPV4(input)) {
+        const parsed = ipaddr.parse(input as string) as IPv6;
+
+        const ipv4 = parsed.toIPv4Address();
+
+        return ipv4.octets.join('.');
+    }
+
+    throw Error('input must be a IPv4 address mapped to an IPv6 address');
+}
+
+function validVersion(version: string | number): 4 | 6 {
+    const toInt = toInteger(version);
+
+    if (toInt === 4 || toInt === 6) return toInt;
+
+    throw Error('version must be 4 or 6');
 }
 
 export function reverseIP(input: unknown): string {
