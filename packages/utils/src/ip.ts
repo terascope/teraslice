@@ -4,7 +4,7 @@ import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
-import { toInteger } from './numbers';
+import { toInteger, isNumberLike } from './numbers';
 
 export function isIP(input: unknown): boolean {
     return isString(input) && _isIP(input);
@@ -16,30 +16,6 @@ export function isIPV6(input: unknown): boolean {
 
 export function isIPV4(input: unknown): boolean {
     return isString(input) && _isIP.v4(input);
-}
-
-export function isCIDR(input: unknown): boolean {
-    return isString(input) && validateCidr(input) > 0;
-}
-
-export function ipToInt(input: unknown): bigint {
-    if (isIP(input)) {
-        return parse(input as string).number;
-    }
-
-    throw Error('input must be a valid ip address');
-}
-
-export function intToIP(input: unknown, ipVersion: string | number): string {
-    const asInt = toInteger(input);
-
-    const version = validVersion(ipVersion);
-
-    if (asInt) {
-        return stringify({ number: BigInt(asInt), version });
-    }
-
-    throw Error('input must be an integer that can be converted to an ip address');
 }
 
 export function isMappedIPV4(input: unknown): boolean {
@@ -61,49 +37,7 @@ export function extractMappedIPV4(input: unknown): string {
         return ipv4.octets.join('.');
     }
 
-    throw Error('input must be a IPv4 address mapped to an IPv6 address');
-}
-
-function validVersion(version: string | number): 4 | 6 {
-    const toInt = toInteger(version);
-
-    if (toInt === 4 || toInt === 6) return toInt;
-
-    throw Error('version must be 4 or 6');
-}
-
-export function reverseIP(input: unknown): string {
-    if (!isIP(input)) throw Error('input must be a valid ip address');
-
-    const parsedIp = ipaddr.parse(input as string);
-
-    if (parsedIp.kind() === 'ipv4') {
-        return (parsedIp as IPv4).octets.reverse().join('.');
-    }
-
-    return _reverseIPv6(parsedIp as IPv6);
-}
-
-function _reverseIPv6(ip: ipaddr.IPv6): string {
-    return ip.toNormalizedString().split(':').reduce((parts: string[], part: string) => {
-        parts.push(expandIPv6Part(part));
-
-        return parts;
-    }, [])
-        .join('')
-        .split('')
-        .reverse()
-        .join('.');
-}
-
-function expandIPv6Part(part: string) {
-    let expandedPart = part;
-
-    while (expandedPart.length < 4) {
-        expandedPart = `0${expandedPart}`;
-    }
-
-    return expandedPart;
+    throw Error('input must be an IPv4 address mapped to an IPv6 address');
 }
 
 export function inIPRange(
@@ -112,7 +46,7 @@ export function inIPRange(
 ): boolean {
     if (!isIP(input)) return false;
 
-    if (args.cidr) {
+    if (args.cidr != null) {
         return isCIDR(args.cidr) && ip6addr.createCIDR(args.cidr).contains(input as string);
     }
 
@@ -150,38 +84,27 @@ function _validMinAndMax(min: string, max: string): boolean {
 export function isRoutableIP(input: unknown):boolean {
     if (!isIP(input)) return false;
 
-    return !_privateIP(input as string);
+    return !_isPrivateIP(input as string);
 }
 
 export function isNonRoutableIP(input: unknown):boolean {
     if (!isIP(input)) return false;
 
-    return _privateIP(input as string);
+    return _isPrivateIP(input as string);
 }
 
-function _privateIP(input: string): boolean {
+function _isPrivateIP(input: string): boolean {
     const parsedIp = _parseIpAddress(input);
 
-    const ipRangeName = parsedIp.range();
-
-    return _inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp);
+    return _inPrivateIPRange(parsedIp.range()) || _inRestrictedIPRange(parsedIp);
 }
 
 function _parseIpAddress(input: string): ipaddr.IPv4 | ipaddr.IPv6 {
-    const ipv4Regex = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/;
-
-    const parsed = ipaddr.parse(input);
-
-    // if ipv6 mapped v4 then need to return the parsed ipv4 address
-    if (parsed.kind() === 'ipv6') {
-        const ipv4 = input.match(ipv4Regex);
-
-        if (ipv4 != null && Array.isArray(ipv4)) {
-            return ipaddr.parse(ipv4[0]);
-        }
+    if (isMappedIPV4(input)) {
+        return ipaddr.parse(extractMappedIPV4(input));
     }
 
-    return parsed;
+    return ipaddr.parse(input);
 }
 
 function _inPrivateIPRange(ipRange: string): boolean {
@@ -221,4 +144,130 @@ function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6): boolean {
     const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
 
     return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
+}
+
+export function isCIDR(input: unknown): boolean {
+    return isString(input) && validateCidr(input) > 0;
+}
+
+export function CIDRMin(input: unknown): string {
+    if (isCIDR(input)) {
+        return createCIDR(input as string).first().toString();
+    }
+
+    throw Error('input must be a valid IP address in CIDR notation');
+}
+
+export function CIDRMax(input: unknown): string {
+    if (isCIDR(input)) {
+        return createCIDR(input as string).last().toString();
+    }
+
+    throw Error('input must be a valid IP address in CIDR notation');
+}
+
+export function CIDRBroadcastAddress(input: unknown): string {
+    if (isCIDR(input)) {
+        const asCIDR = createCIDR(input as string);
+
+        if (isIPV4(asCIDR.address().toString())) {
+            return asCIDR.broadcast().toString();
+        }
+    }
+
+    throw Error('input must be a valid IPv4 address in CIDR notation');
+}
+
+export function CIDRNetworkAddress(input: unknown): string {
+    if (isCIDR(input)) {
+        const asCIDR = createCIDR(input as string);
+
+        const address = asCIDR.address().toString();
+
+        if (isIPV4(address)) {
+            return ipaddr.IPv4.networkAddressFromCIDR(input as string).octets.join('.');
+        }
+    }
+
+    throw Error('input must be a valid IPv4 address in CIDR notation');
+}
+
+export function toCIDR(input: unknown, suffix: string | number): string {
+    if (isIP(input) && _validSuffix(_isIP.version(input as string), suffix)) {
+        return createCIDR(input as string, toInteger(suffix) as number).toString();
+    }
+
+    throw Error('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
+}
+
+function _validSuffix(ipVersion: number | undefined, suffix: number | string): boolean {
+    if (isNumberLike(suffix)) {
+        const asInt = toInteger(suffix);
+
+        if (asInt < 0) return false;
+        if (ipVersion === 4) return asInt <= 32;
+        if (ipVersion === 6) return asInt <= 128;
+    }
+
+    return false;
+}
+
+function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
+    if (suffix != null) {
+        return ip6addr.createCIDR(input, suffix);
+    }
+
+    return ip6addr.createCIDR(input);
+}
+
+export function IPToInt(input: unknown): bigint {
+    if (isIP(input)) {
+        return parse(input as string).number;
+    }
+
+    throw Error('input must be a valid ip address');
+}
+
+export function intToIP(input: unknown, ipVersion: string | number): string {
+    const versionAsInt = toInteger(ipVersion);
+
+    if (isNumberLike(input) && (versionAsInt === 4 || versionAsInt === 6)) {
+        return stringify({ number: BigInt(input), version: versionAsInt });
+    }
+
+    throw Error('input must be an integer and version must be 4 or 6');
+}
+
+export function reverseIP(input: unknown): string {
+    if (!isIP(input)) throw Error('input must be a valid ip address');
+
+    const parsedIp = ipaddr.parse(input as string);
+
+    if (parsedIp.kind() === 'ipv4') {
+        return (parsedIp as IPv4).octets.reverse().join('.');
+    }
+
+    return _reverseIPv6(parsedIp as IPv6);
+}
+
+function _reverseIPv6(ip: ipaddr.IPv6): string {
+    return ip.toNormalizedString().split(':').reduce((parts: string[], part: string) => {
+        parts.push(_expandIPv6Part(part));
+
+        return parts;
+    }, [])
+        .join('')
+        .split('')
+        .reverse()
+        .join('.');
+}
+
+function _expandIPv6Part(part: string) {
+    let expandedPart = part;
+
+    while (expandedPart.length < 4) {
+        expandedPart = `0${expandedPart}`;
+    }
+
+    return expandedPart;
 }
