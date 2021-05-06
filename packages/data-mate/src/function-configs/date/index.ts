@@ -1,3 +1,4 @@
+import { addToDateConfig } from './addToDate';
 import { isDateConfig } from './isDate';
 import { isEpochConfig } from './isEpoch';
 import { isEpochMillisConfig } from './isEpochMillis';
@@ -10,6 +11,7 @@ import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
 
 export const dateRepository = {
+    addToDate: addToDateConfig,
     isDate: isDateConfig,
     isEpoch: isEpochConfig,
     isEpochMillis: isEpochMillisConfig,

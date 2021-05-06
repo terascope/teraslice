@@ -61,22 +61,26 @@ export function parseDateValue(
  * Format the parsed date value
 */
 export function formatDateValue(
-    value: number,
+    value: Date|number,
     format: DateFormat|string|undefined,
 ): string|number {
     if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
-        return value;
+        const ms = value instanceof Date ? value.getTime() : value;
+        return ms;
     }
 
     if (format === DateFormat.epoch || format === DateFormat.seconds) {
-        return Math.floor(value / 1000);
+        const ms = value instanceof Date ? value.getTime() : value;
+        return Math.floor(ms / 1000);
     }
 
     if (format && !(format in DateFormat)) {
+        const ms = value instanceof Date ? value.getTime() : value;
         // need subtract our offset here to
         // in order to deal with UTC time
-        return formatDate(value - timezoneOffset, format);
+        return formatDate(ms - timezoneOffset, format);
     }
 
+    if (value instanceof Date) return value.toISOString();
     return new Date(value).toISOString();
 }
