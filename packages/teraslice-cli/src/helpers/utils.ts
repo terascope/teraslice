@@ -83,9 +83,6 @@ export function handleWrapper(fn: (argv: any) => any) {
 export const wasmPlugin = {
     name: 'wasm',
     setup(build: any) {
-        // const path = require('path');
-        // const fs = require('fs');
-
         // Resolve ".wasm" files to a path with a namespace
         build.onResolve({ filter: /\.wasm$/ }, (args: any) => {
             if (args.resolveDir === '') {

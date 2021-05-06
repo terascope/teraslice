@@ -27,6 +27,7 @@ export class AssetSrc {
     version: string;
     bundle?: boolean;
     bundleTarget?: string;
+    outputFileName: string;
 
     devMode = false;
 
@@ -38,7 +39,6 @@ export class AssetSrc {
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
-
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
@@ -46,6 +46,12 @@ export class AssetSrc {
         const asset = fs.readJSONSync(this.assetFile);
         this.name = asset.name;
         this.version = asset.version;
+
+        this.outputFileName = path.join(this.buildDir, this.zipFileName);
+
+        if (fs.pathExistsSync(this.outputFileName)) {
+            throw new Error(`Zipfile already exists "${this.outputFileName}"`);
+        }
     }
 
     /** @returns {string} Path to the output directory for the finished asset zipfile */
@@ -80,12 +86,6 @@ export class AssetSrc {
 
     async build(): Promise<ZipResults> {
         let zipOutput;
-
-        const outputFileName = path.join(this.buildDir, this.zipFileName);
-
-        if (await fs.pathExists(outputFileName)) {
-            throw new Error(`Zipfile already exists "${outputFileName}"`);
-        }
 
         try {
             // make sure the build dir exists in the srcDir directory
@@ -172,9 +172,10 @@ export class AssetSrc {
                 spaces: 4,
             });
 
-            // FIXME: I think this still assumes a typescript asset with a `dist`
+            // NOTE: This still assumes a typescript asset with a `dist`
             // subdirectory, anything other than tmp/asset/dist failed to build
-            // maybe a fallthrough of many dirs would work here
+            // maybe a fallthrough of many dirs would work here, I think we
+            // can accept this limitation now.
             const result = await build({
                 bundle: true,
                 entryPoints: [require.resolve(path.join(tmpDir.name, 'asset', 'dist'))],
@@ -200,7 +201,7 @@ export class AssetSrc {
             try {
                 reply.info('* zipping the asset bundle');
                 // create zipfile
-                zipOutput = await AssetSrc.zip(path.join(bundleDir.name), outputFileName);
+                zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
                 // remove temp directories
                 await fs.remove(tmpDir.name);
                 await fs.remove(bundleDir.name);
@@ -213,7 +214,7 @@ export class AssetSrc {
             try {
                 reply.info('* zipping the asset bundle');
                 // create zipfile
-                zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
+                zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), this.outputFileName);
                 // remove temp directory
                 await fs.remove(tmpDir.name);
             } catch (err) {

@@ -11,7 +11,7 @@ export = {
     describe: 'Builds asset bundle.\n',
     builder(yargs) {
         yargs.option('bundle', yargsOptions.buildOption('bundle'));
-        yargs.option('bundleTarget', yargsOptions.buildOption('bundleTarget'));
+        yargs.option('bundle-target', yargsOptions.buildOption('bundle-target'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('quiet', yargsOptions.buildOption('quiet'));
@@ -24,6 +24,14 @@ export = {
         yargs.example(
             '$0 assets build --src-dir /path/to/myAsset/',
             'build asset found in specified src-dir'
+        );
+        yargs.example(
+            '$0 assets build --src-dir /path/to/myAsset/ --bundle',
+            'build bundle style asset found in specified src-dir'
+        );
+        yargs.example(
+            '$0 assets build --src-dir /path/to/myAsset/ --bundle --bundle-target node14',
+            'build bundle style asset for node14 found in specified src-dir'
         );
         return yargs;
     },
