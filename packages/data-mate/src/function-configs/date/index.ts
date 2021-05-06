@@ -3,6 +3,7 @@ import { isDateConfig } from './isDate';
 import { isEpochConfig } from './isEpoch';
 import { isEpochMillisConfig } from './isEpochMillis';
 import { isISO8601Config } from './isISO8061';
+import { subtractFromDateConfig } from './subtractFromDate';
 import { toDailyDateConfig } from './toDailyDate';
 import { toDateConfig } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
@@ -16,6 +17,7 @@ export const dateRepository = {
     isEpoch: isEpochConfig,
     isEpochMillis: isEpochMillisConfig,
     isISO8061: isISO8601Config,
+    subtractFromDate: subtractFromDateConfig,
     toDailyDate: toDailyDateConfig,
     toDate: toDateConfig,
     toHourlyDate: toHourlyDateConfig,
