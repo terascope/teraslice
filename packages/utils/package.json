@@ -29,8 +29,8 @@
     },
     "dependencies": {
         "@terascope/types": "^0.8.0",
-        "date-fns": "^2.21.1",
         "awesome-phonenumber": "^2.49.0",
+        "date-fns": "^2.21.1",
         "debug": "^4.3.1",
         "ip6addr": "^0.2.3",
         "ipaddr.js": "^2.0.0",
