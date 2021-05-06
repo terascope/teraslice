@@ -26,7 +26,8 @@ export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
         },
         field: 'testField',
         input: '2019-10-22 22:20:11',
-        output: '2019-10-23T02:20:11.000Z'
+        output: '2019-10-22T22:20:11.000Z',
+        description: 'A previously formatted date should be parsable'
     }, {
         args: { },
         config: {

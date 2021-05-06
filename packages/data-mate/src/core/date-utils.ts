@@ -26,7 +26,7 @@ export function parseCustomDateFormat(
 
     // need subtract the date offset here to
     // in order to deal with UTC time
-    return date.getTime() + (date.getTimezoneOffset() * 60_000);
+    return date.getTime() - (date.getTimezoneOffset() * 60_000);
 }
 
 /**
