@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
 import add from 'date-fns/add';
 import parser from 'datemath-parser';
+import { joinList } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -47,6 +48,26 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         output: '2019-11-22T22:02:00.000Z'
+    }, {
+        args: {},
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        fails: true,
+        output: 'Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
+    }, {
+        args: { expr: '1hr', months: 10 },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        fails: true,
+        output: 'Invalid use of months with expr parameter'
     }],
     create(args, inputConfig) {
         const inputFormat = getInputFormat(inputConfig);
@@ -110,6 +131,17 @@ For example, \`1h\` or \`1h+2m\``
         milliseconds: {
             type: FieldType.Integer,
             description: 'The number of milliseconds to add to the date. This cannot be specified with expr'
+        }
+    },
+    validate_arguments(args) {
+        const argKeys = Object.keys(args);
+        if ('expr' in args && argKeys.length > 1) {
+            const withoutExpr = argKeys.filter((k) => k !== 'expr');
+            throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
+        }
+
+        if (argKeys.length === 0) {
+            throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
         }
     }
 };
