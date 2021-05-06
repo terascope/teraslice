@@ -315,11 +315,11 @@ describe('IP Utils', () => {
         });
     });
 
-    describe('ipToInt', () => {
+    fdescribe('ipToInt', () => {
         test.each([
             ['10.16.32.210', BigInt(168829138)],
             ['2001:0db8:0000:0000:0000:8a2e:0370:7334', BigInt('42540766411282592856904136881884656436')],
-            ['2001:2::', BigInt('42540488320432167789079031612388147200')]
+            ['2001:2::', '42540488320432167789079031612388147200']
         ])('Convert IPv4 and IPv6 addresses to a big int', (input, expected) => {
             expect(IPToInt(input)).toEqual(expected);
         });

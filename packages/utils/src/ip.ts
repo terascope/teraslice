@@ -4,7 +4,7 @@ import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
-import { toInteger, isNumberLike } from './numbers';
+import { toInteger, isNumberLike, bigIntToJSON } from './numbers';
 
 export function isIP(input: unknown): boolean {
     return isString(input) && _isIP(input);
@@ -220,9 +220,9 @@ function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
     return ip6addr.createCIDR(input);
 }
 
-export function IPToInt(input: unknown): bigint {
+export function IPToInt(input: unknown): string | number {
     if (isIP(input)) {
-        return parse(input as string).number;
+        return bigIntToJSON(parse(input as string).number);
     }
 
     throw Error('input must be a valid ip address');
