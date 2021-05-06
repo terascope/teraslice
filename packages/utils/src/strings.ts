@@ -1,5 +1,4 @@
 import validator from 'validator';
-
 import {
     trim as lTrim,
     trimEnd as lTrimEnd,
