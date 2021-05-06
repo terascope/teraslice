@@ -3,8 +3,8 @@ import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
-import { isString } from './strings';
-import { toInteger, isNumberLike, bigIntToJSON } from './numbers';
+import { isString, toString } from './strings';
+import { toInteger, isNumberLike, toBigIntOrThrow, isBigInt } from './numbers';
 
 export function isIP(input: unknown): boolean {
     return isString(input) && _isIP(input);
@@ -220,9 +220,9 @@ function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
     return ip6addr.createCIDR(input);
 }
 
-export function IPToInt(input: unknown): string | number {
+export function IPToInt(input: unknown): bigint {
     if (isIP(input)) {
-        return bigIntToJSON(parse(input as string).number);
+        return parse(input as string).number;
     }
 
     throw Error('input must be a valid ip address');
@@ -232,10 +232,15 @@ export function intToIP(input: unknown, ipVersion: string | number): string {
     const versionAsInt = toInteger(ipVersion);
 
     if (isNumberLike(input) && (versionAsInt === 4 || versionAsInt === 6)) {
-        return stringify({ number: BigInt(input), version: versionAsInt });
+        return stringify({
+            number: BigInt(input),
+            version: versionAsInt,
+            ipv4mapped: false,
+            scopeid: false
+        });
     }
 
-    throw Error('input must be an integer and version must be 4 or 6');
+    throw Error('input should be a big int or string for large numbers. Version must be 4 or 6');
 }
 
 export function reverseIP(input: unknown): string {

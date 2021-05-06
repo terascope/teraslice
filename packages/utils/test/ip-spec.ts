@@ -315,21 +315,17 @@ describe('IP Utils', () => {
         });
     });
 
-    fdescribe('ipToInt', () => {
+    describe('ipToInt', () => {
         test.each([
             ['10.16.32.210', BigInt(168829138)],
             ['2001:0db8:0000:0000:0000:8a2e:0370:7334', BigInt('42540766411282592856904136881884656436')],
-            ['2001:2::', '42540488320432167789079031612388147200']
+            ['2001:2::', BigInt('42540488320432167789079031612388147200')]
         ])('Convert IPv4 and IPv6 addresses to a big int', (input, expected) => {
             expect(IPToInt(input)).toEqual(expected);
         });
 
         it('should throw an error if valid is a bad ip address', () => {
-            try {
-                IPToInt('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid ip address');
-            }
+            expect(() => { IPToInt('bad ip address'); }).toThrowError('input must be a valid ip address');
         });
     });
 
@@ -338,27 +334,18 @@ describe('IP Utils', () => {
             ['168829138', 4, '10.16.32.210'],
             ['168829138', '4', '10.16.32.210'],
             [168829138, '4', '10.16.32.210'],
-            [42540488320432167789079031612388147200, 6, '2001:2::'],
-            [BigInt(42540488320432167789079031612388147200), '6', '2001:2::'],
-            ['42540488320432167789079031612388147200', 6, '2001:2::']
+            ['42540488320432167789079031612388147200', 6, '2001:2::'],
+            [BigInt('42540488320432167789079031612388147200'), '6', '2001:2::'],
         ])('Convert IPv4 and IPv6 addresses to a big int', (input, version, expected) => {
             expect(intToIP(input, version)).toEqual(expected);
         });
 
-        it('should throw an error if valid is a bad ip address', () => {
-            try {
-                intToIP('bad ip address', 4);
-            } catch (e) {
-                expect(e.message).toBe('input must be an integer and version must be 4 or 6');
-            }
+        it('should throw an error if input is a bad ip address', () => {
+            expect(() => { intToIP('bad ip address', 4); }).toThrowError('input should be a big int or string for large numbers. Version must be 4 or 6');
         });
 
-        it('should throw an error if version is not 4 or 6', () => {
-            try {
-                intToIP('168829138', 10);
-            } catch (e) {
-                expect(e.message).toBe('input must be an integer and version must be 4 or 6');
-            }
+        it('should throw an error if version is wrong', () => {
+            expect(() => { intToIP('168829138', 10); }).toThrowError('input should be a big int or string for large numbers. Version must be 4 or 6');
         });
     });
 
