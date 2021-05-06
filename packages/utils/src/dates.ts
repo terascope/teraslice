@@ -1,4 +1,6 @@
-import { ISO8061DateSegment } from '@terascope/types';
+import parseDate from 'date-fns/parse';
+import formatDate from 'date-fns/format';
+import { DateFormat, ISO8061DateSegment } from '@terascope/types';
 import { getTypeOf } from './deps';
 import { bigIntToJSON, toInteger } from './numbers';
 import { isString } from './strings';
@@ -145,4 +147,84 @@ export function toHumanTime(ms: number): string {
         return `${Math.round(ms)}ms`;
     }
     return `~${Math.round((ms * 100) / ONE_DAY) / 100}day`;
+}
+
+// date-fns doesn't handle utc correctly here
+// https://github.com/date-fns/date-fns/issues/376
+// https://github.com/date-fns/date-fns/blob/d0efa9eae1cf05c0e27461296b537b9dd46283d4/src/format/index.js#L399-L403
+export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
+
+export function parseCustomDateFormat(
+    value: unknown,
+    format: string,
+    referenceDate: Date
+): number {
+    if (typeof value !== 'string') {
+        throw new Error(`Expected string for formatted date fields, got ${value}`);
+    }
+
+    const date = parseDate(value, format, referenceDate);
+    if (!isValidDateInstance(date)) {
+        throw new Error(`Expected value ${value} to be a date string with format ${format}`);
+    }
+
+    // need subtract the date offset here to
+    // in order to deal with UTC time
+    return date.getTime() - (date.getTimezoneOffset() * 60_000);
+}
+
+/**
+ * Parse a date value (that has already been validated)
+ * and return the epoch millis time
+*/
+export function parseDateValue(
+    value: unknown,
+    format: DateFormat|string|undefined,
+    referenceDate: Date
+): number {
+    if (format === DateFormat.epoch || format === DateFormat.seconds) {
+        const int = toInteger(value);
+        if (int === false) {
+            throw new Error(`Expected value ${value} to be a valid time`);
+        }
+        return Math.floor(int * 1000);
+    }
+
+    if (format && !(format in DateFormat)) {
+        return parseCustomDateFormat(value, format, referenceDate);
+    }
+
+    const result = getTime(value as any);
+    if (result === false) {
+        throw new Error(`Expected value ${value} to be a valid date`);
+    }
+    return result;
+}
+
+/**
+ * Format the parsed date value
+*/
+export function formatDateValue(
+    value: Date|number,
+    format: DateFormat|string|undefined,
+): string|number {
+    if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
+        const ms = value instanceof Date ? value.getTime() : value;
+        return ms;
+    }
+
+    if (format === DateFormat.epoch || format === DateFormat.seconds) {
+        const ms = value instanceof Date ? value.getTime() : value;
+        return Math.floor(ms / 1000);
+    }
+
+    if (format && !(format in DateFormat)) {
+        const ms = value instanceof Date ? value.getTime() : value;
+        // need subtract our offset here to
+        // in order to deal with UTC time
+        return formatDate(ms - timezoneOffset, format);
+    }
+
+    if (value instanceof Date) return value.toISOString();
+    return new Date(value).toISOString();
 }

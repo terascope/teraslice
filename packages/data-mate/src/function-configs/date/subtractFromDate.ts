@@ -1,14 +1,13 @@
 import { FieldType } from '@terascope/types';
 import subtract from 'date-fns/sub';
 import parser from 'datemath-parser';
-import { joinList } from '@terascope/utils';
+import { joinList, formatDateValue, parseDateValue } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { formatDateValue, parseDateValue } from '../../core/date-utils';
 import { getInputFormat } from './utils';
 
 export type SubtractFromDateArgs = {
@@ -86,7 +85,7 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
             }
 
             return formatDateValue(
-                subtract(parsed, args).getTime(),
+                subtract(parsed, args),
                 inputFormat
             );
         };

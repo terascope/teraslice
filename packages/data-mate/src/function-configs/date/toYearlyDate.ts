@@ -1,14 +1,13 @@
 import {
     DateFormat, FieldType, ISO8061DateSegment
 } from '@terascope/types';
-import { trimISODateSegment } from '@terascope/utils';
+import { trimISODateSegment, formatDateValue, parseDateValue } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { formatDateValue, parseDateValue } from '../../core/date-utils';
 import { getInputFormat, isIS8061FieldConfig } from './utils';
 
 export const toYearlyDateConfig: FieldTransformConfig = {

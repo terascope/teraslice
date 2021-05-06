@@ -1,14 +1,13 @@
 import { FieldType } from '@terascope/types';
 import add from 'date-fns/add';
 import parser from 'datemath-parser';
-import { joinList } from '@terascope/utils';
+import { joinList, formatDateValue, parseDateValue } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { formatDateValue, parseDateValue } from '../../core/date-utils';
 import { getInputFormat } from './utils';
 
 export type AddToDateArgs = {
@@ -86,7 +85,7 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
             }
 
             return formatDateValue(
-                add(parsed, args).getTime(),
+                add(parsed, args),
                 inputFormat
             );
         };

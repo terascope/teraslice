@@ -1,11 +1,11 @@
 import { DateFormat, FieldType, TimeResolution } from '@terascope/types';
+import { formatDateValue, parseDateValue } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { formatDateValue, parseDateValue } from '../../core/date-utils';
 import { getInputFormat } from './utils';
 
 export interface ToDateArgs {
