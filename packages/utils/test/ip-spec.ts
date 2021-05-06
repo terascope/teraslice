@@ -305,6 +305,14 @@ describe('IP Utils', () => {
         ])('reverses the ip handles both ipv4 and ipv6 formats', (input, expected) => {
             expect(reverseIP(input)).toEqual(expected);
         });
+
+        it('should throw if input is an invalid ip address', () => {
+            try {
+                reverseIP('bad ip address');
+            } catch (e) {
+                expect(e.message).toBe('input must be a valid ip address');
+            }
+        });
     });
 
     describe('ipToInt', () => {

@@ -1,12 +1,12 @@
-import { reverseIP } from '@terascope/utils';
+import { CIDRMin } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const reverseIPConfig: FieldTransformConfig = {
-    name: 'reverseIP',
+export const CIDRMinConfig: FieldTransformConfig = {
+    name: 'CIDRMin',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.IP,
@@ -15,25 +15,25 @@ export const reverseIPConfig: FieldTransformConfig = {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '10.16.32.210',
-            output: '210.32.16.10',
+            input: '8.8.12.118/24',
+            output: '8.8.12.1',
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '2001:0db8:0000:0000:0000:8a2e:0370:7334',
-            output: '4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2',
+            input: '2001:0db8:0123:4567:89ab:cdef:1234:5678/128',
+            output: '2001:db8:123:4567:89ab:cdef:1234:5678',
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '2001:2::',
-            output: '0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2',
+            input: '2001:0db8:0123:4567:89ab:cdef:1234:5678/46',
+            output: '2001:db8:120::1',
         }
     ],
-    description: 'Returns the ip address in reverse notation, accepts both IPv4 and IPv6 addresses',
-    create() { return reverseIP; },
+    description: 'Returns the first address of a CIDR range, excluding the network address',
+    create() { return CIDRMin; },
     accepts: [FieldType.String],
 };
