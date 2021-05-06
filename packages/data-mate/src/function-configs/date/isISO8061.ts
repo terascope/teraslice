@@ -3,6 +3,7 @@ import { isISO8061 } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
+import { isIS8061FieldConfig } from './utils';
 
 export const isISO8601Config: FieldValidateConfig = {
     name: 'isISO8061',
@@ -45,12 +46,7 @@ export const isISO8601Config: FieldValidateConfig = {
     }],
     argument_schema: {},
     create(_args, inputConfig) {
-        if (
-            inputConfig?.field_config?.type === FieldType.Date && (
-                inputConfig.field_config.format === DateFormat.iso_8601
-                || inputConfig.field_config.format == null
-            )
-        ) {
+        if (isIS8061FieldConfig(inputConfig)) {
             return alwaysTrue;
         }
         return isISO8061;

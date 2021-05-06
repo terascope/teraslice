@@ -6,7 +6,7 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 import { formatDateValue, parseDateValue } from '../../core/date-utils';
-import { stringTypes, numericTypes } from '../../core';
+import { getInputFormat } from './utils';
 
 export interface ToDateArgs {
     format?: string|DateFormat;
@@ -29,32 +29,44 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         input: '2019-10-22T22:00:00.000Z',
         output: '2019-10-22'
     }, {
-        args: { resolution: TimeResolution.SECONDS },
+        args: { },
         config: {
             version: 1,
             fields: { testField: { type: FieldType.Number } }
         },
         field: 'testField',
         input: 102390933,
-        output: '1973-03-31T01:55:33.000Z'
+        output: '1970-01-02T04:26:30.933Z'
     }, {
-        args: { resolution: TimeResolution.MILLISECONDS },
+        args: { },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.Number } }
+            fields: {
+                testField: {
+                    type: FieldType.Long,
+                    time_resolution: TimeResolution.MILLISECONDS
+                }
+            }
         },
         field: 'testField',
         input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z'
+        output: '1973-03-31T01:55:33.000Z',
+        description: 'When the time_resolution is set the numeric date can converted'
     }, {
-        args: { resolution: TimeResolution.MILLISECONDS },
+        args: { },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.Long } }
+            fields: {
+                testField: {
+                    type: FieldType.Long,
+                    time_resolution: TimeResolution.SECONDS
+                }
+            }
         },
         field: 'testField',
         input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z'
+        output: '1973-03-31T01:55:33.000Z',
+        description: 'When the time_resolution is set the numeric date can converted'
     }, {
         args: {},
         config: {
@@ -65,21 +77,8 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         input: '2001-01-01T01:00:00.000Z',
         output: '2001-01-01T01:00:00.000Z'
     }],
-    create({ format, resolution }, inputConfig) {
-        const inputResolution = inputConfig?.field_config.resolution
-            ?? resolution
-            ?? TimeResolution.MILLISECONDS;
-
-        let inputFormat: DateFormat|string|undefined = inputConfig?.field_config.format;
-        if (!inputFormat) {
-            const type = (inputConfig?.field_config?.type as FieldType|undefined) || FieldType.Any;
-            if (type === FieldType.Date || stringTypes.has(type)) {
-                inputFormat = DateFormat.iso_8601;
-            } else if (numericTypes.has(type)) {
-                inputFormat = inputResolution === TimeResolution.SECONDS
-                    ? DateFormat.epoch : DateFormat.epoch_millis;
-            }
-        }
+    create({ format }, inputConfig) {
+        const inputFormat = getInputFormat(inputConfig);
 
         const referenceDate = new Date();
         return function toDate(input: unknown): string|number {

@@ -1,4 +1,7 @@
-import { DateFormat, FieldType, TimeResolution } from '@terascope/types';
+import {
+    DateFormat, FieldType, ISO8061DateSegment
+} from '@terascope/types';
+import { trimISODateSegment } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -8,16 +11,12 @@ import {
 import { formatDateValue, parseDateValue } from '../../core/date-utils';
 import { getInputFormat, isIS8061FieldConfig } from './utils';
 
-export interface ToISO8061Args {
-    resolution?: TimeResolution;
-}
-
-export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
-    name: 'toISO8061',
+export const toYearlyDateConfig: FieldTransformConfig = {
+    name: 'toYearlyDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a value to a ISO 8061 date, this is more specific version of toDate(format: "iso_8061")',
+    description: 'Converts a value to a yearly ISO 8061 date segment',
     examples: [{
         args: { },
         config: {
@@ -26,7 +25,7 @@ export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
         },
         field: 'testField',
         input: '2019-10-22 22:20:11',
-        output: '2019-10-22T22:20:11.000Z',
+        output: '2019',
         description: 'A previously formatted date should be parsable'
     }, {
         args: { },
@@ -36,20 +35,22 @@ export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
         },
         field: 'testField',
         input: '2019-10-22T01:00:00.000Z',
-        output: '2019-10-22T01:00:00.000Z'
+        output: '2019'
     }],
     create(_args, inputConfig) {
         const inputFormat = getInputFormat(inputConfig);
+
+        const trimFn = trimISODateSegment(ISO8061DateSegment.yearly);
         if (isIS8061FieldConfig(inputConfig)) {
-            return noop;
+            return trimFn;
         }
 
         const referenceDate = new Date();
-        return function toISO8061(input: unknown): string|number {
+        return function toYearlyDate(input: unknown): string|number {
             const parsed = parseDateValue(
                 input, inputFormat, referenceDate
             );
-            return formatDateValue(parsed, DateFormat.iso_8601);
+            return trimFn(formatDateValue(parsed, DateFormat.iso_8601));
         };
     },
     accepts: [
@@ -57,28 +58,16 @@ export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
         FieldType.Number,
         FieldType.Date
     ],
-    argument_schema: {
-        time_resolution: {
-            type: FieldType.String,
-            description: `This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
-This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
-Default: milliseconds`
-        }
-    },
-    output_type(inputConfig, { resolution }) {
+    argument_schema: {},
+    output_type(inputConfig) {
         const { field_config } = inputConfig;
 
         return {
             field_config: {
-                ...field_config,
-                format: DateFormat.iso_8601,
-                time_resolution: resolution,
-                type: FieldType.Date
+                description: field_config.description,
+                array: field_config.array,
+                type: FieldType.Keyword
             },
         };
     }
 };
-
-function noop(input: unknown) {
-    return input;
-}
