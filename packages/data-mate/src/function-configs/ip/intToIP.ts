@@ -35,5 +35,13 @@ export const intToIPConfig: FieldTransformConfig = {
         if (!['4', '6'].includes(toString(version))) {
             throw Error('version must be 4 or 6');
         }
+    },
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.IP
+            }
+        };
     }
 };

@@ -35,5 +35,13 @@ export const getCIDRMaxConfig: FieldTransformConfig = {
     ],
     description: 'Returns the last address of a CIDR range, excluding the broadcast address for IPv4 addresses',
     create() { return getCIDRMax; },
-    accepts: [FieldType.String, FieldType.IPRange]
+    accepts: [FieldType.String, FieldType.IPRange],
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.IP
+            }
+        };
+    }
 };

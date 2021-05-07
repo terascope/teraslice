@@ -35,5 +35,13 @@ export const getCIDRMinConfig: FieldTransformConfig = {
     ],
     description: 'Returns the first address of a CIDR range, excluding the network address',
     create() { return getCIDRMin; },
-    accepts: [FieldType.String, FieldType.IPRange]
+    accepts: [FieldType.String, FieldType.IPRange],
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.IP
+            }
+        };
+    }
 };

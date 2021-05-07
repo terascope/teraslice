@@ -28,5 +28,13 @@ export const getCIDRBroadcastConfig: FieldTransformConfig = {
     ],
     description: 'Returns the broadcast address of a CIDR range, only applicable to IPv4 addresses',
     create() { return getCIDRBroadcast; },
-    accepts: [FieldType.String, FieldType.IPRange]
+    accepts: [FieldType.String, FieldType.IPRange],
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.IP
+            }
+        };
+    }
 };
