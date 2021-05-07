@@ -8,6 +8,7 @@ import { encodeSHAConfig } from './encodeSHA';
 import { encodeSHA1Config } from './encodeSHA1';
 import { encodeURLConfig } from './encodeURL';
 import { extractConfig } from './extract';
+import { isAlphaConfig } from './isAlpha';
 import { isAlphaNumericConfig } from './isAlphaNumeric';
 import { isBase64Config } from './isBase64';
 import { isCountryCodeConfig } from './isCountryCode';
@@ -51,6 +52,7 @@ export const stringRepository = {
     encodeSHA1: encodeSHA1Config,
     encodeURL: encodeURLConfig,
     extract: extractConfig,
+    isAlpha: isAlphaConfig,
     isAlphaNumeric: isAlphaNumericConfig,
     isBase64: isBase64Config,
     isCountryCode: isCountryCodeConfig,

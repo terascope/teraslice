@@ -1,9 +1,7 @@
 import validator from 'validator';
-import {
-    trim as lTrim,
-    trimEnd as lTrimEnd,
-    trimStart as lTrimStart
-} from 'lodash';
+import lTrim from 'lodash/trim';
+import lTrimStart from 'lodash/trimStart';
+import lTrimEnd from 'lodash/trimEnd';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
@@ -99,31 +97,31 @@ export function primitiveToString(value: unknown): string {
 }
 
 /** safely trims whitespace from an input */
-export function trim(input: unknown, char = ' '): string {
+export function trim(input: unknown, char?: string): string {
     return lTrim(primitiveToString(input), char);
 }
 
-export function trimFP(char = ' ') {
+export function trimFP(char?: string) {
     return function _trim(input: unknown): string {
         return trim(input, char);
     };
 }
 
-export function trimStart(input: unknown, char = ' '): string {
+export function trimStart(input: unknown, char?: string): string {
     return lTrimStart(primitiveToString(input), char);
 }
 
-export function trimStartFP(char = ' ') {
+export function trimStartFP(char?: string) {
     return function _trimStart(input: unknown): string {
         return trimStart(input, char);
     };
 }
 
-export function trimEnd(input: unknown, char = ' '): string {
+export function trimEnd(input: unknown, char?: string): string {
     return lTrimEnd(primitiveToString(input), char);
 }
 
-export function trimEndFP(char = ' ') {
+export function trimEndFP(char?: string) {
     return function _trimEnd(input: unknown): string {
         return trimEnd(input, char);
     };
@@ -506,6 +504,10 @@ export function isPostalCode(input: unknown, locale: validator.PostalCodeLocale 
 
 export function isPort(input: unknown): boolean {
     return validator.isPort(toString(input));
+}
+
+export function isAlpha(input: unknown, locale?: validator.AlphaLocale): boolean {
+    return isString(input) && validator.isAlpha(input, locale);
 }
 
 export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLocale): boolean {

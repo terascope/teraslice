@@ -27,7 +27,8 @@ import {
     contains,
     trim,
     trimStart,
-    trimEnd
+    trimEnd,
+    isAlpha
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -364,6 +365,29 @@ describe('String Utils', () => {
             ['ThisiZĄĆĘŚŁ1234', 'en-HK', false]
         ])('should return true for valid alphanumeric inputs with a locale', (input, locale, expected) => {
             expect(isAlphaNumeric(input as any, locale as any)).toEqual(expected);
+        });
+    });
+
+    describe('isAlpha', () => {
+        test.each([
+            ['example', true],
+            ['123456', false],
+            ['example123456', false],
+            ['no_underscores.com', false],
+            [true, false],
+            [123456, false],
+            [undefined, false],
+            [{}, false],
+        ])('should return true for valid alphabetical inputs and no locale', (input, expected) => {
+            expect(isAlpha(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl', false],
+            ['ThisiZĄĆĘŚŁ', 'pl-Pl', true],
+            ['ThisiZĄĆĘŚŁ', 'en-HK', false]
+        ])('should return true for valid alphabetical inputs with a locale', (input, locale, expected) => {
+            expect(isAlpha(input as any, locale as any)).toEqual(expected);
         });
     });
 
