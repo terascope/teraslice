@@ -1,15 +1,15 @@
-import { isBoolean } from '@terascope/utils';
+import { isBooleanLike } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
 
-export const isBooleanConfig: FieldValidateConfig = {
-    name: 'isBoolean',
+export const isBooleanLikeConfig: FieldValidateConfig = {
+    name: 'isBooleanLike',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.BOOLEAN,
-    description: 'Checks to see if input is a boolean',
+    description: 'Checks to see if input is loosely like a boolean, these values should be compatible with toBoolean',
     examples: [{
         args: {},
         config: {
@@ -18,16 +18,16 @@ export const isBooleanConfig: FieldValidateConfig = {
         },
         field: 'testField',
         input: 'TRUE',
-        output: null
+        output: 'TRUE'
     }, {
         args: {},
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.Boolean } }
+            fields: { testField: { type: FieldType.String } }
         },
         field: 'testField',
-        input: false,
-        output: false
+        input: 'false',
+        output: 'false'
     }, {
         args: {},
         config: {
@@ -36,7 +36,7 @@ export const isBooleanConfig: FieldValidateConfig = {
         },
         field: 'testField',
         input: 1,
-        output: null
+        output: 1
     }, {
         args: {},
         config: {
@@ -57,7 +57,7 @@ export const isBooleanConfig: FieldValidateConfig = {
         output: null
     }],
     create() {
-        return isBoolean;
+        return isBooleanLike;
     },
     accepts: [],
 };
