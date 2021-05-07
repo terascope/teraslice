@@ -4,7 +4,7 @@ import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
-import { toInteger, isNumberLike, toBigIntOrThrow, isBigInt } from './numbers';
+import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
 
 export function isIP(input: unknown): boolean {
     return isString(input) && _isIP(input);
@@ -150,7 +150,7 @@ export function isCIDR(input: unknown): boolean {
     return isString(input) && validateCidr(input) > 0;
 }
 
-export function CIDRMin(input: unknown): string {
+export function getCIDRMin(input: unknown): string {
     if (isCIDR(input)) {
         return createCIDR(input as string).first().toString();
     }
@@ -158,7 +158,7 @@ export function CIDRMin(input: unknown): string {
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
-export function CIDRMax(input: unknown): string {
+export function getCIDRMax(input: unknown): string {
     if (isCIDR(input)) {
         return createCIDR(input as string).last().toString();
     }
@@ -166,7 +166,7 @@ export function CIDRMax(input: unknown): string {
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
-export function CIDRBroadcast(input: unknown): string {
+export function getCIDRBroadcast(input: unknown): string {
     if (isCIDR(input)) {
         const asCIDR = createCIDR(input as string);
 
@@ -178,7 +178,7 @@ export function CIDRBroadcast(input: unknown): string {
     throw Error('input must be a valid IPv4 address in CIDR notation');
 }
 
-export function CIDRNetwork(input: unknown): string {
+export function getCIDRNetwork(input: unknown): string {
     if (isCIDR(input)) {
         const asCIDR = createCIDR(input as string);
 
@@ -220,7 +220,7 @@ function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
     return ip6addr.createCIDR(input);
 }
 
-export function IPToInt(input: unknown): bigint {
+export function ipToInt(input: unknown): bigint {
     if (isIP(input)) {
         return toBigIntOrThrow(parse(input as string).number);
     }

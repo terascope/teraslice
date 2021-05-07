@@ -26,7 +26,7 @@ export const extractMappedIPV4Config: FieldTransformConfig = {
             output: '122.168.5.18',
         }
     ],
-    description: 'Returns the ip address in reverse notation, accepts both IPv4 and IPv6 addresses',
+    description: 'Extracts a mapped IPv4 address from an IPv6 address',
     create() { return extractMappedIPV4; },
     accepts: [FieldType.String],
 };

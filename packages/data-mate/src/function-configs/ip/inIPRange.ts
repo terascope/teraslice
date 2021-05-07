@@ -50,7 +50,7 @@ export const inIPRangeConfig: FieldValidateConfig = {
     create(args: InIPRangeArgs) {
         return (input: unknown) => inIPRange(input, args);
     },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IPRange],
     argument_schema: {
         min: {
             type: FieldType.String,

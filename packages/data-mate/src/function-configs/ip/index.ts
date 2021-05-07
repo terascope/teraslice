@@ -8,12 +8,12 @@ import { isRoutableIPConfig } from './isRoutableIP';
 import { reverseIPConfig } from './reverseIP';
 import { isMappedIPV4Config } from './isMappedIPV4';
 import { extractMappedIPV4Config } from './extractMappedIPV4';
-import { IPToIntConfig } from './IPToInt';
+import { ipToIntConfig } from './ipToInt';
 import { intToIPConfig } from './intToIP';
-import { CIDRMinConfig } from './CIDRMin';
-import { CIDRMaxConfig } from './CIDRMax';
-import { CIDRBroadcastConfig } from './CIDRBroadcast';
-import { CIDRNetworkConfig } from './CIDRNetwork';
+import { getCIDRMinConfig } from './getCIDRMin';
+import { getCIDRMaxConfig } from './getCIDRMax';
+import { getCIDRBroadcastConfig } from './getCIDRBroadcast';
+import { getCIDRNetworkConfig } from './getCIDRNetwork';
 import { toCIDRConfig } from './toCIDR';
 
 export const ipRepository = {
@@ -27,11 +27,11 @@ export const ipRepository = {
     isMappedIPV4: isMappedIPV4Config,
     extractMappedIPV4: extractMappedIPV4Config,
     reverseIP: reverseIPConfig,
-    IPToInt: IPToIntConfig,
+    ipToInt: ipToIntConfig,
     intToIP: intToIPConfig,
-    CIDRMin: CIDRMinConfig,
-    CIDRMax: CIDRMaxConfig,
-    CIDRBroadcast: CIDRBroadcastConfig,
-    CIDRNetwork: CIDRNetworkConfig,
+    getCIDRMin: getCIDRMinConfig,
+    getCIDRMax: getCIDRMaxConfig,
+    getCIDRBroadcast: getCIDRBroadcastConfig,
+    getCIDRNetwork: getCIDRNetworkConfig,
     toCIDR: toCIDRConfig
 };
