@@ -186,13 +186,17 @@ export class AssetSrc {
                 plugins: [wasmPlugin]
             });
 
-            // TODO ... Peter asked that I test load the asset here ...
-            // node -p -e "require('./out.js').ASSETS"
-            // const r = await execa(
-            //     'node', ['-p', `"require('${bundleDir.name}/index.js').ASSETS"`]
-            // );
-            // eslint-disable-next-line no-console
-            // console.log(r);
+            // Test require the asset to make sure it loads, if the process node
+            // version is the same as the buildTarget
+            if (this.bundleTarget?.replace('node', '') === process.version.split('.')[0].substr(1)) {
+                try {
+                    const modulePath = require.resolve(bundleDir.name);
+                    reply.info(`* doing a test require of ${modulePath}`);
+                    require(modulePath);
+                } catch (err) {
+                    reply.fatal(`Bundled asset failed to require: ${err}`);
+                }
+            }
 
             if (result.warnings.length > 0) {
                 reply.warning(result.warnings);
