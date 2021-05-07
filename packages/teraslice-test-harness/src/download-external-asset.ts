@@ -29,7 +29,7 @@ export default class DownLoadExternalAsset {
     }
 
     private async _getZippedFile(assetInfo: I.AssetInfo) {
-        this._ensureDirExists(this.zipped_path);
+        await this._ensureDirExists(this.zipped_path);
 
         const [zippedAsset] = await this._downloadAssetZip(assetInfo);
 
