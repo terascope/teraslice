@@ -1,4 +1,9 @@
-import { toCIDR, isNumberLike, toNumber, toString } from '@terascope/utils';
+import {
+    toCIDR,
+    isNumberLike,
+    toNumber,
+    toString
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {

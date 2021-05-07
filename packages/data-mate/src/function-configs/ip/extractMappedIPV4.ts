@@ -28,5 +28,5 @@ export const extractMappedIPV4Config: FieldTransformConfig = {
     ],
     description: 'Extracts a mapped IPv4 address from an IPv6 address',
     create() { return extractMappedIPV4; },
-    accepts: [FieldType.String, FieldType.IP],
+    accepts: [FieldType.String, FieldType.IP]
 };
