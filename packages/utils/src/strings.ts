@@ -2,6 +2,10 @@ import validator from 'validator';
 import lTrim from 'lodash/trim';
 import lTrimStart from 'lodash/trimStart';
 import lTrimEnd from 'lodash/trimEnd';
+import lCamelCase from 'lodash/camelCase';
+import lSnakeCase from 'lodash/snakeCase';
+import lKebabCase from 'lodash/kebabCase';
+import lStartCase from 'lodash/startCase';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
@@ -352,29 +356,23 @@ export function getWordParts(input: string): string[] {
 }
 
 export function toCamelCase(input: string): string {
-    return getWordParts(input).map((str, i) => {
-        if (i === 0) return str.toLowerCase();
-        return firstToUpper(str.toLowerCase());
-    }).join('');
+    return lCamelCase(input);
 }
 
 export function toPascalCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str, i) => {
-        if (i === 0) return str.toLowerCase();
-        return firstToUpper(str.toLowerCase());
-    }).join(''));
+    return firstToUpper(lCamelCase(input));
 }
 
 export function toKebabCase(input: string): string {
-    return getWordParts(input).join('-').toLowerCase();
+    return lKebabCase(input);
 }
 
 export function toSnakeCase(input: string): string {
-    return getWordParts(input).join('_').toLowerCase();
+    return lSnakeCase(input);
 }
 
 export function toTitleCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str.toLowerCase())).join(' '));
+    return lStartCase(input);
 }
 
 /**

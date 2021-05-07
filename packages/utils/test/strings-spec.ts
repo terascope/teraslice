@@ -28,7 +28,8 @@ import {
     trim,
     trimStart,
     trimEnd,
-    isAlpha
+    isAlpha,
+    toTitleCase
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -86,7 +87,7 @@ describe('String Utils', () => {
 
     describe('toCamelCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'helloThere'],
             ['helloThere', 'helloThere'],
             ['HelloThere', 'helloThere'],
@@ -94,6 +95,7 @@ describe('String Utils', () => {
             ['hello there', 'helloThere'],
             ['hello THERE', 'helloThere'],
             ['HELLO THERE', 'helloThere'],
+            ['SystemCRT', 'SystemCrt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toCamelCase(input)).toEqual(expected);
         });
@@ -101,25 +103,41 @@ describe('String Utils', () => {
 
     describe('toPascalCase', () => {
         test.each([
-            ['_key', '_Key'],
+            ['_key', 'Key'],
             ['hello-there', 'HelloThere'],
             ['helloThere', 'HelloThere'],
             ['HelloThere', 'HelloThere'],
             ['hello_there', 'HelloThere'],
             ['hello there', 'HelloThere'],
+            ['SystemCRT', 'SystemCrt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toPascalCase(input)).toEqual(expected);
         });
     });
 
+    describe('toTitleCase', () => {
+        test.each([
+            ['_key', 'Key'],
+            ['hello-there', 'Hello There'],
+            ['helloThere', 'Hello There'],
+            ['HelloThere', 'Hello There'],
+            ['hello_there', 'Hello There'],
+            ['hello there', 'Hello There'],
+            ['SystemCRT', 'System CRT'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toTitleCase(input)).toEqual(expected);
+        });
+    });
+
     describe('toKebabCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'hello-there'],
             ['helloThere', 'hello-there'],
             ['HelloThere', 'hello-there'],
             ['hello_there', 'hello-there'],
             ['hello there', 'hello-there'],
+            ['SystemCRT', 'system-crt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toKebabCase(input)).toEqual(expected);
         });
@@ -127,12 +145,13 @@ describe('String Utils', () => {
 
     describe('toSnakeCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'hello_there'],
             ['helloThere', 'hello_there'],
             ['HelloThere', 'hello_there'],
             ['hello_there', 'hello_there'],
             ['hello there', 'hello_there'],
+            ['SystemCRT', 'system_crt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toSnakeCase(input)).toEqual(expected);
         });
