@@ -11,6 +11,56 @@ sidebar_label: Functions
 
 > Checks to see if input is a boolean
 
+#### Examples
+
+```ts
+"TRUE" => isBoolean() // outputs null
+```
+
+```ts
+false => isBoolean() // outputs false
+```
+
+```ts
+1 => isBoolean() // outputs null
+```
+
+```ts
+102 => isBoolean() // outputs null
+```
+
+```ts
+"example" => isBoolean() // outputs null
+```
+
+### `isBooleanLike`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is loosely like a boolean, these values should be compatible with toBoolean
+
+#### Examples
+
+```ts
+"TRUE" => isBooleanLike() // outputs "TRUE"
+```
+
+```ts
+"false" => isBooleanLike() // outputs "false"
+```
+
+```ts
+1 => isBooleanLike() // outputs 1
+```
+
+```ts
+102 => isBooleanLike() // outputs null
+```
+
+```ts
+"example" => isBooleanLike() // outputs null
+```
+
 ### `toBoolean`
 
 **Type:** `FIELD_TRANSFORM`
@@ -66,11 +116,451 @@ Must be represented in a Language Tags (BCP 47)
 
 - `String`
 
+### `setDefault`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Replace missing values in a column with a constant value
+
+#### Arguments
+
+ - **value**: (required) `Any` - The default value to use
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+```ts
+null => setDefault(value: "example") // outputs "example"
+```
+
+```ts
+null => setDefault(value: "example") // outputs ["example"]
+```
+
 ### `toJSON`
 
 **Type:** `FIELD_TRANSFORM`
 
 > Converts whole input to JSON format
+
+## CATEGORY: Date
+
+### `addToDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Add time to a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
+
+#### Arguments
+
+ - **expr**:  `String` - The date math expression used to calculate the date to add to.
+For example, `1h` or `1h+2m`
+
+ - **years**:  `Integer` - The number of years to add to the date. This cannot be specified with expr
+
+ - **months**:  `Integer` - The number of months to add to the date. This cannot be specified with expr
+
+ - **weeks**:  `Integer` - The number of weeks to add to the date. This cannot be specified with expr
+
+ - **days**:  `Integer` - The number of days to add to the date. This cannot be specified with expr
+
+ - **hours**:  `Integer` - The number of hours to add to the date. This cannot be specified with expr
+
+ - **minutes**:  `Integer` - The number of minutes to add to the date. This cannot be specified with expr
+
+ - **seconds**:  `Integer` - The number of seconds to add to the date. This cannot be specified with expr
+
+ - **milliseconds**:  `Integer` - The number of milliseconds to add to the date. This cannot be specified with expr
+
+#### Accepts
+
+- `Date`
+
+#### Examples
+
+```ts
+"2019-10-22T22:00:00.000Z" => addToDate(expr: "10h+2m") // outputs "2019-10-23T08:02:00.000Z"
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => addToDate(months: 1, minutes: 2) // outputs "2019-11-22T22:02:00.000Z"
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => addToDate() // throws Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => addToDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
+```
+
+### `subtractFromDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Subtract time from a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
+
+#### Arguments
+
+ - **expr**:  `String` - The date math expression used from calculate the date from subtract from.
+For example, `1h` or `1h+2m`
+
+ - **years**:  `Integer` - The number of years from subtract from the date. This cannot be specified with expr
+
+ - **months**:  `Integer` - The number of months from subtract from the date. This cannot be specified with expr
+
+ - **weeks**:  `Integer` - The number of weeks from subtract from the date. This cannot be specified with expr
+
+ - **days**:  `Integer` - The number of days from subtract from the date. This cannot be specified with expr
+
+ - **hours**:  `Integer` - The number of hours from subtract from the date. This cannot be specified with expr
+
+ - **minutes**:  `Integer` - The number of minutes from subtract from the date. This cannot be specified with expr
+
+ - **seconds**:  `Integer` - The number of seconds from subtract from the date. This cannot be specified with expr
+
+ - **milliseconds**:  `Integer` - The number of milliseconds from subtract from the date. This cannot be specified with expr
+
+#### Accepts
+
+- `Date`
+
+#### Examples
+
+```ts
+"2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "10h+2m") // outputs "2019-10-22T12:02:00.000Z"
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => subtractFromDate(months: 1, minutes: 2) // outputs "2019-09-22T21:58:00.000Z"
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => subtractFromDate() // throws Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
+```
+
+```ts
+"2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
+```
+
+### `toDailyDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a daily ISO 8601 date segment
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+A previously formatted date should be parsable
+```ts
+"2019-10-22 22:20:11" => toDailyDate() // outputs "2019-10-22"
+```
+
+```ts
+"2019-10-22T01:00:00.000Z" => toDailyDate() // outputs "2019-10-22"
+```
+
+### `toDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a date value, this can also be used to reformat a date
+
+#### Arguments
+
+ - **format**:  `String` - When the value is a string, this indicates the date string format.
+See https://date-fns.org/v2.16.1/docs/parse for more info.
+Default: iso_8601 for strings and epoch_millis for number
+
+ - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
+Default: milliseconds
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+```ts
+"2019-10-22T22:00:00.000Z" => toDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
+```
+
+```ts
+102390933 => toDate() // outputs "1970-01-02T04:26:30.933Z"
+```
+
+When the time_resolution is set the numeric date can converted
+```ts
+102390933000 => toDate() // outputs "1973-03-31T01:55:33.000Z"
+```
+
+When the time_resolution is set the numeric date can converted
+```ts
+102390933000 => toDate() // outputs "1973-03-31T01:55:33.000Z"
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => toDate() // outputs "2001-01-01T01:00:00.000Z"
+```
+
+### `toHourlyDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a hourly ISO 8601 date segment
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+A previously formatted date should be parsable
+```ts
+"2019-10-22 22:20:11" => toHourlyDate() // outputs "2019-10-22T22"
+```
+
+```ts
+"2019-10-22T01:00:00.000Z" => toHourlyDate() // outputs "2019-10-22T01"
+```
+
+### `toISO8601`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a ISO 8601 date, this is more specific version of toDate(format: "iso_8601")
+
+#### Arguments
+
+ - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
+Default: milliseconds
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+A previously formatted date should be parsable
+```ts
+"2019-10-22 22:20:11" => toISO8601() // outputs "2019-10-22T22:20:11.000Z"
+```
+
+```ts
+"2019-10-22T01:00:00.000Z" => toISO8601() // outputs "2019-10-22T01:00:00.000Z"
+```
+
+### `toMonthlyDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a monthly ISO 8601 date segment
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+A previously formatted date should be parsable
+```ts
+"2019-10-22 22:20:11" => toMonthlyDate() // outputs "2019-10"
+```
+
+```ts
+"2019-10-22T01:00:00.000Z" => toMonthlyDate() // outputs "2019-10"
+```
+
+### `toYearlyDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a yearly ISO 8601 date segment
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+A previously formatted date should be parsable
+```ts
+"2019-10-22 22:20:11" => toYearlyDate() // outputs "2019"
+```
+
+```ts
+"2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019"
+```
+
+### `isDate`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid date, if format is provided the format will also be validated
+
+#### Arguments
+
+ - **format**:  `String` - When the value is a string, this indicates the date string format.
+See https://date-fns.org/v2.16.1/docs/parse for more info.
+Default: iso_8601 for strings and epoch_millis for number
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2019-10-22" => isDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
+```
+
+```ts
+"10-22-2019" => isDate(format: "yyyy-MM-dd") // outputs null
+```
+
+```ts
+102390933 => isDate(format: "epoch") // outputs 102390933
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => isDate() // outputs "2001-01-01T01:00:00.000Z"
+```
+
+### `isEpoch`
+
+**Type:** `FIELD_VALIDATION`
+**Aliases:** `isUnixTime`
+
+> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.
+
+#### Arguments
+
+ - **allowBefore1970**:  `Boolean` - Set to false to disable allowing negative values
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2019-10-22" => isEpoch() // outputs null
+```
+
+```ts
+102390933 => isEpoch() // outputs 102390933
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => isEpoch() // outputs null
+```
+
+```ts
+102390933 => isEpoch() // outputs null
+```
+
+```ts
+-102390933 => isEpoch(allowBefore1970: false) // outputs null
+```
+
+```ts
+-102390933 => isEpoch() // outputs -102390933
+```
+
+### `isEpochMillis`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number.
+
+#### Arguments
+
+ - **allowBefore1970**:  `Boolean` - Set to false to disable allowing negative values
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2019-10-22" => isEpochMillis() // outputs null
+```
+
+```ts
+102390933 => isEpochMillis() // outputs 102390933
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => isEpochMillis() // outputs null
+```
+
+```ts
+102390933 => isEpochMillis() // outputs null
+```
+
+```ts
+-102390933 => isEpochMillis(allowBefore1970: false) // outputs null
+```
+
+```ts
+-102390933 => isEpochMillis() // outputs -102390933
+```
+
+### `isISO8601`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+102390933 => isISO8601() // outputs null
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => isISO8601() // outputs "2001-01-01T01:00:00.000Z"
+```
+
+```ts
+102390933 => isISO8601() // outputs null
+```
 
 ## CATEGORY: Numeric
 
@@ -1407,6 +1897,38 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 "example" => contains(substr: "test") // outputs null
 ```
 
+### `isAlpha`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a string composed of only alphabetical characters
+
+#### Arguments
+
+ - **locale**:  `String` - Specify locale to check for valid alphabetical characters, defaults to en-US if not provided
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+"example123456" => isAlpha() // outputs null
+```
+
+```ts
+"ThisiZĄĆĘŚŁ" => isAlpha(locale: "pl-Pl") // outputs "ThisiZĄĆĘŚŁ"
+```
+
+```ts
+"not_alpha.com" => isAlpha() // outputs null
+```
+
+```ts
+true => isAlpha() // outputs null
+```
+
 ### `isAlphaNumeric`
 
 **Type:** `FIELD_VALIDATION`
@@ -2483,6 +3005,10 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
+"fast example cata" => trim(chars: "fatc ") // outputs "st example"
+```
+
+```ts
 "
 
 trim this
@@ -2587,4 +3113,471 @@ trim this"
 
 ```ts
 "Hello world" => truncate(size: 8) // outputs "Hello wo"
+```
+
+## CATEGORY: Ip
+
+### `isIP`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a valid ipv4 or ipv6 ip address.  Accepts dot notation for ipv4 addresses and hexadecimal separated by colons for ipv6 addresses
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"11.0.1.18" => isIP() // outputs "11.0.1.18"
+```
+
+```ts
+"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIP() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
+```
+
+```ts
+"172.394.0.1" => isIP() // outputs null
+```
+
+```ts
+1234567 => isIP() // outputs null
+```
+
+```ts
+"not an ip address" => isIP() // outputs null
+```
+
+### `inIPRange`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the ip is within a range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa.
+
+#### Arguments
+
+ - **min**:  `String` - IPv4 or IPv6 value, used for the bottom of the range
+
+ - **max**:  `String` - IPv4 or IPv6 value, used for the top of the range
+
+ - **cidr**:  `String` - IPv4 or IPv6 range expressed in CIDR notation
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"8.8.8.8" => inIPRange(cidr: "8.8.8.0/24") // outputs "8.8.8.8"
+```
+
+```ts
+"fd00::b000" => inIPRange(min: "fd00::123", max: "fd00::ea00") // outputs "fd00::b000"
+```
+
+```ts
+"fd00::b000" => inIPRange(min: "fd00::123") // outputs "fd00::b000"
+```
+
+```ts
+"8.8.10.8" => inIPRange(cidr: "8.8.8.0/24") // outputs null
+```
+
+### `isCIDR`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a valid ipv4 or ipv6 ip address in CIDR notation
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+```ts
+"1.2.3.4/32" => isCIDR() // outputs "1.2.3.4/32"
+```
+
+```ts
+"2001::1234:5678/128" => isCIDR() // outputs "2001::1234:5678/128"
+```
+
+```ts
+"8.8.8.10" => isCIDR() // outputs null
+```
+
+```ts
+"badIPAddress/24" => isCIDR() // outputs null
+```
+
+### `isIPV4`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a valid ipv4 address in dot notation.
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"11.0.1.18" => isIPV4() // outputs "11.0.1.18"
+```
+
+```ts
+"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPV4() // outputs null
+```
+
+```ts
+"172.394.0.1" => isIPV4() // outputs null
+```
+
+```ts
+"not an ip address" => isIPV4() // outputs null
+```
+
+### `isIPV6`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a valid ipv6 ip address in hexadecimal separated by colons format
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPV6() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
+```
+
+```ts
+"fc00:db8::1" => isIPV6() // outputs "fc00:db8::1"
+```
+
+```ts
+"::FFFF:12.155.166.101" => isIPV6() // outputs "::FFFF:12.155.166.101"
+```
+
+```ts
+"11.0.1.18" => isIPV6() // outputs null
+```
+
+```ts
+"not an ip address" => isIPV6() // outputs null
+```
+
+### `isNonRoutableIP`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a non-routable ip address, handles ipv6 and ipv4 address.  Non-routable ip ranges are private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, broadcast
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"192.168.0.1" => isNonRoutableIP() // outputs "192.168.0.1"
+```
+
+```ts
+"2001:db8::1" => isNonRoutableIP() // outputs "2001:db8::1"
+```
+
+```ts
+"172.28.4.1" => isNonRoutableIP() // outputs "172.28.4.1"
+```
+
+```ts
+"8.8.8.8" => isNonRoutableIP() // outputs null
+```
+
+```ts
+"2001:2ff::ffff" => isNonRoutableIP() // outputs null
+```
+
+### `isRoutableIP`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is a routable ipv4 or ipv6 address.  Routable ranges are defined as anything that is not in the following ip ranges: private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, or broadcast
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"8.8.8.8" => isRoutableIP() // outputs "8.8.8.8"
+```
+
+```ts
+"2620:4f:123::" => isRoutableIP() // outputs "2620:4f:123::"
+```
+
+```ts
+"192.168.255.254" => isRoutableIP() // outputs null
+```
+
+```ts
+"2001:4:112::" => isRoutableIP() // outputs null
+```
+
+```ts
+"not an ip address" => isRoutableIP() // outputs null
+```
+
+### `isMappedIPV4`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is an ipv4 address mapped to an ipv6 address
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"::ffff:10.2.1.18" => isMappedIPV4() // outputs "::ffff:10.2.1.18"
+```
+
+```ts
+"::122.168.5.18" => isMappedIPV4() // outputs "::122.168.5.18"
+```
+
+```ts
+"10.16.32.210" => isMappedIPV4() // outputs null
+```
+
+```ts
+"2001:4:112::" => isMappedIPV4() // outputs null
+```
+
+```ts
+"not an ip address" => isMappedIPV4() // outputs null
+```
+
+### `extractMappedIPV4`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Extracts a mapped IPv4 address from an IPv6 address
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"::FFFF:192.52.193.1" => extractMappedIPV4() // outputs "192.52.193.1"
+```
+
+```ts
+"::122.168.5.18" => extractMappedIPV4() // outputs "122.168.5.18"
+```
+
+### `reverseIP`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the ip address in reverse notation, accepts both IPv4 and IPv6 addresses
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"10.16.32.210" => reverseIP() // outputs "210.32.16.10"
+```
+
+```ts
+"2001:0db8:0000:0000:0000:8a2e:0370:7334" => reverseIP() // outputs "4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2"
+```
+
+```ts
+"2001:2::" => reverseIP() // outputs "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2"
+```
+
+### `ipToInt`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the ip as an integer or a big int
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"10.16.32.210" => ipToInt() // outputs 168829138
+```
+
+```ts
+"2001:2::" => ipToInt() // outputs "42540488320432167789079031612388147199"
+```
+
+### `intToIP`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts an integer to an ip address, must provide the version of the returned ip address
+
+#### Accepts
+
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+168829138 => intToIP(version: 4) // outputs "10.16.32.210"
+```
+
+```ts
+"42540488320432167789079031612388147200" => intToIP(version: "6") // outputs "2001:2::"
+```
+
+### `getCIDRMin`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the first address of a CIDR range, excluding the network address
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+```ts
+"8.8.12.118/24" => getCIDRMin() // outputs "8.8.12.1"
+```
+
+```ts
+"2001:0db8:0123:4567:89ab:cdef:1234:5678/128" => getCIDRMin() // outputs "2001:db8:123:4567:89ab:cdef:1234:5678"
+```
+
+```ts
+"2001:0db8:0123:4567:89ab:cdef:1234:5678/46" => getCIDRMin() // outputs "2001:db8:120::1"
+```
+
+### `getCIDRMax`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the last address of a CIDR range, excluding the broadcast address for IPv4 addresses
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+```ts
+"8.8.12.118/24" => getCIDRMax() // outputs "8.8.12.254"
+```
+
+```ts
+"2001:0db8:0123:4567:89ab:cdef:1234:5678/128" => getCIDRMax() // outputs "2001:db8:123:4567:89ab:cdef:1234:5678"
+```
+
+```ts
+"2001:0db8:0123:4567:89ab:cdef:1234:5678/46" => getCIDRMax() // outputs "2001:db8:123:ffff:ffff:ffff:ffff:ffff"
+```
+
+### `getCIDRBroadcast`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the broadcast address of a CIDR range, only applicable to IPv4 addresses
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+```ts
+"8.8.12.118/24" => getCIDRBroadcast() // outputs "8.8.12.255"
+```
+
+```ts
+"1.2.3.4/32" => getCIDRBroadcast() // outputs "1.2.3.4"
+```
+
+### `getCIDRNetwork`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the network address of a CIDR range, only applicable to IPv4 addresses
+
+#### Accepts
+
+- `String`
+- `IPRange`
+
+#### Examples
+
+```ts
+"8.8.12.118/24" => getCIDRNetwork() // outputs "8.8.12.0"
+```
+
+```ts
+"1.2.3.4/32" => getCIDRNetwork() // outputs "1.2.3.4"
+```
+
+### `toCIDR`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a CIDR address based on the provided ip and suffix
+
+#### Accepts
+
+- `String`
+- `IP`
+
+#### Examples
+
+```ts
+"1.2.3.4" => toCIDR(suffix: 32) // outputs "1.2.3.4/32"
+```
+
+```ts
+"1.2.3.4" => toCIDR(suffix: 24) // outputs "1.2.3.0/24"
+```
+
+```ts
+"2001:0db8:0123:4567:89ab:cdef:1234:5678" => toCIDR(suffix: "46") // outputs "2001:db8:120::/46"
 ```
