@@ -30,7 +30,7 @@ describe('date utils', () => {
 
     describe('formatDateValue', () => {
         test.each([
-            [24364800000, 'yyyy-MM-dd', '1970-10-09'],
+            [24364800000, 'yyyy-MM-dd', '1970-10-10'],
             [978310800000, DateFormat.iso_8601, '2001-01-01T01:00:00.000Z'],
             [102390933000, DateFormat.epoch, 102390933],
             [-102390933000, DateFormat.seconds, -102390933],

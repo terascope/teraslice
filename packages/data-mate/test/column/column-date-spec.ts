@@ -89,7 +89,7 @@ describe('Column (Date Types)', () => {
                 if (value == null) return undefined;
                 const date = getValidDate(value);
                 if (date === false) return undefined;
-                return formatDate(date.getTime() - (date.getTimezoneOffset() * 60_000), format);
+                return formatDate(date.getTime() + (date.getTimezoneOffset() * 60_000), format);
             }));
         });
 
@@ -124,9 +124,9 @@ describe('Column (Date Types)', () => {
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual([
-                '2020-09-22',
+                '2020-09-23',
                 undefined,
-                '2020-01-19'
+                '2020-01-20'
             ]);
         });
 
@@ -168,9 +168,9 @@ describe('Column (Date Types)', () => {
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual([
-                '2018-02-01 17:23:01',
+                '2018-02-02 07:23:01',
                 undefined,
-                '2016-12-12 12:23:02',
+                '2016-12-13 02:23:02',
             ]);
         });
 

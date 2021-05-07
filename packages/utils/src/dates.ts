@@ -219,9 +219,9 @@ export function formatDateValue(
 
     if (format && !(format in DateFormat)) {
         const ms = value instanceof Date ? value.getTime() : value;
-        // need subtract our offset here to
+        // need add our offset here to
         // in order to deal with UTC time
-        return formatDate(ms - timezoneOffset, format);
+        return formatDate(ms + timezoneOffset, format);
     }
 
     if (value instanceof Date) return value.toISOString();
