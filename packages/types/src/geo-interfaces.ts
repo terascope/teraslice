@@ -72,6 +72,8 @@ export enum GeoShapeRelation {
     Contains = 'contains'
 }
 
+export type GeoInput = GeoPointInput | GeoPointInput[] | GeoShape;
+
 export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {

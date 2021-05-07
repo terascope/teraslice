@@ -6,6 +6,7 @@ import { isGeoPointConfig } from './isGeoPoint';
 import { isGeoShapeMultiPolygonConfig } from './isGeoShapeMultiPolygon';
 import { isGeoShapePointConfig } from './isGeoShapePoint';
 import { isGeoShapePolygonConfig } from './isGeoShapePolygon';
+import { toGeoJSONConfig } from './toGeoJSON';
 import { toGeoPointConfig } from './toGeoPoint';
 
 export const geoRepository = {
@@ -17,5 +18,10 @@ export const geoRepository = {
     isGeoShapeMultiPolygon: isGeoShapeMultiPolygonConfig,
     isGeoShapePoint: isGeoShapePointConfig,
     isGeoShapePolygon: isGeoShapePolygonConfig,
+    toGeoJSON: toGeoJSONConfig,
     toGeoPoint: toGeoPointConfig,
 };
+
+// geoContains
+
+//
