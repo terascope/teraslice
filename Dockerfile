@@ -1,16 +1,22 @@
-FROM terascope/node-base:12.20.1
+FROM terascope/node-base:12.22.1
 
 ENV NODE_ENV production
 
 ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
 
 COPY package.json yarn.lock tsconfig.json .yarnrc /app/source/
+COPY .yarnclean.ci /app/source/.yarnclean
 COPY packages /app/source/packages
-COPY types /app/source/types
 COPY scripts /app/source/scripts
-COPY service.js /app/source/
 
-RUN yarn setup
+RUN yarn --prod=false --silent --ignore-optional --frozen-lockfile \
+    && yarn cache clean
+
+COPY types /app/source/types
+
+RUN yarn build
+
+COPY service.js /app/source/
 
 # Create a smaller build
 RUN yarn \
