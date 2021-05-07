@@ -27,7 +27,9 @@ import {
     contains,
     trim,
     trimStart,
-    trimEnd
+    trimEnd,
+    isAlpha,
+    toTitleCase
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -85,7 +87,7 @@ describe('String Utils', () => {
 
     describe('toCamelCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'helloThere'],
             ['helloThere', 'helloThere'],
             ['HelloThere', 'helloThere'],
@@ -93,6 +95,7 @@ describe('String Utils', () => {
             ['hello there', 'helloThere'],
             ['hello THERE', 'helloThere'],
             ['HELLO THERE', 'helloThere'],
+            ['SystemCRT', 'systemCrt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toCamelCase(input)).toEqual(expected);
         });
@@ -100,25 +103,41 @@ describe('String Utils', () => {
 
     describe('toPascalCase', () => {
         test.each([
-            ['_key', '_Key'],
+            ['_key', 'Key'],
             ['hello-there', 'HelloThere'],
             ['helloThere', 'HelloThere'],
             ['HelloThere', 'HelloThere'],
             ['hello_there', 'HelloThere'],
             ['hello there', 'HelloThere'],
+            ['SystemCRT', 'SystemCrt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toPascalCase(input)).toEqual(expected);
         });
     });
 
+    describe('toTitleCase', () => {
+        test.each([
+            ['_key', 'Key'],
+            ['hello-there', 'Hello There'],
+            ['helloThere', 'Hello There'],
+            ['HelloThere', 'Hello There'],
+            ['hello_there', 'Hello There'],
+            ['hello there', 'Hello There'],
+            ['SystemCRT', 'System CRT'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toTitleCase(input)).toEqual(expected);
+        });
+    });
+
     describe('toKebabCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'hello-there'],
             ['helloThere', 'hello-there'],
             ['HelloThere', 'hello-there'],
             ['hello_there', 'hello-there'],
             ['hello there', 'hello-there'],
+            ['SystemCRT', 'system-crt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toKebabCase(input)).toEqual(expected);
         });
@@ -126,12 +145,13 @@ describe('String Utils', () => {
 
     describe('toSnakeCase', () => {
         test.each([
-            ['_key', '_key'],
+            ['_key', 'key'],
             ['hello-there', 'hello_there'],
             ['helloThere', 'hello_there'],
             ['HelloThere', 'hello_there'],
             ['hello_there', 'hello_there'],
             ['hello there', 'hello_there'],
+            ['SystemCRT', 'system_crt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toSnakeCase(input)).toEqual(expected);
         });
@@ -364,6 +384,29 @@ describe('String Utils', () => {
             ['ThisiZĄĆĘŚŁ1234', 'en-HK', false]
         ])('should return true for valid alphanumeric inputs with a locale', (input, locale, expected) => {
             expect(isAlphaNumeric(input as any, locale as any)).toEqual(expected);
+        });
+    });
+
+    describe('isAlpha', () => {
+        test.each([
+            ['example', true],
+            ['123456', false],
+            ['example123456', false],
+            ['no_underscores.com', false],
+            [true, false],
+            [123456, false],
+            [undefined, false],
+            [{}, false],
+        ])('should return true for valid alphabetical inputs and no locale', (input, expected) => {
+            expect(isAlpha(input)).toEqual(expected);
+        });
+
+        test.each([
+            ['ThisiZĄĆĘŚŁ1234', 'pl-Pl', false],
+            ['ThisiZĄĆĘŚŁ', 'pl-Pl', true],
+            ['ThisiZĄĆĘŚŁ', 'en-HK', false]
+        ])('should return true for valid alphabetical inputs with a locale', (input, locale, expected) => {
+            expect(isAlpha(input as any, locale as any)).toEqual(expected);
         });
     });
 

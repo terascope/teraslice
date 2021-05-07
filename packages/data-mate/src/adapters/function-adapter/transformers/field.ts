@@ -148,14 +148,10 @@ export function wholeFieldTransformColumnExecution(
         const results: unknown[] = [];
 
         for (const value of input) {
-            if (isNotNil(value)) {
-                const newValue = fn(value);
+            const newValue = fn(value);
 
-                if (!isNil(newValue)) {
-                    results.push(newValue);
-                } else if (preserveNulls) {
-                    results.push(null);
-                }
+            if (!isNil(newValue)) {
+                results.push(newValue);
             } else if (preserveNulls) {
                 results.push(null);
             }

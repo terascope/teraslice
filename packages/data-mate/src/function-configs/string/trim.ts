@@ -1,5 +1,5 @@
 import {
-    trimFP, isNotNil, isString, getTypeOf
+    trimFP
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -73,6 +73,13 @@ const examples: FunctionDefinitionExample<TrimArgs>[] = [
         output: ' cars race ',
     },
     {
+        args: { chars: 'fatc ' },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: 'fast example cata',
+        output: 'st example',
+    },
+    {
         args: { chars: '\r' },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
@@ -104,11 +111,6 @@ export const trimConfig: FieldTransformConfig<TrimArgs> = {
             type: FieldType.String,
             array: false,
             description: 'The characters to remove, defaults to whitespace'
-        }
-    },
-    validate_arguments({ chars } = {}) {
-        if (isNotNil(chars) && !isString(chars)) {
-            throw new Error(`Invalid parameter chars, if provided it must be of type string, got ${getTypeOf(chars)}`);
         }
     }
 };
