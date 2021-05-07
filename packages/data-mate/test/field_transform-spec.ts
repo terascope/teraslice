@@ -726,7 +726,7 @@ describe('field FieldTransforms', () => {
             expect(FieldTransform.toTitleCase('happyBirthday')).toBe('Happy Birthday');
             expect(FieldTransform.toTitleCase('what_is_this')).toBe('What Is This');
             expect(FieldTransform.toTitleCase('this-should-be-capital')).toBe('This Should Be Capital');
-            expect(FieldTransform.toTitleCase('Cased   to Pass---this_____TEST')).toBe('Cased To Pass This Test');
+            expect(FieldTransform.toTitleCase('Cased   to Pass---this_____TEST')).toBe('Cased To Pass This TEST');
         });
 
         it('convert an array of values, ignores undefined/null', () => {

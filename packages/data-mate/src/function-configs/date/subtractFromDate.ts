@@ -96,7 +96,7 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
     argument_schema: {
         expr: {
             type: FieldType.String,
-            description: `The date math expression used from calculate the date from subtract from.
+            description: `The date math expression used to subtract from the input date.
 For example, \`1h\` or \`1h+2m\``
         },
         years: {

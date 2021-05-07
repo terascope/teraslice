@@ -60,7 +60,7 @@ export const toISO8601Config: FieldTransformConfig<ToISO8601Args> = {
     argument_schema: {
         time_resolution: {
             type: FieldType.String,
-            description: `This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+            description: `This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
 This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
 Default: milliseconds`
         }

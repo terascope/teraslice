@@ -102,7 +102,7 @@ Default: iso_8601 for strings and epoch_millis for number`
         },
         time_resolution: {
             type: FieldType.String,
-            description: `This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+            description: `This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
 This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
 Default: milliseconds`
         }

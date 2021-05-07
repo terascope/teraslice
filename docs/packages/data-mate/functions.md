@@ -158,7 +158,7 @@ null => setDefault(value: "example") // outputs ["example"]
 
 #### Arguments
 
- - **expr**:  `String` - The date math expression used to calculate the date to add to.
+ - **expr**:  `String` - The date math expression used to add to the input date.
 For example, `1h` or `1h+2m`
 
  - **years**:  `Integer` - The number of years to add to the date. This cannot be specified with expr
@@ -207,7 +207,7 @@ For example, `1h` or `1h+2m`
 
 #### Arguments
 
- - **expr**:  `String` - The date math expression used from calculate the date from subtract from.
+ - **expr**:  `String` - The date math expression used to subtract from the input date.
 For example, `1h` or `1h+2m`
 
  - **years**:  `Integer` - The number of years from subtract from the date. This cannot be specified with expr
@@ -283,7 +283,7 @@ A previously formatted date should be parsable
 See https://date-fns.org/v2.16.1/docs/parse for more info.
 Default: iso_8601 for strings and epoch_millis for number
 
- - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+ - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
 This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
 Default: milliseconds
 
@@ -348,7 +348,7 @@ A previously formatted date should be parsable
 
 #### Arguments
 
- - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored in with millisecond or second accuracy.
+ - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
 This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
 Default: milliseconds
 
@@ -3009,7 +3009,14 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"	trim this" => trim(chars: "") // outputs "	trim this"
+"
+
+trim this
+
+" => trim(chars: "
+") // outputs "
+
+trim this"
 ```
 
 ```ts
@@ -3574,5 +3581,3 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```ts
 "2001:0db8:0123:4567:89ab:cdef:1234:5678" => toCIDR(suffix: "46") // outputs "2001:db8:120::/46"
 ```
-
-

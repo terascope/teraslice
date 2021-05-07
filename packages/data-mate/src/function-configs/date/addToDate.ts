@@ -96,7 +96,7 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
     argument_schema: {
         expr: {
             type: FieldType.String,
-            description: `The date math expression used to calculate the date to add to.
+            description: `The date math expression used to add to the input date.
 For example, \`1h\` or \`1h+2m\``
         },
         years: {
