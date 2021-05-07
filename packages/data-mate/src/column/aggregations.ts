@@ -1,7 +1,7 @@
 import {
     isBigInt, toBigInt, trimISODateSegment
 } from '@terascope/utils';
-import { Maybe, ISO8061DateSegment } from '@terascope/types';
+import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
     Vector, VectorType, getNumericValues, SerializeOptions, DateVector
 } from '../vector';
@@ -176,10 +176,10 @@ export type KeyAggFn = (index: number) => {
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;
 
 export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
-    [KeyAggregation.hourly]: makeDateAgg(trimISODateSegment(ISO8061DateSegment.hourly)),
-    [KeyAggregation.daily]: makeDateAgg(trimISODateSegment(ISO8061DateSegment.daily)),
-    [KeyAggregation.monthly]: makeDateAgg(trimISODateSegment(ISO8061DateSegment.monthly)),
-    [KeyAggregation.yearly]: makeDateAgg(trimISODateSegment(ISO8061DateSegment.yearly)),
+    [KeyAggregation.hourly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.hourly)),
+    [KeyAggregation.daily]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.daily)),
+    [KeyAggregation.monthly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.monthly)),
+    [KeyAggregation.yearly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.yearly)),
 };
 
 function makeDateAgg(trimDateFn: (input: unknown) => string): MakeKeyAggFn {

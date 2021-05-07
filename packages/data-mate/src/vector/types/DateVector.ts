@@ -14,7 +14,7 @@ export class DateVector extends Vector<string|number> {
     }
 
     /**
-     * Get the ISO 8061 date string from a value
+     * Get the ISO 8601 date string from a value
     */
     valueToISOString(value: string|number): string {
         if (this.config.format === DateFormat.epoch_millis

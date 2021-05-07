@@ -6,18 +6,18 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { getInputFormat, isIS8061FieldConfig } from './utils';
+import { getInputFormat, isIS8601FieldConfig } from './utils';
 
-export interface ToISO8061Args {
+export interface ToISO8601Args {
     resolution?: TimeResolution;
 }
 
-export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
-    name: 'toISO8061',
+export const toISO8601Config: FieldTransformConfig<ToISO8601Args> = {
+    name: 'toISO8601',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a value to a ISO 8061 date, this is more specific version of toDate(format: "iso_8061")',
+    description: 'Converts a value to a ISO 8601 date, this is more specific version of toDate(format: "iso_8601")',
     examples: [{
         args: { },
         config: {
@@ -40,12 +40,12 @@ export const toISO8061Config: FieldTransformConfig<ToISO8061Args> = {
     }],
     create(_args, inputConfig) {
         const inputFormat = getInputFormat(inputConfig);
-        if (isIS8061FieldConfig(inputConfig)) {
+        if (isIS8601FieldConfig(inputConfig)) {
             return noop;
         }
 
         const referenceDate = new Date();
-        return function toISO8061(input: unknown): string|number {
+        return function toISO8601(input: unknown): string|number {
             const parsed = parseDateValue(
                 input, inputFormat, referenceDate
             );

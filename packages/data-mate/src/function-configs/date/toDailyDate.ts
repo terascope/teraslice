@@ -1,5 +1,5 @@
 import {
-    DateFormat, FieldType, ISO8061DateSegment
+    DateFormat, FieldType, ISO8601DateSegment
 } from '@terascope/types';
 import { trimISODateSegment, formatDateValue, parseDateValue } from '@terascope/utils';
 import {
@@ -8,14 +8,14 @@ import {
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { getInputFormat, isIS8061FieldConfig } from './utils';
+import { getInputFormat, isIS8601FieldConfig } from './utils';
 
 export const toDailyDateConfig: FieldTransformConfig = {
     name: 'toDailyDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a value to a daily ISO 8061 date segment',
+    description: 'Converts a value to a daily ISO 8601 date segment',
     examples: [{
         args: { },
         config: {
@@ -39,8 +39,8 @@ export const toDailyDateConfig: FieldTransformConfig = {
     create(_args, inputConfig) {
         const inputFormat = getInputFormat(inputConfig);
 
-        const trimFn = trimISODateSegment(ISO8061DateSegment.daily);
-        if (isIS8061FieldConfig(inputConfig)) {
+        const trimFn = trimISODateSegment(ISO8601DateSegment.daily);
+        if (isIS8601FieldConfig(inputConfig)) {
             return trimFn;
         }
 

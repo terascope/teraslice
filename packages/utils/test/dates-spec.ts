@@ -1,17 +1,17 @@
 import 'jest-extended';
 import { DateFormat } from '@terascope/types';
 import {
-    isISO8061, parseDateValue, formatDateValue
+    isISO8601, parseDateValue, formatDateValue
 } from '../src/dates';
 
 describe('date utils', () => {
-    describe('isISO8061', () => {
+    describe('isISO8601', () => {
         test.each([
             ['1970-10-10', false],
             ['2001-01-01T01:00:00.000Z', true],
             [102390933, false],
         ])('should handle %p and return %p', (input, expected) => {
-            expect(isISO8061(input)).toBe(expected);
+            expect(isISO8601(input)).toBe(expected);
         });
     });
 

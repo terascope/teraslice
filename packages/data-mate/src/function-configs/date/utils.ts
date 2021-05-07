@@ -20,7 +20,7 @@ export function getInputFormat(
     return inputFormat!;
 }
 
-export function isIS8061FieldConfig(inputConfig: DataTypeFieldAndChildren|undefined): boolean {
+export function isIS8601FieldConfig(inputConfig: DataTypeFieldAndChildren|undefined): boolean {
     if (inputConfig?.field_config?.type !== FieldType.Date) return false;
     if (inputConfig.field_config.format === DateFormat.iso_8601) return true;
     if (inputConfig.field_config.format == null) return true;

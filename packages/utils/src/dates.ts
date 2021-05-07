@@ -1,6 +1,7 @@
+import validator from 'validator';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
-import { DateFormat, ISO8061DateSegment } from '@terascope/types';
+import { DateFormat, ISO8601DateSegment } from '@terascope/types';
 import { getTypeOf } from './deps';
 import { bigIntToJSON, toInteger } from './numbers';
 import { isString } from './strings';
@@ -88,27 +89,27 @@ export function isUnixTimeFP(allowBefore1970?: boolean) {
 }
 
 /**
- * Checks to see if an input is a ISO 8061 date
+ * Checks to see if an input is a ISO 8601 date
 */
-export function isISO8061(input: unknown): input is string {
+export function isISO8601(input: unknown): input is string {
     if (!isString(input)) return false;
 
-    return new Date(input).toISOString() === input;
+    return validator.isISO8601(input);
 }
 
 /**
  * Returns a function to trim the ISO 8601 date segment, this useful
  * for creating yearly, monthly, daily or hourly dates
 */
-export function trimISODateSegment(segment: ISO8061DateSegment): (input: unknown) => string {
+export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => string {
     return function _trimISODate(input) {
         if (isValidDateInstance(input)) {
             return input.toISOString().slice(0, segment);
         }
-        if (isISO8061(input)) {
+        if (isISO8601(input)) {
             return input.slice(0, segment);
         }
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a date or ISO 8061 string`);
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a date or ISO 8601 string`);
     };
 }
 
@@ -175,7 +176,7 @@ export function parseCustomDateFormat(
 
 /**
  * Parse a date value (that has already been validated)
- * and return the epoch millis time
+ * and return the epoch millis time.
 */
 export function parseDateValue(
     value: unknown,

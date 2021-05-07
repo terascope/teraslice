@@ -1,12 +1,12 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { isISO8061 } from '@terascope/utils';
+import { isISO8601 } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
-import { isIS8061FieldConfig } from './utils';
+import { isIS8601FieldConfig } from './utils';
 
 export const isISO8601Config: FieldValidateConfig = {
-    name: 'isISO8061',
+    name: 'isISO8601',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
@@ -46,10 +46,10 @@ export const isISO8601Config: FieldValidateConfig = {
     }],
     argument_schema: {},
     create(_args, inputConfig) {
-        if (isIS8061FieldConfig(inputConfig)) {
+        if (isIS8601FieldConfig(inputConfig)) {
             return alwaysTrue;
         }
-        return isISO8061;
+        return isISO8601;
     },
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
 };
