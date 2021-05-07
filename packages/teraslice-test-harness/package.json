@@ -33,7 +33,7 @@
         "@terascope/fetch-github-release": "^0.7.7",
         "@terascope/teraslice-op-test-harness": "^1.23.1",
         "decompress": "^4.2.1",
-        "fs-extra": "^9.1.0"
+        "fs-extra": "^10.0.0"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.50.0"
