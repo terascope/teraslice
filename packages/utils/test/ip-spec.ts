@@ -307,11 +307,7 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid ip address', () => {
-            try {
-                reverseIP('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid ip address');
-            }
+            expect(() => { reverseIP('bad ip address'); }).toThrowError('input must be a valid ip address');
         });
     });
 
@@ -372,19 +368,11 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is not a IPv4 mapped address', () => {
-            try {
-                extractMappedIPV4('10.16.32.210');
-            } catch (e) {
-                expect(e.message).toBe('input must be an IPv4 address mapped to an IPv6 address');
-            }
+            expect(() => { extractMappedIPV4('10.16.32.210'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
         });
 
         it('should throw if input is an invalid ip address', () => {
-            try {
-                extractMappedIPV4('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be an IPv4 address mapped to an IPv6 address');
-            }
+            expect(() => { extractMappedIPV4('bad ip address'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
         });
     });
 
@@ -399,11 +387,7 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid CIDR', () => {
-            try {
-                CIDRMin('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IP address in CIDR notation');
-            }
+            expect(() => { CIDRMin('bad ip address'); }).toThrowError('input must be a valid IP address in CIDR notation');
         });
     });
 
@@ -417,11 +401,7 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid CIDR', () => {
-            try {
-                CIDRMax('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IP address in CIDR notation');
-            }
+            expect(() => { CIDRMax('bad ip address'); }).toThrowError('input must be a valid IP address in CIDR notation');
         });
     });
 
@@ -434,19 +414,11 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid CIDR', () => {
-            try {
-                CIDRBroadcast('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IPv4 address in CIDR notation');
-            }
+            expect(() => { CIDRBroadcast('bad ip address'); }).toThrowError('input must be a valid IPv4 address in CIDR notation');
         });
 
         it('should throw if input is an IPv6 CIDR', () => {
-            try {
-                CIDRBroadcast('2001:0db8:0123:4567:89ab:cdef:1234:5678/46');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IPv4 address in CIDR notation');
-            }
+            expect(() => { CIDRBroadcast('2001:0db8:0123:4567:89ab:cdef:1234:5678/46'); }).toThrowError('input must be a valid IPv4 address in CIDR notation');
         });
     });
 
@@ -459,19 +431,11 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid CIDR', () => {
-            try {
-                CIDRNetwork('bad ip address');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IPv4 address in CIDR notation');
-            }
+            expect(() => { CIDRNetwork('bad ip address'); }).toThrowError('input must be a valid IPv4 address in CIDR notation');
         });
 
         it('should throw if input is an IPv6 CIDR', () => {
-            try {
-                CIDRNetwork('2001:0db8:0123:4567:89ab:cdef:1234:5678/46');
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IPv4 address in CIDR notation');
-            }
+            expect(() => { CIDRNetwork('2001:0db8:0123:4567:89ab:cdef:1234:5678/46'); }).toThrowError('input must be a valid IPv4 address in CIDR notation');
         });
     });
 
@@ -487,19 +451,11 @@ describe('IP Utils', () => {
         });
 
         it('should throw if input is an invalid CIDR', () => {
-            try {
-                toCIDR('bad ip address', 6);
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
-            }
+            expect(() => { toCIDR('bad ip address', 6); }).toThrowError('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
         });
 
         it('should throw if suffix is an invalid number', () => {
-            try {
-                toCIDR('2001:0db8:0123:4567:89ab:cdef:1234:5678', 223);
-            } catch (e) {
-                expect(e.message).toBe('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
-            }
+            expect(() => { toCIDR('2001:0db8:0123:4567:89ab:cdef:1234:5678', 223); }).toThrowError('input must be a valid IP address and suffix must be a value <= 32 for IPv4 or <= 128 for IPv6');
         });
     });
 });
