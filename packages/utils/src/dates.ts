@@ -107,6 +107,12 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
             return input.toISOString().slice(0, segment);
         }
         if (isISO8601(input)) {
+            if (segment === ISO8601DateSegment.hourly) {
+                // ISO dates don't have to include the T
+                // but we still want to return a consistent timestamp
+                // so we can key by the result of this consistently
+                return input.slice(0, segment).replace(' ', 'T');
+            }
             return input.slice(0, segment);
         }
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a date or ISO 8601 string`);
