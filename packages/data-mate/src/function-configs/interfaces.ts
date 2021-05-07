@@ -25,6 +25,7 @@ export enum FunctionDefinitionCategory {
     OBJECT = 'OBJECT',
     STRING = 'STRING',
     DATE = 'DATE',
+    IP = 'IP',
 }
 
 export interface FunctionDefinitionExample<T extends Record<string, any>> {
