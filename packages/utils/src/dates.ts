@@ -1,5 +1,5 @@
 import parseDate from 'date-fns/parse';
-import formatDate from 'date-fns/format';
+import formatDate from 'date-fns/lightFormat';
 import { DateFormat, ISO8061DateSegment } from '@terascope/types';
 import { getTypeOf } from './deps';
 import { bigIntToJSON, toInteger } from './numbers';
