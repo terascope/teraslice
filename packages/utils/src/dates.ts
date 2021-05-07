@@ -209,8 +209,7 @@ export function formatDateValue(
     format: DateFormat|string|undefined,
 ): string|number {
     if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
-        const ms = value instanceof Date ? value.getTime() : value;
-        return ms;
+        return value instanceof Date ? value.getTime() : value;
     }
 
     if (format === DateFormat.epoch || format === DateFormat.seconds) {
