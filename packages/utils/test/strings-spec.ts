@@ -95,7 +95,7 @@ describe('String Utils', () => {
             ['hello there', 'helloThere'],
             ['hello THERE', 'helloThere'],
             ['HELLO THERE', 'helloThere'],
-            ['systemCRT', 'SystemCrt'],
+            ['SystemCRT', 'systemCrt'],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toCamelCase(input)).toEqual(expected);
         });

@@ -19,7 +19,7 @@ export const toTitleCaseConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'HELLO there',
-            output: 'Hello There'
+            output: 'HELLO There'
         },
         {
             args: {},

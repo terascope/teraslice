@@ -2920,7 +2920,7 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 #### Examples
 
 ```ts
-"HELLO there" => toTitleCase() // outputs "Hello There"
+"HELLO there" => toTitleCase() // outputs "HELLO There"
 ```
 
 ```ts
@@ -3009,14 +3009,7 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"
-
-trim this
-
-" => trim(chars: "
-") // outputs "
-
-trim this"
+"	trim this" => trim(chars: "") // outputs "	trim this"
 ```
 
 ```ts
@@ -3581,3 +3574,5 @@ trim this"
 ```ts
 "2001:0db8:0123:4567:89ab:cdef:1234:5678" => toCIDR(suffix: "46") // outputs "2001:db8:120::/46"
 ```
+
+
