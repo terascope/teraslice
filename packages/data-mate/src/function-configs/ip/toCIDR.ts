@@ -34,7 +34,7 @@ export const toCIDRConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns a CIDR address based on the provided ip and suffix',
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IP],
     create({ suffix }) {
         return (input: unknown) => toCIDR(input, toString(suffix));
     },

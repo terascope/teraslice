@@ -42,5 +42,5 @@ export const isIPV4Config: FieldValidateConfig = {
     ],
     description: 'Checks if the input is a valid ipv4 address in dot notation.',
     create() { return isIPV4; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IP],
 };

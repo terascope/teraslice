@@ -42,5 +42,5 @@ export const isCIDRConfig: FieldValidateConfig = {
     ],
     description: 'Checks if the input is a valid ipv4 or ipv6 ip address in CIDR notation',
     create() { return isCIDR; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IPRange],
 };

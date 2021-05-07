@@ -49,5 +49,5 @@ export const isRoutableIPConfig: FieldValidateConfig = {
     ],
     description: 'Checks if the input is a routable ipv4 or ipv6 address.  Routable ranges are defined as anything that is not in the following ip ranges: private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, or broadcast',
     create() { return isRoutableIP; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IP],
 };

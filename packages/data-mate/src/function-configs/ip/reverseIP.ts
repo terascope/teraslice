@@ -35,5 +35,5 @@ export const reverseIPConfig: FieldTransformConfig = {
     ],
     description: 'Returns the ip address in reverse notation, accepts both IPv4 and IPv6 addresses',
     create() { return reverseIP; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IP],
 };

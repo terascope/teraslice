@@ -49,5 +49,5 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
     ],
     description: 'Checks if the input is a non-routable ip address, handles ipv6 and ipv4 address.  Non-routable ip ranges are private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, broadcast',
     create() { return isNonRoutableIP; },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.IP],
 };
