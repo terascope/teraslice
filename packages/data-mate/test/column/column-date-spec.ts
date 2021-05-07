@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { getValidDate } from '@terascope/utils';
+import { getValidDate, timezoneOffset } from '@terascope/utils';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
 import formatDate from 'date-fns/format';
 import {
@@ -89,7 +89,7 @@ describe('Column (Date Types)', () => {
                 if (value == null) return undefined;
                 const date = getValidDate(value);
                 if (date === false) return undefined;
-                return formatDate(date.getTime() + (date.getTimezoneOffset() * 60_000), format);
+                return formatDate(date.getTime() + timezoneOffset, format);
             }));
         });
 
@@ -143,9 +143,9 @@ describe('Column (Date Types)', () => {
     describe('when field type is Keyword (with time)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
-            '2018-02-02 00:23:01',
+            '2018-02-02T07:23:01.000Z',
             null,
-            '2016-12-12 19:23:02',
+            '2016-12-13T02:23:02.000Z',
         ];
 
         beforeEach(() => {
@@ -168,9 +168,9 @@ describe('Column (Date Types)', () => {
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual([
-                '2018-02-02 07:23:01',
+                formatDate(new Date(values[0]!).getTime() + timezoneOffset, format),
                 undefined,
-                '2016-12-13 02:23:02',
+                formatDate(new Date(values[2]!).getTime() + timezoneOffset, format),
             ]);
         });
 
