@@ -182,7 +182,6 @@ function verifyObjectEntity(data: unknown): asserts data is Record<string, unkno
 
 function serializeBigIntegers(input: unknown): any {
     if (isBigInt(input)) return bigIntToJSON(input);
-
     if (input == null || typeof input !== 'object') return input;
 
     if (Array.isArray(input)) {
