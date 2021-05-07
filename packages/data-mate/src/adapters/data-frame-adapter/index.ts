@@ -84,7 +84,7 @@ function transformColumnData<T extends Record<string, any>>(
     };
 
     const transformFn = transformConfig.create(
-        { ...args } as T,
+        args,
         inputConfig
     );
 
@@ -216,7 +216,8 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
     fnDef: FunctionDefinitionConfig<T>,
     options: DataFrameAdapterOptions<T> = {}
 ): FrameAdapterFn {
-    const { field, args } = options;
+    const { field } = options;
+    const args = { ...options.args } as T;
 
     validateFunctionArgs(fnDef, args);
 
