@@ -1,14 +1,13 @@
 import { FieldType } from '@terascope/types';
-import subtract from 'date-fns/sub';
+import sub from 'date-fns/sub';
 import parser from 'datemath-parser';
-import { joinList, formatDateValue, parseDateValue } from '@terascope/utils';
+import { joinList, getValidDate, getTypeOf } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { getInputFormat } from './utils';
 
 export type SubtractFromDateArgs = {
     readonly expr: string;
@@ -68,26 +67,18 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         fails: true,
         output: 'Invalid use of months with expr parameter'
     }],
-    create(args, inputConfig) {
-        const inputFormat = getInputFormat(inputConfig);
-
-        const referenceDate = new Date();
+    create(args) {
         return function subtractFromDate(input: unknown): string|number {
-            const parsed = parseDateValue(
-                input, inputFormat, referenceDate
-            );
-
-            if ('expr' in args) {
-                return formatDateValue(
-                    parser.parse(`now-${args.expr}`, new Date(parsed)),
-                    inputFormat
-                );
+            const date = getValidDate(input as any);
+            if (date === false) {
+                throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
             }
 
-            return formatDateValue(
-                subtract(parsed, args),
-                inputFormat
-            );
+            if ('expr' in args) {
+                return parser.parse(`now-${args.expr}`, date);
+            }
+
+            return sub(date, args).valueOf();
         };
     },
     accepts: [

@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { parseDateValue } from '@terascope/utils';
+import { formatDateValue, getValidDateOrNumberOrThrow } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -7,17 +7,16 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export interface ToDateArgs {
+export interface FormatDateArgs {
     format?: string|DateFormat;
 }
 
-export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
-    name: 'toDate',
-    aliases: ['toISO8061'],
+export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
+    name: 'formatDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a value to a date value, when specifying the format it applies to the input value',
+    description: 'Converts a date value to formatted date string, when specifying the format it applies to the output value',
     examples: [{
         args: { format: 'yyyy-MM-dd' },
         config: {
@@ -25,13 +24,13 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
             fields: { testField: { type: FieldType.String } }
         },
         field: 'testField',
-        input: '2019-10-22',
-        output: '2019-10-22T00:00:00.000Z',
+        input: '2019-10-22T00:00:00.000Z',
+        output: '2019-10-22',
     }, {
         args: { },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.Number } }
+            fields: { testField: { type: FieldType.Date } }
         },
         field: 'testField',
         input: 102390933,
@@ -42,26 +41,13 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.Long,
+                    type: FieldType.Date,
                 }
             }
         },
         field: 'testField',
-        input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z',
-    }, {
-        args: { format: DateFormat.seconds },
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Long,
-                }
-            }
-        },
-        field: 'testField',
-        input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z',
+        input: '1973-03-31T01:55:33.000Z',
+        output: 102390933000,
     }, {
         args: {},
         config: {
@@ -73,14 +59,14 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         output: '2001-01-01T01:00:00.000Z'
     }],
     create({ format }) {
-        const referenceDate = new Date();
-        return function toDate(input: unknown): number {
-            return parseDateValue(
-                input, format, referenceDate
+        return function formatDate(input: unknown): string|number {
+            return formatDateValue(
+                getValidDateOrNumberOrThrow(input), format
             );
         };
     },
     accepts: [
+        FieldType.Date,
         FieldType.String,
         FieldType.Number,
     ],
@@ -92,14 +78,21 @@ See https://date-fns.org/v2.16.1/docs/parse for more info.
 Default: iso_8601 for strings and epoch_millis for number`
         },
     },
-    output_type(inputConfig) {
+    output_type(inputConfig, { format }) {
         const { field_config } = inputConfig;
 
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Date
+                type: isNumberOutput(format) ? FieldType.Integer : FieldType.String
             },
         };
     }
 };
+
+function isNumberOutput(format: DateFormat|string|undefined) {
+    if (format == null) return false;
+    if (format === DateFormat.epoch || format === DateFormat.epoch_millis) return true;
+    if (format === DateFormat.seconds || format === DateFormat.milliseconds) return true;
+    return false;
+}
