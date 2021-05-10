@@ -246,11 +246,15 @@ export function fixDepPkgName(name: string): string {
     return trim(name).replace(/^\*\*\//, '').trim();
 }
 
-export async function getRemotePackageVersion(pkgInfo: i.PackageInfo): Promise<string> {
+export async function getRemotePackageVersion(
+    pkgInfo: i.PackageInfo,
+    /** @internal this is used internally within this function and should not be used externally */
+    forceTag?: 'prerelease'|'latest'
+): Promise<string> {
     if (pkgInfo.private) return pkgInfo.version;
 
     const registryUrl: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    const tag = getPublishTag(pkgInfo.version);
+    const tag = forceTag ?? getPublishTag(pkgInfo.version);
 
     try {
         const { version } = await packageJson(pkgInfo.name, {
@@ -260,6 +264,12 @@ export async function getRemotePackageVersion(pkgInfo: i.PackageInfo): Promise<s
         return version as string;
     } catch (err) {
         if (err instanceof packageJson.VersionNotFoundError) {
+            if (tag === 'prerelease') {
+                // this will happen if there has never been a prerelease
+                // for this package, so lets check the latest so we
+                // get the correct package version
+                return getRemotePackageVersion(pkgInfo, 'latest');
+            }
             return pkgInfo.version;
         }
         if (err instanceof packageJson.PackageNotFoundError) {
