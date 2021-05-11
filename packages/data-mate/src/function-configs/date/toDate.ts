@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { parseDateValue } from '@terascope/utils';
+import { parseDateValue, toISO8061 } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -26,6 +26,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         field: 'testField',
         input: '2019-10-22',
         output: new Date('2019-10-22T00:00:00.000Z').getTime(),
+        serialize_output: toISO8061
     }, {
         args: { },
         config: {
@@ -34,7 +35,8 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: 102390933,
-        output: 102390933
+        output: 102390933,
+        serialize_output: toISO8061
     }, {
         args: { format: DateFormat.seconds },
         config: {
@@ -48,6 +50,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         field: 'testField',
         input: 102390933,
         output: 102390933 * 1000,
+        serialize_output: toISO8061
     }, {
         args: { format: DateFormat.milliseconds },
         config: {
@@ -61,6 +64,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         field: 'testField',
         input: 102390933000,
         output: 102390933000,
+        serialize_output: toISO8061
     }, {
         args: {},
         config: {
@@ -69,7 +73,8 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
-        output: new Date('2001-01-01T01:00:00.000Z').getTime()
+        output: new Date('2001-01-01T01:00:00.000Z').getTime(),
+        serialize_output: toISO8061
     }],
     create({ format }) {
         const referenceDate = new Date();

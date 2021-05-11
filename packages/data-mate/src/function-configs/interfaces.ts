@@ -59,6 +59,13 @@ export interface FunctionDefinitionExample<T extends Record<string, any>, O = un
     readonly output?: O;
 
     /**
+     * Serialize the output for documentation or the function adapter.
+     * In the functionTestHarness this won't be called out the result
+     * from the dataFrameAdapter
+    */
+    readonly serialize_output?: (output: O) => unknown;
+
+    /**
      * If this is set to true, the output is not required. If output
      * is specified it should be the error message
     */

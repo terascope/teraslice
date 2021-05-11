@@ -1,7 +1,9 @@
 import { FieldType } from '@terascope/types';
 import sub from 'date-fns/sub';
 import parser from 'datemath-parser';
-import { joinList, getValidDate, getTypeOf } from '@terascope/utils';
+import {
+    joinList, getValidDate, getTypeOf, toISO8061
+} from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -36,7 +38,8 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: new Date('2019-10-22T12:02:00.000Z').getTime()
+        output: new Date('2019-10-22T12:02:00.000Z').getTime(),
+        serialize_output: toISO8061
     }, {
         args: { months: 1, minutes: 2 },
         config: {
@@ -45,7 +48,8 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: new Date('2019-09-22T21:58:00.000Z').getTime()
+        output: new Date('2019-09-22T21:58:00.000Z').getTime(),
+        serialize_output: toISO8061
     }, {
         args: {},
         config: {
@@ -78,7 +82,7 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
                 return parser.parse(`now-${args.expr}`, date);
             }
 
-            return sub(date, args).valueOf();
+            return sub(date, args).getTime();
         };
     },
     accepts: [

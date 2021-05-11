@@ -2,7 +2,6 @@ import 'jest-extended';
 import {
     bigIntToJSON, hasOwn, isBigInt, isObjectEntity
 } from '@terascope/utils';
-import { FieldType } from '@terascope/types';
 import {
     functionAdapter,
     dataFrameAdapter,
@@ -46,21 +45,35 @@ export function functionTestHarness<T extends Record<string, any>>(
 
         describe('when using the function adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
+                function getOutput(output: unknown) {
+                    if (output == null) return [null];
+                    if (testCase.serialize_output) {
+                        return [testCase.serialize_output(
+                            serializeBigIntegers(output)
+                        )];
+                    }
+                    return [serializeBigIntegers(output)];
+                }
+
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
-                    expect(serializeBigIntegers(
+                    expect(getOutput(
                         functionAdapter(fnDef, {
                             args: testCase.args,
                             field: testCase.field,
                             config: testCase.config
-                        }).column([input])
-                    )).toEqual([testCase.output]);
+                        }).column([input])[0]
+                    )).toEqual(
+                        getOutput(testCase.output)
+                    );
                 } else {
                     verifyObjectEntity(input);
-                    expect(functionAdapter(fnDef, {
+                    expect(getOutput(functionAdapter(fnDef, {
                         args: testCase.args,
                         field: testCase.field,
                         config: testCase.config
-                    }).rows([input])).toEqual([testCase.output]);
+                    }).rows([input]))).toEqual(
+                        getOutput(testCase.output)
+                    );
                 }
             });
 
@@ -93,6 +106,16 @@ export function functionTestHarness<T extends Record<string, any>>(
 
         describe('when using the data frame adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
+                function getOutput(output: unknown) {
+                    if (output == null) return [undefined];
+                    if (testCase.serialize_output) {
+                        return [testCase.serialize_output(
+                            serializeBigIntegers(output)
+                        )];
+                    }
+                    return [serializeBigIntegers(output)];
+                }
+
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field
@@ -112,17 +135,9 @@ export function functionTestHarness<T extends Record<string, any>>(
                         field: testCase.field,
                     }).column(column);
 
-                    if (outputColumn.config.type === FieldType.Date) {
-                        // we need to make sure the outputted date
-                        // is the same as the function adapter
-                        expect(outputColumn.vector.toArray()).toEqual(
-                            [testCase.output ?? undefined]
-                        );
-                    } else {
-                        expect(outputColumn.toJSON()).toEqual(
-                            [testCase.output ?? undefined]
-                        );
-                    }
+                    expect(outputColumn.toJSON()).toEqual(
+                        getOutput(testCase.output)
+                    );
                 } else {
                     verifyObjectEntity(input);
 
@@ -136,7 +151,9 @@ export function functionTestHarness<T extends Record<string, any>>(
                         field: testCase.field,
                     }).frame(frame);
 
-                    expect(outputFrame.toJSON()).toEqual([testCase.output ?? undefined]);
+                    expect(outputFrame.toJSON()).toEqual(
+                        getOutput(testCase.output)
+                    );
                 }
             });
 

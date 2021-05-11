@@ -1,7 +1,7 @@
 import {
     DateFormat, FieldType, ISO8601DateSegment
 } from '@terascope/types';
-import { trimISODateSegment } from '@terascope/utils';
+import { toISO8061, trimISODateSegment } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -23,7 +23,8 @@ export const toYearlyDateConfig: FieldTransformConfig = {
         },
         field: 'testField',
         input: '2019-10-22T01:00:00.000Z',
-        output: new Date('2019-01-01T00:00:00.000Z').getTime()
+        output: new Date('2019-01-01T00:00:00.000Z').getTime(),
+        serialize_output: toISO8061
     }],
     create() {
         return trimISODateSegment(ISO8601DateSegment.yearly);
