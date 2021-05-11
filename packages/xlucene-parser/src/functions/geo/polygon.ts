@@ -2,10 +2,9 @@ import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
 import {
     toString,
-    makeGeoFeature,
     geoPolygonFP,
-    geoPolyHasPoint,
-    validateListCoords
+    validateListCoords,
+    polyHasHoles
 } from '@terascope/utils';
 import * as i from '../../interfaces';
 import { getFieldValue, logger } from '../../utils';
@@ -87,6 +86,7 @@ const geoPolygon: i.FunctionDefinition = {
         if (!node.field || node.field === '*') {
             throw new Error('Field for geoPolygon cannot be empty or "*"');
         }
+
         const { polygonShape, relation } = validate(
             node.params as i.Term[], variables
         );
@@ -115,6 +115,12 @@ const geoPolygon: i.FunctionDefinition = {
                 || type === t.xLuceneFieldType.Geo
                 || type === undefined;
 
+        const isDisjoint = relation === t.GeoShapeRelation.Disjoint;
+
+        if (targetIsGeoPoint && polyHasHoles(polygonShape) && isDisjoint) {
+            throw new Error('Invalid argument points, when running a disjoint query with a polygon/multi-polygon with holes, it must be against data of type geo-json');
+        }
+
         function makeESPolyQuery(field: string, points: t.CoordinateTuple[]) {
             return {
                 geo_polygon: {
@@ -129,11 +135,6 @@ const geoPolygon: i.FunctionDefinition = {
             field: string,
             coordinates: t.CoordinateTuple[][]
         ): t.GeoQuery | PolyHolesQuery {
-            // it has no holes
-            if (coordinates.length === 1) {
-                return makeESPolyQuery(field, coordinates[0]);
-            }
-
             const query = {
                 bool: {
                     should: [] as any
@@ -152,13 +153,19 @@ const geoPolygon: i.FunctionDefinition = {
                 }
             };
 
-            coordinates.forEach((coords, index) => {
-                if (index === 0) {
-                    filter.bool.filter.push(makeESPolyQuery(field, coords));
-                } else {
-                    holes.bool.must_not.push(makeESPolyQuery(field, coords));
-                }
-            });
+            if (relation === t.GeoShapeRelation.Disjoint) {
+                // we do not want results that the field does not exist
+                filter.bool.filter.push({ exists: { field } });
+                holes.bool.must_not.push(makeESPolyQuery(field, coordinates[0]));
+            } else {
+                coordinates.forEach((coords, index) => {
+                    if (index === 0) {
+                        filter.bool.filter.push(makeESPolyQuery(field, coords));
+                    } else {
+                        holes.bool.must_not.push(makeESPolyQuery(field, coords));
+                    }
+                });
+            }
 
             filter.bool.filter.push(holes);
             query.bool.should.push(filter);
@@ -166,7 +173,6 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPointQuery(field: string) {
-            // TODO: check if points is a polygon with holes
             if (utils.isGeoShapePolygon(polygonShape)) {
                 const query = makePolygonQuery(field, polygonShape.coordinates);
                 if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
@@ -175,13 +181,20 @@ const geoPolygon: i.FunctionDefinition = {
             }
 
             if (utils.isGeoShapeMultiPolygon(polygonShape)) {
-                const query = {
-                    bool: {
-                        should: polygonShape.coordinates.map(
-                            (polyCoords) => makePolygonQuery(field, polyCoords)
-                        )
-                    }
+                const dsl = polygonShape.coordinates.map(
+                    (polyCoords) => makePolygonQuery(field, polyCoords)
+                );
+
+                const query: any = {
+                    bool: {}
                 };
+
+                if (relation === t.GeoShapeRelation.Disjoint) {
+                    query.bool.must = dsl;
+                } else {
+                    query.bool.should = dsl;
+                }
+
                 if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
 
                 return { query };
@@ -208,16 +221,12 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
-        function polyToGeoPointMatcher() {
-            const polygon = makeGeoFeature(polygonShape);
-            // Nothing matches so return false
-            if (polygon == null) return () => false;
-            return geoPolyHasPoint(polygon);
-        }
-
         if (targetIsGeoPoint) {
+            if (relation === t.GeoShapeRelation.Contains) {
+                throw new Error(`Cannot query against geo-points with relation set to "${t.GeoShapeRelation.Contains}"`);
+            }
             return {
-                match: polyToGeoPointMatcher(),
+                match: geoPolygonFP(polygonShape, relation),
                 toElasticsearchQuery: esPolyToPointQuery
             };
         }

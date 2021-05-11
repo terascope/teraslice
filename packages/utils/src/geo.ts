@@ -25,7 +25,7 @@ import pointInPolygon from '@turf/boolean-point-in-polygon';
 import within from '@turf/boolean-within';
 import contains from '@turf/boolean-contains';
 import disjoint from '@turf/boolean-disjoint';
-import intersect from '@turf/boolean-overlap';
+import intersect from '@turf/boolean-intersects';
 import {
     lineString,
     multiPolygon,
@@ -253,7 +253,7 @@ function pointInGeoShape(searchPoint: Feature<any, Properties>|Geometry) {
         let polygon: any;
 
         if (isGeoShapePoint(geoShape)) {
-            return theSameGeo(searchPoint, tPoint(geoShape.coordinates));
+            return equal(searchPoint, tPoint(geoShape.coordinates));
         }
 
         if (isGeoShapeMultiPolygon(geoShape)) {
@@ -307,14 +307,14 @@ export function geoPointWithinRangeFP(
     return geoPolyHasPoint(polygon);
 }
 
-export function geoPolygon(
-    geoShape: JoinGeoShape,
-    relation: GeoShapeRelation,
-    inputShape: JoinGeoShape
-): boolean {
-    const polygon = makeGeoFeatureOrThrow(geoShape);
-    return geoMatchesShape(polygon as Feature<any, Properties>, relation)(inputShape);
-}
+// export function geoPolygon(
+//     geoShape: JoinGeoShape,
+//     relation: GeoShapeRelation,
+//     inputShape: JoinGeoShape
+// ): boolean {
+//     const polygon = makeGeoFeatureOrThrow(geoShape);
+//     return geoMatchesShape(polygon as Feature<any, Properties>, relation)(inputShape);
+// }
 
 export function geoPolygonFP(
     geoShape: GeoInput, relation: GeoShapeRelation
@@ -327,8 +327,15 @@ export function geoPolygonFP(
         return geoContainsFP(geoShape);
     }
 
-    const polygon = makeGeoFeatureOrThrow(geoShape);
-    return geoMatchesShape(polygon as Feature<any, Properties>, relation);
+    if (relation === GeoShapeRelation.Intersects) {
+        return geoIntersectsFP(geoShape);
+    }
+
+    if (relation === GeoShapeRelation.Disjoint) {
+        return geoDisjointFP(geoShape);
+    }
+
+    throw new Error(`Unsupported relation ${relation}`);
 }
 
 /** Converts a geoJSON object to its turf geo feature counterpart */
@@ -359,57 +366,6 @@ export function makeGeoFeatureOrThrow(geoShape: unknown): Feature<any> {
     return results;
 }
 
-export function geoMatchesShape(
-    queryPolygon: Feature<any>, relation: GeoShapeRelation
-): (fieldData: unknown) => boolean {
-    const match = getRelationFn(relation, queryPolygon);
-    return (input) => {
-        const feature = makeGeoFeature(input);
-        // Nothing matches so return false
-        if (!feature) return false;
-
-        return match(feature);
-    };
-}
-
-type RelationFn = (query: Feature<any>) => ((field: Feature<any>) => boolean);
-
-const relationOptions: Record<GeoShapeRelation, RelationFn> = Object.freeze({
-    /**
-     * within returns true if the first geometry is completely within the second geometry
-    */
-    [GeoShapeRelation.Within](queryPolygon) {
-        return (fieldPolygon) => {
-            console.log('what is feature here', fieldPolygon);
-            return within(fieldPolygon, queryPolygon);
-        };
-    },
-    /**
-     * disjoint returns (TRUE) if the intersection of the two geometries is an empty set.
-     */
-    [GeoShapeRelation.Disjoint](queryPolygon) {
-        return (fieldPolygon) => disjoint(fieldPolygon, queryPolygon);
-    },
-    /**
-     * contains returns True if the second geometry is completely contained by the first geometry.
-    */
-    [GeoShapeRelation.Contains](queryPolygon) {
-        return (fieldPolygon) => contains(fieldPolygon, queryPolygon);
-    },
-    /**
-     * compares two geometries of the same dimension and returns true if they intersection
-    */
-    [GeoShapeRelation.Intersects](queryPolygon: Feature<any>) {
-        return (fieldPolygon: Feature<any>) => intersect(fieldPolygon, queryPolygon);
-    },
-});
-
-export function getRelationFn(
-    relation: GeoShapeRelation, queryPolygon: Feature<any>
-): (field: Feature<any>) => boolean {
-    return relationOptions[relation](queryPolygon);
-}
-
 /**
  * Returns true if the second geometry is completely contained by the first geometry.
  * The interiors of both geometries must intersect and, the interior and boundary of
@@ -427,7 +383,7 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    if (isGeoShapePoint(queryGeo)) return _pointContainsPoint(queryFeature);
+    if (isGeoShapePoint(queryGeo)) return _pointToPointMatch(queryFeature);
     if (isGeoShapePolygon(queryGeo)) return _polyContains(queryFeature);
     if (isGeoShapeMultiPolygon(queryGeo)) return _multiPolyContains(queryFeature);
 
@@ -437,7 +393,6 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
 function _multiPolyContains(queryFeature: Feature<any>) {
     return (input: unknown) => {
         const inputGeoEntity = toGeoJSON(input);
-        console.log('what is inputGeoEntity', inputGeoEntity);
         if (!inputGeoEntity) return false;
 
         const inputFeature = makeGeoFeature(inputGeoEntity);
@@ -449,28 +404,80 @@ function _multiPolyContains(queryFeature: Feature<any>) {
         if (isGeoShapePolygon(inputGeoEntity)) {
             const queryPolygons = getCoords(queryFeature)
                 .map((coords) => tPolygon(coords));
-
+            // TODO: need check for holes here as well
             return queryPolygons.every((polygon) => contains(inputFeature, polygon));
         }
 
         if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            console.log('am i here????');
-            const queryPolygons = getCoords(queryFeature)
-                .map((coords) => tPolygon(coords));
+            const {
+                polygons: queryPolygons,
+                holes: queryHoles
+            } = _featureToPolygonAndHoles(queryFeature);
 
-            const inputPolygons = getCoords(inputFeature)
-                .map((coords) => tPolygon(coords));
+            const {
+                polygons: inputPolygons,
+                holes: inputHoles
+            } = _featureToPolygonAndHoles(inputFeature);
 
-            return inputPolygons.every(
-                (iPoly) => {
-                    console.log('iPoly', iPoly, queryPolygons);
-                    return queryPolygons.some((polygon) => contains(iPoly, polygon));
+            let inputHolesInQueryPoly = false;
+
+            // TODO: review more logic around queryHoles
+            if (inputHoles.length) {
+                if (queryHoles.length) {
+                    inputHolesInQueryPoly = false;
+                    // return contains(polygon, queryFeature) && !holes.some(
+                    //     (hole: Feature<any>) => contains(queryFeature, hole)
+                    // );
+                } else {
+                    // polygon cant be inside a hole
+                    inputHolesInQueryPoly = inputHoles.some(
+                        // TODO: check for holes
+                        (inputHolePoly) => queryPolygons.some(
+                            (polygon) => contains(polygon, inputHolePoly)
+                        )
+                    );
                 }
+            }
+
+            return !inputHolesInQueryPoly && inputPolygons.every(
+                (iPoly) => queryPolygons.some((polygon) => contains(iPoly, polygon))
+
             );
         }
 
         throw new Error(`Unsupported geo input ${JSON.stringify(inputGeoEntity)}`);
     };
+}
+
+function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
+    const inputHoles: Feature<any>[] = [];
+    const inputCoords = getCoords(inputFeature);
+    let inputPolygons: Feature<any>[];
+
+    if (inputFeature.geometry.type === 'MultiPolygon') {
+        inputPolygons = inputCoords
+            .map((coords) => {
+                if (coords.length > 1) {
+                    const [polygon, ...holes] = coords.map(
+                        (innerCords: Position[]) => tPolygon([innerCords])
+                    );
+                    inputHoles.push(...holes);
+                    return polygon;
+                }
+
+                return tPolygon(coords);
+            }) as Feature<any>[];
+    } else if (inputFeature.geometry.type === 'Polygon') {
+        const [polyCoords, ...holeCords] = inputCoords;
+        inputPolygons = [tPolygon([polyCoords])];
+
+        const holePolygons = holeCords.map((coords) => tPolygon([coords])) as Feature<any>[];
+        inputHoles.push(...holePolygons);
+    } else {
+        throw new Error(`Cannot convert ${toString(inputFeature)} to a polygon`);
+    }
+
+    return { holes: inputHoles, polygons: inputPolygons };
 }
 
 function _polyContains(queryFeature: Feature<any>) {
@@ -512,7 +519,7 @@ function _polyContains(queryFeature: Feature<any>) {
     };
 }
 
-function _pointContainsPoint(queryInput: Feature<any>) {
+function _pointToPointMatch(queryInput: Feature<any>) {
     return (input: unknown) => {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
@@ -521,12 +528,8 @@ function _pointContainsPoint(queryInput: Feature<any>) {
         const inputFeature = makeGeoFeature(inputGeoEntity);
         if (!inputFeature) return false;
 
-        return theSameGeo(queryInput, inputFeature);
+        return equal(queryInput, inputFeature);
     };
-}
-
-function theSameGeo(firstGeo: Feature<any>|Geometry, secondGeo: Feature<any>|Geometry) {
-    return equal(firstGeo, secondGeo);
 }
 
 /**
@@ -546,31 +549,47 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
+    // point can only be compared to other points
+    if (isGeoShapePoint(queryGeo)) return _pointToPointMatch(queryFeature);
+
+    const { polygons: queryPolygons, holes: queryHoles } = _featureToPolygonAndHoles(queryFeature);
+    const hasQueryHoles = queryHoles.length > 0;
+
     return (input: unknown) => {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
 
-        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            if (isGeoShapePoint(queryGeo)) return false;
-
-            if (isGeoShapePolygon(queryGeo) || isGeoShapeMultiPolygon(queryGeo)) {
-                const inputFeature = makeGeoFeature(inputGeoEntity);
-                const coords = getCoords(inputFeature);
-
-                // it might be faster to check if points are in poly?
-                return coords.every((polyCords) => {
-                    const polygon = tPolygon(polyCords);
-                    return within(polygon, queryFeature);
-                });
-            }
-
-            throw new Error(`Geo entity ${JSON.stringify(queryGeo)} is currently not supported for a "within" query against ${JSON.stringify(inputGeoEntity)}`);
-        }
-
         const inputFeature = makeGeoFeature(inputGeoEntity);
         if (!inputFeature) return false;
 
-        return within(inputFeature, queryFeature);
+        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
+            const {
+                polygons: inputPolygons,
+                holes: inputHoles
+            } = _featureToPolygonAndHoles(inputFeature);
+
+            let withinQueryHole = false;
+
+            if (hasQueryHoles) {
+                withinQueryHole = queryHoles.some(
+                    (queryHolePolygon) => inputPolygons.some(
+                        (iPoly) => within(iPoly, queryHolePolygon)
+                    )
+                );
+            }
+
+            return !withinQueryHole && inputPolygons.every(
+                (iPoly) => queryPolygons.some((polygon) => within(iPoly, polygon))
+            );
+        }
+
+        let withinQueryHole = false;
+
+        if (hasQueryHoles) {
+            withinQueryHole = queryHoles.some((polygon) => within(inputFeature, polygon));
+        }
+
+        return !withinQueryHole && queryPolygons.some((polygon) => within(inputFeature, polygon));
     };
 }
 
@@ -578,31 +597,45 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
  * is a point, it will check if the other geo-entity contains the point
  */
 export function geoIntersects(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput):boolean {
-    const firstGeoJSON = toGeoJSONOrThrow(firstGeoEntity);
-    const secondGeoJSON = toGeoJSONOrThrow(secondGeoEntity);
+    return geoIntersectsFP(firstGeoEntity)(secondGeoEntity);
+}
 
-    if (isGeoShapePoint(firstGeoJSON)) {
-        const point = tPoint(firstGeoJSON.coordinates);
-        return pointInGeoShape(point)(secondGeoJSON);
-    }
+export function geoIntersectsFP(queryGeoEntity: GeoInput): (input: unknown) => boolean {
+    const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
+    const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    if (isGeoShapePoint(secondGeoJSON)) {
-        const point = tPoint(secondGeoJSON.coordinates);
-        return pointInGeoShape(point)(firstGeoJSON);
-    }
+    return (input: unknown): boolean => {
+        const inputGeoEntity = toGeoJSON(input);
+        if (!inputGeoEntity) return false;
 
-    const firstGeo = makeGeoFeature(firstGeoJSON) as Feature<any>;
-    const secondGeo = makeGeoFeature(secondGeoJSON) as Feature<any>;
+        const inputFeature = makeGeoFeature(inputGeoEntity);
+        if (!inputFeature) return false;
 
-    return getRelationFn(GeoShapeRelation.Intersects, secondGeo)(firstGeo);
+        return intersect(inputFeature, queryFeature);
+    };
+}
+
+export function geoDisjointFP(queryGeoEntity: GeoInput): (input: unknown) => boolean {
+    const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
+    const queryFeature = makeGeoFeatureOrThrow(queryGeo);
+
+    return (input: unknown): boolean => {
+        const inputGeoEntity = toGeoJSON(input);
+        if (!inputGeoEntity) return false;
+
+        const inputFeature = makeGeoFeature(inputGeoEntity);
+        if (!inputFeature) return false;
+
+        return disjoint(inputFeature, queryFeature);
+    };
 }
 
 /** Returns true if both geo entities have no overlap */
 export function geoDisjoint(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput):boolean {
     const firstGeo = makeGeoFeature(toGeoJSONOrThrow(firstGeoEntity)) as Feature<any>;
     const secondGeo = makeGeoFeature(toGeoJSONOrThrow(secondGeoEntity)) as Feature<any>;
-
-    return getRelationFn(GeoShapeRelation.Disjoint, secondGeo)(firstGeo);
+    return false;
+    // return getRelationFn(GeoShapeRelation.Disjoint, secondGeo)(firstGeo);
 }
 
 const esTypeMap = {
@@ -666,4 +699,16 @@ export function validateListCoords(coords: CoordinateTuple[]): any[] {
     const polygon = lineToPolygon(line);
     // @ts-expect-error
     return getCoords(polygon);
+}
+
+export function polyHasHoles(input: GeoShape): boolean {
+    if (isGeoShapePolygon(input)) {
+        return input.coordinates.length > 1;
+    }
+
+    if (isGeoShapeMultiPolygon(input)) {
+        return input.coordinates[0].length > 1;
+    }
+
+    return false;
 }
