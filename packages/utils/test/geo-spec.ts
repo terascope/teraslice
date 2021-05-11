@@ -569,7 +569,7 @@ describe('geo utils', () => {
                 true
             ],
             [
-                'compare polygon to point',
+                'compare polygon contains point',
                 {
                     type: GeoShapeType.Polygon,
                     coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
@@ -581,7 +581,7 @@ describe('geo utils', () => {
                 true
             ],
             [
-                'compare polygon to point',
+                'compare polygon contains point geo input',
                 {
                     type: GeoShapeType.Polygon,
                     coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
@@ -590,7 +590,7 @@ describe('geo utils', () => {
                 true
             ],
             [
-                'compare polygon to point',
+                'compare multi-polygon contains point',
                 {
                     type: GeoShapeType.MultiPolygon,
                     coordinates: [
@@ -632,7 +632,7 @@ describe('geo utils', () => {
                     type: GeoShapeType.Polygon,
                     coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
                 },
-                false
+                true
             ],
             [
                 'compare polygon to polygon that intersects',

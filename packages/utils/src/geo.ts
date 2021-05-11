@@ -37,7 +37,8 @@ import {
     Polygon,
     Geometry,
     Point,
-    Position
+    Position,
+    polygons
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
@@ -383,11 +384,40 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    if (isGeoShapePoint(queryGeo)) return _pointToPointMatch(queryFeature);
+    if (isGeoShapePoint(queryGeo)) return _pointContains(queryFeature);
     if (isGeoShapePolygon(queryGeo)) return _polyContains(queryFeature);
     if (isGeoShapeMultiPolygon(queryGeo)) return _multiPolyContains(queryFeature);
 
     throw new Error(`Unsupported query input ${JSON.stringify(queryGeoEntity)}`);
+}
+
+function _pointContains(queryFeature: Feature<any>) {
+    return (input: unknown) => {
+        const inputGeoEntity = toGeoJSON(input);
+        if (!inputGeoEntity) return false;
+
+        const inputFeature = makeGeoFeature(inputGeoEntity);
+        if (!inputFeature) return false;
+
+        if (isGeoPoint(inputGeoEntity)) {
+            return equal(inputFeature, queryFeature);
+        }
+
+        if (isGeoShapePolygon(inputGeoEntity)) {
+            return contains(inputFeature, queryFeature);
+        }
+
+        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
+            const {
+                polygons: queryPolygons,
+                holes: queryHoles
+            } = _featureToPolygonAndHoles(inputFeature);
+
+            return queryPolygons.some((iPoly) => contains(iPoly, queryFeature));
+        }
+
+        return false;
+    };
 }
 
 function _multiPolyContains(queryFeature: Feature<any>) {
@@ -632,10 +662,7 @@ export function geoDisjointFP(queryGeoEntity: GeoInput): (input: unknown) => boo
 
 /** Returns true if both geo entities have no overlap */
 export function geoDisjoint(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput):boolean {
-    const firstGeo = makeGeoFeature(toGeoJSONOrThrow(firstGeoEntity)) as Feature<any>;
-    const secondGeo = makeGeoFeature(toGeoJSONOrThrow(secondGeoEntity)) as Feature<any>;
-    return false;
-    // return getRelationFn(GeoShapeRelation.Disjoint, secondGeo)(firstGeo);
+    return geoDisjointFP(firstGeoEntity)(secondGeoEntity);
 }
 
 const esTypeMap = {
