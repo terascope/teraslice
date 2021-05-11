@@ -13,6 +13,11 @@ describe('BigLruMap', () => {
         map.set('aaa', 1);
         expect(map.size).toBe(1);
     });
+    it('should set a numeric key value pair', async () => {
+        const map = new BigLruMap(mapSize);
+        map.set(1234, 1);
+        expect(map.size).toBe(1);
+    });
     it('should get a value pair', async () => {
         const map = new BigLruMap(mapSize);
         map.set('aaa', 'testvalue');

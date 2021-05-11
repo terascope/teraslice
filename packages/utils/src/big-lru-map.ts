@@ -14,7 +14,7 @@ class FlexibleArray {
     }
 }
 
-export class BigLruMap<V> extends LRUMap<string, V> {
+export class BigLruMap<V> extends LRUMap<string|number, V> {
     constructor(cacheSize: number) {
         super(FlexibleArray as any, FlexibleArray as any, cacheSize);
         // @ts-expect-error
