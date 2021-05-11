@@ -1,5 +1,5 @@
 import { geoContainsPointFP, isGeoPoint } from '@terascope/utils';
-import { FieldType, GeoPointInput, GeoShapeType, GeoShapeRelation } from '@terascope/types';
+import { FieldType, GeoPointInput, GeoShapeType } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,

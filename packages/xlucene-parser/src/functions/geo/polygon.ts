@@ -2,7 +2,7 @@ import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
 import {
     toString,
-    geoPolygonFP,
+    geoRelationFP,
     validateListCoords,
     polyHasHoles
 } from '@terascope/utils';
@@ -226,13 +226,13 @@ const geoPolygon: i.FunctionDefinition = {
                 throw new Error(`Cannot query against geo-points with relation set to "${t.GeoShapeRelation.Contains}"`);
             }
             return {
-                match: geoPolygonFP(polygonShape, relation),
+                match: geoRelationFP(polygonShape, relation),
                 toElasticsearchQuery: esPolyToPointQuery
             };
         }
 
         return {
-            match: geoPolygonFP(polygonShape, relation),
+            match: geoRelationFP(polygonShape, relation),
             toElasticsearchQuery: esPolyToPolyQuery
         };
     }

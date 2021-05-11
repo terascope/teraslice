@@ -317,7 +317,7 @@ export function geoPointWithinRangeFP(
 //     return geoMatchesShape(polygon as Feature<any, Properties>, relation)(inputShape);
 // }
 
-export function geoPolygonFP(
+export function geoRelationFP(
     geoShape: GeoInput, relation: GeoShapeRelation
 ): (input: unknown) => boolean {
     if (relation === GeoShapeRelation.Within) {
@@ -712,7 +712,7 @@ export function toGeoJSONOrThrow(input: unknown): GeoShape {
     const geoJSON = toGeoJSON(input);
 
     if (!geoJSON) {
-        throw new Error(`Cannot convert ${JSON.stringify(input)} to a geo-shape`);
+        throw new Error(`Cannot convert ${JSON.stringify(input)} to valid geoJSON`);
     }
 
     return geoJSON;

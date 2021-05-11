@@ -1,5 +1,6 @@
+import { geoContainsPointConfig } from './geoContainsPoint';
 import { geoPointWithinRangeConfig } from './geoPointWithinRange';
-import { geoContainsPointConfig } from './geoShapeContainsPoint';
+import { geoRelationConfig } from './geoRelation';
 import { inGeoBoundingBoxConfig } from './inGeoBoundingBox';
 import { isGeoJSONConfig } from './isGeoJSON';
 import { isGeoPointConfig } from './isGeoPoint';
@@ -11,6 +12,7 @@ import { toGeoPointConfig } from './toGeoPoint';
 
 export const geoRepository = {
     geoPointWithinRange: geoPointWithinRangeConfig,
+    geoRelation: geoRelationConfig,
     geoContainsPoint: geoContainsPointConfig,
     inGeoBoundingBox: inGeoBoundingBoxConfig,
     isGeoJSON: isGeoJSONConfig,
@@ -21,7 +23,3 @@ export const geoRepository = {
     toGeoJSON: toGeoJSONConfig,
     toGeoPoint: toGeoPointConfig,
 };
-
-// geoContains
-
-//

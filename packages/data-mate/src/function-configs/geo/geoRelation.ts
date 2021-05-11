@@ -1,8 +1,8 @@
 import {
-    isGeoJSON, joinList, geoPolygonFP
+    joinList, geoRelationFP, toGeoJSON
 } from '@terascope/utils';
 import {
-    FieldType, GeoShapeRelation, JoinGeoShape
+    FieldType, GeoShapeRelation, GeoInput
 } from '@terascope/types';
 import {
     FieldValidateConfig,
@@ -13,7 +13,7 @@ import {
 } from '../interfaces';
 
 export interface GeoPolygonArgs {
-    geoShape: JoinGeoShape;
+    geoInput: GeoInput;
     relation?: GeoShapeRelation
 }
 
@@ -27,16 +27,15 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     // },
 ];
 
-export const geoPolygonConfig: FieldValidateConfig<GeoPolygonArgs> = {
-    name: 'geoPolygon',
+export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
+    name: 'geoRelation',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Compares geo-polygons/multi-polygons against other geo-polygons/multi-polygons',
-    create({ geoShape, relation = GeoShapeRelation.Within }) {
-        const fn = geoPolygonFP(geoShape, relation);
-        return (input: unknown) => fn(input as JoinGeoShape);
+    description: 'Compares geo points/polygons/multi-polygons against other points/polygons/multi-polygons',
+    create({ geoInput, relation = GeoShapeRelation.Within }) {
+        return geoRelationFP(geoInput, relation);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -46,20 +45,22 @@ export const geoPolygonConfig: FieldValidateConfig<GeoPolygonArgs> = {
         FieldType.Number
     ],
     argument_schema: {
-        point: {
-            type: FieldType.GeoJSON,
-            description: 'The geo-point used to compare to other points'
+        geoInput: {
+            type: FieldType.Any,
+            description: 'The geo input used to compare to other geo entities'
         },
-        distance: {
+        relation: {
             type: FieldType.String,
-            description: `How the geo-shapes should relate to each other, defaults to "contains" : ${joinList(Object.values(GeoShapeRelation), ', ')}
+            description: `How the geo input should relate the data, defaults to "within" : ${joinList(Object.values(GeoShapeRelation), ', ')}
             `.trim()
         }
     },
-    required_arguments: ['geoShape'],
-    validate_arguments({ geoShape, relation }) {
-        if (!isGeoJSON(geoShape)) {
-            throw new Error(`Invalid parameter geoShape: ${JSON.stringify(geoShape)}, is not a valid geo-json`);
+    required_arguments: ['geoInput'],
+    validate_arguments({ geoInput, relation }) {
+        const input = toGeoJSON(geoInput);
+
+        if (!input) {
+            throw new Error(`Invalid parameter geoInput: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
         }
 
         if (relation) {

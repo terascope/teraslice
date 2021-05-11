@@ -1,4 +1,4 @@
-import { toGeoJSON, isNil } from '@terascope/utils';
+import { toGeoJSONOrThrow, isNil } from '@terascope/utils';
 import { FieldType, GeoShapeType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -66,7 +66,7 @@ export const toGeoJSONConfig: FieldTransformConfig = {
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;
-            return toGeoJSON(input as any);
+            return toGeoJSONOrThrow(input as any);
         };
     },
     accepts: [
