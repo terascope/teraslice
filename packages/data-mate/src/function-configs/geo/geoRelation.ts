@@ -20,7 +20,7 @@ export interface GeoPolygonArgs {
 const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     {
         args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
-        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
         output: '20,20',
@@ -30,7 +30,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
             geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Within
         },
-        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
         output: '20,20',
@@ -40,7 +40,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
             geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Contains
         },
-        config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
         output: null,
@@ -98,7 +98,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
 export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
     name: 'geoRelation',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: `Compares geo inputs to any geo-like data based off the relation specified (defaults to "${GeoShapeRelation.Within}"`,

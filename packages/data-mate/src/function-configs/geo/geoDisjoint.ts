@@ -15,7 +15,7 @@ export interface GeoDisjointArgs {
 const examples: FunctionDefinitionExample<GeoDisjointArgs>[] = [
     {
         args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
-        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '-33.435967,-111.867710',
         output: '-33.435967,-111.867710',
@@ -25,7 +25,7 @@ const examples: FunctionDefinitionExample<GeoDisjointArgs>[] = [
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
-            type: GeoShapeType.Polygon,
+            type: GeoShapeType.Point,
             coordinates: [20, 20]
         },
         output: null
@@ -75,7 +75,7 @@ const examples: FunctionDefinitionExample<GeoDisjointArgs>[] = [
 export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     name: 'geoDisjoint',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data is "disjoint" from the geoInput argument',

@@ -18,11 +18,11 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
-            type: GeoShapeType.Polygon,
+            type: GeoShapeType.Point,
             coordinates: [20, 20]
         },
         output: {
-            type: GeoShapeType.Polygon,
+            type: GeoShapeType.Point,
             coordinates: [20, 20]
         },
     },
@@ -76,7 +76,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
 export const geoIntersectsConfig: FieldValidateConfig<GeoContainsArgs> = {
     name: 'geoIntersects',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data "intersects" the geoInput argument',

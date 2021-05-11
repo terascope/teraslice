@@ -187,11 +187,14 @@ function serializeBigIntegers(input: unknown): any {
     if (Array.isArray(input)) {
         return input.map(serializeBigIntegers);
     }
+
     const obj = {};
-    for (const prop in obj) {
-        if (hasOwn(obj, prop)) {
-            obj[prop] = serializeBigIntegers(obj[prop]);
+
+    for (const prop in input) {
+        if (hasOwn(input, prop)) {
+            obj[prop] = serializeBigIntegers(input[prop]);
         }
     }
+
     return obj;
 }

@@ -18,17 +18,17 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
-            type: GeoShapeType.Polygon,
+            type: GeoShapeType.Point,
             coordinates: [20, 20]
         },
         output: {
-            type: GeoShapeType.Polygon,
+            type: GeoShapeType.Point,
             coordinates: [20, 20]
         },
     },
     {
         args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
-        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
         output: '20,20',
@@ -129,7 +129,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
 export const geoWithinConfig: FieldValidateConfig<GeoContainsArgs> = {
     name: 'geoWithin',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data is "within" the geoInput argument',
