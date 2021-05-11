@@ -1,14 +1,13 @@
 import {
     DateFormat, FieldType, ISO8601DateSegment
 } from '@terascope/types';
-import { trimISODateSegment, formatDateValue, parseDateValue } from '@terascope/utils';
+import { toISO8061, trimISODateSegment } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { getInputFormat, isIS8601FieldConfig } from './utils';
 
 export const toMonthlyDateConfig: FieldTransformConfig = {
     name: 'toMonthlyDate',
@@ -20,37 +19,15 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
         args: { },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.Date, format: 'yyyy-MM-dd HH:mm:ss' } }
-        },
-        field: 'testField',
-        input: '2019-10-22 22:20:11',
-        output: '2019-10',
-        description: 'A previously formatted date should be parsable'
-    }, {
-        args: { },
-        config: {
-            version: 1,
             fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
         },
         field: 'testField',
         input: '2019-10-22T01:00:00.000Z',
-        output: '2019-10'
+        output: new Date('2019-10-01T00:00:00.000Z').getTime(),
+        serialize_output: toISO8061
     }],
-    create(_args, inputConfig) {
-        const inputFormat = getInputFormat(inputConfig);
-
-        const trimFn = trimISODateSegment(ISO8601DateSegment.monthly);
-        if (isIS8601FieldConfig(inputConfig)) {
-            return trimFn;
-        }
-
-        const referenceDate = new Date();
-        return function toMonthlyDate(input: unknown): string|number {
-            const parsed = parseDateValue(
-                input, inputFormat, referenceDate
-            );
-            return trimFn(formatDateValue(parsed, DateFormat.iso_8601));
-        };
+    create() {
+        return trimISODateSegment(ISO8601DateSegment.monthly);
     },
     accepts: [
         FieldType.String,
@@ -65,7 +42,7 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
             field_config: {
                 description: field_config.description,
                 array: field_config.array,
-                type: FieldType.Keyword
+                type: FieldType.Date
             },
         };
     }

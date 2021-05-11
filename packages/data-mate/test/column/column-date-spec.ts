@@ -72,18 +72,17 @@ describe('Column (Date Types)', () => {
             ]);
         });
 
-        it('should be able to transform using toDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
             const format = 'yyyy-MM-dd HH:mm:ss';
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format } }
             ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format,
-                type: FieldType.Date
+                type: FieldType.String
             });
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return undefined;
@@ -110,18 +109,17 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should be able to transform using toDate(format: "yyyy-MM-dd")', () => {
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd")', () => {
             const format = 'yyyy-MM-dd';
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format } }
             ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format,
-                type: FieldType.Date
+                type: FieldType.String
             });
             expect(newCol.toJSON()).toEqual([
                 '2020-09-23',
@@ -136,7 +134,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError(/Format string contains an unescaped latin alphabet character `Y`/);
+            }).toThrowError('Expected value 2020-09-23 to be a date string with format M/d/YYYY');
         });
     });
 
@@ -154,18 +152,17 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should be able to transform using toDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
             const format = 'yyyy-MM-dd HH:mm:ss';
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format } }
             ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format,
-                type: FieldType.Date
+                type: FieldType.String
             });
             expect(newCol.toJSON()).toEqual([
                 formatDate(new Date(values[0]!).getTime() + timezoneOffset, format),
@@ -180,7 +177,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError(/Format string contains an unescaped latin alphabet character `Y`/);
+            }).toThrowError('Expected value 2018-02-02T07:23:01.000Z to be a date string with format M/d/YYYY');
         });
     });
 
@@ -216,33 +213,23 @@ describe('Column (Date Types)', () => {
             ]);
         });
 
-        it('should be able to transform using toDate(format: "milliseconds")', () => {
+        it('should be able to transform using formatDate(format: "milliseconds")', () => {
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format: DateFormat.milliseconds } }
             ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.milliseconds,
-                type: FieldType.Date
+                type: FieldType.Number
             });
             expect(newCol.toJSON()).toEqual(values);
         });
 
-        it('should fail to transform toDate using an invalid format', () => {
-            expect(() => {
-                dataFrameAdapter(
-                    functionConfigRepository.toDate,
-                    { args: { format: 'M/d/YYYY' } }
-                ).column(col);
-            }).toThrowError(/Format string contains an unescaped latin alphabet character `Y`/);
-        });
-
-        it('should return valid dates when transform toDate(format: "seconds")', () => {
+        it('should return valid dates when transform formatDate(format: "seconds")', () => {
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format: DateFormat.seconds } }
             ).column(col);
 
@@ -282,7 +269,7 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/yyyy' } }
                 ).column(col);
-            }).toThrowError('Expected value 1600844405020 to be a valid date');
+            }).toThrowError('Expected value 1600844405020 to be a date string with format M/d/yyyy');
         });
     });
 
@@ -297,7 +284,6 @@ describe('Column (Date Types)', () => {
         beforeEach(() => {
             col = Column.fromJSON<number>('unix_time', {
                 type: FieldType.Number,
-                format: DateFormat.seconds
             }, values);
         });
 
@@ -310,10 +296,14 @@ describe('Column (Date Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.seconds,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values);
+
+            expect(newCol.toJSON()).toEqual([
+                new Date(1600844405 * 1000).toISOString(),
+                undefined,
+                new Date(1579503621 * 1000).toISOString(),
+            ]);
         });
 
         it('should fail to transform toDate using an invalid format', () => {
@@ -322,19 +312,19 @@ describe('Column (Date Types)', () => {
                     functionConfigRepository.toDate,
                     { args: { format: 'M/d/YYYY' } }
                 ).column(col);
-            }).toThrowError(/Format string contains an unescaped latin alphabet character `Y`/);
+            }).toThrowError('Expected string for formatted date fields, got 1600844405');
         });
 
-        it('should return invalid dates when transform toDate(format: "milliseconds")', () => {
+        it('should return invalid dates when transform formatDate(format: "milliseconds")', () => {
             const newCol = dataFrameAdapter(
-                functionConfigRepository.toDate,
+                functionConfigRepository.formatDate,
                 { args: { format: DateFormat.milliseconds } }
             ).column(col);
 
             expect(newCol.toJSON()).toEqual([
-                1600844405000,
+                1600844405,
                 undefined,
-                1579503621000,
+                1579503621,
             ]);
         });
     });

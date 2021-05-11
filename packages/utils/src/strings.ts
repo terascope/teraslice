@@ -9,6 +9,7 @@ import lStartCase from 'lodash/startCase';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
+import { bigIntToJSON } from './numbers';
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {
@@ -35,7 +36,9 @@ export function toString(val: unknown): string {
     }
 
     if (typeof val === 'bigint') {
-        return (val as BigInt).toLocaleString();
+        const res = bigIntToJSON(val);
+        if (typeof res === 'string') return res;
+        return `${res}`;
     }
 
     if (typeof val === 'function') {

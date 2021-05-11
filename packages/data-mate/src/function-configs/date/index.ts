@@ -1,4 +1,5 @@
 import { addToDateConfig } from './addToDate';
+import { formatDateConfig } from './formatDate';
 import { isDateConfig } from './isDate';
 import { isEpochConfig } from './isEpoch';
 import { isEpochMillisConfig } from './isEpochMillis';
@@ -7,12 +8,12 @@ import { subtractFromDateConfig } from './subtractFromDate';
 import { toDailyDateConfig } from './toDailyDate';
 import { toDateConfig } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
-import { toISO8601Config } from './toISO8601';
 import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
+    formatDate: formatDateConfig,
     isDate: isDateConfig,
     isEpoch: isEpochConfig,
     isEpochMillis: isEpochMillisConfig,
@@ -21,7 +22,6 @@ export const dateRepository = {
     toDailyDate: toDailyDateConfig,
     toDate: toDateConfig,
     toHourlyDate: toHourlyDateConfig,
-    toISO8601: toISO8601Config,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
 };
