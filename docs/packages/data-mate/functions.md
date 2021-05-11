@@ -126,12 +126,6 @@ Must be represented in a Language Tags (BCP 47)
 
  - **value**: (required) `Any` - The default value to use
 
-#### Accepts
-
-- `String`
-- `Number`
-- `Date`
-
 #### Examples
 
 ```ts
@@ -199,6 +193,42 @@ For example, `1h` or `1h+2m`
 "2019-10-22T22:00:00.000Z" => addToDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
 ```
 
+### `formatDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a date value to formatted date string, when specifying the format it applies to the output value
+
+#### Arguments
+
+ - **format**:  `String` - When the value is a string, this indicates the date string format.
+See https://date-fns.org/v2.16.1/docs/parse for more info.
+Default: iso_8601 for strings and epoch_millis for number
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2019-10-22T00:00:00.000Z" => formatDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
+```
+
+```ts
+102390933 => formatDate() // outputs "1970-01-02T04:26:30.933Z"
+```
+
+```ts
+"1973-03-31T01:55:33.000Z" => formatDate(format: "milliseconds") // outputs 102390933000
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => formatDate() // outputs "2001-01-01T01:00:00.000Z"
+```
+
 ### `subtractFromDate`
 
 **Type:** `FIELD_TRANSFORM`
@@ -262,20 +292,15 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-A previously formatted date should be parsable
 ```ts
-"2019-10-22 22:20:11" => toDailyDate() // outputs "2019-10-22"
-```
-
-```ts
-"2019-10-22T01:00:00.000Z" => toDailyDate() // outputs "2019-10-22"
+"2019-10-22T01:00:00.000Z" => toDailyDate() // outputs "2019-10-22T00:00:00.000Z"
 ```
 
 ### `toDate`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a value to a date value, this can also be used to reformat a date
+> Converts a value to a date value, when specifying the format it applies to the input value
 
 #### Arguments
 
@@ -283,34 +308,27 @@ A previously formatted date should be parsable
 See https://date-fns.org/v2.16.1/docs/parse for more info.
 Default: iso_8601 for strings and epoch_millis for number
 
- - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
-This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
-Default: milliseconds
-
 #### Accepts
 
 - `String`
 - `Number`
-- `Date`
 
 #### Examples
 
 ```ts
-"2019-10-22T22:00:00.000Z" => toDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
+"2019-10-22" => toDate(format: "yyyy-MM-dd") // outputs "2019-10-22T00:00:00.000Z"
 ```
 
 ```ts
 102390933 => toDate() // outputs "1970-01-02T04:26:30.933Z"
 ```
 
-When the time_resolution is set the numeric date can converted
 ```ts
-102390933000 => toDate() // outputs "1973-03-31T01:55:33.000Z"
+102390933 => toDate(format: "seconds") // outputs "1973-03-31T01:55:33.000Z"
 ```
 
-When the time_resolution is set the numeric date can converted
 ```ts
-102390933000 => toDate() // outputs "1973-03-31T01:55:33.000Z"
+102390933000 => toDate(format: "milliseconds") // outputs "1973-03-31T01:55:33.000Z"
 ```
 
 ```ts
@@ -331,42 +349,8 @@ When the time_resolution is set the numeric date can converted
 
 #### Examples
 
-A previously formatted date should be parsable
 ```ts
-"2019-10-22 22:20:11" => toHourlyDate() // outputs "2019-10-22T22"
-```
-
-```ts
-"2019-10-22T01:00:00.000Z" => toHourlyDate() // outputs "2019-10-22T01"
-```
-
-### `toISO8601`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Converts a value to a ISO 8601 date, this is more specific version of toDate(format: "iso_8601")
-
-#### Arguments
-
- - **time_resolution**:  `String` - This will be set on the field to indicate whether the input date is stored with millisecond or second accuracy.
-This will also change the assumption that numeric input date values are in epoch or epoch_millis time.
-Default: milliseconds
-
-#### Accepts
-
-- `String`
-- `Number`
-- `Date`
-
-#### Examples
-
-A previously formatted date should be parsable
-```ts
-"2019-10-22 22:20:11" => toISO8601() // outputs "2019-10-22T22:20:11.000Z"
-```
-
-```ts
-"2019-10-22T01:00:00.000Z" => toISO8601() // outputs "2019-10-22T01:00:00.000Z"
+"2019-10-22T01:05:20.000Z" => toHourlyDate() // outputs "2019-10-22T01:00:00.000Z"
 ```
 
 ### `toMonthlyDate`
@@ -383,13 +367,8 @@ A previously formatted date should be parsable
 
 #### Examples
 
-A previously formatted date should be parsable
 ```ts
-"2019-10-22 22:20:11" => toMonthlyDate() // outputs "2019-10"
-```
-
-```ts
-"2019-10-22T01:00:00.000Z" => toMonthlyDate() // outputs "2019-10"
+"2019-10-22T01:00:00.000Z" => toMonthlyDate() // outputs "2019-10-01T00:00:00.000Z"
 ```
 
 ### `toYearlyDate`
@@ -406,13 +385,8 @@ A previously formatted date should be parsable
 
 #### Examples
 
-A previously formatted date should be parsable
 ```ts
-"2019-10-22 22:20:11" => toYearlyDate() // outputs "2019"
-```
-
-```ts
-"2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019"
+"2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
 ```
 
 ### `isDate`
@@ -464,8 +438,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Accepts
 
-- `Date`
-- `String`
 - `Number`
 
 #### Examples
@@ -480,10 +452,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2001-01-01T01:00:00.000Z" => isEpoch() // outputs null
-```
-
-```ts
-102390933 => isEpoch() // outputs null
 ```
 
 ```ts
@@ -506,8 +474,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Accepts
 
-- `Date`
-- `String`
 - `Number`
 
 #### Examples
@@ -522,10 +488,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2001-01-01T01:00:00.000Z" => isEpochMillis() // outputs null
-```
-
-```ts
-102390933 => isEpochMillis() // outputs null
 ```
 
 ```ts
