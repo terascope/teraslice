@@ -28,13 +28,24 @@ export class AssetSrc {
     bundle?: boolean;
     bundleTarget?: string;
     outputFileName: string;
+    debug: boolean;
+    overwrite: boolean;
 
     devMode = false;
 
-    constructor(srcDir: string, devMode = false, bundle = false, bundleTarget = undefined) {
+    constructor(
+        srcDir: string,
+        devMode = false,
+        debug = false,
+        bundle = false,
+        bundleTarget = undefined,
+        overwrite = false
+    ) {
         this.bundle = bundle;
         this.bundleTarget = bundleTarget;
+        this.debug = debug;
         this.devMode = devMode;
+        this.overwrite = overwrite;
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
@@ -49,7 +60,7 @@ export class AssetSrc {
 
         this.outputFileName = path.join(this.buildDir, this.zipFileName);
 
-        if (fs.pathExistsSync(this.outputFileName)) {
+        if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
             throw new Error(`Zipfile already exists "${this.outputFileName}"`);
         }
     }
@@ -142,27 +153,6 @@ export class AssetSrc {
             spaces: 4,
         });
 
-        // run yarn --cwd srcDir --prod --silent --no-progress asset:build
-        if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
-            reply.info('* running yarn asset:build');
-            await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
-        }
-
-        if (await fs.pathExists(path.join(tmpDir.name, '.yarnclean'))) {
-            reply.info('* running yarn autoclean --force');
-            await this._yarnCmd(tmpDir.name, ['autoclean', '--force']);
-        }
-
-        // run npm --cwd srcDir/asset --prod --silent --no-progress
-        reply.info('* running yarn --prod --no-progress');
-        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
-
-        // run yarn --cwd srcDir --prod --silent --no-progress asset:post-build
-        if (this.packageJson?.scripts && this.packageJson.scripts['asset:post-build']) {
-            reply.info('* running yarn asset:post-build');
-            await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
-        }
-
         if (this.bundle) {
             const bundleDir = tmp.dirSync();
             reply.info(`* making tmp bundle directory "${bundleDir.name}"`);
@@ -172,13 +162,24 @@ export class AssetSrc {
                 spaces: 4,
             });
 
+            // run npm --cwd srcDir/asset --prod --silent --no-progress
+            reply.info('* running yarn --prod --no-progress');
+            await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+
             // NOTE: This still assumes a typescript asset with a `dist`
             // subdirectory, anything other than tmp/asset/dist failed to build
             // maybe a fallthrough of many dirs would work here, I think we
             // can accept this limitation now.
+            let entryPoint = '';
+            try {
+                entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'src', 'index.ts'));
+                reply.warning(`entryPoint: ${entryPoint}`);
+            } catch (err) {
+                reply.fatal(`Unable to resolve entry point due to error: ${err}`);
+            }
             const result = await build({
                 bundle: true,
-                entryPoints: [require.resolve(path.join(tmpDir.name, 'asset', 'dist'))],
+                entryPoints: [entryPoint],
                 outdir: bundleDir.name,
                 platform: 'node',
                 sourcemap: false,
@@ -192,7 +193,10 @@ export class AssetSrc {
                 try {
                     const modulePath = require.resolve(bundleDir.name);
                     reply.info(`* doing a test require of ${modulePath}`);
-                    require(modulePath);
+                    const requireOut = require(modulePath).ASSETS;
+                    if (this.debug) {
+                        reply.warning(JSON.stringify(requireOut, null, 2));
+                    }
                 } catch (err) {
                     reply.fatal(`Bundled asset failed to require: ${err}`);
                 }
@@ -203,6 +207,10 @@ export class AssetSrc {
             }
 
             try {
+                if (this.overwrite && fs.pathExistsSync(this.outputFileName)) {
+                    reply.info(`* overwriting ${this.outputFileName}`);
+                    await fs.remove(this.outputFileName);
+                }
                 reply.info('* zipping the asset bundle');
                 // create zipfile
                 zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
@@ -215,7 +223,32 @@ export class AssetSrc {
                 });
             }
         } else {
+            // run yarn --cwd srcDir --prod --silent --no-progress asset:build
+            if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
+                reply.info('* running yarn asset:build');
+                await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
+            }
+
+            if (await fs.pathExists(path.join(tmpDir.name, '.yarnclean'))) {
+                reply.info('* running yarn autoclean --force');
+                await this._yarnCmd(tmpDir.name, ['autoclean', '--force']);
+            }
+
+            // run npm --cwd srcDir/asset --prod --silent --no-progress
+            reply.info('* running yarn --prod --no-progress');
+            await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+
+            // run yarn --cwd srcDir --prod --silent --no-progress asset:post-build
+            if (this.packageJson?.scripts && this.packageJson.scripts['asset:post-build']) {
+                reply.info('* running yarn asset:post-build');
+                await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
+            }
             try {
+                if (this.overwrite && fs.pathExistsSync(this.outputFileName)) {
+                    reply.info(`* overwriting ${this.outputFileName}`);
+                    await fs.remove(this.outputFileName);
+                }
+
                 reply.info('* zipping the asset bundle');
                 // create zipfile
                 zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), this.outputFileName);

@@ -13,6 +13,8 @@ export = {
         yargs.option('bundle', yargsOptions.buildOption('bundle'));
         yargs.option('bundle-target', yargsOptions.buildOption('bundle-target'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.option('debug', yargsOptions.buildOption('debug'));
+        yargs.option('overwrite', yargsOptions.buildOption('overwrite'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('quiet', yargsOptions.buildOption('quiet'));
         yargs.option('dev', yargsOptions.buildOption('dev'));
@@ -43,8 +45,10 @@ export = {
             const asset = new AssetSrc(
                 cliConfig.args.srcDir,
                 cliConfig.args.dev,
+                cliConfig.args.debug,
                 cliConfig.args.bundle,
-                cliConfig.args.bundleTarget
+                cliConfig.args.bundleTarget,
+                cliConfig.args.overwrite
             );
 
             reply.green('Beginning asset build.');

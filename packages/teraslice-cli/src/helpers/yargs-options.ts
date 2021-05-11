@@ -67,7 +67,11 @@ export default class Options {
                 'node14',
                 'node16'
             ],
-            implies: 'bundle',
+            // I have disabled this because for some reason this requirement was
+            // being enforced even when `bundle-target` wasn't specified.
+            // Ideally we'd have a way to warn the user that they need to set
+            // bundle if bundle-target is set.
+            // implies: 'bundle',
             type: 'string'
         }),
         'config-dir': () => ({
@@ -75,6 +79,11 @@ export default class Options {
             describe: 'Config directory',
             default: `${homeDir}/.teraslice`,
             nargs: 1,
+        }),
+        debug: () => ({
+            describe: 'Enable more verbose debugging output',
+            default: false,
+            type: 'boolean'
         }),
         file: () => ({
             alias: 'f',
@@ -103,6 +112,11 @@ export default class Options {
             describe: 'Output display format pretty or txt, default is txt',
             choices: ['txt', 'pretty'],
             default: 'txt'
+        }),
+        overwrite: () => ({
+            describe: 'Overwrite output file.',
+            default: false,
+            type: 'boolean'
         }),
         platform: () => ({
             choices: ['darwin', 'linux'],
