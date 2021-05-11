@@ -1,7 +1,7 @@
 {
     "name": "elasticsearch-store",
     "displayName": "Elasticsearch Store",
-    "version": "0.49.2",
+    "version": "0.49.3",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -24,7 +24,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-mate": "^0.27.2",
+        "@terascope/data-mate": "^0.27.3",
         "@terascope/data-types": "^0.28.0",
         "@terascope/types": "^0.8.0",
         "@terascope/utils": "^0.37.0",
