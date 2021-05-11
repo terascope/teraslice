@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import {
-    Column, Vector
+    Column, dataFrameAdapter, functionConfigRepository, Vector
 } from '../../src';
 
 describe('Column (String Types)', () => {
@@ -61,320 +61,332 @@ describe('Column (String Types)', () => {
             ]);
         });
 
-        //     it('should be able to validate using isURL', () => {
-        //         const newCol = Column.fromJSON(col.name, col.config, [
-        //             'https://someurl.cc.ru.ch',
-        //             'ftp://someurl.bom:8080?some=bar&hi=bob',
-        //             'http://xn--fsqu00a.xn--3lr804guic',
-        //             'http://example.com',
-        //             'BAD-URL',
-        //             undefined,
-        //         ]).validate(ColumnValidator.isURL);
+        it('should be able to validate using isURL', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isURL,
+            ).column(Column.fromJSON(col.name, col.config, [
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                'BAD-URL',
+                undefined,
+            ]));
 
-        //         expect(newCol.toJSON()).toEqual([
-        //             'https://someurl.cc.ru.ch',
-        //             'ftp://someurl.bom:8080?some=bar&hi=bob',
-        //             'http://xn--fsqu00a.xn--3lr804guic',
-        //             'http://example.com',
-        //             undefined,
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.toJSON()).toEqual([
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                undefined,
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to validate using isUUID', () => {
-        //         const newCol = Column.fromJSON(col.name, col.config, [
-        //             '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
-        //             'BAD-UUID',
-        //             '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-        //             undefined,
-        //         ]).validate(ColumnValidator.isUUID);
+        it('should be able to validate using isUUID', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isUUID,
+            ).column(Column.fromJSON(col.name, col.config, [
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                'BAD-UUID',
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                undefined,
+            ]));
 
-        //         expect(newCol.toJSON()).toEqual([
-        //             '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
-        //             undefined,
-        //             '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.toJSON()).toEqual([
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                undefined,
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to validate using isEmail', () => {
-        //         const newCol = Column.fromJSON(col.name, col.config, [
-        //             'ha3ke5@pawnage.com',
-        //             'user@blah.com/junk.junk?a=<tag value="junk"',
-        //             'email@example.com',
-        //             'email @ example.com',
-        //             'example.com',
-        //             null,
-        //         ]).validate(ColumnValidator.isEmail);
+        it('should be able to validate using isEmail', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isEmail,
+            ).column(Column.fromJSON(col.name, col.config, [
+                'ha3ke5@pawnage.com',
+                'user@blah.com/junk.junk?a=<tag value="junk"',
+                'email@example.com',
+                'email @ example.com',
+                'example.com',
+                null,
+            ]));
 
-        //         expect(newCol.toJSON()).toEqual([
-        //             'ha3ke5@pawnage.com',
-        //             undefined,
-        //             'email@example.com',
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.toJSON()).toEqual([
+                'ha3ke5@pawnage.com',
+                undefined,
+                'email@example.com',
+                undefined,
+                undefined,
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to validate using isAlpha', () => {
-        //         const newCol = Column.fromJSON(col.name, col.config, [
-        //             'Example',
-        //             'example123',
-        //             'foo bar',
-        //             'ha3ke5@',
-        //             'example.com',
-        //             null,
-        //         ]).validate(ColumnValidator.isAlpha);
+        it('should be able to validate using isAlpha', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isAlpha,
+            ).column(Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]));
 
-        //         expect(newCol.toJSON()).toEqual([
-        //             'Example',
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to validate using isAlphanumeric', () => {
-        //         const newCol = Column.fromJSON(col.name, col.config, [
-        //             'Example',
-        //             'example123',
-        //             'foo bar',
-        //             'ha3ke5@',
-        //             'example.com',
-        //             null,
-        //         ]).validate(ColumnValidator.isAlphanumeric);
+        it('should be able to validate using isAlphanumeric', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isAlphaNumeric,
+            ).column(Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]));
 
-        //         expect(newCol.toJSON()).toEqual([
-        //             'Example',
-        //             'example123',
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                'example123',
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to validate using isEqual', () => {
-        //         const newCol = col.validate(ColumnValidator.isEqual, {
-        //             value: 'Superman'
-        //         });
+        it('should be able to validate using contains', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.contains,
+                {
+                    args: { substr: 'Super' }
+                }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             undefined,
-        //             undefined,
-        //             'Superman',
-        //             undefined,
-        //             undefined,
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                undefined,
+                undefined,
+                'Superman',
+                undefined,
+                undefined,
+            ]);
+        });
 
-        //     it('should be able to transform using cast(array: true)', () => {
-        //         const newCol = col.transform(ColumnTransform.cast, {
-        //             array: true
-        //         });
+        it('should be able to transform using toUpperCase', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toUpperCase,
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual({ ...col.config, array: true });
-        //         expect(newCol.toJSON()).toEqual([
-        //             ['Batman'],
-        //             ['Robin'],
-        //             ['Superman'],
-        //             undefined,
-        //             ['SpiderMan'],
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'BATMAN',
+                'ROBIN',
+                'SUPERMAN',
+                undefined,
+                'SPIDERMAN',
+            ]);
+        });
 
-        //     it('should be able to transform using toUpperCase', () => {
-        //         const newCol = col.transform(ColumnTransform.toUpperCase);
+        it('should be able to transform using toLowerCase', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toLowerCase,
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'BATMAN',
-        //             'ROBIN',
-        //             'SUPERMAN',
-        //             undefined,
-        //             'SPIDERMAN',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'batman',
+                'robin',
+                'superman',
+                undefined,
+                'spiderman',
+            ]);
+        });
 
-        //     it('should be able to transform using toLowerCase', () => {
-        //         const newCol = col.transform(ColumnTransform.toLowerCase);
+        it('should be able to transform using truncate', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.truncate,
+                { args: { size: 5 } }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'batman',
-        //             'robin',
-        //             'superman',
-        //             undefined,
-        //             'spiderman',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'Batma',
+                'Robin',
+                'Super',
+                undefined,
+                'Spide',
+            ]);
+        });
 
-        //     it('should be able to transform using truncate', () => {
-        //         const newCol = col.transform(ColumnTransform.truncate, {
-        //             size: 5
-        //         });
+        it('should be able to transform using setDefault(value: "human")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.setDefault,
+                { args: { value: 'human' } }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'Batma',
-        //             'Robin',
-        //             'Super',
-        //             undefined,
-        //             'Spide',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'Batman',
+                'Robin',
+                'Superman',
+                'human',
+                'SpiderMan',
+            ]);
+        });
 
-        //     it('should be able to transform using setDefault(value: "human")', () => {
-        //         const newCol = col.transform(ColumnTransform.setDefault, {
-        //             value: 'human'
-        //         });
+        it('should be immutable', () => {
+            expect(() => {
+                // @ts-expect-error
+                newCol.vector = 'hi' as any;
+            }).toThrow();
+        });
+    });
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'Batman',
-        //             'Robin',
-        //             'Superman',
-        //             'human',
-        //             'SpiderMan',
-        //         ]);
-        //     });
+    describe('when field type is Text (with whitespace)', () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            '     left',
+            'right    ',
+            '  center ',
+            '         ',
+            'fast cars race fast',
+            '.*.*a regex test.*.*.*.*',
+            '\t\r\rexample\r\r',
+        ];
 
-        //     it('should be immutable', () => {
-        //         expect(() => {
-        //             // @ts-expect-error
-        //             newCol.vector = 'hi' as any;
-        //         }).toThrow();
-        //     });
-        // });
+        beforeEach(() => {
+            col = Column.fromJSON<string>('txt', {
+                type: FieldType.Text,
+            }, values);
+        });
 
-        // describe('when field type is Text (with whitespace)', () => {
-        //     let col: Column<string>;
-        //     const values: Maybe<string>[] = [
-        //         '     left',
-        //         'right    ',
-        //         '  center ',
-        //         '         ',
-        //         'fast cars race fast',
-        //         '.*.*a regex test.*.*.*.*',
-        //         '\t\r\rexample\r\r',
-        //     ];
+        it('should be able to transform using trim()', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trim,
+            ).column(col);
 
-        //     beforeEach(() => {
-        //         col = Column.fromJSON<string>('txt', {
-        //             type: FieldType.Text,
-        //         }, values);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'left',
+                'right',
+                'center',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                'example',
+            ]);
+        });
 
-        //     it('should be able to transform using trim()', () => {
-        //         const newCol = col.transform(ColumnTransform.trim);
+        it('should be able to transform using trim(char: "fast")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trim,
+                { args: { chars: 'fast' } }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'left',
-        //             'right',
-        //             'center',
-        //             '',
-        //             'fast cars race fast',
-        //             '.*.*a regex test.*.*.*.*',
-        //             'example',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     le',
+                'right    ',
+                '  center ',
+                '         ',
+                ' cars race ',
+                '.*.*a regex test.*.*.*.*',
+                '\t\r\rexample\r\r',
+            ]);
+        });
 
-        //     it('should be able to transform using trim(char: "fast")', () => {
-        //         const newCol = col.transform(ColumnTransform.trim, {
-        //             char: 'fast'
-        //         });
+        it('should be able to transform using trim(char: ".*")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trim,
+                { args: { chars: '.*' } }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             '     left',
-        //             'right    ',
-        //             '  center ',
-        //             '         ',
-        //             ' cars race ',
-        //             '.*.*a regex test.*.*.*.*',
-        //             '\t\r\rexample\r\r',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right    ',
+                '  center ',
+                '         ',
+                'fast cars race fast',
+                'a regex test',
+                '\t\r\rexample\r\r',
+            ]);
+        });
 
-        //     it('should be able to transform using trim(char: ".*")', () => {
-        //         const newCol = col.transform(ColumnTransform.trim, {
-        //             char: '.*'
-        //         });
+        it('should be able to transform using trim(char: "\\r")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trim,
+                { args: { chars: '\r' } }
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             '     left',
-        //             'right    ',
-        //             '  center ',
-        //             '         ',
-        //             'fast cars race fast',
-        //             'a regex test',
-        //             '\t\r\rexample\r\r',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right    ',
+                '  center ',
+                '         ',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                '\t\r\rexample',
+            ]);
+        });
 
-        //     it('should be able to transform using trim(char: "\\r")', () => {
-        //         const newCol = col.transform(ColumnTransform.trim, {
-        //             char: '\r'
-        //         });
+        it('should be able to transform using trimStart()', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trimStart,
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             '     left',
-        //             'right    ',
-        //             '  center ',
-        //             '         ',
-        //             'fast cars race fast',
-        //             '.*.*a regex test.*.*.*.*',
-        //             'example',
-        //         ]);
-        //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'left',
+                'right    ',
+                'center ',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                'example\r\r',
+            ]);
+        });
 
-        //     it('should be able to transform using trimStart()', () => {
-        //         const newCol = col.transform(ColumnTransform.trimStart);
+        it('should be able to transform using trimEnd()', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.trimEnd,
+            ).column(col);
 
-        //         expect(newCol.id).not.toBe(col.id);
-        //         expect(newCol.config).toEqual(col.config);
-        //         expect(newCol.toJSON()).toEqual([
-        //             'left',
-        //             'right    ',
-        //             'center ',
-        //             '',
-        //             'fast cars race fast',
-        //             '.*.*a regex test.*.*.*.*',
-        //             'example\r\r',
-        //         ]);
-        //     });
-
-        //     it('should be able to transform using trimEnd()', () => {
-        //         const newCol = col.transform(ColumnTransform.trimEnd);
-
-    //         expect(newCol.id).not.toBe(col.id);
-    //         expect(newCol.config).toEqual(col.config);
-    //         expect(newCol.toJSON()).toEqual([
-    //             '     left',
-    //             'right',
-    //             '  center',
-    //             '',
-    //             'fast cars race fast',
-    //             '.*.*a regex test.*.*.*.*',
-    //             '\t\r\rexample',
-    //         ]);
-    //     });
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right',
+                '  center',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                '\t\r\rexample',
+            ]);
+        });
     });
 });

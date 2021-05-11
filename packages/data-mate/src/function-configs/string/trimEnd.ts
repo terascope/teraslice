@@ -1,5 +1,5 @@
 import {
-    trimEnd, isNotNil, isString, getTypeOf
+    trimEndFP
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -58,8 +58,8 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from end of string',
     examples,
-    create({ chars } = {}) {
-        return (input: unknown) => trimEnd(input, chars);
+    create({ chars }) {
+        return trimEndFP(chars);
     },
     accepts: [FieldType.String],
     argument_schema: {
@@ -67,11 +67,6 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
             type: FieldType.String,
             array: false,
             description: 'The characters to remove, defaults to whitespace'
-        }
-    },
-    validate_arguments({ chars } = {}) {
-        if (isNotNil(chars) && !isString(chars)) {
-            throw new Error(`Invalid parameter chars, if provided it must be of type string, got ${getTypeOf(chars)}`);
         }
     }
 };

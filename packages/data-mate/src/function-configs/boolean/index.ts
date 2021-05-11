@@ -1,7 +1,9 @@
 import { isBooleanConfig } from './isBoolean';
+import { isBooleanLikeConfig } from './isBooleanLike';
 import { toBooleanConfig } from './toBoolean';
 
 export const booleanRepository = {
     isBoolean: isBooleanConfig,
-    toBoolean: toBooleanConfig
+    isBooleanLike: isBooleanLikeConfig,
+    toBoolean: toBooleanConfig,
 };

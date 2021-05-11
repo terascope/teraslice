@@ -1,5 +1,5 @@
 import {
-    isNotNil, isString, trimStart, getTypeOf
+    trimStartFP
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -52,8 +52,8 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from start of string',
     examples,
-    create({ chars } = {}) {
-        return (input: unknown) => trimStart(input, chars);
+    create({ chars }) {
+        return trimStartFP(chars);
     },
     accepts: [FieldType.String],
     argument_schema: {
@@ -61,11 +61,6 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
             type: FieldType.String,
             array: false,
             description: 'The characters to remove, defaults to whitespace'
-        }
-    },
-    validate_arguments({ chars } = {}) {
-        if (isNotNil(chars) && !isString(chars)) {
-            throw new Error(`Invalid parameter chars, if provided it must be of type string, got ${getTypeOf(chars)}`);
         }
     }
 };
