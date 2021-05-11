@@ -112,7 +112,7 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Checks to see if a geo-shape input contains the given point',
+    description: 'Checks to see if a geo input contains the given point',
     create({ point }) {
         return geoContainsPointFP(point);
     },

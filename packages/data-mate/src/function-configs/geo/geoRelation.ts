@@ -2,7 +2,7 @@ import {
     joinList, geoRelationFP, toGeoJSON
 } from '@terascope/utils';
 import {
-    FieldType, GeoShapeRelation, GeoInput
+    FieldType, GeoShapeRelation, GeoInput, GeoShapeType
 } from '@terascope/types';
 import {
     FieldValidateConfig,
@@ -18,13 +18,81 @@ export interface GeoPolygonArgs {
 }
 
 const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
-    // {
-    //     args: { point: '33.435518,-111.873616', distance: '5000m' },
-    //     config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
-    //     field: 'testField',
-    //     input: '33.435967,-111.867710',
-    //     output: '33.435967,-111.867710',
-    // },
+    {
+        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        field: 'testField',
+        input: '20,20',
+        output: '20,20',
+    },
+    {
+        args: {
+            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            relation: GeoShapeRelation.Within
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoPoint } } },
+        field: 'testField',
+        input: '20,20',
+        output: '20,20',
+    },
+    {
+        args: {
+            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            relation: GeoShapeRelation.Contains
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
+        field: 'testField',
+        input: '20,20',
+        output: null,
+    },
+    {
+        args: {
+            geoInput: {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+            },
+            relation: GeoShapeRelation.Disjoint
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
+        field: 'testField',
+        input: {
+            type: GeoShapeType.Polygon,
+            coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+        },
+        output: {
+            type: GeoShapeType.Polygon,
+            coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+        },
+    },
+    {
+        args: {
+            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            relation: GeoShapeRelation.Intersects
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
+        field: 'testField',
+        input: {
+            type: GeoShapeType.Polygon,
+            coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+        },
+        output: {
+            type: GeoShapeType.Polygon,
+            coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+        },
+    },
+    {
+        args: {
+            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            relation: GeoShapeRelation.Disjoint
+        },
+        config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
+        field: 'testField',
+        input: {
+            type: GeoShapeType.Polygon,
+            coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+        },
+        output: null,
+    },
 ];
 
 export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
@@ -33,7 +101,7 @@ export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Compares geo points/polygons/multi-polygons against other points/polygons/multi-polygons',
+    description: `Compares geo inputs to any geo-like data based off the relation specified (defaults to "${GeoShapeRelation.Within}"`,
     create({ geoInput, relation = GeoShapeRelation.Within }) {
         return geoRelationFP(geoInput, relation);
     },
