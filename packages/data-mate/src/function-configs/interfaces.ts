@@ -28,7 +28,7 @@ export enum FunctionDefinitionCategory {
     IP = 'IP',
 }
 
-export interface FunctionDefinitionExample<T extends Record<string, any>> {
+export interface FunctionDefinitionExample<T extends Record<string, any>, O = unknown> {
     /**
      * The example arguments passed to the function
     */
@@ -56,7 +56,7 @@ export interface FunctionDefinitionExample<T extends Record<string, any>> {
      * In the case of validators, this should be either
      * the input or null (which indicates it is invalid)
     */
-    readonly output?: unknown;
+    readonly output?: O;
 
     /**
      * If this is set to true, the output is not required. If output

@@ -2,6 +2,7 @@ import 'jest-extended';
 import {
     bigIntToJSON, hasOwn, isBigInt, isObjectEntity
 } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
 import {
     functionAdapter,
     dataFrameAdapter,
@@ -111,7 +112,17 @@ export function functionTestHarness<T extends Record<string, any>>(
                         field: testCase.field,
                     }).column(column);
 
-                    expect(outputColumn.toJSON()).toEqual([testCase.output ?? undefined]);
+                    if (outputColumn.config.type === FieldType.Date) {
+                        // we need to make sure the outputted date
+                        // is the same as the function adapter
+                        expect(outputColumn.vector.toArray()).toEqual(
+                            [testCase.output ?? undefined]
+                        );
+                    } else {
+                        expect(outputColumn.toJSON()).toEqual(
+                            [testCase.output ?? undefined]
+                        );
+                    }
                 } else {
                     verifyObjectEntity(input);
 

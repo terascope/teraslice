@@ -23,7 +23,7 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
         },
         field: 'testField',
         input: '2019-10-22T01:00:00.000Z',
-        output: '2019-10-01T00:00:00.000Z'
+        output: new Date('2019-10-01T00:00:00.000Z').getTime()
     }],
     create() {
         return trimISODateSegment(ISO8601DateSegment.monthly);

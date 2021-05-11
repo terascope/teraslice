@@ -23,7 +23,7 @@ export const toHourlyDateConfig: FieldTransformConfig = {
         },
         field: 'testField',
         input: '2019-10-22T01:05:20.000Z',
-        output: '2019-10-22T01:00:00.000Z'
+        output: new Date('2019-10-22T01:00:00.000Z').getTime()
     }],
     create() {
         return trimISODateSegment(ISO8601DateSegment.hourly);

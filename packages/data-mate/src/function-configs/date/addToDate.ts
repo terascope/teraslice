@@ -38,7 +38,7 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-10-23T08:02:00.000Z'
+        output: new Date('2019-10-23T08:02:00.000Z').getTime()
     }, {
         args: { months: 1, minutes: 2 },
         config: {
@@ -47,7 +47,7 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-11-22T22:02:00.000Z'
+        output: new Date('2019-11-22T22:02:00.000Z').getTime()
     }, {
         args: {},
         config: {

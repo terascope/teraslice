@@ -84,14 +84,13 @@ Default: iso_8601 for strings and epoch_millis for number`
         return {
             field_config: {
                 ...field_config,
-                type: isNumberOutput(format) ? FieldType.Integer : FieldType.String
+                type: isNumberOutput(format) ? FieldType.Number : FieldType.String
             },
         };
     }
 };
 
 function isNumberOutput(format: DateFormat|string|undefined) {
-    if (format == null) return false;
     if (format === DateFormat.epoch || format === DateFormat.epoch_millis) return true;
     if (format === DateFormat.seconds || format === DateFormat.milliseconds) return true;
     return false;

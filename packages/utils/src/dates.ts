@@ -4,7 +4,7 @@ import formatDate from 'date-fns/lightFormat';
 import { DateFormat, ISO8601DateSegment } from '@terascope/types';
 import { getTypeOf } from './deps';
 import {
-    bigIntToJSON, toInteger
+    bigIntToJSON, isNumber, toInteger
 } from './numbers';
 import { isString } from './strings';
 
@@ -22,7 +22,7 @@ export function makeISODate(value?: Date|number|string|null|undefined): string {
     if (date === false) {
         throw new Error(`Invalid date ${date}`);
     }
-    return new Date(value).toISOString();
+    return date.toISOString();
 }
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
@@ -131,6 +131,18 @@ export function isISO8601(input: unknown): input is string {
 }
 
 /**
+ * Convert a value to an ISO 8601 date string.
+ * This should be used over makeISODate
+*/
+export function toISO8061(value: unknown): string {
+    if (isNumber(value)) {
+        return new Date(value).toISOString();
+    }
+
+    return makeISODate(value as any);
+}
+
+/**
  * Returns a function to trim the ISO 8601 date segment, this useful
  * for creating yearly, monthly, daily or hourly dates
 */
@@ -147,7 +159,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).valueOf() - timezoneOffset;
+            ).getTime() - timezoneOffset;
         }
 
         if (segment === ISO8601DateSegment.daily) {
@@ -159,7 +171,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).valueOf() - timezoneOffset;
+            ).getTime() - timezoneOffset;
         }
 
         if (segment === ISO8601DateSegment.monthly) {
@@ -171,7 +183,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).valueOf() - timezoneOffset;
+            ).getTime() - timezoneOffset;
         }
 
         if (segment === ISO8601DateSegment.yearly) {
@@ -183,7 +195,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).valueOf() - timezoneOffset;
+            ).getTime() - timezoneOffset;
         }
 
         throw new Error(`Invalid segment "${segment}" given`);

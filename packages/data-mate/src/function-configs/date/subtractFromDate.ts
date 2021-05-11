@@ -36,7 +36,7 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-10-22T12:02:00.000Z'
+        output: new Date('2019-10-22T12:02:00.000Z').getTime()
     }, {
         args: { months: 1, minutes: 2 },
         config: {
@@ -45,7 +45,7 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-09-22T21:58:00.000Z'
+        output: new Date('2019-09-22T21:58:00.000Z').getTime()
     }, {
         args: {},
         config: {

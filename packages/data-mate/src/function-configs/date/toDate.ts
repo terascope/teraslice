@@ -13,7 +13,6 @@ export interface ToDateArgs {
 
 export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
     name: 'toDate',
-    aliases: ['toISO8061'],
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
@@ -26,7 +25,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: '2019-10-22',
-        output: '2019-10-22T00:00:00.000Z',
+        output: new Date('2019-10-22T00:00:00.000Z').getTime(),
     }, {
         args: { },
         config: {
@@ -35,7 +34,20 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: 102390933,
-        output: '1970-01-02T04:26:30.933Z'
+        output: 102390933
+    }, {
+        args: { format: DateFormat.seconds },
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.Long,
+                }
+            }
+        },
+        field: 'testField',
+        input: 102390933,
+        output: 102390933 * 1000,
     }, {
         args: { format: DateFormat.milliseconds },
         config: {
@@ -48,20 +60,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z',
-    }, {
-        args: { format: DateFormat.seconds },
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Long,
-                }
-            }
-        },
-        field: 'testField',
-        input: 102390933000,
-        output: '1973-03-31T01:55:33.000Z',
+        output: 102390933000,
     }, {
         args: {},
         config: {
@@ -70,7 +69,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         },
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
-        output: '2001-01-01T01:00:00.000Z'
+        output: new Date('2001-01-01T01:00:00.000Z').getTime()
     }],
     create({ format }) {
         const referenceDate = new Date();
