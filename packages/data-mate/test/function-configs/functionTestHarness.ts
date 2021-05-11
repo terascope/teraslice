@@ -110,10 +110,10 @@ export function functionTestHarness<T extends Record<string, any>>(
                     if (output == null) return [undefined];
                     if (testCase.serialize_output) {
                         return [testCase.serialize_output(
-                            serializeBigIntegers(output)
+                            output
                         )];
                     }
-                    return [serializeBigIntegers(output)];
+                    return [output];
                 }
 
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {

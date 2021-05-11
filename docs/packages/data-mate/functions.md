@@ -1572,6 +1572,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 #### Accepts
 
 - `Number`
+- `GeoPoint`
 
 #### Examples
 
@@ -1601,6 +1602,10 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 ```ts
 23.4 => toPrecision(digits: 1000) // throws Expected digits to be between 0-100
+```
+
+```ts
+lat: 32.12399971230023, lon: -20.95522300035 => toPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
 ```
 
 ### `inNumberRange`
