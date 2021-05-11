@@ -35,7 +35,7 @@ export function toString(val: unknown): string {
     }
 
     if (typeof val === 'bigint') {
-        return (val as BigInt).toLocaleString();
+        return val.toLocaleString();
     }
 
     if (typeof val === 'function') {
