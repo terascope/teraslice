@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 import LRUMap from 'mnemonist/lru-map';
-import { BigMap } from '@terascope/utils';
+import { BigMap } from './big-map';
 
 /**
 * This used to ignore the init size of
