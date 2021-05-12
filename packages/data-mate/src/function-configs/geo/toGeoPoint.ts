@@ -64,6 +64,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
         FieldType.String,
         FieldType.Object,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Number,
         FieldType.Float
     ],

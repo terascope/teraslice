@@ -85,6 +85,7 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     accepts: [
         FieldType.GeoJSON,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Object,
         FieldType.String,
         FieldType.Number
