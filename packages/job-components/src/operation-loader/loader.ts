@@ -7,6 +7,7 @@ import {
     castArray,
     get,
     has,
+    joinList,
 } from '@terascope/utils';
 import {
     OperationAPIConstructor,
@@ -56,18 +57,21 @@ export class OperationLoader {
     }
 
     private _getBundledOperation<T>(
-        dirPath: string, opName: string, type: OperationTypeName, shouldThrow = true
+        dirPath: string, opName: string, type: OperationTypeName
     ): T {
         const repository = this._getBundledRepository(dirPath);
-        const operation = get(repository ?? {}, opName);
+        if (repository == null) {
+            throw new Error(`Empty asset repository found at path: ${dirPath}`);
+        }
+        const operation = get(repository, opName);
 
-        if (!operation && shouldThrow) {
-            throw new Error(`Could not find operation ${opName}`);
+        if (!operation) {
+            throw new Error(`Could not find operation ${opName}, must be one of ${joinList(Object.keys(repository))}`);
         }
         const repoType = OpTypeToRepositoryKey[type];
         const opType = operation[repoType];
 
-        if (!opType && shouldThrow) {
+        if (!opType) {
             throw new Error(`Operation ${opName}, does not have ${repoType} registered`);
         }
 
@@ -251,7 +255,7 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            API = this.require(path, OperationTypeName.api, { name, bundle_type });
+            API = this.require(path, OperationTypeName.api, { name: apiName, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -259,7 +263,9 @@ export class OperationLoader {
         let Observer: ObserverConstructor | undefined;
 
         try {
-            Observer = this.require(path, OperationTypeName.observer, { name, bundle_type });
+            Observer = this.require(
+                path, OperationTypeName.observer, { name: apiName, bundle_type }
+            );
         } catch (err) {
             // do nothing
         }
@@ -267,7 +273,7 @@ export class OperationLoader {
         let Schema: SchemaConstructor | undefined;
 
         try {
-            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
+            Schema = this.require(path, OperationTypeName.schema, { name: apiName, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
         }
@@ -345,7 +351,7 @@ export class OperationLoader {
             if (!name) throw new Error('Must provide a operation name if using a version parameter');
 
             try {
-                return this._getBundledOperation(dir, name, type, true);
+                return this._getBundledOperation(dir, name, type);
             } catch (_err) {
                 err = _err;
             }

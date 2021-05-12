@@ -79,3 +79,30 @@ export function handleWrapper(fn: (argv: any) => any) {
         }
     };
 }
+
+export const wasmPlugin = {
+    name: 'wasm',
+    setup(build: any) {
+        // Resolve ".wasm" files to a path with a namespace
+        build.onResolve({ filter: /\.wasm$/ }, (args: any) => {
+            if (args.resolveDir === '') {
+                return undefined; // Ignore unresolvable paths
+            }
+            return {
+                path: path.isAbsolute(args.path)
+                    ? args.path
+                    : path.join(args.resolveDir, args.path),
+                namespace: 'wasm-binary',
+            };
+        });
+
+        // Virtual modules in the "wasm-binary" namespace contain the
+        // actual bytes of the WebAssembly file. This uses esbuild's
+        // built-in "binary" loader instead of manually embedding the
+        // binary data inside JavaScript code ourselves.
+        build.onLoad({ filter: /.*/, namespace: 'wasm-binary' }, async (args: any) => ({
+            contents: await fs.promises.readFile(args.path),
+            loader: 'binary',
+        }));
+    },
+};
