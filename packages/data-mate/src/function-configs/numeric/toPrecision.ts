@@ -121,6 +121,7 @@ export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
     accepts: [
         FieldType.Number,
         FieldType.GeoPoint,
+        FieldType.Geo
     ],
     argument_schema: {
         digits: {
