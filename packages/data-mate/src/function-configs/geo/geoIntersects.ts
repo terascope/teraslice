@@ -79,7 +79,7 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data when compared to the geoInput argument has overlap between the two',
+    description: 'Validates that geo-like data when compared to the argument has overlap between the two',
     create({ value: geoInput }) {
         return geoIntersectsFP(geoInput);
     },
