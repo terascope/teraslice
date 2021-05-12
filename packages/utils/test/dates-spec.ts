@@ -125,7 +125,7 @@ describe('date utils', () => {
             [1620764444501, 1715472000000, 'years', 3],
             [1620764444501, '2028-05-10T11:01:33.192Z', 'milliseconds', 220804848691],
             [1620764444501, '2028-05-10', 'milliseconds', 220765155499],
-            [1620764444501, '05/10/2028', 'milliseconds', 220790355499],
+            [1620764444501, '05/10/2028 UTC', 'milliseconds', 220765155499],
             [new Date(1620764444501), new Date('2028-05-10T11:01:33.192Z'), 'milliseconds', 220804848691],
         ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
             const args: { end: any, format: any } = { end, format };
