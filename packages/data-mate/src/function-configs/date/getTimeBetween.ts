@@ -7,7 +7,7 @@ import {
 export interface GetTimeBetweenArgs {
     start?: Date | number | string;
     end?: Date | number | string;
-    format?: TimeBetweenFormats;
+    readonly format: TimeBetweenFormats;
 }
 
 export const getTimeBetweenConfig: FieldTransformConfig = {
