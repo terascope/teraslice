@@ -37,16 +37,33 @@ export default [
             query: {
                 constant_score: {
                     filter: {
-                        geo_polygon: {
-                            location: {
-                                points: [
-                                    [140.43, 70.43],
-                                    [123.4, 81.3],
-                                    [134.4, 85.3],
-                                    [154.4, 89.3],
-                                    [140.43, 70.43],
-                                ]
-                            }
+                        bool: {
+                            should: [
+                                {
+                                    bool: {
+                                        filter: [
+                                            {
+                                                geo_polygon: {
+                                                    location: {
+                                                        points: [
+                                                            [140.43, 70.43],
+                                                            [123.4, 81.3],
+                                                            [134.4, 85.3],
+                                                            [154.4, 89.3],
+                                                            [140.43, 70.43],
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                bool: {
+                                                    must_not: []
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
