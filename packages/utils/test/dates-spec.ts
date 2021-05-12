@@ -66,7 +66,7 @@ describe('date utils', () => {
         });
     });
 
-    fdescribe('getTimeBetween', () => {
+    describe('getTimeBetween', () => {
         test.each([
             ['2021-05-10T10:00:00.000Z', '2021-05-10T09:00:00.000Z', 'milliseconds', 3600000],
             ['2021-05-10T10:00:00.000Z', '2021-05-10T11:00:00.074Z', 'milliseconds', -3600074],
