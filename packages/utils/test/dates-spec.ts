@@ -1,7 +1,11 @@
 import 'jest-extended';
 import { DateFormat, ISO8601DateSegment } from '@terascope/types';
 import {
-    isISO8601, parseDateValue, formatDateValue, trimISODateSegment
+    isISO8601,
+    parseDateValue,
+    formatDateValue,
+    trimISODateSegment,
+    getTimeBetween
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -60,6 +64,78 @@ describe('date utils', () => {
         ])('should handle %p and return %p', (input, format, expected) => {
             expect(formatDateValue(input, format)).toBe(expected);
             expect(formatDateValue(new Date(input), format)).toBe(expected);
+        });
+    });
+
+    fdescribe('getTimeBetween', () => {
+        test.each([
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T09:00:00.000Z', 'milliseconds', 3600000],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T11:00:00.074Z', 'milliseconds', -3600074],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T08:01:02.022Z', 'seconds', 7137],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T11:01:33.192Z', 'seconds', -3693],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T09:00:00.000Z', 'minutes', 60],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T09:00:30.000Z', 'minutes', 59],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T02:01:33.192Z', 'hours', 7],
+            ['2021-05-10T10:00:00.000Z', '2021-05-05T11:01:33.192Z', 'days', 4],
+            ['2021-05-10T10:00:00.000Z', '2021-05-03T11:01:33.192Z', 'calendarDays', 7],
+            ['2021-05-10T10:00:00.000Z', '2021-05-03T11:01:33.192Z', 'businessDays', 5],
+            ['2021-05-10T10:00:00.000Z', '2021-05-01T11:01:33.192Z', 'weeks', 1],
+            ['2021-05-10T10:00:00.000Z', '2021-04-10T11:01:33.192Z', 'calendarWeeks', 5],
+            ['2021-05-10T10:00:00.000Z', '2021-04-09T11:01:33.192Z', 'months', 1],
+            ['2021-05-10T10:00:00.000Z', '2021-02-02T11:01:33.192Z', 'calendarMonths', 3],
+            ['2021-05-10T10:00:00.000Z', '2021-01-10T11:01:33.192Z', 'quarters', 1],
+            ['2021-05-10T10:00:00.000Z', '2020-01-10T11:01:33.192Z', 'calendarQuarters', 5],
+            ['2021-05-10T10:00:00.000Z', '2020-05-09T11:01:33.192Z', 'years', 1],
+            ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarYears', 2],
+            ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarISOWeekYears', 2],
+            ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'isoWeekYears', 1],
+            ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'isoDuration', 'P11Y4M0DT22H58M26S']
+        ])('should return duration between %p and %p, in %p as %p', (input, start, format, expected) => {
+            const args: { start: any, format: any } = { start, format };
+
+            expect(getTimeBetween(input, args)).toBe(expected);
+        });
+
+        test.each([
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T11:00:00.074Z', 'milliseconds', 3600074],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T11:01:33.192Z', 'seconds', 3693],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T11:01:00.000Z', 'minutes', 61],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T17:01:33.192Z', 'hours', 7],
+            ['2021-05-10T10:00:00.000Z', '2021-05-05T11:01:33.192Z', 'days', -4],
+            ['2021-05-10T10:00:00.000Z', '2021-05-17T11:01:33.192Z', 'calendarDays', 7],
+            ['2021-05-10T10:00:00.000Z', '2021-05-16T11:01:33.192Z', 'businessDays', 5],
+            ['2021-05-10T10:00:00.000Z', '2021-05-30T11:01:33.192Z', 'weeks', 2],
+            ['2021-05-10T10:00:00.000Z', '2021-06-10T11:01:33.192Z', 'calendarWeeks', 4],
+            ['2021-05-10T10:00:00.000Z', '2021-07-02T11:01:33.192Z', 'calendarMonths', 2],
+            ['2021-05-10T10:00:00.000Z', '2021-09-10T11:01:33.192Z', 'quarters', 1],
+            ['2021-05-10T10:00:00.000Z', '2022-01-10T11:01:33.192Z', 'calendarQuarters', 3],
+            ['2021-05-10T10:00:00.000Z', '2021-04-09T11:01:33.192Z', 'months', -1],
+            ['2021-05-10T10:00:00.000Z', '2022-08-18T11:01:33.192Z', 'years', 1],
+            ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'calendarYears', 3],
+            ['2021-05-10T10:00:00.000Z', '2028-05-10T11:01:33.192Z', 'calendarISOWeekYears', 7],
+            ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'isoWeekYears', 3],
+            ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'isoDuration', 'P1Y7M30DT8H19M23S']
+        ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
+            const args: { end: any, format: any } = { end, format };
+
+            expect(getTimeBetween(input, args)).toBe(expected);
+        });
+
+        test.each([
+            [1620764444501, 1620764444511, 'milliseconds', 10],
+            [1620764444501, 1715472000000, 'years', 3],
+            [1620764444501, '2028-05-10T11:01:33.192Z', 'milliseconds', 220804848691],
+            [1620764444501, '2028-05-10', 'milliseconds', 220765155499],
+            [1620764444501, '05/10/2028', 'milliseconds', 220790355499],
+        ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
+            const args: { end: any, format: any } = { end, format };
+
+            expect(getTimeBetween(input, args)).toBe(expected);
+        });
+
+        it('should throw if end and start are missing', () => {
+            expect(() => { getTimeBetween('2021-05-10T10:00:00.000Z', { format: 'seconds' }); })
+                .toThrowError('Must provide a start or an end argument');
         });
     });
 });
