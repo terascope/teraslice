@@ -66,7 +66,7 @@ describe('date utils', () => {
         });
     });
 
-    describe('getTimeBetween', () => {
+     describe('getTimeBetween', () => {
         test.each([
             ['2021-05-10T10:00:00.000Z', '2021-05-10T09:00:00.000Z', 'milliseconds', 3600000],
             ['2021-05-10T10:00:00.000Z', '2021-05-10T11:00:00.074Z', 'milliseconds', -3600074],
@@ -87,8 +87,8 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2020-05-09T11:01:33.192Z', 'years', 1],
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarYears', 2],
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarISOWeekYears', 2],
-            ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'isoWeekYears', 1],
-            ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'isoDuration', 'P11Y4M0DT22H58M26S']
+            ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'ISOWeekYears', 1],
+            ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'ISODuration', 'P11Y4M0DT22H58M26S']
         ])('should return duration between %p and %p, in %p as %p', (input, start, format, expected) => {
             const args: { start: any, format: any } = { start, format };
 
@@ -112,8 +112,8 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2022-08-18T11:01:33.192Z', 'years', 1],
             ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'calendarYears', 3],
             ['2021-05-10T10:00:00.000Z', '2028-05-10T11:01:33.192Z', 'calendarISOWeekYears', 7],
-            ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'isoWeekYears', 3],
-            ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'isoDuration', 'P1Y7M30DT8H19M23S']
+            ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'ISOWeekYears', 3],
+            ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISODuration', 'P1Y7M30DT8H19M23S']
         ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
             const args: { end: any, format: any } = { end, format };
 
@@ -126,6 +126,7 @@ describe('date utils', () => {
             [1620764444501, '2028-05-10T11:01:33.192Z', 'milliseconds', 220804848691],
             [1620764444501, '2028-05-10', 'milliseconds', 220765155499],
             [1620764444501, '05/10/2028', 'milliseconds', 220790355499],
+            [new Date(1620764444501), new Date('2028-05-10T11:01:33.192Z'), 'milliseconds', 220804848691],
         ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
             const args: { end: any, format: any } = { end, format };
 
@@ -135,6 +136,16 @@ describe('date utils', () => {
         it('should throw if end and start are missing', () => {
             expect(() => { getTimeBetween('2021-05-10T10:00:00.000Z', { format: 'seconds' }); })
                 .toThrowError('Must provide a start or an end argument');
+        });
+
+        it('should throw if input is an invalid date', () => {
+            expect(() => { getTimeBetween('bad date', { start: 1715472000000, format: 'seconds' }); })
+                .toThrowError('Could not parse date values into dates');
+        });
+
+        it('should throw if start or end arg is an invalid date', () => {
+            expect(() => { getTimeBetween('1715472000000', { start: 'bad date', format: 'seconds' }); })
+                .toThrowError('Could not parse date values into dates');
         });
     });
 });

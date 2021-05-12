@@ -8,23 +8,4 @@ export enum ISO8601DateSegment {
     yearly = 'yearly',
 }
 
-export enum TimeBetweenFormats {
-    Milliseconds = 'Milliseconds',
-    Seconds = 'seconds',
-    Minutes = 'minutes',
-    Hours = 'hours',
-    Days = 'days',
-    CalendarDays = 'calendarDays',
-    BusinessDays = 'businessDays',
-    Weeks = 'weeks',
-    CalendarWeeks = 'CalendarWeeks',
-    Months = 'months',
-    CalendarMonths = 'calendarMonths',
-    Quarters = 'quarters',
-    CalendarQuarters = 'CalendarQuarters',
-    Years = 'years',
-    CalendarYears = 'CalendarYears',
-    CalendarISOWeekYears = 'CalendarISOWeekYears',
-    IsoWeekYears = 'isoWeekYears',
-    IsoDuration = 'isoDuration'
-}
+export type TimeBetweenFormats = 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days' | 'calendarDays' | 'businessDays' | 'weeks' | 'calendarWeeks' | 'months' | 'calendarMonths' | 'quarters' | 'calendarQuarters' | 'years' | 'calendarYears' | 'calendarISOWeekYears' | 'ISOWeekYears' | 'ISODuration';

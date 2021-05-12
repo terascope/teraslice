@@ -351,7 +351,7 @@ const _getDurationFunc = {
     years: differenceInYears,
     calendarYears: differenceInCalendarYears,
     calendarISOWeekYears: differenceInCalendarISOWeekYears,
-    isoWeekYears: differenceInISOWeekYears
+    ISOWeekYears: differenceInISOWeekYears
 };
 
 export function getTimeBetween(
@@ -384,16 +384,16 @@ export function getTimeBetween(
     const date1 = getValidDate(time1 as Date);
     const date2 = getValidDate(time2 as Date);
 
-    if (date1 && date2) {
-        if (format === 'isoDuration') {
-            return formatISODuration(intervalToDuration({
-                start: date1,
-                end: date2
-            }));
-        }
-
-        return _getDurationFunc[format](date2, date1);
+    if (date1 === false || date2 === false) {
+        throw Error('Could not parse date values into dates');
     }
 
-    throw Error('could not parse date values');
+    if (format === 'ISODuration') {
+        return formatISODuration(intervalToDuration({
+            start: date1,
+            end: date2
+        }));
+    }
+
+    return _getDurationFunc[format](date2, date1);
 }

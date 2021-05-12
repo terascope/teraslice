@@ -10,7 +10,7 @@ export interface GetTimeBetweenArgs {
     readonly format: TimeBetweenFormats;
 }
 
-export const getTimeBetweenConfig: FieldTransformConfig = {
+export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     name: 'getTimeBetween',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -18,17 +18,17 @@ export const getTimeBetweenConfig: FieldTransformConfig = {
     description: 'Returns time duration between input and start or end time.  Returns the duration as a number or in the ISO 8601 duration format',
     examples: [
         {
-            args: { start: '2021-05-10T10:00:0.000Z', format: 'millisecond' },
+            args: { start: '2021-05-10T10:00:00.000Z', format: 'milliseconds' },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.String } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: '2021-05-10T10:00:01.000Z',
+            input: new Date('2021-05-10T10:00:01.000Z'),
             output: 1000
         },
         {
-            args: { end: '2021-05-10T10:00:00.000Z', format: 'days'},
+            args: { end: '2021-05-10T10:00:00.000Z', format: 'days' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -45,7 +45,7 @@ export const getTimeBetweenConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: 1620764440001,
-            output: 1000
+            output: 1
         }
     ],
     argument_schema: {
@@ -65,14 +65,19 @@ export const getTimeBetweenConfig: FieldTransformConfig = {
     create(args: GetTimeBetweenArgs) {
         return (input: unknown) => getTimeBetween(input, args);
     },
+    required_arguments: ['format'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
-    validate_arguments({ start, end, format }: GetTimeBetweenArgs) {
+    validate_arguments({ start, end }: GetTimeBetweenArgs) {
         if (start == null && end == null) {
             throw Error('Must provide a start or an end value');
         }
-
-        if (format == null) {
-            throw Error('format must be provided');
-        }
+    },
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.Number || FieldType.String
+            }
+        };
     }
 };
