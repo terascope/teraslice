@@ -35,9 +35,9 @@
         "netmask": "^2.0.2"
     },
     "devDependencies": {
-        "@types/netmask": "^1.0.30",
         "@turf/invariant": "^6.2.0",
         "@turf/random": "^6.3.0",
+        "@types/netmask": "^1.0.30",
         "pegjs": "^0.10.0",
         "ts-pegjs": "^0.3.1"
     },
