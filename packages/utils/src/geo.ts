@@ -35,10 +35,7 @@ import {
     Feature,
     Properties,
     Polygon,
-    Geometry,
-    Point,
     Position,
-    polygons
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
@@ -223,53 +220,6 @@ export function geoPolyHasPoint<G extends Polygon | MultiPolygon>(polygon: Featu
     };
 }
 
-export function geoContainsPoint(
-    geoShape: JoinGeoShape, point: GeoPointInput
-): boolean {
-    const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
-    const turfPoint = tPoint(geoPoint);
-
-    if (turfPoint == null) {
-        throw new Error(`Invalid point: ${point}`);
-    }
-
-    return pointInGeoShape(turfPoint)(geoShape);
-}
-
-export function geoContainsPointFP(
-    point: GeoPointInput
-): (shape: unknown) => boolean {
-    const geoPoint = makeCoordinatesFromGeoPoint(parseGeoPoint(point));
-    const turfPoint = tPoint(geoPoint);
-
-    if (turfPoint == null) {
-        throw new Error(`Invalid point: ${point}`);
-    }
-
-    return pointInGeoShape(turfPoint);
-}
-
-function pointInGeoShape(searchPoint: Feature<any, Properties>|Geometry) {
-    return (geoShape: unknown): boolean => {
-        let polygon: any;
-
-        if (isGeoShapePoint(geoShape)) {
-            return equal(searchPoint, tPoint(geoShape.coordinates));
-        }
-
-        if (isGeoShapeMultiPolygon(geoShape)) {
-            polygon = multiPolygon(geoShape.coordinates);
-        }
-
-        if (isGeoShapePolygon(geoShape)) {
-            polygon = tPolygon(geoShape.coordinates);
-        }
-        // Nothing matches so return false
-        if (!polygon) return false;
-        return pointInPolygon(searchPoint as any, polygon);
-    };
-}
-
 export function makeGeoCircle(
     point: GeoPoint, distance: number, unitVal?: GeoDistanceUnit
 ): Feature<Polygon>|undefined {
@@ -307,15 +257,6 @@ export function geoPointWithinRangeFP(
 
     return geoPolyHasPoint(polygon);
 }
-
-// export function geoPolygon(
-//     geoShape: JoinGeoShape,
-//     relation: GeoShapeRelation,
-//     inputShape: JoinGeoShape
-// ): boolean {
-//     const polygon = makeGeoFeatureOrThrow(geoShape);
-//     return geoMatchesShape(polygon as Feature<any, Properties>, relation)(inputShape);
-// }
 
 export function geoRelationFP(
     geoShape: GeoInput, relation: GeoShapeRelation

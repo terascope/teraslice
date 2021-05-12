@@ -5,10 +5,10 @@ import {
 } from '@terascope/types';
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
-    inGeoBoundingBoxFP, geoContainsPoint, geoContainsPointFP,
-    geoPointWithinRange, geoPointWithinRangeFP,
+    inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
     toGeoJSON, geoContains, geoWithin, geoDisjoint,
-    geoIntersects
+    geoIntersects, geoWithinFP, geoContainsFP, geoIntersectsFP,
+    geoDisjointFP
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -132,272 +132,75 @@ describe('geo utils', () => {
         });
     });
 
-    describe('->pointInBoundingBox', () => {
-        type Case = [
-            msg: string,
-            topLeft: GeoPointInput,
-            bottomRight: GeoPointInput,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'parse a geo point in a string',
-                '33.906320,-112.758421',
-                '32.813646,-111.058902',
-                '33,-112',
-                true
-            ],
-            [
-                'input is outside bounding box',
-                '33.906320,-112.758421',
-                '32.813646,-111.058902',
-                '43,-132',
-                false
-            ],
-        ];
+    type BoundingBoxCase = [
+        msg: string,
+        topLeft: GeoPointInput,
+        bottomRight: GeoPointInput,
+        input: GeoPointInput,
+        output: boolean
+    ];
+    const bbTestCases: BoundingBoxCase[] = [
+        [
+            'parse a geo point in a string',
+            '33.906320,-112.758421',
+            '32.813646,-111.058902',
+            '33,-112',
+            true
+        ],
+        [
+            'input is outside bounding box',
+            '33.906320,-112.758421',
+            '32.813646,-111.058902',
+            '43,-132',
+            false
+        ],
+    ];
 
-        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+    describe('->pointInBoundingBox', () => {
+        test.each(bbTestCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
             expect(inGeoBoundingBox(topLeft, bottomRight, input)).toEqual(output);
         });
     });
 
     describe('->inGeoBoundingBoxFP', () => {
-        type Case = [
-            msg: string,
-            topLeft: GeoPointInput,
-            bottomRight: GeoPointInput,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'parse a geo point in a string',
-                '33.906320,-112.758421',
-                '32.813646,-111.058902',
-                '33,-112',
-                true
-            ],
-            [
-                'input is outside bounding box',
-                '33.906320,-112.758421',
-                '32.813646,-111.058902',
-                '43,-132',
-                false
-            ],
-        ];
-
-        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+        test.each(bbTestCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
             expect(inGeoBoundingBoxFP(topLeft, bottomRight)(input)).toEqual(output);
         });
     });
 
-    describe('->geoContainsPoint', () => {
-        type Case = [
-            msg: string,
-            shape: GeoShape,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'point matches multi-polygon',
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        ]
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'point matches polygon',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'non-matching polygon returns false with point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
-                    ]
-                },
-                '15,15',
-                false
-            ],
-            [
-                'point in polygon with holes',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'point in matches geo-shape point',
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [15, 15]
-                },
-                '15,15',
-                true
-            ],
-        ];
+    type PointWithinCase = [
+        msg: string,
+        point: GeoPointInput,
+        distance: string,
+        input: GeoPointInput,
+        output: boolean
+    ];
 
-        test.each(testCases)('should %s', (_msg, shape, input, output) => {
-            expect(geoContainsPoint(shape, input)).toEqual(output);
-        });
-    });
-
-    describe('->geoContainsPointFP', () => {
-        type Case = [
-            msg: string,
-            shape: GeoShape,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'point matches multi-polygon',
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        ]
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'point matches polygon',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'non-matching polygon returns false with point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
-                    ]
-                },
-                '15,15',
-                false
-            ],
-            [
-                'point in polygon with holes',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                    ]
-                },
-                '15,15',
-                true
-            ],
-            [
-                'point in matches geo-shape point',
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [15, 15]
-                },
-                '15,15',
-                true
-            ],
-        ];
-
-        test.each(testCases)('should %s', (_msg, shape, input, output) => {
-            expect(geoContainsPointFP(input)(shape)).toEqual(output);
-        });
-    });
+    const pointWithinTestCases: PointWithinCase[] = [
+        [
+            'parse a geo point in a string',
+            '33.435518,-111.873616',
+            '5000m',
+            '33.435967,-111.867710',
+            true
+        ],
+        [
+            'parse a geo point in a string',
+            '33.435518,-111.873616',
+            '5000m',
+            '22.435967,-150.867710',
+            false
+        ],
+    ];
 
     describe('->geoPointWithinRange', () => {
-        type Case = [
-            msg: string,
-            point: GeoPointInput,
-            distance: string,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'parse a geo point in a string',
-                '33.435518,-111.873616',
-                '5000m',
-                '33.435967,-111.867710',
-                true
-            ],
-            [
-                'parse a geo point in a string',
-                '33.435518,-111.873616',
-                '5000m',
-                '22.435967,-150.867710',
-                false
-            ],
-        ];
-
-        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+        test.each(pointWithinTestCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
             expect(geoPointWithinRange(topLeft, bottomRight, input)).toEqual(output);
         });
     });
 
     describe('->geoPointWithinRangeFP', () => {
-        type Case = [
-            msg: string,
-            point: GeoPointInput,
-            distance: string,
-            input: GeoPointInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'parse a geo point in a string',
-                '33.435518,-111.873616',
-                '5000m',
-                '33.435967,-111.867710',
-                true
-            ],
-            [
-                'parse a geo point in a string',
-                '33.435518,-111.873616',
-                '5000m',
-                '22.435967,-150.867710',
-                false
-            ],
-        ];
-
-        test.each(testCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
+        test.each(pointWithinTestCases)('should %s', (_msg, topLeft, bottomRight, input, output) => {
             expect(geoPointWithinRangeFP(topLeft, bottomRight)(input)).toEqual(output);
         });
     });
@@ -457,311 +260,336 @@ describe('geo utils', () => {
         });
     });
 
-    describe('->geoWithin', () => {
-        type Case = [
-            msg: string,
-            firstGeo: GeoInput,
-            secondGeo: GeoInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'compare polygon to polygon that is within',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                true
-            ],
-            [
-                'compare polygon to polygon that is not within',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                false
-            ],
-            [
-                'compare point to polygon',
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [20, 20]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                true
-            ],
-            [
-                'compare geo-point input type to polygon',
-                '20, 20',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                true
-            ],
-        ];
+    type WithinCase = [
+        msg: string,
+        firstGeo: GeoInput,
+        secondGeo: GeoInput,
+        output: boolean
+    ];
 
-        test.each(testCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    const withinTestCases: WithinCase[] = [
+        [
+            'compare polygon to polygon that is within',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            true
+        ],
+        [
+            'compare polygon to polygon that is not within',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            false
+        ],
+        [
+            'compare point to polygon',
+            {
+                type: GeoShapeType.Point,
+                coordinates: [20, 20]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            true
+        ],
+        [
+            'compare geo-point input type to polygon',
+            '20, 20',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            true
+        ],
+    ];
+
+    describe('->geoWithin', () => {
+        test.each(withinTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
             expect(geoWithin(firstGeo, secondGeo)).toEqual(output);
         });
     });
 
-    describe('->geoContains', () => {
-        type Case = [
-            msg: string,
-            firstGeo: GeoInput,
-            secondGeo: GeoInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'compare polygon to polygon that is not contained',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                false
-            ],
-            [
-                'compare polygon to polygon that is contained',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                true
-            ],
-            [
-                'compare multi-polygon to polygon',
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        ]
-                    ]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                true
-            ],
-            [
-                'compare polygon contains point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [20, 20]
-                },
-                true
-            ],
-            [
-                'compare polygon contains point geo input',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                '20, 20',
-                true
-            ],
-            [
-                'compare multi-polygon contains point',
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                            [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                            [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
-                        ]
-                    ]
-                },
-                '15, 20',
-                true
-            ],
-        ];
+    describe('->geoWithinFP', () => {
+        test.each(withinTestCases)('should %s', ((_msg, firstGeo, secondGeo, output) => {
+            expect(geoWithinFP(secondGeo)(firstGeo)).toEqual(output);
+        }));
+    });
 
-        test.each(testCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    type GeoContainsCase = [
+        msg: string,
+        firstGeo: GeoInput,
+        secondGeo: GeoInput,
+        output: boolean
+    ];
+    const geoContainsTestCases: GeoContainsCase[] = [
+        [
+            'compare polygon to polygon that is not contained',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            false
+        ],
+        [
+            'compare polygon to polygon that is contained',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            true
+        ],
+        [
+            'compare multi-polygon to polygon',
+            {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
+                    ],
+                    [
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                    ]
+                ]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            true
+        ],
+        [
+            'compare polygon contains point',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            {
+                type: GeoShapeType.Point,
+                coordinates: [20, 20]
+            },
+            true
+        ],
+        [
+            'compare polygon contains point geo input',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            '20, 20',
+            true
+        ],
+        [
+            'compare multi-polygon contains point',
+            {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
+                    ]
+                ]
+            },
+            '15, 20',
+            true
+        ],
+    ];
+
+    describe('->geoContains', () => {
+        test.each(geoContainsTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
             expect(geoContains(firstGeo, secondGeo)).toEqual(output);
         });
     });
 
-    describe('->geoIntersects', () => {
-        type Case = [
-            msg: string,
-            firstGeo: GeoInput,
-            secondGeo: GeoInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'compare polygon to polygon that is not intersect',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                true
-            ],
-            [
-                'compare polygon to polygon that intersects',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
-                },
-                true
-            ],
-            [
-                'compare polygon to multiPolygon that intersects',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        ]
-                    ]
-                },
-                true
-            ],
-            [
-                'compare polygon to point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [20, 20]
-                },
-                true
-            ],
-            [
-                'compare polygon to point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                '20, 20',
-                true
-            ],
-        ];
+    describe('->geoContainsFP', () => {
+        test.each(geoContainsTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+            expect(geoContainsFP(secondGeo)(firstGeo)).toEqual(output);
+        });
+    });
 
-        test.each(testCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    type GeoIntersectsCase = [
+        msg: string,
+        firstGeo: GeoInput,
+        secondGeo: GeoInput,
+        output: boolean
+    ];
+    const geoIntersectsCase: GeoIntersectsCase[] = [
+        [
+            'compare polygon to polygon that is not intersect',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            true
+        ],
+        [
+            'compare polygon to polygon that intersects',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+            },
+            true
+        ],
+        [
+            'compare polygon to multiPolygon that intersects',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                    ],
+                    [
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                    ]
+                ]
+            },
+            true
+        ],
+        [
+            'compare polygon to point',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            {
+                type: GeoShapeType.Point,
+                coordinates: [20, 20]
+            },
+            true
+        ],
+        [
+            'compare polygon to point',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            '20, 20',
+            true
+        ],
+    ];
+
+    describe('->geoIntersects', () => {
+        test.each(geoIntersectsCase)('should %s', (_msg, firstGeo, secondGeo, output) => {
             expect(geoIntersects(firstGeo, secondGeo)).toEqual(output);
         });
     });
 
-    describe('->geoDisjoint', () => {
-        type Case = [
-            msg: string,
-            firstGeo: GeoInput,
-            secondGeo: GeoInput,
-            output: boolean
-        ];
-        const testCases: Case[] = [
-            [
-                'compare polygon to polygon that is not disjointed',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-                },
-                false
-            ],
-            [
-                'compare polygon to polygon that is disjointed',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
-                },
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-                },
-                true
-            ],
-            [
-                'compare polygon to point',
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
-                },
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [20, 20]
-                },
-                true
-            ],
-            [
-                'compare multipolygon with holes to point in the hole',
-                {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                            [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                            [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
-                        ]
-                    ]
-                },
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [30, 30]
-                },
-                true
-            ],
-        ];
+    describe('->geoIntersectsFP', () => {
+        test.each(geoIntersectsCase)('should %s', (_msg, firstGeo, secondGeo, output) => {
+            expect(geoIntersectsFP(secondGeo)(firstGeo)).toEqual(output);
+        });
+    });
 
-        test.each(testCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    type GeoDisjointCase = [
+        msg: string,
+        firstGeo: GeoInput,
+        secondGeo: GeoInput,
+        output: boolean
+    ];
+    const geoDisjointTestCases: GeoDisjointCase[] = [
+        [
+            'compare polygon to polygon that is not disjointed',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+            },
+            false
+        ],
+        [
+            'compare polygon to polygon that is disjointed',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
+            },
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+            },
+            true
+        ],
+        [
+            'compare polygon to point',
+            {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
+            },
+            {
+                type: GeoShapeType.Point,
+                coordinates: [20, 20]
+            },
+            true
+        ],
+        [
+            'compare multipolygon with holes to point in the hole',
+            {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
+                    ]
+                ]
+            },
+            {
+                type: GeoShapeType.Point,
+                coordinates: [30, 30]
+            },
+            true
+        ],
+    ];
+
+    describe('->geoDisjoint', () => {
+        test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
             expect(geoDisjoint(firstGeo, secondGeo)).toEqual(output);
+        });
+    });
+
+    describe('->geoDisjointFP', () => {
+        test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+            expect(geoDisjointFP(secondGeo)(firstGeo)).toEqual(output);
         });
     });
 });

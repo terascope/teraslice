@@ -4,7 +4,7 @@ import {
     ESGeoShapeType,
     xLuceneVariables
 } from '@terascope/types';
-import { parseGeoPoint, geoContainsPointFP } from '@terascope/utils';
+import { parseGeoPoint, geoContainsFP } from '@terascope/utils';
 import { getFieldValue, logger } from '../../utils';
 import * as i from '../../interfaces';
 
@@ -48,7 +48,7 @@ const geoContainsPoint: i.FunctionDefinition = {
         }
 
         return {
-            match: geoContainsPointFP({ lat, lon }),
+            match: geoContainsFP({ lat, lon }),
             toElasticsearchQuery
         };
     }

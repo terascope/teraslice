@@ -733,6 +733,7 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
+
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
                     variables: {},
@@ -1157,7 +1158,8 @@ describe('geoPolygon', () => {
             //     const data = multiPolygonWithHoles;
 
             //     it('with relations set to "within"', () => {
-            //         const query = `location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Within})`;
+            //         const query = `
+            // location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Within})`;
 
             //         const { ast } = new Parser(query, {
             //             type_config: typeConfig
@@ -1188,7 +1190,8 @@ describe('geoPolygon', () => {
             //     });
 
             //     it('relations set to "contains"', () => {
-            //         const query = `location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Contains})`;
+            //         const query = `
+            // location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Contains})`;
 
             //         const { ast } = new Parser(query, {
             //             type_config: typeConfig
@@ -1219,7 +1222,8 @@ describe('geoPolygon', () => {
             //     });
 
             //     it('with relations set to "intersects"', () => {
-            // const query = `location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Intersects})`;
+            // const query = `
+            // location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Intersects})`;
 
             //         const { ast } = new Parser(query, {
             //             type_config: typeConfig
@@ -1250,7 +1254,8 @@ describe('geoPolygon', () => {
             //     });
 
             //     it('with relations set to "disjoint"', () => {
-            //         const query = `location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Disjoint})`;
+            //         const query = `
+            // location: geoPolygon(points:$data1 relation: ${GeoShapeRelation.Disjoint})`;
 
             //         const { ast } = new Parser(query, {
             //             type_config: typeConfig
