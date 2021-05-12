@@ -7,3 +7,5 @@ export enum ISO8601DateSegment {
     monthly = 'monthly',
     yearly = 'yearly',
 }
+
+export type TimeBetweenFormats = 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days' | 'calendarDays' | 'businessDays' | 'weeks' | 'calendarWeeks' | 'months' | 'calendarMonths' | 'quarters' | 'calendarQuarters' | 'years' | 'calendarYears' | 'calendarISOWeekYears' | 'ISOWeekYears' | 'ISODuration';

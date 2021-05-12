@@ -1,7 +1,28 @@
 import validator from 'validator';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
-import { DateFormat, ISO8601DateSegment } from '@terascope/types';
+import {
+    differenceInMilliseconds,
+    differenceInSeconds,
+    differenceInMinutes,
+    differenceInHours,
+    differenceInDays,
+    differenceInCalendarDays,
+    differenceInBusinessDays,
+    differenceInWeeks,
+    differenceInCalendarISOWeeks,
+    differenceInMonths,
+    differenceInCalendarMonths,
+    differenceInQuarters,
+    differenceInCalendarQuarters,
+    differenceInYears,
+    differenceInCalendarYears,
+    differenceInCalendarISOWeekYears,
+    differenceInISOWeekYears,
+    intervalToDuration,
+    formatISODuration
+} from 'date-fns';
+import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger
@@ -311,4 +332,79 @@ export function formatDateValue(
 
     if (value instanceof Date) return value.toISOString();
     return new Date(value).toISOString();
+}
+
+const _getDurationFunc = {
+    milliseconds: differenceInMilliseconds,
+    seconds: differenceInSeconds,
+    minutes: differenceInMinutes,
+    hours: differenceInHours,
+    days: differenceInDays,
+    calendarDays: differenceInCalendarDays,
+    businessDays: differenceInBusinessDays,
+    weeks: differenceInWeeks,
+    calendarWeeks: differenceInCalendarISOWeeks,
+    months: differenceInMonths,
+    calendarMonths: differenceInCalendarMonths,
+    quarters: differenceInQuarters,
+    calendarQuarters: differenceInCalendarQuarters,
+    years: differenceInYears,
+    calendarYears: differenceInCalendarYears,
+    calendarISOWeekYears: differenceInCalendarISOWeekYears,
+    ISOWeekYears: differenceInISOWeekYears
+};
+
+export interface GetTimeBetweenArgs {
+    start?: Date | string | number;
+    end?: Date | string | number;
+    format: TimeBetweenFormats;
+}
+
+export function getTimeBetween(
+    input: unknown,
+    args: GetTimeBetweenArgs
+): string | number {
+    const { format, start, end } = args;
+
+    if (start == null && end == null) {
+        throw Error('Must provide a start or an end argument');
+    }
+
+    let time1;
+    let time2;
+
+    if (start) {
+        time1 = start;
+        time2 = input;
+    }
+
+    if (end) {
+        time1 = input;
+        time2 = end;
+    }
+
+    const date1 = getValidDate(time1 as Date);
+    const date2 = getValidDate(time2 as Date);
+
+    if (date1 === false || date2 === false) {
+        throw Error('Could not parse date values into dates');
+    }
+
+    if (format === 'ISODuration') {
+        return formatISODuration(intervalToDuration({
+            start: date1,
+            end: date2
+        }));
+    }
+
+    return _getDurationFunc[format](date2, date1);
+}
+
+/**
+ * A functional version of getTimeBetween
+*/
+export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
+    return function _getTimeBetween(input: unknown): string | number {
+        return getTimeBetween(input, args);
+    };
 }
