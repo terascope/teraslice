@@ -9,26 +9,26 @@ import {
 } from '../interfaces';
 
 export interface GeoContainsArgs {
-    geoInput: GeoInput;
+    value: GeoInput;
 }
 
 const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     {
-        args: { geoInput: '33.435518,-111.873616' },
+        args: { value: '33.435518,-111.873616' },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '33.435518,-111.873616',
         output: '33.435518,-111.873616',
     },
     {
-        args: { geoInput: { type: GeoShapeType.Point, coordinates: [-111.873616, 33.435518] } },
+        args: { value: { type: GeoShapeType.Point, coordinates: [-111.873616, 33.435518] } },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '45.518,-21.816',
         output: null,
     },
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
@@ -42,7 +42,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
                     [
@@ -81,7 +81,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.Point,
                 coordinates: [-30, -30]
             }
@@ -109,8 +109,8 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data "contains" the geoInput argument',
-    create({ geoInput }) {
+    description: 'Validates that geo-like data completely "contains" the value argument. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the geo data being compared',
+    create({ value: geoInput }) {
         return geoContainsFP(geoInput);
     },
     accepts: [
@@ -121,16 +121,16 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
         FieldType.Number
     ],
     argument_schema: {
-        geoInput: {
+        value: {
             type: FieldType.Any,
-            description: 'The geo input that must be "contained" for the validation to return true'
+            description: 'The geo input that must be "contained" by other geo-like data'
         }
     },
-    required_arguments: ['geoInput'],
-    validate_arguments({ geoInput }) {
+    required_arguments: ['value'],
+    validate_arguments({ value: geoInput }) {
         const input = toGeoJSON(geoInput);
         if (!input) {
-            throw new Error(`Invalid parameter geoInput: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
         }
     }
 };

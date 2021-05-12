@@ -47,7 +47,7 @@ export const isGeoShapePointConfig: FieldValidateConfig = {
     ],
     description: 'Checks to see if input is a valid geo-json point',
     create() {
-        return (input: unknown) => isGeoShapePoint(input as any);
+        return isGeoShapePoint;
     },
     accepts: [
         FieldType.GeoJSON,

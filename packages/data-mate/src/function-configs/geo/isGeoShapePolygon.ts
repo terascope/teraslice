@@ -47,7 +47,7 @@ export const isGeoShapePolygonConfig: FieldValidateConfig = {
     ],
     description: 'Checks to see if input is a valid geo-json polygon',
     create() {
-        return (input: unknown) => isGeoShapePolygon(input as any);
+        return isGeoShapePolygon;
     },
     accepts: [
         FieldType.GeoJSON,

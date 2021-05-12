@@ -43,8 +43,7 @@ export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs>
     ],
     description: 'Checks to see if input is within the geo bounding-box',
     create({ top_left, bottom_right }) {
-        const fn = inGeoBoundingBoxFP(top_left, bottom_right);
-        return (input: unknown) => fn(input as GeoPointInput);
+        return inGeoBoundingBoxFP(top_left, bottom_right);
     },
     accepts: [
         FieldType.GeoJSON,

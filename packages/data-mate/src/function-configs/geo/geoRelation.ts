@@ -12,14 +12,14 @@ import {
     FunctionDefinitionExample
 } from '../interfaces';
 
-export interface GeoPolygonArgs {
-    geoInput: GeoInput;
+export interface GeoRelationArgs {
+    value: GeoInput;
     relation?: GeoShapeRelation
 }
 
-const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
+const examples: FunctionDefinitionExample<GeoRelationArgs>[] = [
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
@@ -27,7 +27,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
     {
         args: {
-            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            value: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Within
         },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
@@ -37,7 +37,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
     {
         args: {
-            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            value: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Contains
         },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
@@ -47,7 +47,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.Polygon,
                 coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
             },
@@ -66,7 +66,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
     {
         args: {
-            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            value: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Intersects
         },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
@@ -82,7 +82,7 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
     {
         args: {
-            geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'],
+            value: ['10,10', '10,50', '50,50', '50,10', '10,10'],
             relation: GeoShapeRelation.Disjoint
         },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
@@ -95,14 +95,14 @@ const examples: FunctionDefinitionExample<GeoPolygonArgs>[] = [
     },
 ];
 
-export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
+export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     name: 'geoRelation',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: `Compares geo inputs to any geo-like data based off the relation specified (defaults to "${GeoShapeRelation.Within}"`,
-    create({ geoInput, relation = GeoShapeRelation.Within }) {
+    create({ value: geoInput, relation = GeoShapeRelation.Within }) {
         return geoRelationFP(geoInput, relation);
     },
     accepts: [
@@ -113,7 +113,7 @@ export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
         FieldType.Number
     ],
     argument_schema: {
-        geoInput: {
+        value: {
             type: FieldType.Any,
             description: 'The geo input used to compare to other geo entities'
         },
@@ -123,12 +123,12 @@ export const geoRelationConfig: FieldValidateConfig<GeoPolygonArgs> = {
             `.trim()
         }
     },
-    required_arguments: ['geoInput'],
-    validate_arguments({ geoInput, relation }) {
+    required_arguments: ['value'],
+    validate_arguments({ value: geoInput, relation }) {
         const input = toGeoJSON(geoInput);
 
         if (!input) {
-            throw new Error(`Invalid parameter geoInput: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
         }
 
         if (relation) {

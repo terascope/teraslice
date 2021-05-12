@@ -8,13 +8,13 @@ import {
     FunctionDefinitionExample
 } from '../interfaces';
 
-export interface GeoContainsArgs {
-    geoInput: GeoInput;
+export interface GeoWithinArgs {
+    value: GeoInput;
 }
 
-const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
+const examples: FunctionDefinitionExample<GeoWithinArgs>[] = [
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
@@ -27,14 +27,14 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
         },
     },
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
         field: 'testField',
         input: '20,20',
         output: '20,20',
     },
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
@@ -48,7 +48,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
                     [
@@ -87,7 +87,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
                     [
@@ -126,14 +126,14 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
 ];
 
-export const geoWithinConfig: FieldValidateConfig<GeoContainsArgs> = {
+export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     name: 'geoWithin',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data is "within" the geoInput argument',
-    create({ geoInput }) {
+    create({ value: geoInput }) {
         return geoWithinFP(geoInput);
     },
     accepts: [
@@ -144,16 +144,16 @@ export const geoWithinConfig: FieldValidateConfig<GeoContainsArgs> = {
         FieldType.Number
     ],
     argument_schema: {
-        geoInput: {
+        value: {
             type: FieldType.Any,
             description: 'The geo input used to compare to other geo entities'
         }
     },
-    required_arguments: ['geoInput'],
-    validate_arguments({ geoInput }) {
+    required_arguments: ['value'],
+    validate_arguments({ value: geoInput }) {
         const input = toGeoJSON(geoInput);
         if (!input) {
-            throw new Error(`Invalid parameter geoInput: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
         }
     }
 };

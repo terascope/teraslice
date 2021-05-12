@@ -8,13 +8,13 @@ import {
     FunctionDefinitionExample
 } from '../interfaces';
 
-export interface GeoContainsArgs {
-    geoInput: GeoInput;
+export interface GeoIntersectsArgs {
+    value: GeoInput;
 }
 
-const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
+const examples: FunctionDefinitionExample<GeoIntersectsArgs>[] = [
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
@@ -27,7 +27,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
         },
     },
     {
-        args: { geoInput: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
+        args: { value: ['10,10', '10,50', '50,50', '50,10', '10,10'] },
         config: { version: 1, fields: { testField: { type: FieldType.GeoJSON } } },
         field: 'testField',
         input: {
@@ -41,7 +41,7 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
     {
         args: {
-            geoInput: {
+            value: {
                 type: GeoShapeType.Polygon,
                 coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
             }
@@ -73,14 +73,14 @@ const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     },
 ];
 
-export const geoIntersectsConfig: FieldValidateConfig<GeoContainsArgs> = {
+export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     name: 'geoIntersects',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data "intersects" the geoInput argument',
-    create({ geoInput }) {
+    description: 'Validates that geo-like data when compared to the geoInput argument has overlap between the two',
+    create({ value: geoInput }) {
         return geoIntersectsFP(geoInput);
     },
     accepts: [
@@ -91,16 +91,16 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoContainsArgs> = {
         FieldType.Number
     ],
     argument_schema: {
-        geoInput: {
+        value: {
             type: FieldType.Any,
-            description: 'The geo input used to compare to other geo entities'
+            description: 'The geo input used to validate intersection with other geo-like data'
         }
     },
-    required_arguments: ['geoInput'],
-    validate_arguments({ geoInput }) {
+    required_arguments: ['value'],
+    validate_arguments({ value: geoInput }) {
         const input = toGeoJSON(geoInput);
         if (!input) {
-            throw new Error(`Invalid parameter geoInput: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
         }
     }
 };

@@ -39,8 +39,7 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
     ],
     description: 'Checks to see if input geo-point is within range of the point and distance values provided',
     create({ point, distance }) {
-        const fn = geoPointWithinRangeFP(point, distance);
-        return (input: unknown) => fn(input as GeoPointInput);
+        return geoPointWithinRangeFP(point, distance);
     },
     accepts: [
         FieldType.GeoJSON,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     GeoDistanceUnit,
     GEO_DISTANCE_UNITS,
@@ -196,7 +195,7 @@ export function inGeoBoundingBox(
 
 export function inGeoBoundingBoxFP(
     top_left: GeoPointInput, bottom_right: GeoPointInput
-): (input: GeoPointInput) => boolean {
+): (input: unknown) => boolean {
     const topLeft = parseGeoPoint(top_left);
     const bottomRight = parseGeoPoint(bottom_right);
 
@@ -213,8 +212,8 @@ export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {
 }
 
 export function geoPolyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G>|G) {
-    return (fieldData: GeoPointInput): boolean => {
-        const point = parseGeoPoint(fieldData, false);
+    return (fieldData: unknown): boolean => {
+        const point = parseGeoPoint(fieldData as any, false);
         if (!point) return false;
         return pointInPolygon(makeCoordinatesFromGeoPoint(point), polygon);
     };
@@ -245,7 +244,7 @@ export function geoPointWithinRange(
 
 export function geoPointWithinRangeFP(
     startingPoint: GeoPointInput, distanceValue: string
-): (input: GeoPointInput) => boolean {
+): (input: unknown) => boolean {
     const sPoint = parseGeoPoint(startingPoint);
     const { distance, unit } = parseGeoDistance(distanceValue);
 
@@ -351,7 +350,6 @@ function _pointContains(queryFeature: Feature<any>) {
         if (isGeoShapeMultiPolygon(inputGeoEntity)) {
             const {
                 polygons: queryPolygons,
-                holes: queryHoles
             } = _featureToPolygonAndHoles(inputFeature);
 
             return queryPolygons.some((iPoly) => contains(iPoly, queryFeature));
@@ -536,7 +534,6 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
         if (isGeoShapeMultiPolygon(inputGeoEntity)) {
             const {
                 polygons: inputPolygons,
-                holes: inputHoles
             } = _featureToPolygonAndHoles(inputFeature);
 
             let withinQueryHole = false;
