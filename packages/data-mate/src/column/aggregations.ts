@@ -182,15 +182,15 @@ export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
     [KeyAggregation.yearly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.yearly)),
 };
 
-function makeDateAgg(trimDateFn: (input: unknown) => string): MakeKeyAggFn {
+function makeDateAgg(trimDateFn: (input: unknown) => number): MakeKeyAggFn {
     return function _makeDateAgg(vector) {
         return function dateAgg(index) {
-            const value = vector.get(index) as Maybe<string|number>;
+            const value = vector.get(index) as Maybe<number>;
             if (value == null) return { key: undefined, value };
 
             return {
-                key: trimDateFn((vector as DateVector)
-                    .valueToISOString(value)),
+                key: `${trimDateFn((vector as DateVector)
+                    .valueToJSON(value))}`,
                 value,
             };
         };

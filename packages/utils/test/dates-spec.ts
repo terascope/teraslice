@@ -24,19 +24,18 @@ describe('date utils', () => {
 
     describe('trimISODateSegment', () => {
         test.each([
-            ['1970-10-10 01:20:15', ISO8601DateSegment.hourly, '1970-10-10T01'],
-            ['1970-10-10T01:20:15', ISO8601DateSegment.hourly, '1970-10-10T01'],
-            ['1970-10-10T01:20:15', ISO8601DateSegment.daily, '1970-10-10'],
-            ['1970-10-10T01:20:15', ISO8601DateSegment.monthly, '1970-10'],
-            ['1970-10-10T01:20:15', ISO8601DateSegment.yearly, '1970'],
-        ])('should handle %p and return %p', (input, segment, expected) => {
-            expect(trimISODateSegment(segment)(input)).toBe(expected);
+            ['1970-10-10T01:20:15.000Z', ISO8601DateSegment.hourly, '1970-10-10T01:00:00.000Z'],
+            ['1970-10-10T01:20:15.000Z', ISO8601DateSegment.daily, '1970-10-10T00:00:00.000Z'],
+            ['1970-10-10T01:20:15.000Z', ISO8601DateSegment.monthly, '1970-10-01T00:00:00.000Z'],
+            ['1970-10-10T01:20:15.000Z', ISO8601DateSegment.yearly, '1970-01-01T00:00:00.000Z'],
+        ])('should handle %p (segment %p) and return %p', (input, segment, expected) => {
+            expect(new Date(trimISODateSegment(segment)(input)).toISOString()).toBe(expected);
         });
 
         it('should throw if given a non ISO 8601 date', () => {
             expect(() => {
-                trimISODateSegment(ISO8601DateSegment.hourly)('1970/10/10 01:20:15');
-            }).toThrowError('Expected 1970/10/10 01:20:15 (String) to be parsable to a date or ISO 8601 string');
+                trimISODateSegment(ISO8601DateSegment.hourly)('example');
+            }).toThrowError('Expected example (String) to be in a standard date format');
         });
     });
 

@@ -25,6 +25,17 @@ function prettyPrint(input) {
 }
 
 /**
+ * @param example {import('..').FunctionDefinitionExample}
+*/
+function getExampleOutput(example) {
+    if (example.fails) return `throws ${example.output}`;
+    if (example.serialize_output == null) {
+        return `outputs ${prettyPrint(example.output)}`;
+    }
+    return `outputs ${prettyPrint(example.serialize_output(example.output))}`;
+}
+
+/**
  * @param fnDef {import('..').FunctionDefinitionConfig}
 */
 function generateExample(fnDef) {
@@ -32,11 +43,10 @@ function generateExample(fnDef) {
      * @param example {import('..').FunctionDefinitionExample}
     */
     return function _generateExample(example) {
-        const out = example.fails ? `throws ${example.output}` : `outputs ${prettyPrint(example.output)}`;
         return `
 ${example.description || ''}
 \`\`\`ts
-${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // ${out}
+${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // ${getExampleOutput(example)}
 \`\`\`
         `.trim();
     };

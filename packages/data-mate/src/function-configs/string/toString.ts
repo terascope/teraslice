@@ -1,4 +1,4 @@
-import { toString, isBigInt, bigIntToJSON } from '@terascope/utils';
+import { toString, toISO8061 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -47,13 +47,12 @@ export const toStringConfig: FieldTransformConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts input values to strings',
     examples,
-    create() {
-        return (input: unknown) => {
-            if (isBigInt(input)) {
-                return bigIntToJSON(input);
-            }
-            return toString(input);
-        };
+    create(_args, inputConfig) {
+        if (inputConfig?.field_config.type === FieldType.Date) {
+            return toISO8061;
+        }
+
+        return toString;
     },
     accepts: [],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

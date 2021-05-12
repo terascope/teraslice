@@ -28,7 +28,7 @@ export enum FunctionDefinitionCategory {
     IP = 'IP',
 }
 
-export interface FunctionDefinitionExample<T extends Record<string, any>> {
+export interface FunctionDefinitionExample<T extends Record<string, any>, O = unknown> {
     /**
      * The example arguments passed to the function
     */
@@ -56,7 +56,14 @@ export interface FunctionDefinitionExample<T extends Record<string, any>> {
      * In the case of validators, this should be either
      * the input or null (which indicates it is invalid)
     */
-    readonly output?: unknown;
+    readonly output?: O;
+
+    /**
+     * Serialize the output for documentation or the function adapter.
+     * In the functionTestHarness this won't be called out the result
+     * from the dataFrameAdapter
+    */
+    readonly serialize_output?: (output: O) => unknown;
 
     /**
      * If this is set to true, the output is not required. If output

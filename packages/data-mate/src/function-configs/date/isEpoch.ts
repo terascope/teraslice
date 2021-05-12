@@ -1,4 +1,4 @@
-import { DateFormat, FieldType } from '@terascope/types';
+import { FieldType } from '@terascope/types';
 import { isUnixTimeFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
@@ -43,20 +43,6 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
         input: '2001-01-01T01:00:00.000Z',
         output: null
     }, {
-        args: {},
-        config: {
-            version: 1,
-            fields: {
-                testField: {
-                    type: FieldType.Date,
-                    format: DateFormat.milliseconds
-                }
-            }
-        },
-        field: 'testField',
-        input: 102390933,
-        output: null
-    }, {
         args: { allowBefore1970: false },
         config: {
             version: 1,
@@ -89,20 +75,8 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
             description: 'Set to false to disable allowing negative values'
         }
     },
-    create({ allowBefore1970 }, inputConfig) {
-        if (
-            inputConfig?.field_config?.type === FieldType.Date && (
-                inputConfig.field_config.format === DateFormat.epoch_millis
-                || inputConfig.field_config.format === DateFormat.milliseconds
-            )
-        ) {
-            return alwaysFalse;
-        }
+    create({ allowBefore1970 }) {
         return isUnixTimeFP(allowBefore1970);
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [FieldType.Number],
 };
-
-function alwaysFalse(): boolean {
-    return false;
-}

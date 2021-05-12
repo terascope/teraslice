@@ -1,7 +1,9 @@
 import {
-    toPrecisionFP
+    parseGeoPoint,
+    toPrecisionFP,
+    toPrecision
 } from '@terascope/utils';
-import { FieldType } from '@terascope/types';
+import { FieldType, GeoPointInput } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -92,13 +94,33 @@ export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
             input: 23.4,
             fails: true,
             output: 'Expected digits to be between 0-100'
+        },
+        {
+            args: { digits: 2, truncate: true },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.GeoPoint } }
+            },
+            field: 'testField',
+            input: { lat: 32.12399971230023, lon: -20.95522300035 },
+            output: { lat: 32.12, lon: -20.95 }
         }
     ],
-    create({ digits, truncate = false }) {
+    create({ digits, truncate = false }, inputConfig) {
+        if (inputConfig?.field_config.type === FieldType.GeoPoint) {
+            return function _geoPointToPrecision(input: unknown) {
+                const geoPoint = parseGeoPoint(input as GeoPointInput, true);
+                return {
+                    lat: toPrecision(geoPoint.lat, digits, truncate),
+                    lon: toPrecision(geoPoint.lon, digits, truncate),
+                };
+            };
+        }
         return toPrecisionFP(digits, truncate);
     },
     accepts: [
         FieldType.Number,
+        FieldType.GeoPoint,
     ],
     argument_schema: {
         digits: {
