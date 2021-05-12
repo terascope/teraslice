@@ -1,4 +1,4 @@
-import { geoContainsPointFP, isGeoPoint } from '@terascope/utils';
+import { geoContainsFP, isGeoPoint } from '@terascope/utils';
 import { FieldType, GeoPointInput, GeoShapeType } from '@terascope/types';
 import {
     FieldValidateConfig,
@@ -114,7 +114,7 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     examples,
     description: 'Checks to see if a geo input contains the given point',
     create({ point }) {
-        return geoContainsPointFP(point);
+        return geoContainsFP(point);
     },
     accepts: [FieldType.GeoJSON],
     argument_schema: {
