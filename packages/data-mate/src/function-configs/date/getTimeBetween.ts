@@ -1,14 +1,8 @@
-import { FieldType, TimeBetweenFormats } from '@terascope/types';
-import { getTimeBetween } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+import { getTimeBetween, GetTimeBetweenArgs } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
-
-export interface GetTimeBetweenArgs {
-    start?: Date | number | string;
-    end?: Date | number | string;
-    readonly format: TimeBetweenFormats;
-}
 
 export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     name: 'getTimeBetween',

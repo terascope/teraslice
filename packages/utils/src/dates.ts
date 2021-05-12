@@ -354,13 +354,15 @@ const _getDurationFunc = {
     ISOWeekYears: differenceInISOWeekYears
 };
 
+export interface GetTimeBetweenArgs {
+    start?: Date | string | number;
+    end?: Date | string | number;
+    format: TimeBetweenFormats;
+}
+
 export function getTimeBetween(
     input: unknown,
-    args: {
-        start?: Date | string | number;
-        end?: Date | string | number;
-        format: TimeBetweenFormats;
-    }
+    args: GetTimeBetweenArgs
 ): string | number {
     const { format, start, end } = args;
 
@@ -396,4 +398,13 @@ export function getTimeBetween(
     }
 
     return _getDurationFunc[format](date2, date1);
+}
+
+/**
+ * A functional version of getTimeBetween
+*/
+export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
+    return function _getTimeBetween(input: unknown): string | number {
+        return getTimeBetween(input, args);
+    };
 }
