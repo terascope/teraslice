@@ -1,4 +1,4 @@
-import { FieldType } from '@terascope/types';
+import { FieldType, TimeBetweenFormats } from '@terascope/types';
 import { getTimeBetween } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
@@ -7,10 +7,8 @@ import {
 export interface GetTimeBetweenArgs {
     start?: Date | number | string;
     end?: Date | number | string;
-    format: TimeBetweenFormats;
+    format?: TimeBetweenFormats;
 }
-
-export type TimeBetweenFormats = 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days' | 'calendarDays' | 'businessDays' | 'weeks' | 'calendarWeeks' | 'months' | 'calendarMonths' | 'quarters' | 'calendarQuarters' | 'years' | 'calendarYears' | 'calendarISOWeekYears' | 'isoWeekYears' | 'isoDuration';
 
 export const getTimeBetweenConfig: FieldTransformConfig = {
     name: 'getTimeBetween',
@@ -71,6 +69,10 @@ export const getTimeBetweenConfig: FieldTransformConfig = {
     validate_arguments({ start, end, format }: GetTimeBetweenArgs) {
         if (start == null && end == null) {
             throw Error('Must provide a start or an end value');
+        }
+
+        if (format == null) {
+            throw Error('format must be provided');
         }
     }
 };

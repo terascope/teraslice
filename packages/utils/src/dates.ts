@@ -22,7 +22,7 @@ import {
     intervalToDuration,
     formatISODuration
 } from 'date-fns';
-import { DateFormat, ISO8601DateSegment, GetTimeBetweenArgs } from '@terascope/types';
+import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
 import { bigIntToJSON, toInteger } from './numbers';
 import { isString } from './strings';
@@ -278,7 +278,11 @@ const _getDurationFunc = {
 
 export function getTimeBetween(
     input: unknown,
-    args: GetTimeBetweenArgs
+    args: {
+        start?: Date | string | number;
+        end?: Date | string | number;
+        format: TimeBetweenFormats;
+    }
 ): string | number {
     const { format, start, end } = args;
 
