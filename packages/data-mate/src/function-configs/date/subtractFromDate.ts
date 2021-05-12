@@ -1,14 +1,15 @@
 import { FieldType } from '@terascope/types';
-import subtract from 'date-fns/sub';
+import sub from 'date-fns/sub';
 import parser from 'datemath-parser';
-import { joinList, formatDateValue, parseDateValue } from '@terascope/utils';
+import {
+    joinList, getValidDate, getTypeOf, toISO8061
+} from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
-import { getInputFormat } from './utils';
 
 export type SubtractFromDateArgs = {
     readonly expr: string;
@@ -37,7 +38,8 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-10-22T12:02:00.000Z'
+        output: new Date('2019-10-22T12:02:00.000Z').getTime(),
+        serialize_output: toISO8061
     }, {
         args: { months: 1, minutes: 2 },
         config: {
@@ -46,7 +48,8 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         },
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
-        output: '2019-09-22T21:58:00.000Z'
+        output: new Date('2019-09-22T21:58:00.000Z').getTime(),
+        serialize_output: toISO8061
     }, {
         args: {},
         config: {
@@ -68,26 +71,18 @@ export const subtractFromDateConfig: FieldTransformConfig<SubtractFromDateArgs> 
         fails: true,
         output: 'Invalid use of months with expr parameter'
     }],
-    create(args, inputConfig) {
-        const inputFormat = getInputFormat(inputConfig);
-
-        const referenceDate = new Date();
+    create(args) {
         return function subtractFromDate(input: unknown): string|number {
-            const parsed = parseDateValue(
-                input, inputFormat, referenceDate
-            );
-
-            if ('expr' in args) {
-                return formatDateValue(
-                    parser.parse(`now-${args.expr}`, new Date(parsed)),
-                    inputFormat
-                );
+            const date = getValidDate(input as any);
+            if (date === false) {
+                throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
             }
 
-            return formatDateValue(
-                subtract(parsed, args),
-                inputFormat
-            );
+            if ('expr' in args) {
+                return parser.parse(`now-${args.expr}`, date);
+            }
+
+            return sub(date, args).getTime();
         };
     },
     accepts: [

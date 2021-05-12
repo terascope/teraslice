@@ -3,8 +3,15 @@ import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
 import { DateFormat, ISO8601DateSegment } from '@terascope/types';
 import { getTypeOf } from './deps';
-import { bigIntToJSON, toInteger } from './numbers';
+import {
+    bigIntToJSON, isNumber, toInteger
+} from './numbers';
 import { isString } from './strings';
+
+// date-fns doesn't handle utc correctly here
+// https://github.com/date-fns/date-fns/issues/376
+// https://github.com/date-fns/date-fns/blob/d0efa9eae1cf05c0e27461296b537b9dd46283d4/src/format/index.js#L399-L403
+export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
 
 /**
  * A helper function for making an ISODate string
@@ -15,7 +22,7 @@ export function makeISODate(value?: Date|number|string|null|undefined): string {
     if (date === false) {
         throw new Error(`Invalid date ${date}`);
     }
-    return new Date(value).toISOString();
+    return date.toISOString();
 }
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
@@ -48,6 +55,32 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
     const d = new Date(val);
     if (isValidDateInstance(d)) return d;
     return false;
+}
+
+/**
+ * Returns a valid date or throws, {@see getValidDate}
+*/
+export function getValidDateOrThrow(val: unknown): Date {
+    const date = getValidDate(val as any);
+    if (date === false) {
+        throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
+    }
+    return date;
+}
+
+/**
+ * Returns a valid date or throws, {@see getValidDate}
+*/
+export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
+    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
+        return val;
+    }
+
+    const date = getValidDate(val as any);
+    if (date === false) {
+        throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
+    }
+    return date;
 }
 
 export function isValidDateInstance(val: unknown): val is Date {
@@ -98,24 +131,74 @@ export function isISO8601(input: unknown): input is string {
 }
 
 /**
+ * Convert a value to an ISO 8601 date string.
+ * This should be used over makeISODate
+*/
+export function toISO8061(value: unknown): string {
+    if (isNumber(value)) {
+        return new Date(value).toISOString();
+    }
+
+    return makeISODate(value as any);
+}
+
+/**
  * Returns a function to trim the ISO 8601 date segment, this useful
  * for creating yearly, monthly, daily or hourly dates
 */
-export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => string {
+export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => number {
     return function _trimISODate(input) {
-        if (isValidDateInstance(input)) {
-            return input.toISOString().slice(0, segment);
+        const date = getValidDateOrThrow(input);
+
+        if (segment === ISO8601DateSegment.hourly) {
+            return new Date(
+                date.getUTCFullYear(),
+                date.getUTCMonth(),
+                date.getUTCDate(),
+                date.getUTCHours(),
+                0,
+                0,
+                0
+            ).getTime() - timezoneOffset;
         }
-        if (isISO8601(input)) {
-            if (segment === ISO8601DateSegment.hourly) {
-                // ISO dates don't have to include the T
-                // but we still want to return a consistent timestamp
-                // so we can key by the result of this consistently
-                return input.slice(0, segment).replace(' ', 'T');
-            }
-            return input.slice(0, segment);
+
+        if (segment === ISO8601DateSegment.daily) {
+            return new Date(
+                date.getUTCFullYear(),
+                date.getUTCMonth(),
+                date.getUTCDate(),
+                0,
+                0,
+                0,
+                0
+            ).getTime() - timezoneOffset;
         }
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a date or ISO 8601 string`);
+
+        if (segment === ISO8601DateSegment.monthly) {
+            return new Date(
+                date.getUTCFullYear(),
+                date.getUTCMonth(),
+                1,
+                0,
+                0,
+                0,
+                0
+            ).getTime() - timezoneOffset;
+        }
+
+        if (segment === ISO8601DateSegment.yearly) {
+            return new Date(
+                date.getUTCFullYear(),
+                0,
+                1,
+                0,
+                0,
+                0,
+                0
+            ).getTime() - timezoneOffset;
+        }
+
+        throw new Error(`Invalid segment "${segment}" given`);
     };
 }
 
@@ -155,11 +238,6 @@ export function toHumanTime(ms: number): string {
     }
     return `~${Math.round((ms * 100) / ONE_DAY) / 100}day`;
 }
-
-// date-fns doesn't handle utc correctly here
-// https://github.com/date-fns/date-fns/issues/376
-// https://github.com/date-fns/date-fns/blob/d0efa9eae1cf05c0e27461296b537b9dd46283d4/src/format/index.js#L399-L403
-export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
 
 export function parseCustomDateFormat(
     value: unknown,

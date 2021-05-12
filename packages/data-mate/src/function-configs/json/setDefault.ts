@@ -57,11 +57,7 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
             return value != null ? value : args.value;
         };
     },
-    accepts: [
-        FieldType.String,
-        FieldType.Number,
-        FieldType.Date
-    ],
+    accepts: [],
     argument_schema: {
         value: {
             type: FieldType.Any,
