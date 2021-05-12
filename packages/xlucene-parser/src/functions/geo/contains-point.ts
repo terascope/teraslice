@@ -4,9 +4,7 @@ import {
     ESGeoShapeType,
     xLuceneVariables
 } from '@terascope/types';
-import { parseGeoPoint } from '@terascope/utils';
-import { point } from '@turf/helpers';
-import { pointInGeoShape } from './helpers';
+import { parseGeoPoint, geoContainsFP } from '@terascope/utils';
 import { getFieldValue, logger } from '../../utils';
 import * as i from '../../interfaces';
 
@@ -49,13 +47,8 @@ const geoContainsPoint: i.FunctionDefinition = {
             return { query };
         }
 
-        function matcher() {
-            const turfPoint = point([lon, lat]);
-            return pointInGeoShape(turfPoint);
-        }
-
         return {
-            match: matcher(),
+            match: geoContainsFP({ lat, lon }),
             toElasticsearchQuery
         };
     }

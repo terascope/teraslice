@@ -32,23 +32,11 @@
     "dependencies": {
         "@terascope/types": "^0.9.0-rc.1",
         "@terascope/utils": "^0.38.0-rc.1",
-        "@turf/bbox": "^6.2.0",
-        "@turf/bbox-polygon": "^6.3.0",
-        "@turf/boolean-contains": "^6.3.0",
-        "@turf/boolean-disjoint": "^6.3.0",
-        "@turf/boolean-equal": "^6.3.0",
-        "@turf/boolean-overlap": "^6.3.0",
-        "@turf/boolean-point-in-polygon": "^6.2.0",
-        "@turf/boolean-within": "^6.2.0",
-        "@turf/circle": "^6.3.0",
-        "@turf/clean-coords": "^6.2.0",
-        "@turf/helpers": "^6.2.0",
-        "@turf/invariant": "^6.2.0",
-        "@turf/line-to-polygon": "^6.3.0",
-        "@turf/random": "^6.3.0",
         "netmask": "^2.0.2"
     },
     "devDependencies": {
+        "@turf/invariant": "^6.2.0",
+        "@turf/random": "^6.3.0",
         "@types/netmask": "^1.0.30",
         "pegjs": "^0.10.0",
         "ts-pegjs": "^0.3.1"

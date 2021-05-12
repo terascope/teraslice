@@ -13,7 +13,38 @@ export const toGeoPointConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
-    description: 'Converts a truthy or falsy value to boolean',
+    examples: [
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: '60,40',
+            output: { lon: 40, lat: 60 }
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Object } } },
+            field: 'testField',
+            input: { latitude: 40, longitude: 60 },
+            output: { lon: 60, lat: 40 }
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Number, array: true } } },
+            field: 'testField',
+            input: [50, 60],
+            output: { lon: 50, lat: 60 }
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: 'not an geo point',
+            output: null,
+            fails: true
+        },
+    ],
+    description: 'Converts a value to a geo-point',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;
@@ -36,7 +67,6 @@ export const toGeoPointConfig: FieldTransformConfig = {
         FieldType.Number,
         FieldType.Float
     ],
-
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
         const array = arrayType(field_config);
