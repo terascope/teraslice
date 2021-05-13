@@ -2,7 +2,7 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '12.20'
+node_js: '14'
 # use a smaller depth for faster builds
 git:
   depth: 10
@@ -26,7 +26,7 @@ jobs:
     - stage: "Verify"
       name: 'Verify Build (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '12.20'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -42,7 +42,7 @@ jobs:
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '12.20'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
@@ -73,6 +73,32 @@ jobs:
         - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
         - yarn --silent --cwd e2e test
 
+    - name: 'Unit Test Suite (node 14)'
+      node_js: '14'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-b
+
+    - name: 'ES Test Suite (elasticsearch 6) (node 14)'
+      node_js: '14'
+      # run only on pull-requests and cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
+
+    - name: 'ES Test Suite (elasticsearch 7) (node 14)'
+      node_js: '14'
+      # run only on pull-requests
+      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
+
+    - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
+      node_js: '14'
+      # run only on pull-requests and cron
+      if: branch = master AND type IN (pull_request, cron) AND fork = false
+      script:
+        - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
+        - yarn --silent --cwd e2e test
+
     - stage: "Releases"
       name: 'Publish prerelease packages and docker image'
       # Run on pull-request and when the commit message includes a prerelease bump
@@ -82,7 +108,7 @@ jobs:
         - yarn ts-scripts publish -t prerelease docker
 
     - name: 'Publish packages, docs and experimental docker image'
-      node_js: '12.20'
+      node_js: '14'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
       script:
