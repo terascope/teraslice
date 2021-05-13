@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.37.0",
+    "version": "0.38.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -35,6 +35,7 @@
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
+        "mnemonist": "^0.38.3",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1"
     },

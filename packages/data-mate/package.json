@@ -31,7 +31,7 @@
     "dependencies": {
         "@terascope/data-types": "^0.28.0",
         "@terascope/types": "^0.8.0",
-        "@terascope/utils": "^0.37.0",
+        "@terascope/utils": "^0.38.0",
         "@turf/bbox": "^6.2.0",
         "@turf/bbox-polygon": "^6.3.0",
         "@turf/boolean-point-in-polygon": "^6.2.0",
