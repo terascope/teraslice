@@ -11,6 +11,9 @@ import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
 import { getTimeBetweenConfig } from './getTimeBetween';
+import { isBeforeConfig } from './isBefore';
+import { isAfterConfig } from './isAfter';
+import { isBetweenConfig } from './isBetween';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
@@ -25,5 +28,8 @@ export const dateRepository = {
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
-    getTimeBetween: getTimeBetweenConfig
+    getTimeBetween: getTimeBetweenConfig,
+    isAfter: isAfterConfig,
+    isBefore: isBeforeConfig,
+    isBetween: isBetweenConfig
 };
