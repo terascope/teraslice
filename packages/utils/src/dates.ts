@@ -30,6 +30,7 @@ import {
     bigIntToJSON, isNumber, toInteger
 } from './numbers';
 import { isString } from './strings';
+import { isBoolean } from './booleans';
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376
@@ -57,7 +58,7 @@ export function isValidDate(val: unknown): boolean {
  * Coerces value into a valid date, returns false if it is invalid
 */
 export function getValidDate(val: Date|number|string|null|undefined): Date | false {
-    if (val == null) return false;
+    if (val == null || isBoolean(val)) return false;
     if (val instanceof Date) {
         if (!isValidDateInstance(val)) {
             return false;
@@ -439,7 +440,7 @@ export function isBetween(input: unknown, args: {
 }): boolean {
     const { start, end } = args;
 
-    const inputDate = getValidDate(input as Date);
+    const inputDate = getValidDate(input as any);
     const date1 = getValidDate(start as Date);
     const date2 = getValidDate(end as Date);
 
