@@ -48,6 +48,7 @@ export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs>
     accepts: [
         FieldType.GeoJSON,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Object,
         FieldType.String,
         FieldType.Number

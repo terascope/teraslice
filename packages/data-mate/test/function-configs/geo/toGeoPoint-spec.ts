@@ -25,6 +25,7 @@ describe('toGeoPointConfig', () => {
             FieldType.String,
             FieldType.Object,
             FieldType.GeoPoint,
+            FieldType.Geo,
             FieldType.Number,
             FieldType.Float
         ]);
