@@ -35,9 +35,9 @@
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
+        "mnemonist": "^0.38.3",
         "p-map": "^4.0.0",
-        "shallow-clone": "^3.0.1",
-        "mnemonist": "^0.38.3"
+        "shallow-clone": "^3.0.1"
     },
     "devDependencies": {
         "@types/debug": "^4.1.5",

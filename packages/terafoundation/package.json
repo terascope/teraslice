@@ -27,7 +27,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.37.0",
+        "@terascope/utils": "^0.38.0",
         "aws-sdk": "^2.874.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",

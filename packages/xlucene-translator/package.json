@@ -29,7 +29,7 @@
     },
     "dependencies": {
         "@terascope/types": "^0.8.0",
-        "@terascope/utils": "^0.37.0",
+        "@terascope/utils": "^0.38.0",
         "xlucene-parser": "^0.35.0"
     },
     "devDependencies": {

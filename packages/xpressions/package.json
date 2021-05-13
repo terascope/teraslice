@@ -23,7 +23,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.37.0"
+        "@terascope/utils": "^0.38.0"
     },
     "devDependencies": {
         "@terascope/types": "^0.8.0"
