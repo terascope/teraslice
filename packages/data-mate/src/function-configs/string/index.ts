@@ -7,6 +7,7 @@ import { encodeHexConfig } from './encodeHex';
 import { encodeSHAConfig } from './encodeSHA';
 import { encodeSHA1Config } from './encodeSHA1';
 import { encodeURLConfig } from './encodeURL';
+import { endsWithConfig } from './endsWith';
 import { extractConfig } from './extract';
 import { isAlphaConfig } from './isAlpha';
 import { isAlphaNumericConfig } from './isAlphaNumeric';
@@ -27,6 +28,7 @@ import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
 import { reverseConfig } from './reverse';
 import { splitConfig } from './split';
+import { startsWithConfig } from './startsWith';
 import { toCamelCaseConfig } from './toCamelCase';
 import { toISDNConfig } from './toISDN';
 import { toKebabCaseConfig } from './toKebabCase';
@@ -51,6 +53,7 @@ export const stringRepository = {
     encodeSHA: encodeSHAConfig,
     encodeSHA1: encodeSHA1Config,
     encodeURL: encodeURLConfig,
+    endsWith: endsWithConfig,
     extract: extractConfig,
     isAlpha: isAlphaConfig,
     isAlphaNumeric: isAlphaNumericConfig,
@@ -71,6 +74,7 @@ export const stringRepository = {
     isUUID: isUUIDConfig,
     reverse: reverseConfig,
     split: splitConfig,
+    startsWith: startsWithConfig,
     toCamelCase: toCamelCaseConfig,
     toISDN: toISDNConfig,
     toKebabCase: toKebabCaseConfig,
