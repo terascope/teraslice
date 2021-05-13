@@ -53,22 +53,19 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
-    - script:
-      name: 'ES Test Suite (elasticsearch 6) (node 12)'
+    - name: 'ES Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.20'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
-    - script:
-      name: 'ES Test Suite (elasticsearch 7) (node 12)'
+    - name: 'ES Test Suite (elasticsearch 7) (node 12)'
       node_js: '12.20'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
-    - script:
-      name: 'End-to-End Test Suite (elasticsearch 6) (node 12)'
+    - name: 'End-to-End Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.20'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
@@ -84,8 +81,7 @@ jobs:
         - yarn ts-scripts publish -t prerelease npm
         - yarn ts-scripts publish -t prerelease docker
 
-    - script:
-      name: 'Publish packages, docs and expiremental docker image'
+    - name: 'Publish packages, docs and experimental docker image'
       node_js: '12.20'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
@@ -99,8 +95,7 @@ jobs:
         # do this last
         - ./scripts/publish-documentation.sh
 
-    - script:
-      name: 'Create Tag Release'
+    - name: 'Create Tag Release'
       # run on tagged releases
       if: tag IS present AND type NOT IN (pull_request, cron)
       # no need to run test on tagged release
@@ -120,8 +115,7 @@ jobs:
             tags: true
 
     # Build nightly releases
-    - script:
-      name: 'Daily Docker Builds'
+    - name: 'Daily Docker Builds'
       # run on cron jobs
       if: type = cron
       script: true
