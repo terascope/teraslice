@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "0.76.0",
+    "version": "0.76.1",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -38,7 +38,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.19.0",
-        "@terascope/job-components": "^0.50.0",
+        "@terascope/job-components": "^0.50.1",
         "@terascope/teraslice-messaging": "^0.21.0",
         "@terascope/utils": "^0.37.0",
         "async-mutex": "^0.3.1",

@@ -53,16 +53,42 @@ export default class Options {
                     + ' directory is used if no argument is passed to this option',
             type: 'boolean'
         }),
+        bundle: () => ({
+            describe: 'Build the new smaller esbuild asset bundle style asset',
+            default: false,
+            type: 'boolean'
+        }),
+        'bundle-target': () => ({
+            describe: 'Specify which version of node is used as the target for esbuild',
+            default: 'node12',
+            choices: [
+                'node10',
+                'node12',
+                'node14',
+                'node16'
+            ],
+            // I have disabled this because for some reason this requirement was
+            // being enforced even when `bundle-target` wasn't specified.
+            // Ideally we'd have a way to warn the user that they need to set
+            // bundle if bundle-target is set.
+            // implies: 'bundle',
+            type: 'string'
+        }),
         'config-dir': () => ({
             alias: 'd',
             describe: 'Config directory',
             default: `${homeDir}/.teraslice`,
             nargs: 1,
         }),
+        debug: () => ({
+            describe: 'Enable more verbose debugging output',
+            default: false,
+            type: 'boolean'
+        }),
         file: () => ({
             alias: 'f',
             describe: 'When specified with a path to an asset file, uploads provided'
-                    + ' asset without retriving from GitHub.  Useful for offline use.',
+                    + ' asset without retrieving from GitHub.  Useful for offline use.',
             nargs: 1,
             type: 'string'
         }),
@@ -86,6 +112,11 @@ export default class Options {
             describe: 'Output display format pretty or txt, default is txt',
             choices: ['txt', 'pretty'],
             default: 'txt'
+        }),
+        overwrite: () => ({
+            describe: 'Overwrite output file.',
+            default: false,
+            type: 'boolean'
         }),
         platform: () => ({
             choices: ['darwin', 'linux'],
@@ -194,7 +225,7 @@ export default class Options {
             type: 'string'
         }),
         'asset-id': () => ({
-            describe: 'Hexidecimal ID of asset.',
+            describe: 'Hexadecimal ID of asset.',
             nargs: 1,
             type: 'string'
         }),
