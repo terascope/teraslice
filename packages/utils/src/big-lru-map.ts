@@ -8,15 +8,15 @@ import { BigMap } from './big-map';
 * the array in LRUMap. Doing this will avoid
 * running out of memory at 12 million records.
 * */
-class FlexibleArray {
+export class FlexibleArray {
     constructor() {
         return [];
     }
 }
 
-export class BigLruMap<V> extends LRUMap<string|number, V> {
-    constructor(cacheSize: number) {
-        super(FlexibleArray as any, FlexibleArray as any, cacheSize);
+export class BigLRUMap<V> extends LRUMap<string|number, V> {
+    constructor(mapSize: number, keyArray?: FlexibleArray, valueArray?: FlexibleArray) {
+        super(keyArray as any, valueArray as any, mapSize);
         // @ts-expect-error
         this.items = new BigMap();
     }
