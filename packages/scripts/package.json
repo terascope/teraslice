@@ -48,7 +48,7 @@
         "signale": "^1.4.0",
         "sort-package-json": "~1.49.0",
         "typedoc": "^0.20.36",
-        "typedoc-plugin-markdown": "^3.7.2",
+        "typedoc-plugin-markdown": "^3.8.1",
         "yargs": "^16.2.0"
     },
     "devDependencies": {
