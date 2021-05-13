@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import { TypedArray } from '@terascope/types';
 import LRUMap from 'mnemonist/lru-map';
 import { BigMap } from './big-map';
 
@@ -15,7 +16,9 @@ export class FlexibleArray {
 }
 
 export class BigLRUMap<V> extends LRUMap<string|number, V> {
-    constructor(mapSize: number, keyArray?: FlexibleArray, valueArray?: FlexibleArray) {
+    constructor(mapSize: number,
+        keyArray: FlexibleArray|TypedArray = FlexibleArray,
+        valueArray: FlexibleArray|TypedArray = FlexibleArray) {
         super(keyArray as any, valueArray as any, mapSize);
         // @ts-expect-error
         this.items = new BigMap();
