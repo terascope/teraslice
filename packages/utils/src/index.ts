@@ -2,6 +2,7 @@ import STATUS_CODES from './status-codes';
 
 export * from './arrays';
 export * from './big-map';
+export * from './big-lru-map';
 export * from './big-set';
 export * from './booleans';
 export * from './buffers';
