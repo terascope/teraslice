@@ -116,6 +116,7 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     accepts: [
         FieldType.GeoJSON,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Object,
         FieldType.String,
         FieldType.Number

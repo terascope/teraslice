@@ -86,6 +86,7 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     accepts: [
         FieldType.GeoJSON,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Object,
         FieldType.String,
         FieldType.Number

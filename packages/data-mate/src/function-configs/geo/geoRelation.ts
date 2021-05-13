@@ -108,6 +108,7 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     accepts: [
         FieldType.GeoJSON,
         FieldType.GeoPoint,
+        FieldType.Geo,
         FieldType.Object,
         FieldType.String,
         FieldType.Number
