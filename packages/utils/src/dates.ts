@@ -20,7 +20,9 @@ import {
     differenceInCalendarISOWeekYears,
     differenceInISOWeekYears,
     intervalToDuration,
-    formatISODuration
+    formatISODuration,
+    isBefore as _isBefore,
+    isAfter as _isAfter
 } from 'date-fns';
 import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
@@ -407,4 +409,43 @@ export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
     return function _getTimeBetween(input: unknown): string | number {
         return getTimeBetween(input, args);
     };
+}
+
+export function isBefore(input: unknown, date: Date | string | number): boolean {
+    const date1 = getValidDate(input as Date);
+    const date2 = getValidDate(date);
+
+    if (date1 && date2) {
+        return _isBefore(date1, date2);
+    }
+
+    return false;
+}
+
+export function isAfter(input: unknown, date: Date | string | number): boolean {
+    const date1 = getValidDate(input as Date);
+    const date2 = getValidDate(date);
+
+    if (date1 && date2) {
+        return _isAfter(date1, date2);
+    }
+
+    return false;
+}
+
+export function isBetween(input: unknown, args: {
+    start: Date | string | number;
+    end: Date | string | number;
+}): boolean {
+    const { start, end } = args;
+
+    const inputDate = getValidDate(input as Date);
+    const date1 = getValidDate(start as Date);
+    const date2 = getValidDate(end as Date);
+
+    if (inputDate && date1 && date2) {
+        return _isAfter(inputDate, date1) && _isBefore(inputDate, date2);
+    }
+
+    return false;
 }
