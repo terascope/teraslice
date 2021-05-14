@@ -37,10 +37,11 @@
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.7.7",
-        "@terascope/utils": "^0.38.0-rc.1",
+        "@terascope/utils": "^0.39.0-rc.0",
         "chalk": "^4.1.1",
         "cli-table3": "^0.6.0",
         "easy-table": "^1.1.1",
+        "esbuild": "^0.11.12",
         "execa": "^5.0.0",
         "fs-extra": "^9.1.0",
         "got": "^11.8.2",
