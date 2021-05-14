@@ -22,14 +22,16 @@ import {
     differenceInISOWeekYears,
     intervalToDuration,
     formatISODuration,
-    isFuture as dateFnIsFuture,
-    isPast as dateFnIsPast,
-    isLeapYear as dateFnIsLeapYear,
-    isToday as dateFnIsToday,
-    isTomorrow as dateFnIsTomorrow,
-    isYesterday as dateFnIsYesterday,
+    isFuture as _isFuture,
+    isPast as _isPast,
+    isLeapYear as _isLeapYear,
+    isToday as _isToday,
+    isTomorrow as _isTomorrow,
+    isYesterday as _isYesterday,
     add,
     sub,
+    isBefore as _isBefore,
+    isAfter as _isAfter
 } from 'date-fns';
 import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
@@ -37,6 +39,7 @@ import {
     bigIntToJSON, isNumber, toInteger
 } from './numbers';
 import { isString } from './strings';
+import { isBoolean } from './booleans';
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376
@@ -64,7 +67,7 @@ export function isValidDate(val: unknown): boolean {
  * Coerces value into a valid date, returns false if it is invalid
 */
 export function getValidDate(val: unknown): Date | false {
-    if (val == null) return false;
+    if (val == null || isBoolean(val)) return false;
     if (val instanceof Date) {
         if (!isValidDateInstance(val)) {
             return false;
@@ -487,42 +490,42 @@ export function isFuture(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsFuture(date);
+    return _isFuture(date);
 }
 
 export function isPast(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsPast(date);
+    return _isPast(date);
 }
 
 export function isLeapYear(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsLeapYear(date);
+    return _isLeapYear(date);
 }
 
 export function isTomorrow(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsTomorrow(date);
+    return _isTomorrow(date);
 }
 
 export function isToday(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsToday(date);
+    return _isToday(date);
 }
 
 export function isYesterday(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
 
-    return dateFnIsYesterday(date);
+    return _isYesterday(date);
 }
 
 export type AdjustDateArgs = {
@@ -576,4 +579,43 @@ export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => nu
     return function _subtractFromDateFP(input: unknown): number {
         return subtractFromDate(input, args);
     };
+}
+
+export function isBefore(input: unknown, date: Date | string | number): boolean {
+    const date1 = getValidDate(input as Date);
+    const date2 = getValidDate(date);
+
+    if (date1 && date2) {
+        return _isBefore(date1, date2);
+    }
+
+    return false;
+}
+
+export function isAfter(input: unknown, date: Date | string | number): boolean {
+    const date1 = getValidDate(input as Date);
+    const date2 = getValidDate(date);
+
+    if (date1 && date2) {
+        return _isAfter(date1, date2);
+    }
+
+    return false;
+}
+
+export function isBetween(input: unknown, args: {
+    start: Date | string | number;
+    end: Date | string | number;
+}): boolean {
+    const { start, end } = args;
+
+    const inputDate = getValidDate(input as any);
+    const date1 = getValidDate(start as Date);
+    const date2 = getValidDate(end as Date);
+
+    if (inputDate && date1 && date2) {
+        return _isAfter(inputDate, date1) && _isBefore(inputDate, date2);
+    }
+
+    return false;
 }

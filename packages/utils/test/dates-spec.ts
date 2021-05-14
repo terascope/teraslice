@@ -5,7 +5,10 @@ import {
     parseDateValue,
     formatDateValue,
     trimISODateSegment,
-    getTimeBetween
+    getTimeBetween,
+    isBefore,
+    isAfter,
+    isBetween
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -89,7 +92,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarISOWeekYears', 2],
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'ISOWeekYears', 1],
             ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'ISODuration', 'P11Y4M0DT22H58M26S']
-        ])('should return duration between %p and %p, in %p as %p', (input, start, format, expected) => {
+        ])('should return duration between %p and %p, in %p as %p for start values', (input, start, format, expected) => {
             const args: { start: any, format: any } = { start, format };
 
             expect(getTimeBetween(input, args)).toBe(expected);
@@ -114,7 +117,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2028-05-10T11:01:33.192Z', 'calendarISOWeekYears', 7],
             ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'ISOWeekYears', 3],
             ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISODuration', 'P1Y7M30DT8H19M23S']
-        ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
+        ])('should return duration between %p and %p, in %p as %p for end values', (input, end, format, expected) => {
             const args: { end: any, format: any } = { end, format };
 
             expect(getTimeBetween(input, args)).toBe(expected);
@@ -127,7 +130,7 @@ describe('date utils', () => {
             [1620764444501, '2028-05-10', 'milliseconds', 220765155499],
             [1620764444501, '05/10/2028 UTC', 'milliseconds', 220765155499],
             [new Date(1620764444501), new Date('2028-05-10T11:01:33.192Z'), 'milliseconds', 220804848691],
-        ])('should return duration between %p and %p, in %p as %p', (input, end, format, expected) => {
+        ])('should return duration between %p and %p, in %p as %p for different date formats', (input, end, format, expected) => {
             const args: { end: any, format: any } = { end, format };
 
             expect(getTimeBetween(input, args)).toBe(expected);
@@ -146,6 +149,64 @@ describe('date utils', () => {
         it('should throw if start or end arg is an invalid date', () => {
             expect(() => { getTimeBetween('1715472000000', { start: 'bad date', format: 'seconds' }); })
                 .toThrowError('Could not parse date values into dates');
+        });
+    });
+
+    describe('isBefore', () => {
+        test.each([
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.001Z', true],
+            ['2021-05-10T10:00:00.000Z', '2199-12-31T23:00:00.001Z', true],
+            ['2021-05-10T10:00:00.000Z', '2021-05-09T10:00:00.001Z', false],
+            [1620764444501, 1715472000000, true],
+            [1620764444501, new Date(1715472000000), true],
+            [new Date(1620764444501), new Date(1715472000000), true],
+            ['bad date', new Date(1715472000000), false],
+            [1620764444501, 'bad date', false],
+            [null, '2021-05-09T10:00:00.001Z', false],
+        ])('for input %p and date %p return %p', (input, date, expected) => {
+            expect(isBefore(input, date)).toEqual(expected);
+        });
+    });
+
+    describe('isAfter', () => {
+        test.each([
+            ['2021-05-10T10:00:00.001Z', '2021-05-10T10:00:00.000Z', true],
+            ['2199-12-31T23:00:00.001Z', '2021-05-10T10:00:00.000Z', true],
+            [new Date('2199-12-31T23:00:00.001Z'), new Date('2021-05-10T10:00:00.000Z'), true],
+            ['2021-05-09T10:00:00.001Z', '2021-05-10T10:00:00.000Z', false],
+            [1715472000000, 1620764444501, true],
+            [new Date(1715472000000), 1620764444501, true],
+            [new Date(1715472000000), new Date(1620764444501), true],
+            [new Date(1715472000000), 'bad date', false],
+            ['bad date', 1620764444501, false],
+            [null, '2021-05-09T10:00:00.001Z', false],
+        ])('for input %p and date %p return %p', (input, date, expected) => {
+            expect(isAfter(input, date)).toEqual(expected);
+        });
+    });
+
+    describe('isBetween', () => {
+        test.each([
+            ['2021-05-10T10:00:00.001Z', '2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.002Z', true],
+            ['2199-12-31T23:00:00.001Z', '1872-05-10T10:00:00.000Z', '2499-01-31T23:00:00.001Z', true],
+            ['2021-05-10T10:00:00.003Z', '2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.002Z', false],
+            ['2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.001Z', '2021-05-10T10:00:00.003Z', false],
+            ['1872-05-10T10:00:00.000Z', '2199-12-31T23:00:00.001Z', '2499-01-31T23:00:00.001Z', false],
+            ['2199-12-31T23:00:00.001Z', '2499-01-31T23:00:00.001Z', '1872-05-10T10:00:00.000Z', false],
+            ['1272-12-31T23:00:00.001Z', '2499-01-31T23:00:00.001Z', '3129-05-10T10:00:00.000Z', false],
+            [1715472000000, 1620764444501, 1725492002001, true],
+            [1, -10, 10, true],
+            [1620764444501, -1002332430, 1725492002001, true],
+            [-1002332430, 1620764444501, 1725492002001, false],
+            [new Date(1715472000000), new Date(1620764444501), new Date(1725492002001), true],
+            [null, new Date(1620764444501), new Date(1725492002001), false],
+            [[], -10, 10, false],
+            [true, -10, 10, false],
+            [false, -10, 10, false],
+            [new Date(1715472000000), 'bad date', new Date(1725492002001), false],
+            [new Date(1715472000000), new Date(1620764444501), 'new date', false],
+        ])('for input %p and start %p and end %p return %p', (input, start, end, expected) => {
+            expect(isBetween(input, { start, end })).toEqual(expected);
         });
     });
 });

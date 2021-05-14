@@ -1,6 +1,9 @@
 import { addToDateConfig } from './addToDate';
 import { formatDateConfig } from './formatDate';
 import { getTimeBetweenConfig } from './getTimeBetween';
+import { isBeforeConfig } from './isBefore';
+import { isAfterConfig } from './isAfter';
+import { isBetweenConfig } from './isBetween';
 import { isDateConfig } from './isDate';
 import { isEpochConfig } from './isEpoch';
 import { isEpochMillisConfig } from './isEpochMillis';
@@ -30,6 +33,9 @@ export const dateRepository = {
     addToDate: addToDateConfig,
     formatDate: formatDateConfig,
     getTimeBetween: getTimeBetweenConfig,
+    isAfter: isAfterConfig,
+    isBefore: isBeforeConfig,
+    isBetween: isBetweenConfig,
     isDate: isDateConfig,
     isEpoch: isEpochConfig,
     isEpochMillis: isEpochMillisConfig,
