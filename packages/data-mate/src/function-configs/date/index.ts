@@ -14,6 +14,13 @@ import { getTimeBetweenConfig } from './getTimeBetween';
 import { isBeforeConfig } from './isBefore';
 import { isAfterConfig } from './isAfter';
 import { isBetweenConfig } from './isBetween';
+import { getMillisecondsConfig } from './getMilliseconds';
+import { getSecondsConfig } from './getSeconds';
+import { getMinutesConfig } from './getMinutes';
+import { getHoursConfig } from './getHours';
+import { getDateConfig } from './getDate';
+import { getMonthConfig } from './getMonth';
+import { getYearConfig } from './getYear';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
@@ -31,5 +38,12 @@ export const dateRepository = {
     getTimeBetween: getTimeBetweenConfig,
     isAfter: isAfterConfig,
     isBefore: isBeforeConfig,
-    isBetween: isBetweenConfig
+    isBetween: isBetweenConfig,
+    getMilliseconds: getMillisecondsConfig,
+    getSeconds: getSecondsConfig,
+    getMinutes: getMinutesConfig,
+    getHours: getHoursConfig,
+    getDate: getDateConfig,
+    getMonth: getMonthConfig,
+    getYear: getYearConfig
 };
