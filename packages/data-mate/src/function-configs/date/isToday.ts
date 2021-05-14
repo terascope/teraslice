@@ -28,7 +28,7 @@ export const isTodayConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Determines if the given date is on the same day (server-time)',
+    description: 'Determines if the given date is on the same day (utc-time)',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],
