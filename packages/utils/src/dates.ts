@@ -54,7 +54,7 @@ export function isValidDate(val: unknown): boolean {
 /**
  * Coerces value into a valid date, returns false if it is invalid
 */
-export function getValidDate(val: Date|number|string|null|undefined): Date | false {
+export function getValidDate(val: unknown): Date | false {
     if (val == null) return false;
     if (val instanceof Date) {
         if (!isValidDateInstance(val)) {
@@ -73,7 +73,7 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
         return false;
     }
 
-    const d = new Date(val);
+    const d = new Date(val as string);
     if (isValidDateInstance(d)) return d;
     return false;
 }
@@ -407,4 +407,69 @@ export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
     return function _getTimeBetween(input: unknown): string | number {
         return getTimeBetween(input, args);
     };
+}
+
+export function isSunday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 0;
+}
+
+export function isMonday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 1;
+}
+
+export function isTuesday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 2;
+}
+
+export function isWednesday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 3;
+}
+
+export function isThursday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 4;
+}
+
+export function isFriday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 5;
+}
+
+export function isSaturday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 6;
+}
+
+export function isWeekday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    const day = date.getDay();
+    return day >= 1 && day <= 5;
+}
+
+export function isWeekend(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    const day = date.getDay();
+    return day === 0 || day === 6;
 }
