@@ -22,7 +22,14 @@ import {
     intervalToDuration,
     formatISODuration,
     isBefore as _isBefore,
-    isAfter as _isAfter
+    isAfter as _isAfter,
+    getMilliseconds as _getMilliseconds,
+    getSeconds as _getSeconds,
+    getMinutes as _getMinutes,
+    getHours as _getHours,
+    getDate as _getDate,
+    getMonth as _getMonth,
+    getYear as _getYear
 } from 'date-fns';
 import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
@@ -449,4 +456,48 @@ export function isBetween(input: unknown, args: {
     }
 
     return false;
+}
+
+export function getMilliseconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getMilliseconds(inputDate);
+}
+
+export function getSeconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getSeconds(inputDate);
+}
+
+export function getMinutes(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getMinutes(inputDate);
+}
+
+export function getHours(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    console.log(inputDate, inputDate.getUTCHours(), inputDate.getHours());
+
+    return _getHours(inputDate);
+}
+
+export function getDate(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getDate(inputDate);
+}
+
+export function getMonth(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getMonth(inputDate);
+}
+
+export function getYear(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return _getYear(inputDate);
 }
