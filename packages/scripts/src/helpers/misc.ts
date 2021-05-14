@@ -50,7 +50,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
         terascope: {
             root: isRoot,
             type: 'monorepo',
-            target: 'es2020',
+            target: 'es2019',
             tests: {
                 suites: {}
             },
