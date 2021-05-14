@@ -58,7 +58,7 @@
         "benchmark": "^2.1.4"
     },
     "engines": {
-        "node": ">=10.16.0"
+        "node": ">=12.20.0"
     },
     "publishConfig": {
         "access": "public",

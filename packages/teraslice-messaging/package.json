@@ -48,7 +48,7 @@
         "@types/socket.io-client": "^1.4.35"
     },
     "engines": {
-        "node": ">=10.16.0"
+        "node": ">=12.20.0"
     },
     "publishConfig": {
         "access": "public",
