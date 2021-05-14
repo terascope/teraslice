@@ -15,7 +15,14 @@ import {
     setHours,
     setDate,
     setMonth,
-    setYear
+    setYear,
+    getMilliseconds,
+    getSeconds,
+    getMinutes,
+    getHours,
+    getDate,
+    getMonth,
+    getYear
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -337,6 +344,116 @@ describe('date utils', () => {
         it('should throw if year value is not an integer', () => {
             expect(() => { setYear('2021-05-14T20:45:30.000Z', 234.343); })
                 .toThrowError('year value must be an integer, received 234.343');
+        });
+    });
+
+    describe('getMilliseconds', () => {
+        test.each([
+            ['2021-05-10T10:00:00.746Z', 746],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1715472000231, 231],
+            [1715472131, 131],
+            ['08/05/2021', 0]
+        ])('for date %p getMilliseconds should return %p', (input, expected) => {
+            expect(getMilliseconds(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getMilliseconds('nope'); })
+                .toThrowError('Expected nope (String) to be in a standard date format');
+        });
+    });
+
+    describe('getSeconds', () => {
+        test.each([
+            ['2021-05-10T10:00:12.746Z', 12],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1715472019231, 19],
+            [1715472343, 12],
+            ['08/05/2021', 0]
+        ])('for date %p getSeconds should return %p', (input, expected) => {
+            expect(getSeconds(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getSeconds('nope'); })
+                .toThrowError('Expected nope (String) to be in a standard date format');
+        });
+    });
+
+    describe('getMinutes', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 19],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1311874359231, 32],
+            [1715472343, 31],
+            ['08/05/2021', 0]
+        ])('for date %p getMinutes should return %p', (input, expected) => {
+            expect(getMinutes(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getMinutes(true); })
+                .toThrowError('Expected true (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getHours', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            ['2021-05-10T00:00:00.000Z', 0],
+            [1311874359231, 17],
+            [1715472343, 20],
+            ['08/05/2021 UTC', 0],
+            ['2021-05-10T03:00:00.000-05:00', 8]
+        ])('for date %p getHours should return %p', (input, expected) => {
+            expect(getHours(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getHours(false); })
+                .toThrowError('Expected false (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getDate', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            [1311874359231, 28],
+            [1715472343, 20],
+            ['08/05/2021', 5]
+        ])('for date %p getDate should return %p', (input, expected) => {
+            expect(getDate(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getDate([]); })
+                .toThrowError('Expected  (Array) to be in a standard date format');
+        });
+    });
+
+    describe('getMonth', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 5],
+            [1311874359231, 7],
+            [1715472343, 1],
+            ['08/05/2021', 8],
+            ['2021-05-10T10:19:12.746Z', 5],
+            ['12/05/2021', 12],
+            ['01/05/2021', 1]
+        ])('for date %p getMonth should return %p', (input, expected) => {
+            expect(getMonth(input)).toEqual(expected);
+        });
+    });
+
+    describe('getYear', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 2021],
+            [1311874359231, 2011],
+            [1715472343, 1970],
+            ['08/05/1872', 1872]
+        ])('for date %p getYear should return %p', (input, expected) => {
+            expect(getYear(input)).toEqual(expected);
         });
     });
 });
