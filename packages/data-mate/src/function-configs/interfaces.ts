@@ -234,3 +234,17 @@ export function isTransformOperation<T extends Record<string, any>>(
 ): input is (RecordTransformConfig<T> | FieldTransformConfig<T>) {
     return isFieldTransform(input) || isRecordValidation(input);
 }
+
+const numericTypes = [
+    FieldType.Long,
+    FieldType.Number,
+    FieldType.Byte,
+    FieldType.Double,
+    FieldType.Float,
+    FieldType.Integer,
+    FieldType.Short
+];
+
+export function isNumericType(fieldConfig: Readonly<DataTypeFieldConfig>): boolean {
+    return numericTypes.includes(fieldConfig.type as FieldType);
+}

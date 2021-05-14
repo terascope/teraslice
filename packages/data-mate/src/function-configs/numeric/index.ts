@@ -48,6 +48,7 @@ import { tanConfig } from './tan';
 import { tanhConfig } from './tanh';
 import { toCelsiusConfig } from './toCelsius';
 import { toFahrenheitConfig } from './toFahrenheit';
+import { toNumberConfig } from './toNumber';
 import { toPrecisionConfig } from './toPrecision';
 
 export const numericRepository = {
@@ -101,5 +102,6 @@ export const numericRepository = {
     tanh: tanhConfig,
     toCelsius: toCelsiusConfig,
     toFahrenheit: toFahrenheitConfig,
+    toNumber: toNumberConfig,
     toPrecision: toPrecisionConfig,
 };
