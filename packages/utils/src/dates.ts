@@ -1,4 +1,5 @@
 import validator from 'validator';
+import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
 import {
@@ -23,6 +24,12 @@ import {
     formatISODuration,
     isFuture as dateFnIsFuture,
     isPast as dateFnIsPast,
+    isLeapYear as dateFnIsLeapYear,
+    isToday as dateFnIsToday,
+    isTomorrow as dateFnIsTomorrow,
+    isYesterday as dateFnIsYesterday,
+    add,
+    sub,
 } from 'date-fns';
 import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
@@ -479,11 +486,94 @@ export function isWeekend(input: unknown): boolean {
 export function isFuture(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
+
     return dateFnIsFuture(date);
 }
 
 export function isPast(input: unknown): boolean {
     const date = getValidDate(input as any);
     if (!date) return false;
+
     return dateFnIsPast(date);
+}
+
+export function isLeapYear(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return dateFnIsLeapYear(date);
+}
+
+export function isTomorrow(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return dateFnIsTomorrow(date);
+}
+
+export function isToday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return dateFnIsToday(date);
+}
+
+export function isYesterday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return dateFnIsYesterday(date);
+}
+
+export type AdjustDateArgs = {
+    readonly expr: string;
+}|{
+    readonly years?: number;
+    readonly months?: number;
+    readonly weeks?: number;
+    readonly days?: number;
+    readonly hours?: number;
+    readonly minutes?: number;
+    readonly seconds?: number;
+    readonly milliseconds?: number;
+}
+
+export function addToDate(input: unknown, args: AdjustDateArgs): number {
+    const date = getValidDate(input as any);
+
+    if (date === false) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
+    }
+
+    if ('expr' in args) {
+        return parser.parse(`now+${args.expr}`, date);
+    }
+
+    return add(date, args).getTime();
+}
+
+export function addToDateFP(args: AdjustDateArgs): (input: unknown) => number {
+    return function _addToDateFP(input: unknown): number {
+        return addToDate(input, args);
+    };
+}
+
+export function subtractFromDate(input: unknown, args: AdjustDateArgs): number {
+    const date = getValidDate(input as any);
+
+    if (date === false) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
+    }
+
+    if ('expr' in args) {
+        return parser.parse(`now-${args.expr}`, date);
+    }
+
+    return sub(date, args).getTime();
+}
+
+export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => number {
+    return function _subtractFromDateFP(input: unknown): number {
+        return subtractFromDate(input, args);
+    };
 }
