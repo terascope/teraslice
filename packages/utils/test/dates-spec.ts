@@ -268,15 +268,14 @@ describe('date utils', () => {
         });
     });
 
-    fdescribe('getHours', () => {
+    describe('getHours', () => {
         test.each([
-            // ['2021-05-10T10:19:12.746Z', 10],
-            // ['2021-05-10T00:00:00.000Z', 0],
-            // ['2021-05-10T00:00:00.000+05:00', 0],
-            // [1311874359231, 17],
-            // [1715472343, 20],
-            // ['08/05/2021 UTC', 0],
-            ['08/05/2021 EST', 0]
+            ['2021-05-10T10:19:12.746Z', 10],
+            ['2021-05-10T00:00:00.000Z', 0],
+            [1311874359231, 17],
+            [1715472343, 20],
+            ['08/05/2021 UTC', 0],
+            ['2021-05-10T03:00:00.000-05:00', 8]
         ])('for date %p getHours should return %p', (input, expected) => {
             expect(getHours(input)).toEqual(expected);
         });
@@ -293,13 +292,13 @@ describe('date utils', () => {
             [1311874359231, 28],
             [1715472343, 20],
             ['08/05/2021', 5]
-        ])('for date %p getSeconds should return %p', (input, expected) => {
+        ])('for date %p getDate should return %p', (input, expected) => {
             expect(getDate(input)).toEqual(expected);
         });
 
         it('should throw if input cannot be parsed to a date', () => {
             expect(() => { getDate([]); })
-                .toThrowError('Expected nope (String) to be in a standard date format');
+                .toThrowError('Expected  (Array) to be in a standard date format');
         });
     });
 
@@ -308,8 +307,11 @@ describe('date utils', () => {
             ['2021-05-10T10:19:12.746Z', 5],
             [1311874359231, 7],
             [1715472343, 1],
-            ['08/05/2021', 8]
-        ])('for date %p getSeconds should return %p', (input, expected) => {
+            ['08/05/2021', 8],
+            ['2021-05-10T10:19:12.746Z', 5],
+            ['12/05/2021', 12],
+            ['01/05/2021', 1]
+        ])('for date %p getMonth should return %p', (input, expected) => {
             expect(getMonth(input)).toEqual(expected);
         });
     });
@@ -320,7 +322,7 @@ describe('date utils', () => {
             [1311874359231, 2011],
             [1715472343, 1970],
             ['08/05/1872', 1872]
-        ])('for date %p getSeconds should return %p', (input, expected) => {
+        ])('for date %p getYear should return %p', (input, expected) => {
             expect(getYear(input)).toEqual(expected);
         });
     });
