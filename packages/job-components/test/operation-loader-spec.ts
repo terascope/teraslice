@@ -462,5 +462,20 @@ describe('OperationLoader', () => {
             expect(results.API).not.toBeNil();
             expect(results.Schema).not.toBeNil();
         });
+
+        it('should find namespaced apis using new format', () => {
+            const opLoader = new OperationLoader({
+                terasliceOpPath,
+                assetPath: fixturePath,
+            });
+
+            const results = opLoader.loadAPI('v3_api:test-0', [bundleAsset]);
+
+            expect(results).toHaveProperty('API');
+            expect(results).toHaveProperty('Schema');
+
+            expect(results.API).not.toBeNil();
+            expect(results.Schema).not.toBeNil();
+        });
     });
 });

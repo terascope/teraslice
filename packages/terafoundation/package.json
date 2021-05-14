@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "0.32.0-rc.1",
+    "version": "0.32.0-rc.2",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -27,7 +27,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.38.0-rc.1",
+        "@terascope/utils": "^0.39.0-rc.0",
         "aws-sdk": "^2.874.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",

@@ -69,19 +69,510 @@ false => isBoolean() // outputs false
 
 ## CATEGORY: Geo
 
-### `toGeoPoint`
+### `geoContains`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validates that geo-like data completely "contains" the value argument. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the geo data being compared
+
+#### Arguments
+
+ - **value**: (required) `Any` - The geo input that must be "contained" by other geo-like data
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"33.435518,-111.873616" => geoContains(value: "33.435518,-111.873616") // outputs "33.435518,-111.873616"
+```
+
+```ts
+"45.518,-21.816" => geoContains(value: type: "Point", coordinates: [-111.873616, 33.435518]) // outputs null
+```
+
+```ts
+type: "Polygon", coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]] => geoContains(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoContains(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]] => geoContains(value: type: "Point", coordinates: [-30, -30]) // outputs null
+```
+
+### `geoPointWithinRange`
+
+**Type:** `FIELD_VALIDATION`
+**Aliases:** `geoDistance`
+
+> Checks to see if input geo-point is within range of the point and distance values provided
+
+#### Arguments
+
+ - **point**: (required) `Any` - The geo-point used to compare to other points
+
+ - **distance**: (required) `String` - The range from the point that will provide a positive result.
+              It combines the number as well as the unit of measurement (ie 110km, 20in, 100yards).
+                Possible units are as follows: mi,  miles,  mile,  NM,  nmi,  nauticalmile,  nauticalmiles,  in,  inch,  inches,  yd,  yard,  yards,  m,  meter,  meters,  km,  kilometer,  kilometers,  mm,  millimeter,  millimeters,  cm,  centimeter,  centimeters,  ft and feet
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"33.435967,-111.867710" => geoPointWithinRange(point: "33.435518,-111.873616", distance: "5000m") // outputs "33.435967,-111.867710"
+```
+
+```ts
+"22.435967,-150.867710" => geoPointWithinRange(point: "33.435518,-111.873616", distance: "5000m") // outputs null
+```
+
+### `geoDisjoint`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validates that geo-like data does not have any intersection (overlap) with the geoInput argument
+
+#### Arguments
+
+ - **value**: (required) `Any` - The geo input used to validate that no intersection exists with other geo-like data
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"-33.435967,-111.867710" => geoDisjoint(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "-33.435967,-111.867710"
+```
+
+```ts
+type: "Point", coordinates: [20, 20] => geoDisjoint(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs null
+```
+
+```ts
+type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoDisjoint(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoDisjoint(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs null
+```
+
+### `geoIntersects`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validates that geo-like data when compared to the argument has overlap between the two
+
+#### Arguments
+
+ - **value**: (required) `Any` - The geo input used to validate intersection with other geo-like data
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+type: "Point", coordinates: [20, 20] => geoIntersects(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Point", coordinates: [20, 20]
+```
+
+```ts
+type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoIntersects(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoIntersects(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+### `geoRelation`
+
+**Type:** `FIELD_VALIDATION`
+
+> Compares geo inputs to any geo-like data based off the relation specified (defaults to "within"
+
+#### Arguments
+
+ - **value**: (required) `Any` - The geo input used to compare to other geo entities
+
+ - **relation**:  `String` - How the geo input should relate the data, defaults to "within" : intersects,  disjoint,  within and contains
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "20,20"
+```
+
+```ts
+"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "within") // outputs "20,20"
+```
+
+```ts
+"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "contains") // outputs null
+```
+
+```ts
+type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoRelation(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]], relation: "disjoint") // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+```
+
+```ts
+type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "intersects") // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+```
+
+```ts
+type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "disjoint") // outputs null
+```
+
+### `geoWithin`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validates that geo-like data is completely "within" the argument. The interiors of both geo entities must intersect, and the geo data  must not exceed the bounds of the geo argument
+
+#### Arguments
+
+ - **value**: (required) `Any` - The geo input used to compare to other geo entities
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+type: "Point", coordinates: [20, 20] => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Point", coordinates: [20, 20]
+```
+
+```ts
+"20,20" => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "20,20"
+```
+
+```ts
+type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoWithin(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]] => geoWithin(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]]
+```
+
+### `geoContainsPoint`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if a geo input contains the given point
+
+#### Arguments
+
+ - **point**: (required) `Any` - The point used to see if it is within the given geo-shape, if geo-shape is a point, it checks if they are the same
+
+#### Accepts
+
+- `GeoJSON`
+
+#### Examples
+
+```ts
+type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoContainsPoint(point: "15, 15") // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+```ts
+type: "Polygon", coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]], [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]] => geoContainsPoint(point: "15, 15") // outputs null
+```
+
+this verifies that point is within a polygon with holes
+```ts
+type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]]
+```
+
+this verifies that point can match against a geo-shape point
+```ts
+type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // outputs type: "Point", coordinates: [15, 15]
+```
+
+### `inGeoBoundingBox`
+
+**Type:** `FIELD_VALIDATION`
+**Aliases:** `geoBox`
+
+> Checks to see if input is within the geo bounding-box
+
+#### Arguments
+
+ - **top_left**: (required) `Any` - The top-left geo-point used to construct the geo bounding box, must be a valid geo-point input
+
+ - **bottom_right**: (required) `Any` - The bottom_right geo-point used to construct the geo bounding box, must be a valid geo-point input
+
+#### Accepts
+
+- `GeoJSON`
+- `GeoPoint`
+- `Geo`
+- `Object`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"33.2,-112.3" => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs "33.2,-112.3"
+```
+
+```ts
+"43,-132" => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs null
+```
+
+```ts
+type: "Point", coordinates: [-112, 33] => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs type: "Point", coordinates: [-112, 33]
+```
+
+### `isGeoJSON`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if value is a GeoJSON object
+
+#### Accepts
+
+- `GeoJSON`
+- `Object`
+
+#### Examples
+
+```ts
+"60,40" => isGeoJSON() // outputs null
+```
+
+```ts
+lat: 60, lon: 40 => isGeoJSON() // outputs null
+```
+
+```ts
+type: "Point", coordinates: [12, 12] => isGeoJSON() // outputs type: "Point", coordinates: [12, 12]
+```
+
+```ts
+type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => isGeoJSON() // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoJSON() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+### `isGeoPoint`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if value is parsable to geo-point
+
+#### Examples
+
+```ts
+"60,40" => isGeoPoint() // outputs "60,40"
+```
+
+```ts
+[60, 40] => isGeoPoint() // outputs [60, 40]
+```
+
+```ts
+lat: 60, lon: 40 => isGeoPoint() // outputs lat: 60, lon: 40
+```
+
+```ts
+latitude: 60, longitude: 40 => isGeoPoint() // outputs latitude: 60, longitude: 40
+```
+
+```ts
+"something" => isGeoPoint() // outputs null
+```
+
+### `isGeoShapeMultiPolygon`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid geo-json multi-polygon
+
+#### Accepts
+
+- `GeoJSON`
+- `Object`
+
+#### Examples
+
+```ts
+type: "Point", coordinates: [12, 12] => isGeoShapeMultiPolygon() // outputs null
+```
+
+```ts
+type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapeMultiPolygon() // outputs null
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapeMultiPolygon() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+### `isGeoShapePoint`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid geo-json point
+
+#### Accepts
+
+- `GeoJSON`
+- `Object`
+
+#### Examples
+
+```ts
+type: "Point", coordinates: [12, 12] => isGeoShapePoint() // outputs type: "Point", coordinates: [12, 12]
+```
+
+```ts
+type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapePoint() // outputs null
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapePoint() // outputs null
+```
+
+### `isGeoShapePolygon`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks to see if input is a valid geo-json polygon
+
+#### Accepts
+
+- `GeoJSON`
+- `Object`
+
+#### Examples
+
+```ts
+type: "Point", coordinates: [12, 12] => isGeoShapePolygon() // outputs null
+```
+
+```ts
+type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapePolygon() // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapePolygon() // outputs null
+```
+
+### `toGeoJSON`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a truthy or falsy value to boolean
+> Converts a geo-point or list of geo-points to its geoJSON counterpart as well as make sure any geo-shape input is formatted correctly. If geo-points are provided only a simple geoJSON point or polygon will be made, there is currently no support for multi-polygon construction or polygon/multipolygon with holes
 
 #### Accepts
 
 - `String`
 - `Object`
 - `GeoPoint`
+- `Geo`
+- `Number`
+- `GeoJSON`
+
+#### Examples
+
+```ts
+"60,40" => toGeoJSON() // outputs type: "Point", coordinates: [40, 60]
+```
+
+```ts
+["10,10", "10,50", "50,50", "50,10", "10,10"] => toGeoJSON() // outputs type: "Polygon", coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+```
+
+```ts
+type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => toGeoJSON() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+```
+
+### `toGeoPoint`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a geo-point
+
+#### Accepts
+
+- `String`
+- `Object`
+- `GeoPoint`
+- `Geo`
 - `Number`
 - `Float`
+
+#### Examples
+
+```ts
+"60,40" => toGeoPoint() // outputs lon: 40, lat: 60
+```
+
+```ts
+latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
+```
+
+```ts
+[50, 60] => toGeoPoint() // outputs lon: 50, lat: 60
+```
+
+```ts
+"not an geo point" => toGeoPoint() // throws null
+```
 
 ## CATEGORY: JSON
 
@@ -229,6 +720,40 @@ Default: iso_8601 for strings and epoch_millis for number
 "2001-01-01T01:00:00.000Z" => formatDate() // outputs "2001-01-01T01:00:00.000Z"
 ```
 
+### `getTimeBetween`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns time duration between input and start or end time.  Returns the duration as a number or in the ISO 8601 duration format
+
+#### Arguments
+
+ - **start**:  `Date` - Start time of time range, if start is after input will return a negative number
+
+ - **end**:  `Date` - End time of time range, if provided end is after input the return value will be negative
+
+ - **format**: (required) `String` - The format of the return value
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(start: "2021-05-10T10:00:00.000Z", format: "milliseconds") // outputs 1000
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => getTimeBetween(end: "2021-05-10T10:00:00.000Z", format: "days") // outputs 1
+```
+
+```ts
+1620764440001 => getTimeBetween(end: 1620764441001, format: "seconds") // outputs 1
+```
+
 ### `subtractFromDate`
 
 **Type:** `FIELD_TRANSFORM`
@@ -312,6 +837,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 - `String`
 - `Number`
+- `Date`
 
 #### Examples
 
@@ -387,6 +913,110 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
+```
+
+### `isAfter`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is after the arg date
+
+#### Arguments
+
+ - **date**: (required) `Date` - Date to compare input to
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:00.000Z" => isAfter(date: "2021-05-09T10:00:00.000Z") // outputs "2021-05-10T10:00:00.000Z"
+```
+
+```ts
+"2021-05-10T10:00:00.000Z" => isAfter(date: 1620554400000) // outputs "2021-05-10T10:00:00.000Z"
+```
+
+```ts
+1620640800000 => isAfter(date: "2021-05-09T10:00:00.000Z") // outputs 1620640800000
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isAfter(date: "2021-05-10T10:00:00.000Z") // outputs null
+```
+
+### `isBefore`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is before the arg date
+
+#### Arguments
+
+ - **date**: (required) `Date` - Date to compare input to
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-09T10:00:00.000Z" => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs "2021-05-09T10:00:00.000Z"
+```
+
+```ts
+1620554400000 => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs 1620554400000
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isBefore(date: 1620640800000) // outputs "2021-05-09T10:00:00.000Z"
+```
+
+```ts
+"2021-05-11T10:00:00.000Z" => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs null
+```
+
+### `isBetween`
+
+**Type:** `FIELD_VALIDATION`
+
+> Checks if the input is before the arg date
+
+#### Arguments
+
+ - **start**: (required) `Date` - Start date of time range
+
+ - **end**: (required) `Date` - End date of time range
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:00.001Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs "2021-05-10T10:00:00.001Z"
+```
+
+```ts
+1620554401000 => isBetween(start: 1620554400000, end: 1620640800000) // outputs 1620554401000
+```
+
+```ts
+"2021-05-07T10:00:00.000Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs null
+```
+
+```ts
+"2021-05-15T10:00:00.000Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs null
 ```
 
 ### `isDate`
@@ -498,6 +1128,28 @@ Default: iso_8601 for strings and epoch_millis for number
 -102390933 => isEpochMillis() // outputs -102390933
 ```
 
+### `isFriday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Friday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T10:00:00.000Z" => isFriday() // outputs "2021-05-14T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isFriday() // outputs null
+```
+
 ### `isISO8601`
 
 **Type:** `FIELD_VALIDATION`
@@ -522,6 +1174,313 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 102390933 => isISO8601() // outputs null
+```
+
+### `isLeapYear`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is in a leap year
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2020-05-10T10:00:00.000Z" => isLeapYear() // outputs "2020-05-10T10:00:00.000Z"
+```
+
+```ts
+"2021-05-10T10:00:00.000Z" => isLeapYear() // outputs null
+```
+
+### `isMonday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Monday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:00.000Z" => isMonday() // outputs "2021-05-10T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isMonday() // outputs null
+```
+
+### `isPast`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is in the past
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:00.000Z" => isPast() // outputs "2021-05-10T10:00:00.000Z"
+```
+
+```ts
+"2121-05-09T10:00:00.000Z" => isPast() // outputs null
+```
+
+### `isSaturday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Saturday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-08T10:00:00.000Z" => isSaturday() // outputs "2021-05-08T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isSaturday() // outputs null
+```
+
+### `isSunday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Sunday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-09T10:00:00.000Z" => isSunday() // outputs "2021-05-09T10:00:00.000Z"
+```
+
+```ts
+1620554400000 => isSunday() // outputs 1620554400000
+```
+
+### `isToday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on the same day (utc-time)
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+this input is created at execution time
+```ts
+"2021-05-14T18:06:48.168Z" => isToday() // outputs "2021-05-14T18:06:48.168Z"
+```
+
+```ts
+"2020-05-09T10:00:00.000Z" => isToday() // outputs null
+```
+
+### `isTomorrow`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on the next day (utc-time)
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+represents current time
+```ts
+"2021-05-14T18:06:48.168Z" => isTomorrow() // outputs null
+```
+
+represents day after current time
+```ts
+"2021-05-15T18:06:48.168Z" => isTomorrow() // outputs "2021-05-15T18:06:48.168Z"
+```
+
+### `isThursday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Thursday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-13T10:00:00.000Z" => isThursday() // outputs "2021-05-13T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isThursday() // outputs null
+```
+
+### `isTuesday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Tuesday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:00:00.000Z" => isTuesday() // outputs "2021-05-11T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isTuesday() // outputs null
+```
+
+### `isWednesday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Wednesday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-12T10:00:00.000Z" => isWednesday() // outputs "2021-05-12T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isWednesday() // outputs null
+```
+
+### `isWeekday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Weekday (Monday-Friday)
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-12T10:00:00.000Z" => isWeekday() // outputs "2021-05-12T10:00:00.000Z"
+```
+
+```ts
+"2021-05-13T10:00:00.000Z" => isWeekday() // outputs "2021-05-13T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isWeekday() // outputs null
+```
+
+```ts
+"2021-05-08T10:00:00.000Z" => isWeekday() // outputs null
+```
+
+### `isWeekend`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Weekend (Saturday-Sunday)
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-12T10:00:00.000Z" => isWeekend() // outputs null
+```
+
+```ts
+"2021-05-13T10:00:00.000Z" => isWeekend() // outputs null
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isWeekend() // outputs "2021-05-09T10:00:00.000Z"
+```
+
+```ts
+"2021-05-08T10:00:00.000Z" => isWeekend() // outputs "2021-05-08T10:00:00.000Z"
+```
+
+### `isYesterday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on the day before (utc-time)
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+represents current time
+```ts
+"2021-05-14T18:06:48.171Z" => isYesterday() // outputs null
+```
+
+represents day before current time
+```ts
+"2021-05-13T18:06:48.171Z" => isYesterday() // outputs "2021-05-13T18:06:48.171Z"
 ```
 
 ## CATEGORY: Numeric
@@ -1557,6 +2516,38 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 22 => toFahrenheit() // outputs 71.6
 ```
 
+### `toNumber`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts an entity to a number, can handle IPs and Dates
+
+#### Examples
+
+```ts
+"13890472347692343249760902374089" => toNumber() // outputs 1.3890472347692343e+31
+```
+
+```ts
+"22" => toNumber() // outputs 22
+```
+
+```ts
+"22" => toNumber() // outputs 22
+```
+
+```ts
+"10.16.32.210" => toNumber() // outputs 168829138
+```
+
+```ts
+"2001:2::" => toNumber() // outputs "42540488320432167789079031612388147199"
+```
+
+```ts
+"2001-01-01T01:00:00.000Z" => toNumber() // outputs 978310800000
+```
+
 ### `toPrecision`
 
 **Type:** `FIELD_TRANSFORM`
@@ -1573,6 +2564,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 - `Number`
 - `GeoPoint`
+- `Geo`
 
 #### Examples
 
@@ -1862,6 +2854,38 @@ lat: 32.12399971230023, lon: -20.95522300035 => toPrecision(digits: 2, truncate:
 
 ```ts
 "example" => contains(substr: "test") // outputs null
+```
+
+### `endsWith`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validation that determines whether or not a string ends with another string. This is case-sensitive.
+
+#### Arguments
+
+ - **value**: (required) `String` - The value that must match at the end of the input string
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+"apple" => endsWith(value: "e") // outputs "apple"
+```
+
+```ts
+"orange" => endsWith(value: "a") // outputs null
+```
+
+```ts
+"some word" => endsWith(value: "so") // outputs null
+```
+
+```ts
+"other word" => endsWith(value: "word") // outputs "other word"
 ```
 
 ### `isAlpha`
@@ -2450,6 +3474,42 @@ hello: "i am an object" => isString() // outputs null
 
 ```ts
 "randomstring" => isUUID() // outputs null
+```
+
+### `startsWith`
+
+**Type:** `FIELD_VALIDATION`
+
+> Validation that determines whether or not a string begins with another string. This is case-sensitive.
+
+#### Arguments
+
+ - **value**: (required) `String` - The value that must match at the beginning of the input string
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+"apple" => startsWith(value: "a") // outputs "apple"
+```
+
+```ts
+"orange" => startsWith(value: "a") // outputs null
+```
+
+```ts
+"some word" => startsWith(value: "so") // outputs "some word"
+```
+
+```ts
+"other word" => startsWith(value: "so") // outputs null
+```
+
+```ts
+"hat" => startsWith(value: "t") // outputs null
 ```
 
 ### `decodeBase64`

@@ -87,6 +87,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
     accepts: [
         FieldType.String,
         FieldType.Number,
+        FieldType.Date
     ],
     argument_schema: {
         format: {

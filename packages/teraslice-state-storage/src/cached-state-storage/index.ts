@@ -1,19 +1,16 @@
 import { EventEmitter } from 'events';
-import LRUMap from 'mnemonist/lru-map';
-import { pImmediate, BigMap } from '@terascope/utils';
+import { pImmediate, BigLRUMap } from '@terascope/utils';
 
 import {
     CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent
 } from '../interfaces';
 
 export default class CachedStateStorage<T> extends EventEmitter {
-    private _cache: LRUMap<string, T>;
+    private _cache: BigLRUMap<T>;
 
     constructor(config: CacheConfig) {
         super();
-        this._cache = new LRUMap(config.cache_size);
-        // @ts-expect-error
-        this._cache.items = new BigMap(config.max_big_map_size);
+        this._cache = new BigLRUMap(config.cache_size);
     }
 
     get(key: string|number): T | undefined {
@@ -28,24 +25,24 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }, {});
     }
 
-    set(key: string|number, value: T) {
+    set(key: string|number, value: T): void {
         const results = this._cache.setpop(`${key}`, value);
         if (results && results.evicted) {
             this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
         }
     }
 
-    mset(docArray: SetTuple<T>[]) {
+    mset(docArray: SetTuple<T>[]): void {
         for (const doc of docArray) {
             this.set(doc.key, doc.data);
         }
     }
 
-    count() {
+    count(): number {
         return this._cache.size;
     }
 
-    async values(fn: ValuesFn<T>) {
+    async values(fn: ValuesFn<T>): Promise<void> {
         let i = 0;
         for (const [, value] of this._cache) {
             fn(value);
@@ -56,11 +53,11 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }
     }
 
-    has(key: string|number) {
+    has(key: string|number): boolean {
         return this._cache.has(`${key}`);
     }
 
-    clear() {
+    clear(): void {
         this.removeAllListeners();
         this._cache.clear();
     }
