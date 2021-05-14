@@ -619,3 +619,45 @@ export function isBetween(input: unknown, args: {
 
     return false;
 }
+
+export function getMilliseconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMilliseconds();
+}
+
+export function getSeconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCSeconds();
+}
+
+export function getMinutes(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMinutes();
+}
+
+export function getHours(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCHours();
+}
+
+export function getDate(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCDate();
+}
+
+export function getMonth(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMonth() + 1;
+}
+
+export function getYear(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCFullYear();
+}

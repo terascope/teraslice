@@ -28,6 +28,13 @@ import { toDateConfig } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
+import { getMillisecondsConfig } from './getMilliseconds';
+import { getSecondsConfig } from './getSeconds';
+import { getMinutesConfig } from './getMinutes';
+import { getHoursConfig } from './getHours';
+import { getDateConfig } from './getDate';
+import { getMonthConfig } from './getMonth';
+import { getYearConfig } from './getYear';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
@@ -60,4 +67,11 @@ export const dateRepository = {
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
+    getMilliseconds: getMillisecondsConfig,
+    getSeconds: getSecondsConfig,
+    getMinutes: getMinutesConfig,
+    getHours: getHoursConfig,
+    getDate: getDateConfig,
+    getMonth: getMonthConfig,
+    getYear: getYearConfig
 };
