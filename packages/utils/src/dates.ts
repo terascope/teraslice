@@ -20,7 +20,9 @@ import {
     differenceInCalendarISOWeekYears,
     differenceInISOWeekYears,
     intervalToDuration,
-    formatISODuration
+    formatISODuration,
+    isFuture as dateFnIsFuture,
+    isPast as dateFnIsPast,
 } from 'date-fns';
 import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
 import { getTypeOf } from './deps';
@@ -472,4 +474,16 @@ export function isWeekend(input: unknown): boolean {
 
     const day = date.getDay();
     return day === 0 || day === 6;
+}
+
+export function isFuture(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+    return dateFnIsFuture(date);
+}
+
+export function isPast(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+    return dateFnIsPast(date);
 }
