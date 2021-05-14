@@ -1,4 +1,5 @@
 import validator from 'validator';
+import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
 import {
@@ -21,6 +22,14 @@ import {
     differenceInISOWeekYears,
     intervalToDuration,
     formatISODuration,
+    isFuture as _isFuture,
+    isPast as _isPast,
+    isLeapYear as _isLeapYear,
+    isToday as _isToday,
+    isTomorrow as _isTomorrow,
+    isYesterday as _isYesterday,
+    add,
+    sub,
     isBefore as _isBefore,
     isAfter as _isAfter
 } from 'date-fns';
@@ -57,7 +66,7 @@ export function isValidDate(val: unknown): boolean {
 /**
  * Coerces value into a valid date, returns false if it is invalid
 */
-export function getValidDate(val: Date|number|string|null|undefined): Date | false {
+export function getValidDate(val: unknown): Date | false {
     if (val == null || isBoolean(val)) return false;
     if (val instanceof Date) {
         if (!isValidDateInstance(val)) {
@@ -76,7 +85,7 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
         return false;
     }
 
-    const d = new Date(val);
+    const d = new Date(val as string);
     if (isValidDateInstance(d)) return d;
     return false;
 }
@@ -409,6 +418,166 @@ export function getTimeBetween(
 export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
     return function _getTimeBetween(input: unknown): string | number {
         return getTimeBetween(input, args);
+    };
+}
+
+export function isSunday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 0;
+}
+
+export function isMonday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 1;
+}
+
+export function isTuesday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 2;
+}
+
+export function isWednesday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 3;
+}
+
+export function isThursday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 4;
+}
+
+export function isFriday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 5;
+}
+
+export function isSaturday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return date.getDay() === 6;
+}
+
+export function isWeekday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    const day = date.getDay();
+    return day >= 1 && day <= 5;
+}
+
+export function isWeekend(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    const day = date.getDay();
+    return day === 0 || day === 6;
+}
+
+export function isFuture(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isFuture(date);
+}
+
+export function isPast(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isPast(date);
+}
+
+export function isLeapYear(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isLeapYear(date);
+}
+
+export function isTomorrow(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isTomorrow(date);
+}
+
+export function isToday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isToday(date);
+}
+
+export function isYesterday(input: unknown): boolean {
+    const date = getValidDate(input as any);
+    if (!date) return false;
+
+    return _isYesterday(date);
+}
+
+export type AdjustDateArgs = {
+    readonly expr: string;
+}|{
+    readonly years?: number;
+    readonly months?: number;
+    readonly weeks?: number;
+    readonly days?: number;
+    readonly hours?: number;
+    readonly minutes?: number;
+    readonly seconds?: number;
+    readonly milliseconds?: number;
+}
+
+export function addToDate(input: unknown, args: AdjustDateArgs): number {
+    const date = getValidDate(input as any);
+
+    if (date === false) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
+    }
+
+    if ('expr' in args) {
+        return parser.parse(`now+${args.expr}`, date);
+    }
+
+    return add(date, args).getTime();
+}
+
+export function addToDateFP(args: AdjustDateArgs): (input: unknown) => number {
+    return function _addToDateFP(input: unknown): number {
+        return addToDate(input, args);
+    };
+}
+
+export function subtractFromDate(input: unknown, args: AdjustDateArgs): number {
+    const date = getValidDate(input as any);
+
+    if (date === false) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
+    }
+
+    if ('expr' in args) {
+        return parser.parse(`now-${args.expr}`, date);
+    }
+
+    return sub(date, args).getTime();
+}
+
+export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => number {
+    return function _subtractFromDateFP(input: unknown): number {
+        return subtractFromDate(input, args);
     };
 }
 

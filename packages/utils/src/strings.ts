@@ -192,15 +192,38 @@ export function unescapeString(str = ''): string {
 }
 
 /** A native implementation of lodash startsWith */
-export function startsWith(str: string, val: string): boolean {
+export function startsWith(str: unknown, val: unknown): boolean {
+    if (!isString(str)) return false;
     if (!isString(val)) return false;
+
     return str.startsWith(val);
 }
 
 /** A function version of startsWith */
-export function startsWithFP(val: string) {
-    return function _startsWithFP(str: string): boolean {
+export function startsWithFP(val: string): (input: unknown) => boolean {
+    if (!isString(val)) {
+        throw new Error(`Invalid argument "val", must be of type string, got ${getTypeOf(val)}`);
+    }
+    return function _startsWithFP(str: unknown): boolean {
         return startsWith(str, val);
+    };
+}
+
+/** A native implementation of lodash endsWith */
+export function endsWith(str: unknown, val: unknown): boolean {
+    if (!isString(str)) return false;
+    if (!isString(val)) return false;
+
+    return str.endsWith(val);
+}
+
+/** A function version of startsWith */
+export function endsWithFP(val: string): (input: unknown) => boolean {
+    if (!isString(val)) {
+        throw new Error(`Invalid argument "val", must be of type string, got ${getTypeOf(val)}`);
+    }
+    return function _startsWithFP(str: unknown): boolean {
+        return endsWith(str, val);
     };
 }
 

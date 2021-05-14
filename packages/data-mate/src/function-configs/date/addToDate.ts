@@ -1,8 +1,6 @@
 import { FieldType } from '@terascope/types';
-import add from 'date-fns/add';
-import parser from 'datemath-parser';
 import {
-    joinList, getValidDate, getTypeOf, toISO8061
+    joinList, toISO8061, addToDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
@@ -11,20 +9,7 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export type AddToDateArgs = {
-    readonly expr: string;
-}|{
-    readonly years?: number;
-    readonly months?: number;
-    readonly weeks?: number;
-    readonly days?: number;
-    readonly hours?: number;
-    readonly minutes?: number;
-    readonly seconds?: number;
-    readonly milliseconds?: number;
-}
-
-export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
+export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'addToDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -72,18 +57,7 @@ export const addToDateConfig: FieldTransformConfig<AddToDateArgs> = {
         output: 'Invalid use of months with expr parameter'
     }],
     create(args) {
-        return function addToDate(input: unknown): number {
-            const date = getValidDate(input as any);
-            if (date === false) {
-                throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
-            }
-
-            if ('expr' in args) {
-                return parser.parse(`now+${args.expr}`, date);
-            }
-
-            return add(date, args).getTime();
-        };
+        return addToDateFP(args);
     },
     accepts: [
         FieldType.Date
