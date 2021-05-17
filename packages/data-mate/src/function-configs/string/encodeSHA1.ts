@@ -1,4 +1,4 @@
-import crypto, { BinaryToTextEncoding } from 'crypto';
+import { BinaryToTextEncoding } from 'crypto';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,12 +7,13 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces';
+import { cryptoEncode } from './encode-utils';
 
 export interface EncodeSHA1Config {
-    digest?: string;
+    digest?: BinaryToTextEncoding;
 }
 
-const defaultDigest = 'hex';
+const defaultDigest: BinaryToTextEncoding = 'hex';
 
 export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
     name: 'encodeSHA1',
@@ -52,14 +53,14 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
         }
     ],
     create({ digest = defaultDigest } = {}) {
-        return (input: unknown) => encodeSHA1(input, digest as BinaryToTextEncoding);
+        return cryptoEncode('sha1', digest);
     },
     accepts: [FieldType.String],
     argument_schema: {
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"'
         }
     },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
@@ -73,7 +74,3 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
         };
     }
 };
-
-export function encodeSHA1(input: unknown, digest: BinaryToTextEncoding = defaultDigest): string {
-    return crypto.createHash('sha1').update(input as string).digest(digest);
-}
