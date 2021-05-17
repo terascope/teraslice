@@ -919,11 +919,11 @@ export function equals(input: unknown, _parentContext: unknown, args: { value: s
     if (!args.value) throw new Error('A value must provided with the input');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isSame(data, args.value);
+        const fn = (data: any) => ts.isDeepEqual(data, args.value);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isSame(input, args.value);
+    return ts.isDeepEqual(input, args.value);
 }
 
 /**

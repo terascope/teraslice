@@ -191,48 +191,6 @@ export function getField<T, P extends keyof T, V>(
 }
 
 /**
- * Compares two values and returns a boolean if they are the same.
- * Object keys are sorted before comparison, arrays are NOT sorted and
- * are compared value for value
- *
- * @example
-        isSame({ key1: 1, key2: 2 }, { key2: 2, key1: 1 }) === true;
-        isSame(null, null) === true;
-        isSame(undefined, undefined) === true;
-        isSame(NaN, NaN) === true;
-        isSame(3, 3) === true
-        isSame('hello', 'hello') === true
-        isSame([1, 2, 3], [1, 2, 3]) === true
-        isSame([{ some: 'obj' }], [{ some: 'obj' }]) === true
-
-        isSame(undefined, null) === false;
-        isSame([1, 2, 3], [1, 3, 2]) === false
-        isSame([1, 2, 3], [1, 2, undefined, 3]) === false
-        isSame(true, 'true') === false;
-*/
-export function isSame(input: unknown, target: unknown): boolean {
-    if (input === target || Object.is(input, target)) return true;
-    if (isObjectEntity(input)) {
-        if (isObjectEntity(target)) {
-            const sortedInput = sortKeys(input as Record<string, unknown>, { deep: true });
-            const sortedTarget = sortKeys(target as Record<string, unknown>, { deep: true });
-            return JSON.stringify(sortedInput) === JSON.stringify(sortedTarget);
-        }
-        return false;
-    }
-
-    if (isArrayLike(input)) {
-        if (isArrayLike(target)) {
-            if (input.length !== target.length) return false;
-            return input.every((val, index) => isSame(val, target[index]));
-        }
-        return false;
-    }
-
-    return false;
-}
-
-/**
  * Check if a object has property (and not included in the prototype)
  * Different from has since it doesn't deal with dot notation values.
 */

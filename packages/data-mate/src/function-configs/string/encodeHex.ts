@@ -6,6 +6,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces';
+import { bufferEncode } from './encode-utils';
 
 export const encodeHexConfig: FieldTransformConfig = {
     name: 'encodeHex',
@@ -30,7 +31,7 @@ export const encodeHexConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return (input: unknown) => Buffer.from(input as string).toString('hex');
+        return bufferEncode('hex');
     },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

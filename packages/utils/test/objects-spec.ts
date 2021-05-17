@@ -5,7 +5,6 @@ import {
     withoutNil,
     filterObject,
     isObjectEntity,
-    isSame
 } from '../src/objects';
 import { DataEntity } from '../src';
 
@@ -75,72 +74,6 @@ describe('Objects', () => {
         describe('when given an empty object', () => {
             it('should return nil', () => {
                 expect(getFirstKey({})).toBeNil();
-            });
-        });
-    });
-
-    describe('isSame', () => {
-        describe('when given an object', () => {
-            it('should return true if they are the same', () => {
-                const obj = { key1: 1, key2: 2 };
-                const obj2 = { key1: 1, key2: 2 };
-
-                expect(isSame(obj, obj2)).toBeTrue();
-            });
-
-            it('should return true if they are the same even with out of order keys', () => {
-                const obj = { key1: 1, key2: 2 };
-                const obj2 = { key2: 2, key1: 1 };
-
-                expect(isSame(obj, obj2)).toBeTrue();
-            });
-
-            it('should return true if they have same key/values even if other is DataEntity', () => {
-                const obj = { key1: 1, key2: 2 };
-
-                expect(isSame(obj, new DataEntity(obj))).toBeTrue();
-            });
-
-            it('should return true false when compared to anything else', () => {
-                const obj = { key1: 1, key2: 2 };
-
-                expect(isSame(obj, 'true')).toBeFalse();
-                expect(isSame(obj, null)).toBeFalse();
-                expect(isSame(obj, [1, 2])).toBeFalse();
-                expect(isSame(obj, [obj])).toBeFalse();
-            });
-        });
-
-        describe('when other values other than arrays and objects', () => {
-            it('should true if they are the same', () => {
-                expect(isSame(null, null)).toBeTrue();
-                expect(isSame(undefined, undefined)).toBeTrue();
-                expect(isSame(NaN, NaN)).toBeTrue();
-
-                expect(isSame('true', 'true')).toBeTrue();
-                expect(isSame('true', true)).toBeFalse();
-
-                expect(isSame(3, 3)).toBeTrue();
-                expect(isSame(3, 324)).toBeFalse();
-
-                expect(isSame(false, null)).toBeFalse();
-                expect(isSame(false, undefined)).toBeFalse();
-                expect(isSame(undefined, null)).toBeFalse();
-            });
-        });
-
-        describe('when given an array', () => {
-            it('should true if they are the same, order matters', () => {
-                expect(isSame([1, 2, 3], [1, 2, 3])).toBeTrue();
-                expect(isSame([1, 2, 3], [1, 2, undefined, 3])).toBeFalse();
-                expect(isSame([1, 2, 3], [1, 3, 2])).toBeFalse();
-
-                expect(isSame(['hello'], ['hello'])).toBeTrue();
-
-                expect(isSame(['hello', 3], ['hello', 3])).toBeTrue();
-
-                expect(isSame(['hello'], ['hello'])).toBeTrue();
-                expect(isSame([{ some: 'obj' }], [{ some: 'obj' }])).toBeTrue();
             });
         });
     });
