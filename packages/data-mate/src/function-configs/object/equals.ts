@@ -1,4 +1,4 @@
-import { isSame } from '@terascope/utils';
+import { isDeepEqual } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
@@ -15,7 +15,7 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
     category: FunctionDefinitionCategory.OBJECT,
     description: 'Checks to see if input matches the value',
     create({ value }) {
-        return (input: unknown) => isSame(input, value);
+        return (input: unknown) => isDeepEqual(input, value);
     },
     accepts: [],
     argument_schema: {

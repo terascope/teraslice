@@ -3,7 +3,7 @@ import {
     has,
     get,
     toString,
-    isSame
+    isDeepEqual
 } from '@terascope/utils';
 import SchemaCore, { OpType } from './core/schema-core';
 import {
@@ -82,7 +82,7 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
 
             for (const [key, value] of Object.entries(apiConfig)) {
                 const configVal = get(config, key);
-                if (has(config, key) && !isSame(configVal, value)) {
+                if (has(config, key) && !isDeepEqual(configVal, value)) {
                     mixedValues[key] = [toString(configVal), toString(value)];
                 }
             }
