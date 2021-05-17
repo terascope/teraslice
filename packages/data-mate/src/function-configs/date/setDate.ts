@@ -1,0 +1,70 @@
+import { FieldType } from '@terascope/types';
+import { setDate, isInteger, inNumberRange } from '@terascope/utils';
+import {
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+} from '../interfaces';
+
+export const setDateConfig: FieldTransformConfig<{ date: number }> = {
+    name: 'setDate',
+    type: FunctionDefinitionType.FIELD_TRANSFORM,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    category: FunctionDefinitionCategory.DATE,
+    description: 'Set the seconds of the input date',
+    examples: [
+        {
+            args: { date: 12 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: '2021-05-14T20:45:30.000Z',
+            output: new Date('2021-05-12T20:45:39.000Z')
+        },
+        {
+            args: { date: 22 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: new Date('2021-05-14T20:45:30.091Z'),
+            output: new Date('2021-05-22T20:45:30.091Z')
+        },
+        {
+            args: { date: 1 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 1715472000000,
+            output: new Date('2024-05-01T00:00:00.000Z')
+        }
+    ],
+    create({ date }: { date: number }) {
+        return (input: unknown) => setDate(input, date);
+    },
+    argument_schema: {
+        date: {
+            type: FieldType.Number,
+            description: 'Value to set date to, must be between 0 and 23'
+        }
+    },
+    validate_arguments: ({ date }: { date: number}) => {
+        if (!isInteger(date)
+            || !inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
+            throw Error('date value must be an integer between 1 and 31');
+        }
+    },
+    required_arguments: ['date'],
+    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    output_type({ field_config }) {
+        return {
+            field_config: {
+                ...field_config,
+                type: FieldType.Date
+            }
+        };
+    }
+};
