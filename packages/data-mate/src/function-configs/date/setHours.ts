@@ -9,7 +9,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input date',
+    description: 'Set the hours of the input date',
     examples: [
         {
             args: { hours: 12 },
@@ -48,13 +48,13 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
     argument_schema: {
         hours: {
             type: FieldType.Number,
-            description: 'Value to set hours to, must be between 0 and 23'
+            description: 'Value to set hours to, must be between 0 and 59'
         }
     },
-    validate_arguments: ({ hours }: { hours: number}) => {
+    validate_arguments: ({ hours }) => {
         if (!isInteger(hours)
-            || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
-            throw Error('hours value must be an integer between 0 and 23');
+            || !inNumberRange(hours, { min: 0, max: 59, inclusive: true })) {
+            throw Error('Invalue argument "hours", must be an integer between 0 and 59');
         }
     },
     required_arguments: ['hours'],

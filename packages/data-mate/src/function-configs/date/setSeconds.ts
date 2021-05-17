@@ -51,10 +51,10 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             description: 'Value to set seconds to, must be between 0 and 59'
         }
     },
-    validate_arguments: ({ seconds }: { seconds: number}) => {
+    validate_arguments: ({ seconds }) => {
         if (!isInteger(seconds)
             || !inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
-            throw Error('seconds value must be an integer between 0 and 59');
+            throw Error('Invalid arguments "seconds", must be an integer between 0 and 59');
         }
     },
     required_arguments: ['seconds'],

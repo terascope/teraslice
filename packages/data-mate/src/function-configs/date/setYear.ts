@@ -9,7 +9,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input year',
+    description: 'Set the year of the input date',
     examples: [
         {
             args: { year: 2024 },
@@ -51,9 +51,9 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             description: 'Value to set year to, must be an integer'
         }
     },
-    validate_arguments: ({ year }: { year: number}) => {
+    validate_arguments: ({ year }) => {
         if (!isInteger(year)) {
-            throw Error('year value must be an integer');
+            throw Error('Invalid argument "year", must be an integer');
         }
     },
     required_arguments: ['year'],

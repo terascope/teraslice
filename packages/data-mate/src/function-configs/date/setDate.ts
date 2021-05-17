@@ -9,7 +9,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input date',
+    description: 'Set the day of the month of the input date',
     examples: [
         {
             args: { date: 12 },
@@ -48,13 +48,13 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
     argument_schema: {
         date: {
             type: FieldType.Number,
-            description: 'Value to set date to, must be between 0 and 23'
+            description: 'Value to set day of the month to, must be between 0 and 31'
         }
     },
-    validate_arguments: ({ date }: { date: number}) => {
+    validate_arguments: ({ date }) => {
         if (!isInteger(date)
             || !inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
-            throw Error('date value must be an integer between 1 and 31');
+            throw Error('Invalid argument "date", must be an integer between 1 and 31');
         }
     },
     required_arguments: ['date'],

@@ -9,7 +9,7 @@ export const setMonthConfig: FieldTransformConfig<{ month: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input month',
+    description: 'Set the month of the input month',
     examples: [
         {
             args: { month: 12 },
@@ -48,13 +48,13 @@ export const setMonthConfig: FieldTransformConfig<{ month: number }> = {
     argument_schema: {
         month: {
             type: FieldType.Number,
-            description: 'Value to set month to, must be between 0 and 23'
+            description: 'Value to set month to, must be between 1 and 12'
         }
     },
-    validate_arguments: ({ month }: { month: number}) => {
+    validate_arguments: ({ month }) => {
         if (!isInteger(month)
             || !inNumberRange(month, { min: 1, max: 12, inclusive: true })) {
-            throw Error('month value must be an integer between 1 and 12');
+            throw Error('Invalid argument "month", must be an integer between 1 and 12');
         }
     },
     required_arguments: ['month'],

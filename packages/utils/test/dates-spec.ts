@@ -296,6 +296,7 @@ describe('date utils', () => {
             ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z').getTime()],
             [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z').getTime()],
+            ['2021-02-14T00:00:00.000Z', 30, new Date('2021-03-02T00:00:00.000Z').getTime()],
         ])('for input %p set the date to %p and return %p', (input, date, expected) => {
             expect(setDate(input, date)).toEqual(expected);
         });

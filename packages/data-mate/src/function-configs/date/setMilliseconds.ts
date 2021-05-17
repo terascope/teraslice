@@ -51,10 +51,10 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             description: 'Value to set milliseconds to, must be between 0 and 999'
         }
     },
-    validate_arguments: ({ milliseconds }: { milliseconds: number}) => {
+    validate_arguments: ({ milliseconds }) => {
         if (!isInteger(milliseconds)
             || !inNumberRange(milliseconds, { min: 0, max: 999, inclusive: true })) {
-            throw Error('milliseconds value must be an integer between 0 and 999');
+            throw Error('Invalid argument "milliseconds", must be an integer between 0 and 999');
         }
     },
     required_arguments: ['milliseconds'],

@@ -9,7 +9,7 @@ export const setMinutesConfig: FieldTransformConfig<{ minutes: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input date',
+    description: 'Set the minutes of the input date',
     examples: [
         {
             args: { minutes: 12 },
@@ -51,10 +51,10 @@ export const setMinutesConfig: FieldTransformConfig<{ minutes: number }> = {
             description: 'Value to set minutes to, must be between 0 and 59'
         }
     },
-    validate_arguments: ({ minutes }: { minutes: number}) => {
+    validate_arguments: ({ minutes }) => {
         if (!isInteger(minutes)
             || !inNumberRange(minutes, { min: 0, max: 59, inclusive: true })) {
-            throw Error('minutes value must be an integer between 0 and 59');
+            throw Error('Invalid argument "minutes", must be an integer between 0 and 59');
         }
     },
     required_arguments: ['minutes'],
