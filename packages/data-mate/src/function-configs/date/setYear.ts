@@ -20,7 +20,6 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
             output: new Date('2024-05-14T20:45:30.000Z').getTime(),
-            serialize_output: toISO8061
         },
         {
             args: { year: 1984 },
@@ -31,7 +30,6 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
             output: new Date('1984-05-14T20:45:30.091Z').getTime(),
-            serialize_output: toISO8061
         },
         {
             args: { year: 2001 },
@@ -42,7 +40,6 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: 1715472000000,
             output: new Date('2001-05-12T00:00:00.000Z').getTime(),
-            serialize_output: toISO8061
         }
     ],
     create({ year }: { year: number }) {
@@ -67,7 +64,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Date
+                type: FieldType.Number
             },
         };
     }

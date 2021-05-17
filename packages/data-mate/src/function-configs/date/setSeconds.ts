@@ -19,7 +19,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-14T20:45:12.000Z')
+            output: new Date('2021-05-14T20:45:12.000Z').getTime()
         },
         {
             args: { seconds: 22 },
@@ -29,7 +29,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-14T20:45:22.091Z')
+            output: new Date('2021-05-14T20:45:22.091Z').getTime()
         },
         {
             args: { seconds: 1 },
@@ -39,7 +39,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: 1715472000000,
-            output: new Date('2024-05-12T00:00:01.000Z')
+            output: new Date('2024-05-12T00:00:01.000Z').getTime()
         }
     ],
     create({ seconds }: { seconds: number }) {
@@ -63,7 +63,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Date
+                type: FieldType.Number
             }
         };
     }

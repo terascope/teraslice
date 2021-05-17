@@ -19,7 +19,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-14T20:45:30.392Z')
+            output: new Date('2021-05-14T20:45:30.392Z').getTime()
         },
         {
             args: { milliseconds: 483 },
@@ -29,7 +29,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-14T20:45:30.483Z')
+            output: new Date('2021-05-14T20:45:30.483Z').getTime()
         },
         {
             args: { milliseconds: 1 },
@@ -39,7 +39,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: 1715472000000,
-            output: new Date('2024-05-12T00:00:00.001Z')
+            output: new Date('2024-05-12T00:00:00.001Z').getTime()
         }
     ],
     create({ milliseconds }: { milliseconds: number }) {
@@ -63,7 +63,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Date
+                type: FieldType.Number
             }
         };
     }

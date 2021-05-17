@@ -226,9 +226,9 @@ describe('date utils', () => {
 
     describe('setMilliseconds', () => {
         test.each([
-            ['2021-05-14T20:45:30.000Z', 392, new Date('2021-05-14T20:45:30.392Z')],
-            ['04/18/2022 UTC', 858, new Date('2022-04-18T00:00:00.858Z')],
-            [1621026049859, 15, new Date('2021-05-14T21:00:49.015Z')]
+            ['2021-05-14T20:45:30.000Z', 392, new Date('2021-05-14T20:45:30.392Z').getTime()],
+            ['04/18/2022 UTC', 858, new Date('2022-04-18T00:00:00.858Z').getTime()],
+            [1621026049859, 15, new Date('2021-05-14T21:00:49.015Z').getTime()]
         ])('for input %p set the milliseconds to %p and return %p', (input, milliseconds, expected) => {
             expect(setMilliseconds(input, milliseconds)).toEqual(expected);
         });
@@ -251,9 +251,9 @@ describe('date utils', () => {
 
     describe('setSeconds', () => {
         test.each([
-            ['2021-05-14T20:45:00.000Z', 59, new Date('2021-05-14T20:45:59.000Z')],
-            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:00:54.000Z')],
-            [1621026000000, 15, new Date('2021-05-14T21:00:15.000Z')],
+            ['2021-05-14T20:45:00.000Z', 59, new Date('2021-05-14T20:45:59.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:00:54.000Z').getTime()],
+            [1621026000000, 15, new Date('2021-05-14T21:00:15.000Z').getTime()],
         ])('for input %p set the seconds to %p and return %p', (input, seconds, expected) => {
             expect(setSeconds(input, seconds)).toEqual(expected);
         });
@@ -266,10 +266,10 @@ describe('date utils', () => {
 
     describe('setMinutes', () => {
         test.each([
-            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T00:12:00.000Z')],
-            ['2021-05-14T00:32:00.000Z', 0, new Date('2021-05-14T00:00:00.000Z')],
-            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:54:00.000Z')],
-            [1621026000000, 59, new Date('2021-05-14T21:59:00.000Z')],
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T00:12:00.000Z').getTime()],
+            ['2021-05-14T00:32:00.000Z', 0, new Date('2021-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:54:00.000Z').getTime()],
+            [1621026000000, 59, new Date('2021-05-14T21:59:00.000Z').getTime()],
         ])('for input %p set the minutes to %p and return %p', (input, minutes, expected) => {
             expect(setMinutes(input, minutes)).toEqual(expected);
         });
@@ -282,10 +282,10 @@ describe('date utils', () => {
 
     describe('setHours', () => {
         test.each([
-            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T12:00:00.000Z')],
-            ['2021-05-14T00:00:00.000Z', 52, new Date('2021-05-16T04:00:00.000Z')],
-            ['04/18/2022 UTC', 12, new Date('2022-04-18T12:00:00.000Z')],
-            [1621026000000, 12, new Date('2021-05-14T12:00:00.000Z')],
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
+            ['2021-05-14T00:00:00.000Z', 52, new Date('2021-05-16T04:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-18T12:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
         ])('for input %p set the hours to %p and return %p', (input, hours, expected) => {
             expect(setHours(input, hours)).toEqual(expected);
         });
@@ -293,9 +293,9 @@ describe('date utils', () => {
 
     describe('setDate', () => {
         test.each([
-            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z')],
-            ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z')],
-            [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z')],
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z').getTime()],
         ])('for input %p set the date to %p and return %p', (input, date, expected) => {
             expect(setDate(input, date)).toEqual(expected);
         });
@@ -313,9 +313,9 @@ describe('date utils', () => {
 
     describe('setMonth', () => {
         test.each([
-            ['2021-05-14T00:00:00.000Z', 1, new Date('2021-01-14T00:00:00.000Z')],
-            ['04/18/2022 UTC', 12, new Date('2022-12-18T00:00:00.000Z')],
-            [1621026000000, 12, new Date('2021-12-14T21:00:00.000Z')],
+            ['2021-05-14T00:00:00.000Z', 1, new Date('2021-01-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-12-18T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-12-14T21:00:00.000Z').getTime()],
         ])('for input %p set the month to %p and return %p', (input, month, expected) => {
             expect(setMonth(input, month)).toEqual(expected);
         });
@@ -333,10 +333,10 @@ describe('date utils', () => {
 
     describe('setYear', () => {
         test.each([
-            ['2021-05-14T00:00:00.000Z', 1984, new Date('1984-05-14T00:00:00.000Z')],
-            ['2021-05-14T00:00:00.000Z', 10042, new Date('+010042-05-14T00:00:00.000Z')],
-            ['04/18/2022 UTC', 12, new Date('0012-04-18T00:00:00.000Z')],
-            [1621026000000, 2023, new Date('2023-05-14T21:00:00.000Z')],
+            ['2021-05-14T00:00:00.000Z', 1984, new Date('1984-05-14T00:00:00.000Z').getTime()],
+            ['2021-05-14T00:00:00.000Z', 10042, new Date('+010042-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('0012-04-18T00:00:00.000Z').getTime()],
+            [1621026000000, 2023, new Date('2023-05-14T21:00:00.000Z').getTime()],
         ])('for input %p set the year to %p and return %p', (input, year, expected) => {
             expect(setYear(input, year)).toEqual(expected);
         });

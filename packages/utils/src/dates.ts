@@ -620,71 +620,71 @@ export function isBetween(input: unknown, args: {
     return false;
 }
 
-export function setMilliseconds(input: unknown, ms: number): Date {
+export function setMilliseconds(input: unknown, ms: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(ms) && inNumberRange(ms, { min: 0, max: 999, inclusive: true })) {
-        return new Date(inputDate.setUTCMilliseconds(ms));
+        return inputDate.setUTCMilliseconds(ms);
     }
 
     throw Error(`milliseconds value must be an integer between 0 and 999, received ${ms}`);
 }
 
-export function setSeconds(input: unknown, seconds: number): Date {
+export function setSeconds(input: unknown, seconds: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(seconds) && inNumberRange(seconds, { min: 0, max: 59, inclusive: true})) {
-        return new Date(inputDate.setUTCSeconds(seconds));
+        return inputDate.setUTCSeconds(seconds);
     }
 
     throw Error(`seconds value must be an integer between 0 and 59, received ${seconds}`);
 }
 
-export function setMinutes(input: unknown, minutes: number): Date {
+export function setMinutes(input: unknown, minutes: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(minutes) && inNumberRange(minutes, { min: 0, max: 59, inclusive: true })) {
-        return new Date(inputDate.setUTCMinutes(minutes));
+        return inputDate.setUTCMinutes(minutes);
     }
 
     throw Error(`minutes value must be an integer between 0 and 59, received ${minutes}`);
 }
 
-export function setHours(input: unknown, hours: number): Date {
+export function setHours(input: unknown, hours: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(hours) && inNumberRange(hours, { min: 0, max: 59, inclusive: true })) {
-        return new Date(inputDate.setUTCHours(hours));
+        return inputDate.setUTCHours(hours);
     }
 
     throw Error(`hours value must be an integer between 0 and 59, received ${hours}`);
 }
 
-export function setDate(input: unknown, date: number): Date {
+export function setDate(input: unknown, date: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(date) && inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
-        return new Date(inputDate.setUTCDate(date));
+        return inputDate.setUTCDate(date);
     }
 
     throw Error(`date value must be an integer between 1 and 31, received ${date}`);
 }
 
-export function setMonth(input: unknown, month: number): Date {
+export function setMonth(input: unknown, month: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(month) && inNumberRange(month, { min: 1, max: 12, inclusive: true })) {
-        return new Date(inputDate.setUTCMonth(month - 1));
+        return inputDate.setUTCMonth(month - 1);
     }
 
     throw Error(`month value must be an integer between 1 and 12, received ${month}`);
 }
 
-export function setYear(input: unknown, year: number): Date {
+export function setYear(input: unknown, year: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
     if (isInteger(year)) {
-        return new Date(inputDate.setUTCFullYear(year));
+        return inputDate.setUTCFullYear(year);
     }
 
     throw Error(`year value must be an integer, received ${year}`);
