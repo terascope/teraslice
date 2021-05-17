@@ -6,6 +6,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces';
+import { bufferEncode } from './encode-utils';
 
 export const encodeBase64Config: FieldTransformConfig = {
     name: 'encodeBase64',
@@ -30,7 +31,7 @@ export const encodeBase64Config: FieldTransformConfig = {
         }
     ],
     create() {
-        return (input: unknown) => encodeBase64(input as string);
+        return bufferEncode('base64');
     },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
@@ -45,7 +46,3 @@ export const encodeBase64Config: FieldTransformConfig = {
         };
     },
 };
-
-export function encodeBase64(input: string): string {
-    return Buffer.from(input as string).toString('base64');
-}

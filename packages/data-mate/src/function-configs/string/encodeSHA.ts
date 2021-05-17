@@ -1,4 +1,4 @@
-import crypto, { BinaryToTextEncoding } from 'crypto';
+import { BinaryToTextEncoding } from 'crypto';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,14 +7,15 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces';
+import { cryptoEncode } from './encode-utils';
 
 export interface EncodeSHAConfig {
     hash?: string;
-    digest?: string;
+    digest?: BinaryToTextEncoding;
 }
 
 const hashDefault = 'sha256';
-const digestDefault = 'hex';
+const digestDefault: BinaryToTextEncoding = 'hex';
 
 export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
     name: 'encodeSHA',
@@ -53,8 +54,8 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
             output: '5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U=',
         }
     ],
-    create({ hash = hashDefault, digest = digestDefault } = {}) {
-        return (input: unknown) => encodeSHA(input, hash, digest as BinaryToTextEncoding);
+    create({ hash = hashDefault, digest = digestDefault }) {
+        return cryptoEncode(hash, digest);
     },
     accepts: [FieldType.String],
     argument_schema: {
@@ -69,6 +70,12 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
             description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
         }
     },
+    validate_arguments({ hash }) {
+        if (hash == null) return;
+        if (!hash.startsWith('sha')) {
+            throw new TypeError(`Invalid hash argument "${hash}" given to encodeSHA, must be a valid sha algorithm`);
+        }
+    },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config, child_config } = inputConfig;
 
@@ -81,11 +88,3 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
         };
     }
 };
-
-export function encodeSHA(
-    input: unknown,
-    hash: string = hashDefault,
-    digest: BinaryToTextEncoding = digestDefault
-): string {
-    return crypto.createHash(hash).update(input as string).digest(digest);
-}
