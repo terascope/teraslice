@@ -26,6 +26,7 @@ import { isPostalCodeConfig } from './isPostalCode';
 import { isStringConfig } from './isString';
 import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
+import { joinConfig } from './join';
 import { reverseConfig } from './reverse';
 import { splitConfig } from './split';
 import { startsWithConfig } from './startsWith';
@@ -72,6 +73,7 @@ export const stringRepository = {
     isString: isStringConfig,
     isURL: isURLConfig,
     isUUID: isUUIDConfig,
+    join: joinConfig,
     reverse: reverseConfig,
     split: splitConfig,
     startsWith: startsWithConfig,
