@@ -60,7 +60,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"'
         }
     },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

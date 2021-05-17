@@ -3600,9 +3600,9 @@ hello: "i am an object" => isString() // outputs null
 
 #### Arguments
 
- - **hash**:  `String` - Which has hashing algorithm to use, defaults to sha256
+ - **hash**:  `String` - Which hashing algorithm to use, defaults to sha256
 
- - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
 #### Accepts
 
@@ -3627,7 +3627,7 @@ hashing algorithm defaults to sha256, and digest defaults to hex
 
 #### Arguments
 
- - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
 #### Accepts
 

@@ -62,12 +62,12 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
         hash: {
             type: FieldType.String,
             array: false,
-            description: 'Which has hashing algorithm to use, defaults to sha256'
+            description: 'Which hashing algorithm to use, defaults to sha256'
         },
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"'
         }
     },
     validate_arguments({ hash }) {

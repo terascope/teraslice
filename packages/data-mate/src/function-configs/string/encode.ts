@@ -101,12 +101,12 @@ export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
         algo: {
             type: FieldType.String,
             array: false,
-            description: 'Which has hashing algorithm to use'
+            description: 'Which hashing algorithm to use'
         },
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which has digest to use, may be set to either "base64" or "hex", defaults to "hex". '
+            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex". '
             + 'Only used when algorithm is not base64, hex, or url'
         }
     },
