@@ -633,7 +633,7 @@ export function setMilliseconds(input: unknown, ms: number): number {
 export function setSeconds(input: unknown, seconds: number): number {
     const inputDate = getValidDateOrThrow(input as any);
 
-    if (isInteger(seconds) && inNumberRange(seconds, { min: 0, max: 59, inclusive: true})) {
+    if (isInteger(seconds) && inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
         return inputDate.setUTCSeconds(seconds);
     }
 

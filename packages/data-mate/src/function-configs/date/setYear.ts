@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { setYear, isInteger, toISO8061 } from '@terascope/utils';
+import { setYear, isInteger } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
