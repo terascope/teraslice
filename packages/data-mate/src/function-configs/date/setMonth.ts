@@ -48,7 +48,7 @@ export const setMonthConfig: FieldTransformConfig<{ month: number }> = {
         }
     ],
     create({ month }: { month: number }) {
-        return (input: unknown) => setMonth(month)(input);
+        return setMonth(month);
     },
     argument_schema: {
         month: {

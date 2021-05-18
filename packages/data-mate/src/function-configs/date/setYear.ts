@@ -46,7 +46,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
         }
     ],
     create({ year }: { year: number }) {
-        return (input: unknown) => setYear(year)(input);
+        return setYear(year);
     },
     argument_schema: {
         year: {

@@ -48,7 +48,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
         }
     ],
     create({ hours }: { hours: number }) {
-        return (input: unknown) => setHours(hours)(input);
+        return setHours(hours);
     },
     argument_schema: {
         hours: {

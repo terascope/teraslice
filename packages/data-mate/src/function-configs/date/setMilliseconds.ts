@@ -48,7 +48,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
         }
     ],
     create({ milliseconds }: { milliseconds: number }) {
-        return (input: unknown) => setMilliseconds(milliseconds)(input);
+        return setMilliseconds(milliseconds);
     },
     argument_schema: {
         milliseconds: {

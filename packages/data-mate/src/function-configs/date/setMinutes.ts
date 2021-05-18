@@ -48,7 +48,7 @@ export const setMinutesConfig: FieldTransformConfig<{ minutes: number }> = {
         }
     ],
     create({ minutes }: { minutes: number }) {
-        return (input: unknown) => setMinutes(minutes)(input);
+        return setMinutes(minutes);
     },
     argument_schema: {
         minutes: {

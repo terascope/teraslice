@@ -48,7 +48,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
         }
     ],
     create({ date }: { date: number }) {
-        return (input: unknown) => setDate(date)(input);
+        return setDate(date);
     },
     argument_schema: {
         date: {
