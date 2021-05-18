@@ -144,6 +144,9 @@ function logAssets() {
     signale.info(`Autoload asset bundles: ${assets.join(', ')}`);
 }
 
+/**
+ * @todo change this to not download both the bundled and non-bundled versions
+*/
 async function downloadAssets() {
     await Promise.all(bundles.map(({ repo }) => downloadRelease(
         'terascope',
