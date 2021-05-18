@@ -1,14 +1,12 @@
 import 'jest-extended';
 import {
     GeoPoint, GeoPointInput, GeoShape, GeoShapeType,
-    ESGeoShapeType, JoinGeoShape, GeoInput
+    ESGeoShapeType, JoinGeoShape
 } from '@terascope/types';
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON, geoDisjoint,
-    geoIntersects, geoIntersectsFP,
-    geoDisjointFP
+    toGeoJSON,
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -257,169 +255,6 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, input, output) => {
             expect(toGeoJSON(input)).toEqual(output);
-        });
-    });
-
-    type GeoIntersectsCase = [
-        msg: string,
-        firstGeo: GeoInput,
-        secondGeo: GeoInput,
-        output: boolean
-    ];
-    const geoIntersectsCase: GeoIntersectsCase[] = [
-        [
-            'compare polygon to polygon that is not intersect',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-            },
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-            },
-            true
-        ],
-        [
-            'compare polygon to polygon that intersects',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-            },
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
-            },
-            true
-        ],
-        [
-            'compare polygon to multiPolygon that intersects',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-            },
-            {
-                type: GeoShapeType.MultiPolygon,
-                coordinates: [
-                    [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                    ],
-                    [
-                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                    ]
-                ]
-            },
-            true
-        ],
-        [
-            'compare polygon to point',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-            },
-            {
-                type: GeoShapeType.Point,
-                coordinates: [20, 20]
-            },
-            true
-        ],
-        [
-            'compare polygon to point',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-            },
-            '20, 20',
-            true
-        ],
-    ];
-
-    describe('->geoIntersects', () => {
-        test.each(geoIntersectsCase)('should %s', (_msg, firstGeo, secondGeo, output) => {
-            expect(geoIntersects(firstGeo, secondGeo)).toEqual(output);
-        });
-    });
-
-    describe('->geoIntersectsFP', () => {
-        test.each(geoIntersectsCase)('should %s', (_msg, firstGeo, secondGeo, output) => {
-            expect(geoIntersectsFP(secondGeo)(firstGeo)).toEqual(output);
-        });
-    });
-
-    type GeoDisjointCase = [
-        msg: string,
-        firstGeo: GeoInput,
-        secondGeo: GeoInput,
-        output: boolean
-    ];
-    const geoDisjointTestCases: GeoDisjointCase[] = [
-        [
-            'compare polygon to polygon that is not disjointed',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-            },
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-            },
-            false
-        ],
-        [
-            'compare polygon to polygon that is disjointed',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
-            },
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
-            },
-            true
-        ],
-        [
-            'compare polygon to point',
-            {
-                type: GeoShapeType.Polygon,
-                coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
-            },
-            {
-                type: GeoShapeType.Point,
-                coordinates: [20, 20]
-            },
-            true
-        ],
-        [
-            'compare multipolygon with holes to point in the hole',
-            {
-                type: GeoShapeType.MultiPolygon,
-                coordinates: [
-                    [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                    ],
-                    [
-                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
-                    ]
-                ]
-            },
-            {
-                type: GeoShapeType.Point,
-                coordinates: [30, 30]
-            },
-            true
-        ],
-    ];
-
-    describe('->geoDisjoint', () => {
-        test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
-            expect(geoDisjoint(firstGeo, secondGeo)).toEqual(output);
-        });
-    });
-
-    describe('->geoDisjointFP', () => {
-        test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
-            expect(geoDisjointFP(secondGeo)(firstGeo)).toEqual(output);
         });
     });
 });

@@ -8,6 +8,7 @@ type GeoContainsCase = [
     secondGeo: GeoInput,
     output: boolean
 ];
+
 const geoContainsTestCases: GeoContainsCase[] = [
     [
         'point contains point if they are the same',
@@ -534,7 +535,7 @@ describe('->geoContains', () => {
     });
 });
 
-fdescribe('->geoContainsFP', () => {
+describe('->geoContainsFP', () => {
     test.each(geoContainsTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
         expect(geoContainsFP(secondGeo)(firstGeo)).toEqual(output);
     });

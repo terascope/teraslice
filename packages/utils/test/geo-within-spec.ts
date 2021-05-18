@@ -2,12 +2,12 @@ import 'jest-extended';
 import { GeoShapeType, GeoInput } from '@terascope/types';
 import { geoWithinFP, geoWithin } from '../src/geo';
 
-    type WithinCase = [
-        msg: string,
-        firstGeo: GeoInput,
-        secondGeo: GeoInput,
-        output: boolean
-    ];
+type WithinCase = [
+    msg: string,
+    firstGeo: GeoInput,
+    secondGeo: GeoInput,
+    output: boolean
+];
 
 const withinTestCases: WithinCase[] = [
     [
