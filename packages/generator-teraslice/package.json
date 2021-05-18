@@ -34,7 +34,8 @@
         "@types/lodash": "^4.14.168"
     },
     "engines": {
-        "npm": ">=8.0.0"
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
     },
     "publishConfig": {
         "access": "public",

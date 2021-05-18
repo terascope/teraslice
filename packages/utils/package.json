@@ -44,6 +44,10 @@
         "@types/lodash": "^4.14.168",
         "benchmark": "^2.1.4"
     },
+    "engines": {
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"

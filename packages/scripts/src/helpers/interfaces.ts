@@ -29,6 +29,10 @@ export type PackageInfo = {
     peerDependencies: {
         [pkg: string]: string;
     };
+    engines?: {
+        node?: string;
+        yarn?: string;
+    };
 };
 
 export enum Service {
@@ -77,6 +81,10 @@ export type RootPackageInfo = {
         };
         npm: {
             registry: string;
+        };
+        engines: {
+            node: string;
+            yarn: string;
         };
         /**
          * The path to the javascript file to be called after

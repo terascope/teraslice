@@ -25,6 +25,10 @@
     },
     "dependencies": {},
     "devDependencies": {},
+    "engines": {
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"

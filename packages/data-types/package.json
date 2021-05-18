@@ -39,7 +39,8 @@
         "@types/yargs": "^16.0.1"
     },
     "engines": {
-        "node": ">=12.20.0"
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
     },
     "publishConfig": {
         "access": "public",

@@ -59,7 +59,11 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             },
             npm: {
                 registry: NPM_DEFAULT_REGISTRY
-            }
+            },
+            engines: {
+                node: '^12.20.0 || >=14.17.0',
+                yarn: '>=1.16.0'
+            },
         },
     } as Partial<RootPackageInfo>));
 }
