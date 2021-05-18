@@ -1,5 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { setSeconds, isInteger, inNumberRange, toISO8061 } from '@terascope/utils';
+import {
+    setSeconds, isInteger, inNumberRange, toISO8061
+} from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
