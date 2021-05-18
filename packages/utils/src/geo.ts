@@ -531,33 +531,43 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
         const inputFeature = makeGeoFeature(inputGeoEntity);
         if (!inputFeature) return false;
 
-        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            const {
-                polygons: inputPolygons,
-            } = _featureToPolygonAndHoles(inputFeature);
-
-            let withinQueryHole = false;
-
+        if (isGeoShapePoint(inputGeoEntity)) {
             if (hasQueryHoles) {
-                withinQueryHole = queryHoles.some(
-                    (queryHolePolygon) => inputPolygons.some(
-                        (iPoly) => within(iPoly, queryHolePolygon)
-                    )
+                const withinQueryHole = queryHoles.some(
+                    (polygon) => intersect(inputFeature, polygon)
                 );
+                if (withinQueryHole) return false;
             }
 
-            return !withinQueryHole && inputPolygons.every(
-                (iPoly) => queryPolygons.some((polygon) => within(iPoly, polygon))
-            );
+            return queryPolygons.some((polygon) => within(inputFeature, polygon));
         }
 
-        let withinQueryHole = false;
+        const {
+            polygons: inputPolygons,
+            holes: inputHoles
+        } = _featureToPolygonAndHoles(inputFeature);
 
         if (hasQueryHoles) {
-            withinQueryHole = queryHoles.some((polygon) => within(inputFeature, polygon));
+            // holes intersect main body
+            const withinQueryHole = queryHoles.some(
+                (qHole) => {
+                    const bool = intersect(inputFeature, qHole);
+
+                    if (bool && inputHoles.length) {
+                        // if they are equal, then don't immediately falsify
+                        const inner = !inputHoles.some((iPolyHole) => equal(iPolyHole, qHole));
+                        return inner;
+                    }
+                    return bool;
+                }
+            );
+
+            if (withinQueryHole) return false;
         }
 
-        return !withinQueryHole && queryPolygons.some((polygon) => within(inputFeature, polygon));
+        return inputPolygons.every(
+            (iPoly) => queryPolygons.some((qPoly) => within(iPoly, qPoly))
+        );
     };
 }
 
