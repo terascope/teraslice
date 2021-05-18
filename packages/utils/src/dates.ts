@@ -654,8 +654,8 @@ export function setMinutes(minutes: number): (input: unknown) => number {
 }
 
 export function setHours(hours: number):(input: unknown) => number {
-    if (!isInteger(hours) || !inNumberRange(hours, { min: 0, max: 59, inclusive: true })) {
-        throw Error(`hours value must be an integer between 0 and 59, received ${hours}`);
+    if (!isInteger(hours) || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
+        throw Error(`hours value must be an integer between 0 and 23, received ${hours}`);
     }
 
     return function _setHours(input: unknown) {

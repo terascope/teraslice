@@ -53,13 +53,13 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
     argument_schema: {
         hours: {
             type: FieldType.Number,
-            description: 'Value to set hours to, must be between 0 and 59'
+            description: 'Value to set hours to, must be between 0 and 23'
         }
     },
     validate_arguments: ({ hours }) => {
         if (!isInteger(hours)
-            || !inNumberRange(hours, { min: 0, max: 59, inclusive: true })) {
-            throw Error('Invalue argument "hours", must be an integer between 0 and 59');
+            || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
+            throw Error('Invalue argument "hours", must be an integer between 0 and 23');
         }
     },
     required_arguments: ['hours'],

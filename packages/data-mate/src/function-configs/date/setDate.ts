@@ -53,7 +53,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
     argument_schema: {
         date: {
             type: FieldType.Number,
-            description: 'Value to set day of the month to, must be between 0 and 31'
+            description: 'Value to set day of the month to, must be between 1 and 31'
         }
     },
     validate_arguments: ({ date }) => {
