@@ -283,7 +283,6 @@ describe('date utils', () => {
     describe('setHours', () => {
         test.each([
             ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
-            ['2021-05-14T00:00:00.000Z', 52, new Date('2021-05-16T04:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 12, new Date('2022-04-18T12:00:00.000Z').getTime()],
             [1621026000000, 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
         ])('for input %p set the hours to %p and return %p', (input, hours, expected) => {
