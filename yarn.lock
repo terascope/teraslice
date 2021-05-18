@@ -1472,10 +1472,10 @@
     chalk "^4.1.0"
     rxjs "^6.4.0"
 
-"@types/yeoman-generator@*", "@types/yeoman-generator@^4.11.3":
-  version "4.11.4"
-  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-4.11.4.tgz#bc0ff86a5d28cb2c6456ecb3dcef1364ffbc764e"
-  integrity sha512-JB0rxFS8oskkKLALii9y3Tb6DQaLQ/bxBU6nUIAh9e/47T1PvVODfMlj1Hkxrw/rzNhgGOzkG/xiOHL5EsqCag==
+"@types/yeoman-generator@*", "@types/yeoman-generator@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-5.0.0.tgz#23901e4a9199f79719424e7f1d8e40675bfd8b61"
+  integrity sha512-i8BiKEFJR1Fp/THBg4mGTlsRqI9NulyyEizT+d7p4lz91AICYrZZQHWx0lLpUfEXmcLL457wykWXXqJ50J7J5A==
   dependencies:
     "@types/debug" "*"
     "@types/ejs" "*"
