@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.38.1",
+    "version": "0.39.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -28,7 +28,7 @@
         "debug": "^4.3.1"
     },
     "dependencies": {
-        "@terascope/types": "^0.8.0",
+        "@terascope/types": "^0.9.0",
         "debug": "^4.3.1",
         "is-plain-object": "^5.0.0",
         "js-string-escape": "^1.0.1",
