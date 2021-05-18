@@ -1,5 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { setDate, isInteger, inNumberRange } from '@terascope/utils';
+import {
+    setDate, isInteger, inNumberRange, toISO8061
+} from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
@@ -19,7 +21,8 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-12T20:45:30.000Z').getTime()
+            output: new Date('2021-05-12T20:45:30.000Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { date: 22 },
@@ -29,7 +32,8 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             },
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-22T20:45:30.091Z').getTime()
+            output: new Date('2021-05-22T20:45:30.091Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { date: 1 },
@@ -39,11 +43,12 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             },
             field: 'testField',
             input: 1715472000000,
-            output: new Date('2024-05-01T00:00:00.000Z').getTime()
+            output: new Date('2024-05-01T00:00:00.000Z').getTime(),
+            serialize_output: toISO8061
         }
     ],
     create({ date }: { date: number }) {
-        return (input: unknown) => setDate(input, date);
+        return (input: unknown) => setDate(date)(input);
     },
     argument_schema: {
         date: {
@@ -63,7 +68,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number
+                type: FieldType.Date
             }
         };
     }

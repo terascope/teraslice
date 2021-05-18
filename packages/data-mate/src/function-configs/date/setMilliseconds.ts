@@ -1,5 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { setMilliseconds, isInteger, inNumberRange } from '@terascope/utils';
+import {
+    setMilliseconds, isInteger, inNumberRange, toISO8061
+} from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
@@ -19,7 +21,8 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-14T20:45:30.392Z').getTime()
+            output: new Date('2021-05-14T20:45:30.392Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { milliseconds: 483 },
@@ -29,7 +32,8 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-14T20:45:30.483Z').getTime()
+            output: new Date('2021-05-14T20:45:30.483Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { milliseconds: 1 },
@@ -39,11 +43,12 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             },
             field: 'testField',
             input: 1715472000000,
-            output: new Date('2024-05-12T00:00:00.001Z').getTime()
+            output: new Date('2024-05-12T00:00:00.001Z').getTime(),
+            serialize_output: toISO8061
         }
     ],
     create({ milliseconds }: { milliseconds: number }) {
-        return (input: unknown) => setMilliseconds(input, milliseconds);
+        return (input: unknown) => setMilliseconds(milliseconds)(input);
     },
     argument_schema: {
         milliseconds: {
@@ -63,7 +68,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number
+                type: FieldType.Date
             }
         };
     }
