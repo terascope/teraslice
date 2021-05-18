@@ -89,7 +89,7 @@ const geoDisjointTestCases: GeoDisjointCase[] = [
         false
     ],
     [
-        'point is separate from polygon with holes (in hole)',
+        'point is separate from polygon with holes (true)',
         {
             type: GeoShapeType.Point,
             coordinates: [30, 30]
