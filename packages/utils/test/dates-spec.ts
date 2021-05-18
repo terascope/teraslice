@@ -9,6 +9,13 @@ import {
     isBefore,
     isAfter,
     isBetween,
+    setMilliseconds,
+    setSeconds,
+    setMinutes,
+    setHours,
+    setDate,
+    setMonth,
+    setYear,
     getMilliseconds,
     getSeconds,
     getMinutes,
@@ -214,6 +221,129 @@ describe('date utils', () => {
             [new Date(1715472000000), new Date(1620764444501), 'new date', false],
         ])('for input %p and start %p and end %p return %p', (input, start, end, expected) => {
             expect(isBetween(input, { start, end })).toEqual(expected);
+        });
+    });
+
+    describe('setMilliseconds', () => {
+        test.each([
+            ['2021-05-14T20:45:30.000Z', 392, new Date('2021-05-14T20:45:30.392Z').getTime()],
+            ['04/18/2022 UTC', 858, new Date('2022-04-18T00:00:00.858Z').getTime()],
+            [1621026049859, 15, new Date('2021-05-14T21:00:49.015Z').getTime()]
+        ])('for input %p set the milliseconds to %p and return %p', (input, milliseconds, expected) => {
+            expect(setMilliseconds(milliseconds)(input)).toEqual(expected);
+        });
+
+        it('should throw if milliseconds value is above 999', () => {
+            expect(() => { setMilliseconds(1000)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received 1000');
+        });
+
+        it('should throw if milliseconds value is negative', () => {
+            expect(() => { setMilliseconds(-232)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received -232');
+        });
+
+        it('should throw if milliseconds value is not an integer', () => {
+            expect(() => { setMilliseconds(12.34)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received 12.34');
+        });
+    });
+
+    describe('setSeconds', () => {
+        test.each([
+            ['2021-05-14T20:45:00.000Z', 59, new Date('2021-05-14T20:45:59.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:00:54.000Z').getTime()],
+            [1621026000000, 15, new Date('2021-05-14T21:00:15.000Z').getTime()],
+        ])('for input %p set the seconds to %p and return %p', (input, seconds, expected) => {
+            expect(setSeconds(seconds)(input)).toEqual(expected);
+        });
+
+        it('should throw if seconds value is above 59', () => {
+            expect(() => { setSeconds(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('seconds value must be an integer between 0 and 59, received 84');
+        });
+    });
+
+    describe('setMinutes', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T00:12:00.000Z').getTime()],
+            ['2021-05-14T00:32:00.000Z', 0, new Date('2021-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:54:00.000Z').getTime()],
+            [1621026000000, 59, new Date('2021-05-14T21:59:00.000Z').getTime()],
+        ])('for input %p set the minutes to %p and return %p', (input, minutes, expected) => {
+            expect(setMinutes(minutes)(input)).toEqual(expected);
+        });
+
+        it('should throw if minutes value is above 59', () => {
+            expect(() => { setMinutes(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('minutes value must be an integer between 0 and 59, received 84');
+        });
+    });
+
+    describe('setHours', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-18T12:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
+        ])('for input %p set the hours to %p and return %p', (input, hours, expected) => {
+            expect(setHours(hours)(input)).toEqual(expected);
+        });
+    });
+
+    describe('setDate', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z').getTime()],
+            ['2021-02-14T00:00:00.000Z', 30, new Date('2021-03-02T00:00:00.000Z').getTime()],
+        ])('for input %p set the date to %p and return %p', (input, date, expected) => {
+            expect(setDate(date)(input)).toEqual(expected);
+        });
+
+        it('should throw if date value is above 31', () => {
+            expect(() => { setDate(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('date value must be an integer between 1 and 31, received 84');
+        });
+
+        it('should throw if date value is below 1', () => {
+            expect(() => { setDate(0)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('date value must be an integer between 1 and 31, received 0');
+        });
+    });
+
+    describe('setMonth', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 1, new Date('2021-01-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-12-18T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-12-14T21:00:00.000Z').getTime()],
+        ])('for input %p set the month to %p and return %p', (input, month, expected) => {
+            expect(setMonth(month)(input)).toEqual(expected);
+        });
+
+        it('should throw if month value is above 12', () => {
+            expect(() => { setMonth(13)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('month value must be an integer between 1 and 12, received 13');
+        });
+
+        it('should throw if date value is below 1', () => {
+            expect(() => { setMonth(-10)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('month value must be an integer between 1 and 12, received -10');
+        });
+    });
+
+    describe('setYear', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 1984, new Date('1984-05-14T00:00:00.000Z').getTime()],
+            ['2021-05-14T00:00:00.000Z', 10042, new Date('+010042-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('0012-04-18T00:00:00.000Z').getTime()],
+            [1621026000000, 2023, new Date('2023-05-14T21:00:00.000Z').getTime()],
+        ])('for input %p set the year to %p and return %p', (input, year, expected) => {
+            expect(setYear(year)(input)).toEqual(expected);
+        });
+
+        it('should throw if year value is not an integer', () => {
+            expect(() => { setYear(234.343)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('year value must be an integer, received 234.343');
         });
     });
 
