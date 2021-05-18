@@ -10,7 +10,8 @@ const {
     isEmpty,
     flatten,
     flattenDeep,
-    firstToUpper
+    firstToUpper,
+    uniq
 } = require('@terascope/utils');
 const { functionConfigRepository } = require('..');
 
@@ -59,7 +60,7 @@ function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
         '#### Examples',
-        ...examples.map(generateExample(fnDef))
+        ...uniq(examples.map(generateExample(fnDef)))
     ];
 }
 

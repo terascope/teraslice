@@ -104,10 +104,21 @@ export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
             field: 'testField',
             input: { lat: 32.12399971230023, lon: -20.95522300035 },
             output: { lat: 32.12, lon: -20.95 }
+        },
+        {
+            args: { digits: 2, truncate: true },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Geo } }
+            },
+            field: 'testField',
+            input: { lat: 32.12399971230023, lon: -20.95522300035 },
+            output: { lat: 32.12, lon: -20.95 }
         }
     ],
     create({ digits, truncate = false }, inputConfig) {
-        if (inputConfig?.field_config.type === FieldType.GeoPoint) {
+        if (inputConfig?.field_config.type === FieldType.GeoPoint
+            || inputConfig?.field_config.type === FieldType.Geo) {
             return function _geoPointToPrecision(input: unknown) {
                 const geoPoint = parseGeoPoint(input as GeoPointInput, true);
                 return {
@@ -116,6 +127,7 @@ export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
                 };
             };
         }
+
         return toPrecisionFP(digits, truncate);
     },
     accepts: [
