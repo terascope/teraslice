@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { setSeconds, isInteger, inNumberRange } from '@terascope/utils';
+import { setSeconds, isInteger, inNumberRange, toISO8061 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
@@ -19,7 +19,8 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-14T20:45:12.000Z').getTime()
+            output: new Date('2021-05-14T20:45:12.000Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { seconds: 22 },
@@ -29,7 +30,8 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-14T20:45:22.091Z').getTime()
+            output: new Date('2021-05-14T20:45:22.091Z').getTime(),
+            serialize_output: toISO8061
         },
         {
             args: { seconds: 1 },
@@ -39,11 +41,12 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             },
             field: 'testField',
             input: 1715472000000,
-            output: new Date('2024-05-12T00:00:01.000Z').getTime()
+            output: new Date('2024-05-12T00:00:01.000Z').getTime(),
+            serialize_output: toISO8061
         }
     ],
     create({ seconds }: { seconds: number }) {
-        return (input: unknown) => setSeconds(input, seconds);
+        return (input: unknown) => setSeconds(seconds)(input);
     },
     argument_schema: {
         seconds: {
@@ -63,7 +66,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number
+                type: FieldType.Date
             }
         };
     }

@@ -255,11 +255,11 @@ describe('date utils', () => {
             ['04/18/2022 UTC', 54, new Date('2022-04-18T00:00:54.000Z').getTime()],
             [1621026000000, 15, new Date('2021-05-14T21:00:15.000Z').getTime()],
         ])('for input %p set the seconds to %p and return %p', (input, seconds, expected) => {
-            expect(setSeconds(input, seconds)).toEqual(expected);
+            expect(setSeconds(seconds)(input)).toEqual(expected);
         });
 
         it('should throw if seconds value is above 59', () => {
-            expect(() => { setSeconds('2021-05-14T20:45:30.000Z', 84); })
+            expect(() => { setSeconds(84)('2021-05-14T20:45:30.000Z'); })
                 .toThrowError('seconds value must be an integer between 0 and 59, received 84');
         });
     });

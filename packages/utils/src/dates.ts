@@ -630,14 +630,16 @@ export function setMilliseconds(input: unknown, ms: number): number {
     throw Error(`milliseconds value must be an integer between 0 and 999, received ${ms}`);
 }
 
-export function setSeconds(input: unknown, seconds: number): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    if (isInteger(seconds) && inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
-        return inputDate.setUTCSeconds(seconds);
+export function setSeconds(seconds: number): (input: unknown) => number {
+    if (!isInteger(seconds) || !inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
+        throw Error(`seconds value must be an integer between 0 and 59, received ${seconds}`);
     }
 
-    throw Error(`seconds value must be an integer between 0 and 59, received ${seconds}`);
+    return function _setSeconds(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+
+        return inputDate.setUTCSeconds(seconds);
+    };
 }
 
 export function setMinutes(input: unknown, minutes: number): number {
