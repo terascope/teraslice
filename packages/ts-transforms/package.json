@@ -38,7 +38,7 @@
         "@terascope/data-mate": "^0.28.0",
         "@terascope/types": "^0.9.0",
         "@terascope/utils": "^0.39.0",
-        "awesome-phonenumber": "^2.49.0",
+        "awesome-phonenumber": "^2.51.2",
         "graphlib": "^2.1.8",
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",

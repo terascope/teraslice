@@ -813,7 +813,7 @@
     "@turf/destination" "^6.3.0"
     "@turf/helpers" "^6.3.0"
 
-"@turf/clean-coords@^6.2.0", "@turf/clean-coords@^6.3.0":
+"@turf/clean-coords@^6.3.0":
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/@turf/clean-coords/-/clean-coords-6.3.0.tgz#e2f482789dfa6dc6a79d9f32dbf1d4ab2222fa58"
   integrity sha512-Ns7+vXHigKTclzqlFrUnXsXjtEWAu2YYurDxD5mrKXcncuisUIoKbFM55ZxeiiBj0ji8c1huR1xSqs8GVxZJJA==
@@ -1961,10 +1961,10 @@ auto-bind@^4.0.0:
   resolved "https://registry.yarnpkg.com/auto-bind/-/auto-bind-4.0.0.tgz#e3589fc6c2da8f7ca43ba9f84fa52a744fc997fb"
   integrity sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==
 
-awesome-phonenumber@^2.49.0:
-  version "2.50.0"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.50.0.tgz#606390e35c7ad07985b1a6daf5238317091346b3"
-  integrity sha512-139A5WSN2iFoOg4g1u7YVJGyUYf5uLG8REhmTvzeIBvR9p1SziaDmy1I0k7JcWPvlFxlUeWZaqVJct8Je7FdvQ==
+awesome-phonenumber@^2.51.2:
+  version "2.51.2"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.51.2.tgz#67bbd899e7583ece38372bb1ee8c8ffb838b251d"
+  integrity sha512-CPV2WNfop9RTZWAeVAlo3kh9nBlVEPFD8RrJIKGSobnOP501ZWLrSju9zZcPwAlIhMGaLrtHM4Z7EZfyGZHMbQ==
 
 aws-sdk@^2.874.0:
   version "2.906.0"
