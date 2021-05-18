@@ -195,7 +195,7 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
         pkgInfo.license = 'MIT';
     }
 
-    pkgInfo.engines = { ...rootInfo.terascope.engines };
+    pkgInfo.engines = { ...rootInfo.engines };
 }
 
 export function updatePkgJSON(

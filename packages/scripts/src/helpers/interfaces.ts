@@ -82,15 +82,15 @@ export type RootPackageInfo = {
         npm: {
             registry: string;
         };
-        engines: {
-            node: string;
-            yarn: string;
-        };
         /**
          * The path to the javascript file to be called after
          * the hook is registered
         */
         hook_file?: string;
+    };
+    engines: {
+        node: string;
+        yarn: string;
     };
     resolutions: {
         [pattern: string]: string;
