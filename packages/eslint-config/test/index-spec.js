@@ -12,7 +12,7 @@ describe('ESLint Config Index', () => {
     it('should export js parserOptions by default', () => {
         expect(Index).toHaveProperty('parserOptions');
         expect(Index.parserOptions).toMatchObject({
-            ecmaVersion: 9,
+            ecmaVersion: 2019,
             sourceType: 'script',
         },);
     });

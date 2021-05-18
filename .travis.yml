@@ -2,7 +2,7 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '12.20'
+node_js: '14.17'
 # use a smaller depth for faster builds
 git:
   depth: 10
@@ -23,10 +23,10 @@ jobs:
   fast_finish: true
 
   include:
-    - stage: "Verify"
+    - stage: 'Verify'
       name: 'Verify Build (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '12.20'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -39,10 +39,10 @@ jobs:
         - yarn lint
         - yarn sync --verify
 
-    - stage: "Tests"
+    - stage: 'Tests'
       name: 'Unit Test Suite (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '12.20'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
@@ -53,30 +53,33 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
-    - script:
-      name: 'ES Test Suite (elasticsearch 6) (node 12)'
+    - name: 'ES Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.20'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
-    - script:
-      name: 'ES Test Suite (elasticsearch 7) (node 12)'
-      node_js: '12.20'
+    - name: 'Unit Test Suite (node 14)'
+      node_js: '14.17'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-b
+
+    - name: 'ES Test Suite (elasticsearch 7) (node 14)'
+      node_js: '14.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
-    - script:
-      name: 'End-to-End Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.20'
+    - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
+      node_js: '14.17'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
       script:
         - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
         - yarn --silent --cwd e2e test
 
-    - stage: "Releases"
+    - stage: 'Releases'
       name: 'Publish prerelease packages and docker image'
       # Run on pull-request and when the commit message includes a prerelease bump
       if: branch = master AND type IN (pull_request) AND commit_message =~ /(bump|release):.*\((premajor|preminor|prepatch|prerelease)\).*/
@@ -84,9 +87,8 @@ jobs:
         - yarn ts-scripts publish -t prerelease npm
         - yarn ts-scripts publish -t prerelease docker
 
-    - script:
-      name: 'Publish packages, docs and expiremental docker image'
-      node_js: '12.20'
+    - name: 'Publish packages, docs and experimental docker image'
+      node_js: '14.17'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
       script:
@@ -99,8 +101,7 @@ jobs:
         # do this last
         - ./scripts/publish-documentation.sh
 
-    - script:
-      name: 'Create Tag Release'
+    - name: 'Create Tag Release'
       # run on tagged releases
       if: tag IS present AND type NOT IN (pull_request, cron)
       # no need to run test on tagged release
@@ -120,8 +121,7 @@ jobs:
             tags: true
 
     # Build nightly releases
-    - script:
-      name: 'Daily Docker Builds'
+    - name: 'Daily Docker Builds'
       # run on cron jobs
       if: type = cron
       script: true

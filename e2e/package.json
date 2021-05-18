@@ -41,6 +41,10 @@
         "signale": "^1.4.0",
         "uuid": "^8.3.2"
     },
+    "engines": {
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
+    },
     "terascope": {
         "testSuite": "e2e"
     }

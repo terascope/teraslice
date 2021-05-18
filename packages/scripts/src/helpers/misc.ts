@@ -47,10 +47,14 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
         bugs: {
             url: '',
         },
+        engines: {
+            node: '^12.20.0 || >=14.17.0',
+            yarn: '>=1.16.0'
+        },
         terascope: {
             root: isRoot,
             type: 'monorepo',
-            target: 'es2018',
+            target: 'es2019',
             tests: {
                 suites: {}
             },
@@ -59,7 +63,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             },
             npm: {
                 registry: NPM_DEFAULT_REGISTRY
-            }
+            },
         },
     } as Partial<RootPackageInfo>));
 }
