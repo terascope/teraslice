@@ -1,7 +1,7 @@
 import {
     parseGeoPoint,
-    toPrecisionFP,
-    toPrecision
+    setPrecisionFP,
+    setPrecision
 } from '@terascope/utils';
 import { FieldType, GeoPointInput } from '@terascope/types';
 import {
@@ -16,8 +16,8 @@ export interface ToPrecisionArgs {
     readonly truncate?: boolean;
 }
 
-export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
-    name: 'toPrecision',
+export const setPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
+    name: 'setPrecision',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
@@ -122,13 +122,13 @@ export const toPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
             return function _geoPointToPrecision(input: unknown) {
                 const geoPoint = parseGeoPoint(input as GeoPointInput, true);
                 return {
-                    lat: toPrecision(geoPoint.lat, digits, truncate),
-                    lon: toPrecision(geoPoint.lon, digits, truncate),
+                    lat: setPrecision(geoPoint.lat, digits, truncate),
+                    lon: setPrecision(geoPoint.lon, digits, truncate),
                 };
             };
         }
 
-        return toPrecisionFP(digits, truncate);
+        return setPrecisionFP(digits, truncate);
     },
     accepts: [
         FieldType.Number,

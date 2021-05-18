@@ -8,7 +8,7 @@ import {
     bigIntToJSON,
     isBigInt,
     inNumberRange,
-    toPrecision,
+    setPrecision,
     toFahrenheit,
     toCelsius
 } from '../src/numbers';
@@ -192,7 +192,7 @@ describe('Numbers', () => {
         });
     });
 
-    describe('toPrecision', () => {
+    describe('setPrecision', () => {
         test.each([
             [10.123, 2, false, 10.12],
             [10.123, 2, true, 10.12],
@@ -201,7 +201,7 @@ describe('Numbers', () => {
             [Math.PI, 0, true, 3],
             [1000, 10, true, 1000],
         ])('should convert %p with (digits: %p, truncate: %p) to %p', (input, digits, truncate, expected) => {
-            expect(toPrecision(input, digits, truncate)).toEqual(expected);
+            expect(setPrecision(input, digits, truncate)).toEqual(expected);
         });
     });
 

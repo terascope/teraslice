@@ -38,6 +38,7 @@ import { multiplyValuesConfig } from './multiplyValues';
 import { powConfig } from './pow';
 import { randomConfig } from './random';
 import { roundConfig } from './round';
+import { setPrecisionConfig } from './setPrecision';
 import { signConfig } from './sign';
 import { sinConfig } from './sin';
 import { sinhConfig } from './sinh';
@@ -49,7 +50,6 @@ import { tanhConfig } from './tanh';
 import { toCelsiusConfig } from './toCelsius';
 import { toFahrenheitConfig } from './toFahrenheit';
 import { toNumberConfig } from './toNumber';
-import { toPrecisionConfig } from './toPrecision';
 
 export const numericRepository = {
     abs: absConfig,
@@ -92,6 +92,7 @@ export const numericRepository = {
     pow: powConfig,
     random: randomConfig,
     round: roundConfig,
+    setPrecision: setPrecisionConfig,
     sign: signConfig,
     sin: sinConfig,
     sinh: sinhConfig,
@@ -103,5 +104,4 @@ export const numericRepository = {
     toCelsius: toCelsiusConfig,
     toFahrenheit: toFahrenheitConfig,
     toNumber: toNumberConfig,
-    toPrecision: toPrecisionConfig,
 };

@@ -2548,7 +2548,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 "2001-01-01T01:00:00.000Z" => toNumber() // outputs 978310800000
 ```
 
-### `toPrecision`
+### `setPrecision`
 
 **Type:** `FIELD_TRANSFORM`
 
@@ -2569,35 +2569,35 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 #### Examples
 
 ```ts
-"10.123444" => toPrecision(digits: 1, truncate: false) // outputs 10.1
+"10.123444" => setPrecision(digits: 1, truncate: false) // outputs 10.1
 ```
 
 ```ts
-10.253444 => toPrecision(digits: 1, truncate: true) // outputs 10.2
+10.253444 => setPrecision(digits: 1, truncate: true) // outputs 10.2
 ```
 
 ```ts
-10.253444 => toPrecision(digits: 1, truncate: false) // outputs 10.3
+10.253444 => setPrecision(digits: 1, truncate: false) // outputs 10.3
 ```
 
 ```ts
-3.141592653589793 => toPrecision(digits: 2) // outputs 3.14
+3.141592653589793 => setPrecision(digits: 2) // outputs 3.14
 ```
 
 ```ts
-3.141592653589793 => toPrecision(digits: 0) // outputs 3
+3.141592653589793 => setPrecision(digits: 0) // outputs 3
 ```
 
 ```ts
-23.4 => toPrecision(digits: -1) // throws Expected digits to be between 0-100
+23.4 => setPrecision(digits: -1) // throws Expected digits to be between 0-100
 ```
 
 ```ts
-23.4 => toPrecision(digits: 1000) // throws Expected digits to be between 0-100
+23.4 => setPrecision(digits: 1000) // throws Expected digits to be between 0-100
 ```
 
 ```ts
-lat: 32.12399971230023, lon: -20.95522300035 => toPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
+lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
 ```
 
 ### `inNumberRange`
