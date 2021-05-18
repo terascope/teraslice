@@ -29,6 +29,10 @@ export type PackageInfo = {
     peerDependencies: {
         [pkg: string]: string;
     };
+    engines?: {
+        node?: string;
+        yarn?: string;
+    };
 };
 
 export enum Service {
@@ -83,6 +87,10 @@ export type RootPackageInfo = {
          * the hook is registered
         */
         hook_file?: string;
+    };
+    engines: {
+        node: string;
+        yarn: string;
     };
     resolutions: {
         [pattern: string]: string;

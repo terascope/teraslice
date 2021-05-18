@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.76.1",
+    "version": "0.77.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -55,7 +55,7 @@
         "typescript": "~4.2.4"
     },
     "engines": {
-        "node": ">=10.16.0",
+        "node": "^12.20.0 || >=14.17.0",
         "yarn": ">=1.16.0"
     },
     "os": [
@@ -66,7 +66,7 @@
     "terascope": {
         "root": true,
         "type": "monorepo",
-        "target": "es2018",
+        "target": "es2019",
         "tests": {
             "suites": {
                 "e2e": [
@@ -90,6 +90,10 @@
         },
         "npm": {
             "registry": "https://registry.npmjs.org/"
+        },
+        "engines": {
+            "node": "^12.20.0 || >=14.17.0",
+            "yarn": ">=1.16.0"
         }
     }
 }

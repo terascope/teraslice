@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.39.0-rc.0",
+    "version": "0.39.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -28,7 +28,7 @@
         "debug": "^4.3.1"
     },
     "dependencies": {
-        "@terascope/types": "^0.9.0-rc.2",
+        "@terascope/types": "^0.9.0",
         "@turf/bbox": "^6.2.0",
         "@turf/bbox-polygon": "^6.3.0",
         "@turf/boolean-contains": "^6.3.0",
@@ -65,6 +65,10 @@
         "@types/js-string-escape": "^1.0.0",
         "@types/lodash": "^4.14.168",
         "benchmark": "^2.1.4"
+    },
+    "engines": {
+        "node": "^12.20.0 || >=14.17.0",
+        "yarn": ">=1.16.0"
     },
     "publishConfig": {
         "access": "public",
