@@ -397,65 +397,6 @@ function _pointContains(queryFeature: Feature<any>) {
     };
 }
 
-function _multiPolyContains(queryFeature: Feature<any>) {
-    return (input: unknown) => {
-        const inputGeoEntity = toGeoJSON(input);
-        if (!inputGeoEntity) return false;
-
-        const inputFeature = makeGeoFeature(inputGeoEntity);
-        if (!inputFeature) return false;
-
-        // input point can only be compared with a point
-        if (isGeoShapePoint(inputGeoEntity)) return false;
-
-        if (isGeoShapePolygon(inputGeoEntity)) {
-            const queryPolygons = getCoords(queryFeature)
-                .map((coords) => tPolygon(coords));
-            // TODO: need check for holes here as well
-            return queryPolygons.every((polygon) => contains(inputFeature, polygon));
-        }
-
-        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            const {
-                polygons: queryPolygons,
-                holes: queryHoles
-            } = _featureToPolygonAndHoles(queryFeature);
-
-            const {
-                polygons: inputPolygons,
-                holes: inputHoles
-            } = _featureToPolygonAndHoles(inputFeature);
-
-            let inputHolesInQueryPoly = false;
-
-            // TODO: review more logic around queryHoles
-            if (inputHoles.length) {
-                if (queryHoles.length) {
-                    inputHolesInQueryPoly = false;
-                    // return contains(polygon, queryFeature) && !holes.some(
-                    //     (hole: Feature<any>) => contains(queryFeature, hole)
-                    // );
-                } else {
-                    // polygon cant be inside a hole
-                    inputHolesInQueryPoly = inputHoles.some(
-                        // TODO: check for holes
-                        (inputHolePoly) => queryPolygons.some(
-                            (polygon) => contains(polygon, inputHolePoly)
-                        )
-                    );
-                }
-            }
-
-            return !inputHolesInQueryPoly && inputPolygons.every(
-                (iPoly) => queryPolygons.some((polygon) => contains(iPoly, polygon))
-
-            );
-        }
-
-        throw new Error(`Unsupported geo input ${JSON.stringify(inputGeoEntity)}`);
-    };
-}
-
 function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
     const inputHoles: Feature<any>[] = [];
     const inputCoords = getCoords(inputFeature);
@@ -485,45 +426,6 @@ function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
     }
 
     return { holes: inputHoles, polygons: inputPolygons };
-}
-
-function _polyContains(queryFeature: Feature<any>) {
-    return (input: unknown) => {
-        const inputGeoEntity = toGeoJSON(input);
-        if (!inputGeoEntity) return false;
-
-        // input point can only be compared with a point
-        if (isGeoShapePoint(inputGeoEntity)) return false;
-
-        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            const inputFeature = makeGeoFeature(inputGeoEntity);
-            if (!inputFeature) return false;
-
-            const coords = getCoords(inputFeature);
-
-            return coords.some((polyCords) => {
-                // we have a polygon with holes
-                if (polyCords.length > 1) {
-                    const [polygon, ...holes] = polyCords.map(
-                        (innerCords: Position[]) => tPolygon([innerCords])
-                    );
-
-                    // must contain queryFeature, but holes must not be encompassed
-                    return contains(polygon, queryFeature) && !holes.some(
-                        (hole: Feature<any>) => contains(queryFeature, hole)
-                    );
-                }
-
-                const polygon = tPolygon(polyCords);
-                return contains(polygon, queryFeature);
-            });
-        }
-
-        const inputFeature = makeGeoFeature(inputGeoEntity);
-        if (!inputFeature) return false;
-
-        return contains(inputFeature, queryFeature);
-    };
 }
 
 function _pointToPointMatch(queryInput: Feature<any>) {
