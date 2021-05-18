@@ -317,18 +317,57 @@ export function geoContains(firstGeoEntity: GeoInput, secondGeoEntity: GeoInput)
 }
 
 /**
- * When provided with geoInput that acts as the parent geo-feature, it will return a function
- * that accepts any geoInput and checks to see if the new input contains the parent geo-feature
+ * When provided with geoInput that acts as the argument geo-feature, it will return a function
+ * that accepts any geoInput and checks to see if the new input contains the argument geo-feature
  */
 export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boolean {
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
     if (isGeoShapePoint(queryGeo)) return _pointContains(queryFeature);
-    if (isGeoShapePolygon(queryGeo)) return _polyContains(queryFeature);
-    if (isGeoShapeMultiPolygon(queryGeo)) return _multiPolyContains(queryFeature);
 
-    throw new Error(`Unsupported query input ${JSON.stringify(queryGeoEntity)}`);
+    const {
+        polygons: queryPolygons,
+        holes: queryHoles
+    } = _featureToPolygonAndHoles(queryFeature);
+
+    return function _geoContains(input: unknown): boolean {
+        const inputGeoEntity = toGeoJSON(input);
+        if (!inputGeoEntity) return false;
+
+        if (isGeoPoint(inputGeoEntity)) {
+            // point cannot contain a poly like feature
+            return false;
+        }
+
+        const inputFeature = makeGeoFeature(inputGeoEntity);
+        if (!inputFeature) return false;
+
+        const {
+            polygons: inputPolygons,
+            holes: inputHoles
+        } = _featureToPolygonAndHoles(inputFeature);
+
+        if (inputHoles.length) {
+            const withinInputHole = inputHoles.some(
+                (iHolePoly) => queryPolygons.some((qPoly) => intersect(qPoly, iHolePoly))
+            );
+
+            if (withinInputHole) {
+                // check to see if holes are the same, if so they don't overlap
+                if (queryHoles.length) {
+                    return queryHoles.some(
+                        (qHole) => inputHoles.some((iHole) => equal(qHole, iHole))
+                    );
+                }
+                return false;
+            }
+        }
+
+        return queryPolygons.every(
+            (qPoly) => inputPolygons.some((iPoly) => contains(iPoly, qPoly))
+        );
+    };
 }
 
 function _pointContains(queryFeature: Feature<any>) {
@@ -343,19 +382,18 @@ function _pointContains(queryFeature: Feature<any>) {
             return equal(inputFeature, queryFeature);
         }
 
-        if (isGeoShapePolygon(inputGeoEntity)) {
-            return contains(inputFeature, queryFeature);
+        const {
+            polygons,
+            holes
+        } = _featureToPolygonAndHoles(inputFeature);
+
+        let pointInHole = false;
+
+        if (holes.length) {
+            pointInHole = holes.some((iPolyHole) => contains(iPolyHole, queryFeature));
         }
 
-        if (isGeoShapeMultiPolygon(inputGeoEntity)) {
-            const {
-                polygons: queryPolygons,
-            } = _featureToPolygonAndHoles(inputFeature);
-
-            return queryPolygons.some((iPoly) => contains(iPoly, queryFeature));
-        }
-
-        return false;
+        return !pointInHole && polygons.some((poly) => contains(poly, queryFeature));
     };
 }
 
