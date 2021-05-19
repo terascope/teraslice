@@ -37,7 +37,7 @@ describe('reindex', () => {
         // as there are no records
         await misc.indexStats(specIndex).catch((errResponse) => {
             const reason = get(errResponse, 'body.error.reason');
-            expect(reason).toEqual('no such index');
+            expect(reason.substring(0, 13)).toEqual('no such index');
         });
     });
 

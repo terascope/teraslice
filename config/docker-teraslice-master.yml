@@ -4,6 +4,7 @@ terafoundation:
     connectors:
         elasticsearch:
             default:
+                apiVersion: "7.0"
                 host:
                     - "elasticsearch:9200"
         kafka:

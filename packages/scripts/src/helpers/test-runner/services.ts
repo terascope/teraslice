@@ -31,13 +31,11 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             : undefined,
         ports: [`${config.ELASTICSEARCH_PORT}:${config.ELASTICSEARCH_PORT}`],
         env: {
-            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            OPENSEARCH_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.ELASTICSEARCH_PORT,
             'discovery.type': 'single-node',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
+            'opendistro_security.disabled': 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
