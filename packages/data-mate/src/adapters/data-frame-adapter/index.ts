@@ -1,4 +1,3 @@
-import { DataTypeFieldConfig } from '@terascope/types';
 import { isNil } from '@terascope/utils';
 import { validateFunctionArgs } from '../argument-validator';
 import {
@@ -19,18 +18,12 @@ import {
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
     args?: T,
-    inputConfig?: DataTypeFieldConfig,
     field?: string;
 }
 
-export interface ColumnAdapterFn {
-    column: (input: Column<any>) => Column<any>;
-}
-
-export interface FrameAdapterFn extends ColumnAdapterFn {
-    frame<T extends Record<string, unknown> = Record<string, any>> (
-        input: DataFrame<T>
-    ): DataFrame<Record<string, unknown>>
+export interface FrameAdapterFn {
+    column(input: Column<any>): Column<any>;
+    frame(input: DataFrame<Record<string, any>>): DataFrame<Record<string, unknown>>;
 }
 
 function getMode<T extends Record<string, any>>(
@@ -108,7 +101,7 @@ function transformColumnData<T extends Record<string, any>>(
 function validateColumnData<T extends Record<string, any>>(
     column: Column,
     validationConfig: FieldValidateConfig<T>,
-    args?: T
+    args: T
 ): Column {
     const err = validateAccepts(
         validationConfig.accepts,
@@ -134,7 +127,7 @@ function validateColumnData<T extends Record<string, any>>(
     };
 
     const validatorFn = validationConfig.create(
-        { ...args } as T,
+        args,
         inputConfig
     );
 
@@ -145,10 +138,8 @@ function validateColumnData<T extends Record<string, any>>(
 
     const transform = mode !== TransformMode.NONE ? ({
         ...columnValidationConfig,
-        fn(value: any): any {
-            if (validatorFn(value)) {
-                return value;
-            }
+        fn(value: unknown): unknown {
+            if (validatorFn(value)) return value;
             return null;
         }
     }) : columnValidationConfig;
@@ -165,7 +156,7 @@ function validateColumnData<T extends Record<string, any>>(
 }
 
 function validateColumn<T extends Record<string, any>>(
-    config: FieldValidateConfig<T>, args?: T,
+    config: FieldValidateConfig<T>, args: T,
 ) {
     return function _validateColumn(column: Column<any>): Column<any> {
         return validateColumnData(column, config, args);
@@ -182,16 +173,16 @@ function transformColumn<T extends Record<string, any>>(
 
 function validateFrame<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    args?: T,
+    args: T,
     field?: string
 ) {
     return function _validateFrame(
         frame: DataFrame<Record<string, unknown>>
     ): DataFrame<Record<string, unknown>> {
         if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
+
         const col = frame.getColumnOrThrow(field);
         const validCol = validateColumnData(col, fnDef, args);
-
         return frame.assign([validCol]);
     };
 }
@@ -225,15 +216,15 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
         return {
             column: validateColumn(fnDef, args),
             frame: validateFrame(fnDef, args, field)
-        } as FrameAdapterFn;
+        };
     }
 
     if (isFieldTransform(fnDef)) {
         return {
             column: transformColumn(fnDef, args),
             frame: transformFrame(fnDef, args, field)
-        } as FrameAdapterFn;
+        };
     }
 
-    throw new Error(`Function definition ${JSON.stringify(fnDef)} is not supported`);
+    throw new Error(`Function definition "${fnDef.name}" (type: ${fnDef.type}) is not supported`);
 }
