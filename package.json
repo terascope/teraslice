@@ -39,7 +39,7 @@
     "dependencies": {},
     "devDependencies": {
         "@types/bluebird": "^3.5.32",
-        "@types/convict": "^5.2.2",
+        "@types/convict": "^6.0.2",
         "@types/elasticsearch": "^5.0.37",
         "@types/fs-extra": "^9.0.9",
         "@types/jest": "^26.0.23",
