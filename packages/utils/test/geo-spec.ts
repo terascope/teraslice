@@ -6,7 +6,7 @@ import {
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON,
+    toGeoJSON, geoPointToTimezone
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -255,6 +255,41 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, input, output) => {
             expect(toGeoJSON(input)).toEqual(output);
+        });
+    });
+
+    describe('->geoPointToTimezone', () => {
+        type Case = [
+            msg: string,
+            input: GeoPointInput,
+            output: string
+        ];
+
+        const testCases: Case[] = [
+            [
+                'geo-point like input in Africa',
+                [30.00123, 12.233],
+                'Africa/Khartoum'
+            ],
+            [
+                'geo-point like input in USA',
+                '33.385765, -111.891167',
+                'America/Phoenix'
+            ],
+            [
+                'in ocean outside Morocco',
+                '30.00123,-12.233',
+                'Etc/GMT+1'
+            ],
+            [
+                'geo-point like input in Europe',
+                { lat: 48.86168702148502, lon: 2.3366209636711 },
+                'Europe/Paris'
+            ],
+        ];
+
+        test.each(testCases)('should %s', (_msg, input, output) => {
+            expect(geoPointToTimezone(input)).toEqual(output);
         });
     });
 });

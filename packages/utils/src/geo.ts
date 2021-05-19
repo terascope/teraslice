@@ -38,6 +38,8 @@ import {
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
+// @ts-expect-error
+import geoToTimezone from 'geo-tz';
 import { isArrayLike } from './arrays';
 import { isPlainObject, geoHash } from './deps';
 import { trim, toString } from './strings';
@@ -626,4 +628,11 @@ export function polyHasHoles(input: GeoShape): boolean {
     }
 
     return false;
+}
+
+/** Takes in a geo point like entity and returns the timezone of its location */
+export function geoPointToTimezone(input: unknown): string {
+    const { lat, lon } = parseGeoPoint(input as GeoPointInput);
+    // it returns an array, return the first one
+    return geoToTimezone(lat, lon)[0];
 }
