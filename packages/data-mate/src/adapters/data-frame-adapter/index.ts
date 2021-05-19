@@ -3,18 +3,15 @@ import { validateFunctionArgs } from '../argument-validator';
 import {
     Column, validateAccepts,
     getFieldTypesFromFieldConfigAndChildConfig,
-    ColumnOptions, mapVector,
+    ColumnOptions, mapVectorEach, mapVectorEachValue,
 } from '../../column';
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
-    FieldValidateConfig, isFieldOperation,
-    DataTypeFieldAndChildren, FunctionDefinitionConfig
+    FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig
 } from '../../function-configs/interfaces';
-
-import {
-    TransformMode, ColumnTransformFn
-} from '../../column/interfaces';
+import { Builder } from '../../builder';
+import { WritableData } from '../../core';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
     args?: T,
@@ -24,19 +21,6 @@ export interface DataFrameAdapterOptions<T extends Record<string, any>> {
 export interface FrameAdapterFn {
     column(input: Column<any>): Column<any>;
     frame(input: DataFrame<Record<string, any>>): DataFrame<Record<string, unknown>>;
-}
-
-function getMode<T extends Record<string, any>>(
-    fnDef: FunctionDefinitionConfig<T>
-): TransformMode {
-    if (isFieldOperation(fnDef)) {
-        const mode = fnDef.process_mode;
-        if (mode === ProcessMode.INDIVIDUAL_VALUES) {
-            return TransformMode.EACH_VALUE;
-        }
-    }
-
-    return TransformMode.EACH;
 }
 
 function transformColumnData<T extends Record<string, any>>(
@@ -53,8 +37,6 @@ function transformColumnData<T extends Record<string, any>>(
     );
 
     if (err) throw err;
-
-    const mode = getMode(transformConfig);
 
     const inputConfig: DataTypeFieldAndChildren = {
         field_config: column.config,
@@ -76,23 +58,36 @@ function transformColumnData<T extends Record<string, any>>(
         version: column.version,
     };
 
+    const builder = Builder.make(
+        new WritableData(column.vector.size),
+        {
+            childConfig: outputConfig.child_config,
+            config: outputConfig.field_config,
+            name: column.vector.name,
+        },
+    );
+
     const transformFn = transformConfig.create(
         args,
         inputConfig
     );
 
-    // TODO: does output that only has DateFieldTypes enough, will it need more?
-    const columnTransformConfig: ColumnTransformFn<unknown, unknown> = {
-        mode,
-        fn: transformFn
-    };
+    if (transformConfig.process_mode === ProcessMode.FULL_VALUES) {
+        return new Column(
+            mapVectorEach(
+                column.vector,
+                builder,
+                transformFn,
+            ),
+            options
+        );
+    }
 
-    // TODO: consider if we should move mapVector logic here
     return new Column(
-        mapVector(
+        mapVectorEachValue(
             column.vector,
-            columnTransformConfig,
-            outputConfig,
+            builder,
+            transformFn,
         ),
         options
     );
@@ -105,7 +100,9 @@ function validateColumnData<T extends Record<string, any>>(
 ): Column {
     const err = validateAccepts(
         validationConfig.accepts,
-        getFieldTypesFromFieldConfigAndChildConfig(column.vector.config, column.vector.childConfig),
+        getFieldTypesFromFieldConfigAndChildConfig(
+            column.vector.config, column.vector.childConfig
+        ),
     );
 
     if (err) {
@@ -119,8 +116,6 @@ function validateColumnData<T extends Record<string, any>>(
         version: column.version,
     };
 
-    const mode = getMode(validationConfig);
-
     const inputConfig = {
         field_config: column.config,
         child_config: column.vector.childConfig
@@ -131,25 +126,36 @@ function validateColumnData<T extends Record<string, any>>(
         inputConfig
     );
 
-    const columnValidationConfig: ColumnTransformFn<unknown, unknown> = {
-        mode,
-        fn: validatorFn
-    };
+    const builder = Builder.make(
+        new WritableData(column.vector.size),
+        {
+            childConfig: column.vector.childConfig,
+            config: column.vector.config,
+            name: column.vector.name,
+        },
+    );
 
-    const transform = mode !== TransformMode.NONE ? ({
-        ...columnValidationConfig,
-        fn(value: unknown): unknown {
-            if (validatorFn(value)) return value;
-            return null;
-        }
-    }) : columnValidationConfig;
+    function validatorTransform(value: unknown): unknown {
+        if (validatorFn(value)) return value;
+        return null;
+    }
 
-    // TODO: consider if we should move mapVector logic here
+    if (validationConfig.process_mode === ProcessMode.FULL_VALUES) {
+        return new Column(
+            mapVectorEach(
+                column.vector,
+                builder,
+                validatorTransform,
+            ),
+            options
+        );
+    }
+
     return new Column(
-        mapVector(
+        mapVectorEachValue(
             column.vector,
-            transform,
-            inputConfig,
+            builder,
+            validatorTransform,
         ),
         options
     );
