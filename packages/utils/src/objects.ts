@@ -198,3 +198,11 @@ export function getField<T, P extends keyof T, V>(
 export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
+
+export function lookup(key: string | number, obj: Record<string, unknown>): any {
+    if (isObjectEntity(obj)) {
+        return obj[key];
+    }
+
+    return undefined;
+}

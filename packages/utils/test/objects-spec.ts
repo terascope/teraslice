@@ -5,6 +5,7 @@ import {
     withoutNil,
     filterObject,
     isObjectEntity,
+    lookup
 } from '../src/objects';
 import { DataEntity } from '../src';
 
@@ -153,6 +154,18 @@ describe('Objects', () => {
                 expect(isObjectEntity(new Set())).toBeFalse();
                 expect(isObjectEntity(new Map())).toBeFalse();
             });
+        });
+    });
+
+    describe('lookup', () => {
+        test.each([
+            ['key', { key: 'value', key2: 'value2' }, 'value'],
+            [456, { 123: 'value', 456: 'value2' }, 'value2'],
+            ['key', { 'key1': 'value', 'key2': 'value2' }, undefined],
+            ['key', 'not an object', undefined],
+            ['key', ['this', 'ios', 'an', 'array'], undefined],
+        ])('should return key from a value', (key: any, obj: any, value: any) => {
+            expect(lookup(key, obj)).toEqual(value);
         });
     });
 });
