@@ -161,11 +161,9 @@ describe('Objects', () => {
         test.each([
             ['key', { key: 'value', key2: 'value2' }, 'value'],
             [456, { 123: 'value', 456: 'value2' }, 'value2'],
-            ['key', { 'key1': 'value', 'key2': 'value2' }, undefined],
-            ['key', 'not an object', undefined],
-            ['key', ['this', 'ios', 'an', 'array'], undefined],
+            ['key', { 'key1': 'value', 'key2': 'value2' }, undefined]
         ])('should return key from a value', (key: any, obj: any, value: any) => {
-            expect(lookup(key, obj)).toEqual(value);
+            expect(lookup(obj, key)).toEqual(value);
         });
     });
 });

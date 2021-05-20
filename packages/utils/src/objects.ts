@@ -1,6 +1,6 @@
 import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
-import { get, isPlainObject } from './deps';
+import { get, getTypeOf, isPlainObject } from './deps';
 import { DataEntity } from './entities';
 import { isArrayLike } from './arrays';
 import { isBuffer } from './buffers';
@@ -199,10 +199,13 @@ export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-export function lookup(key: string | number, obj: Record<string, unknown>): any {
-    if (isObjectEntity(obj)) {
-        return obj[key];
+export function lookup(lookupObj: unknown): (key: string | number) => any {
+    if (!isObjectEntity(lookupObj)) {
+        throw Error(`input must be an Object Entity, received ${getTypeOf(lookupObj)}`);
     }
 
-    return undefined;
+    return function _lookup(key) {
+        const lookup = lookupObj as  Record<string, unknown>;
+        return lookup[key];
+    }
 }
