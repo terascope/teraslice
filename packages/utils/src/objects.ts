@@ -205,7 +205,7 @@ export function lookup(lookupObj: unknown): (key: string | number) => any {
     }
 
     return function _lookup(key) {
-        const lookup = lookupObj as  Record<string, unknown>;
-        return lookup[key];
-    }
+        const lookupAsType = lookupObj as Record<string, unknown>;
+        return lookupAsType[key];
+    };
 }
