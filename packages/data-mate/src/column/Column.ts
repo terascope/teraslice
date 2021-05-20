@@ -1,19 +1,15 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields, FieldType
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder,
+    DataTypeFields, FieldType, ReadonlyDataTypeFields
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
     SerializeOptions, Vector
 } from '../vector';
-import {
-    ColumnConfig,
-    ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
-} from './interfaces';
+import { ColumnConfig, ColumnOptions } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
-import {
-    getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
-} from './utils';
+import { getVectorId } from './utils';
 import { ReadableData, WritableData } from '../core';
 
 type NameType = (number|string|symbol);
@@ -32,7 +28,7 @@ export class Column<T = unknown, N extends NameType = string> {
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion,
-        childConfig?: DataTypeFields|Readonly<DataTypeFields>
+        childConfig?: DataTypeFields|ReadonlyDataTypeFields
     ): Column<R, F> {
         const builder = Builder.make<R>(new WritableData(values.length), {
             childConfig,
@@ -128,86 +124,6 @@ export class Column<T = unknown, N extends NameType = string> {
             name: this.name,
             version: this.version,
         });
-    }
-
-    /**
-     * Transform the values with in a column.
-     *
-     * @note this will always keep the same length
-    */
-    transform<R, A extends Record<string, any>>(
-        transformConfig: ColumnTransformConfig<T, R, A>,
-        args?: A
-    ): Column<R, N> {
-        validateFieldTransformType(
-            transformConfig.accepts,
-            this.vector
-        );
-        validateFieldTransformArgs<A>(
-            transformConfig.argument_schema,
-            transformConfig.required_args,
-            args
-        );
-        const options: ColumnOptions<N> = {
-            name: this.name,
-            version: this.version,
-        };
-
-        const transform = transformConfig.create(
-            this.vector, { ...args } as A
-        );
-
-        return new Column<R, N>(
-            mapVector<T, R>(
-                this.vector,
-                transform,
-                transformConfig.output,
-            ),
-            options
-        );
-    }
-
-    /**
-     * Creates a new column, if the function returns false
-     * then the value is set to null.
-     *
-     * @note this will always keep the same length
-    */
-    validate<A extends Record<string, any>>(
-        validateConfig: ColumnValidateConfig<T, A>,
-        args?: A
-    ): Column<T, N> {
-        validateFieldTransformType(
-            validateConfig.accepts,
-            this.vector
-        );
-        validateFieldTransformArgs<A>(
-            validateConfig.argument_schema,
-            validateConfig.required_args,
-            args
-        );
-        const options: ColumnOptions<N> = {
-            name: this.name,
-            version: this.version,
-        };
-
-        const validator = validateConfig.create(
-            this.vector, { ...args } as A
-        );
-        const transform = validator.mode !== TransformMode.NONE ? ({
-            ...validator,
-            fn(value: any): any {
-                if (validator.fn(value)) {
-                    return value;
-                }
-                return null;
-            }
-        }) : validator;
-
-        return new Column<T, N>(
-            mapVector<T, T>(this.vector, transform),
-            options
-        );
     }
 
     /**
@@ -350,6 +266,20 @@ export class Column<T = unknown, N extends NameType = string> {
             values: this.vector.toJSON(),
         };
         return JSON.stringify(column);
+    }
+
+    /**
+     * return an empty column with the same size and metadata as the previous one
+    */
+
+    clearAll(): Column<T, N> {
+        return this.fork(
+            this.vector.fork(
+                [new ReadableData(
+                    new WritableData(this.size)
+                )]
+            )
+        );
     }
 }
 

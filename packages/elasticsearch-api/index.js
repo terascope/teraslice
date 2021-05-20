@@ -1,6 +1,5 @@
 'use strict';
 
-const isEqual = require('lodash/isEqual');
 const Promise = require('bluebird');
 const {
     isTest,
@@ -19,7 +18,8 @@ const {
     uniq,
     random,
     cloneDeep,
-    DataEntity
+    DataEntity,
+    isDeepEqual
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -984,7 +984,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (dynamic !== undefined) {
             mapping[index].mappings[recordType].dynamic = toBoolean(dynamic);
         }
-        const areEqual = isEqual(mapping, sysMapping);
+        const areEqual = isDeepEqual(mapping, sysMapping);
         return { areEqual };
     }
 

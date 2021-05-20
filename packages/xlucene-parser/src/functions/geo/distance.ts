@@ -1,6 +1,5 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
-import { parseGeoPoint, parseGeoDistance } from '@terascope/utils';
-import { polyHasPoint, makeCircle } from './helpers';
+import { parseGeoPoint, parseGeoDistance, geoPointWithinRangeFP } from '@terascope/utils';
 import * as i from '../../interfaces';
 import { getFieldValue, logger } from '../../utils';
 
@@ -72,15 +71,8 @@ const geoDistance: i.FunctionDefinition = {
             };
         }
 
-        function matcher() {
-            const polygon = makeCircle({ lat, lon }, distance, { units: paramUnit });
-            // Nothing matches so return false
-            if (polygon == null) return () => false;
-            return polyHasPoint(polygon);
-        }
-
         return {
-            match: matcher(),
+            match: geoPointWithinRangeFP({ lat, lon }, `${distance}${paramUnit}`),
             toElasticsearchQuery
         };
     }

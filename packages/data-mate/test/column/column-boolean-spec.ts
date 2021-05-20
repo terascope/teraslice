@@ -2,8 +2,8 @@ import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import { toBoolean } from '@terascope/utils';
 import {
-    ColumnValidator,
-    Column, ColumnTransform, Vector
+    Column, Vector,
+    dataFrameAdapter, functionConfigRepository
 } from '../../src';
 
 describe('Column (Boolean Types)', () => {
@@ -50,7 +50,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to validate the values', () => {
-            const newCol = col.validate(ColumnValidator.isBoolean);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isBoolean,
+            ).column(col);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual([
                 true,
@@ -75,7 +77,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to transform the column using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toString,
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
@@ -140,7 +144,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to validate using isBoolean', () => {
-            const newCol = col.validate(ColumnValidator.isBoolean);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isBoolean,
+            ).column(col);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual(
                 values.map(() => undefined)
@@ -148,7 +154,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to validate using isBooleanLike', () => {
-            const newCol = col.validate(ColumnValidator.isBooleanLike);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isBooleanLike,
+            ).column(col);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual([
                 'True',
@@ -163,7 +171,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to transform the column using toBoolean', () => {
-            const newCol = col.transform(ColumnTransform.toBoolean);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toBoolean,
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
@@ -217,7 +227,10 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to validate using isBoolean', () => {
-            const newCol = col.validate(ColumnValidator.isBoolean);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isBoolean,
+            ).column(col);
+
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual([
                 [undefined],
@@ -231,7 +244,10 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to validate using isBooleanLike', () => {
-            const newCol = col.validate(ColumnValidator.isBooleanLike);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.isBooleanLike,
+            ).column(col);
+
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual([
                 ['True'],
@@ -245,7 +261,9 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to transform the column using toBoolean', () => {
-            const newCol = col.transform(ColumnTransform.toBoolean);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toBoolean,
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({

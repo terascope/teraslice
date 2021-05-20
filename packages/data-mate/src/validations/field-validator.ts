@@ -689,7 +689,7 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
 }
 
 interface MACAddressArgs {
-    delimiter?: MACDelimiter | MACDelimiter[];
+    delimiter?: MACDelimiter;
 }
 
 /**
@@ -700,12 +700,12 @@ interface MACAddressArgs {
  * FieldValidator.isMACAddress('001ff35b2b1f'); // true
  * FieldValidator.isMACAddress('001f.f35b.2b1f',{}, { delimiter: 'dot' }); // true
  *
- * const manyDelimiters = { delimiter: ['dash', 'colon', 'space'] }
+ * const manyDelimiters = { delimiter: 'any' }
  * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, manyDelimiters); // true
  * FieldValidator.isMACAddress(12345); // false
  *
  * // specified colon and space delimiter only
- * const twoDelimiters = { delimiter: ['colon', 'space'] };
+ * const twoDelimiters = { delimiter: 'any };
  * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimiters ); // false,
  * FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
  *
@@ -719,10 +719,10 @@ export function isMACAddress(
 ): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
-        return _lift(ts.isMacAddressFP(args?.delimiter), input, _parentContext);
+        return _lift(ts.isMACAddressFP(args?.delimiter), input, _parentContext);
     }
 
-    return ts.isMacAddress(input, args?.delimiter);
+    return ts.isMACAddress(input, args?.delimiter);
 }
 
 /**
@@ -810,7 +810,6 @@ export function isInteger(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isString(17.343); // false
  *
  * @param {*} input
- * @returns {boolean} boolean
  */
 
 export function isString(input: unknown, _parentContext?: unknown): input is string {
@@ -920,11 +919,11 @@ export function equals(input: unknown, _parentContext: unknown, args: { value: s
     if (!args.value) throw new Error('A value must provided with the input');
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isSame(data, args.value);
+        const fn = (data: any) => ts.isDeepEqual(data, args.value);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isSame(input, args.value);
+    return ts.isDeepEqual(input, args.value);
 }
 
 /**

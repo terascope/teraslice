@@ -1,9 +1,9 @@
 import {
-    isBigInt, toBigInt
+    isBigInt, toBigInt, trimISODateSegment
 } from '@terascope/utils';
-import { Maybe } from '@terascope/types';
+import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions, DateVector
+    Vector, VectorType, getNumericValues, SerializeOptions
 } from '../vector';
 import { getHashCodeFrom } from '../core';
 
@@ -175,33 +175,21 @@ export type KeyAggFn = (index: number) => {
 };
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;
 
-/**
- * The starting substring of an ISO string that is specific towards a date interval
-*/
-enum DateAggFrequency {
-    hourly = 13,
-    daily = 10,
-    monthly = 7,
-    yearly = 4
-}
-
 export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
-    [KeyAggregation.hourly]: makeDateAgg(DateAggFrequency.hourly),
-    [KeyAggregation.daily]: makeDateAgg(DateAggFrequency.daily),
-    [KeyAggregation.monthly]: makeDateAgg(DateAggFrequency.monthly),
-    [KeyAggregation.yearly]: makeDateAgg(DateAggFrequency.yearly),
+    [KeyAggregation.hourly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.hourly)),
+    [KeyAggregation.daily]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.daily)),
+    [KeyAggregation.monthly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.monthly)),
+    [KeyAggregation.yearly]: makeDateAgg(trimISODateSegment(ISO8601DateSegment.yearly)),
 };
 
-function makeDateAgg(truncateLengthFromISO: number): MakeKeyAggFn {
+function makeDateAgg(trimDateFn: (input: unknown) => number): MakeKeyAggFn {
     return function _makeDateAgg(vector) {
         return function dateAgg(index) {
-            const value = vector.get(index) as Maybe<string|number>;
+            const value = vector.get(index) as Maybe<number>;
             if (value == null) return { key: undefined, value };
 
             return {
-                key: (vector as DateVector)
-                    .valueToISOString(value)
-                    .slice(0, truncateLengthFromISO),
+                key: `${trimDateFn(value)}`,
                 value,
             };
         };
