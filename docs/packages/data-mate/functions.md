@@ -330,12 +330,12 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 type: "Polygon", coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]], [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]] => geoContainsPoint(point: "15, 15") // outputs null
 ```
 
-this verifies that point is within a polygon with holes
+This verifies that point is within a polygon with holes
 ```ts
 type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]]
 ```
 
-this verifies that point can match against a geo-shape point
+This verifies that point can match against a geo-shape point
 ```ts
 type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // outputs type: "Point", coordinates: [15, 15]
 ```
@@ -595,13 +595,13 @@ Must be represented in a Language Tags (BCP 47)
 
  - **indexed**:  `Boolean` - Specifies whether the field is index in elasticsearch (Only type Object currently support this)
 
- - **format**:  `String` - The format for the field. Currently only Date field support it.
+ - **format**:  `String` - The format for the field. Currently only Date field support it
 
- - **is_primary_date**:  `Boolean` - used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm
+ - **is_primary_date**:  `Boolean` - Used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm
 
  - **time_resolution**:  `String` - Indicates whether the data has second or millisecond resolutions used with the `is_primary_date`
 
- - **child_config**:  `Object` - If parsing an object, you can specify the DataTypeFields of the key/values of the object. This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above (ie type, array, locale, format but not child_config).
+ - **child_config**:  `Object` - If parsing an object, you can specify the DataTypeFields of the key/values of the object. This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above (ie type, array, locale, format but not child_config)
 
 #### Accepts
 
@@ -915,6 +915,414 @@ Default: iso_8601 for strings and epoch_millis for number
 "2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
 ```
 
+### `getMilliseconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the milliseconds of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:01.091Z" => getMilliseconds() // outputs 91
+```
+
+```ts
+Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() // outputs 91
+```
+
+```ts
+1715472000231 => getMilliseconds() // outputs 231
+```
+
+### `getSeconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the seconds of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:41.091Z" => getSeconds() // outputs 41
+```
+
+```ts
+Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // outputs 19
+```
+
+```ts
+1715472323231 => getSeconds() // outputs 23
+```
+
+### `getMinutes`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the minutes of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:12:41.091Z" => getMinutes() // outputs 12
+```
+
+```ts
+Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // outputs 59
+```
+
+```ts
+1715472323231 => getMinutes() // outputs 5
+```
+
+### `getHours`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hours of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:12:41.091Z" => getHours() // outputs 10
+```
+
+```ts
+Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outputs 10
+```
+
+```ts
+"05/22/2021 EST" => getHours() // outputs 5
+```
+
+```ts
+17154123223231 => getHours() // outputs 2
+```
+
+### `getDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the day of the month of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getDate() // outputs 11
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outputs 16
+```
+
+```ts
+"05/22/2021 EST" => getDate() // outputs 22
+```
+
+```ts
+1510123223231 => getDate() // outputs 8
+```
+
+### `getMonth`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the month of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getMonth() // outputs 5
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outputs 5
+```
+
+```ts
+"05/22/2021 EST" => getMonth() // outputs 5
+```
+
+```ts
+1510123223231 => getMonth() // outputs 11
+```
+
+### `getYear`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the year of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getYear() // outputs 2021
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outputs 2021
+```
+
+```ts
+"05/22/2021 EST" => getYear() // outputs 2021
+```
+
+```ts
+1510123223231 => getYear() // outputs 2017
+```
+
+### `setMilliseconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the milliseconds of the input date
+
+#### Arguments
+
+ - **milliseconds**: (required) `Number` - Value to set milliseconds to, must be between 0 and 999
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMilliseconds(milliseconds: 392) // outputs "2021-05-14T20:45:30.392Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(milliseconds: 483) // outputs "2021-05-14T20:45:30.483Z"
+```
+
+```ts
+1715472000000 => setMilliseconds(milliseconds: 1) // outputs "2024-05-12T00:00:00.001Z"
+```
+
+### `setSeconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the seconds of the input date
+
+#### Arguments
+
+ - **seconds**: (required) `Number` - Value to set seconds to, must be between 0 and 59
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setSeconds(seconds: 12) // outputs "2021-05-14T20:45:12.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds: 22) // outputs "2021-05-14T20:45:22.091Z"
+```
+
+```ts
+1715472000000 => setSeconds(seconds: 1) // outputs "2024-05-12T00:00:01.000Z"
+```
+
+### `setMinutes`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the minutes of the input date
+
+#### Arguments
+
+ - **minutes**: (required) `Number` - Value to set minutes to, must be between 0 and 59
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMinutes(minutes: 12) // outputs "2021-05-14T20:12:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(minutes: 22) // outputs "2021-05-14T20:22:30.091Z"
+```
+
+```ts
+1715472000000 => setMinutes(minutes: 1) // outputs "2024-05-12T00:01:00.000Z"
+```
+
+### `setHours`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the hours of the input date
+
+#### Arguments
+
+ - **hours**: (required) `Number` - Value to set hours to, must be between 0 and 23
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setHours(hours: 12) // outputs "2021-05-14T12:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(hours: 22) // outputs "2021-05-14T22:45:30.091Z"
+```
+
+```ts
+1715472000000 => setHours(hours: 1) // outputs "2024-05-12T01:00:00.000Z"
+```
+
+### `setDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the day of the month of the input date
+
+#### Arguments
+
+ - **date**: (required) `Number` - Value to set day of the month to, must be between 1 and 31
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setDate(date: 12) // outputs "2021-05-12T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(date: 22) // outputs "2021-05-22T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setDate(date: 1) // outputs "2024-05-01T00:00:00.000Z"
+```
+
+### `setMonth`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the month of the input month
+
+#### Arguments
+
+ - **month**: (required) `Number` - Value to set month to, must be between 1 and 12
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMonth(month: 12) // outputs "2021-12-14T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(month: 2) // outputs "2021-02-14T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setMonth(month: 1) // outputs "2024-01-12T00:00:00.000Z"
+```
+
+### `setYear`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the year of the input date
+
+#### Arguments
+
+ - **year**: (required) `Number` - Value to set year to, must be an integer
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setYear(year: 2024) // outputs "2024-05-14T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(year: 1984) // outputs "1984-05-14T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setYear(year: 2001) // outputs "2001-05-12T00:00:00.000Z"
+```
+
 ### `isAfter`
 
 **Type:** `FIELD_VALIDATION`
@@ -1060,7 +1468,7 @@ Default: iso_8601 for strings and epoch_millis for number
 **Type:** `FIELD_VALIDATION`
 **Aliases:** `isUnixTime`
 
-> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.
+> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number
 
 #### Arguments
 
@@ -1096,7 +1504,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number.
+> Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number
 
 #### Arguments
 
@@ -1154,7 +1562,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.
+> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number
 
 #### Accepts
 
@@ -1170,10 +1578,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2001-01-01T01:00:00.000Z" => isISO8601() // outputs "2001-01-01T01:00:00.000Z"
-```
-
-```ts
-102390933 => isISO8601() // outputs null
 ```
 
 ### `isLeapYear`
@@ -1300,9 +1704,9 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-this input is created at execution time
+This input is created at execution time
 ```ts
-"2021-05-14T18:06:48.168Z" => isToday() // outputs "2021-05-14T18:06:48.168Z"
+"2021-05-18T20:45:48.366Z" => isToday() // outputs "2021-05-18T20:45:48.366Z"
 ```
 
 ```ts
@@ -1323,14 +1727,14 @@ this input is created at execution time
 
 #### Examples
 
-represents current time
+Represents current time
 ```ts
-"2021-05-14T18:06:48.168Z" => isTomorrow() // outputs null
+"2021-05-18T20:45:48.367Z" => isTomorrow() // outputs null
 ```
 
-represents day after current time
+Represents day after current time
 ```ts
-"2021-05-15T18:06:48.168Z" => isTomorrow() // outputs "2021-05-15T18:06:48.168Z"
+"2021-05-19T20:45:48.367Z" => isTomorrow() // outputs "2021-05-19T20:45:48.367Z"
 ```
 
 ### `isThursday`
@@ -1473,14 +1877,14 @@ represents day after current time
 
 #### Examples
 
-represents current time
+Represents current time
 ```ts
-"2021-05-14T18:06:48.171Z" => isYesterday() // outputs null
+"2021-05-18T20:45:48.369Z" => isYesterday() // outputs null
 ```
 
-represents day before current time
+Represents day before current time
 ```ts
-"2021-05-13T18:06:48.171Z" => isYesterday() // outputs "2021-05-13T18:06:48.171Z"
+"2021-05-17T20:45:48.369Z" => isYesterday() // outputs "2021-05-17T20:45:48.369Z"
 ```
 
 ## CATEGORY: Numeric
@@ -1891,7 +2295,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns a number representing `e^x - 1`, where `e` is Euler's number and `x` is the argument.
+> Returns a number representing `e^x - 1`, where `e` is Euler's number and `x` is the argument
 
 #### Accepts
 
@@ -2007,7 +2411,7 @@ null => hypot() // outputs null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the natural logarithm (base e) of 1 plus the given number. If the number is less than -1, null is returned.
+> Returns the natural logarithm (base e) of 1 plus the given number. If the number is less than -1, null is returned
 
 #### Accepts
 
@@ -2255,7 +2659,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the value of a number rounded to the nearest integer.
+> Returns the value of a number rounded to the nearest integer
 
 #### Accepts
 
@@ -2273,6 +2677,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 ```ts
 -7.004 => round() // outputs -7
+```
+
+### `setPrecision`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified
+
+#### Arguments
+
+ - **digits**: (required) `Number` - The number of decimal places to keep. This value must be between 0-100
+
+ - **truncate**:  `Boolean` - If set to true rounding will be disabled
+
+#### Accepts
+
+- `Number`
+- `GeoPoint`
+- `Geo`
+
+#### Examples
+
+```ts
+"10.123444" => setPrecision(digits: 1, truncate: false) // outputs 10.1
+```
+
+```ts
+10.253444 => setPrecision(digits: 1, truncate: true) // outputs 10.2
+```
+
+```ts
+10.253444 => setPrecision(digits: 1, truncate: false) // outputs 10.3
+```
+
+```ts
+3.141592653589793 => setPrecision(digits: 2) // outputs 3.14
+```
+
+```ts
+3.141592653589793 => setPrecision(digits: 0) // outputs 3
+```
+
+```ts
+23.4 => setPrecision(digits: -1) // throws Expected digits to be between 0-100
+```
+
+```ts
+23.4 => setPrecision(digits: 1000) // throws Expected digits to be between 0-100
+```
+
+```ts
+lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
 ```
 
 ### `sign`
@@ -2533,10 +2989,6 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 ```
 
 ```ts
-"22" => toNumber() // outputs 22
-```
-
-```ts
 "10.16.32.210" => toNumber() // outputs 168829138
 ```
 
@@ -2546,58 +2998,6 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 ```ts
 "2001-01-01T01:00:00.000Z" => toNumber() // outputs 978310800000
-```
-
-### `toPrecision`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified
-
-#### Arguments
-
- - **digits**: (required) `Number` - The number of decimal places to keep. This value must be between 0-100
-
- - **truncate**:  `Boolean` - If set to true rounding will be disabled
-
-#### Accepts
-
-- `Number`
-- `GeoPoint`
-- `Geo`
-
-#### Examples
-
-```ts
-"10.123444" => toPrecision(digits: 1, truncate: false) // outputs 10.1
-```
-
-```ts
-10.253444 => toPrecision(digits: 1, truncate: true) // outputs 10.2
-```
-
-```ts
-10.253444 => toPrecision(digits: 1, truncate: false) // outputs 10.3
-```
-
-```ts
-3.141592653589793 => toPrecision(digits: 2) // outputs 3.14
-```
-
-```ts
-3.141592653589793 => toPrecision(digits: 0) // outputs 3
-```
-
-```ts
-23.4 => toPrecision(digits: -1) // throws Expected digits to be between 0-100
-```
-
-```ts
-23.4 => toPrecision(digits: 1000) // throws Expected digits to be between 0-100
-```
-
-```ts
-lat: 32.12399971230023, lon: -20.95522300035 => toPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
 ```
 
 ### `inNumberRange`
@@ -2860,7 +3260,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => toPrecision(digits: 2, truncate:
 
 **Type:** `FIELD_VALIDATION`
 
-> Validation that determines whether or not a string ends with another string. This is case-sensitive.
+> Validation that determines whether or not a string ends with another string. This is case-sensitive
 
 #### Arguments
 
@@ -3480,7 +3880,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Validation that determines whether or not a string begins with another string. This is case-sensitive.
+> Validation that determines whether or not a string begins with another string. This is case-sensitive
 
 #### Arguments
 
@@ -3560,6 +3960,45 @@ hello: "i am an object" => isString() // outputs null
 "google.com%3Fq%3DHELLO%20AND%20GOODBYE" => decodeURL() // outputs "google.com?q=HELLO AND GOODBYE"
 ```
 
+### `encode`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts a value to a hash using a specified algorithm
+
+#### Arguments
+
+ - **algo**: (required) `String` - Which hashing algorithm to use
+
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex". Only used when algorithm is not base64, hex, or url
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+Hashing algorithm defaults to 256, and digest defaults to hex
+```ts
+"{ "some": "data" }" => encode(algo: "sha256") // outputs "e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5"
+```
+
+```ts
+"{ "some": "data" }" => encode(algo: "md5") // outputs "7e33b72a611da99c7e9013dd44dbbdad"
+```
+
+```ts
+"google.com?q=HELLO AND GOODBYE" => encode(algo: "url") // outputs "google.com%3Fq%3DHELLO%20AND%20GOODBYE"
+```
+
+```ts
+"HELLO AND GOODBYE" => encode(algo: "base64") // outputs "SEVMTE8gQU5EIEdPT0RCWUU="
+```
+
+```ts
+"{ "some": "data" }" => encode(algo: "sha1", digest: "base64") // outputs "6MsUBHluumd5onY3fM6ZpQKjZIE="
+```
+
 ### `encodeBase64`
 
 **Type:** `FIELD_TRANSFORM`
@@ -3600,9 +4039,9 @@ hello: "i am an object" => isString() // outputs null
 
 #### Arguments
 
- - **hash**:  `String` - Which has hashing algorithm to use, defaults to sha256
+ - **hash**:  `String` - Which hashing algorithm to use, defaults to sha256
 
- - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
 #### Accepts
 
@@ -3610,7 +4049,7 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
-hashing algorithm defaults to sha256, and digest defaults to hex
+Hashing algorithm defaults to sha256, and digest defaults to hex
 ```ts
 "{ "some": "data" }" => encodeSHA() // outputs "e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5"
 ```
@@ -3627,7 +4066,7 @@ hashing algorithm defaults to sha256, and digest defaults to hex
 
 #### Arguments
 
- - **digest**:  `String` - Which has digest to use, may be set to either "base64" or "hex", defaults to "hex"
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
 
 #### Accepts
 
@@ -3696,6 +4135,38 @@ If digest is not provided, it defaults to hex
 
 ```ts
 "<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello", "world"]
+```
+
+### `join`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts an array of string values joins by the delimiter provided
+
+#### Arguments
+
+ - **delimiter**:  `String` - The char to join the strings
+
+#### Accepts
+
+- `String`
+
+#### Examples
+
+```ts
+["a", " ", "s", "t", "r", "i", "n", "g"] => join() // outputs "a string"
+```
+
+```ts
+["a string", "found"] => join(delimiter: ",") // outputs "a string,found"
+```
+
+```ts
+["a", "stri", "ng"] => join(delimiter: " - ") // outputs "a - stri - ng"
+```
+
+```ts
+"a string" => join(delimiter: " ") // outputs "a string"
 ```
 
 ### `reverse`
@@ -4181,7 +4652,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the ip is within a range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa.
+> Checks if the ip is within a range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa
 
 #### Arguments
 
@@ -4247,7 +4718,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a valid ipv4 address in dot notation.
+> Checks if the input is a valid ipv4 address in dot notation
 
 #### Accepts
 

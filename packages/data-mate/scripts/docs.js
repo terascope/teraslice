@@ -10,7 +10,9 @@ const {
     isEmpty,
     flatten,
     flattenDeep,
-    firstToUpper
+    firstToUpper,
+    uniq,
+    trimEnd
 } = require('@terascope/utils');
 const { functionConfigRepository } = require('..');
 
@@ -22,6 +24,11 @@ function prettyPrint(input) {
     return Object.entries(input).map(([key, value]) => (
         `${key}: ${prettyPrint(value)}`
     )).join(', ');
+}
+
+function desc(input, prefix = '') {
+    if (!input.description) return '';
+    return prefix + firstToUpper(trimEnd(input.description.trim(), '.'));
 }
 
 /**
@@ -44,7 +51,7 @@ function generateExample(fnDef) {
     */
     return function _generateExample(example) {
         return `
-${example.description || ''}
+${desc(example)}
 \`\`\`ts
 ${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // ${getExampleOutput(example)}
 \`\`\`
@@ -59,7 +66,7 @@ function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
         '#### Examples',
-        ...examples.map(generateExample(fnDef))
+        ...uniq(examples.map(generateExample(fnDef)))
     ];
 }
 
@@ -78,8 +85,7 @@ function generateArgDocs(fnDef) {
         '#### Arguments',
         ...Object.entries(fnDef.argument_schema).map(([field, fieldConfig]) => {
             const typeVal = fieldConfig.array ? `${fieldConfig.type}[]` : fieldConfig.type;
-            const desc = fieldConfig.description ? ` - ${fieldConfig.description}` : '';
-            return ` - **${field}**: ${isRequired(field) ? '(required)' : ''} \`${typeVal}\`${desc}`;
+            return ` - **${field}**: ${isRequired(field) ? '(required)' : ''} \`${typeVal}\`${desc(fieldConfig, ' - ')}`;
         })
     ];
 }
@@ -113,7 +119,7 @@ function generateFunctionDoc(fnDef) {
 
 **Type:** \`${fnDef.type}\`
 ${generateAliases(fnDef)}
-> ${firstToUpper(fnDef.description).split('\n').join('\n>')}`.trim(),
+> ${firstToUpper(trimEnd(fnDef.description.trim(), '.')).split('\n').join('\n>')}`.trim(),
         ...generateArgDocs(fnDef),
         ...generateAccepts(fnDef),
         ...generateExamples(fnDef, fnDef.examples)
@@ -156,12 +162,11 @@ sidebar_label: Functions
 }
 
 function generateDocs() {
-    return [
+    return `${[
         generateHeader(),
         ...flattenDeep(generateAllFunctionsDocs()),
         '',
-    ].join('\n\n');
+    ].join('\n\n').trim()}\n`;
 }
 
-// eslint-disable-next-line no-console
-console.log(generateDocs());
+process.stdout.write(generateDocs());

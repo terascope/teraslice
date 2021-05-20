@@ -260,7 +260,7 @@ export function inNumberRangeFP(args: InNumberRangeArg) {
  * @param fractionDigits The number of decimal points to round to.
  * @param truncate If this is true the number will not be rounded
 */
-export function toPrecision(
+export function setPrecision(
     input: unknown,
     fractionDigits: number,
     truncate = false
@@ -270,29 +270,29 @@ export function toPrecision(
         return parseFloat(num.toFixed(fractionDigits));
     }
     return parseFloat(
-        toPrecisionFromString(num.toString(), fractionDigits)
+        setPrecisionFromString(num.toString(), fractionDigits)
     );
 }
 
 /**
- * A functional programming version of toPrecision
+ * A functional programming version of setPrecision
  *
  * @param fractionDigits The number of decimal points to round to.
  * @param truncate If this is true the number will not be rounded
 */
-export function toPrecisionFP(
+export function setPrecisionFP(
     fractionDigits: number,
     truncate = false
 ): (input: unknown) => number {
-    return function _toPrecision(input) {
-        return toPrecision(input, fractionDigits, truncate);
+    return function _setPrecision(input) {
+        return setPrecision(input, fractionDigits, truncate);
     };
 }
 
 /**
  * this will always truncate (not round)
 */
-function toPrecisionFromString(
+function setPrecisionFromString(
     input: string,
     fractionDigits: number,
 ): string {

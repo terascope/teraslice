@@ -11,6 +11,20 @@ import {
     isBetween,
     getTimezoneOffset,
     getTimezoneOffsetFP
+    setMilliseconds,
+    setSeconds,
+    setMinutes,
+    setHours,
+    setDate,
+    setMonth,
+    setYear,
+    getMilliseconds,
+    getSeconds,
+    getMinutes,
+    getHours,
+    getDate,
+    getMonth,
+    getYear
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -225,6 +239,239 @@ describe('date utils', () => {
         ])('for input %p and date %p return %p', (timezone, expected) => {
             expect(getTimezoneOffset(date, timezone)).toEqual(expected);
             expect(getTimezoneOffsetFP(timezone)(date)).toEqual(expected);
+    });
+});
+
+    describe('setMilliseconds', () => {
+        test.each([
+            ['2021-05-14T20:45:30.000Z', 392, new Date('2021-05-14T20:45:30.392Z').getTime()],
+            ['04/18/2022 UTC', 858, new Date('2022-04-18T00:00:00.858Z').getTime()],
+            [1621026049859, 15, new Date('2021-05-14T21:00:49.015Z').getTime()]
+        ])('for input %p set the milliseconds to %p and return %p', (input, milliseconds, expected) => {
+            expect(setMilliseconds(milliseconds)(input)).toEqual(expected);
+        });
+
+        it('should throw if milliseconds value is above 999', () => {
+            expect(() => { setMilliseconds(1000)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received 1000');
+        });
+
+        it('should throw if milliseconds value is negative', () => {
+            expect(() => { setMilliseconds(-232)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received -232');
+        });
+
+        it('should throw if milliseconds value is not an integer', () => {
+            expect(() => { setMilliseconds(12.34)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('milliseconds value must be an integer between 0 and 999, received 12.34');
+        });
+    });
+
+    describe('setSeconds', () => {
+        test.each([
+            ['2021-05-14T20:45:00.000Z', 59, new Date('2021-05-14T20:45:59.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:00:54.000Z').getTime()],
+            [1621026000000, 15, new Date('2021-05-14T21:00:15.000Z').getTime()],
+        ])('for input %p set the seconds to %p and return %p', (input, seconds, expected) => {
+            expect(setSeconds(seconds)(input)).toEqual(expected);
+        });
+
+        it('should throw if seconds value is above 59', () => {
+            expect(() => { setSeconds(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('seconds value must be an integer between 0 and 59, received 84');
+        });
+    });
+
+    describe('setMinutes', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T00:12:00.000Z').getTime()],
+            ['2021-05-14T00:32:00.000Z', 0, new Date('2021-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 54, new Date('2022-04-18T00:54:00.000Z').getTime()],
+            [1621026000000, 59, new Date('2021-05-14T21:59:00.000Z').getTime()],
+        ])('for input %p set the minutes to %p and return %p', (input, minutes, expected) => {
+            expect(setMinutes(minutes)(input)).toEqual(expected);
+        });
+
+        it('should throw if minutes value is above 59', () => {
+            expect(() => { setMinutes(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('minutes value must be an integer between 0 and 59, received 84');
+        });
+    });
+
+    describe('setHours', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-18T12:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-14T12:00:00.000Z').getTime()],
+        ])('for input %p set the hours to %p and return %p', (input, hours, expected) => {
+            expect(setHours(hours)(input)).toEqual(expected);
+        });
+    });
+
+    describe('setDate', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z').getTime()],
+            ['2021-02-14T00:00:00.000Z', 30, new Date('2021-03-02T00:00:00.000Z').getTime()],
+        ])('for input %p set the date to %p and return %p', (input, date, expected) => {
+            expect(setDate(date)(input)).toEqual(expected);
+        });
+
+        it('should throw if date value is above 31', () => {
+            expect(() => { setDate(84)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('date value must be an integer between 1 and 31, received 84');
+        });
+
+        it('should throw if date value is below 1', () => {
+            expect(() => { setDate(0)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('date value must be an integer between 1 and 31, received 0');
+        });
+    });
+
+    describe('setMonth', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 1, new Date('2021-01-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('2022-12-18T00:00:00.000Z').getTime()],
+            [1621026000000, 12, new Date('2021-12-14T21:00:00.000Z').getTime()],
+        ])('for input %p set the month to %p and return %p', (input, month, expected) => {
+            expect(setMonth(month)(input)).toEqual(expected);
+        });
+
+        it('should throw if month value is above 12', () => {
+            expect(() => { setMonth(13)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('month value must be an integer between 1 and 12, received 13');
+        });
+
+        it('should throw if date value is below 1', () => {
+            expect(() => { setMonth(-10)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('month value must be an integer between 1 and 12, received -10');
+        });
+    });
+
+    describe('setYear', () => {
+        test.each([
+            ['2021-05-14T00:00:00.000Z', 1984, new Date('1984-05-14T00:00:00.000Z').getTime()],
+            ['2021-05-14T00:00:00.000Z', 10042, new Date('+010042-05-14T00:00:00.000Z').getTime()],
+            ['04/18/2022 UTC', 12, new Date('0012-04-18T00:00:00.000Z').getTime()],
+            [1621026000000, 2023, new Date('2023-05-14T21:00:00.000Z').getTime()],
+        ])('for input %p set the year to %p and return %p', (input, year, expected) => {
+            expect(setYear(year)(input)).toEqual(expected);
+        });
+
+        it('should throw if year value is not an integer', () => {
+            expect(() => { setYear(234.343)('2021-05-14T20:45:30.000Z'); })
+                .toThrowError('year value must be an integer, received 234.343');
+        });
+    });
+
+    describe('getMilliseconds', () => {
+        test.each([
+            ['2021-05-10T10:00:00.746Z', 746],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1715472000231, 231],
+            [1715472131, 131],
+            ['08/05/2021', 0]
+        ])('for date %p getMilliseconds should return %p', (input, expected) => {
+            expect(getMilliseconds(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getMilliseconds('nope'); })
+                .toThrowError('Expected nope (String) to be in a standard date format');
+        });
+    });
+
+    describe('getSeconds', () => {
+        test.each([
+            ['2021-05-10T10:00:12.746Z', 12],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1715472019231, 19],
+            [1715472343, 12],
+            ['08/05/2021', 0]
+        ])('for date %p getSeconds should return %p', (input, expected) => {
+            expect(getSeconds(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getSeconds('nope'); })
+                .toThrowError('Expected nope (String) to be in a standard date format');
+        });
+    });
+
+    describe('getMinutes', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 19],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1311874359231, 32],
+            [1715472343, 31],
+            ['08/05/2021', 0]
+        ])('for date %p getMinutes should return %p', (input, expected) => {
+            expect(getMinutes(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getMinutes(true); })
+                .toThrowError('Expected true (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getHours', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            ['2021-05-10T00:00:00.000Z', 0],
+            [1311874359231, 17],
+            [1715472343, 20],
+            ['08/05/2021 UTC', 0],
+            ['2021-05-10T03:00:00.000-05:00', 8]
+        ])('for date %p getHours should return %p', (input, expected) => {
+            expect(getHours(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getHours(false); })
+                .toThrowError('Expected false (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getDate', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            [1311874359231, 28],
+            [1715472343, 20],
+            ['08/05/2021', 5]
+        ])('for date %p getDate should return %p', (input, expected) => {
+            expect(getDate(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getDate([]); })
+                .toThrowError('Expected  (Array) to be in a standard date format');
+        });
+    });
+
+    describe('getMonth', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 5],
+            [1311874359231, 7],
+            [1715472343, 1],
+            ['08/05/2021', 8],
+            ['2021-05-10T10:19:12.746Z', 5],
+            ['12/05/2021', 12],
+            ['01/05/2021', 1]
+        ])('for date %p getMonth should return %p', (input, expected) => {
+            expect(getMonth(input)).toEqual(expected);
+        });
+    });
+
+    describe('getYear', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 2021],
+            [1311874359231, 2011],
+            [1715472343, 1970],
+            ['08/05/1872', 1872]
+        ])('for date %p getYear should return %p', (input, expected) => {
+            expect(getYear(input)).toEqual(expected);
         });
     });
 });

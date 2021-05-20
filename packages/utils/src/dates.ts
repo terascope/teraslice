@@ -37,7 +37,7 @@ import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/t
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
 import { getTypeOf } from './deps';
 import {
-    bigIntToJSON, isNumber, toInteger
+    bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
 } from './numbers';
 import { isString } from './strings';
 import { isBoolean } from './booleans';
@@ -656,4 +656,123 @@ export function getTimezoneOffsetFP(timezone: string): (input: unknown) => numbe
         const date = getValidDateOrThrow(input);
         return tzOffset(timezone, date) / (1000 * 60);
     };
+}
+
+export function setMilliseconds(ms: number): (input: unknown) => number {
+    if (!isInteger(ms) || !inNumberRange(ms, { min: 0, max: 999, inclusive: true })) {
+        throw Error(`milliseconds value must be an integer between 0 and 999, received ${ms}`);
+    }
+
+    return function _setMilliseconds(input) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCMilliseconds(ms);
+    };
+}
+
+export function setSeconds(seconds: number): (input: unknown) => number {
+    if (!isInteger(seconds) || !inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
+        throw Error(`seconds value must be an integer between 0 and 59, received ${seconds}`);
+    }
+
+    return function _setSeconds(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCSeconds(seconds);
+    };
+}
+
+export function setMinutes(minutes: number): (input: unknown) => number {
+    if (!isInteger(minutes) || !inNumberRange(minutes, { min: 0, max: 59, inclusive: true })) {
+        throw Error(`minutes value must be an integer between 0 and 59, received ${minutes}`);
+    }
+
+    return function _setMinutes(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCMinutes(minutes);
+    };
+}
+
+export function setHours(hours: number):(input: unknown) => number {
+    if (!isInteger(hours) || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
+        throw Error(`hours value must be an integer between 0 and 23, received ${hours}`);
+    }
+
+    return function _setHours(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCHours(hours);
+    };
+}
+
+export function setDate(date: number): (input: unknown) => number {
+    if (!isInteger(date) || !inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
+        throw Error(`date value must be an integer between 1 and 31, received ${date}`);
+    }
+
+    return function _setDate(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCDate(date);
+    };
+}
+
+export function setMonth(month: number): (input: unknown) => number {
+    if (!isInteger(month) || !inNumberRange(month, { min: 1, max: 12, inclusive: true })) {
+        throw Error(`month value must be an integer between 1 and 12, received ${month}`);
+    }
+
+    return function _setMonth(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCMonth(month - 1);
+    };
+}
+
+export function setYear(year: number): (input: unknown) => number {
+    if (!isInteger(year)) {
+        throw Error(`year value must be an integer, received ${year}`);
+    }
+
+    return function _setYear(input: unknown) {
+        const inputDate = getValidDateOrThrow(input as any);
+        return inputDate.setUTCFullYear(year);
+    };
+}
+
+export function getMilliseconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMilliseconds();
+}
+
+export function getSeconds(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCSeconds();
+}
+
+export function getMinutes(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMinutes();
+}
+
+export function getHours(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCHours();
+}
+
+export function getDate(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCDate();
+}
+
+export function getMonth(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCMonth() + 1;
+}
+
+export function getYear(input: unknown): number {
+    const inputDate = getValidDateOrThrow(input as any);
+
+    return inputDate.getUTCFullYear();
 }

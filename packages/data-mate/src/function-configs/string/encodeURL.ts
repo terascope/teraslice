@@ -6,6 +6,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory
 } from '../interfaces';
+import { encodeURL } from './encode-utils';
 
 export const encodeURLConfig: FieldTransformConfig = {
     name: 'encodeURL',
@@ -30,7 +31,7 @@ export const encodeURLConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return (input: unknown) => encodeURIComponent(input as string);
+        return encodeURL;
     },
     accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

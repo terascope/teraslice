@@ -3,7 +3,7 @@ import {
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions, DateVector
+    Vector, VectorType, getNumericValues, SerializeOptions
 } from '../vector';
 import { getHashCodeFrom } from '../core';
 
@@ -189,8 +189,7 @@ function makeDateAgg(trimDateFn: (input: unknown) => number): MakeKeyAggFn {
             if (value == null) return { key: undefined, value };
 
             return {
-                key: `${trimDateFn((vector as DateVector)
-                    .valueToJSON(value))}`,
+                key: `${trimDateFn(value)}`,
                 value,
             };
         };

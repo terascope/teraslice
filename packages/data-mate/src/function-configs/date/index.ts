@@ -28,6 +28,20 @@ import { toDateConfig } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
+import { getMillisecondsConfig } from './getMilliseconds';
+import { getSecondsConfig } from './getSeconds';
+import { getMinutesConfig } from './getMinutes';
+import { getHoursConfig } from './getHours';
+import { getDateConfig } from './getDate';
+import { getMonthConfig } from './getMonth';
+import { getYearConfig } from './getYear';
+import { setMillisecondsConfig } from './setMilliseconds';
+import { setSecondsConfig } from './setSeconds';
+import { setMinutesConfig } from './setMinutes';
+import { setHoursConfig } from './setHours';
+import { setDateConfig } from './setDate';
+import { setMonthConfig } from './setMonth';
+import { setYearConfig } from './setYear';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
@@ -60,4 +74,18 @@ export const dateRepository = {
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
+    getMilliseconds: getMillisecondsConfig,
+    getSeconds: getSecondsConfig,
+    getMinutes: getMinutesConfig,
+    getHours: getHoursConfig,
+    getDate: getDateConfig,
+    getMonth: getMonthConfig,
+    getYear: getYearConfig,
+    setMilliseconds: setMillisecondsConfig,
+    setSeconds: setSecondsConfig,
+    setMinutes: setMinutesConfig,
+    setHours: setHoursConfig,
+    setDate: setDateConfig,
+    setMonth: setMonthConfig,
+    setYear: setYearConfig
 };

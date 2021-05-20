@@ -194,6 +194,8 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
     if (!pkgInfo.license) {
         pkgInfo.license = 'MIT';
     }
+
+    pkgInfo.engines = { ...rootInfo.engines };
 }
 
 export function updatePkgJSON(
