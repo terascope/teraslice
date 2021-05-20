@@ -45,6 +45,7 @@
         "@turf/random": "^6.3.0",
         "awesome-phonenumber": "^2.49.0",
         "date-fns": "^2.21.1",
+        "date-fns-tz": "^1.1.4",
         "datemath-parser": "^1.0.6",
         "debug": "^4.3.1",
         "geo-tz": "^6.0.1",

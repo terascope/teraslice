@@ -6,7 +6,7 @@ import {
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON, geoPointToTimezone
+    toGeoJSON, lookupTimezone
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -289,7 +289,7 @@ describe('geo utils', () => {
         ];
 
         test.each(testCases)('should %s', (_msg, input, output) => {
-            expect(geoPointToTimezone(input)).toEqual(output);
+            expect(lookupTimezone(input)).toEqual(output);
         });
     });
 });

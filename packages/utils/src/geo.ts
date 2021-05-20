@@ -631,7 +631,7 @@ export function polyHasHoles(input: GeoShape): boolean {
 }
 
 /** Takes in a geo point like entity and returns the timezone of its location */
-export function geoPointToTimezone(input: unknown): string {
+export function lookupTimezone(input: unknown): string {
     const { lat, lon } = parseGeoPoint(input as GeoPointInput);
     // it returns an array, return the first one
     return geoToTimezone(lat, lon)[0];
