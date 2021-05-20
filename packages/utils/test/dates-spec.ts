@@ -10,7 +10,7 @@ import {
     isAfter,
     isBetween,
     getTimezoneOffset,
-    getTimezoneOffsetFP
+    getTimezoneOffsetFP,
     setMilliseconds,
     setSeconds,
     setMinutes,
