@@ -239,8 +239,8 @@ describe('date utils', () => {
         ])('for input %p and date %p return %p', (timezone, expected) => {
             expect(getTimezoneOffset(date, timezone)).toEqual(expected);
             expect(getTimezoneOffsetFP(timezone)(date)).toEqual(expected);
+        });
     });
-});
 
     describe('setMilliseconds', () => {
         test.each([

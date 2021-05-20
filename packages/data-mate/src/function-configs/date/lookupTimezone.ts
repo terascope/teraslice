@@ -12,7 +12,7 @@ export const lookupTimezoneConfig: FieldTransformConfig = {
     name: 'lookupTimezone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
-    category: FunctionDefinitionCategory.GEO,
+    category: FunctionDefinitionCategory.DATE,
     examples: [
         {
             args: {},
