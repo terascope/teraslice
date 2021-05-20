@@ -17,7 +17,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
     description: 'Returns value based on key value lookup ',
     examples: [
         {
-            args: { lookupObj: { key1: 'value1', key2: 'value2'}},
+            args: { lookupObj: { key1: 'value1', key2: 'value2' } },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -27,7 +27,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: 'value1'
         },
         {
-            args: { lookupObj: { 123: 4567, 8910:1112 }},
+            args: { lookupObj: { 123: 4567, 8910: 1112 } },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
