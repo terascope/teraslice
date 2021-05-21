@@ -1,6 +1,6 @@
 import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
-import { get, isPlainObject } from './deps';
+import { get, getTypeOf, isPlainObject } from './deps';
 import { DataEntity } from './entities';
 import { isArrayLike } from './arrays';
 import { isBuffer } from './buffers';
@@ -197,4 +197,15 @@ export function getField<T, P extends keyof T, V>(
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+export function lookup(obj: unknown): (key: string | number) => any {
+    if (!isObjectEntity(obj)) {
+        throw Error(`input must be an Object Entity, received ${getTypeOf(obj)}`);
+    }
+
+    return function _lookup(key) {
+        const lookupObj = obj as Record<string, unknown>;
+        return lookupObj[key];
+    };
 }
