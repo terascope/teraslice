@@ -58,6 +58,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
         }
     },
     accepts: [FieldType.Number, FieldType.String],
+    required_arguments: ['in'],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 
