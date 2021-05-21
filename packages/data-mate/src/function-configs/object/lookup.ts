@@ -6,7 +6,7 @@ import {
 } from '../interfaces';
 
 export interface LookupArgs {
-    readonly lookupObj: Record<string, unknown>
+    readonly in: Record<string, unknown>
 }
 
 export const lookupConfig: FieldTransformConfig<LookupArgs> = {
@@ -14,10 +14,10 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.OBJECT,
-    description: 'Returns value based on key value lookup ',
+    description: 'Matches the input to a key in a table and returns the corresponding value.',
     examples: [
         {
-            args: { lookupObj: { key1: 'value1', key2: 'value2' } },
+            args: { in: { key1: 'value1', key2: 'value2' } },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -27,7 +27,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: 'value1'
         },
         {
-            args: { lookupObj: { 123: 4567, 8910: 1112 } },
+            args: { in: { 123: 4567, 8910: 1112 } },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -35,16 +35,26 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             field: 'testField',
             input: 8910,
             output: 1112
+        },
+        {
+            args: { in: { key1: 'value1', key2: 'value2' } },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: 'key3',
+            output: undefined
         }
     ],
-    create({ lookupObj }: LookupArgs): any {
-        return lookup(lookupObj);
+    create(args: LookupArgs): any {
+        return lookup(args.in);
     },
     argument_schema: {
-        lookupObj: {
+        in: {
             type: FieldType.Object,
             array: false,
-            description: 'Object to use for key lookup'
+            description: 'Object or table that is used for the key lookup.  Keys must strings or numbers.'
         }
     },
     accepts: [FieldType.Number, FieldType.String],

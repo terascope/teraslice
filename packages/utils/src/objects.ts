@@ -199,13 +199,13 @@ export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-export function lookup(lookupObj: unknown): (key: string | number) => any {
-    if (!isObjectEntity(lookupObj)) {
-        throw Error(`input must be an Object Entity, received ${getTypeOf(lookupObj)}`);
+export function lookup(obj: unknown): (key: string | number) => any {
+    if (!isObjectEntity(obj)) {
+        throw Error(`input must be an Object Entity, received ${getTypeOf(obj)}`);
     }
 
     return function _lookup(key) {
-        const lookupAsType = lookupObj as Record<string, unknown>;
-        return lookupAsType[key];
+        const lookupObj = obj as Record<string, unknown>;
+        return lookupObj[key];
     };
 }
