@@ -33,7 +33,12 @@ import {
     isBefore as _isBefore,
     isAfter as _isAfter
 } from 'date-fns';
-import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
+import {
+    DateFormat,
+    ISO8601DateSegment,
+    TimeBetweenFormats,
+    DateTuple
+} from '@terascope/types';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
@@ -173,6 +178,20 @@ export function toISO8061(value: unknown): string {
     }
 
     return makeISODate(value as any);
+}
+
+/**
+ * Verify if an input is a Date Tuple
+*/
+export function isDateTuple(input: unknown): input is DateTuple {
+    return Array.isArray(input)
+        && input.length === 2
+        && Number.isInteger(input[0])
+        && Number.isInteger(input[1])
+        // the timezone has to be within 24hours
+        // in minutes
+        && input[1] <= 1440
+        && input[1] >= -1440;
 }
 
 /**
