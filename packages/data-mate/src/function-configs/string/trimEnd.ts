@@ -58,7 +58,7 @@ export const trimEndConfig: FieldTransformConfig<TrimEndArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from end of string',
     examples,
-    create({ chars }) {
+    create({ args: { chars } }) {
         return trimEndFP(chars);
     },
     accepts: [FieldType.String],

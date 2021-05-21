@@ -58,7 +58,7 @@ export const isGreaterThanConfig: FieldValidateConfig<GreaterThanArgs> = {
             output: 151
         }
     ],
-    create({ value }) {
+    create({ args: { value } }) {
         return isGreaterThan(value);
     },
     accepts: [

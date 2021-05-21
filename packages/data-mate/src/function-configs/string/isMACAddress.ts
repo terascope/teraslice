@@ -92,7 +92,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid mac address',
     examples,
-    create({ delimiter }: IsMacArgs) {
+    create({ args: { delimiter } }) {
         return (input: unknown) => isString(input)
             && isMACAddress(input, delimiter as MACDelimiter);
     },

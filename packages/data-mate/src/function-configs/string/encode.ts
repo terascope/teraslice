@@ -93,7 +93,7 @@ export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
             output: '6MsUBHluumd5onY3fM6ZpQKjZIE=',
         }
     ],
-    create({ algo, digest }) {
+    create({ args: { algo, digest } }) {
         return encodeAny(algo, digest);
     },
     accepts: [FieldType.String],

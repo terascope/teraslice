@@ -80,8 +80,8 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data when compared to the argument has overlap between the two',
-    create({ value: geoInput }) {
-        return geoIntersectsFP(geoInput);
+    create({ args: { value } }) {
+        return geoIntersectsFP(value);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -98,10 +98,10 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
         }
     },
     required_arguments: ['value'],
-    validate_arguments({ value: geoInput }) {
-        const input = toGeoJSON(geoInput);
+    validate_arguments({ value }) {
+        const input = toGeoJSON(value);
         if (!input) {
-            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(value)}, is not a valid geo-json`);
         }
     }
 };

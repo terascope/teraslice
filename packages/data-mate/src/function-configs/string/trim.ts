@@ -102,7 +102,7 @@ export const trimConfig: FieldTransformConfig<TrimArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from string',
     examples,
-    create({ chars }) {
+    create({ args: { chars } }) {
         return trimFP(chars);
     },
     accepts: [FieldType.String],

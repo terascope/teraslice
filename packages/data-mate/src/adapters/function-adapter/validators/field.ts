@@ -7,14 +7,17 @@ import {
     isNil,
     unset
 } from '@terascope/utils';
+import { FieldValidateConfig } from '../../../function-configs/interfaces';
 import { callValue } from '../utils';
+import { PartialArgs } from '../interfaces';
 
-export function fieldValidationColumnExecution(
-    fn: (input: unknown) => unknown,
+export function fieldValidationColumnExecution<T extends Record<string, any>>(
+    fnDef: FieldValidateConfig<T>,
+    configs: PartialArgs<T>,
     preserveNulls: boolean
 ) {
     return function _fieldValidationColumnExecution(
-        input: unknown[]
+        input: unknown[],
     ): (unknown|null)[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
@@ -22,17 +25,24 @@ export function fieldValidationColumnExecution(
 
         const results: (unknown | null)[] = [];
 
-        for (const value of input) {
+        const fn = fnDef.create({
+            ...configs,
+            ctx: input
+        });
+
+        for (let i = 0; i < input.length; i++) {
+            const value = input[i];
+
             if (Array.isArray(value)) {
-                const fieldList = callValue(fn, value, preserveNulls, true);
+                const fieldList = callValue(fn, value, preserveNulls, true, i);
 
                 if (fieldList.length > 0) {
                     results.push(fieldList);
                 } else if (preserveNulls) {
                     results.push(null);
                 }
-            } else if (isNotNil(value) && fn(value)) {
-                results.push(...callValue(fn, value, preserveNulls, true));
+            } else if (isNotNil(value) && fn(value, i)) {
+                results.push(...callValue(fn, value, preserveNulls, true, i));
             } else if (preserveNulls) {
                 results.push(null);
             }
@@ -42,25 +52,32 @@ export function fieldValidationColumnExecution(
     };
 }
 
-export function wholeFieldValidationColumnExecution(
-    fn: (input: unknown) => unknown,
+export function wholeFieldValidationColumnExecution<T extends Record<string, any>>(
+    fnDef: FieldValidateConfig<T>,
+    configs: PartialArgs<T>,
 ) {
     return function _fieldValidationColumnExecution(
-        input: unknown[]
+        input: unknown[],
     ): unknown[] {
-        return input.map((value) => (fn(value) ? value : null));
+        const fn = fnDef.create({
+            ...configs,
+            ctx: input
+        });
+
+        return input.map((value, i) => (fn(value, i) ? value : null));
     };
 }
 
 export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
-    fn: (input: unknown) => unknown,
+    fnDef: FieldValidateConfig<T>,
+    configs: PartialArgs<T>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
-): (input: T[]) => T[] {
+): (input: Record<string, unknown>[]) => Record<string, unknown>[] {
     return function _wholeFieldValidationRowExecution(
-        input: T[]
-    ): T[] {
+        input: Record<string, unknown>[],
+    ): Record<string, unknown>[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
@@ -68,15 +85,20 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
 
         const results = [];
 
-        for (const record of input) {
-            const clone = cloneDeep(record);
+        const fn = fnDef.create({
+            ...configs,
+            ctx: input
+        });
 
-            if (!isObjectEntity(record)) {
-                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+        for (let i = 0; i < input.length; i++) {
+            const clone = cloneDeep(input[i]);
+
+            if (!isObjectEntity(clone)) {
+                throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
             }
 
             const value = get(clone, field);
-            const isValid = fn(value);
+            const isValid = fn(value, i);
             // if it fails validation and we keep null
             if (!isValid && preserveNulls) {
                 set(clone, field, null);
@@ -103,32 +125,37 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
 }
 
 export function fieldValidationRowExecution<T extends Record<string, any>>(
-    fn: (input: unknown) => unknown,
+    fnDef: FieldValidateConfig<T>,
+    configs: PartialArgs<T>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
-): (input: T[]) => T[] {
+): (input: Record<string, unknown>[]) => Record<string, unknown>[] {
     return function _wholeFieldValidationRowExecution(
-        input: T[]
-    ): T[] {
+        input: Record<string, unknown>[],
+    ): Record<string, unknown>[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of objects');
         }
 
-        const results: T[] = [];
+        const results: Record<string, unknown>[] = [];
+        const fn = fnDef.create({
+            ...configs,
+            ctx: input
+        });
 
-        for (const record of input) {
-            const clone = cloneDeep(record);
+        for (let i = 0; i < input.length; i++) {
+            const clone = cloneDeep(input[i]) as Record<string, unknown>;
 
-            if (!isObjectEntity(record)) {
-                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+            if (!isObjectEntity(clone)) {
+                throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
             }
 
             const value: unknown = get(clone, field);
 
             if (Array.isArray(value)) {
-                const fieldList = callValue(fn, value, preserveNulls, true);
+                const fieldList = callValue(fn, value, preserveNulls, true, i);
 
                 // we have results in list or we don't care if its an empty list here
                 if (fieldList.length > 0) {
@@ -147,7 +174,7 @@ export function fieldValidationRowExecution<T extends Record<string, any>>(
                     }
                 }
             } else {
-                const isValid = fn(value as T);
+                const isValid = fn(value as T, i);
                 // if it fails validation and we keep null
                 if (!isValid && preserveNulls) {
                     set(clone, field, null);

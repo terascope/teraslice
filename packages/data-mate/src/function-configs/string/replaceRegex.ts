@@ -52,10 +52,12 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'This function replaces chars in a string based off the regex value provided',
     create({
-        replace,
-        regex,
-        ignoreCase = false,
-        global = false
+        args: {
+            replace,
+            regex,
+            ignoreCase = false,
+            global = false
+        }
     }) {
         return (input: unknown) => replaceFn(input as string, replace, regex, ignoreCase, global);
     },

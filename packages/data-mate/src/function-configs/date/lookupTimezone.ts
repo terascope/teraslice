@@ -5,7 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    isNumericType
 } from '../interfaces';
 
 export const lookupTimezoneConfig: FieldTransformConfig = {
@@ -83,7 +84,7 @@ export const lookupTimezoneConfig: FieldTransformConfig = {
 };
 
 function arrayType(fieldConfig: DataTypeFieldConfig): boolean {
-    if (fieldConfig.type === FieldType.Number || fieldConfig.type === FieldType.Float) {
+    if (isNumericType(fieldConfig)) {
         return false;
     }
 

@@ -1,4 +1,4 @@
-import { DataTypeConfig } from '@terascope/types';
+import { DataTypeConfig, ReadonlyDataTypeFields, DataTypeFieldConfig } from '@terascope/types';
 
 export interface FunctionAdapterOptions<T extends Record<string, any>> {
     /**
@@ -12,9 +12,17 @@ export interface FunctionAdapterOptions<T extends Record<string, any>> {
 }
 
 export interface RecordFunctionAdapterOperation {
-    rows<T extends Record<string, any>>(records: T[]): Record<string, unknown>[];
+    rows: (records: Record<string, unknown>[]) => Record<string, unknown>[];
 }
 
 export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOperation {
     column(values: unknown[]): unknown[];
+}
+
+export interface PartialArgs
+<T extends Record<string, any> = Record<string, unknown>> {
+    args: T,
+    readonly field_config?: Readonly<DataTypeFieldConfig>,
+    readonly child_config?: ReadonlyDataTypeFields
+
 }

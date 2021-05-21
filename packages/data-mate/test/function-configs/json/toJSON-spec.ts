@@ -5,7 +5,7 @@ import {
 } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dataFrameAdapter
+    ProcessMode, Column, dataFrameAdapter, TransformArgs
 } from '../../../src';
 
 const toJSONConfig = functionConfigRepository.toJSON;
@@ -27,10 +27,17 @@ describe('toJSONConfig', () => {
     });
 
     it('can convert values to JSON', () => {
-        const toJSON = toJSONConfig.create({});
+        const config: TransformArgs<Record<string, unknown>> = {
+            args: {},
+            ctx: originalValues,
+            fnDef: toJSONConfig,
+            field_config: { type: FieldType.String, array: false },
+        } as TransformArgs<Record<string, unknown>>;
+
+        const toJSON = toJSONConfig.create(config);
 
         originalValues.forEach((val, ind) => {
-            expect(toJSON(val)).toEqual(testValues[ind]);
+            expect(toJSON(val, ind)).toEqual(testValues[ind]);
         });
     });
 

@@ -40,7 +40,7 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
         input: null,
         output: ['example'],
     }],
-    create(args, inputConfig) {
+    create({ args, inputConfig }) {
         let isListValue = inputConfig?.field_config?.array;
         return function setDefault(value) {
             if (isListValue == null && Array.isArray(value)) {

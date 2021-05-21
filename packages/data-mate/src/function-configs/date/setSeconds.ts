@@ -47,7 +47,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             serialize_output: toISO8061
         }
     ],
-    create({ seconds }: { seconds: number }) {
+    create({ args: { seconds } }) {
         return setSeconds(seconds);
     },
     argument_schema: {

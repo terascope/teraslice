@@ -133,8 +133,8 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data is completely "within" the argument. The interiors of both geo entities must intersect, and the geo data  must not exceed the bounds of the geo argument',
-    create({ value: geoInput }) {
-        return geoWithinFP(geoInput);
+    create({ args: { value } }) {
+        return geoWithinFP(value);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -151,10 +151,10 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
         }
     },
     required_arguments: ['value'],
-    validate_arguments({ value: geoInput }) {
-        const input = toGeoJSON(geoInput);
+    validate_arguments({ value }) {
+        const input = toGeoJSON(value);
         if (!input) {
-            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(value)}, is not a valid geo-json`);
         }
     }
 };

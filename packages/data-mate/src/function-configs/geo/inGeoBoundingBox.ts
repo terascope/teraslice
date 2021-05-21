@@ -42,7 +42,7 @@ export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs>
         },
     ],
     description: 'Checks to see if input is within the geo bounding-box',
-    create({ top_left, bottom_right }) {
+    create({ args: { top_left, bottom_right } }) {
         return inGeoBoundingBoxFP(top_left, bottom_right);
     },
     accepts: [

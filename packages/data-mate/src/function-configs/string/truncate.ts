@@ -33,7 +33,7 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
             output: 'Hello wo'
         },
     ],
-    create({ size }: TruncateConfig) {
+    create({ args: { size } }) {
         return truncateFP(size, false) as (value: unknown) => string;
     },
     accepts: [FieldType.String],

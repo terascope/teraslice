@@ -3,8 +3,10 @@ import {
     cloneDeep, DataEntity,
     isEmpty, isNotNil, withoutNil
 } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
 import {
-    functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
+    functionConfigRepository, functionAdapter, FunctionDefinitionType,
+    ProcessMode, BaseArgs
 } from '../../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -25,10 +27,16 @@ describe('isBooleanConfig', () => {
     it('can validate values', () => {
         const values = [true, false, 'true', null, 1, 0, [true, false], { some: 'thing' }];
         const expected = [true, true, false, false, false, false, false, false];
-        const isBoolean = isBooleanConfig.create({});
+        const config: BaseArgs<Record<string, unknown>> = {
+            args: {},
+            ctx: values,
+            fnDef: isBooleanConfig,
+            field_config: { type: FieldType.Boolean },
+        } as BaseArgs<Record<string, unknown>>;
+        const isBoolean = isBooleanConfig.create(config);
 
         values.forEach((val, ind) => {
-            expect(isBoolean(val)).toEqual(expected[ind]);
+            expect(isBoolean(val, ind)).toEqual(expected[ind]);
         });
     });
 

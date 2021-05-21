@@ -10,7 +10,11 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const toCIDRConfig: FieldTransformConfig = {
+export interface ToCIDRArgs {
+    suffix: number | string
+}
+
+export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
     name: 'toCIDR',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -40,9 +44,16 @@ export const toCIDRConfig: FieldTransformConfig = {
     ],
     description: 'Returns a CIDR address based on the provided ip and suffix',
     accepts: [FieldType.String, FieldType.IP],
-    create({ suffix }) {
+    create({ args: { suffix } }) {
         return (input: unknown) => toCIDR(input, toString(suffix));
     },
+    argument_schema: {
+        suffix: {
+            type: FieldType.String || FieldType.Number,
+            description: 'suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses'
+        }
+    },
+    required_arguments: ['suffix'],
     validate_arguments({ suffix }) {
         if (isNumberLike(suffix)) {
             const asInt = toNumber(suffix);

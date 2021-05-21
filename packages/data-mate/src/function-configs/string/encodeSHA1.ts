@@ -52,7 +52,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
             output: '6MsUBHluumd5onY3fM6ZpQKjZIE='
         }
     ],
-    create({ digest = defaultDigest } = {}) {
+    create({ args: { digest = defaultDigest } }) {
         return cryptoEncode('sha1', digest);
     },
     accepts: [FieldType.String],

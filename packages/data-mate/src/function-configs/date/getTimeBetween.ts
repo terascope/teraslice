@@ -56,7 +56,7 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             description: 'The format of the return value'
         }
     },
-    create(args: GetTimeBetweenArgs) {
+    create({ args }) {
         return (input: unknown) => getTimeBetween(input, args);
     },
     required_arguments: ['format'],

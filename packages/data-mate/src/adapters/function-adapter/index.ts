@@ -13,7 +13,8 @@ import {
     wholeFieldTransformRowExecution
 } from './transformers';
 import {
-    FunctionAdapterOptions, RecordFunctionAdapterOperation, FieldFunctionAdapterOperation
+    FunctionAdapterOptions, RecordFunctionAdapterOperation,
+    FieldFunctionAdapterOperation, PartialArgs
 } from './interfaces';
 import {
     FieldValidateConfig,
@@ -25,7 +26,7 @@ import {
     isRecordValidation,
     ProcessMode,
     FunctionDefinitionConfig,
-    DataTypeFieldAndChildren
+    DataTypeFieldAndChildren,
 } from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 import { getChildDataTypeConfig } from '../../core';
@@ -55,49 +56,59 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
 
     if (isFieldValidation(fnDef)) {
         // creating fn here ensures better typing of what fn is
-        const fn = fnDef.create(args, getDataTypeFieldAndChildren(config, field));
+        const fnConfig: PartialArgs<T> = {
+            args,
+            ...getDataTypeFieldAndChildren(config, field)
+        };
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
-                rows: wholeFieldValidationRowExecution(
-                    fn, preserveNulls, preserveEmptyObjects, field
+                rows: wholeFieldValidationRowExecution<T>(
+                    fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
                 ),
-                column: wholeFieldValidationColumnExecution(fn)
+                column: wholeFieldValidationColumnExecution<T>(fnDef, fnConfig)
             };
         }
 
         return {
             rows: fieldValidationRowExecution(
-                fn, preserveNulls, preserveEmptyObjects, field
+                fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
             ),
-            column: fieldValidationColumnExecution(fn, preserveNulls)
+            column: fieldValidationColumnExecution(fnDef, fnConfig, preserveNulls)
         };
     }
 
     if (isFieldTransform(fnDef)) {
-        const fn = fnDef.create(args, getDataTypeFieldAndChildren(config, field));
+        const fnConfig: PartialArgs<T> = {
+            args,
+            ...getDataTypeFieldAndChildren(config, field)
+        };
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
                 rows: wholeFieldTransformRowExecution(
-                    fn, preserveNulls, preserveEmptyObjects, field
+                    fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
                 ),
-                column: wholeFieldTransformColumnExecution(fn, preserveNulls)
+                column: wholeFieldTransformColumnExecution(fnDef, fnConfig, preserveNulls)
             };
         }
 
         return {
             rows: fieldTransformRowExecution(
-                fn as any, preserveNulls, preserveEmptyObjects, field
+                fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
             ),
-            column: fieldTransformColumnExecution(fn as any, preserveNulls)
+            column: fieldTransformColumnExecution(fnDef, fnConfig, preserveNulls)
         };
     }
 
     if (isRecordValidation(fnDef)) {
-        const fn = fnDef.create(args, config?.fields);
+        const fnConfig: PartialArgs<T> = {
+            args,
+            ...getDataTypeFieldAndChildren(config, field)
+        };
+
         return {
-            rows: recordValidationExecution(fn)
+            rows: recordValidationExecution(fnDef, fnConfig)
         };
     }
 
@@ -115,9 +126,3 @@ export function getDataTypeFieldAndChildren(
     );
     return { field_config: fieldConfig, child_config: childConfig };
 }
-
-// RecordValidation preserveNull true
-// === [{ someField: true }, null]
-
-// RecordValidation preserveNull false
-// === [{ someField: true }]

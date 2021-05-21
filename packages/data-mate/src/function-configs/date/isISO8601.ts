@@ -45,7 +45,7 @@ export const isISO8601Config: FieldValidateConfig = {
         output: null
     }],
     argument_schema: {},
-    create(_args, inputConfig) {
+    create({ inputConfig }) {
         if (isIS8601FieldConfig(inputConfig)) {
             return alwaysTrue;
         }

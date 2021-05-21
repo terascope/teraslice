@@ -5,7 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    isNumericType
 } from '../interfaces';
 
 export const toGeoPointConfig: FieldTransformConfig = {
@@ -83,7 +84,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
 };
 
 function arrayType(fieldConfig: DataTypeFieldConfig): boolean {
-    if (fieldConfig.type === FieldType.Number || fieldConfig.type === FieldType.Float) {
+    if (isNumericType(fieldConfig)) {
         return false;
     }
 

@@ -55,7 +55,7 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
             output: 10
         }
     ],
-    create(args) {
+    create({ args }) {
         return inNumberRangeFP(args);
     },
     accepts: [

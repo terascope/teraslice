@@ -5,7 +5,11 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const intToIPConfig: FieldTransformConfig = {
+export interface IntToIPArgs {
+    version: string | number
+}
+
+export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
     name: 'intToIP',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -26,9 +30,15 @@ export const intToIPConfig: FieldTransformConfig = {
             output: '2001:2::',
         }
     ],
+    argument_schema: {
+        version: {
+            type: FieldType.String || FieldType.Number,
+            description: 'Which version of ip to create, 4 => IPv4, 6 => IPv6'
+        }
+    },
     accepts: [FieldType.String, FieldType.Number],
     description: 'Converts an integer to an ip address, must provide the version of the returned ip address',
-    create({ version }) {
+    create({ args: { version } }) {
         return (input: unknown) => intToIP(input, toString(version));
     },
     validate_arguments({ version }) {

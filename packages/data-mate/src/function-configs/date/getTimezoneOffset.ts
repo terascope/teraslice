@@ -71,7 +71,7 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
         },
 
     ],
-    create({ timezone }) {
+    create({ args: { timezone } }) {
         return getTimezoneOffsetFP(timezone);
     },
     accepts: [
@@ -94,5 +94,6 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
                 type: FieldType.Number
             },
         };
-    }
+    },
+    required_arguments: ['timezone']
 };

@@ -47,7 +47,7 @@ export const splitConfig: FieldTransformConfig<SplitArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char',
     examples,
-    create({ delimiter = '' }) {
+    create({ args: { delimiter = '' } }) {
         return splitFn(delimiter);
     },
     accepts: [FieldType.String],

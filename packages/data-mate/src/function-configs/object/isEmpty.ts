@@ -1,7 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { isString, isEmpty } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample
 } from '../interfaces';
 
 export interface EmptyArgs {
@@ -9,14 +10,39 @@ export interface EmptyArgs {
     readonly ignoreWhitespace?: boolean;
 }
 
+const examples: FunctionDefinitionExample<EmptyArgs>[] = [
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+        output: null
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: '',
+        output: ''
+    },
+    {
+        args: {},
+        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        field: 'testField',
+        input: [],
+        output: []
+    },
+];
+
 export const isEmptyConfig: FieldValidateConfig<EmptyArgs> = {
     name: 'isEmpty',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.OBJECT,
     description: 'Checks to see if input is empty',
+    examples,
     accepts: [],
-    create({ ignoreWhitespace }) {
+    create({ args: { ignoreWhitespace } }) {
         return (input: unknown) => isEmptyFn(input, ignoreWhitespace);
     },
     argument_schema: {

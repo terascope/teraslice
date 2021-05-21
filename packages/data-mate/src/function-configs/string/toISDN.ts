@@ -61,12 +61,6 @@ export const toISDNConfig: FieldTransformConfig = {
     accepts: [
         FieldType.String,
         FieldType.Number,
-        FieldType.Byte,
-        FieldType.Short,
-        FieldType.Integer,
-        FieldType.Float,
-        FieldType.Long,
-        FieldType.Double
     ],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;

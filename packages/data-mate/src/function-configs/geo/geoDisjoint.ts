@@ -79,8 +79,8 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data does not have any intersection (overlap) with the geoInput argument',
-    create({ value: geoInput }) {
-        return geoDisjointFP(geoInput);
+    create({ args: { value } }) {
+        return geoDisjointFP(value);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -97,10 +97,10 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
         }
     },
     required_arguments: ['value'],
-    validate_arguments({ value: geoInput }) {
-        const input = toGeoJSON(geoInput);
+    validate_arguments({ value }) {
+        const input = toGeoJSON(value);
         if (!input) {
-            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(value)}, is not a valid geo-json`);
         }
     }
 };

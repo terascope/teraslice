@@ -54,7 +54,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
             output: 5
         }
     ],
-    create({ value }, inputConfig) {
+    create({ args: { value }, inputConfig }) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
             return divideFP(toBigIntOrThrow(value));
         }

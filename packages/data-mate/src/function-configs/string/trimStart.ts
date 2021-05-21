@@ -52,7 +52,7 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Trims whitespace or characters from start of string',
     examples,
-    create({ chars }) {
+    create({ args: { chars } }) {
         return trimStartFP(chars);
     },
     accepts: [FieldType.String],

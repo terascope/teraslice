@@ -47,10 +47,10 @@ export type ColumnTransformFn<
     R,
 > = {
     mode: TransformMode.EACH;
-    fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>;
+    fn: (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>;
 }|{
     mode: TransformMode.EACH_VALUE;
-    fn: (value: T) => Maybe<R>;
+    fn: (value: T, index: number) => Maybe<R>;
 }|{
     mode: TransformMode.NONE;
 };
