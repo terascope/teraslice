@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { isObjectEntity, safeSerialize } from '@terascope/utils';
+import { isObjectEntity, toJSONCompatibleValue } from '@terascope/utils';
 import {
     functionAdapter,
     dataFrameAdapter,
@@ -47,10 +47,10 @@ export function functionTestHarness<T extends Record<string, any>>(
                     if (output == null) return [null];
                     if (testCase.serialize_output) {
                         return [testCase.serialize_output(
-                            safeSerialize(output)
+                            toJSONCompatibleValue(output)
                         )];
                     }
-                    return [safeSerialize(output)];
+                    return [toJSONCompatibleValue(output)];
                 }
 
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {

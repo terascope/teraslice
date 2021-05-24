@@ -211,7 +211,7 @@ export class DataFrame<
     /**
      * This is more expensive and little more complicated.
      * In the future we pass in json=false to each column and
-     * the call valueToJSON after each generating the hash
+     * the call toJSONCompatibleValue after each generating the hash
      * to be consistent with hash
     */
     private* rowsWithoutDuplicates(

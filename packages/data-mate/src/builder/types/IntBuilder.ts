@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { toIntegerOrThrow } from '@terascope/utils';
+import { validateNumberType } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -11,25 +11,17 @@ export const INT_SIZES = {
 } as const;
 
 export class IntBuilder extends Builder<number> {
+    private numValidator: (input: unknown) => number
+
     constructor(
         data: WritableData<number>,
         options: BuilderOptions
     ) {
         super(VectorType.Int, data, options);
+        this.numValidator = validateNumberType(this.config.type as FieldType);
     }
 
     _valueFrom(value: unknown): number {
-        const fieldType = this.config.type as FieldType;
-        const int = toIntegerOrThrow(value);
-        if (INT_SIZES[fieldType]) {
-            const { max, min } = INT_SIZES[fieldType];
-            if (int > max) {
-                throw new TypeError(`${fieldType} value of ${int} is greater than maximum size of ${max}`);
-            }
-            if (int < min) {
-                throw new TypeError(`${fieldType} value of ${int} is less than minimum size of ${min}`);
-            }
-        }
-        return int;
+        return this.numValidator(value);
     }
 }

@@ -1,6 +1,6 @@
 import {
     isBigInt, bigIntToJSON, isNil,
-    isObjectEntity, safeSerialize
+    isObjectEntity, toJSONCompatibleValue
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
@@ -84,7 +84,7 @@ export const toJSONConfig: FieldTransformConfig = {
             }
 
             if (isObjectEntity(input)) {
-                const parsedData = safeSerialize(input);
+                const parsedData = toJSONCompatibleValue(input);
                 return JSON.stringify(parsedData);
             }
 
