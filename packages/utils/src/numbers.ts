@@ -1,5 +1,6 @@
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
+import { hasOwn } from './objects';
 
 let supportsBigInt = true;
 try {
@@ -95,6 +96,25 @@ export function bigIntToJSON(int: bigint): string|number {
     }
     // for some reason bigints ending being +1
     return (int - BigInt(1)).toString(10);
+}
+
+export function safeSerialize(input: unknown): any {
+    if (isBigInt(input)) return bigIntToJSON(input);
+    if (input == null || typeof input !== 'object') return input;
+
+    if (Array.isArray(input)) {
+        return input.map(safeSerialize);
+    }
+
+    const obj = {};
+
+    for (const prop in input) {
+        if (hasOwn(input, prop)) {
+            obj[prop] = safeSerialize(input[prop]);
+        }
+    }
+
+    return obj;
 }
 
 /**

@@ -50,7 +50,7 @@ export const trimStartConfig: FieldTransformConfig<TrimStartArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Trims whitespace or characters from start of string',
+    description: 'Trims whitespace or characters from start of a string',
     examples,
     create({ args: { chars } }) {
         return trimStartFP(chars);
