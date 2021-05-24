@@ -129,7 +129,7 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /** Used for additional custom validation of args, called after generic arg validation */
     readonly validate_arguments?: (args: T) => void;
 }
-export interface BaseCreateArgs<T extends Record<string, any> = Record<string, unknown>> {
+export interface InitialFunctionArgs<T extends Record<string, any> = Record<string, unknown>> {
     readonly args: T,
     inputConfig?: DataTypeFieldAndChildren,
     ctx: Column<unknown>|unknown[]
@@ -138,7 +138,7 @@ export interface BaseCreateArgs<T extends Record<string, any> = Record<string, u
 /** This interface might change, not certain of use of  outputConfig */
 export interface TransformArgs<
     T extends Record<string, any> = Record<string, unknown>
-> extends BaseCreateArgs<T> {
+> extends InitialFunctionArgs<T> {
     outputConfig?: DataTypeFieldAndChildren,
 }
 
@@ -147,7 +147,7 @@ export interface FieldValidateConfig<
 > extends FunctionDefinitionConfig<T> {
     readonly type: FunctionDefinitionType.FIELD_VALIDATION;
     readonly process_mode: ProcessMode;
-    readonly create: (config: BaseCreateArgs<T>) => (value: unknown, index: number) => boolean;
+    readonly create: (config: InitialFunctionArgs<T>) => (value: unknown, index: number) => boolean;
 }
 
 export interface FieldTransformConfig<

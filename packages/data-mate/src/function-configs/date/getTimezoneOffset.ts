@@ -91,7 +91,7 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number
+                type: FieldType.Short
             },
         };
     },

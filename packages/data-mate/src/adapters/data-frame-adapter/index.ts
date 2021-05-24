@@ -11,7 +11,7 @@ import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, isFieldOperation,
     DataTypeFieldAndChildren, FunctionDefinitionConfig,
-    BaseCreateArgs, TransformArgs
+    InitialFunctionArgs, TransformArgs
 } from '../../function-configs/interfaces';
 import {
     TransformMode, ColumnTransformFn
@@ -137,7 +137,7 @@ function validateColumnData<T extends Record<string, any>>(
         child_config: column.vector.childConfig,
     };
 
-    const config: BaseCreateArgs<T> = {
+    const config: InitialFunctionArgs<T> = {
         args: { ...args } as T,
         ctx: column,
         ...inputConfig

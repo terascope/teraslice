@@ -27,7 +27,7 @@ export const timezoneToOffsetConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number
+                type: FieldType.Short
             },
         };
     }
