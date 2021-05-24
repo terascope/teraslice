@@ -11,17 +11,17 @@ import {
     joinList, getTypeOf, isEmpty, isBigInt,
     isArray,
     isValidateNumberType,
+    isCIDR
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
     FunctionDefinitionConfig,
 } from '../../function-configs/interfaces';
 
-function QPLIntGuard(input: unknown): boolean {
+function isIntOrBigint(input: unknown): boolean {
     return isBigInt(input) || isNumber(input);
 }
 
-// TODO: migrate IPRange to IP?
 function getType(
     argFieldType: DataTypeFieldConfig,
 ): (input: unknown) => boolean {
@@ -40,7 +40,7 @@ function getType(
         case FieldType.IP:
             return isIP;
         case FieldType.IPRange:
-            return isIP;
+            return isCIDR;
         case FieldType.Date:
             return isValidDate;
         case FieldType.Boolean:
@@ -54,9 +54,9 @@ function getType(
         case FieldType.Short:
             return isValidateNumberType(FieldType.Short);
         case FieldType.Integer:
-            return QPLIntGuard;
+            return isValidateNumberType(FieldType.Integer);
         case FieldType.Long:
-            return isBigInt;
+            return isIntOrBigint;
         case FieldType.Geo:
         case FieldType.GeoPoint:
         case FieldType.Boundary:

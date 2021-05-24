@@ -146,7 +146,7 @@ function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6): boolean {
     return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
 }
 
-export function isCIDR(input: unknown): boolean {
+export function isCIDR(input: unknown): input is string {
     return isString(input) && validateCidr(input) > 0;
 }
 
