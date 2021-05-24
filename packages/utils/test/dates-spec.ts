@@ -7,6 +7,7 @@ import {
     formatDateValue,
     trimISODateSegment,
     getTimeBetween,
+    setTimezone,
     isBefore,
     isAfter,
     isBetween,
@@ -47,6 +48,15 @@ describe('date utils', () => {
             [[978310800000, 3 * 60], '2001-01-01T01:00:00.000+03:00'],
         ])('should handle %p and return %p', (input, expected) => {
             expect(toISO8601(input)).toEqual(expected);
+        });
+    });
+
+    describe('setTimezone', () => {
+        test.each([
+            ['2001-01-01T01:00:00.000Z', 4 * 60, [978310800000, 4 * 60]],
+            ['2001-01-01T04:00:00.000+03:00', 2 * 60, [978310800000, 2 * 60]],
+        ])('should handle %p with timezone %p and return %p', (input, timezone, expected) => {
+            expect(setTimezone(input, timezone)).toEqual(expected);
         });
     });
 

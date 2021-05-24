@@ -42,6 +42,7 @@ import { setHoursConfig } from './setHours';
 import { setDateConfig } from './setDate';
 import { setMonthConfig } from './setMonth';
 import { setYearConfig } from './setYear';
+import { setTimezoneConfig } from './setTimezone';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
@@ -86,6 +87,7 @@ export const dateRepository = {
     setMinutes: setMinutesConfig,
     setHours: setHoursConfig,
     setDate: setDateConfig,
+    setTimezone: setTimezoneConfig,
     setMonth: setMonthConfig,
     setYear: setYearConfig
 };

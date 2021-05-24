@@ -91,6 +91,8 @@ export function getValidDate(val: unknown): Date | false {
         return new Date(val);
     }
 
+    if (isDateTuple(val)) return new Date(val[0]);
+
     const d = new Date(val as string);
     if (isValidDateInstance(d)) return d;
     return false;
@@ -183,7 +185,7 @@ export function toISO8601(value: unknown): string {
         if (value[1] === 0) {
             return new Date(value[0]).toISOString();
         }
-        return new Date(value[0]).toISOString().replace('Z', genTimezone(value[1]));
+        return new Date(value[0]).toISOString().replace('Z', _genISOTimezone(value[1]));
     }
 
     return makeISODate(value as any);
@@ -192,20 +194,40 @@ export function toISO8601(value: unknown): string {
 /**
  * Generate the ISO8601
 */
-function genTimezone(offset: number): string {
+function _genISOTimezone(offset: number): string {
     const absOffset = Math.abs(offset);
     const hours = Math.floor(absOffset / 60);
     const minutes = absOffset - (hours * 60);
 
     const sign = offset < 0 ? '-' : '+';
-    return `${sign}${pad(hours)}:${pad(minutes)}`;
+    return `${sign}${_padNum(hours)}:${_padNum(minutes)}`;
 }
 
 /**
  * a simple version of pad that only deals with simple cases
 */
-function pad(input: number): string {
+function _padNum(input: number): string {
     return input < 10 ? `0${input}` : `${input}`;
+}
+
+/**
+ * Set the timezone offset of a date, returns a date tuple
+ */
+export function setTimezone(input: unknown, timezone: string|number): DateTuple {
+    if (isNumber(input)) return [input, timezone as number];
+    if (isDateTuple(input)) return [input[0], timezone as number];
+
+    const date = getValidDateOrThrow(input);
+    return [date.getTime(), timezone as number];
+}
+
+/**
+ * A curried version of setTimezone
+*/
+export function setTimezoneFP(timezone: string|number) {
+    return function _setTimezone(input: unknown): DateTuple {
+        return setTimezone(input, timezone);
+    };
 }
 
 /**
