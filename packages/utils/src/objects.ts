@@ -4,8 +4,6 @@ import { get, getTypeOf, isPlainObject } from './deps';
 import { DataEntity } from './entities';
 import { isArrayLike } from './arrays';
 import { isBuffer } from './buffers';
-import { isString } from './strings';
-import { isNumber } from 'lodash';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
@@ -207,8 +205,8 @@ export function lookup(obj: unknown): (key: unknown) => any {
     }
 
     return function _lookup(key: unknown) {
-        if (!isString(key) || !isNumber(key)) return null;
+        if (!key) return null;
         const lookupObj = obj as Record<string, unknown>;
-        return lookupObj[key];
+        return lookupObj[key as string];
     };
 }
