@@ -87,7 +87,7 @@ export function getValidDate(val: unknown): Date | false {
     }
 
     if (typeof val === 'number') {
-        if (Number.isNaN(val)) return false;
+        if (!Number.isInteger(val)) return false;
         return new Date(val);
     }
 
@@ -113,7 +113,7 @@ export function getValidDateOrThrow(val: unknown): Date {
  * Returns a valid date or throws, {@see getValidDate}
 */
 export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
-    if (typeof val === 'number' && !Number.isNaN(val)) return val;
+    if (typeof val === 'number' && !Number.isInteger(val)) return val;
     if (isDateTuple(val)) return val[0];
 
     const date = getValidDate(val as any);
