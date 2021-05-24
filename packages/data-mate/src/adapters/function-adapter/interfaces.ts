@@ -1,4 +1,5 @@
-import { DataTypeConfig, ReadonlyDataTypeFields, DataTypeFieldConfig } from '@terascope/types';
+import { DataTypeConfig } from '@terascope/types';
+import { DataTypeFieldAndChildren } from '../../function-configs/interfaces';
 
 export interface FunctionAdapterOptions<T extends Record<string, any>> {
     /**
@@ -22,7 +23,5 @@ export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOper
 export interface PartialArgs
 <T extends Record<string, any> = Record<string, unknown>> {
     args: T,
-    readonly field_config?: Readonly<DataTypeFieldConfig>,
-    readonly child_config?: ReadonlyDataTypeFields
-
+    readonly inputConfig?: DataTypeFieldAndChildren
 }

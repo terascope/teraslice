@@ -59,11 +59,11 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     ],
     argument_schema: {
         start: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Start date of time range'
         },
         end: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'End date of time range'
         }
     },

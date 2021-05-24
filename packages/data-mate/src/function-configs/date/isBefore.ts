@@ -58,7 +58,7 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     ],
     argument_schema: {
         date: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Date to compare input to'
         }
     },

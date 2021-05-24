@@ -44,11 +44,11 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     ],
     argument_schema: {
         start: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Start time of time range, if start is after input will return a negative number'
         },
         end: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'End time of time range, if provided end is after input the return value will be negative'
         },
         format: {
@@ -70,7 +70,7 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number || FieldType.String
+                type: FieldType.Number
             }
         };
     }

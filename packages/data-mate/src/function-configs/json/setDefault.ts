@@ -21,25 +21,28 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.JSON,
     description: 'Replace missing values in a column with a constant value',
-    examples: [{
-        args: { value: 'example' },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.String } }
+    examples: [
+        {
+            args: { value: 'example' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: null,
+            output: 'example',
         },
-        field: 'testField',
-        input: null,
-        output: 'example',
-    }, {
-        args: { value: 'example' },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.String, array: true } }
-        },
-        field: 'testField',
-        input: null,
-        output: ['example'],
-    }],
+        {
+            args: { value: 'example' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String, array: true } }
+            },
+            field: 'testField',
+            input: null,
+            output: ['example'],
+        }
+    ],
     create({ args, inputConfig }) {
         let isListValue = inputConfig?.field_config?.array;
         return function setDefault(value) {

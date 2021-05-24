@@ -110,7 +110,7 @@ For example, \`1h\` or \`1h+2m\``
             throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
         }
 
-        for (const argKey in argKeys) {
+        for (const argKey of argKeys) {
             if (!keyList.includes(argKey)) {
                 throw new Error(`Invalid arg name ${argKey}, must be one of ${joinList(keyList)}`);
             }

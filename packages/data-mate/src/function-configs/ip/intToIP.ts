@@ -32,7 +32,7 @@ export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
     ],
     argument_schema: {
         version: {
-            type: FieldType.String || FieldType.Number,
+            type: FieldType.Any,
             description: 'Which version of ip to create, 4 => IPv4, 6 => IPv6'
         }
     },

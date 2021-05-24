@@ -86,7 +86,7 @@ function transformColumnData<T extends Record<string, any>>(
     const config: TransformArgs<T> = {
         args: { ...args },
         ctx: column,
-        ...inputConfig,
+        inputConfig,
         outputConfig
     };
 

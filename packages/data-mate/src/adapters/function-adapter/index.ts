@@ -58,7 +58,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
         // creating fn here ensures better typing of what fn is
         const fnConfig: PartialArgs<T> = {
             args,
-            ...getDataTypeFieldAndChildren(config, field)
+            inputConfig: getDataTypeFieldAndChildren(config, field)
         };
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
@@ -81,7 +81,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     if (isFieldTransform(fnDef)) {
         const fnConfig: PartialArgs<T> = {
             args,
-            ...getDataTypeFieldAndChildren(config, field)
+            inputConfig: getDataTypeFieldAndChildren(config, field)
         };
 
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
@@ -104,7 +104,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     if (isRecordValidation(fnDef)) {
         const fnConfig: PartialArgs<T> = {
             args,
-            ...getDataTypeFieldAndChildren(config, field)
+            inputConfig: getDataTypeFieldAndChildren(config, field)
         };
 
         return {

@@ -57,7 +57,7 @@ const examples: FunctionDefinitionExample<EqualsArgs>[] = [
 export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
     name: 'equals',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.OBJECT,
     description: 'Checks to see if input matches the value',
     examples,

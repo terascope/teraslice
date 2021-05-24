@@ -49,7 +49,7 @@ export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
     },
     argument_schema: {
         suffix: {
-            type: FieldType.String || FieldType.Number,
+            type: FieldType.Any,
             description: 'suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses'
         }
     },

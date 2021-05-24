@@ -27,7 +27,7 @@ const examples: FunctionDefinitionExample<EmptyArgs>[] = [
     },
     {
         args: {},
-        config: { version: 1, fields: { testField: { type: FieldType.String } } },
+        config: { version: 1, fields: { testField: { type: FieldType.String, array: true } } },
         field: 'testField',
         input: [],
         output: []
