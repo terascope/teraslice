@@ -86,8 +86,9 @@ export function getValidDate(val: unknown): Date | false {
         if (typeof val === 'string') return false;
     }
 
-    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
-        return false;
+    if (typeof val === 'number') {
+        if (Number.isNaN(val)) return false;
+        return new Date(val);
     }
 
     const d = new Date(val as string);
@@ -110,9 +111,8 @@ export function getValidDateOrThrow(val: unknown): Date {
  * Returns a valid date or throws, {@see getValidDate}
 */
 export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
-    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
-        return val;
-    }
+    if (typeof val === 'number' && !Number.isNaN(val)) return val;
+    if (isDateTuple(val)) return val[0];
 
     const date = getValidDate(val as any);
     if (date === false) {
@@ -174,16 +174,16 @@ export function isISO8601(input: unknown): input is string {
 */
 export function toISO8601(value: unknown): string {
     if (isNumber(value)) {
-        return new Date(value - timezoneOffset).toISOString();
+        return new Date(value).toISOString();
     }
 
     if (isDateTuple(value)) {
         // this is utc so just fall back to
         // to the correct timezone
         if (value[1] === 0) {
-            return new Date(value[0] - timezoneOffset).toISOString();
+            return new Date(value[0]).toISOString();
         }
-        return new Date(value[0] - timezoneOffset).toISOString().replace('Z', genTimezone(value[1]));
+        return new Date(value[0]).toISOString().replace('Z', genTimezone(value[1]));
     }
 
     return makeISODate(value as any);
@@ -389,8 +389,7 @@ export function formatDateValue(
         return formatDate(ms + timezoneOffset, format);
     }
 
-    if (value instanceof Date) return value.toISOString();
-    return new Date(value).toISOString();
+    return toISO8601(value);
 }
 
 const _getDurationFunc = {
