@@ -66,7 +66,7 @@ describe('toJSONConfig', () => {
             ]);
         });
 
-        fit('should be able to transform a column of array values using toJSON', () => {
+        it('should be able to transform a column of array values using toJSON', () => {
             const values: Maybe<boolean[]>[] = [
                 [true, false],
                 [false],
