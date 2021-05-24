@@ -7,13 +7,12 @@ import {
     isNil,
     unset
 } from '@terascope/utils';
-import { FieldValidateConfig } from '../../../function-configs/interfaces';
+import { FieldValidateConfig, InitialFunctionContext } from '../../../function-configs/interfaces';
 import { callValue } from '../utils';
-import { PartialArgs } from '../interfaces';
 
 export function fieldValidationColumnExecution<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    configs: PartialArgs<T>,
+    configs: InitialFunctionContext<T>,
     preserveNulls: boolean
 ) {
     return function _fieldValidationColumnExecution(
@@ -27,7 +26,7 @@ export function fieldValidationColumnExecution<T extends Record<string, any>>(
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {
@@ -54,14 +53,14 @@ export function fieldValidationColumnExecution<T extends Record<string, any>>(
 
 export function wholeFieldValidationColumnExecution<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    configs: PartialArgs<T>,
+    configs: InitialFunctionContext<T>,
 ) {
     return function _fieldValidationColumnExecution(
         input: unknown[],
     ): unknown[] {
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         return input.map((value, i) => (fn(value, i) ? value : null));
@@ -70,7 +69,7 @@ export function wholeFieldValidationColumnExecution<T extends Record<string, any
 
 export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    configs: PartialArgs<T>,
+    configs: InitialFunctionContext<T>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
@@ -87,7 +86,7 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {
@@ -126,7 +125,7 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
 
 export function fieldValidationRowExecution<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    configs: PartialArgs<T>,
+    configs: InitialFunctionContext<T>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: string
@@ -142,7 +141,7 @@ export function fieldValidationRowExecution<T extends Record<string, any>>(
         const results: Record<string, unknown>[] = [];
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {

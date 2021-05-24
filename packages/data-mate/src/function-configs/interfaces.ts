@@ -129,25 +129,27 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
     /** Used for additional custom validation of args, called after generic arg validation */
     readonly validate_arguments?: (args: T) => void;
 }
-export interface InitialFunctionArgs<T extends Record<string, any> = Record<string, unknown>> {
+export interface FunctionContext<T extends Record<string, any> = Record<string, unknown>> {
     readonly args: T,
-    inputConfig?: DataTypeFieldAndChildren,
-    ctx: Column<unknown>|unknown[]
+    readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly parent: Column<unknown>|unknown[]
 }
 
 /** This interface might change, not certain of use of  outputConfig */
-export interface TransformArgs<
+export interface TransformContext<
     T extends Record<string, any> = Record<string, unknown>
-> extends InitialFunctionArgs<T> {
-    outputConfig?: DataTypeFieldAndChildren,
+> extends FunctionContext<T> {
+    readonly outputConfig?: DataTypeFieldAndChildren,
 }
+
+export type InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> = Pick<FunctionContext<T>, 'inputConfig'|'args'>
 
 export interface FieldValidateConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
     readonly type: FunctionDefinitionType.FIELD_VALIDATION;
     readonly process_mode: ProcessMode;
-    readonly create: (config: InitialFunctionArgs<T>) => (value: unknown, index: number) => boolean;
+    readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => boolean;
 }
 
 export interface FieldTransformConfig<
@@ -159,7 +161,7 @@ export interface FieldTransformConfig<
         inputConfig: DataTypeFieldAndChildren,
         args: T
     ) => DataTypeFieldAndChildren;
-    readonly create: (config: TransformArgs<T>) => (value: unknown, index: number) => unknown;
+    readonly create: (config: TransformContext<T>) => (value: unknown, index: number) => unknown;
 }
 
 export interface RecordTransformConfig<
@@ -170,7 +172,7 @@ export interface RecordTransformConfig<
         inputConfig: ReadonlyDataTypeFields,
         args?: T
     ) => ReadonlyDataTypeFields,
-    readonly create: (config: TransformArgs<T>) =>
+    readonly create: (config: TransformContext<T>) =>
     (value: Record<string, unknown>, index: number) => Record<string, unknown>
 }
 
@@ -178,7 +180,7 @@ export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
     readonly type: FunctionDefinitionType.RECORD_VALIDATION,
-    readonly create: (config: TransformArgs<T>) =>
+    readonly create: (config: TransformContext<T>) =>
     (value: Record<string, unknown>, index: number) => boolean
 }
 

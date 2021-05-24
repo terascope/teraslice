@@ -14,7 +14,7 @@ import {
 } from './transformers';
 import {
     FunctionAdapterOptions, RecordFunctionAdapterOperation,
-    FieldFunctionAdapterOperation, PartialArgs
+    FieldFunctionAdapterOperation
 } from './interfaces';
 import {
     FieldValidateConfig,
@@ -27,6 +27,7 @@ import {
     ProcessMode,
     FunctionDefinitionConfig,
     DataTypeFieldAndChildren,
+    InitialFunctionContext
 } from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 import { getChildDataTypeConfig } from '../../core';
@@ -56,7 +57,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
 
     if (isFieldValidation(fnDef)) {
         // creating fn here ensures better typing of what fn is
-        const fnConfig: PartialArgs<T> = {
+        const fnConfig: InitialFunctionContext<T> = {
             args,
             inputConfig: getDataTypeFieldAndChildren(config, field)
         };
@@ -79,7 +80,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     }
 
     if (isFieldTransform(fnDef)) {
-        const fnConfig: PartialArgs<T> = {
+        const fnConfig: InitialFunctionContext<T> = {
             args,
             inputConfig: getDataTypeFieldAndChildren(config, field)
         };
@@ -102,7 +103,7 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     }
 
     if (isRecordValidation(fnDef)) {
-        const fnConfig: PartialArgs<T> = {
+        const fnConfig: InitialFunctionContext<T> = {
             args,
             inputConfig: getDataTypeFieldAndChildren(config, field)
         };

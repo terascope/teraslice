@@ -7,8 +7,7 @@ import {
     isNil,
     unset,
 } from '@terascope/utils';
-import { PartialArgs } from '../interfaces';
-import { FieldTransformConfig } from '../../../function-configs/interfaces';
+import { FieldTransformConfig, InitialFunctionContext } from '../../../function-configs/interfaces';
 import { callValue } from '../utils';
 
 export function fieldTransformRowExecution<
@@ -16,7 +15,7 @@ export function fieldTransformRowExecution<
     K extends Record<string, any> = Record<string, unknown>
 >(
     fnDef: FieldTransformConfig<K>,
-    configs: PartialArgs<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: keyof T,
@@ -31,7 +30,7 @@ export function fieldTransformRowExecution<
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {
@@ -101,7 +100,7 @@ export function wholeFieldTransformRowExecution<
     K extends Record<string, any> = Record<string, unknown>
 >(
     fnDef: FieldTransformConfig<K>,
-    configs: PartialArgs<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: keyof T
@@ -116,7 +115,7 @@ export function wholeFieldTransformRowExecution<
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {
@@ -160,7 +159,7 @@ export function wholeFieldTransformColumnExecution<
     K extends Record<string, any> = Record<string, unknown>
 >(
     fnDef: FieldTransformConfig<K>,
-    configs: PartialArgs<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean
 ) {
     return function _wholeFieldTransformColumnExecution(
@@ -174,7 +173,7 @@ export function wholeFieldTransformColumnExecution<
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {
@@ -196,7 +195,7 @@ export function fieldTransformColumnExecution<
     K extends Record<string, any> = Record<string, unknown>
 >(
     fnDef: FieldTransformConfig<K>,
-    configs: PartialArgs<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean,
 ) {
     return function _fieldTransformColumnExecution(
@@ -210,7 +209,7 @@ export function fieldTransformColumnExecution<
 
         const fn = fnDef.create({
             ...configs,
-            ctx: input
+            parent: input
         });
 
         for (let i = 0; i < input.length; i++) {

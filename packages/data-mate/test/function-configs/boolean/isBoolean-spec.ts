@@ -6,7 +6,7 @@ import {
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
-    ProcessMode, InitialFunctionArgs
+    ProcessMode, FunctionContext
 } from '../../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -27,12 +27,12 @@ describe('isBooleanConfig', () => {
     it('can validate values', () => {
         const values = [true, false, 'true', null, 1, 0, [true, false], { some: 'thing' }];
         const expected = [true, true, false, false, false, false, false, false];
-        const config: InitialFunctionArgs<Record<string, unknown>> = {
+        const config: FunctionContext<Record<string, unknown>> = {
             args: {},
-            ctx: values,
+            parent: values,
             fnDef: isBooleanConfig,
             field_config: { type: FieldType.Boolean },
-        } as InitialFunctionArgs<Record<string, unknown>>;
+        } as FunctionContext<Record<string, unknown>>;
         const isBoolean = isBooleanConfig.create(config);
 
         values.forEach((val, ind) => {
