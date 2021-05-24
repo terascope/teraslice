@@ -2,6 +2,7 @@ import 'jest-extended';
 import { DateFormat, ISO8601DateSegment } from '@terascope/types';
 import {
     isISO8601,
+    toISO8601,
     parseDateValue,
     formatDateValue,
     trimISODateSegment,
@@ -33,9 +34,19 @@ describe('date utils', () => {
             ['1970-10-1001:20:15', false],
             ['1970-10-10T01:20:15', true],
             ['2001-01-01T01:00:00.000Z', true],
+            ['2001-01-01T01:00:00.000+03:00', true],
             [102390933, false],
         ])('should handle %p and return %p', (input, expected) => {
             expect(isISO8601(input)).toBe(expected);
+        });
+    });
+
+    describe('toISO8601', () => {
+        test.each([
+            [978336000000, '2001-01-01T01:00:00.000Z'],
+            [[978336000000, 3 * 60], '2001-01-01T01:00:00.000+03:00'],
+        ])('should handle %p and return %p', (input, expected) => {
+            expect(toISO8601(input)).toEqual(expected);
         });
     });
 

@@ -172,12 +172,40 @@ export function isISO8601(input: unknown): input is string {
  * Convert a value to an ISO 8601 date string.
  * This should be used over makeISODate
 */
-export function toISO8061(value: unknown): string {
+export function toISO8601(value: unknown): string {
     if (isNumber(value)) {
-        return new Date(value).toISOString();
+        return new Date(value - timezoneOffset).toISOString();
+    }
+
+    if (isDateTuple(value)) {
+        // this is utc so just fall back to
+        // to the correct timezone
+        if (value[1] === 0) {
+            return new Date(value[0] - timezoneOffset).toISOString();
+        }
+        return new Date(value[0] - timezoneOffset).toISOString().replace('Z', genTimezone(value[1]));
     }
 
     return makeISODate(value as any);
+}
+
+/**
+ * Generate the ISO8601
+*/
+function genTimezone(offset: number): string {
+    const absOffset = Math.abs(offset);
+    const hours = Math.floor(absOffset / 60);
+    const minutes = absOffset - (hours * 60);
+
+    const sign = offset < 0 ? '-' : '+';
+    return `${sign}${pad(hours)}:${pad(minutes)}`;
+}
+
+/**
+ * a simple version of pad that only deals with simple cases
+*/
+function pad(input: number): string {
+    return input < 10 ? `0${input}` : `${input}`;
 }
 
 /**

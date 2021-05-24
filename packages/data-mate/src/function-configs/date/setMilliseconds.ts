@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import {
-    setMilliseconds, isInteger, inNumberRange, toISO8061
+    setMilliseconds, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
@@ -22,7 +22,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
             output: new Date('2021-05-14T20:45:30.392Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { milliseconds: 483 },
@@ -33,7 +33,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
             output: new Date('2021-05-14T20:45:30.483Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { milliseconds: 1 },
@@ -44,7 +44,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             field: 'testField',
             input: 1715472000000,
             output: new Date('2024-05-12T00:00:00.001Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         }
     ],
     create({ milliseconds }: { milliseconds: number }) {

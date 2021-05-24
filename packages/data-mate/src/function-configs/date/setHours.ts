@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import {
-    setHours, isInteger, inNumberRange, toISO8061
+    setHours, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
@@ -22,7 +22,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
             output: new Date('2021-05-14T12:45:30.000Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { hours: 22 },
@@ -33,7 +33,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
             output: new Date('2021-05-14T22:45:30.091Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { hours: 1 },
@@ -44,7 +44,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             field: 'testField',
             input: 1715472000000,
             output: new Date('2024-05-12T01:00:00.000Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         }
     ],
     create({ hours }: { hours: number }) {

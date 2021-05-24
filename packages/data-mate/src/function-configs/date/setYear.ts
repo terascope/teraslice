@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { setYear, isInteger, toISO8061 } from '@terascope/utils';
+import { setYear, isInteger, toISO8601 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
@@ -20,7 +20,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
             output: new Date('2024-05-14T20:45:30.000Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { year: 1984 },
@@ -31,7 +31,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
             output: new Date('1984-05-14T20:45:30.091Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         },
         {
             args: { year: 2001 },
@@ -42,7 +42,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             field: 'testField',
             input: 1715472000000,
             output: new Date('2001-05-12T00:00:00.000Z').getTime(),
-            serialize_output: toISO8061
+            serialize_output: toISO8601
         }
     ],
     create({ year }: { year: number }) {
