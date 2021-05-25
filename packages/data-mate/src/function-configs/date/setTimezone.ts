@@ -1,68 +1,63 @@
 import { FieldType } from '@terascope/types';
 import {
-    setDate, isInteger, inNumberRange, toISO8601
+    isNumber,
+    isString,
+    setTimezoneFP,
+    toISO8601
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const setDateConfig: FieldTransformConfig<{ date: number }> = {
-    name: 'setDate',
+export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }> = {
+    name: 'setTimezone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the day of the month of the input date',
+    description: 'Set the timezone on for the date value',
     examples: [
         {
-            args: { date: 12 },
+            args: { timezone: 420 }, // 'America/Phoenix' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
             },
             field: 'testField',
             input: '2021-05-14T20:45:30.000Z',
-            output: new Date('2021-05-12T20:45:30.000Z').getTime(),
+            output: [new Date('2021-05-14T20:45:30.000Z').getTime(), 7 * 60],
             serialize_output: toISO8601
         },
         {
-            args: { date: 22 },
+            args: { timezone: 120 }, // 'Europe/Paris' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: new Date('2021-05-14T20:45:30.091Z'),
-            output: new Date('2021-05-22T20:45:30.091Z').getTime(),
-            serialize_output: toISO8601
-        },
-        {
-            args: { date: 1 },
-            config: {
-                version: 1,
-                fields: { testField: { type: FieldType.Number } }
-            },
-            field: 'testField',
-            input: 1715472000000,
-            output: new Date('2024-05-01T00:00:00.000Z').getTime(),
+            input: '2020-02-14T20:45:30.091Z',
+            output: [new Date('2020-02-14T20:45:30.091Z').getTime(), 2 * 60],
             serialize_output: toISO8601
         }
     ],
-    create({ args: { date } }) {
-        return setDate(date);
+    create({ args: { timezone } }) {
+        return setTimezoneFP(timezone);
     },
     argument_schema: {
-        date: {
-            type: FieldType.Number,
+        timezone: {
+            type: FieldType.Any,
             description: 'Value to set day of the month to, must be between 1 and 31'
         }
     },
-    validate_arguments: ({ date }) => {
-        if (!isInteger(date)
-            || !inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
-            throw Error('Invalid argument "date", must be an integer between 1 and 31');
+    required_arguments: ['timezone'],
+    validate_arguments({ timezone }) {
+        if (isNumber(timezone)) {
+            if (timezone >= -1440 && timezone <= 1440) return;
+            throw new Error('Expected timezone offset to be between -1440 and -1440');
         }
+        if (isString(timezone)) return;
+
+        throw new Error('Expected timezone to be a string or a number');
     },
-    required_arguments: ['date'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

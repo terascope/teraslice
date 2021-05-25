@@ -1,17 +1,15 @@
 import { v4 as uuid } from 'uuid';
-import { isArrayLike, joinList, toString } from '@terascope/utils';
+import { isArrayLike, joinList } from '@terascope/utils';
 import {
     DataTypeFieldConfig,
     DataTypeFields, FieldType, Maybe, ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
+import { Builder, transformVectorToBuilder } from '../builder';
 import {
     ListVector,
     Vector
 } from '../vector';
-import { ColumnTransformFn, TransformMode } from './interfaces';
 import { numericTypes, stringTypes, WritableData } from '../core';
-import { DataTypeFieldAndChildren } from '../function-configs';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -20,44 +18,6 @@ export function getVectorId(vector: Vector<any>): string {
     const newId = uuid();
     _vectorIds.set(vector, newId);
     return newId;
-}
-
-/**
- * Map over the Vector
-*/
-export function mapVector<T, R = T>(
-    vector: Vector<T>,
-    transform: ColumnTransformFn<T, R>,
-    outputConfig: DataTypeFieldAndChildren,
-): Vector<R> {
-    const { field_config, child_config: childConfig = {} } = outputConfig;
-
-    const builder = Builder.make<R>(
-        new WritableData(vector.size),
-        {
-            childConfig,
-            config: { ...vector.config, ...field_config, },
-            name: vector.name,
-        },
-    );
-
-    if (transform.mode === TransformMode.NONE) {
-        return copyVectorToBuilder(vector, builder);
-    }
-
-    if (transform.mode === TransformMode.EACH) {
-        return mapVectorEach(
-            vector, builder, transform.fn
-        );
-    }
-
-    if (transform.mode === TransformMode.EACH_VALUE) {
-        return mapVectorEachValue(
-            vector, builder, transform.fn
-        );
-    }
-
-    throw new Error(`Unknown transformation ${toString(transform)}`);
 }
 
 export function mapVectorEach<T, R = T>(

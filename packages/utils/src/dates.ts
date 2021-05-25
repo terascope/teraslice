@@ -33,7 +33,12 @@ import {
     isBefore as _isBefore,
     isAfter as _isAfter
 } from 'date-fns';
-import { DateFormat, ISO8601DateSegment, TimeBetweenFormats } from '@terascope/types';
+import {
+    DateFormat,
+    ISO8601DateSegment,
+    TimeBetweenFormats,
+    DateTuple
+} from '@terascope/types';
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
 import { getTypeOf } from './deps';
 import {
@@ -82,9 +87,12 @@ export function getValidDate(val: unknown): Date | false {
         if (typeof val === 'string') return false;
     }
 
-    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
-        return false;
+    if (typeof val === 'number') {
+        if (!Number.isInteger(val)) return false;
+        return new Date(val);
     }
+
+    if (isDateTuple(val)) return new Date(val[0]);
 
     const d = new Date(val as string);
     if (isValidDateInstance(d)) return d;
@@ -106,9 +114,8 @@ export function getValidDateOrThrow(val: unknown): Date {
  * Returns a valid date or throws, {@see getValidDate}
 */
 export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
-    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
-        return val;
-    }
+    if (typeof val === 'number' && !Number.isInteger(val)) return val;
+    if (isDateTuple(val)) return val[0];
 
     const date = getValidDate(val as any);
     if (date === false) {
@@ -168,12 +175,74 @@ export function isISO8601(input: unknown): input is string {
  * Convert a value to an ISO 8601 date string.
  * This should be used over makeISODate
 */
-export function toISO8061(value: unknown): string {
+export function toISO8601(value: unknown): string {
     if (isNumber(value)) {
         return new Date(value).toISOString();
     }
 
+    if (isDateTuple(value)) {
+        // this is utc so just fall back to
+        // to the correct timezone
+        if (value[1] === 0) {
+            return new Date(value[0]).toISOString();
+        }
+        return new Date(value[0]).toISOString().replace('Z', _genISOTimezone(value[1]));
+    }
+
     return makeISODate(value as any);
+}
+
+/**
+ * Generate the ISO8601
+*/
+function _genISOTimezone(offset: number): string {
+    const absOffset = Math.abs(offset);
+    const hours = Math.floor(absOffset / 60);
+    const minutes = absOffset - (hours * 60);
+
+    const sign = offset < 0 ? '-' : '+';
+    return `${sign}${_padNum(hours)}:${_padNum(minutes)}`;
+}
+
+/**
+ * a simple version of pad that only deals with simple cases
+*/
+function _padNum(input: number): string {
+    return input < 10 ? `0${input}` : `${input}`;
+}
+
+/**
+ * Set the timezone offset of a date, returns a date tuple
+ */
+export function setTimezone(input: unknown, timezone: string|number): DateTuple {
+    if (isNumber(input)) return [input, timezone as number];
+    if (isDateTuple(input)) return [input[0], timezone as number];
+
+    const date = getValidDateOrThrow(input);
+    return [date.getTime(), timezone as number];
+}
+
+/**
+ * A curried version of setTimezone
+*/
+export function setTimezoneFP(timezone: string|number) {
+    return function _setTimezone(input: unknown): DateTuple {
+        return setTimezone(input, timezone);
+    };
+}
+
+/**
+ * Verify if an input is a Date Tuple
+*/
+export function isDateTuple(input: unknown): input is DateTuple {
+    return Array.isArray(input)
+        && input.length === 2
+        && Number.isInteger(input[0])
+        && Number.isInteger(input[1])
+        // the timezone has to be within 24hours
+        // in minutes
+        && input[1] <= 1440
+        && input[1] >= -1440;
 }
 
 /**
@@ -343,8 +412,7 @@ export function formatDateValue(
         return formatDate(ms + timezoneOffset, format);
     }
 
-    if (value instanceof Date) return value.toISOString();
-    return new Date(value).toISOString();
+    return toISO8601(value);
 }
 
 const _getDurationFunc = {

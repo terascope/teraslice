@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import {
-    joinList, toISO8061, addToDateFP, AdjustDateArgs
+    joinList, toISO8601, addToDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
@@ -24,7 +24,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         output: new Date('2019-10-23T08:02:00.000Z').getTime(),
-        serialize_output: toISO8061
+        serialize_output: toISO8601
     }, {
         args: { months: 1, minutes: 2 },
         config: {
@@ -34,7 +34,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         output: new Date('2019-11-22T22:02:00.000Z').getTime(),
-        serialize_output: toISO8061
+        serialize_output: toISO8601
     }, {
         args: {},
         config: {

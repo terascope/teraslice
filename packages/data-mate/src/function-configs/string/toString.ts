@@ -1,4 +1,4 @@
-import { toString, toISO8061 } from '@terascope/utils';
+import { toString, toISO8601 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -49,7 +49,7 @@ export const toStringConfig: FieldTransformConfig = {
     examples,
     create({ inputConfig }) {
         if (inputConfig?.field_config.type === FieldType.Date) {
-            return toISO8061;
+            return toISO8601;
         }
 
         return toString;
