@@ -69,7 +69,7 @@ export const toNumberConfig: FieldTransformConfig = {
             output: 978310800000
         },
     ],
-    create(_args, inputConfig) {
+    create({ inputConfig }) {
         if (inputConfig) {
             const { type } = inputConfig.field_config;
 

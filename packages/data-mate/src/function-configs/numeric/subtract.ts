@@ -64,7 +64,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
             output: 8
         }
     ],
-    create({ value }, inputConfig) {
+    create({ args: { value }, inputConfig }) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
             return subtractFP(toBigIntOrThrow(value));
         }

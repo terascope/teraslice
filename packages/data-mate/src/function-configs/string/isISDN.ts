@@ -68,13 +68,13 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isISDNConfig: FieldValidateConfig = {
+export const isISDNConfig: FieldValidateConfig<ISDNCountry> = {
     name: 'isISDN',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number',
-    create({ country }: ISDNCountry) {
+    create({ args: { country } }) {
         return (input: unknown) => isISDN(input, country);
     },
     examples,
@@ -82,6 +82,12 @@ export const isISDNConfig: FieldValidateConfig = {
         FieldType.String,
         FieldType.Number
     ],
+    argument_schema: {
+        country: {
+            type: FieldType.String,
+            description: 'A valid ISO 3166-1 alpha-2 officially assigned country code'
+        }
+    },
     required_arguments: [],
     validate_arguments({ country }) {
         if (country != null && !isCountryCode(country)) {

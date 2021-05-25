@@ -64,7 +64,7 @@ export const extractConfig: FieldTransformConfig<ExtractArgs> = {
     category: FunctionDefinitionCategory.STRING,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Extract values from strings',
-    create(args) {
+    create({ args }) {
         return _extract(args);
     },
     accepts: [FieldType.String],

@@ -16,10 +16,10 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
         this.convertValueToJSON = (opts?: SerializeOptions) => {
             const nilValue: any = opts?.useNullForUndefined ? null : undefined;
             return (value: Maybe<T>): any => {
-                if (value == null || !this.valueVector.valueToJSON) {
+                if (value == null || !this.valueVector.toJSONCompatibleValue) {
                     return value ?? nilValue;
                 }
-                return this.valueVector.valueToJSON(value, opts);
+                return this.valueVector.toJSONCompatibleValue(value, opts);
             };
         };
     }
@@ -40,7 +40,7 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
         return this.#_valueVector;
     }
 
-    valueToJSON(values: readonly Maybe<T>[], options?: SerializeOptions): any {
+    toJSONCompatibleValue(values: readonly Maybe<T>[], options?: SerializeOptions): any {
         let result = values.map(this.convertValueToJSON(options));
         const vectorType = this.valueVector.config.type;
         const isObjectType = vectorType === FieldType.Object;

@@ -1,3 +1,4 @@
+import { FieldType } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 
@@ -86,7 +87,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
 }
 
 /**
- * Convert a BigInt to either a number of a string
+ * Convert a BigInt to either a number or a string
 */
 export function bigIntToJSON(int: bigint): string|number {
     if (typeof int === 'number') return int;
@@ -318,4 +319,57 @@ export function toCelsius(input: unknown): number {
 export function toFahrenheit(input: unknown): number {
     const num = toFloatOrThrow(input);
     return ((9 / 5) * num) + 32;
+}
+
+const INT_SIZES = {
+    [FieldType.Byte]: { min: -128, max: 127 },
+    [FieldType.Short]: { min: -32_768, max: 32_767 },
+    [FieldType.Integer]: { min: -(2 ** 31), max: (2 ** 31) - 1 },
+} as const;
+
+function _validateNumberFieldType(input: unknown, type: FieldType): number {
+    const int = toIntegerOrThrow(input);
+
+    if (INT_SIZES[type]) {
+        const { max, min } = INT_SIZES[type];
+        if (int > max) {
+            throw new TypeError(`Invalid byte, value of ${int} is greater than maximum size of ${max}`);
+        }
+
+        if (int < min) {
+            throw new TypeError(`Invalid byte, value of ${int} is less than minimum size of ${min}`);
+        }
+    }
+
+    return int;
+}
+
+export function validateByteNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Byte);
+}
+
+export function validateShortNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Short);
+}
+
+export function validateIntegerNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Integer);
+}
+
+export function validateNumberType(type: FieldType) {
+    return function _validateNumberType(input: unknown): number {
+        return _validateNumberFieldType(input, type);
+    };
+}
+
+export function isValidateNumberType(type: FieldType): (input: unknown) => boolean {
+    const fn = validateNumberType(type);
+
+    return function _isValidateNumberType(input: unknown): boolean {
+        try {
+            return fn(input) != null;
+        } catch (_err) {
+            return false;
+        }
+    };
 }

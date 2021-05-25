@@ -8,7 +8,7 @@ import {
 } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
-    ProcessMode, Column, dataFrameAdapter
+    ProcessMode, Column, dataFrameAdapter, TransformContext
 } from '../../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -41,10 +41,16 @@ describe('toGeoPointConfig', () => {
             { lon: 60, lat: 40 },
             { lon: 50, lat: 60 }
         ];
-        const toGeoPoint = toGeoPointConfig.create({});
+        const config: TransformContext<Record<string, unknown>> = {
+            args: {},
+            parent: values,
+            fnDef: toGeoPointConfig,
+            field_config: { type: FieldType.String, array: false },
+        } as TransformContext<Record<string, unknown>>;
+        const toGeoPoint = toGeoPointConfig.create(config);
 
         values.forEach((val, ind) => {
-            expect(toGeoPoint(val)).toEqual(expected[ind]);
+            expect(toGeoPoint(val, ind)).toEqual(expected[ind]);
         });
     });
 

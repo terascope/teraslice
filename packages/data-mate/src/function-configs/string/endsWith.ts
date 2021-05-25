@@ -45,7 +45,7 @@ export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {
         },
     ],
     description: 'Validation that determines whether or not a string ends with another string. This is case-sensitive.',
-    create({ value }) {
+    create({ args: { value } }) {
         return endsWithFP(value);
     },
     argument_schema: {

@@ -5,6 +5,7 @@ import {
     withoutNil,
     filterObject,
     isObjectEntity,
+    lookup
 } from '../src/objects';
 import { DataEntity } from '../src';
 
@@ -153,6 +154,28 @@ describe('Objects', () => {
                 expect(isObjectEntity(new Set())).toBeFalse();
                 expect(isObjectEntity(new Map())).toBeFalse();
             });
+        });
+    });
+
+    describe('lookup', () => {
+        test.each([
+            ['key', { key: 'value', key2: 'value2' }, 'value'],
+            [456, { 123: 'value', 456: 'value2' }, 'value2'],
+            ['key', { key1: 'value', key2: 'value2' }, undefined]
+        ])('should return key from a value', (key: any, obj: any, value: any) => {
+            expect(lookup(obj)(key)).toEqual(value);
+        });
+
+        it('should throw an error if input is a string', () => {
+            expect(() => {
+                lookup('not an object')('key');
+            }).toThrowError('input must be an Object Entity, received String');
+        });
+
+        it('should throw an error if input is an array', () => {
+            expect(() => {
+                lookup(['an', 'array'])('example');
+            }).toThrowError('input must be an Object Entity, received Array');
         });
     });
 });

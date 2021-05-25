@@ -1,13 +1,22 @@
 import { addToDateConfig } from './addToDate';
 import { formatDateConfig } from './formatDate';
+import { getDateConfig } from './getDate';
+import { getHoursConfig } from './getHours';
+import { getMillisecondsConfig } from './getMilliseconds';
+import { getMinutesConfig } from './getMinutes';
+import { getMonthConfig } from './getMonth';
+import { getSecondsConfig } from './getSeconds';
 import { getTimeBetweenConfig } from './getTimeBetween';
-import { isBeforeConfig } from './isBefore';
+import { getTimezoneOffsetConfig } from './getTimezoneOffset';
+import { getYearConfig } from './getYear';
 import { isAfterConfig } from './isAfter';
+import { isBeforeConfig } from './isBefore';
 import { isBetweenConfig } from './isBetween';
 import { isDateConfig } from './isDate';
 import { isEpochConfig } from './isEpoch';
 import { isEpochMillisConfig } from './isEpochMillis';
 import { isFridayConfig } from './isFriday';
+import { isFutureConfig } from './isFuture';
 import { isISO8601Config } from './isISO8601';
 import { isLeapYearConfig } from './isLeapYear';
 import { isMondayConfig } from './isMonday';
@@ -22,19 +31,8 @@ import { isWednesdayConfig } from './isWednesday';
 import { isWeekdayConfig } from './isWeekday';
 import { isWeekendConfig } from './isWeekend';
 import { isYesterdayConfig } from './isYesterday';
+import { lookupTimezoneConfig } from './lookupTimezone';
 import { subtractFromDateConfig } from './subtractFromDate';
-import { toDailyDateConfig } from './toDailyDate';
-import { toDateConfig } from './toDate';
-import { toHourlyDateConfig } from './toHourlyDate';
-import { toMonthlyDateConfig } from './toMonthlyDate';
-import { toYearlyDateConfig } from './toYearlyDate';
-import { getMillisecondsConfig } from './getMilliseconds';
-import { getSecondsConfig } from './getSeconds';
-import { getMinutesConfig } from './getMinutes';
-import { getHoursConfig } from './getHours';
-import { getDateConfig } from './getDate';
-import { getMonthConfig } from './getMonth';
-import { getYearConfig } from './getYear';
 import { setMillisecondsConfig } from './setMilliseconds';
 import { setSecondsConfig } from './setSeconds';
 import { setMinutesConfig } from './setMinutes';
@@ -43,11 +41,25 @@ import { setDateConfig } from './setDate';
 import { setMonthConfig } from './setMonth';
 import { setYearConfig } from './setYear';
 import { setTimezoneConfig } from './setTimezone';
+import { timezoneToOffsetConfig } from './timezoneToOffset';
+import { toDailyDateConfig } from './toDailyDate';
+import { toDateConfig } from './toDate';
+import { toHourlyDateConfig } from './toHourlyDate';
+import { toMonthlyDateConfig } from './toMonthlyDate';
+import { toYearlyDateConfig } from './toYearlyDate';
 
 export const dateRepository = {
     addToDate: addToDateConfig,
     formatDate: formatDateConfig,
+    getDate: getDateConfig,
+    getHours: getHoursConfig,
+    getMilliseconds: getMillisecondsConfig,
+    getMinutes: getMinutesConfig,
+    getMonth: getMonthConfig,
+    getSeconds: getSecondsConfig,
     getTimeBetween: getTimeBetweenConfig,
+    getTimezoneOffset: getTimezoneOffsetConfig,
+    getYear: getYearConfig,
     isAfter: isAfterConfig,
     isBefore: isBeforeConfig,
     isBetween: isBetweenConfig,
@@ -55,39 +67,35 @@ export const dateRepository = {
     isEpoch: isEpochConfig,
     isEpochMillis: isEpochMillisConfig,
     isFriday: isFridayConfig,
+    isFuture: isFutureConfig,
     isISO8601: isISO8601Config,
     isLeapYear: isLeapYearConfig,
     isMonday: isMondayConfig,
     isPast: isPastConfig,
     isSaturday: isSaturdayConfig,
     isSunday: isSundayConfig,
+    isThursday: isThursdayConfig,
     isToday: isTodayConfig,
     isTomorrow: isTomorrowConfig,
-    isThursday: isThursdayConfig,
     isTuesday: isTuesdayConfig,
     isWednesday: isWednesdayConfig,
     isWeekday: isWeekdayConfig,
     isWeekend: isWeekendConfig,
     isYesterday: isYesterdayConfig,
+    lookupTimezone: lookupTimezoneConfig,
+    setDate: setDateConfig,
+    setHours: setHoursConfig,
+    setMilliseconds: setMillisecondsConfig,
+    setMinutes: setMinutesConfig,
+    setMonth: setMonthConfig,
+    setSeconds: setSecondsConfig,
+    setTimezone: setTimezoneConfig,
+    setYear: setYearConfig,
     subtractFromDate: subtractFromDateConfig,
+    timezoneToOffset: timezoneToOffsetConfig,
     toDailyDate: toDailyDateConfig,
     toDate: toDateConfig,
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
-    getMilliseconds: getMillisecondsConfig,
-    getSeconds: getSecondsConfig,
-    getMinutes: getMinutesConfig,
-    getHours: getHoursConfig,
-    getDate: getDateConfig,
-    getMonth: getMonthConfig,
-    getYear: getYearConfig,
-    setMilliseconds: setMillisecondsConfig,
-    setSeconds: setSecondsConfig,
-    setMinutes: setMinutesConfig,
-    setHours: setHoursConfig,
-    setDate: setDateConfig,
-    setTimezone: setTimezoneConfig,
-    setMonth: setMonthConfig,
-    setYear: setYearConfig
 };

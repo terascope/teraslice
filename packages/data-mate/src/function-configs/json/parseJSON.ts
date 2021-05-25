@@ -12,6 +12,7 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
+// FIXME: what is this doing here???
 export interface ParseJSONArgs {
     type?: FieldType;
     array?: boolean;
@@ -29,7 +30,7 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.JSON,
-    description: 'parses JSON input',
+    description: 'parses a JSON string, constructing the value or object described by the string',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

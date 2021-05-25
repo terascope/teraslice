@@ -47,7 +47,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             serialize_output: toISO8601
         }
     ],
-    create({ milliseconds }: { milliseconds: number }) {
+    create({ args: { milliseconds } }) {
         return setMilliseconds(milliseconds);
     },
     argument_schema: {

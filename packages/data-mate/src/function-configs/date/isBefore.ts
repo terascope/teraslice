@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isBefore } from '@terascope/utils';
+import { isBefore, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -58,13 +58,18 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     ],
     argument_schema: {
         date: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Date to compare input to'
         }
     },
     required_arguments: ['date'],
-    create({ date }: IsBeforeArgs) {
+    create({ args: { date } }) {
         return (input: unknown) => isBefore(input, date);
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number]
+    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    validate_arguments(args) {
+        if (!isValidDate(args.date)) {
+            throw new Error(`Invalid date paramter, could not convert ${args.date} to a date`);
+        }
+    }
 };

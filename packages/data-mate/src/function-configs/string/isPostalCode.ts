@@ -69,15 +69,15 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isPostalCodeConfig: FieldValidateConfig = {
+export const isPostalCodeConfig: FieldValidateConfig<PostalCodeLocale> = {
     name: 'isPostalCode',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a valid postal code',
     examples,
-    create({ locale }: PostalCodeLocale) {
-        return (input: unknown) => isPostalCode(input, locale);
+    create({ args: { locale } }) {
+        return (input: unknown) => isPostalCode(input, locale as validator.PostalCodeLocale);
     },
     argument_schema: {
         locale: {

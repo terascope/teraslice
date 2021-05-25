@@ -106,8 +106,8 @@ export function processFieldFilter(
     json: boolean
 ): void {
     function getValue(v: any): any {
-        if (!json || !column.vector.valueToJSON) return v;
-        return column.vector.valueToJSON(v);
+        if (!json || !column.vector.toJSONCompatibleValue) return v;
+        return column.vector.toJSONCompatibleValue(v);
     }
     for (const [i, v] of column.vector.values()) {
         if (filter(getValue(v))) indices.add(i);

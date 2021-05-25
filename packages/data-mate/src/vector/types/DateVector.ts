@@ -6,7 +6,7 @@ import { VectorType, DataBuckets } from '../interfaces';
 export class DateVector extends Vector<DateTuple|number> {
     referenceDate = new Date();
     getComparableValue = getComparableValue;
-    valueToJSON = toISO8601;
+    toJSONCompatibleValue = toISO8601;
 
     constructor(data: DataBuckets<DateTuple|number>, options: VectorOptions) {
         super(VectorType.Date, data, options);

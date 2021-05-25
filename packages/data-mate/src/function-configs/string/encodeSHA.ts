@@ -54,7 +54,7 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
             output: '5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U=',
         }
     ],
-    create({ hash = hashDefault, digest = digestDefault }) {
+    create({ args: { hash = hashDefault, digest = digestDefault } }) {
         return cryptoEncode(hash, digest);
     },
     accepts: [FieldType.String],

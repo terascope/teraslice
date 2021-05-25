@@ -236,10 +236,10 @@ export function copyVectorToBuilder<T, R>(
 export function transformVectorToBuilder<T, R>(
     vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    transform: (value: T|readonly Maybe<T>[]) => Maybe<R>|readonly Maybe<R>[],
+    transform: (value: T|readonly Maybe<T>[], index: number) => Maybe<R>|readonly Maybe<R>[],
 ): Vector<R> {
     for (const [i, v] of vector.values()) {
-        builder.set(i, transform(v));
+        builder.set(i, transform(v, i));
     }
     return builder.toVector();
 }

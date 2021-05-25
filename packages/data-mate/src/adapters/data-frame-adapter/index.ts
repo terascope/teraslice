@@ -8,7 +8,8 @@ import {
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
-    FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig
+    FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig,
+    FunctionContext, TransformContext
 } from '../../function-configs/interfaces';
 import { Builder } from '../../builder';
 import { WritableData } from '../../core';
@@ -67,10 +68,14 @@ function transformColumnData<T extends Record<string, any>>(
         },
     );
 
-    const transformFn = transformConfig.create(
+    const context: TransformContext<T> = {
         args,
-        inputConfig
-    );
+        parent: column,
+        inputConfig,
+        outputConfig
+    };
+
+    const transformFn = transformConfig.create(context);
 
     if (transformConfig.process_mode === ProcessMode.FULL_VALUES) {
         return new Column(
@@ -118,13 +123,16 @@ function validateColumnData<T extends Record<string, any>>(
 
     const inputConfig = {
         field_config: column.config,
-        child_config: column.vector.childConfig
+        child_config: column.vector.childConfig,
     };
 
-    const validatorFn = validationConfig.create(
+    const context: FunctionContext<T> = {
         args,
+        parent: column,
         inputConfig
-    );
+    };
+
+    const validatorFn = validationConfig.create(context);
 
     const builder = Builder.make(
         new WritableData(column.vector.size),
@@ -135,8 +143,8 @@ function validateColumnData<T extends Record<string, any>>(
         },
     );
 
-    function validatorTransform(value: unknown): unknown {
-        if (validatorFn(value)) return value;
+    function validatorTransform(value: unknown, index: number): unknown {
+        if (validatorFn(value, index)) return value;
         return null;
     }
 

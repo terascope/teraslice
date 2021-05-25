@@ -102,8 +102,8 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: `Compares geo inputs to any geo-like data based off the relation specified (defaults to "${GeoShapeRelation.Within}"`,
-    create({ value: geoInput, relation = GeoShapeRelation.Within }) {
-        return geoRelationFP(geoInput, relation);
+    create({ args: { value, relation = GeoShapeRelation.Within } }) {
+        return geoRelationFP(value, relation);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -125,11 +125,11 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
         }
     },
     required_arguments: ['value'],
-    validate_arguments({ value: geoInput, relation }) {
-        const input = toGeoJSON(geoInput);
+    validate_arguments({ value, relation }) {
+        const input = toGeoJSON(value);
 
         if (!input) {
-            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(value)}, is not a valid geo-json`);
         }
 
         if (relation) {

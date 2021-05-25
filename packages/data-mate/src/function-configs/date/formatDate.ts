@@ -1,5 +1,7 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { formatDateValue, getValidDateOrNumberOrThrow } from '@terascope/utils';
+import {
+    formatDateValue, getValidDateOrNumberOrThrow
+} from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -58,7 +60,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         input: '2001-01-01T01:00:00.000Z',
         output: '2001-01-01T01:00:00.000Z'
     }],
-    create({ format }) {
+    create({ args: { format } }) {
         return function formatDate(input: unknown): string|number {
             return formatDateValue(
                 getValidDateOrNumberOrThrow(input), format

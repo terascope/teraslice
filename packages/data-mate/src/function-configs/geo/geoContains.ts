@@ -110,8 +110,8 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Validates that geo-like data completely "contains" the value argument. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the geo data being compared',
-    create({ value: geoInput }) {
-        return geoContainsFP(geoInput);
+    create({ args: { value } }) {
+        return geoContainsFP(value);
     },
     accepts: [
         FieldType.GeoJSON,
@@ -128,10 +128,10 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
         }
     },
     required_arguments: ['value'],
-    validate_arguments({ value: geoInput }) {
-        const input = toGeoJSON(geoInput);
+    validate_arguments({ value }) {
+        const input = toGeoJSON(value);
         if (!input) {
-            throw new Error(`Invalid parameter value: ${JSON.stringify(geoInput)}, is not a valid geo-json`);
+            throw new Error(`Invalid parameter value: ${JSON.stringify(value)}, is not a valid geo-json`);
         }
     }
 };

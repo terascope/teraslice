@@ -58,7 +58,7 @@ export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqua
             output: 151
         }
     ],
-    create({ value }) {
+    create({ args: { value } }) {
         return isGreaterThan(value);
     },
     accepts: [

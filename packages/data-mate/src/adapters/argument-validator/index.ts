@@ -10,13 +10,18 @@ import {
     isIP,
     joinList, getTypeOf, isEmpty, isBigInt,
     isArray,
+    isValidateNumberType,
+    isCIDR
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
     FunctionDefinitionConfig,
 } from '../../function-configs/interfaces';
 
-// TODO: migrate IPRange to IP?
+function isIntOrBigint(input: unknown): boolean {
+    return isBigInt(input) || isNumber(input);
+}
+
 function getType(
     argFieldType: DataTypeFieldConfig,
 ): (input: unknown) => boolean {
@@ -35,20 +40,23 @@ function getType(
         case FieldType.IP:
             return isIP;
         case FieldType.IPRange:
-            return isIP;
+            return isCIDR;
         case FieldType.Date:
             return isValidDate;
         case FieldType.Boolean:
             return isBoolean;
         case FieldType.Float:
         case FieldType.Number:
-        case FieldType.Byte:
-        case FieldType.Short:
-        case FieldType.Integer:
-            return isNumber;
-        case FieldType.Long:
         case FieldType.Double:
-            return (input) => isBigInt(input) || isNumber(input);
+            return isNumber;
+        case FieldType.Byte:
+            return isValidateNumberType(FieldType.Byte);
+        case FieldType.Short:
+            return isValidateNumberType(FieldType.Short);
+        case FieldType.Integer:
+            return isValidateNumberType(FieldType.Integer);
+        case FieldType.Long:
+            return isIntOrBigint;
         case FieldType.Geo:
         case FieldType.GeoPoint:
         case FieldType.Boundary:

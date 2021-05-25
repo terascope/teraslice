@@ -47,7 +47,7 @@ export const toStringConfig: FieldTransformConfig = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Converts input values to strings',
     examples,
-    create(_args, inputConfig) {
+    create({ inputConfig }) {
         if (inputConfig?.field_config.type === FieldType.Date) {
             return toISO8601;
         }

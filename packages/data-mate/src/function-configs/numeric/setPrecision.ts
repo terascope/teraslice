@@ -116,7 +116,7 @@ export const setPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
             output: { lat: 32.12, lon: -20.95 }
         }
     ],
-    create({ digits, truncate = false }, inputConfig) {
+    create({ args: { digits, truncate = false }, inputConfig }) {
         if (inputConfig?.field_config.type === FieldType.GeoPoint
             || inputConfig?.field_config.type === FieldType.Geo) {
             return function _geoPointToPrecision(input: unknown) {

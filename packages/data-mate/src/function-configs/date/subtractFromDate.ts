@@ -56,7 +56,7 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         fails: true,
         output: 'Invalid use of months with expr parameter'
     }],
-    create(args) {
+    create({ args }) {
         return subtractFromDateFP(args);
     },
     accepts: [
@@ -102,14 +102,23 @@ For example, \`1h\` or \`1h+2m\``
         }
     },
     validate_arguments(args) {
+        const argSchema = this.argument_schema ?? {};
+        const keyList = Object.keys(argSchema);
         const argKeys = Object.keys(args);
-        if ('expr' in args && argKeys.length > 1) {
-            const withoutExpr = argKeys.filter((k) => k !== 'expr');
-            throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
-        }
 
         if (argKeys.length === 0) {
             throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
+        }
+
+        for (const argKey of argKeys) {
+            if (!keyList.includes(argKey)) {
+                throw new Error(`Invalid arg name ${argKey}, must be one of ${joinList(keyList)}`);
+            }
+        }
+
+        if ('expr' in args && argKeys.length > 1) {
+            const withoutExpr = argKeys.filter((k) => k !== 'expr');
+            throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
         }
     }
 };

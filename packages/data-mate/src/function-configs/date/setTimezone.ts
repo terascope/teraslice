@@ -39,7 +39,7 @@ export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }
             serialize_output: toISO8601
         }
     ],
-    create({ timezone }) {
+    create({ args: { timezone } }) {
         return setTimezoneFP(timezone);
     },
     argument_schema: {

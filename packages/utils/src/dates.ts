@@ -39,6 +39,7 @@ import {
     TimeBetweenFormats,
     DateTuple
 } from '@terascope/types';
+import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
@@ -686,6 +687,43 @@ export function isBetween(input: unknown, args: {
     }
 
     return false;
+}
+
+/** Given a timezone, it will return the minutes of its offset from UTC time */
+export function timezoneToOffset(timezone: unknown): number {
+    if (!isString(timezone)) {
+        throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
+    }
+
+    return tzOffset(timezone) / (1000 * 60);
+}
+
+/** Given a date and timezone, it will return the offset from UTC in minutes.
+ *  This is more accurate than timezoneToOffset as it can better account for day lights saving time
+ * */
+export function getTimezoneOffset(input: unknown, timezone: string): number {
+    const date = getValidDateOrThrow(input);
+
+    if (!isString(timezone)) {
+        throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
+    }
+
+    return tzOffset(timezone, date) / (1000 * 60);
+}
+
+/** Given a timezone, it will return a function that will take in dates that will
+ * be converted the offset in minutes. This is more accurate than timezoneToOffset
+ * as it can better account for day lights saving time
+ * */
+export function getTimezoneOffsetFP(timezone: string): (input: unknown) => number {
+    if (!isString(timezone)) {
+        throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
+    }
+
+    return function _getTimezoneOffsetFP(input: unknown) {
+        const date = getValidDateOrThrow(input);
+        return tzOffset(timezone, date) / (1000 * 60);
+    };
 }
 
 export function setMilliseconds(ms: number): (input: unknown) => number {

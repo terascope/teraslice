@@ -205,8 +205,8 @@ export function makeUniqueKeyAgg(vector: Vector<any>, options?: SerializeOptions
 
         return {
             key: getHashCodeFrom(value),
-            value: options && vector.valueToJSON
-                ? vector.valueToJSON(value, options)
+            value: options && vector.toJSONCompatibleValue
+                ? vector.toJSONCompatibleValue(value, options)
                 : value
         };
     };

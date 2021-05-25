@@ -65,7 +65,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
             output: 1
         }
     ],
-    create({ value }, inputConfig) {
+    create({ args: { value }, inputConfig }) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
             return modulusFP(toBigIntOrThrow(value));
         }

@@ -45,7 +45,7 @@ export const setYearConfig: FieldTransformConfig<{ year: number }> = {
             serialize_output: toISO8601
         }
     ],
-    create({ year }: { year: number }) {
+    create({ args: { year } }) {
         return setYear(year);
     },
     argument_schema: {

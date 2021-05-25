@@ -121,7 +121,7 @@ export abstract class Vector<T = unknown> {
      * A function for converting an in-memory representation of
      * a value to an JSON spec compatible format.
     */
-    abstract valueToJSON?(value: T, options?: SerializeOptions): any;
+    abstract toJSONCompatibleValue?(value: T, options?: SerializeOptions): any;
 
     /**
      * A function for converting an in-memory representation of
@@ -219,7 +219,7 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Append ReadableData to a data buckets
+     * Add ReadableData to a end of the data buckets
     */
     append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
         return this.fork(this.data.concat(
@@ -227,6 +227,16 @@ export abstract class Vector<T = unknown> {
                 ? data
                 : [data as ReadableData<T>]
         ));
+    }
+
+    /**
+    *  Add ReadableData to a beginning of the data buckets
+    */
+    prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
+        const preData = Array.isArray(data)
+            ? data
+            : [data as ReadableData<T>];
+        return this.fork(preData.concat(this.data));
     }
 
     /**
@@ -241,10 +251,10 @@ export abstract class Vector<T = unknown> {
         const val = found[0].get(found[1]);
         if (val == null) return val ?? nilValue;
 
-        if (!json || !this.valueToJSON) {
+        if (!json || !this.toJSONCompatibleValue) {
             return val;
         }
-        return this.valueToJSON(val as T, options);
+        return this.toJSONCompatibleValue(val as T, options);
     }
 
     /**

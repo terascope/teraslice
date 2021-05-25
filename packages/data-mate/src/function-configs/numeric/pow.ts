@@ -40,7 +40,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
             output: 2
         }
     ],
-    create({ exp }) {
+    create({ args: { exp } }) {
         // eslint-disable-next-line no-restricted-properties
         return runMathFn(Math.pow, exp);
     },

@@ -1,3 +1,4 @@
+import difference from 'lodash/difference';
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType,
@@ -8,7 +9,8 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    isInteger
+    isInteger,
+    joinList
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -24,7 +26,8 @@ import { Builder, getBuildersForConfig } from '../builder';
 import {
     createHashCode, FieldArg, flattenStringArg,
     freezeArray, getFieldsFromArg, getHashCodeFrom,
-    WritableData
+    ReadableData,
+    WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
@@ -164,7 +167,7 @@ export class DataFrame<
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
             throw new Error(
-                'All columns for a DataFrame must have the same length'
+                `All columns in a DataFrame must have the same length, got ${joinList(lengths)}`
             );
         }
         this.size = lengths[0] ?? 0;
@@ -211,7 +214,7 @@ export class DataFrame<
     /**
      * This is more expensive and little more complicated.
      * In the future we pass in json=false to each column and
-     * the call valueToJSON after each generating the hash
+     * the call toJSONCompatibleValue after each generating the hash
      * to be consistent with hash
     */
     private* rowsWithoutDuplicates(
@@ -664,10 +667,11 @@ export class DataFrame<
 
     /**
      * Append one or more data frames to the end of this DataFrame.
+     * Useful for incremental building an DataFrame since the cost of
+     * this is relatively low.
      *
-     * **WARNING** This doesn't type check the data since it assumes
-     * all of the config matches in the Data Frame. If you're not
-     * absolutely sure, use DataFrame->concat
+     * This is more efficient than using DataFrame.concat but comes with less
+     * data type checking and may less safe so use with caution
     */
     appendAll(frames: Iterable<DataFrame<T>>, limit?: number): DataFrame<T> {
         let { size } = this;
@@ -691,23 +695,59 @@ export class DataFrame<
 
         let currIndex = this.size;
         const columns = this.columns.slice();
+        const fields = this.fields.slice();
+
+        function addMissing(frame: DataFrame<T>) {
+            const missing = difference(fields, frame.fields);
+            for (const field of missing) {
+                const colIndex = columns.findIndex((c) => c.name === field)!;
+                const existingColumn = columns[colIndex];
+                // ensure that we create a vector with correct
+                // starting length
+                const vector = existingColumn.vector.append(
+                    [new ReadableData(new WritableData(currIndex))]
+                );
+                columns[colIndex] = existingColumn.fork(vector);
+            }
+        }
+
+        /**
+         * @returns the column index
+        */
+        function appendNewColumn(column: Column<any, keyof T>): number {
+            // ensure that we create a vector with correct
+            // starting length
+            const backfillVector = column.vector.fork(
+                [new ReadableData(new WritableData(currIndex))]
+            );
+            const newColumn = column.fork(backfillVector);
+            fields.push(newColumn.name);
+            // subtract one from the new length
+            return (columns.push(newColumn) - 1);
+        }
+
         for (const frame of frames) {
             const remaining = size - currIndex;
             // no need to process more frames
             if (remaining <= 0) break;
 
-            for (const column of frame.columns) {
-                const existingIndex = columns.findIndex((c) => c.name === column.name);
-                if (existingIndex !== -1) {
-                    let { vector } = column;
-                    if (remaining < vector.size) {
-                        vector = vector.slice(0, remaining);
-                    }
+            addMissing(frame);
 
-                    const existingColumn = columns[existingIndex];
-                    vector = existingColumn.vector.append(vector.data);
-                    columns[existingIndex] = existingColumn.fork(vector);
+            for (const column of frame.columns) {
+                let colIndex = columns.findIndex((c) => c.name === column.name);
+                if (colIndex === -1) {
+                    colIndex = appendNewColumn(column);
                 }
+
+                let { vector } = column;
+                if (remaining < vector.size) {
+                    vector = vector.slice(0, remaining);
+                }
+
+                const existingColumn = columns[colIndex];
+                columns[colIndex] = existingColumn.fork(
+                    existingColumn.vector.append(vector.data)
+                );
             }
 
             currIndex += frame.size;
@@ -727,6 +767,17 @@ export class DataFrame<
             if (col.name !== name) return col;
             return col.rename(renameTo);
         }));
+    }
+
+    /**
+     * Rename the data frame
+    */
+    renameDataFrame(
+        renameTo: string,
+    ): DataFrame<T> {
+        const newFrame = this.fork(this.columns);
+        newFrame.name = renameTo;
+        return newFrame;
     }
 
     /**

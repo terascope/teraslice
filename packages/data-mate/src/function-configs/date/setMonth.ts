@@ -47,7 +47,7 @@ export const setMonthConfig: FieldTransformConfig<{ month: number }> = {
             serialize_output: toISO8601
         }
     ],
-    create({ month }: { month: number }) {
+    create({ args: { month } }) {
         return setMonth(month);
     },
     argument_schema: {

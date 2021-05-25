@@ -2,4 +2,4 @@
 
 'use strict';
 
-require('./packages/teraslice/service.js');
+require('./packages/teraslice/service');

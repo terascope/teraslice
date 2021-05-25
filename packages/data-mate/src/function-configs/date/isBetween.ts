@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isBetween } from '@terascope/utils';
+import { isBetween, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -59,17 +59,26 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     ],
     argument_schema: {
         start: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Start date of time range'
         },
         end: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'End date of time range'
         }
     },
     required_arguments: ['start', 'end'],
-    create(args: IsBetweenArgs) {
+    create({ args }) {
         return (input: unknown) => isBetween(input, args);
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number]
+    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    validate_arguments(args) {
+        if (!isValidDate(args.start)) {
+            throw new Error(`Invalid start paramter, could not convert ${args.start} to a date`);
+        }
+
+        if (!isValidDate(args.end)) {
+            throw new Error(`Invalid end paramter, could not convert ${args.end} to a date`);
+        }
+    }
 };
