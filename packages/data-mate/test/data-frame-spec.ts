@@ -35,6 +35,17 @@ describe('DataFrame', () => {
         }).toThrowError('All columns in a DataFrame must have the same length, got 1 and 2');
     });
 
+    it('should be able to rename a data fame', () => {
+        const dataFrame = new DataFrame([
+            Column.fromJSON('count', { type: FieldType.Integer }, [1]),
+        ], { name: 'foo' });
+
+        expect(dataFrame.name).toBe('foo');
+        const resultFrame = dataFrame.renameDataFrame('bar');
+        expect(dataFrame.id).toBe(resultFrame.id);
+        expect(resultFrame.name).toBe('bar');
+    });
+
     it('should handle a single column with one value', () => {
         const dataFrame = DataFrame.fromJSON({
             version: LATEST_VERSION,

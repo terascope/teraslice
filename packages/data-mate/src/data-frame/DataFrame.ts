@@ -770,6 +770,17 @@ export class DataFrame<
     }
 
     /**
+     * Rename the data frame
+    */
+    renameDataFrame(
+        renameTo: string,
+    ): DataFrame<T> {
+        const newFrame = this.fork(this.columns);
+        newFrame.name = renameTo;
+        return newFrame;
+    }
+
+    /**
      * Merge two or more columns into a Tuple
     */
     createTupleFrom<R extends string, V = [...unknown[]]>(
