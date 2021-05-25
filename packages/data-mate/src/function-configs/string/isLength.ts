@@ -56,7 +56,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
             output: null,
         },
     ],
-    create(args) {
+    create({ args }) {
         return (input: unknown) => isLength(input, args);
     },
     argument_schema: {

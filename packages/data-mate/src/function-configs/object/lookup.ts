@@ -47,7 +47,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: undefined
         }
     ],
-    create(args: LookupArgs): any {
+    create({ args }) {
         return lookup(args.in);
     },
     argument_schema: {

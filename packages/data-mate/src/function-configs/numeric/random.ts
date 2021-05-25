@@ -29,7 +29,7 @@ export const randomConfig: FieldTransformConfig<RandomArgs> = {
         input: 1,
         output: 1
     }],
-    create({ min, max }) {
+    create({ args: { min, max } }) {
         return function _random() {
             return random(min, max);
         };

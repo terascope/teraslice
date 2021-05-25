@@ -1,7 +1,5 @@
 import 'jest-extended';
-import {
-    bigIntToJSON, hasOwn, isBigInt, isObjectEntity
-} from '@terascope/utils';
+import { isObjectEntity, toJSONCompatibleValue } from '@terascope/utils';
 import {
     functionAdapter,
     dataFrameAdapter,
@@ -49,10 +47,10 @@ export function functionTestHarness<T extends Record<string, any>>(
                     if (output == null) return [null];
                     if (testCase.serialize_output) {
                         return [testCase.serialize_output(
-                            serializeBigIntegers(output)
+                            toJSONCompatibleValue(output)
                         )];
                     }
-                    return [serializeBigIntegers(output)];
+                    return [toJSONCompatibleValue(output)];
                 }
 
                 if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
@@ -206,23 +204,4 @@ export function functionTestHarness<T extends Record<string, any>>(
 function verifyObjectEntity(data: unknown): asserts data is Record<string, unknown> {
     if (isObjectEntity(data)) return;
     throw new Error('Record transformations require record data as test input');
-}
-
-function serializeBigIntegers(input: unknown): any {
-    if (isBigInt(input)) return bigIntToJSON(input);
-    if (input == null || typeof input !== 'object') return input;
-
-    if (Array.isArray(input)) {
-        return input.map(serializeBigIntegers);
-    }
-
-    const obj = {};
-
-    for (const prop in input) {
-        if (hasOwn(input, prop)) {
-            obj[prop] = serializeBigIntegers(input[prop]);
-        }
-    }
-
-    return obj;
 }

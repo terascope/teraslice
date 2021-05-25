@@ -58,7 +58,7 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
             output: 149
         }
     ],
-    create({ value }) {
+    create({ args: { value } }) {
         return isLessThan(value);
     },
     accepts: [

@@ -7,13 +7,18 @@ import {
     isNil,
     unset,
 } from '@terascope/utils';
+import { FieldTransformConfig, InitialFunctionContext } from '../../../function-configs/interfaces';
 import { callValue } from '../utils';
 
-export function fieldTransformRowExecution<T extends Record<string, any>>(
-    fn: (input: unknown) => unknown,
+export function fieldTransformRowExecution<
+    T extends Record<string, any>,
+    K extends Record<string, any> = Record<string, unknown>
+>(
+    fnDef: FieldTransformConfig<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
-    field?: keyof T
+    field?: keyof T,
 ): (input: T[]) => T[] {
     return function _fieldTransformRowExecution(input: T[]): T[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
@@ -23,17 +28,22 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
 
         const results = [];
 
-        for (const record of input) {
-            const clone = cloneDeep(record);
+        const fn = fnDef.create({
+            ...configs,
+            parent: input
+        });
 
-            if (!isObjectEntity(record)) {
-                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+        for (let i = 0; i < input.length; i++) {
+            const clone = cloneDeep(input[i]);
+
+            if (!isObjectEntity(clone)) {
+                throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
             }
 
             const value: unknown = get(clone, field);
 
             if (Array.isArray(value)) {
-                const fieldList = callValue(fn, input, preserveNulls);
+                const fieldList = callValue(fn, input, preserveNulls, false, i);
 
                 // we have results in list or we don't care if its an empty list here
                 if (fieldList.length > 0) {
@@ -55,7 +65,7 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
                 let data: unknown = null;
 
                 if (!isNil(value)) {
-                    data = fn(value);
+                    data = fn(value, i);
                 }
 
                 if (isNil(data)) {
@@ -85,8 +95,12 @@ export function fieldTransformRowExecution<T extends Record<string, any>>(
     };
 }
 
-export function wholeFieldTransformRowExecution<T extends Record<string, any>>(
-    fn: (input: unknown) => unknown,
+export function wholeFieldTransformRowExecution<
+    T extends Record<string, any>,
+    K extends Record<string, any> = Record<string, unknown>
+>(
+    fnDef: FieldTransformConfig<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean,
     preserveEmptyObjects: boolean,
     field?: keyof T
@@ -99,16 +113,21 @@ export function wholeFieldTransformRowExecution<T extends Record<string, any>>(
 
         const results = [];
 
-        for (const record of input) {
-            const clone = cloneDeep(record);
+        const fn = fnDef.create({
+            ...configs,
+            parent: input
+        });
 
-            if (!isObjectEntity(record)) {
-                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+        for (let i = 0; i < input.length; i++) {
+            const clone = cloneDeep(input[i]);
+
+            if (!isObjectEntity(clone)) {
+                throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
             }
 
             const value = get(clone, field);
 
-            const data = fn(value);
+            const data = fn(value, i);
 
             if (isNil(data)) {
                 if (preserveNulls) {
@@ -135,20 +154,30 @@ export function wholeFieldTransformRowExecution<T extends Record<string, any>>(
     };
 }
 
-export function wholeFieldTransformColumnExecution(
-    fn: (input: unknown) => unknown,
+export function wholeFieldTransformColumnExecution<
+    T extends Record<string, any>,
+    K extends Record<string, any> = Record<string, unknown>
+>(
+    fnDef: FieldTransformConfig<K>,
+    configs: InitialFunctionContext<K>,
     preserveNulls: boolean
 ) {
     return function _wholeFieldTransformColumnExecution(
-        input: unknown[]
+        input: T[],
     ): unknown[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }
+
         const results: unknown[] = [];
 
-        for (const value of input) {
-            const newValue = fn(value);
+        const fn = fnDef.create({
+            ...configs,
+            parent: input
+        });
+
+        for (let i = 0; i < input.length; i++) {
+            const newValue = fn(input[i], i);
 
             if (!isNil(newValue)) {
                 results.push(newValue);
@@ -161,21 +190,34 @@ export function wholeFieldTransformColumnExecution(
     };
 }
 
-export function fieldTransformColumnExecution(
-    fn: (input: unknown) => unknown, preserveNulls: boolean
+export function fieldTransformColumnExecution<
+    T extends Record<string, any>,
+    K extends Record<string, any> = Record<string, unknown>
+>(
+    fnDef: FieldTransformConfig<K>,
+    configs: InitialFunctionContext<K>,
+    preserveNulls: boolean,
 ) {
     return function _fieldTransformColumnExecution(
-        input: unknown[]
+        input: T[],
     ): (unknown|null)[] {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }
+
         const results = [];
 
-        for (const value of input) {
+        const fn = fnDef.create({
+            ...configs,
+            parent: input
+        });
+
+        for (let i = 0; i < input.length; i++) {
+            const value = input[i];
+
             if (isNotNil(value)) {
                 if (Array.isArray(value)) {
-                    const fieldList = callValue(fn, input, preserveNulls);
+                    const fieldList = callValue(fn, input, preserveNulls, false, i);
 
                     if (fieldList.length > 0) {
                         results.push(fieldList);
@@ -183,7 +225,7 @@ export function fieldTransformColumnExecution(
                         results.push(null);
                     }
                 } else {
-                    const newValue = callValue(fn, value, preserveNulls);
+                    const newValue = callValue(fn, value, preserveNulls, false, i);
                     results.push(...newValue);
                 }
             } else if (preserveNulls) {

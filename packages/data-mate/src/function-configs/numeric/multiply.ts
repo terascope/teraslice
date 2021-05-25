@@ -51,7 +51,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         input: 10,
         output: 20
     }],
-    create({ value }, inputConfig) {
+    create({ args: { value }, inputConfig }) {
         if (isLargeNumberType(inputConfig?.field_config.type as FieldType|undefined)) {
             return multiplyFP(toBigIntOrThrow(value));
         }

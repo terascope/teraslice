@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isAfter } from '@terascope/utils';
+import { isAfter, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
@@ -58,13 +58,18 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
     ],
     argument_schema: {
         date: {
-            type: FieldType.Date || FieldType.String || FieldType.Number,
+            type: FieldType.Date,
             description: 'Date to compare input to'
         }
     },
     required_arguments: ['date'],
-    create({ date }: IsAfterArgs) {
+    create({ args: { date } }) {
         return (input: unknown) => isAfter(input, date);
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number]
+    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    validate_arguments(args) {
+        if (!isValidDate(args.date)) {
+            throw new Error(`Invalid date paramter, could not convert ${args.date} to a date`);
+        }
+    }
 };

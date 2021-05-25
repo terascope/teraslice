@@ -10,9 +10,9 @@ import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, isFieldOperation,
-    DataTypeFieldAndChildren, FunctionDefinitionConfig
+    DataTypeFieldAndChildren, FunctionDefinitionConfig,
+    FunctionContext, TransformContext
 } from '../../function-configs/interfaces';
-
 import {
     TransformMode, ColumnTransformFn
 } from '../../column/interfaces';
@@ -83,10 +83,14 @@ function transformColumnData<T extends Record<string, any>>(
         version: column.version,
     };
 
-    const transformFn = transformConfig.create(
-        args,
-        inputConfig
-    );
+    const config: TransformContext<T> = {
+        args: { ...args },
+        parent: column,
+        inputConfig,
+        outputConfig
+    };
+
+    const transformFn = transformConfig.create(config);
 
     // TODO: does output that only has DateFieldTypes enough, will it need more?
     const columnTransformConfig: ColumnTransformFn<unknown, unknown> = {
@@ -130,13 +134,16 @@ function validateColumnData<T extends Record<string, any>>(
 
     const inputConfig = {
         field_config: column.config,
-        child_config: column.vector.childConfig
+        child_config: column.vector.childConfig,
     };
 
-    const validatorFn = validationConfig.create(
-        { ...args } as T,
-        inputConfig
-    );
+    const config: FunctionContext<T> = {
+        args: { ...args } as T,
+        parent: column,
+        ...inputConfig
+    };
+
+    const validatorFn = validationConfig.create(config);
 
     const columnValidationConfig: ColumnTransformFn<unknown, unknown> = {
         mode,
@@ -145,8 +152,8 @@ function validateColumnData<T extends Record<string, any>>(
 
     const transform = mode !== TransformMode.NONE ? ({
         ...columnValidationConfig,
-        fn(value: any): any {
-            if (validatorFn(value)) {
+        fn(value: any, index: number): any {
+            if (validatorFn(value, index)) {
                 return value;
             }
             return null;

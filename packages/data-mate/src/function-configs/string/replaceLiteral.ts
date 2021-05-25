@@ -34,7 +34,7 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Replaces the searched value with the replace value',
     examples,
-    create({ replace, search }) {
+    create({ args: { replace, search } }) {
         return (input: unknown) => replaceFn(input as string, search, replace);
     },
     accepts: [FieldType.String],

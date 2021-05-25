@@ -47,7 +47,7 @@ export const setMinutesConfig: FieldTransformConfig<{ minutes: number }> = {
             serialize_output: toISO8061
         }
     ],
-    create({ minutes }: { minutes: number }) {
+    create({ args: { minutes } }) {
         return setMinutes(minutes);
     },
     argument_schema: {

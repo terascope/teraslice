@@ -9,6 +9,8 @@ import {
     isBefore,
     isAfter,
     isBetween,
+    getTimezoneOffset,
+    getTimezoneOffsetFP,
     setMilliseconds,
     setSeconds,
     setMinutes,
@@ -221,6 +223,22 @@ describe('date utils', () => {
             [new Date(1715472000000), new Date(1620764444501), 'new date', false],
         ])('for input %p and start %p and end %p return %p', (input, start, end, expected) => {
             expect(isBetween(input, { start, end })).toEqual(expected);
+        });
+    });
+
+    describe('timezoneToOffset', () => {
+        // we do this to lock in the timzeone, so tests don't randomly fail in future
+        const date = new Date('2021-05-20T15:13:52.131Z');
+
+        test.each([
+            ['Africa/Accra', 0],
+            ['America/Anchorage', -8 * 60],
+            ['America/Aruba', -4 * 60],
+            ['Asia/Istanbul', 3 * 60],
+            ['Australia/Canberra', 10 * 60],
+        ])('for input %p and date %p return %p', (timezone, expected) => {
+            expect(getTimezoneOffset(date, timezone)).toEqual(expected);
+            expect(getTimezoneOffsetFP(timezone)(date)).toEqual(expected);
         });
     });
 

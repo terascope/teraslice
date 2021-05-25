@@ -47,7 +47,7 @@ export class ObjectVector<
         return childFields;
     }
 
-    valueToJSON(value: T, options?: SerializeOptions): any {
+    toJSONCompatibleValue(value: T, options?: SerializeOptions): any {
         const val = value as Record<string, any>;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
@@ -66,7 +66,7 @@ export class ObjectVector<
         for (const [field, vector] of this.childFields) {
             if (input[field] != null) {
                 const fieldValue = (
-                    vector.valueToJSON ? vector.valueToJSON(
+                    vector.toJSONCompatibleValue ? vector.toJSONCompatibleValue(
                         input[field], options
                     ) : input[field]
                 );

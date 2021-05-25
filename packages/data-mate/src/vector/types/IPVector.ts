@@ -3,7 +3,7 @@ import { Vector, VectorOptions } from '../Vector';
 import { VectorType, DataBuckets } from '../interfaces';
 
 export class IPVector extends Vector<string> {
-    valueToJSON = undefined;
+    toJSONCompatibleValue = undefined;
 
     constructor(data: DataBuckets<string>, options: VectorOptions) {
         super(VectorType.IP, data, options);

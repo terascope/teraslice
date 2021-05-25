@@ -37,15 +37,15 @@ export class TupleVector<
         return childFields;
     }
 
-    valueToJSON(values: T, options?: SerializeOptions): any {
+    toJSONCompatibleValue(values: T, options?: SerializeOptions): any {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
         let nonNilValues = 0;
         const result = this.childFields.map((vector, index) => {
             const value = values[index];
-            if (value == null || !vector.valueToJSON) return value ?? nilValue;
+            if (value == null || !vector.toJSONCompatibleValue) return value ?? nilValue;
             nonNilValues++;
-            return vector.valueToJSON(value, options);
+            return vector.toJSONCompatibleValue(value, options);
         });
 
         if (options?.skipEmptyArrays && !nonNilValues) {

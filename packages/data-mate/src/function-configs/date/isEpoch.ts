@@ -75,7 +75,7 @@ export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
             description: 'Set to false to disable allowing negative values'
         }
     },
-    create({ allowBefore1970 }) {
+    create({ args: { allowBefore1970 } }) {
         return isUnixTimeFP(allowBefore1970);
     },
     accepts: [FieldType.Number],

@@ -60,7 +60,7 @@ See https://date-fns.org/v2.16.1/docs/parse for more info.
 Default: iso_8601 for strings and epoch_millis for number`
         }
     },
-    create({ format }) {
+    create({ args: { format } }) {
         if (!format || format in DateFormat) {
             return isValidDate;
         }

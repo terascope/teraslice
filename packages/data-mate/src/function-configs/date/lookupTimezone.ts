@@ -1,4 +1,4 @@
-import { parseGeoPoint, isNil, isNumber } from '@terascope/utils';
+import { isNil, isNumber, lookupTimezone } from '@terascope/utils';
 import { FieldType, DataTypeFieldConfig } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -9,43 +9,43 @@ import {
     isNumericType
 } from '../interfaces';
 
-export const toGeoPointConfig: FieldTransformConfig = {
-    name: 'toGeoPoint',
+export const lookupTimezoneConfig: FieldTransformConfig = {
+    name: 'lookupTimezone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
-    category: FunctionDefinitionCategory.GEO,
+    category: FunctionDefinitionCategory.DATE,
     examples: [
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '60,40',
-            output: { lon: 40, lat: 60 }
-        },
-        {
-            args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.Object } } },
-            field: 'testField',
-            input: { latitude: 40, longitude: 60 },
-            output: { lon: 60, lat: 40 }
-        },
-        {
-            args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.Number, array: true } } },
-            field: 'testField',
-            input: [50, 60],
-            output: { lon: 50, lat: 60 }
+            input: '33.385765, -111.891167',
+            output: 'America/Phoenix'
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: 'not an geo point',
-            output: null,
-            fails: true
+            input: '30.00123,-12.233',
+            output: 'Etc/GMT+1',
+            description: 'in ocean outside Morocco'
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Number, array: true } } },
+            field: 'testField',
+            input: [30.00123, 12.233],
+            output: 'Africa/Khartoum'
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Object } } },
+            field: 'testField',
+            input: { lat: 48.86168702148502, lon: 2.3366209636711 },
+            output: 'Europe/Paris',
         },
     ],
-    description: 'Converts a value to a geo-point',
+    description: 'Takes in a geo point like entity and returns the timezone of its location',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;
@@ -54,11 +54,11 @@ export const toGeoPointConfig: FieldTransformConfig = {
                 return input
                     .map((data: any) => {
                         if (isNil(data)) return null;
-                        return parseGeoPoint(data, true);
+                        return lookupTimezone(data);
                     });
             }
 
-            return parseGeoPoint(input as any, true);
+            return lookupTimezone(input);
         };
     },
     accepts: [
@@ -76,7 +76,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.GeoPoint,
+                type: FieldType.String,
                 array
             },
         };

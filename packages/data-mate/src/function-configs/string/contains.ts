@@ -37,7 +37,7 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
             output: null
         },
     ],
-    create({ substr }) {
+    create({ args: { substr } }) {
         return (input: unknown) => contains(input, substr);
     },
     accepts: [FieldType.String],
@@ -47,5 +47,6 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
             array: false,
             description: 'A string that must partially or completely match'
         }
-    }
+    },
+    required_arguments: ['substr']
 };

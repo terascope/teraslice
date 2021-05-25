@@ -47,7 +47,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             serialize_output: toISO8061
         }
     ],
-    create({ hours }: { hours: number }) {
+    create({ args: { hours } }) {
         return setHours(hours);
     },
     argument_schema: {
@@ -59,7 +59,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
     validate_arguments: ({ hours }) => {
         if (!isInteger(hours)
             || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
-            throw Error('Invalue argument "hours", must be an integer between 0 and 23');
+            throw Error('Invalid argument "hours", must be an integer between 0 and 23');
         }
     },
     required_arguments: ['hours'],

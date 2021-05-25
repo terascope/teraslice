@@ -47,7 +47,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             serialize_output: toISO8061
         }
     ],
-    create({ date }: { date: number }) {
+    create({ args: { date } }) {
         return setDate(date);
     },
     argument_schema: {

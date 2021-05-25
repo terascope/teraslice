@@ -113,7 +113,7 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     category: FunctionDefinitionCategory.GEO,
     examples,
     description: 'Checks to see if a geo input contains the given point',
-    create({ point }) {
+    create({ args: { point } }) {
         return geoContainsFP(point);
     },
     accepts: [FieldType.GeoJSON],

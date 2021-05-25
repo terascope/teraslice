@@ -69,14 +69,14 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isAlphaNumericConfig: FieldValidateConfig = {
+export const isAlphaNumericConfig: FieldValidateConfig<AlphaNumericLocale> = {
     name: 'isAlphaNumeric',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     description: 'Checks to see if input is a string composed of only alpha-numeric characters',
-    create({ locale }: AlphaNumericLocale) {
-        return (input: unknown) => isAlphaNumeric(input, locale);
+    create({ args: { locale } }) {
+        return (input: unknown) => isAlphaNumeric(input, locale as validator.AlphanumericLocale);
     },
     argument_schema: {
         locale: {

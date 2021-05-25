@@ -1,4 +1,7 @@
-import { isBigInt, bigIntToJSON, isNil } from '@terascope/utils';
+import {
+    isBigInt, bigIntToJSON, isNil,
+    isObjectEntity, toJSONCompatibleValue
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -14,6 +17,64 @@ export const toJSONConfig: FieldTransformConfig = {
     process_mode: ProcessMode.FULL_VALUES,
     description: 'converts whole input to JSON format',
     category: FunctionDefinitionCategory.JSON,
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.Long
+                    }
+                }
+            },
+            field: 'testField',
+            input: BigInt(21) ** BigInt(20),
+            output: '278218429446951548637196400'
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.Boolean
+                    }
+                }
+            },
+            field: 'testField',
+            input: false,
+            output: 'false'
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.Object
+                    }
+                }
+            },
+            field: 'testField',
+            input: { some: 1234 },
+            output: '{"some":1234}'
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.Object
+                    }
+                }
+            },
+            field: 'testField',
+            input: { bigNum: BigInt(21) ** BigInt(20) },
+            output: '{"bigNum":"278218429446951548637196400"}'
+        },
+    ],
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;
@@ -22,7 +83,12 @@ export const toJSONConfig: FieldTransformConfig = {
                 return bigIntToJSON(input);
             }
 
-            return JSON.stringify(input as string);
+            if (isObjectEntity(input)) {
+                const parsedData = toJSONCompatibleValue(input);
+                return JSON.stringify(parsedData);
+            }
+
+            return JSON.stringify(input);
         };
     },
     accepts: [],
