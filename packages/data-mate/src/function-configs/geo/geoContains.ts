@@ -109,7 +109,7 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data completely "contains" the value argument. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the geo data being compared',
+    description: 'Returns the input if it contains the value argument, otherwise returns null. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the input geo-entity',
     create({ args: { value } }) {
         return geoContainsFP(value);
     },
@@ -124,7 +124,7 @@ export const geoContainsConfig: FieldValidateConfig<GeoContainsArgs> = {
     argument_schema: {
         value: {
             type: FieldType.Any,
-            description: 'The geo input that must be "contained" by other geo-like data'
+            description: 'The geo value used to check if it is contained by the input'
         }
     },
     required_arguments: ['value'],
