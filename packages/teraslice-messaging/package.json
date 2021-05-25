@@ -45,7 +45,7 @@
     "devDependencies": {
         "@types/ms": "^0.7.30",
         "@types/socket.io": "^2.1.13",
-        "@types/socket.io-client": "^1.4.35"
+        "@types/socket.io-client": "^3.0.0"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
