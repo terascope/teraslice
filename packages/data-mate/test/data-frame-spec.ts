@@ -1251,8 +1251,25 @@ describe('DataFrame', () => {
                     peopleDataFrame
                 ], limitSize);
 
-                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.limit(1).toJSON());
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.limit(limitSize).toJSON());
                 expect(resultFrame.size).toEqual(limitSize);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append another frame with varying fields', () => {
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>
+                ]) as unknown as DataFrame<Person & { old_friends: string[]|undefined }>;
+
+                expect(resultFrame.toJSON()).toEqual(
+                    peopleDataFrame.toJSON().concat(
+                        peopleDataFrame.toJSON().map((record) => {
+                            const { friends, ...rest } = record;
+                            return { old_friends: friends, ...rest };
+                        })
+                    )
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
