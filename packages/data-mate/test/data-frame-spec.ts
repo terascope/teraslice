@@ -6,7 +6,7 @@ import {
     GeoShapeType, DataTypeFieldConfig
 } from '@terascope/types';
 import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
-import { Column, DataFrame } from '../src';
+import { Column, ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table using DataFrame#fromJSON', () => {
@@ -25,6 +25,26 @@ describe('DataFrame', () => {
         expect(dataFrame.size).toEqual(0);
         expect(dataFrame.toJSON()).toEqual([]);
         expect(dataFrame.id).toBeString();
+    });
+
+    it('should throw if given two columns with varying lengths', () => {
+        expect(() => {
+            new DataFrame([
+                Column.fromJSON('count', { type: FieldType.Integer }, [1]),
+                Column.fromJSON('sum', { type: FieldType.Integer }, [5, 6]),
+            ]);
+        }).toThrowError('All columns in a DataFrame must have the same length, got 1 and 2');
+    });
+
+    it('should be able to rename a data fame', () => {
+        const dataFrame = new DataFrame([
+            Column.fromJSON('count', { type: FieldType.Integer }, [1]),
+        ], { name: 'foo' });
+
+        expect(dataFrame.name).toBe('foo');
+        const resultFrame = dataFrame.renameDataFrame('bar');
+        expect(dataFrame.id).toBe(resultFrame.id);
+        expect(resultFrame.name).toBe('bar');
     });
 
     it('should handle a single column with one value', () => {
@@ -1269,8 +1289,42 @@ describe('DataFrame', () => {
                     peopleDataFrame
                 ], limitSize);
 
-                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.limit(1).toJSON());
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.limit(limitSize).toJSON());
                 expect(resultFrame.size).toEqual(limitSize);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append another frame with varying fields', () => {
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>
+                ]) as unknown as DataFrame<Person & { old_friends: string[]|undefined }>;
+
+                expect(resultFrame.toJSON()).toEqual(
+                    peopleDataFrame.toJSON().concat(
+                        peopleDataFrame.toJSON().map((record) => {
+                            const { friends, ...rest } = record;
+                            return { old_friends: friends, ...rest };
+                        })
+                    )
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append another frame with missing certain fields', () => {
+                type ComboPerson = Person & { old_friends: string[]|undefined };
+                const inputFrame = peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>;
+                const resultFrame = inputFrame.appendAll([
+                    peopleDataFrame
+                ]) as unknown as DataFrame<ComboPerson>;
+
+                expect(resultFrame.toJSON()).toEqual(
+                    peopleDataFrame.toJSON().map((record) => {
+                        const { friends, ...rest } = record;
+                        return { old_friends: friends, ...rest };
+                    }).concat(peopleDataFrame.toJSON() as unknown as ComboPerson[])
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
