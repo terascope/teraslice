@@ -219,7 +219,7 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Append ReadableData to a data buckets
+     * Add ReadableData to a end of the data buckets
     */
     append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
         return this.fork(this.data.concat(
@@ -227,6 +227,16 @@ export abstract class Vector<T = unknown> {
                 ? data
                 : [data as ReadableData<T>]
         ));
+    }
+
+    /**
+    *  Add ReadableData to a beginning of the data buckets
+    */
+    prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
+        const preData = Array.isArray(data)
+            ? data
+            : [data as ReadableData<T>];
+        return this.fork(preData.concat(this.data));
     }
 
     /**
