@@ -70,35 +70,35 @@ For example, \`1h\` or \`1h+2m\``
         },
         years: {
             type: FieldType.Integer,
-            description: 'The number of years from subtract from the date. This cannot be specified with expr'
+            description: 'The number of years to subtract from the date. This cannot be specified with expr'
         },
         months: {
             type: FieldType.Integer,
-            description: 'The number of months from subtract from the date. This cannot be specified with expr'
+            description: 'The number of months to subtract from the date. This cannot be specified with expr'
         },
         weeks: {
             type: FieldType.Integer,
-            description: 'The number of weeks from subtract from the date. This cannot be specified with expr'
+            description: 'The number of weeks to subtract from the date. This cannot be specified with expr'
         },
         days: {
             type: FieldType.Integer,
-            description: 'The number of days from subtract from the date. This cannot be specified with expr'
+            description: 'The number of days to subtract from the date. This cannot be specified with expr'
         },
         hours: {
             type: FieldType.Integer,
-            description: 'The number of hours from subtract from the date. This cannot be specified with expr'
+            description: 'The number of hours to subtract from the date. This cannot be specified with expr'
         },
         minutes: {
             type: FieldType.Integer,
-            description: 'The number of minutes from subtract from the date. This cannot be specified with expr'
+            description: 'The number of minutes to subtract from the date. This cannot be specified with expr'
         },
         seconds: {
             type: FieldType.Integer,
-            description: 'The number of seconds from subtract from the date. This cannot be specified with expr'
+            description: 'The number of seconds to subtract from the date. This cannot be specified with expr'
         },
         milliseconds: {
             type: FieldType.Integer,
-            description: 'The number of milliseconds from subtract from the date. This cannot be specified with expr'
+            description: 'The number of milliseconds to subtract from the date. This cannot be specified with expr'
         }
     },
     validate_arguments(args) {
@@ -107,7 +107,7 @@ For example, \`1h\` or \`1h+2m\``
         const argKeys = Object.keys(args);
 
         if (argKeys.length === 0) {
-            throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
+            throw new Error('Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
         }
 
         for (const argKey of argKeys) {

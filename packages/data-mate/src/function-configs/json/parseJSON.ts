@@ -30,7 +30,7 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.JSON,
-    description: 'parses a JSON string, constructing the value or object described by the string',
+    description: 'Parses a JSON string, constructing the value or object described by the string',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;
@@ -39,7 +39,6 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     },
     accepts: [FieldType.String],
     argument_schema: {
-
         type: {
             type: FieldType.String,
             description: 'The type of field, defaults to Any, you may need to specify the type for better execution optimization'
@@ -51,26 +50,25 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
 
         description: {
             type: FieldType.Text,
-            description: 'A new description for the field'
+            description: 'Set the description for the field'
         },
         locale: {
             type: FieldType.String,
-            description: `Specify the locale for the field (only compatible with some field types).
-Must be represented in a Language Tags (BCP 47)`
+            description: `Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag`
         },
 
         indexed: {
             type: FieldType.Boolean,
-            description: 'Specifies whether the field is index in elasticsearch (Only type Object currently support this)'
+            description: 'Specifies whether the field is indexed in elasticsearch (Only type Object currently support this)'
         },
 
         format: {
             type: FieldType.String,
-            description: 'The format for the field. Currently only Date field support it.'
+            description: 'The format for the field. Currently only supported by Date fields.'
         },
         is_primary_date: {
             type: FieldType.Boolean,
-            description: 'used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm'
+            description: 'Used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm'
         },
         time_resolution: {
             type: FieldType.String,

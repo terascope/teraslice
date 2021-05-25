@@ -39,7 +39,7 @@ export const isWeekendConfig: FieldValidateConfig = {
             output: '2021-05-08T10:00:00.000Z'
         },
     ],
-    description: 'Determines if the given date is on a Weekend (Saturday-Sunday)',
+    description: 'Returns the given date if it is on a Weekend (Saturday-Sunday), otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

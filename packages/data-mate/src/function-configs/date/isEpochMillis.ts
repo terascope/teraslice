@@ -13,7 +13,7 @@ export const isEpochMillisConfig: FieldValidateConfig<IsEpochMillisArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number.',
+    description: 'Returns the input if it is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number.',
     examples: [{
         args: { },
         config: {

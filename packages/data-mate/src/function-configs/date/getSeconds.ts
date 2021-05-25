@@ -9,7 +9,7 @@ export const getSecondsConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the seconds of the given date',
+    description: 'Returns the seconds of the input date',
     examples: [
         {
             args: {},

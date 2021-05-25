@@ -32,7 +32,7 @@ export const isYesterdayConfig: FieldValidateConfig = {
             description: 'represents day before current time'
         },
     ],
-    description: 'Determines if the given date is on the day before (utc-time)',
+    description: 'Returns the given date if it is on the day before (utc-time), otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

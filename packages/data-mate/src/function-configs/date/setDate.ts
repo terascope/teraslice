@@ -6,7 +6,7 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const setDateConfig: FieldTransformConfig<{ date: number }> = {
+export const setDateConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -14,7 +14,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
     description: 'Set the day of the month of the input date',
     examples: [
         {
-            args: { date: 12 },
+            args: { value: 12 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -25,7 +25,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { date: 22 },
+            args: { value: 22 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -36,7 +36,7 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { date: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -47,18 +47,18 @@ export const setDateConfig: FieldTransformConfig<{ date: number }> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { date } }) {
-        return setDate(date);
+    create({ args: { value } }) {
+        return setDate(value);
     },
     argument_schema: {
-        date: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set day of the month to, must be between 1 and 31'
         }
     },
-    validate_arguments: ({ date }) => {
-        if (!isInteger(date)
-            || !inNumberRange(date, { min: 1, max: 31, inclusive: true })) {
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 1, max: 31, inclusive: true })) {
             throw Error('Invalid argument "date", must be an integer between 1 and 31');
         }
     },
