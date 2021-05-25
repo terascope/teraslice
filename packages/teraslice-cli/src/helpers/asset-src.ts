@@ -172,7 +172,20 @@ export class AssetSrc {
             // can accept this limitation now.
             let entryPoint = '';
             try {
-                entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'src', 'index.ts'));
+                if (this.assetPackageJson?.entryPoint) {
+                    // FIXME: why should we treat JS and TS differently?  If I
+                    // do it like this ... we do the same thing two different
+                    // ways:
+                    // * JS - explicitly specify entry point in package.json
+                    // * TS - implicitly find entry point by looking for file
+                    // we should chose one or the other and use the same for
+                    // both cases.
+                    entryPoint = require.resolve(
+                        path.join(tmpDir.name, 'asset', this.assetPackageJson.entryPoint)
+                    );
+                } else {
+                    entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'src', 'index.ts'));
+                }
                 reply.warning(`entryPoint: ${entryPoint}`);
             } catch (err) {
                 reply.fatal(`Unable to resolve entry point due to error: ${err}`);
