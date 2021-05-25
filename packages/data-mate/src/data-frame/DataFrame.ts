@@ -167,7 +167,7 @@ export class DataFrame<
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
             throw new Error(
-                `All columns for a DataFrame must have the same length, got ${joinList(lengths)}`
+                `All columns in a DataFrame must have the same length, got ${joinList(lengths)}`
             );
         }
         this.size = lengths[0] ?? 0;

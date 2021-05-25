@@ -5,7 +5,7 @@ import {
     DataTypeConfig, FieldType, GeoShape, GeoShapeType,
 } from '@terascope/types';
 import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
-import { ColumnTransform, DataFrame } from '../src';
+import { Column, ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table using DataFrame#fromJSON', () => {
@@ -24,6 +24,15 @@ describe('DataFrame', () => {
         expect(dataFrame.size).toEqual(0);
         expect(dataFrame.toJSON()).toEqual([]);
         expect(dataFrame.id).toBeString();
+    });
+
+    it('should throw if given two columns with varying lengths', () => {
+        expect(() => {
+            new DataFrame([
+                Column.fromJSON('count', { type: FieldType.Integer }, [1]),
+                Column.fromJSON('sum', { type: FieldType.Integer }, [5, 6]),
+            ]);
+        }).toThrowError('All columns in a DataFrame must have the same length, got 1 and 2');
     });
 
     it('should handle a single column with one value', () => {
