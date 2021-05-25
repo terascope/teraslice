@@ -580,7 +580,7 @@ latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
 
 **Type:** `FIELD_TRANSFORM`
 
-> Parses JSON input
+> Parses a JSON string, constructing the value or object described by the string
 
 #### Arguments
 
@@ -632,6 +632,24 @@ null => setDefault(value: "example") // outputs ["example"]
 **Type:** `FIELD_TRANSFORM`
 
 > Converts whole input to JSON format
+
+#### Examples
+
+```ts
+278218429446951548637196401 => toJSON() // outputs "278218429446951548637196400"
+```
+
+```ts
+false => toJSON() // outputs "false"
+```
+
+```ts
+some: 1234 => toJSON() // outputs "{"some":1234}"
+```
+
+```ts
+bigNum: 278218429446951548637196401 => toJSON() // outputs "{"bigNum":"278218429446951548637196400"}"
+```
 
 ## CATEGORY: Date
 
@@ -720,6 +738,174 @@ Default: iso_8601 for strings and epoch_millis for number
 "2001-01-01T01:00:00.000Z" => formatDate() // outputs "2001-01-01T01:00:00.000Z"
 ```
 
+### `getDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the day of the month of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getDate() // outputs 11
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outputs 16
+```
+
+```ts
+"05/22/2021 EST" => getDate() // outputs 22
+```
+
+```ts
+1510123223231 => getDate() // outputs 8
+```
+
+### `getHours`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the hours of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:12:41.091Z" => getHours() // outputs 10
+```
+
+```ts
+Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outputs 10
+```
+
+```ts
+"05/22/2021 EST" => getHours() // outputs 5
+```
+
+```ts
+17154123223231 => getHours() // outputs 2
+```
+
+### `getMilliseconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the milliseconds of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:01.091Z" => getMilliseconds() // outputs 91
+```
+
+```ts
+Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() // outputs 91
+```
+
+```ts
+1715472000231 => getMilliseconds() // outputs 231
+```
+
+### `getMinutes`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the minutes of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:12:41.091Z" => getMinutes() // outputs 12
+```
+
+```ts
+Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // outputs 59
+```
+
+```ts
+1715472323231 => getMinutes() // outputs 5
+```
+
+### `getMonth`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the month of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getMonth() // outputs 5
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outputs 5
+```
+
+```ts
+"05/22/2021 EST" => getMonth() // outputs 5
+```
+
+```ts
+1510123223231 => getMonth() // outputs 11
+```
+
+### `getSeconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the seconds of the given date
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:41.091Z" => getSeconds() // outputs 41
+```
+
+```ts
+Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // outputs 19
+```
+
+```ts
+1715472323231 => getSeconds() // outputs 23
+```
+
 ### `getTimeBetween`
 
 **Type:** `FIELD_TRANSFORM`
@@ -752,6 +938,345 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(sta
 
 ```ts
 1620764440001 => getTimeBetween(end: 1620764441001, format: "seconds") // outputs 1
+```
+
+### `getTimezoneOffset`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Given a date and timezone, it will return the offset from UTC in minutes.
+>     This is more accurate than timezoneToOffset as it can better account for day lights saving time
+
+#### Arguments
+
+ - **timezone**: (required) `String` - Must be a valid IANA time zone name
+
+#### Accepts
+
+- `String`
+- `Number`
+- `Date`
+
+#### Examples
+
+```ts
+Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Africa/Accra") // outputs 0
+```
+
+```ts
+Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "America/Anchorage") // outputs -480
+```
+
+```ts
+Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "America/Aruba") // outputs -240
+```
+
+```ts
+Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Asia/Istanbul") // outputs 180
+```
+
+```ts
+Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Australia/Canberra") // outputs 600
+```
+
+### `getYear`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns the year of the given date in UTC Time
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-11T10:12:41.091Z" => getYear() // outputs 2021
+```
+
+```ts
+Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outputs 2021
+```
+
+```ts
+"05/22/2021 EST" => getYear() // outputs 2021
+```
+
+```ts
+1510123223231 => getYear() // outputs 2017
+```
+
+### `lookupTimezone`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Takes in a geo point like entity and returns the timezone of its location
+
+#### Accepts
+
+- `String`
+- `Object`
+- `GeoPoint`
+- `Geo`
+- `Number`
+- `Float`
+
+#### Examples
+
+```ts
+"33.385765, -111.891167" => lookupTimezone() // outputs "America/Phoenix"
+```
+
+In ocean outside Morocco
+```ts
+"30.00123,-12.233" => lookupTimezone() // outputs "Etc/GMT+1"
+```
+
+```ts
+[30.00123, 12.233] => lookupTimezone() // outputs "Africa/Khartoum"
+```
+
+```ts
+lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Europe/Paris"
+```
+
+### `setDate`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the day of the month of the input date
+
+#### Arguments
+
+ - **date**: (required) `Number` - Value to set day of the month to, must be between 1 and 31
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setDate(date: 12) // outputs "2021-05-12T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(date: 22) // outputs "2021-05-22T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setDate(date: 1) // outputs "2024-05-01T00:00:00.000Z"
+```
+
+### `setHours`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the hours of the input date
+
+#### Arguments
+
+ - **hours**: (required) `Number` - Value to set hours to, must be between 0 and 23
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setHours(hours: 12) // outputs "2021-05-14T12:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(hours: 22) // outputs "2021-05-14T22:45:30.091Z"
+```
+
+```ts
+1715472000000 => setHours(hours: 1) // outputs "2024-05-12T01:00:00.000Z"
+```
+
+### `setMilliseconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the milliseconds of the input date
+
+#### Arguments
+
+ - **milliseconds**: (required) `Number` - Value to set milliseconds to, must be between 0 and 999
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMilliseconds(milliseconds: 392) // outputs "2021-05-14T20:45:30.392Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(milliseconds: 483) // outputs "2021-05-14T20:45:30.483Z"
+```
+
+```ts
+1715472000000 => setMilliseconds(milliseconds: 1) // outputs "2024-05-12T00:00:00.001Z"
+```
+
+### `setMinutes`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the minutes of the input date
+
+#### Arguments
+
+ - **minutes**: (required) `Number` - Value to set minutes to, must be between 0 and 59
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMinutes(minutes: 12) // outputs "2021-05-14T20:12:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(minutes: 22) // outputs "2021-05-14T20:22:30.091Z"
+```
+
+```ts
+1715472000000 => setMinutes(minutes: 1) // outputs "2024-05-12T00:01:00.000Z"
+```
+
+### `setMonth`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the month of the input month
+
+#### Arguments
+
+ - **month**: (required) `Number` - Value to set month to, must be between 1 and 12
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setMonth(month: 12) // outputs "2021-12-14T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(month: 2) // outputs "2021-02-14T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setMonth(month: 1) // outputs "2024-01-12T00:00:00.000Z"
+```
+
+### `setSeconds`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the seconds of the input date
+
+#### Arguments
+
+ - **seconds**: (required) `Number` - Value to set seconds to, must be between 0 and 59
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setSeconds(seconds: 12) // outputs "2021-05-14T20:45:12.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds: 22) // outputs "2021-05-14T20:45:22.091Z"
+```
+
+```ts
+1715472000000 => setSeconds(seconds: 1) // outputs "2024-05-12T00:00:01.000Z"
+```
+
+### `setTimezone`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the timezone on for the date value
+
+#### Arguments
+
+ - **timezone**: (required) `Any` - Value to set day of the month to, must be between 1 and 31
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setTimezone(timezone: 420) // outputs "2021-05-14T20:45:30.000+07:00"
+```
+
+```ts
+"2020-02-14T20:45:30.091Z" => setTimezone(timezone: 120) // outputs "2020-02-14T20:45:30.091+02:00"
+```
+
+### `setYear`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Set the year of the input date
+
+#### Arguments
+
+ - **year**: (required) `Number` - Value to set year to, must be an integer
+
+#### Accepts
+
+- `Date`
+- `String`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-14T20:45:30.000Z" => setYear(year: 2024) // outputs "2024-05-14T20:45:30.000Z"
+```
+
+```ts
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(year: 1984) // outputs "1984-05-14T20:45:30.091Z"
+```
+
+```ts
+1715472000000 => setYear(year: 2001) // outputs "2001-05-12T00:00:00.000Z"
 ```
 
 ### `subtractFromDate`
@@ -802,6 +1327,18 @@ For example, `1h` or `1h+2m`
 ```ts
 "2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
 ```
+
+### `timezoneToOffset`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Given a timezone, it will return the offset from UTC in minutes.
+>     This uses current server time as the reference for a date, so results may vary
+>     depending on daylight savings time adjustments
+
+#### Accepts
+
+- `String`
 
 ### `toDailyDate`
 
@@ -913,414 +1450,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
-```
-
-### `getMilliseconds`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the milliseconds of the given date
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-10T10:00:01.091Z" => getMilliseconds() // outputs 91
-```
-
-```ts
-Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() // outputs 91
-```
-
-```ts
-1715472000231 => getMilliseconds() // outputs 231
-```
-
-### `getSeconds`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the seconds of the given date
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-10T10:00:41.091Z" => getSeconds() // outputs 41
-```
-
-```ts
-Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // outputs 19
-```
-
-```ts
-1715472323231 => getSeconds() // outputs 23
-```
-
-### `getMinutes`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the minutes of the given date
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-10T10:12:41.091Z" => getMinutes() // outputs 12
-```
-
-```ts
-Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // outputs 59
-```
-
-```ts
-1715472323231 => getMinutes() // outputs 5
-```
-
-### `getHours`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the hours of the given date in UTC Time
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-10T10:12:41.091Z" => getHours() // outputs 10
-```
-
-```ts
-Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outputs 10
-```
-
-```ts
-"05/22/2021 EST" => getHours() // outputs 5
-```
-
-```ts
-17154123223231 => getHours() // outputs 2
-```
-
-### `getDate`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the day of the month of the given date in UTC Time
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-11T10:12:41.091Z" => getDate() // outputs 11
-```
-
-```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outputs 16
-```
-
-```ts
-"05/22/2021 EST" => getDate() // outputs 22
-```
-
-```ts
-1510123223231 => getDate() // outputs 8
-```
-
-### `getMonth`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the month of the given date in UTC Time
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-11T10:12:41.091Z" => getMonth() // outputs 5
-```
-
-```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outputs 5
-```
-
-```ts
-"05/22/2021 EST" => getMonth() // outputs 5
-```
-
-```ts
-1510123223231 => getMonth() // outputs 11
-```
-
-### `getYear`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Returns the year of the given date in UTC Time
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-11T10:12:41.091Z" => getYear() // outputs 2021
-```
-
-```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outputs 2021
-```
-
-```ts
-"05/22/2021 EST" => getYear() // outputs 2021
-```
-
-```ts
-1510123223231 => getYear() // outputs 2017
-```
-
-### `setMilliseconds`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the milliseconds of the input date
-
-#### Arguments
-
- - **milliseconds**: (required) `Number` - Value to set milliseconds to, must be between 0 and 999
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setMilliseconds(milliseconds: 392) // outputs "2021-05-14T20:45:30.392Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(milliseconds: 483) // outputs "2021-05-14T20:45:30.483Z"
-```
-
-```ts
-1715472000000 => setMilliseconds(milliseconds: 1) // outputs "2024-05-12T00:00:00.001Z"
-```
-
-### `setSeconds`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the seconds of the input date
-
-#### Arguments
-
- - **seconds**: (required) `Number` - Value to set seconds to, must be between 0 and 59
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setSeconds(seconds: 12) // outputs "2021-05-14T20:45:12.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds: 22) // outputs "2021-05-14T20:45:22.091Z"
-```
-
-```ts
-1715472000000 => setSeconds(seconds: 1) // outputs "2024-05-12T00:00:01.000Z"
-```
-
-### `setMinutes`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the minutes of the input date
-
-#### Arguments
-
- - **minutes**: (required) `Number` - Value to set minutes to, must be between 0 and 59
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setMinutes(minutes: 12) // outputs "2021-05-14T20:12:30.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(minutes: 22) // outputs "2021-05-14T20:22:30.091Z"
-```
-
-```ts
-1715472000000 => setMinutes(minutes: 1) // outputs "2024-05-12T00:01:00.000Z"
-```
-
-### `setHours`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the hours of the input date
-
-#### Arguments
-
- - **hours**: (required) `Number` - Value to set hours to, must be between 0 and 23
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setHours(hours: 12) // outputs "2021-05-14T12:45:30.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(hours: 22) // outputs "2021-05-14T22:45:30.091Z"
-```
-
-```ts
-1715472000000 => setHours(hours: 1) // outputs "2024-05-12T01:00:00.000Z"
-```
-
-### `setDate`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the day of the month of the input date
-
-#### Arguments
-
- - **date**: (required) `Number` - Value to set day of the month to, must be between 1 and 31
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setDate(date: 12) // outputs "2021-05-12T20:45:30.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(date: 22) // outputs "2021-05-22T20:45:30.091Z"
-```
-
-```ts
-1715472000000 => setDate(date: 1) // outputs "2024-05-01T00:00:00.000Z"
-```
-
-### `setMonth`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the month of the input month
-
-#### Arguments
-
- - **month**: (required) `Number` - Value to set month to, must be between 1 and 12
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setMonth(month: 12) // outputs "2021-12-14T20:45:30.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(month: 2) // outputs "2021-02-14T20:45:30.091Z"
-```
-
-```ts
-1715472000000 => setMonth(month: 1) // outputs "2024-01-12T00:00:00.000Z"
-```
-
-### `setYear`
-
-**Type:** `FIELD_TRANSFORM`
-
-> Set the year of the input date
-
-#### Arguments
-
- - **year**: (required) `Number` - Value to set year to, must be an integer
-
-#### Accepts
-
-- `Date`
-- `String`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-14T20:45:30.000Z" => setYear(year: 2024) // outputs "2024-05-14T20:45:30.000Z"
-```
-
-```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(year: 1984) // outputs "1984-05-14T20:45:30.091Z"
-```
-
-```ts
-1715472000000 => setYear(year: 2001) // outputs "2001-05-12T00:00:00.000Z"
 ```
 
 ### `isAfter`
@@ -1558,6 +1687,28 @@ Default: iso_8601 for strings and epoch_millis for number
 "2021-05-09T10:00:00.000Z" => isFriday() // outputs null
 ```
 
+### `isFuture`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is in the future
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-10T10:00:00.000Z" => isFuture() // outputs null
+```
+
+```ts
+"2121-05-09T10:00:00.000Z" => isFuture() // outputs "2121-05-09T10:00:00.000Z"
+```
+
 ### `isISO8601`
 
 **Type:** `FIELD_VALIDATION`
@@ -1690,6 +1841,28 @@ Default: iso_8601 for strings and epoch_millis for number
 1620554400000 => isSunday() // outputs 1620554400000
 ```
 
+### `isThursday`
+
+**Type:** `FIELD_VALIDATION`
+
+> Determines if the given date is on a Thursday
+
+#### Accepts
+
+- `String`
+- `Date`
+- `Number`
+
+#### Examples
+
+```ts
+"2021-05-13T10:00:00.000Z" => isThursday() // outputs "2021-05-13T10:00:00.000Z"
+```
+
+```ts
+"2021-05-09T10:00:00.000Z" => isThursday() // outputs null
+```
+
 ### `isToday`
 
 **Type:** `FIELD_VALIDATION`
@@ -1706,7 +1879,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 This input is created at execution time
 ```ts
-"2021-05-18T20:45:48.366Z" => isToday() // outputs "2021-05-18T20:45:48.366Z"
+"2021-05-25T17:18:36.410Z" => isToday() // outputs "2021-05-25T17:18:36.410Z"
 ```
 
 ```ts
@@ -1729,34 +1902,12 @@ This input is created at execution time
 
 Represents current time
 ```ts
-"2021-05-18T20:45:48.367Z" => isTomorrow() // outputs null
+"2021-05-25T17:18:36.410Z" => isTomorrow() // outputs null
 ```
 
 Represents day after current time
 ```ts
-"2021-05-19T20:45:48.367Z" => isTomorrow() // outputs "2021-05-19T20:45:48.367Z"
-```
-
-### `isThursday`
-
-**Type:** `FIELD_VALIDATION`
-
-> Determines if the given date is on a Thursday
-
-#### Accepts
-
-- `String`
-- `Date`
-- `Number`
-
-#### Examples
-
-```ts
-"2021-05-13T10:00:00.000Z" => isThursday() // outputs "2021-05-13T10:00:00.000Z"
-```
-
-```ts
-"2021-05-09T10:00:00.000Z" => isThursday() // outputs null
+"2021-05-26T17:18:36.410Z" => isTomorrow() // outputs "2021-05-26T17:18:36.410Z"
 ```
 
 ### `isTuesday`
@@ -1879,12 +2030,12 @@ Represents day after current time
 
 Represents current time
 ```ts
-"2021-05-18T20:45:48.369Z" => isYesterday() // outputs null
+"2021-05-25T17:18:36.412Z" => isYesterday() // outputs null
 ```
 
 Represents day before current time
 ```ts
-"2021-05-17T20:45:48.369Z" => isYesterday() // outputs "2021-05-17T20:45:48.369Z"
+"2021-05-24T17:18:36.412Z" => isYesterday() // outputs "2021-05-24T17:18:36.412Z"
 ```
 
 ## CATEGORY: Numeric
@@ -3216,6 +3367,32 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
  - **value**:  `Any` - Value to use in the comparison
 
+#### Examples
+
+```ts
+"thisisastring" => equals(value: "thisisastring") // outputs "thisisastring"
+```
+
+```ts
+1234 => equals(value: "thisisastring") // outputs null
+```
+
+```ts
+["an", "array", "of", "values"] => equals(value: ["an", "array", "of", "values"]) // outputs ["an", "array", "of", "values"]
+```
+
+```ts
+foo: "bar", deep: value: "kitty" => equals(value: foo: "bar", deep: value: "kitty") // outputs foo: "bar", deep: value: "kitty"
+```
+
+```ts
+foo: "bar", deep: value: "other stuff" => equals(value: foo: "bar", deep: value: "kitty") // outputs null
+```
+
+```ts
+false => equals(value: true) // outputs null
+```
+
 ### `isEmpty`
 
 **Type:** `FIELD_VALIDATION`
@@ -3225,6 +3402,49 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 #### Arguments
 
  - **ignoreWhitespace**:  `Boolean` - If input is a string, it will attempt to trim it before validating it
+
+#### Examples
+
+```ts
+"85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isEmpty() // outputs null
+```
+
+```ts
+"" => isEmpty() // outputs ""
+```
+
+```ts
+[] => isEmpty() // outputs []
+```
+
+### `lookup`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Matches the input to a key in a table and returns the corresponding value
+
+#### Arguments
+
+ - **in**: (required) `Object` - Object or table that is used for the key lookup.  Keys must strings or numbers
+
+#### Accepts
+
+- `Number`
+- `String`
+
+#### Examples
+
+```ts
+"key1" => lookup(in: key1: "value1", key2: "value2") // outputs "value1"
+```
+
+```ts
+8910 => lookup(in: 123: 4567, 8910: 1112) // outputs 1112
+```
+
+```ts
+"key3" => lookup(in: key1: "value1", key2: "value2") // outputs null
+```
 
 ## CATEGORY: String
 
@@ -3236,7 +3456,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Arguments
 
- - **substr**:  `String` - A string that must partially or completely match
+ - **substr**: (required) `String` - A string that must partially or completely match
 
 #### Accepts
 
@@ -3525,6 +3745,10 @@ true => isAlphaNumeric() // outputs null
 **Type:** `FIELD_VALIDATION`
 
 > Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number
+
+#### Arguments
+
+ - **country**:  `String` - A valid ISO 3166-1 alpha-2 officially assigned country code
 
 #### Accepts
 
@@ -4260,12 +4484,6 @@ Delimiter is not found so the whole input is returned
 
 - `String`
 - `Number`
-- `Byte`
-- `Short`
-- `Integer`
-- `Float`
-- `Long`
-- `Double`
 
 #### Examples
 
@@ -4457,7 +4675,7 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Trims whitespace or characters from string
+> Trims whitespace or characters from the beginning and end of a string
 
 #### Arguments
 
@@ -4525,7 +4743,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Trims whitespace or characters from end of string
+> Trims whitespace or characters from the end of a string
 
 #### Arguments
 
@@ -4561,7 +4779,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Trims whitespace or characters from start of string
+> Trims whitespace or characters from start of a string
 
 #### Arguments
 
@@ -4593,7 +4811,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Truncate a string value
+> Limits the size of string to a specific length, if the length is greater than the specified size, the excess is removed
 
 #### Arguments
 
@@ -4948,6 +5166,10 @@ trim this"
 
 > Converts an integer to an ip address, must provide the version of the returned ip address
 
+#### Arguments
+
+ - **version**:  `Any` - Which version of ip to create, 4 => IPv4, 6 => IPv6
+
 #### Accepts
 
 - `String`
@@ -5060,6 +5282,10 @@ trim this"
 **Type:** `FIELD_TRANSFORM`
 
 > Returns a CIDR address based on the provided ip and suffix
+
+#### Arguments
+
+ - **suffix**: (required) `Any` - Suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses
 
 #### Accepts
 
