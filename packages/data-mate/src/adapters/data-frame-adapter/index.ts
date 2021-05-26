@@ -1,21 +1,22 @@
-import { isNil } from '@terascope/utils';
+import { isNil, isFunction } from '@terascope/utils';
 import { validateFunctionArgs } from '../argument-validator';
 import {
     Column, validateAccepts,
     getFieldTypesFromFieldConfigAndChildConfig,
     ColumnOptions, mapVectorEach, mapVectorEachValue,
+    dynamicMapVectorEach, dynamicMapVectorEachValue
 } from '../../column';
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig,
-    FunctionContext, TransformContext
+    FunctionContext, DynamicFrameFunctionContext
 } from '../../function-configs/interfaces';
 import { Builder } from '../../builder';
 import { WritableData } from '../../core';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
-    args?: T,
+    args?: T | ((index: number, column: Column<unknown>) => T),
     field?: string;
 }
 
@@ -68,7 +69,7 @@ function transformColumnData<T extends Record<string, any>>(
         },
     );
 
-    const context: TransformContext<T> = {
+    const context: FunctionContext<T> = {
         args,
         parent: column,
         inputConfig,
@@ -98,13 +99,39 @@ function transformColumnData<T extends Record<string, any>>(
     );
 }
 
+function validatorTransformFN(validatorFn: (value: unknown, index: number) => unknown) {
+    return function _validatorTransform(value: unknown, index: number): unknown {
+        if (validatorFn(value, index)) return value;
+        return null;
+    };
+}
+
+function dynamicValidatorTransformFN<T>(
+    fnDef: FieldValidateConfig<T>,
+    context: DynamicFrameFunctionContext<T>
+) {
+    return function _validatorTransformArgs(index: number) {
+        const args = context.args(index, context.parent);
+
+        validateFunctionArgs(fnDef, args);
+
+        const fullContext = {
+            ...context,
+            args
+        };
+
+        const validatorFn = fnDef.create(fullContext);
+        return validatorTransformFN(validatorFn);
+    };
+}
+
 function validateColumnData<T extends Record<string, any>>(
     column: Column,
-    validationConfig: FieldValidateConfig<T>,
-    args: T
+    fnDef: FieldValidateConfig<T>,
+    options: DataFrameAdapterOptions<T>
 ): Column {
     const err = validateAccepts(
-        validationConfig.accepts,
+        fnDef.accepts,
         getFieldTypesFromFieldConfigAndChildConfig(
             column.vector.config, column.vector.childConfig
         ),
@@ -116,7 +143,7 @@ function validateColumnData<T extends Record<string, any>>(
         return column.clearAll();
     }
 
-    const options: ColumnOptions = {
+    const columnOptions: ColumnOptions = {
         name: column.name,
         version: column.version,
     };
@@ -125,14 +152,6 @@ function validateColumnData<T extends Record<string, any>>(
         field_config: column.config,
         child_config: column.vector.childConfig,
     };
-
-    const context: FunctionContext<T> = {
-        args,
-        parent: column,
-        inputConfig
-    };
-
-    const validatorFn = validationConfig.create(context);
 
     const builder = Builder.make(
         new WritableData(column.vector.size),
@@ -143,19 +162,53 @@ function validateColumnData<T extends Record<string, any>>(
         },
     );
 
-    function validatorTransform(value: unknown, index: number): unknown {
-        if (validatorFn(value, index)) return value;
-        return null;
+    // since this is a function, it will return dynamic args
+    // need to use separate logic for that feature
+    if (isFunction(options.args)) {
+        const context: DynamicFrameFunctionContext<T> = {
+            args: options.args,
+            parent: column,
+            inputConfig,
+        };
+
+        if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
+            return new Column(
+                dynamicMapVectorEach(
+                    column.vector,
+                    builder,
+                    dynamicValidatorTransformFN(fnDef, context),
+                ),
+                columnOptions
+            );
+        }
+
+        return new Column(
+            dynamicMapVectorEachValue(
+                column.vector,
+                builder,
+                dynamicValidatorTransformFN(fnDef, context),
+            ),
+            columnOptions
+        );
     }
 
-    if (validationConfig.process_mode === ProcessMode.FULL_VALUES) {
+    const context: FunctionContext<T> = {
+        args: options.args as T,
+        parent: column,
+        inputConfig
+    };
+
+    const validatorFn = fnDef.create(context);
+    const validatorTransform = validatorTransformFN(validatorFn);
+
+    if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
         return new Column(
             mapVectorEach(
                 column.vector,
                 builder,
                 validatorTransform,
             ),
-            options
+            columnOptions
         );
     }
 
@@ -165,15 +218,15 @@ function validateColumnData<T extends Record<string, any>>(
             builder,
             validatorTransform,
         ),
-        options
+        columnOptions
     );
 }
 
 function validateColumn<T extends Record<string, any>>(
-    config: FieldValidateConfig<T>, args: T,
+    fnDef: FieldValidateConfig<T>, options: DataFrameAdapterOptions<T>
 ) {
     return function _validateColumn(column: Column<any>): Column<any> {
-        return validateColumnData(column, config, args);
+        return validateColumnData(column, fnDef, options);
     };
 }
 
@@ -221,14 +274,17 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
     fnDef: FunctionDefinitionConfig<T>,
     options: DataFrameAdapterOptions<T> = {}
 ): FrameAdapterFn {
-    const { field } = options;
+    const { field, } = options;
     const args = { ...options.args } as T;
 
-    validateFunctionArgs(fnDef, args);
+    // we will validate on each call later
+    if (!isFunction(options.args)) {
+        validateFunctionArgs(fnDef, options.args);
+    }
 
     if (isFieldValidation(fnDef)) {
         return {
-            column: validateColumn(fnDef, args),
+            column: validateColumn(fnDef, options),
             frame: validateFrame(fnDef, args, field)
         };
     }

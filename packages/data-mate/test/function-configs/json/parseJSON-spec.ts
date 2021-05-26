@@ -3,7 +3,7 @@ import {
     FieldType, Maybe, DataTypeFields
 } from '@terascope/types'; import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
-    Column, dataFrameAdapter, TransformContext
+    Column, dataFrameAdapter, FunctionContext
 } from '../../../src';
 
 const parseJSONConfig = functionConfigRepository.parseJSON;
@@ -24,12 +24,12 @@ describe('parseJSON', () => {
         const values = ['true', '{"some": "stuff"}'];
         const expected = [true, { some: 'stuff' }];
 
-        const config: TransformContext<Record<string, unknown>> = {
+        const config: FunctionContext<Record<string, unknown>> = {
             args: {},
             parent: values,
             fnDef: parseJSONConfig,
             field_config: { type: FieldType.String, array: false },
-        } as TransformContext<Record<string, unknown>>;
+        } as FunctionContext<Record<string, unknown>>;
 
         const parseJSON = parseJSONConfig.create(config);
 
