@@ -11,7 +11,7 @@ export const isOddConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Check if a number is odd',
+    description: 'Returns the input if it is an odd number',
     examples: [
         {
             args: {},

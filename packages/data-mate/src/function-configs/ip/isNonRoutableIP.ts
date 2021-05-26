@@ -47,7 +47,7 @@ export const isNonRoutableIPConfig: FieldValidateConfig = {
             output: null,
         },
     ],
-    description: 'Returns the input if it is a non-routable ip address, handles ipv6 and ipv4 address.  Non-routable ip ranges are private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, or broadcast',
+    description: 'Returns the input if it is a non-routable ip address, handles ipv6 and ipv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
     create() { return isNonRoutableIP; },
     accepts: [FieldType.String, FieldType.IP],
 };

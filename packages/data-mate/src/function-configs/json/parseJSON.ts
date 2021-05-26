@@ -54,7 +54,7 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
         },
         locale: {
             type: FieldType.String,
-            description: `Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag`
+            description: 'Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag'
         },
 
         indexed: {

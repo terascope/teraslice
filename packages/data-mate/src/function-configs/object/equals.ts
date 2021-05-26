@@ -59,7 +59,7 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.OBJECT,
-    description: 'Checks to see if input matches the value',
+    description: 'Returns the input if it matches the args value',
     examples,
     create({ args: { value } }) {
         return isDeepEqualFP(value);

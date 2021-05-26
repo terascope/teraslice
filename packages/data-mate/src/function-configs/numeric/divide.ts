@@ -21,7 +21,7 @@ export const divideConfig: FieldTransformConfig<DivideArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'divide a numeric value',
+    description: 'Divide a numeric value',
     examples: [
         {
             args: { value: 5 },

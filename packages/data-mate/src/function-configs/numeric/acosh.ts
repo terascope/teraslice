@@ -12,7 +12,7 @@ export const acoshConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned',
+    description: 'Returns the hyperbolic arc-cosine of a given number. If given the number is less than 1, returns null.',
     examples: [
         {
             args: {},
