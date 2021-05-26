@@ -44,14 +44,14 @@ export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {
             output: 'other word'
         },
     ],
-    description: 'Validation that determines whether or not a string ends with another string. This is case-sensitive.',
+    description: 'Returns the input if it ends with the args value string, otherwise returns null. This is case-sensitive.',
     create({ args: { value } }) {
         return endsWithFP(value);
     },
     argument_schema: {
         value: {
             type: FieldType.String,
-            description: 'The value that must match at the end of the input string '
+            description: 'The value compared to the end of the input string '
         }
     },
     accepts: [FieldType.String],

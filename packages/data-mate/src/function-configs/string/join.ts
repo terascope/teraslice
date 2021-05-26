@@ -73,7 +73,7 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts an array of string values joins by the delimiter provided',
+    description: 'Returns a string from an array of values joined by the delimiter.',
     examples,
     create({ args: { delimiter = '' } }) {
         return joinFn(delimiter);

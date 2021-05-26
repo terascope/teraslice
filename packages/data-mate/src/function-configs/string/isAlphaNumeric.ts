@@ -74,7 +74,7 @@ export const isAlphaNumericConfig: FieldValidateConfig<AlphaNumericLocale> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a string composed of only alpha-numeric characters',
+    description: 'Returns the input if it is a string composed of only alpha-numeric characters, otherwise returns null.',
     create({ args: { locale } }) {
         return (input: unknown) => isAlphaNumeric(input, locale as validator.AlphanumericLocale);
     },

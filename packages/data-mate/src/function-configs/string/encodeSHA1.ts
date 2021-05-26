@@ -19,7 +19,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
     name: 'encodeSHA1',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts to a SHA1 encoded value',
+    description: 'Returns a SHA1 encoded version of the input value',
     category: FunctionDefinitionCategory.STRING,
     examples: [
         {
@@ -35,7 +35,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
             field: 'testField',
             input: '{ "some": "data" }',
             output: 'e8cb1404796eba6779a276377cce99a502a36481',
-            description: 'If digest is not provided, it defaults to hex'
+            description: 'If the digest is not provided, it defaults to hex'
         },
         {
             args: { digest: 'base64' },
@@ -60,7 +60,7 @@ export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"'
+            description: 'Hash digest to used, may be set to either "base64" or "hex", defaults to "hex"'
         }
     },
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {

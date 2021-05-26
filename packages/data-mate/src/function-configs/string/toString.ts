@@ -45,7 +45,7 @@ export const toStringConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts input values to strings',
+    description: 'Converts the input value to a string.  If the input is an array each array item will be converted to a string.',
     examples,
     create({ inputConfig }) {
         if (inputConfig?.field_config.type === FieldType.Date) {

@@ -12,7 +12,7 @@ export const decodeHexConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts a hexadecimal hash back to its value',
+    description: 'Returns a hexadecimal-decoded version of the source string',
     examples: [
         {
             args: {},

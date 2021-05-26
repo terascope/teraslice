@@ -22,7 +22,7 @@ export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts to a SHA encoded value',
+    description: 'Returns a SHA encoded version of the input string',
     examples: [
         {
             args: {},

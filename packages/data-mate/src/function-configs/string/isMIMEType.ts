@@ -72,5 +72,5 @@ export const isMIMETypeConfig: FieldValidateConfig = {
     examples,
     accepts: [FieldType.String],
     create() { return isMIMEType; },
-    description: 'Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type',
+    description: 'Returns the input if it is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type, otherwise returns null.',
 };

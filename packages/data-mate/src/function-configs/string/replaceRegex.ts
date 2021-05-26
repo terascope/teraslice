@@ -50,7 +50,7 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'This function replaces chars in a string based off the regex value provided',
+    description: 'Returns a string with the characters matched by the regex replaced with the args replace value',
     create({
         args: {
             replace,
@@ -72,7 +72,7 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
         replace: {
             type: FieldType.String,
             array: false,
-            description: 'the value that will replace what is found by the regex'
+            description: 'The value that will replace what is found by the regex'
         },
         ignoreCase: {
             type: FieldType.Boolean,

@@ -17,7 +17,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input either matches a certain length, or is within a range',
+    description: 'Returns the input if it either matches a certain length, or is within a range.  Otherwise returns null.',
     accepts: [FieldType.String],
     examples: [
         {
@@ -63,7 +63,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
         size: {
             type: FieldType.Number,
             array: false,
-            description: "The value's length must exact match this parameter if specified"
+            description: "The value's length must equal this parameter if specified"
         },
         min: {
             type: FieldType.Number,
@@ -74,7 +74,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
         max: {
             type: FieldType.Number,
             array: false,
-            description: "The value's length must be lesser than or equal to this parameter if specified"
+            description: "The value's length must be less than or equal to this parameter if specified"
         }
     },
     validate_arguments({ min, max, size }) {

@@ -12,7 +12,7 @@ export const toKebabCaseConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts on ore more words into a single word joined by dashes',
+    description: 'Converts one or more words into a single word joined by dashes',
     examples: [
         {
             args: {},
