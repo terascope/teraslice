@@ -108,6 +108,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
         const builder = Builder.make(WritableData.emptyData, {
             config,
         });
+
         if (result[field] != null) {
             result[field] = builder.valueFrom(result[field]) as any;
         }
