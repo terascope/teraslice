@@ -37,7 +37,7 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
             output: null,
         },
     ],
-    description: 'Checks to see if input geo-point is within range of the point and distance values provided',
+    description: 'Returns the input if it\'s distance to the args point is less then or equal to the args distance.',
     create({ args: { point, distance } }) {
         return geoPointWithinRangeFP(point, distance);
     },
@@ -52,12 +52,12 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
     argument_schema: {
         point: {
             type: FieldType.Any,
-            description: 'The geo-point used to compare to other points'
+            description: 'The geo-point used as the center of the geo circle.'
         },
         distance: {
             type: FieldType.String,
-            description: `The range from the point that will provide a positive result.
-              It combines the number as well as the unit of measurement (ie 110km, 20in, 100yards).
+            description: `Value of the radius of the geo-circle.
+              It combines the number and the unit of measurement (ie 110km, 20in, 100yards).
                 Possible units are as follows: ${joinList(Object.keys(GEO_DISTANCE_UNITS), ', ')}
             `.trim()
         }

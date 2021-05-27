@@ -78,7 +78,7 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data does not have any intersection (overlap) with the geoInput argument',
+    description: 'Returns the input if it does not have any intersection (overlap) with the argument value, otherwise returns null',
     create({ args: { value } }) {
         return geoDisjointFP(value);
     },
@@ -93,7 +93,7 @@ export const geoDisjointConfig: FieldValidateConfig<GeoDisjointArgs> = {
     argument_schema: {
         value: {
             type: FieldType.Any,
-            description: 'The geo input used to validate that no intersection exists with other geo-like data'
+            description: 'The geo value used to validate that no intersection exists with the input geo-entity'
         }
     },
     required_arguments: ['value'],

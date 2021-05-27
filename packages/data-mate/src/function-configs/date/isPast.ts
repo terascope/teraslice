@@ -25,7 +25,7 @@ export const isPastConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Determines if the given date is in the past',
+    description: 'Returns the input if it is in the past, otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

@@ -88,7 +88,7 @@ const examples: FunctionDefinitionExample<GeoContainsPointArgs>[] = [
                 [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
             ]
         },
-        description: 'this verifies that point is within a polygon with holes '
+        description: 'point is within a polygon with holes '
     },
     {
         args: { point: '15, 15' },
@@ -102,7 +102,7 @@ const examples: FunctionDefinitionExample<GeoContainsPointArgs>[] = [
             type: GeoShapeType.Point,
             coordinates: [15, 15]
         },
-        description: 'this verifies that point can match against a geo-shape point '
+        description: 'point can match against a geo-shape point '
     },
 ];
 
@@ -112,7 +112,7 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Checks to see if a geo input contains the given point',
+    description: 'Returns the input if it contains the geo-point, otherwise returns null',
     create({ args: { point } }) {
         return geoContainsFP(point);
     },
@@ -120,7 +120,7 @@ export const geoContainsPointConfig: FieldValidateConfig<GeoContainsPointArgs> =
     argument_schema: {
         point: {
             type: FieldType.Any,
-            description: 'The point used to see if it is within the given geo-shape, if geo-shape is a point, it checks if they are the same'
+            description: 'The point used to see if it is within the input geo-shape. If the input geo-shape is a point, it checks if they are the same'
         }
     },
     required_arguments: ['point'],

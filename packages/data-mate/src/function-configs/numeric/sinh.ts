@@ -12,7 +12,7 @@ export const sinhConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the hyperbolic sine of a number, that can be expressed using the constant e',
+    description: 'Returns the hyperbolic sine of the input, that can be expressed using the constant e',
     examples: [
         {
             args: {},

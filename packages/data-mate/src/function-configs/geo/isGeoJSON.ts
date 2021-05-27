@@ -12,7 +12,7 @@ export const isGeoJSONConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.GEO,
-    description: 'Checks if value is a GeoJSON object',
+    description: 'Returns the input if it is a GeoJSON object, otherwise returns null',
     examples: [
         {
             args: {},

@@ -12,7 +12,7 @@ export const toTitleCaseConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts one or more words into a whitespace separated word with each word starting with a capital letter',
+    description: 'Converts one or more words into a whitespace separated string with each word starting with a capital letter',
     examples: [
         {
             args: {},

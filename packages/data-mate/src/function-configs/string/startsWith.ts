@@ -51,7 +51,7 @@ export const startsWithConfig: FieldValidateConfig<StartsWithArgs> = {
             output: null
         },
     ],
-    description: 'Validation that determines whether or not a string begins with another string. This is case-sensitive.',
+    description: 'Returns the input if it begins with the args value string. This is case-sensitive.',
     create({ args: { value } }) {
         return startsWithFP(value);
     },

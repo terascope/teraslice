@@ -27,7 +27,7 @@ export const multiplyValuesConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Multiply the values with a given field, this requires an array to function correctly',
+    description: 'Multiplies the values with a given field, this requires an array to function correctly',
     examples: [
         {
             args: {},

@@ -28,7 +28,7 @@ export const minValuesConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Get the minimum value in an array, this requires an array to function correctly',
+    description: 'Returns the minimum value in an array, this requires an array to function correctly',
     examples: [
         {
             args: {},

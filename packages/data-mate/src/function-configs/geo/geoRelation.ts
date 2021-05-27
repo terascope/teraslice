@@ -101,7 +101,7 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: `Compares geo inputs to any geo-like data based off the relation specified (defaults to "${GeoShapeRelation.Within}"`,
+    description: `Returns the input if it relates, as specified in the relation argument, to the argument value (defaults to "${GeoShapeRelation.Within}"), otherwise returns null`,
     create({ args: { value, relation = GeoShapeRelation.Within } }) {
         return geoRelationFP(value, relation);
     },
@@ -116,11 +116,11 @@ export const geoRelationConfig: FieldValidateConfig<GeoRelationArgs> = {
     argument_schema: {
         value: {
             type: FieldType.Any,
-            description: 'The geo input used to compare to other geo entities'
+            description: 'The geo value used to compare to the input geo-entity'
         },
         relation: {
             type: FieldType.String,
-            description: `How the geo input should relate the data, defaults to "within" : ${joinList(Object.values(GeoShapeRelation), ', ')}
+            description: `How the geo input should relate the argument value, defaults to "within" : ${joinList(Object.values(GeoShapeRelation), ', ')}
             `.trim()
         }
     },

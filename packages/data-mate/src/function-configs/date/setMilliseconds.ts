@@ -6,15 +6,15 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number }> = {
+export const setMillisecondsConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setMilliseconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the milliseconds of the input date',
+    description: 'Returns the input date with the milliseconds set to the args value.',
     examples: [
         {
-            args: { milliseconds: 392 },
+            args: { value: 392 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -25,7 +25,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             serialize_output: toISO8601
         },
         {
-            args: { milliseconds: 483 },
+            args: { value: 483 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -36,7 +36,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             serialize_output: toISO8601
         },
         {
-            args: { milliseconds: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -47,22 +47,22 @@ export const setMillisecondsConfig: FieldTransformConfig<{ milliseconds: number 
             serialize_output: toISO8601
         }
     ],
-    create({ args: { milliseconds } }) {
-        return setMilliseconds(milliseconds);
+    create({ args: { value } }) {
+        return setMilliseconds(value);
     },
     argument_schema: {
-        milliseconds: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set milliseconds to, must be between 0 and 999'
         }
     },
-    validate_arguments: ({ milliseconds }) => {
-        if (!isInteger(milliseconds)
-            || !inNumberRange(milliseconds, { min: 0, max: 999, inclusive: true })) {
-            throw Error('Invalid argument "milliseconds", must be an integer between 0 and 999');
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 0, max: 999, inclusive: true })) {
+            throw Error('Invalid argument "value", must be an integer between 0 and 999');
         }
     },
-    required_arguments: ['milliseconds'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

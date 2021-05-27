@@ -25,7 +25,7 @@ export const isSaturdayConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Determines if the given date is on a Saturday',
+    description: 'Returns the input if it is on a Saturday, otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

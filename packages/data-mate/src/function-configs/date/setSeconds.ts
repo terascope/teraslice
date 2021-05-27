@@ -6,15 +6,15 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
+export const setSecondsConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setSeconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the seconds of the input date',
+    description: 'Returns the input date with the seconds set to the args value.',
     examples: [
         {
-            args: { seconds: 12 },
+            args: { value: 12 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -25,7 +25,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { seconds: 22 },
+            args: { value: 22 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -36,7 +36,7 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { seconds: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -47,22 +47,22 @@ export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { seconds } }) {
-        return setSeconds(seconds);
+    create({ args: { value } }) {
+        return setSeconds(value);
     },
     argument_schema: {
-        seconds: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set seconds to, must be between 0 and 59'
         }
     },
-    validate_arguments: ({ seconds }) => {
-        if (!isInteger(seconds)
-            || !inNumberRange(seconds, { min: 0, max: 59, inclusive: true })) {
-            throw Error('Invalid arguments "seconds", must be an integer between 0 and 59');
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 0, max: 59, inclusive: true })) {
+            throw Error('Invalid arguments "value", must be an integer between 0 and 59');
         }
     },
-    required_arguments: ['seconds'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

@@ -9,7 +9,7 @@ export const getMillisecondsConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the milliseconds of the given date',
+    description: 'Returns the milliseconds of the input date',
     examples: [
         {
             args: {},

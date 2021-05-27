@@ -12,7 +12,7 @@ export const signConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: `Returns a number representing the sign of the given argument:
+    description: `Returns a number representing the sign of the input value:
 - If the argument is positive, returns 1
 - If the argument is negative, returns -1
 - If the argument is positive zero, returns 0

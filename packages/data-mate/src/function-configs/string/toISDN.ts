@@ -53,7 +53,7 @@ export const toISDNConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Parses a string or number to a fully validated phone number',
+    description: 'Converts the input to the ISDN format, if it is a valid phone number.  Otherwise returns null.',
     examples,
     create() {
         return (input: unknown) => parsePhoneNumber(input as string);

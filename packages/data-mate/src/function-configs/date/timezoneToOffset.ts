@@ -14,7 +14,7 @@ export const timezoneToOffsetConfig: FieldTransformConfig = {
     category: FunctionDefinitionCategory.DATE,
     description: `Given a timezone, it will return the offset from UTC in minutes.
      This uses current server time as the reference for a date, so results may vary
-     depending on daylight savings time adjustments`,
+     depending on daylight saving time adjustments`,
     create() {
         return timezoneToOffset;
     },
@@ -23,7 +23,6 @@ export const timezoneToOffsetConfig: FieldTransformConfig = {
     ],
     output_type(inputConfig) {
         const { field_config } = inputConfig;
-
         return {
             field_config: {
                 ...field_config,

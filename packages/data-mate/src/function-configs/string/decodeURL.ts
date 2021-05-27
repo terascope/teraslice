@@ -12,7 +12,7 @@ export const decodeURLConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'decodes a URL encoded value',
+    description: 'Returns the url-decoded version of the input string',
     examples: [
         {
             args: {},

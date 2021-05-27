@@ -17,7 +17,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns a number representing the given base taken to the power of the given exponent',
+    description: 'Returns a number representing the input value taken to the power of the args exp value',
     examples: [
         {
             args: { exp: 3 },

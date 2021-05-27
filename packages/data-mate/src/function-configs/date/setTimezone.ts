@@ -14,7 +14,7 @@ export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the timezone on for the date value',
+    description: 'Returns the input date with the timezone set to the args value.',
     examples: [
         {
             args: { timezone: 420 }, // 'America/Phoenix' },
@@ -45,14 +45,14 @@ export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }
     argument_schema: {
         timezone: {
             type: FieldType.Any,
-            description: 'Value to set day of the month to, must be between 1 and 31'
+            description: 'Value to set timezone to in minutes or timezone name.  Offset must be between -1440 and 1440'
         }
     },
     required_arguments: ['timezone'],
     validate_arguments({ timezone }) {
         if (isNumber(timezone)) {
             if (timezone >= -1440 && timezone <= 1440) return;
-            throw new Error('Expected timezone offset to be between -1440 and -1440');
+            throw new Error('Expected timezone offset to be between -1440 and 1440');
         }
         if (isString(timezone)) return;
 

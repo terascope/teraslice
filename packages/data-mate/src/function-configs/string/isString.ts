@@ -46,7 +46,7 @@ export const isStringConfig: FieldValidateConfig = {
             output: ['12345', 'some more stuff'],
         },
     ],
-    description: 'Checks to see if input is a string',
+    description: 'Returns the input if it is is a string, otherwise returns null.',
     create() { return isString; },
     accepts: [FieldType.String],
 };

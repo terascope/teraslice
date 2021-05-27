@@ -12,7 +12,7 @@ export const absConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the absolute value of a number. That is, it returns x if x is positive or zero, and the negation of x if x is negative',
+    description: 'Returns the absolute value of a number.',
     examples: [
         {
             args: {},

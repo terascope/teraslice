@@ -53,7 +53,7 @@ export const reverseConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'reverses the string value',
+    description: 'Returns the input string with its characters in reverse order.',
     examples,
     create() {
         return _reverse;

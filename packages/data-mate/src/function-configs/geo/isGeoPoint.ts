@@ -12,7 +12,7 @@ export const isGeoPointConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
-    description: 'Checks if value is parsable to geo-point',
+    description: 'Returns the input if it is parsable to a geo-point, otherwise returns null',
     examples: [
         {
             args: {},

@@ -21,7 +21,7 @@ export const addConfig: FieldTransformConfig<AddArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Add a numeric value to another',
+    description: 'Returns the sum of the input and the args value.',
     examples: [
         {
             args: { value: 1 },

@@ -46,7 +46,7 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a hash',
+    description: 'Returns the input if it is a hashed value, otherwise returns null.',
     examples: [
         {
             args: { algo: 'sha256' },
@@ -73,7 +73,7 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
         algo: {
             type: FieldType.String,
             array: false,
-            description: 'Which algorithm to check values against'
+            description: 'The hashing algorithm to check values against'
         }
     },
     required_arguments: ['algo'],

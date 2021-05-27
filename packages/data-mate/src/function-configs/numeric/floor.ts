@@ -12,7 +12,7 @@ export const floorConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Rounds a number down to the next largest integer',
+    description: 'Rounds a number down to the previous largest integer',
     examples: [
         {
             args: {},

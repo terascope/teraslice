@@ -63,7 +63,7 @@ export const extractConfig: FieldTransformConfig<ExtractArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     category: FunctionDefinitionCategory.STRING,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Extract values from strings',
+    description: 'Returns an extracted substring or an array of substrings from the input string',
     create({ args }) {
         return _extract(args);
     },

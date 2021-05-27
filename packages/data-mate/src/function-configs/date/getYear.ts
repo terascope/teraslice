@@ -9,7 +9,7 @@ export const getYearConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the year of the given date in UTC Time',
+    description: 'Returns the year of the input date in UTC Time',
     examples: [
         {
             args: {},

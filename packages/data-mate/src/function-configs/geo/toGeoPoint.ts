@@ -45,7 +45,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
             fails: true
         },
     ],
-    description: 'Converts a value to a geo-point',
+    description: 'Converts the input to a geo-point',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

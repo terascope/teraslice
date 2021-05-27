@@ -50,7 +50,7 @@ export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
     argument_schema: {
         suffix: {
             type: FieldType.Any,
-            description: 'suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses'
+            description: 'Suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses'
         }
     },
     required_arguments: ['suffix'],
@@ -61,6 +61,6 @@ export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
             if (asInt >= 0 && asInt <= 128) return;
         }
 
-        throw Error('suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses');
+        throw Error('Suffix must be between 0 and 32 for IPv4 address and 0 and 128 for IPv6 addresses');
     }
 };

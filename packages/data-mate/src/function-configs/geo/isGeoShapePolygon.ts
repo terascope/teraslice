@@ -45,7 +45,7 @@ export const isGeoShapePolygonConfig: FieldValidateConfig = {
             output: null,
         }
     ],
-    description: 'Checks to see if input is a valid geo-json polygon',
+    description: 'Return the input if it is a valid geo-json polygon, otherwise returns null',
     create() {
         return isGeoShapePolygon;
     },

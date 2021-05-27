@@ -9,7 +9,7 @@ export const isBooleanLikeConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.BOOLEAN,
-    description: 'Checks to see if input is loosely like a boolean, these values should be compatible with toBoolean',
+    description: 'Returns the input if it can be converted to a boolean, otherwise returns null',
     examples: [{
         args: {},
         config: {

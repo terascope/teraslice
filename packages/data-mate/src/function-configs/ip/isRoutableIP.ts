@@ -47,7 +47,7 @@ export const isRoutableIPConfig: FieldValidateConfig = {
             output: null,
         },
     ],
-    description: 'Checks if the input is a routable ipv4 or ipv6 address.  Routable ranges are defined as anything that is not in the following ip ranges: private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, or broadcast',
+    description: 'Returns the input if it is a routable ipv4 or ipv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml',
     create() { return isRoutableIP; },
     accepts: [FieldType.String, FieldType.IP],
 };

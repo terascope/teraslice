@@ -6,15 +6,15 @@ import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
+export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setHours',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the hours of the input date',
+    description: 'Returns the input date with the hours set to the args value.',
     examples: [
         {
-            args: { hours: 12 },
+            args: { value: 12 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -25,7 +25,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { hours: 22 },
+            args: { value: 22 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -36,7 +36,7 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             serialize_output: toISO8601
         },
         {
-            args: { hours: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -47,8 +47,8 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { hours } }) {
-        return setHours(hours);
+    create({ args: { value } }) {
+        return setHours(value);
     },
     argument_schema: {
         hours: {
@@ -56,13 +56,13 @@ export const setHoursConfig: FieldTransformConfig<{ hours: number }> = {
             description: 'Value to set hours to, must be between 0 and 23'
         }
     },
-    validate_arguments: ({ hours }) => {
-        if (!isInteger(hours)
-            || !inNumberRange(hours, { min: 0, max: 23, inclusive: true })) {
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 0, max: 23, inclusive: true })) {
             throw Error('Invalid argument "hours", must be an integer between 0 and 23');
         }
     },
-    required_arguments: ['hours'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {
