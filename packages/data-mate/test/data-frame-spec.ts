@@ -1,5 +1,4 @@
 import 'jest-extended';
-import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
     DataTypeConfig, FieldType, GeoShape, GeoShapeType,
