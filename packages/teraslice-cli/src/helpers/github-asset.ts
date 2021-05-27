@@ -11,10 +11,12 @@ export default class GithubAsset {
     user: string;
     name: string;
     version?: string;
+    bundle: boolean;
 
     constructor(config: GithubAssetConfig) {
         this.arch = config.arch;
         this.assetString = config.assetString;
+        this.bundle = config.bundle;
         this.nodeVersion = config.nodeVersion;
         this.platform = config.platform;
 
@@ -32,7 +34,14 @@ export default class GithubAsset {
         let assetPath;
 
         const leaveZipped = true;
-        const assetName = `node-${this.nodeMajorVersion}-${this.platform}-${this.arch}.zip`;
+        let assetName: string;
+
+        if (this.bundle) {
+            assetName = `node-${this.nodeMajorVersion}-bundle.zip`;
+        } else {
+            assetName = `node-${this.nodeMajorVersion}-${this.platform}-${this.arch}.zip`;
+        }
+
         const version = this.version ? this.version.slice(1) : null;
         let filterRelease;
 
