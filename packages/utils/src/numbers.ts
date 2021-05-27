@@ -69,7 +69,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
     if (typeof input === 'string' && input.includes('.')) {
         big = BigInt(Number.parseInt(input, 10));
     } else {
-        big = BigInt(input);
+        big = BigInt(input as any);
     }
 
     // for some reason the number
