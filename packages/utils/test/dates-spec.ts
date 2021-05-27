@@ -128,7 +128,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarYears', 2],
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'calendarISOWeekYears', 2],
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'ISOWeekYears', 1],
-            ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'ISODuration', 'P11Y4M0DT22H58M26S']
+            ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'ISO8601', 'P11Y4M0DT22H58M26S']
         ])('should return duration between %p and %p, in %p as %p for start values', (input, start, interval, expected) => {
             const args: { start: any, interval: any } = { start, interval };
 
@@ -153,7 +153,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'calendarYears', 3],
             ['2021-05-10T10:00:00.000Z', '2028-05-10T11:01:33.192Z', 'calendarISOWeekYears', 7],
             ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'ISOWeekYears', 3],
-            ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISODuration', 'P1Y7M30DT8H19M23S']
+            ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISO8601', 'P1Y7M30DT8H19M23S']
         ])('should return duration between %p and %p, in %p as %p for end values', (input, end, interval, expected) => {
             const args: { end: any, interval: any } = { end, interval };
 
