@@ -211,9 +211,10 @@ export class Parser {
             if (utils.isTermList(node)) {
                 return coerceTermList(node, validatedVariables);
             }
+
             if ('value' in node) {
                 return coerceNodeValue(
-                    node,
+                    node as i.Term|i.Regexp|i.Wildcard,
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
                     parent?.type === i.NodeType.Conjunction
