@@ -18,7 +18,7 @@ export const randomConfig: FieldTransformConfig<RandomArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns a random number between a given range',
+    description: 'Returns a random number between the args min and max values.',
     examples: [{
         args: { min: 1, max: 1 },
         config: {

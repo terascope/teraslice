@@ -32,7 +32,7 @@ export const isTomorrowConfig: FieldValidateConfig = {
             description: 'represents day after current time'
         },
     ],
-    description: 'Returns the given date if it is on the next day (utc-time), otherwise returns null',
+    description: 'Returns the input if it is on the next day (utc-time), otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

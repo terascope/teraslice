@@ -11,7 +11,7 @@ export const setMonthConfig: FieldTransformConfig<{ value: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the month of the input month',
+    description: 'Returns the input date with the month set to the args value.',
     examples: [
         {
             args: { value: 12 },

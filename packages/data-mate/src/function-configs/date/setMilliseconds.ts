@@ -11,7 +11,7 @@ export const setMillisecondsConfig: FieldTransformConfig<{ value: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the milliseconds of the input date',
+    description: 'Returns the input date with the milliseconds set to the args value.',
     examples: [
         {
             args: { value: 392 },

@@ -139,7 +139,7 @@ export const isEmailConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns the input if it is a valid email format, otherwise returns null.',
+    description: 'Returns the input if it is a valid email formatted string, otherwise returns null.',
     examples,
     create() { return isEmail; },
     accepts: [FieldType.String],

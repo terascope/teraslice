@@ -17,7 +17,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns the input if it either matches a certain length, or is within a range.  Otherwise returns null.',
+    description: 'Returns the input if it either matches a certain length, or is within the specified range.  Otherwise returns null.',
     accepts: [FieldType.String],
     examples: [
         {

@@ -37,7 +37,7 @@ export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeA
             output: null,
         },
     ],
-    description: 'Returns the input if it is within range of the point and distance argument values, otherwise returns null.  Creates a geo circle based on the argument values and checks if the input is within the circle',
+    description: 'Returns the input if it\'s distance to the args point is less then or equal to the args distance.',
     create({ args: { point, distance } }) {
         return geoPointWithinRangeFP(point, distance);
     },

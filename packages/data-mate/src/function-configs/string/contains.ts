@@ -13,7 +13,7 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns the input string if it contains the args substring value. This operations is case-sensitive',
+    description: 'Returns the input string if it contains the args substring value, otherwise returns null. This operations is case-sensitive',
     examples: [
         {
             args: { substr: 'ample' },

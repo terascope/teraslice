@@ -79,7 +79,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'Divisor value used to determine the modulus.'
+            description: 'Value to divide into the input.'
         }
     },
     required_arguments: ['value']

@@ -16,7 +16,7 @@ export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Limits the size of string to a specific length, if the length is greater than the specified size, the excess is removed',
+    description: 'Limits the size of the input string to a specific length, if the length is greater than the specified size, the excess is removed',
     examples: [
         {
             args: { size: 4 },

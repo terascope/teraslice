@@ -65,7 +65,7 @@ export const multiplyConfig: FieldTransformConfig<MultiplyArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'Value to multiply against the input'
+            description: 'Value to multiply the input by'
         }
     },
     required_arguments: ['value']

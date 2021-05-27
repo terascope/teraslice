@@ -45,7 +45,7 @@ export const splitConfig: FieldTransformConfig<SplitArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns an array based off the input split by the args delimiter, defaults to splitting each character',
+    description: 'Returns an array based off the input split by the args delimiter, defaults to splitting by each character',
     examples,
     create({ args: { delimiter = '' } }) {
         return splitFn(delimiter);

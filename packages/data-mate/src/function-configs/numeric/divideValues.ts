@@ -27,7 +27,7 @@ export const divideValuesConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Divide the values with a given field, this requires an array to function correctly',
+    description: 'Divides the values with a given field, this requires an array to function correctly',
     examples: [
         {
             args: {},

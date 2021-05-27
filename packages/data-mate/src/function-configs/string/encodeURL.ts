@@ -13,7 +13,7 @@ export const encodeURLConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns the URL encoded version of the input value',
+    description: 'Returns a URL encoded version of the input value',
     examples: [
         {
             args: {},

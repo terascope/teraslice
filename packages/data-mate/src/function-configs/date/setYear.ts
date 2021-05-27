@@ -9,7 +9,7 @@ export const setYearConfig: FieldTransformConfig<{ value: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the year of the input date',
+    description: 'Returns the input date with the year set to the args value.',
     examples: [
         {
             args: { value: 2024 },

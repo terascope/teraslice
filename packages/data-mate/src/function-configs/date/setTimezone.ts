@@ -14,7 +14,7 @@ export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the timezone for the date value',
+    description: 'Returns the input date with the timezone set to the args value.',
     examples: [
         {
             args: { timezone: 420 }, // 'America/Phoenix' },

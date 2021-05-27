@@ -14,7 +14,7 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Subtract time from a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
+    description: 'Returns the input date minus the date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
         args: { expr: '10h+2m' },
         config: {

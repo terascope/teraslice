@@ -25,7 +25,7 @@ export const isLeapYearConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Returns the the given date if it is in a leap year, otherwise returns null',
+    description: 'Returns the the input if it is in a leap year, otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

@@ -42,7 +42,7 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
         search: {
             type: FieldType.String,
             array: false,
-            description: 'The word that will be replaced'
+            description: 'The characters that will be replaced'
         },
         replace: {
             type: FieldType.String,

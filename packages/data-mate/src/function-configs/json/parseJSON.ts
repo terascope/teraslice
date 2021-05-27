@@ -30,7 +30,7 @@ export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.JSON,
-    description: 'Parses a JSON string, constructing the value or object described by the string',
+    description: 'Parses a JSON string and returns the value or object according to the arg options.',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

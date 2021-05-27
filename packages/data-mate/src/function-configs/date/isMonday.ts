@@ -25,7 +25,7 @@ export const isMondayConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Returns the the given date if it is on a Monday',
+    description: 'Returns the the input if it is on a Monday',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

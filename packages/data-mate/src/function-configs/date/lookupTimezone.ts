@@ -45,7 +45,7 @@ export const lookupTimezoneConfig: FieldTransformConfig = {
             output: 'Europe/Paris',
         },
     ],
-    description: 'Takes in a geo point like entity and returns the timezone of its location',
+    description: 'Returns the timezone of a geo point\'s location.',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

@@ -20,7 +20,7 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.JSON,
-    description: 'Replace missing values in a column with a constant value',
+    description: 'Replaces missing values in a column with a constant value',
     examples: [
         {
             args: { value: 'example' },

@@ -39,7 +39,7 @@ export const isWeekdayConfig: FieldValidateConfig = {
             output: null
         },
     ],
-    description: 'Returns the given date if it is on a Weekday (Monday-Friday), otherwise returns null',
+    description: 'Returns the input if it is on a Weekday (Monday-Friday), otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],

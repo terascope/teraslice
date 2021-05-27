@@ -100,7 +100,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     argument_schema: {
         delimiter: {
             type: FieldType.String,
-            description: `Specify delimiter character for mac address format, may be set to one of ${joinList(delimiterOptions)}`,
+            description: `Specify delimiter character for the mac address format, may be set to one of ${joinList(delimiterOptions)}`,
         }
     },
     required_arguments: [],

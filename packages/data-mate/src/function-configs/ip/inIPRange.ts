@@ -46,7 +46,7 @@ export const inIPRangeConfig: FieldValidateConfig = {
             output: null,
         }
     ],
-    description: 'Returns the input if the ip is within the given range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa.',
+    description: 'Returns the input if the ip is within the given range, inclusive.  Accepts min, max or cidr notation for the ip range, also accepts min without a max and vice versa.',
     create({ args }) {
         return (input: unknown) => inIPRange(input, args);
     },

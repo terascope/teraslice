@@ -21,7 +21,7 @@ export const setPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified',
+    description: 'Returns a truncated number to the nth decimal places. The values will skip rounding if truncate: true is specified',
     examples: [
         {
             args: { digits: 1, truncate: false },

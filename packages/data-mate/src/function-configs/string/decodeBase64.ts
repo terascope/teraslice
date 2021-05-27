@@ -12,7 +12,7 @@ export const decodeBase64Config: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns the base64-decoded version of the source string',
+    description: 'Returns the base64-decoded version of the input string',
     examples: [
         {
             args: {},

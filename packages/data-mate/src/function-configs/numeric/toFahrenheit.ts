@@ -14,7 +14,7 @@ export const toFahrenheitConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Converts a celsius value to the equivalent fahrenheit value',
+    description: 'Returns the equivalent fahrenheit value from the celsius input.',
     examples: [
         {
             args: { },

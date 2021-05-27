@@ -18,7 +18,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a date value to a formatted date string, when specifying the format it applies to the output value',
+    description: 'Converts a date value to a formatted date string.  Can specify the format with args to format the output value',
     examples: [{
         args: { format: 'yyyy-MM-dd' },
         config: {

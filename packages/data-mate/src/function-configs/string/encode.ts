@@ -19,7 +19,7 @@ export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns a hashed version of the source string.  The hashing algorithm and digest must be specified in the args.',
+    description: 'Returns a hashed version of the input string.  The hashing algorithm and digest must be specified in the args.',
     examples: [
         {
             args: { algo: 'sha256' },

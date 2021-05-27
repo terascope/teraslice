@@ -25,7 +25,7 @@ export const isFutureConfig: FieldValidateConfig = {
             output: '2121-05-09T10:00:00.000Z'
         },
     ],
-    description: 'Returns the the given date if it is in the future, otherwise returns null',
+    description: 'Returns the the input if it is in the future, otherwise returns null',
     accepts: [
         FieldType.String, FieldType.Date, FieldType.Number
     ],
