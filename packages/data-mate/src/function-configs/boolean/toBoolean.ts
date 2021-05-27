@@ -53,7 +53,7 @@ export const toBooleanConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: null,
-            output: false
+            output: null
         }
     ],
     create() {
