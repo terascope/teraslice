@@ -5,11 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    AddArgs
 } from '../interfaces';
-
-export interface AddArgs {
-    readonly value: number
-}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

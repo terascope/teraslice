@@ -1,13 +1,9 @@
 import { lookup } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig,
-    DataTypeFieldAndChildren
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, DataTypeFieldAndChildren, LookupArgs
 } from '../interfaces';
-
-export interface LookupArgs {
-    readonly in: Record<string, unknown>
-}
 
 export const lookupConfig: FieldTransformConfig<LookupArgs> = {
     name: 'lookup',

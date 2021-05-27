@@ -1,10 +1,11 @@
-import { InNumberRangeArg, inNumberRangeFP } from '@terascope/utils';
+import { inNumberRangeFP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    InNumberRangeArg
 } from '../interfaces';
 
 export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {

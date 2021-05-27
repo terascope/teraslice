@@ -4,12 +4,9 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    TruncateConfig
 } from '../interfaces';
-
-export interface TruncateConfig {
-    size: number;
-}
 
 export const truncateConfig: FieldTransformConfig<TruncateConfig> = {
     name: 'truncate',

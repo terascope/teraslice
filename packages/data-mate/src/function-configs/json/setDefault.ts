@@ -8,12 +8,9 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    SetDefaultArgs
 } from '../interfaces';
-
-export interface SetDefaultArgs {
-    value: unknown;
-}
 
 export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
     name: 'setDefault',

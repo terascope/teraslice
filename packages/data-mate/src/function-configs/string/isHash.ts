@@ -3,7 +3,7 @@ import { isString, joinList } from '@terascope/utils';
 import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory, IsHashArgs
 } from '../interfaces';
 
 export type HashConfigAlgorithms =
@@ -36,10 +36,6 @@ const listOfAlgorithms = [
     'crc32',
     'crc32b'
 ];
-
-export interface IsHashArgs {
-    algo: string;
-}
 
 export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
     name: 'isHash',

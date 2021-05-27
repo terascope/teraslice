@@ -1,12 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { isUnixTimeFP } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, IsEpochArgs
 } from '../interfaces';
-
-export interface IsEpochArgs {
-    allowBefore1970?: boolean;
-}
 
 export const isEpochConfig: FieldValidateConfig<IsEpochArgs> = {
     name: 'isEpoch',

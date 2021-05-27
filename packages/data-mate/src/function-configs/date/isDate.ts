@@ -2,12 +2,9 @@ import isMatch from 'date-fns/isMatch';
 import { FieldType, DateFormat } from '@terascope/types';
 import { isValidDate, primitiveToString } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, IsDateArgs
 } from '../interfaces';
-
-export interface IsDateArgs {
-    format?: string|DateFormat;
-}
 
 export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
     name: 'isDate',

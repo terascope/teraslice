@@ -1,10 +1,11 @@
 import { FieldType } from '@terascope/types';
 import { setYear, isInteger, toISO8601 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, SetYearArgs
 } from '../interfaces';
 
-export const setYearConfig: FieldTransformConfig<{ year: number }> = {
+export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
     name: 'setYear',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

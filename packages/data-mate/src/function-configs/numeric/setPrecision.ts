@@ -9,12 +9,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    ToPrecisionArgs
 } from '../interfaces';
-
-export interface ToPrecisionArgs {
-    readonly digits: number;
-    readonly truncate?: boolean;
-}
 
 export const setPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
     name: 'setPrecision',

@@ -1,13 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { isBetween, isValidDate } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, IsBetweenArgs
 } from '../interfaces';
-
-export interface IsBetweenArgs {
-    start: string | number | Date;
-    end: string | number | Date;
-}
 
 export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     name: 'isBetween',

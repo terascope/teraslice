@@ -2,12 +2,9 @@ import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample, FunctionDefinitionCategory
+    FunctionDefinitionExample, FunctionDefinitionCategory,
+    JoinArgs
 } from '../interfaces';
-
-export interface JoinArgs {
-    delimiter?: string;
-}
 
 const examples: FunctionDefinitionExample<JoinArgs>[] = [
     {

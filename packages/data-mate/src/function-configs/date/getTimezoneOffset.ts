@@ -4,12 +4,9 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    GetTimezoneOffsetArgs
 } from '../interfaces';
-
-export interface GetTimezoneOffsetArgs {
-    timezone: string;
-}
 
 export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs> = {
     name: 'getTimezoneOffset',

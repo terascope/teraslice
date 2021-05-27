@@ -7,12 +7,9 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FunctionDefinitionExample,
+    TrimArgs
 } from '../interfaces';
-
-export interface TrimArgs {
-    chars?: string;
-}
 
 const examples: FunctionDefinitionExample<TrimArgs>[] = [
     {

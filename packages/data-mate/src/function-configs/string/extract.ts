@@ -6,15 +6,9 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FunctionDefinitionExample,
+    ExtractArgs
 } from '../interfaces';
-
-export interface ExtractArgs {
-    regex?: string;
-    start?: string;
-    end?: string;
-    global?: boolean;
-}
 
 const globalDefault = false;
 const field = 'test';

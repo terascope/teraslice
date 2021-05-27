@@ -3,10 +3,11 @@ import {
     setSeconds, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, SetSecondsArgs
 } from '../interfaces';
 
-export const setSecondsConfig: FieldTransformConfig<{ seconds: number }> = {
+export const setSecondsConfig: FieldTransformConfig<SetSecondsArgs> = {
     name: 'setSeconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

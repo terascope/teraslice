@@ -2,13 +2,9 @@ import { FieldType } from '@terascope/types';
 import { isString, isEmpty } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, FunctionDefinitionExample
+    FunctionDefinitionCategory, FunctionDefinitionExample,
+    EmptyArgs
 } from '../interfaces';
-
-export interface EmptyArgs {
-    /** Trims string input */
-    readonly ignoreWhitespace?: boolean;
-}
 
 const examples: FunctionDefinitionExample<EmptyArgs>[] = [
     {

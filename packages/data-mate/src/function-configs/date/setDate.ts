@@ -3,10 +3,11 @@ import {
     setDate, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, SetDateArgs
 } from '../interfaces';
 
-export const setDateConfig: FieldTransformConfig<{ date: number }> = {
+export const setDateConfig: FieldTransformConfig<SetDateArgs> = {
     name: 'setDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

@@ -5,11 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    SubtractArgs
 } from '../interfaces';
-
-export interface SubtractArgs {
-    readonly value: number
-}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

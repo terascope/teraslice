@@ -1,12 +1,9 @@
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample, FunctionDefinitionCategory
+    FunctionDefinitionExample, FunctionDefinitionCategory,
+    SplitArgs
 } from '../interfaces';
-
-export interface SplitArgs {
-    delimiter?: string;
-}
 
 const examples: FunctionDefinitionExample<SplitArgs>[] = [
     {

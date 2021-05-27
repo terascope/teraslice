@@ -4,11 +4,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    LessThanArgs
 } from '../interfaces';
-
-export interface LessThanArgs {
-    readonly value: number;
-}
 
 export const isLessThanConfig: FieldValidateConfig<LessThanArgs> = {
     name: 'isLessThan',

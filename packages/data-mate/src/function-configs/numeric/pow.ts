@@ -4,12 +4,9 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    PowerArgs
 } from '../interfaces';
 import { runMathFn } from './utils';
-
-export interface PowerArgs {
-    readonly exp: number;
-}
 
 export const powConfig: FieldTransformConfig<PowerArgs> = {
     name: 'pow',

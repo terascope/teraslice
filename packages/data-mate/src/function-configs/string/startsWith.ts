@@ -2,12 +2,8 @@ import { FieldType } from '@terascope/types';
 import { startsWithFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory, StartsWithArgs
 } from '../interfaces';
-
-export interface StartsWithArgs {
-    value: string
-}
 
 export const startsWithConfig: FieldValidateConfig<StartsWithArgs> = {
     name: 'startsWith',

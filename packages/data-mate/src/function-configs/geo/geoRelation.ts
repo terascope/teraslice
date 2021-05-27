@@ -2,20 +2,16 @@ import {
     joinList, geoRelationFP, toGeoJSON
 } from '@terascope/utils';
 import {
-    FieldType, GeoShapeRelation, GeoInput, GeoShapeType
+    FieldType, GeoShapeRelation, GeoShapeType
 } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FunctionDefinitionExample,
+    GeoRelationArgs
 } from '../interfaces';
-
-export interface GeoRelationArgs {
-    value: GeoInput;
-    relation?: GeoShapeRelation
-}
 
 const examples: FunctionDefinitionExample<GeoRelationArgs>[] = [
     {

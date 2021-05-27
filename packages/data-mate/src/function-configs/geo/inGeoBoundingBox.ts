@@ -1,16 +1,12 @@
 import { inGeoBoundingBoxFP, isGeoPoint } from '@terascope/utils';
-import { FieldType, GeoPointInput } from '@terascope/types';
+import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    PointInBoundingBoxArgs
 } from '../interfaces';
-
-export interface PointInBoundingBoxArgs {
-    top_left: GeoPointInput;
-    bottom_right: GeoPointInput
-}
 
 export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
     name: 'inGeoBoundingBox',

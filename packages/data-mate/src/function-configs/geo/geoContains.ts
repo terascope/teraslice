@@ -1,16 +1,13 @@
 import { geoContainsFP, toGeoJSON } from '@terascope/utils';
-import { FieldType, GeoInput, GeoShapeType } from '@terascope/types';
+import { FieldType, GeoShapeType } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FunctionDefinitionExample,
+    GeoContainsArgs
 } from '../interfaces';
-
-export interface GeoContainsArgs {
-    value: GeoInput;
-}
 
 const examples: FunctionDefinitionExample<GeoContainsArgs>[] = [
     {

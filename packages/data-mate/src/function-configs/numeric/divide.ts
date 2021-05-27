@@ -5,11 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    DivideArgs
 } from '../interfaces';
-
-export interface DivideArgs {
-    readonly value: number
-}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

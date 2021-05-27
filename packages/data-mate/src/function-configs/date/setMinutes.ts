@@ -3,10 +3,11 @@ import {
     setMinutes, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, SetMinutesArgs
 } from '../interfaces';
 
-export const setMinutesConfig: FieldTransformConfig<{ minutes: number }> = {
+export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
     name: 'setMinutes',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

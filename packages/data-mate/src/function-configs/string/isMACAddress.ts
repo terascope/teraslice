@@ -2,12 +2,9 @@ import { isMACAddress, isString, joinList } from '@terascope/utils';
 import { MACDelimiter, FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, FunctionDefinitionExample
+    FunctionDefinitionCategory, FunctionDefinitionExample,
+    IsMacArgs
 } from '../interfaces';
-
-export interface IsMacArgs {
-    delimiter?: string | string[];
-}
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 

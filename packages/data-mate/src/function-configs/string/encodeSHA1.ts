@@ -5,13 +5,10 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    EncodeSHA1Config
 } from '../interfaces';
 import { cryptoEncode } from './encode-utils';
-
-export interface EncodeSHA1Config {
-    digest?: BinaryToTextEncoding;
-}
 
 const defaultDigest: BinaryToTextEncoding = 'hex';
 

@@ -2,12 +2,9 @@ import { isDeepEqualFP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, FunctionDefinitionExample
+    FunctionDefinitionCategory, FunctionDefinitionExample,
+    EqualsArgs
 } from '../interfaces';
-
-export interface EqualsArgs {
-    readonly value: unknown;
-}
 
 const examples: FunctionDefinitionExample<EqualsArgs>[] = [
     {

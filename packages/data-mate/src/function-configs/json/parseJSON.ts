@@ -2,28 +2,16 @@ import {
     parseJSON, isNil, joinList, withoutNil
 } from '@terascope/utils';
 import {
-    FieldType, TimeResolution, DataTypeFields, availableFieldTypes
+    FieldType, availableFieldTypes
 } from '@terascope/types';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
+    ParseJSONArgs
 } from '../interfaces';
-
-// FIXME: what is this doing here???
-export interface ParseJSONArgs {
-    type?: FieldType;
-    array?: boolean;
-    description?: string;
-    indexed?: boolean;
-    locale?: string;
-    format?: string;
-    is_primary_date?: boolean;
-    time_resolution?: TimeResolution;
-    child_config?: DataTypeFields
-}
 
 export const parseJSONConfig: FieldTransformConfig<ParseJSONArgs> = {
     name: 'parseJSON',

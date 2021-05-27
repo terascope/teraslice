@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
+import { FieldType } from '@terascope/types';
 import {
-    FieldType, DataTypeFields, Maybe
-} from '@terascope/types';
-import {
-    functionConfigRepository, FunctionDefinitionType,
-    ProcessMode, Column, dataFrameAdapter, DataFrame, functionAdapter
+    functionConfigRepository, Column, dataFrameAdapter, DataFrame,
+    functionAdapter, LengthArgs, GetTimezoneOffsetArgs,
+    JoinArgs, EqualsArgs
 } from '../../src';
 
 const isLengthConfig = functionConfigRepository.isLength;
@@ -27,7 +25,7 @@ describe('dynamic args', () => {
             // on the third value, mins is set to 4 which does not pass
             const expectedResults = ['hello', 'bell', undefined];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: Column<unknown>): LengthArgs {
                 return { min: index + 2 };
             }
 
@@ -69,7 +67,7 @@ describe('dynamic args', () => {
 
             const timezones = ['Africa/Accra', 'America/Anchorage', 'Asia/Istanbul'];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: Column<unknown>): GetTimezoneOffsetArgs {
                 const timezone = timezones[index];
                 if (timezone == null) throw new Error('not enough timezone args');
 
@@ -118,7 +116,7 @@ describe('dynamic args', () => {
                 (str) => ({ [field]: str })
             );
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: unknown[]): LengthArgs {
                 return { min: index + 2 };
             }
 
@@ -155,7 +153,7 @@ describe('dynamic args', () => {
 
             const argValues = ['hello', 'hello', 'sugar'];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: unknown[]): EqualsArgs {
                 const value = argValues[index];
                 if (value == null) throw new Error('not enough argValues for equals');
 
@@ -197,7 +195,7 @@ describe('dynamic args', () => {
 
             const timezones = ['Africa/Accra', 'America/Anchorage', 'Asia/Istanbul'];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: unknown[]): GetTimezoneOffsetArgs {
                 const timezone = timezones[index];
                 if (timezone == null) throw new Error('not enough timezone args');
 
@@ -237,7 +235,7 @@ describe('dynamic args', () => {
 
             const delimiters = ['', ' & '];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): any {
+            function dynamicArgs(index: number, _column: unknown[]): JoinArgs {
                 const delimiter = delimiters[index];
                 if (delimiter == null) throw new Error('not enough delimiter args');
 

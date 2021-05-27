@@ -5,11 +5,8 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
+    MultiplyArgs
 } from '../interfaces';
-
-export interface MultiplyArgs {
-    readonly value: number
-}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

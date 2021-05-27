@@ -3,12 +3,8 @@ import { FieldType } from '@terascope/types';
 import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionCategory,
-    FunctionDefinitionType, FunctionDefinitionExample
+    FunctionDefinitionType, FunctionDefinitionExample, AlphaLocale
 } from '../interfaces';
-
-export interface AlphaLocale {
-    locale?: validator.AlphaLocale;
-}
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
