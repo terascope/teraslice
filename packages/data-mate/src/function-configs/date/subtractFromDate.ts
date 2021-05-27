@@ -44,7 +44,7 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         fails: true,
-        output: 'Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
+        output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
     }, {
         args: { expr: '1hr', months: 10 },
         config: {

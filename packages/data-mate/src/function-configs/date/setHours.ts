@@ -62,7 +62,7 @@ export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
             throw Error('Invalid argument "hours", must be an integer between 0 and 23');
         }
     },
-    required_arguments: ['hours'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

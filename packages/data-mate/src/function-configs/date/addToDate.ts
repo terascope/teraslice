@@ -44,7 +44,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         fails: true,
-        output: 'Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
+        output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
     }, {
         args: { expr: '1hr', months: 10 },
         config: {
@@ -107,7 +107,7 @@ For example, \`1h\` or \`1h+2m\``
         const argKeys = Object.keys(args);
 
         if (argKeys.length === 0) {
-            throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
+            throw new Error('Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
         }
 
         for (const argKey of argKeys) {

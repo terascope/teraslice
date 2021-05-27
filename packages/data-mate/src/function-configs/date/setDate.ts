@@ -11,7 +11,7 @@ export const setDateConfig: FieldTransformConfig<{ value: number }> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns in the input date with the day of the month set to the args value.',
+    description: 'Returns the input date with the day of the month set to the args value.',
     examples: [
         {
             args: { value: 12 },
@@ -62,7 +62,7 @@ export const setDateConfig: FieldTransformConfig<{ value: number }> = {
             throw Error('Invalid argument "date", must be an integer between 1 and 31');
         }
     },
-    required_arguments: ['date'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

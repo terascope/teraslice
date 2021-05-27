@@ -81,12 +81,14 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             throw Error('Must provide a start or an end value');
         }
     },
-    output_type({ field_config }) {
+    output_type(inputConfig, { interval }) {
+        const { field_config } = inputConfig;
+
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.Number || FieldType.String
-            }
+                type: interval === 'ISO8601' ? FieldType.String : FieldType.Number
+            },
         };
     }
 };
