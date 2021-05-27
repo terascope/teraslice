@@ -136,13 +136,6 @@ export interface FunctionContext<T extends Record<string, any> = Record<string, 
     readonly parent: Column<unknown>|unknown[]
 }
 
-export interface DynamicFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: (index: number, column: unknown[]) => T,
-    readonly inputConfig?: DataTypeFieldAndChildren,
-    readonly outputConfig?: DataTypeFieldAndChildren,
-    readonly parent: unknown[]
-}
-
 export interface DynamicFrameFunctionContext<
     T extends Record<string, any> = Record<string, unknown>
 > {
@@ -152,7 +145,20 @@ export interface DynamicFrameFunctionContext<
     readonly parent: Column<unknown>
 }
 
-export type InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> = Pick<FunctionContext<T>, 'inputConfig'|'args'>
+export interface DynamicFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
+    readonly args: (index: number, column: unknown[]) => T,
+    readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly outputConfig?: DataTypeFieldAndChildren,
+    readonly parent: unknown[]
+}
+
+export interface InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
+    readonly args: T | ((index: number, column: unknown[]) => T),
+    readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly preserveNulls: boolean,
+    readonly preserveEmptyObjects: boolean,
+    readonly field?: string
+}
 
 export interface FieldValidateConfig<
     T extends Record<string, any> = Record<string, unknown>

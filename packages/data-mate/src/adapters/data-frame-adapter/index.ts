@@ -325,6 +325,7 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
     fnDef: FunctionDefinitionConfig<T>,
     options: DataFrameAdapterOptions<T> = {}
 ): FrameAdapterFn {
+    if (isNil(options.args)) options.args = {} as T;
     // we will validate on each call later
     if (!isFunction(options.args)) {
         validateFunctionArgs(fnDef, options.args);

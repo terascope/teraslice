@@ -1,4 +1,5 @@
 import { DataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
+import { isFunction } from '@terascope/utils';
 import {
     fieldValidationRowExecution,
     fieldValidationColumnExecution,
@@ -50,64 +51,52 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
         config,
         preserveNulls = true,
         preserveEmptyObjects = true,
+        // we add default here as we destructure args from it
+        args = {} as T
     } = options;
 
-    const args = { ...options.args } as T;
-    validateFunctionArgs(fnDef, args);
+    if (!isFunction(args)) {
+        validateFunctionArgs(fnDef, args);
+    }
+
+    const fnConfig: InitialFunctionContext<T> = {
+        args,
+        inputConfig: getDataTypeFieldAndChildren(config, field),
+        preserveNulls,
+        preserveEmptyObjects,
+        field
+    };
 
     if (isFieldValidation(fnDef)) {
         // creating fn here ensures better typing of what fn is
-        const fnConfig: InitialFunctionContext<T> = {
-            args,
-            inputConfig: getDataTypeFieldAndChildren(config, field)
-        };
-
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
-                rows: wholeFieldValidationRowExecution<T>(
-                    fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
-                ),
+                rows: wholeFieldValidationRowExecution<T>(fnDef, fnConfig),
                 column: wholeFieldValidationColumnExecution<T>(fnDef, fnConfig)
             };
         }
 
         return {
-            rows: fieldValidationRowExecution(
-                fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
-            ),
-            column: fieldValidationColumnExecution(fnDef, fnConfig, preserveNulls)
+            rows: fieldValidationRowExecution(fnDef, fnConfig),
+            column: fieldValidationColumnExecution(fnDef, fnConfig)
         };
     }
 
     if (isFieldTransform(fnDef)) {
-        const fnConfig: InitialFunctionContext<T> = {
-            args,
-            inputConfig: getDataTypeFieldAndChildren(config, field)
-        };
-
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return {
-                rows: wholeFieldTransformRowExecution(
-                    fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
-                ),
-                column: wholeFieldTransformColumnExecution(fnDef, fnConfig, preserveNulls)
+                rows: wholeFieldTransformRowExecution(fnDef, fnConfig),
+                column: wholeFieldTransformColumnExecution(fnDef, fnConfig)
             };
         }
 
         return {
-            rows: fieldTransformRowExecution(
-                fnDef, fnConfig, preserveNulls, preserveEmptyObjects, field
-            ),
-            column: fieldTransformColumnExecution(fnDef, fnConfig, preserveNulls)
+            rows: fieldTransformRowExecution(fnDef, fnConfig),
+            column: fieldTransformColumnExecution(fnDef, fnConfig)
         };
     }
 
     if (isRecordValidation(fnDef)) {
-        const fnConfig: InitialFunctionContext<T> = {
-            args,
-            inputConfig: getDataTypeFieldAndChildren(config, field)
-        };
-
         return {
             rows: recordValidationExecution(fnDef, fnConfig)
         };
