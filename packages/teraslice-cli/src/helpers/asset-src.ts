@@ -172,9 +172,9 @@ export class AssetSrc {
             let entryPoint = '';
             try {
                 if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'index.js'))) {
-                    entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'index.js'));
+                    entryPoint = path.join(tmpDir.name, 'asset', 'index.js');
                 } else if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'src', 'index.ts'))) {
-                    entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'src', 'index.ts'));
+                    entryPoint = path.join(tmpDir.name, 'asset', 'src', 'index.ts');
                 } else {
                     reply.fatal('Bundled assets require an asset registry at either asset/index.js or asset/src/index.ts');
                 }
