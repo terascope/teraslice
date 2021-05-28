@@ -1,7 +1,5 @@
 import 'jest-extended';
-import {
-    FieldType, Maybe, DataTypeFields
-} from '@terascope/types'; import {
+import { FieldType, Maybe } from '@terascope/types'; import {
     functionConfigRepository, FunctionDefinitionType, ProcessMode,
     Column, dataFrameAdapter, FunctionContext
 } from '../../../src';
