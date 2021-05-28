@@ -3,12 +3,15 @@ import { MACDelimiter, FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-    IsMacArgs
 } from '../interfaces';
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 
-const examples: FunctionDefinitionExample<IsMacArgs>[] = [
+export interface IsMACArgs {
+    delimiter?: string | string[];
+}
+
+const examples: FunctionDefinitionExample<IsMACArgs>[] = [
     {
         args: {},
         config: { version: 1, fields: { testField: { type: FieldType.String } } },
@@ -82,7 +85,7 @@ const examples: FunctionDefinitionExample<IsMacArgs>[] = [
     },
 ];
 
-export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
+export const isMACAddressConfig: FieldValidateConfig<IsMACArgs> = {
     name: 'isMACAddress',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

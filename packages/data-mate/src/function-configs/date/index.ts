@@ -1,20 +1,20 @@
-import { addToDateConfig } from './addToDate';
-import { formatDateConfig } from './formatDate';
+import { addToDateConfig, AdjustDateArgs } from './addToDate';
+import { formatDateConfig, FormatDateArgs } from './formatDate';
 import { getDateConfig } from './getDate';
 import { getHoursConfig } from './getHours';
 import { getMillisecondsConfig } from './getMilliseconds';
 import { getMinutesConfig } from './getMinutes';
 import { getMonthConfig } from './getMonth';
 import { getSecondsConfig } from './getSeconds';
-import { getTimeBetweenConfig } from './getTimeBetween';
-import { getTimezoneOffsetConfig } from './getTimezoneOffset';
+import { getTimeBetweenConfig, GetTimeBetweenArgs } from './getTimeBetween';
+import { getTimezoneOffsetConfig, GetTimezoneOffsetArgs } from './getTimezoneOffset';
 import { getYearConfig } from './getYear';
-import { isAfterConfig } from './isAfter';
-import { isBeforeConfig } from './isBefore';
-import { isBetweenConfig } from './isBetween';
-import { isDateConfig } from './isDate';
-import { isEpochConfig } from './isEpoch';
-import { isEpochMillisConfig } from './isEpochMillis';
+import { isAfterConfig, IsAfterArgs } from './isAfter';
+import { isBeforeConfig, IsBeforeArgs } from './isBefore';
+import { isBetweenConfig, IsBetweenArgs } from './isBetween';
+import { isDateConfig, IsDateArgs } from './isDate';
+import { isEpochConfig, IsEpochArgs } from './isEpoch';
+import { isEpochMillisConfig, IsEpochMillisArgs } from './isEpochMillis';
 import { isFridayConfig } from './isFriday';
 import { isFutureConfig } from './isFuture';
 import { isISO8601Config } from './isISO8601';
@@ -32,18 +32,18 @@ import { isWeekdayConfig } from './isWeekday';
 import { isWeekendConfig } from './isWeekend';
 import { isYesterdayConfig } from './isYesterday';
 import { lookupTimezoneConfig } from './lookupTimezone';
+import { setDateConfig, SetDateArgs } from './setDate';
+import { setHoursConfig, SetHoursArgs } from './setHours';
+import { setMillisecondsConfig, SetMillisecondsArgs } from './setMilliseconds';
+import { setMinutesConfig, SetMinutesArgs } from './setMinutes';
+import { setMonthConfig, SetMonthArgs } from './setMonth';
+import { setSecondsConfig, SetSecondsArgs } from './setSeconds';
+import { setTimezoneConfig, SetTimezoneArgs } from './setTimezone';
+import { setYearConfig, SetYearArgs } from './setYear';
 import { subtractFromDateConfig } from './subtractFromDate';
-import { setMillisecondsConfig } from './setMilliseconds';
-import { setSecondsConfig } from './setSeconds';
-import { setMinutesConfig } from './setMinutes';
-import { setHoursConfig } from './setHours';
-import { setDateConfig } from './setDate';
-import { setMonthConfig } from './setMonth';
-import { setYearConfig } from './setYear';
-import { setTimezoneConfig } from './setTimezone';
 import { timezoneToOffsetConfig } from './timezoneToOffset';
 import { toDailyDateConfig } from './toDailyDate';
-import { toDateConfig } from './toDate';
+import { toDateConfig, ToDateArgs } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
 import { toYearlyDateConfig } from './toYearlyDate';
@@ -98,4 +98,26 @@ export const dateRepository = {
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
     toYearlyDate: toYearlyDateConfig,
+};
+
+export type {
+    AdjustDateArgs,
+    FormatDateArgs,
+    GetTimeBetweenArgs,
+    GetTimezoneOffsetArgs,
+    IsAfterArgs,
+    IsBeforeArgs,
+    IsBetweenArgs,
+    IsDateArgs,
+    IsEpochArgs,
+    IsEpochMillisArgs,
+    SetDateArgs,
+    SetHoursArgs,
+    SetMillisecondsArgs,
+    SetMinutesArgs,
+    SetMonthArgs,
+    SetSecondsArgs,
+    SetTimezoneArgs,
+    SetYearArgs,
+    ToDateArgs
 };

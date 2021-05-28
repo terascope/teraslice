@@ -1,9 +1,13 @@
 import { FieldType } from '@terascope/types';
-import { getTimeBetween, getDurationFunc, joinList } from '@terascope/utils';
+import {
+    getTimeBetween, getDurationFunc, joinList, GetTimeBetweenArgs
+} from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, GetTimeBetweenArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export type { GetTimeBetweenArgs };
 
 export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     name: 'getTimeBetween',

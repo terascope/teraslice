@@ -5,8 +5,11 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    ToDateArgs
 } from '../interfaces';
+
+export interface ToDateArgs {
+    format?: string|DateFormat;
+}
 
 export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
     name: 'toDate',

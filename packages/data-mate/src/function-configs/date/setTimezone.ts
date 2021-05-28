@@ -7,8 +7,12 @@ import {
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, SetTimezoneArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface SetTimezoneArgs {
+    timezone: number|string
+}
 
 export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
     name: 'setTimezone',

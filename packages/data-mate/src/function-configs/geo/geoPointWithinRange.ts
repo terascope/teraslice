@@ -2,14 +2,18 @@ import {
     geoPointWithinRangeFP, isGeoPoint, joinList,
     parseGeoDistance
 } from '@terascope/utils';
-import { FieldType, GEO_DISTANCE_UNITS } from '@terascope/types';
+import { FieldType, GEO_DISTANCE_UNITS, GeoPointInput } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    GeoPointWithinRangeArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface GeoPointWithinRangeArgs {
+    point: GeoPointInput;
+    distance: string
+}
 
 export const geoPointWithinRangeConfig: FieldValidateConfig<GeoPointWithinRangeArgs> = {
     name: 'geoPointWithinRange',

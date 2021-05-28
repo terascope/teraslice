@@ -2,8 +2,12 @@ import { FieldType } from '@terascope/types';
 import { setYear, isInteger, toISO8601 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, SetYearArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface SetYearArgs {
+    value: number
+}
 
 export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
     name: 'setYear',

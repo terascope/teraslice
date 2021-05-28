@@ -5,9 +5,13 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    DataTypeFieldAndChildren,
-    RandomArgs
+    DataTypeFieldAndChildren
 } from '../interfaces';
+
+export interface RandomArgs {
+    readonly min: number;
+    readonly max: number;
+}
 
 export const randomConfig: FieldTransformConfig<RandomArgs> = {
     name: 'random',

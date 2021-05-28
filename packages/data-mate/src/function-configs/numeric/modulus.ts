@@ -4,9 +4,12 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    ModulusArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface ModulusArgs {
+    readonly value: number
+}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

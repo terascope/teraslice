@@ -7,8 +7,12 @@ import {
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, ToCIDRArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface ToCIDRArgs {
+    suffix: number | string
+}
 
 export const toCIDRConfig: FieldTransformConfig<ToCIDRArgs> = {
     name: 'toCIDR',

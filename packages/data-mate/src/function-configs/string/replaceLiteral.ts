@@ -2,8 +2,12 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
-    ReplaceLiteralArgs
 } from '../interfaces';
+
+export interface ReplaceLiteralArgs {
+    search: string;
+    replace: string;
+}
 
 const examples: FunctionDefinitionExample<ReplaceLiteralArgs>[] = [
     {

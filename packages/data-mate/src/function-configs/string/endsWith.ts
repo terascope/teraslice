@@ -2,8 +2,12 @@ import { FieldType } from '@terascope/types';
 import { endsWithFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, EndsWithArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface EndsWithArgs {
+    value: string
+}
 
 export const endsWithConfig: FieldValidateConfig<EndsWithArgs> = {
     name: 'endsWith',

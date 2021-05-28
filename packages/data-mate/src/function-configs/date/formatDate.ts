@@ -7,8 +7,11 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FormatDateArgs
 } from '../interfaces';
+
+export interface FormatDateArgs {
+    format?: string|DateFormat;
+}
 
 export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     name: 'formatDate',

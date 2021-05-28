@@ -3,9 +3,12 @@ import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    GreaterThanOrEqualToArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface GreaterThanOrEqualToArgs {
+    readonly value: number;
+}
 
 export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqualToArgs> = {
     name: 'isGreaterThanOrEqualTo',

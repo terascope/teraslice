@@ -3,8 +3,12 @@ import { FieldType } from '@terascope/types';
 
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, IntToIPArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface IntToIPArgs {
+    version: string | number
+}
 
 export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
     name: 'intToIP',

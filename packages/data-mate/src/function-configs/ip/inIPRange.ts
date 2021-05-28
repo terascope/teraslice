@@ -3,8 +3,14 @@ import { FieldType } from '@terascope/types';
 
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, InIPRangeArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface InIPRangeArgs {
+    min?: string;
+    max?: string;
+    cidr?: string;
+}
 
 export const inIPRangeConfig: FieldValidateConfig = {
     name: 'inIPRange',

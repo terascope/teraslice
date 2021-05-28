@@ -1,14 +1,15 @@
 import { FieldType } from '@terascope/types';
 import {
-    joinList, toISO8601, subtractFromDateFP,
+    joinList, toISO8601, subtractFromDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    AdjustDateArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+// AdjustDateArgs is not export as addFromDate does so, cannot double export
 
 export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'subtractFromDate',

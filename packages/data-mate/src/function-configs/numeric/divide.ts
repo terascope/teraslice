@@ -4,9 +4,12 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    DivideArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface DivideArgs {
+    readonly value: number
+}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

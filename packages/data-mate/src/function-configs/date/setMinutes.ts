@@ -4,8 +4,12 @@ import {
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, SetMinutesArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface SetMinutesArgs {
+    value: number
+}
 
 export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
     name: 'setMinutes',

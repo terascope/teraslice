@@ -4,8 +4,12 @@ import {
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig, SetMonthArgs
+    FieldTransformConfig
 } from '../interfaces';
+
+export interface SetMonthArgs {
+    value: number
+}
 
 export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
     name: 'setMonth',

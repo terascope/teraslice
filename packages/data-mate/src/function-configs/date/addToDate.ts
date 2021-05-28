@@ -1,14 +1,15 @@
 import { FieldType } from '@terascope/types';
 import {
-    joinList, toISO8601, addToDateFP
+    joinList, toISO8601, addToDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    AdjustDateArgs
 } from '../interfaces';
+
+export type { AdjustDateArgs };
 
 export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'addToDate',

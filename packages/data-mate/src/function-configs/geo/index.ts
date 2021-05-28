@@ -1,11 +1,11 @@
-import { geoContainsConfig } from './geoContains';
-import { geoContainsPointConfig } from './geoContainsPoint';
-import { geoDisjointConfig } from './geoDisjoint';
-import { geoIntersectsConfig } from './geoIntersects';
-import { geoPointWithinRangeConfig } from './geoPointWithinRange';
-import { geoRelationConfig } from './geoRelation';
-import { geoWithinConfig } from './geoWithin';
-import { inGeoBoundingBoxConfig } from './inGeoBoundingBox';
+import { geoContainsConfig, GeoContainsArgs } from './geoContains';
+import { geoContainsPointConfig, GeoContainsPointArgs } from './geoContainsPoint';
+import { geoDisjointConfig, GeoDisjointArgs } from './geoDisjoint';
+import { geoIntersectsConfig, GeoIntersectsArgs } from './geoIntersects';
+import { geoPointWithinRangeConfig, GeoPointWithinRangeArgs } from './geoPointWithinRange';
+import { geoRelationConfig, GeoRelationArgs } from './geoRelation';
+import { geoWithinConfig, GeoWithinArgs } from './geoWithin';
+import { inGeoBoundingBoxConfig, InGeoBoundingBoxArgs } from './inGeoBoundingBox';
 import { isGeoJSONConfig } from './isGeoJSON';
 import { isGeoPointConfig } from './isGeoPoint';
 import { isGeoShapeMultiPolygonConfig } from './isGeoShapeMultiPolygon';
@@ -30,4 +30,15 @@ export const geoRepository = {
     isGeoShapePolygon: isGeoShapePolygonConfig,
     toGeoJSON: toGeoJSONConfig,
     toGeoPoint: toGeoPointConfig,
+};
+
+export type {
+    GeoContainsArgs,
+    GeoContainsPointArgs,
+    GeoDisjointArgs,
+    GeoIntersectsArgs,
+    GeoPointWithinRangeArgs,
+    GeoRelationArgs,
+    GeoWithinArgs,
+    InGeoBoundingBoxArgs
 };

@@ -3,8 +3,12 @@ import { isString, joinList } from '@terascope/utils';
 import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, IsHashArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface IsHashArgs {
+    algo: string;
+}
 
 export type HashConfigAlgorithms =
  | 'md4'

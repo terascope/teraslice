@@ -2,7 +2,7 @@ import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, Column, dataFrameAdapter, DataFrame,
-    functionAdapter, LengthArgs, GetTimezoneOffsetArgs,
+    functionAdapter, IsLengthArgs, GetTimezoneOffsetArgs,
     JoinArgs, EqualsArgs
 } from '../../src';
 
@@ -25,7 +25,7 @@ describe('dynamic args', () => {
             // on the third value, mins is set to 4 which does not pass
             const expectedResults = ['hello', 'bell', undefined];
 
-            function dynamicArgs(index: number): LengthArgs {
+            function dynamicArgs(index: number): IsLengthArgs {
                 return { min: index + 2 };
             }
 
@@ -116,7 +116,7 @@ describe('dynamic args', () => {
                 (str) => ({ [field]: str })
             );
 
-            function dynamicArgs(index: number): LengthArgs {
+            function dynamicArgs(index: number): IsLengthArgs {
                 return { min: index + 2 };
             }
 

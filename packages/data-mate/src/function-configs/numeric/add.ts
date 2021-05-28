@@ -4,9 +4,12 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    AddArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface AddArgs {
+    readonly value: number
+}
 
 function isLargeNumberType(type: FieldType|undefined) {
     if (type == null) return false;

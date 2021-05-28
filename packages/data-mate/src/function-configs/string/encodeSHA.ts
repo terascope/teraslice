@@ -5,15 +5,19 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
-    EncodeSHAConfig
+    FunctionDefinitionCategory
 } from '../interfaces';
 import { cryptoEncode } from './encode-utils';
+
+export interface EncodeSHAArgs {
+    hash?: string;
+    digest?: BinaryToTextEncoding;
+}
 
 const hashDefault = 'sha256';
 const digestDefault: BinaryToTextEncoding = 'hex';
 
-export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
+export const encodeSHAConfig: FieldTransformConfig<EncodeSHAArgs> = {
     name: 'encodeSHA',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

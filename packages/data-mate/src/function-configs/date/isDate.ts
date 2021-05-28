@@ -3,8 +3,12 @@ import { FieldType, DateFormat } from '@terascope/types';
 import { isValidDate, primitiveToString } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, IsDateArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface IsDateArgs {
+    format?: string|DateFormat;
+}
 
 export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
     name: 'isDate',

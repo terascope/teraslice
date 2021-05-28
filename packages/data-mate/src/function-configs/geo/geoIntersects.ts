@@ -1,13 +1,16 @@
 import { geoIntersectsFP, toGeoJSON } from '@terascope/utils';
-import { FieldType, GeoShapeType } from '@terascope/types';
+import { FieldType, GeoShapeType, GeoInput } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample,
-    GeoIntersectsArgs
+    FunctionDefinitionExample
 } from '../interfaces';
+
+export interface GeoIntersectsArgs {
+    value: GeoInput;
+}
 
 const examples: FunctionDefinitionExample<GeoIntersectsArgs>[] = [
     {

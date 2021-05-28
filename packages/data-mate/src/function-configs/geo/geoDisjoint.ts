@@ -1,13 +1,16 @@
 import { geoDisjointFP, toGeoJSON } from '@terascope/utils';
-import { FieldType, GeoShapeType } from '@terascope/types';
+import { FieldType, GeoShapeType, GeoInput } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample,
-    GeoDisjointArgs
+    FunctionDefinitionExample
 } from '../interfaces';
+
+export interface GeoDisjointArgs {
+    value: GeoInput;
+}
 
 const examples: FunctionDefinitionExample<GeoDisjointArgs>[] = [
     {

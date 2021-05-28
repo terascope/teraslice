@@ -2,8 +2,12 @@ import { contains } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, ContainsArgs
+    FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface ContainsArgs {
+    readonly substr: string;
+}
 
 export const containsConfig: FieldValidateConfig<ContainsArgs> = {
     name: 'contains',

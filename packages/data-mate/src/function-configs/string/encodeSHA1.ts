@@ -6,13 +6,16 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
-    EncodeSHA1Config
 } from '../interfaces';
 import { cryptoEncode } from './encode-utils';
 
+export interface EncodeSHA1Args {
+    digest?: BinaryToTextEncoding;
+}
+
 const defaultDigest: BinaryToTextEncoding = 'hex';
 
-export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Config> = {
+export const encodeSHA1Config: FieldTransformConfig<EncodeSHA1Args> = {
     name: 'encodeSHA1',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

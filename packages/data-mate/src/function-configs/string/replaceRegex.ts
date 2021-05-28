@@ -3,8 +3,14 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
-    ReplaceRegexArgs
 } from '../interfaces';
+
+export interface ReplaceRegexArgs {
+    regex: string;
+    replace: string;
+    ignoreCase?: boolean;
+    global?: boolean
+}
 
 const examples: FunctionDefinitionExample<ReplaceRegexArgs>[] = [
     {

@@ -3,8 +3,11 @@ import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-    ISDNCountry
 } from '../interfaces';
+
+export interface IsISDNArgs {
+    country?: string;
+}
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -65,7 +68,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isISDNConfig: FieldValidateConfig<ISDNCountry> = {
+export const isISDNConfig: FieldValidateConfig<IsISDNArgs> = {
     name: 'isISDN',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

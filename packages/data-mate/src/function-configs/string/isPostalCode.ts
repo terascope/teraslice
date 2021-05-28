@@ -4,8 +4,11 @@ import validator from 'validator';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-    PostalCodeLocale
 } from '../interfaces';
+
+export interface IsPostalCodeArgs {
+    locale?: validator.PostalCodeLocale;
+}
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {
@@ -66,7 +69,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isPostalCodeConfig: FieldValidateConfig<PostalCodeLocale> = {
+export const isPostalCodeConfig: FieldValidateConfig<IsPostalCodeArgs> = {
     name: 'isPostalCode',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -87,7 +90,7 @@ export const isPostalCodeConfig: FieldValidateConfig<PostalCodeLocale> = {
         FieldType.Number
     ],
     required_arguments: [],
-    validate_arguments({ locale }: PostalCodeLocale) {
+    validate_arguments({ locale }: IsPostalCodeArgs) {
         if (locale == null || (isString(locale)
             && validator.isPostalCodeLocales.includes(locale))) {
             return;

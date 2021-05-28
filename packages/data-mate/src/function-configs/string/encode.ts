@@ -1,15 +1,20 @@
 import { FieldType } from '@terascope/types';
+import { BinaryToTextEncoding } from 'crypto';
 import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
-    EncodeConfig
 } from '../interfaces';
 import { encodeAny } from './encode-utils';
 
-export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
+export interface EncodeArgs {
+    algo: string;
+    digest?: BinaryToTextEncoding;
+}
+
+export const encodeConfig: FieldTransformConfig<EncodeArgs> = {
     name: 'encode',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
