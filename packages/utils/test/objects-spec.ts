@@ -161,21 +161,29 @@ describe('Objects', () => {
         test.each([
             ['key', { key: 'value', key2: 'value2' }, 'value'],
             [456, { 123: 'value', 456: 'value2' }, 'value2'],
-            ['key', { key1: 'value', key2: 'value2' }, undefined]
+            ['key', { key1: 'value', key2: 'value2' }, undefined],
+            ['foo', 'foo:bar', 'bar'],
+            [123, '123:bar', 'bar'],
+            [789, '123:bar\n456:baz\n789:max', 'max'],
+            [2, '123:bar\n456:baz\n789:max', undefined],
+            [2, 'this is not a properly formated string', undefined],
+            [1, ['deep', 'bob', 'ray', 'value'], 'bob'],
+            [7, ['deep', 'bob', 'ray', 'value'], undefined],
+            ['not a number', ['deep', 'bob', 'ray', 'value'], undefined]
         ])('should return key from a value', (key: any, obj: any, value: any) => {
             expect(lookup(obj)(key)).toEqual(value);
         });
 
-        it('should throw an error if input is a string', () => {
+        it('should throw an error if input is not an object, string or array', () => {
             expect(() => {
-                lookup('not an object')('key');
-            }).toThrowError('input must be an Object Entity, received String');
+                lookup(123456)('key');
+            }).toThrowError('input must be an Object Entity, String, received Number');
         });
 
-        it('should throw an error if input is an array', () => {
+        it('should throw an error if key is not a number or string', () => {
             expect(() => {
-                lookup(['an', 'array'])('example');
-            }).toThrowError('input must be an Object Entity, received Array');
+                lookup(['deep', 'bob', 'ray', 'value'])(true);
+            }).toThrowError('lookup key must be a String or a Number, received Boolean');
         });
     });
 });
