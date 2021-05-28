@@ -76,7 +76,7 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data when compared to the argument has overlap between the two',
+    description: 'Returns the input if it has at least one point in common with the argument value, otherwise returns null',
     create({ args: { value } }) {
         return geoIntersectsFP(value);
     },
@@ -91,7 +91,7 @@ export const geoIntersectsConfig: FieldValidateConfig<GeoIntersectsArgs> = {
     argument_schema: {
         value: {
             type: FieldType.Any,
-            description: 'The geo input used to validate intersection with other geo-like data'
+            description: 'The geo value used to compare with the input geo-entity'
         }
     },
     required_arguments: ['value'],

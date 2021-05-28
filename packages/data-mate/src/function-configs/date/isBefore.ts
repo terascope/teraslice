@@ -10,7 +10,7 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks if the input is before the arg date',
+    description: 'Returns the input if it is before the arg date, otherwise returns null',
     examples: [
         {
             args: { date: '2021-05-10T10:00:00.000Z' },

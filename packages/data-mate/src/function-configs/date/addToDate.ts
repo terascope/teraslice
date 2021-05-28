@@ -15,7 +15,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Add time to a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
+    description: 'Returns the input date added to a date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
         args: { expr: '10h+2m' },
         config: {
@@ -45,7 +45,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         fails: true,
-        output: 'Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
+        output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
     }, {
         args: { expr: '1hr', months: 10 },
         config: {
@@ -108,7 +108,7 @@ For example, \`1h\` or \`1h+2m\``
         const argKeys = Object.keys(args);
 
         if (argKeys.length === 0) {
-            throw new Error('Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
+            throw new Error('Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds');
         }
 
         for (const argKey of argKeys) {

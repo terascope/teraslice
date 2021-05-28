@@ -71,7 +71,7 @@ export const isPostalCodeConfig: FieldValidateConfig<PostalCodeLocale> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a valid postal code',
+    description: 'Returns the input if it is a valid postal code, otherwise returns null.',
     examples,
     create({ args: { locale } }) {
         return (input: unknown) => isPostalCode(input, locale as validator.PostalCodeLocale);
@@ -79,7 +79,7 @@ export const isPostalCodeConfig: FieldValidateConfig<PostalCodeLocale> = {
     argument_schema: {
         locale: {
             type: FieldType.String,
-            description: 'Specify locale to check for postal code, defaults to any if locale is not provided'
+            description: 'Specify the locale to check for valid postal codes in specific regions, defaults to any if locale is not provided'
         }
     },
     accepts: [

@@ -35,7 +35,7 @@ export const isEmptyConfig: FieldValidateConfig<EmptyArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.OBJECT,
-    description: 'Checks to see if input is empty',
+    description: 'Returns the input if it is empty, otherwise returns null.',
     examples,
     accepts: [],
     create({ args: { ignoreWhitespace } }) {

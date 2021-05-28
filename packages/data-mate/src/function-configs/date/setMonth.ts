@@ -12,10 +12,10 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the month of the input month',
+    description: 'Returns the input date with the month set to the args value.',
     examples: [
         {
-            args: { month: 12 },
+            args: { value: 12 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -26,7 +26,7 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { month: 2 },
+            args: { value: 2 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -37,7 +37,7 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { month: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -48,22 +48,22 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { month } }) {
-        return setMonth(month);
+    create({ args: { value } }) {
+        return setMonth(value);
     },
     argument_schema: {
-        month: {
+        value: {
             type: FieldType.Number,
-            description: 'Value to set month to, must be between 1 and 12'
+            description: 'Value to set value to, must be between 1 and 12'
         }
     },
-    validate_arguments: ({ month }) => {
-        if (!isInteger(month)
-            || !inNumberRange(month, { min: 1, max: 12, inclusive: true })) {
-            throw Error('Invalid argument "month", must be an integer between 1 and 12');
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 1, max: 12, inclusive: true })) {
+            throw Error('Invalid argument "value", must be an integer between 1 and 12');
         }
     },
-    required_arguments: ['month'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

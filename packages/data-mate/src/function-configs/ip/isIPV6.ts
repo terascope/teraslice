@@ -48,7 +48,7 @@ export const isIPV6Config: FieldValidateConfig = {
             output: null,
         },
     ],
-    description: 'Checks if the input is a valid ipv6 ip address in hexadecimal separated by colons format',
+    description: 'Returns the input if it is a valid ipv6 ip address in hexadecimal separated by colons format, otherwise returns null.',
     create() { return isIPV6; },
     accepts: [FieldType.String, FieldType.IP],
 };

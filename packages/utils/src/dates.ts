@@ -36,7 +36,7 @@ import {
 import {
     DateFormat,
     ISO8601DateSegment,
-    TimeBetweenFormats,
+    TimeBetweenIntervals,
     DateTuple
 } from '@terascope/types';
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
@@ -415,7 +415,7 @@ export function formatDateValue(
     return toISO8601(value);
 }
 
-const _getDurationFunc = {
+export const getDurationFunc = {
     milliseconds: differenceInMilliseconds,
     seconds: differenceInSeconds,
     minutes: differenceInMinutes,
@@ -438,14 +438,14 @@ const _getDurationFunc = {
 export interface GetTimeBetweenArgs {
     start?: Date | string | number;
     end?: Date | string | number;
-    format: TimeBetweenFormats;
+    interval: TimeBetweenIntervals;
 }
 
 export function getTimeBetween(
     input: unknown,
     args: GetTimeBetweenArgs
 ): string | number {
-    const { format, start, end } = args;
+    const { interval, start, end } = args;
 
     if (start == null && end == null) {
         throw Error('Must provide a start or an end argument');
@@ -471,14 +471,14 @@ export function getTimeBetween(
         throw Error('Could not parse date values into dates');
     }
 
-    if (format === 'ISODuration') {
+    if (interval === 'ISO8601') {
         return formatISODuration(intervalToDuration({
             start: date1,
             end: date2
         }));
     }
 
-    return _getDurationFunc[format](date2, date1);
+    return getDurationFunc[interval](date2, date1);
 }
 
 /**

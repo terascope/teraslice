@@ -12,7 +12,7 @@ export const sqrtConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the square root of a number',
+    description: 'Returns the square root of the input',
     examples: [
         {
             args: {},

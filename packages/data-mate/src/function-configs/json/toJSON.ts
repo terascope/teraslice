@@ -15,7 +15,7 @@ export const toJSONConfig: FieldTransformConfig = {
     name: 'toJSON',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
-    description: 'converts whole input to JSON format',
+    description: 'Converts whole input to JSON format',
     category: FunctionDefinitionCategory.JSON,
     examples: [
         {

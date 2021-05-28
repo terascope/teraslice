@@ -19,7 +19,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Calculate the modulus from the specified value',
+    description: 'Returns the modulus from the input divided by the args value.',
     examples: [
         {
             args: { value: 2 },
@@ -76,7 +76,7 @@ export const modulusConfig: FieldTransformConfig<ModulusArgs> = {
         value: {
             type: FieldType.Number,
             array: false,
-            description: 'How much to modulus'
+            description: 'Value to divide into the input.'
         }
     },
     required_arguments: ['value']

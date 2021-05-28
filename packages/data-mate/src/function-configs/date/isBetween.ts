@@ -10,7 +10,7 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks if the input is before the arg date',
+    description: 'Returns the input if it is between the args start and end dates, otherwise returns null',
     examples: [
         {
             args: { start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' },

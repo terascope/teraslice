@@ -111,7 +111,7 @@ export const isFQDNConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a fully qualified domain name',
+    description: 'Returns the input if it is a fully qualified domain name, otherwise returns null.',
     examples,
     create() { return isFQDN; },
     accepts: [FieldType.String],

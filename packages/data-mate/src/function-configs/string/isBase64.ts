@@ -56,7 +56,7 @@ export const isBase64Config: FieldValidateConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
     examples,
-    description: 'Checks to see if input is a valid base64 string',
+    description: 'Returns the input if it is a valid base64 string, otherwise returns null.',
     create() { return isBase64; },
     accepts: [FieldType.String],
 };

@@ -62,7 +62,7 @@ export const toGeoJSONConfig: FieldTransformConfig = {
             }
         },
     ],
-    description: 'Converts a geo-point or list of geo-points to its geoJSON counterpart as well as make sure any geo-shape input is formatted correctly. If geo-points are provided only a simple geoJSON point or polygon will be made, there is currently no support for multi-polygon construction or polygon/multipolygon with holes',
+    description: 'Converts a geo-point or a list of geo-points to geoJSON. Only supports geoJSON points or simple polygons, there is currently no support for multi-polygons or polygons/ multipolygons with holes',
     create() {
         return (input: unknown) => {
             if (isNil(input)) return null;

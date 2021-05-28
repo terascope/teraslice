@@ -13,7 +13,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Converts a value to a date value, when specifying the format it applies to the input value',
+    description: 'Converts a value to a date value, specify a format to apply it to the input value',
     examples: [{
         args: { format: 'yyyy-MM-dd' },
         config: {

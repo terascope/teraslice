@@ -129,7 +129,7 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.GEO,
     examples,
-    description: 'Validates that geo-like data is completely "within" the argument. The interiors of both geo entities must intersect, and the geo data  must not exceed the bounds of the geo argument',
+    description: 'Returns the input if it is completely within the argument geo-value. The interiors of both geo entities must intersect and the geo data must not exceed the bounds of the geo argument.  Otherwise returns null',
     create({ args: { value } }) {
         return geoWithinFP(value);
     },
@@ -144,7 +144,7 @@ export const geoWithinConfig: FieldValidateConfig<GeoWithinArgs> = {
     argument_schema: {
         value: {
             type: FieldType.Any,
-            description: 'The geo input used to compare to other geo entities'
+            description: 'The geo value used to compare the input value to.'
         }
     },
     required_arguments: ['value'],

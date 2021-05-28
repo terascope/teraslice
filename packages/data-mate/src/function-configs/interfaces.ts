@@ -44,27 +44,27 @@ export interface IsEpochMillisArgs {
 }
 
 export interface SetDateArgs {
-    date: number
+    value: number
 }
 
 export interface SetHoursArgs {
-    hours: number
+    value: number
 }
 
 export interface SetMillisecondsArgs {
-    milliseconds: number
+    value: number
 }
 
 export interface SetMinutesArgs {
-    minutes: number
+    value: number
 }
 
 export interface SetMonthArgs {
-    month: number
+    value: number
 }
 
 export interface SetSecondsArgs {
-    seconds: number
+    value: number
 }
 
 export interface SetTimezoneArgs {
@@ -72,7 +72,7 @@ export interface SetTimezoneArgs {
 }
 
 export interface SetYearArgs {
-    year: number
+    value: number
 }
 
 export interface ToDateArgs {

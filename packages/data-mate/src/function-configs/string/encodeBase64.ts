@@ -13,7 +13,7 @@ export const encodeBase64Config: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts value to a base64 hash',
+    description: 'Returns a base64 hashed version of the input string',
     examples: [
         {
             args: {},

@@ -10,10 +10,10 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the year of the input date',
+    description: 'Returns the input date with the year set to the args value.',
     examples: [
         {
-            args: { year: 2024 },
+            args: { value: 2024 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -24,7 +24,7 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { year: 1984 },
+            args: { value: 1984 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -35,7 +35,7 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { year: 2001 },
+            args: { value: 2001 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -46,21 +46,21 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { year } }) {
-        return setYear(year);
+    create({ args: { value } }) {
+        return setYear(value);
     },
     argument_schema: {
-        year: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set year to, must be an integer'
         }
     },
-    validate_arguments: ({ year }) => {
-        if (!isInteger(year)) {
-            throw Error('Invalid argument "year", must be an integer');
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)) {
+            throw Error('Invalid argument "value", must be an integer');
         }
     },
-    required_arguments: ['year'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type(inputConfig) {
         const { field_config } = inputConfig;

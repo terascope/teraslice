@@ -18,7 +18,7 @@ export const subtractConfig: FieldTransformConfig<SubtractArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Subtract a numeric value',
+    description: 'Returns the result of subtracting the args value from the input value',
     examples: [
         {
             args: { value: 1 },

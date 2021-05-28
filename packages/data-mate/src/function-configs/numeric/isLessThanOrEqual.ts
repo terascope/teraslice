@@ -12,7 +12,7 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Check if a number is less than or equal to the specified value',
+    description: 'Returns the input if it is a number less than or equal to the args value',
     examples: [
         {
             args: { value: 100 },

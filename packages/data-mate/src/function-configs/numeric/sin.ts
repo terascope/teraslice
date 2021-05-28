@@ -12,7 +12,7 @@ export const sinConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the sine of the given number',
+    description: 'Returns the sine of the input value',
     examples: [
         {
             args: {},

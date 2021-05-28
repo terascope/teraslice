@@ -14,7 +14,7 @@ export const getTimezoneOffsetConfig: FieldTransformConfig<GetTimezoneOffsetArgs
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: `Given a date and timezone, it will return the offset from UTC in minutes.
-     This is more accurate than timezoneToOffset as it can better account for day lights saving time`,
+     This is more accurate than timezoneToOffset as it can better account for daylight saving time`,
     examples: [
         {
             args: { timezone: 'Africa/Accra' },

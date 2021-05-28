@@ -70,7 +70,7 @@ export const isPortConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a valid port',
+    description: 'Returns the input it it is a valid TCP or UDP port, otherwise returns null.',
     examples,
     create() { return isPort; },
     accepts: [

@@ -10,7 +10,7 @@ export const isISO8601Config: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number.',
+    description: 'Returns the input if it is a valid ISO-8601 date, otherwise returns null',
     examples: [{
         args: {},
         config: {

@@ -27,7 +27,7 @@ export const addValuesConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Add the values with a given field, this requires an array to function correctly',
+    description: 'Adds the values with a given field, this requires an array to function correctly',
     examples: [
         {
             args: {},

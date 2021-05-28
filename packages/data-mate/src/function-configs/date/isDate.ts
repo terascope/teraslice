@@ -11,7 +11,7 @@ export const isDateConfig: FieldValidateConfig<IsDateArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Checks to see if input is a valid date, if format is provided the format will also be validated',
+    description: 'Returns the input if it is a valid date, if format is provided the format will be applied to the validation.',
     examples: [{
         args: { format: 'yyyy-MM-dd' },
         config: {

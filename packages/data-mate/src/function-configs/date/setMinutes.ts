@@ -12,10 +12,10 @@ export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Set the minutes of the input date',
+    description: 'Returns the input date with the minutes set to the args value.',
     examples: [
         {
-            args: { minutes: 12 },
+            args: { value: 12 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -26,7 +26,7 @@ export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { minutes: 22 },
+            args: { value: 22 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }
@@ -37,7 +37,7 @@ export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { minutes: 1 },
+            args: { value: 1 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -48,22 +48,22 @@ export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
             serialize_output: toISO8601
         }
     ],
-    create({ args: { minutes } }) {
-        return setMinutes(minutes);
+    create({ args: { value } }) {
+        return setMinutes(value);
     },
     argument_schema: {
-        minutes: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set minutes to, must be between 0 and 59'
         }
     },
-    validate_arguments: ({ minutes }) => {
-        if (!isInteger(minutes)
-            || !inNumberRange(minutes, { min: 0, max: 59, inclusive: true })) {
-            throw Error('Invalid argument "minutes", must be an integer between 0 and 59');
+    validate_arguments: ({ value }) => {
+        if (!isInteger(value)
+            || !inNumberRange(value, { min: 0, max: 59, inclusive: true })) {
+            throw Error('Invalid argument "value", must be an integer between 0 and 59');
         }
     },
-    required_arguments: ['minutes'],
+    required_arguments: ['value'],
     accepts: [FieldType.Date, FieldType.String, FieldType.Number],
     output_type({ field_config }) {
         return {

@@ -70,7 +70,7 @@ export const isISDNConfig: FieldValidateConfig<ISDNCountry> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number',
+    description: 'Returns the input if it is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number',
     create({ args: { country } }) {
         return (input: unknown) => isISDN(input, country);
     },

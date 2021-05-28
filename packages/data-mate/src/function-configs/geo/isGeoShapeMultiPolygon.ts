@@ -55,7 +55,7 @@ export const isGeoShapeMultiPolygonConfig: FieldValidateConfig = {
             },
         }
     ],
-    description: 'Checks to see if input is a valid geo-json multi-polygon',
+    description: 'Returns the input if it is a valid geo-json multi-polygon, otherwise returns null',
     create() {
         return isGeoShapeMultiPolygon;
     },

@@ -84,7 +84,7 @@ export const isPhoneNumberLikeConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input looks like a phone number',
+    description: 'A simplified phone number check that returns the input if it has the basic requirements of a phone number, otherwise returns null.  Useful if the phone number\'s country is not known',
     examples,
     create() { return isPhoneNumberLike; },
     accepts: [

@@ -70,14 +70,14 @@ export const isAlphaConfig: FieldValidateConfig<AlphaLocale> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a string composed of only alphabetical characters',
+    description: 'Returns the input if it is a string composed of only alphabetical characters, otherwise returns null.',
     create({ args: { locale } }) {
         return (input: unknown) => isAlpha(input, locale as validator.AlphaLocale);
     },
     argument_schema: {
         locale: {
             type: FieldType.String,
-            description: 'Specify locale to check for valid alphabetical characters, defaults to en-US if not provided'
+            description: 'Specify the locale to check for valid alphabetical characters, defaults to en-US if not provided'
         }
     },
     examples,

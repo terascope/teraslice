@@ -9,7 +9,7 @@ export const isBooleanConfig: FieldValidateConfig = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.BOOLEAN,
-    description: 'Checks to see if input is a boolean',
+    description: 'Returns the input if it is a boolean, otherwise returns null',
     examples: [{
         args: {},
         config: {

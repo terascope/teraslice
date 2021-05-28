@@ -34,7 +34,7 @@ export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
         }
     },
     accepts: [FieldType.String, FieldType.Number],
-    description: 'Converts an integer to an ip address, must provide the version of the returned ip address',
+    description: 'Converts an integer to an ip address, must provide the version of the returned ip address.',
     create({ args: { version } }) {
         return (input: unknown) => intToIP(input, toString(version));
     },

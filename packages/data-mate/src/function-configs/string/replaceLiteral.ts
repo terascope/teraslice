@@ -28,7 +28,7 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Replaces the searched value with the replace value',
+    description: 'Returns a string with the searched value replaced by the replace value',
     examples,
     create({ args: { replace, search } }) {
         return (input: unknown) => replaceFn(input as string, search, replace);
@@ -38,12 +38,12 @@ export const replaceLiteralConfig: FieldTransformConfig<ReplaceLiteralArgs> = {
         search: {
             type: FieldType.String,
             array: false,
-            description: 'The word that will be replaced'
+            description: 'The characters that will be replaced'
         },
         replace: {
             type: FieldType.String,
             array: false,
-            description: 'the value that will replace what is set in search'
+            description: 'The value that will replace what is set in search'
         }
     },
     required_arguments: ['search', 'replace']

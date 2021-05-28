@@ -87,7 +87,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Checks to see if input is a valid mac address',
+    description: 'Returns the input if it is a valid mac address, otherwise returns null.',
     examples,
     create({ args: { delimiter } }) {
         return (input: unknown) => isString(input)
@@ -97,7 +97,7 @@ export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     argument_schema: {
         delimiter: {
             type: FieldType.String,
-            description: `Specify delimiter character for mac address format, may be set to one of ${joinList(delimiterOptions)}`,
+            description: `Specify delimiter character for the mac address format, may be set to one of ${joinList(delimiterOptions)}`,
         }
     },
     required_arguments: [],

@@ -14,7 +14,7 @@ export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Converts a value to a hash using a specified algorithm',
+    description: 'Returns a hashed version of the input string.  The hashing algorithm and digest must be specified in the args.',
     examples: [
         {
             args: { algo: 'sha256' },
@@ -96,12 +96,12 @@ export const encodeConfig: FieldTransformConfig<EncodeConfig> = {
         algo: {
             type: FieldType.String,
             array: false,
-            description: 'Which hashing algorithm to use'
+            description: 'The hashing algorithm applied to the input.'
         },
         digest: {
             type: FieldType.String,
             array: false,
-            description: 'Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex". '
+            description: 'The hash digest applied to the input, may be set to either "base64" or "hex", defaults to "hex". '
             + 'Only used when algorithm is not base64, hex, or url'
         }
     },
