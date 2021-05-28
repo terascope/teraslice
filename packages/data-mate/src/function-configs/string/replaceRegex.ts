@@ -45,7 +45,7 @@ const examples: FunctionDefinitionExample<ReplaceRegexArgs>[] = [
     },
 ];
 
-export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
+export const replaceRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
     name: 'replaceRegex',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -85,10 +85,14 @@ export const replaceLRegexConfig: FieldTransformConfig<ReplaceRegexArgs> = {
             description: 'Options flag for regex to execute as many instances as is found, defaults to false'
         }
     },
-    required_arguments: ['regex', 'replace'],
-    validate_arguments({ regex }) {
+    // cannot check for empty string, which is valid in this case, so we cannot specify replace
+    required_arguments: ['regex'],
+    validate_arguments({ regex, replace }) {
         if (!isString(regex) || isRegExpLike(regex)) {
             throw new Error('Parameters "regex" must be provided and be a valid regex expression');
+        }
+        if (!isString(replace)) {
+            throw new Error('Parameters "replace" must be provided and be a valid string');
         }
     }
 };

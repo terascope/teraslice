@@ -29,7 +29,7 @@ import { isURLConfig } from './isURL';
 import { isUUIDConfig } from './isUUID';
 import { joinConfig, JoinArgs } from './join';
 import { replaceLiteralConfig, ReplaceLiteralArgs } from './replaceLiteral';
-import { replaceLRegexConfig, ReplaceRegexArgs } from './replaceRegex';
+import { replaceRegexConfig, ReplaceRegexArgs } from './replaceRegex';
 import { reverseConfig } from './reverse';
 import { splitConfig, SplitArgs } from './split';
 import { startsWithConfig, StartsWithArgs } from './startsWith';
@@ -79,7 +79,7 @@ export const stringRepository = {
     isUUID: isUUIDConfig,
     join: joinConfig,
     replaceLiteral: replaceLiteralConfig,
-    replaceLRegex: replaceLRegexConfig,
+    replaceRegex: replaceRegexConfig,
     reverse: reverseConfig,
     split: splitConfig,
     startsWith: startsWithConfig,
