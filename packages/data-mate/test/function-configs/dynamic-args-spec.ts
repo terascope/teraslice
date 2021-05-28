@@ -25,7 +25,7 @@ describe('dynamic args', () => {
             // on the third value, mins is set to 4 which does not pass
             const expectedResults = ['hello', 'bell', undefined];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): LengthArgs {
+            function dynamicArgs(index: number): LengthArgs {
                 return { min: index + 2 };
             }
 
@@ -67,7 +67,7 @@ describe('dynamic args', () => {
 
             const timezones = ['Africa/Accra', 'America/Anchorage', 'Asia/Istanbul'];
 
-            function dynamicArgs(index: number, _column: Column<unknown>): GetTimezoneOffsetArgs {
+            function dynamicArgs(index: number): GetTimezoneOffsetArgs {
                 const timezone = timezones[index];
                 if (timezone == null) throw new Error('not enough timezone args');
 
@@ -116,7 +116,7 @@ describe('dynamic args', () => {
                 (str) => ({ [field]: str })
             );
 
-            function dynamicArgs(index: number, _column: unknown[]): LengthArgs {
+            function dynamicArgs(index: number): LengthArgs {
                 return { min: index + 2 };
             }
 
@@ -153,7 +153,7 @@ describe('dynamic args', () => {
 
             const argValues = ['hello', 'hello', 'sugar'];
 
-            function dynamicArgs(index: number, _column: unknown[]): EqualsArgs {
+            function dynamicArgs(index: number): EqualsArgs {
                 const value = argValues[index];
                 if (value == null) throw new Error('not enough argValues for equals');
 
@@ -195,7 +195,7 @@ describe('dynamic args', () => {
 
             const timezones = ['Africa/Accra', 'America/Anchorage', 'Asia/Istanbul'];
 
-            function dynamicArgs(index: number, _column: unknown[]): GetTimezoneOffsetArgs {
+            function dynamicArgs(index: number): GetTimezoneOffsetArgs {
                 const timezone = timezones[index];
                 if (timezone == null) throw new Error('not enough timezone args');
 
@@ -235,7 +235,7 @@ describe('dynamic args', () => {
 
             const delimiters = ['', ' & '];
 
-            function dynamicArgs(index: number, _column: unknown[]): JoinArgs {
+            function dynamicArgs(index: number): JoinArgs {
                 const delimiter = delimiters[index];
                 if (delimiter == null) throw new Error('not enough delimiter args');
 

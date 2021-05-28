@@ -85,7 +85,7 @@ function _fieldValidationRowDynamic<T>(
     const results: Record<string, unknown>[] = [];
 
     for (let i = 0; i < input.length; i++) {
-        const newArgs = configs.args(i, configs.parent) as T;
+        const newArgs = configs.args(i) as T;
         validateFunctionArgs(fnDef, newArgs);
 
         const fnConfig: FunctionContext<T> = {

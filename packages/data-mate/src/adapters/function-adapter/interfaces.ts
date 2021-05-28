@@ -6,7 +6,7 @@ export interface FunctionAdapterOptions<T extends Record<string, any>> {
      * Required with using the data field config
     */
     readonly field?: string,
-    readonly args?: T | ((index: number, column: unknown[]) => T),
+    readonly args?: T | ((index: number) => T),
     readonly config?: DataTypeConfig;
     readonly preserveNulls?: boolean;
     readonly preserveEmptyObjects?: boolean;

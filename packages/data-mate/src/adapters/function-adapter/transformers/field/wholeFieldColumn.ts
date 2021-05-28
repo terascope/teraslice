@@ -25,7 +25,7 @@ export function wholeFieldTransformColumnExecution<
             } as DynamicFunctionAdapterContext<T>;
 
             input.forEach((value: unknown, index: number) => {
-                const newArgs = dynamicContext.args(index, input) as T;
+                const newArgs = dynamicContext.args(index) as T;
                 validateFunctionArgs(fnDef, newArgs);
 
                 const fnConfig: FunctionContext<T> = {

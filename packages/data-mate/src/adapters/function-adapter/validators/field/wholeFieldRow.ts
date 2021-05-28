@@ -88,7 +88,7 @@ function _wholeFieldValidationRowDynamic<T>(
             throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
         }
 
-        const newArgs = configs.args(i, configs.parent) as T;
+        const newArgs = configs.args(i) as T;
         validateFunctionArgs(fnDef, newArgs);
 
         const fnConfig: FunctionContext<T> = {

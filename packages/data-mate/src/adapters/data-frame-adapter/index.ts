@@ -16,7 +16,7 @@ import { Builder } from '../../builder';
 import { WritableData } from '../../core';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
-    args?: T | ((index: number, column: Column<unknown>) => T),
+    args?: T | ((index: number) => T),
     field?: string;
 }
 
@@ -52,7 +52,7 @@ function transformColumnData<T extends Record<string, any>>(
 
     let outputConfig: DataTypeFieldAndChildren;
 
-    const args = isFunction(options.args) ? options.args(0, column) : options.args as T;
+    const args = isFunction(options.args) ? options.args(0) : options.args as T;
 
     if (fnDef.output_type) {
         outputConfig = fnDef.output_type(
@@ -142,7 +142,7 @@ function dynamicValidatorFN<T>(
     context: DynamicFrameFunctionContext<T>
 ) {
     return function _dynamicValidatorFN(index: number) {
-        const args = context.args(index, context.parent);
+        const args = context.args(index);
 
         validateFunctionArgs(fnDef, args);
 
@@ -161,7 +161,7 @@ function dynamicTransformerFN<T>(
     context: DynamicFrameFunctionContext<T>
 ) {
     return function _dynamicTransformerFN(index: number) {
-        const args = context.args(index, context.parent);
+        const args = context.args(index);
 
         validateFunctionArgs(fnDef, args);
 

@@ -26,7 +26,7 @@ export function recordValidationExecution<
                     throw new Error(`Invalid record ${JSON.stringify(clone)}, expected an array of simple objects or data-entities`);
                 }
 
-                const newArgs = configs.args(i, input) as K;
+                const newArgs = configs.args(i) as K;
                 validateFunctionArgs(fnDef, newArgs);
 
                 const fnConfig: FunctionContext<K> = {

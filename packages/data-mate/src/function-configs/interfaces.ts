@@ -439,21 +439,21 @@ export interface FunctionContext<T extends Record<string, any> = Record<string, 
 export interface DynamicFrameFunctionContext<
     T extends Record<string, any> = Record<string, unknown>
 > {
-    readonly args: (index: number, column: Column<unknown>) => T,
+    readonly args: (index: number) => T,
     readonly inputConfig?: DataTypeFieldAndChildren,
     readonly outputConfig?: DataTypeFieldAndChildren,
     readonly parent: Column<unknown>
 }
 
 export interface DynamicFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: (index: number, column: unknown[]) => T,
+    readonly args: (index: number) => T,
     readonly inputConfig?: DataTypeFieldAndChildren,
     readonly outputConfig?: DataTypeFieldAndChildren,
     readonly parent: unknown[]
 }
 
 export interface InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
-    readonly args: T | ((index: number, column: unknown[]) => T),
+    readonly args: T | ((index: number) => T),
     readonly inputConfig?: DataTypeFieldAndChildren,
     readonly preserveNulls: boolean,
     readonly preserveEmptyObjects: boolean,
