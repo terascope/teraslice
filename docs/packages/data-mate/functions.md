@@ -9,7 +9,7 @@ sidebar_label: Functions
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a boolean
+> Returns the input if it is a boolean, otherwise returns null
 
 #### Examples
 
@@ -37,7 +37,7 @@ false => isBoolean() // outputs false
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is loosely like a boolean, these values should be compatible with toBoolean
+> Returns the input if it can be converted to a boolean, otherwise returns null
 
 #### Examples
 
@@ -65,7 +65,25 @@ false => isBoolean() // outputs false
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a truthy or falsy value to boolean
+> Converts the input into a boolean and returns the boolean value
+
+#### Examples
+
+```ts
+"TRUE" => toBoolean() // outputs true
+```
+
+```ts
+1 => toBoolean() // outputs true
+```
+
+```ts
+0 => toBoolean() // outputs false
+```
+
+```ts
+null => toBoolean() // outputs null
+```
 
 ## CATEGORY: Geo
 
@@ -73,11 +91,11 @@ false => isBoolean() // outputs false
 
 **Type:** `FIELD_VALIDATION`
 
-> Validates that geo-like data completely "contains" the value argument. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the geo data being compared
+> Returns the input if it contains the value argument, otherwise returns null. The interiors of both geo entities must intersect, and the argument geo-entity must not exceed the bounds of the input geo-entity
 
 #### Arguments
 
- - **value**: (required) `Any` - The geo input that must be "contained" by other geo-like data
+ - **value**: (required) `Any` - The geo value used to check if it is contained by the input
 
 #### Accepts
 
@@ -115,14 +133,14 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 **Type:** `FIELD_VALIDATION`
 **Aliases:** `geoDistance`
 
-> Checks to see if input geo-point is within range of the point and distance values provided
+> Returns the input if it's distance to the args point is less then or equal to the args distance
 
 #### Arguments
 
- - **point**: (required) `Any` - The geo-point used to compare to other points
+ - **point**: (required) `Any` - The geo-point used as the center of the geo circle
 
- - **distance**: (required) `String` - The range from the point that will provide a positive result.
-              It combines the number as well as the unit of measurement (ie 110km, 20in, 100yards).
+ - **distance**: (required) `String` - Value of the radius of the geo-circle.
+              It combines the number and the unit of measurement (ie 110km, 20in, 100yards).
                 Possible units are as follows: mi,  miles,  mile,  NM,  nmi,  nauticalmile,  nauticalmiles,  in,  inch,  inches,  yd,  yard,  yards,  m,  meter,  meters,  km,  kilometer,  kilometers,  mm,  millimeter,  millimeters,  cm,  centimeter,  centimeters,  ft and feet
 
 #### Accepts
@@ -148,11 +166,11 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Validates that geo-like data does not have any intersection (overlap) with the geoInput argument
+> Returns the input if it does not have any intersection (overlap) with the argument value, otherwise returns null
 
 #### Arguments
 
- - **value**: (required) `Any` - The geo input used to validate that no intersection exists with other geo-like data
+ - **value**: (required) `Any` - The geo value used to validate that no intersection exists with the input geo-entity
 
 #### Accepts
 
@@ -185,11 +203,11 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Validates that geo-like data when compared to the argument has overlap between the two
+> Returns the input if it has at least one point in common with the argument value, otherwise returns null
 
 #### Arguments
 
- - **value**: (required) `Any` - The geo input used to validate intersection with other geo-like data
+ - **value**: (required) `Any` - The geo value used to compare with the input geo-entity
 
 #### Accepts
 
@@ -218,13 +236,13 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Compares geo inputs to any geo-like data based off the relation specified (defaults to "within"
+> Returns the input if it relates, as specified in the relation argument, to the argument value (defaults to "within"), otherwise returns null
 
 #### Arguments
 
- - **value**: (required) `Any` - The geo input used to compare to other geo entities
+ - **value**: (required) `Any` - The geo value used to compare to the input geo-entity
 
- - **relation**:  `String` - How the geo input should relate the data, defaults to "within" : intersects,  disjoint,  within and contains
+ - **relation**:  `String` - How the geo input should relate the argument value, defaults to "within" : intersects,  disjoint,  within and contains
 
 #### Accepts
 
@@ -265,11 +283,11 @@ type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => 
 
 **Type:** `FIELD_VALIDATION`
 
-> Validates that geo-like data is completely "within" the argument. The interiors of both geo entities must intersect, and the geo data  must not exceed the bounds of the geo argument
+> Returns the input if it is completely within the argument geo-value. The interiors of both geo entities must intersect and the geo data must not exceed the bounds of the geo argument.  Otherwise returns null
 
 #### Arguments
 
- - **value**: (required) `Any` - The geo input used to compare to other geo entities
+ - **value**: (required) `Any` - The geo value used to compare the input value to
 
 #### Accepts
 
@@ -306,11 +324,11 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if a geo input contains the given point
+> Returns the input if it contains the geo-point, otherwise returns null
 
 #### Arguments
 
- - **point**: (required) `Any` - The point used to see if it is within the given geo-shape, if geo-shape is a point, it checks if they are the same
+ - **point**: (required) `Any` - The point used to see if it is within the input geo-shape. If the input geo-shape is a point, it checks if they are the same
 
 #### Accepts
 
@@ -330,12 +348,12 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 type: "Polygon", coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]], [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]] => geoContainsPoint(point: "15, 15") // outputs null
 ```
 
-This verifies that point is within a polygon with holes
+Point is within a polygon with holes
 ```ts
 type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]]
 ```
 
-This verifies that point can match against a geo-shape point
+Point can match against a geo-shape point
 ```ts
 type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // outputs type: "Point", coordinates: [15, 15]
 ```
@@ -345,7 +363,7 @@ type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // out
 **Type:** `FIELD_VALIDATION`
 **Aliases:** `geoBox`
 
-> Checks to see if input is within the geo bounding-box
+> Returns the input if it is within the geo bounding box, otherwise returns null
 
 #### Arguments
 
@@ -380,7 +398,7 @@ type: "Point", coordinates: [-112, 33] => inGeoBoundingBox(top_left: "33.906320,
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if value is a GeoJSON object
+> Returns the input if it is a GeoJSON object, otherwise returns null
 
 #### Accepts
 
@@ -413,7 +431,7 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if value is parsable to geo-point
+> Returns the input if it is parsable to a geo-point, otherwise returns null
 
 #### Examples
 
@@ -441,7 +459,7 @@ latitude: 60, longitude: 40 => isGeoPoint() // outputs latitude: 60, longitude: 
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid geo-json multi-polygon
+> Returns the input if it is a valid geo-json multi-polygon, otherwise returns null
 
 #### Accepts
 
@@ -466,7 +484,7 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid geo-json point
+> Returns the input if it is a valid geo-json point, otherwise returns null
 
 #### Accepts
 
@@ -491,7 +509,7 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid geo-json polygon
+> Return the input if it is a valid geo-json polygon, otherwise returns null
 
 #### Accepts
 
@@ -516,7 +534,7 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a geo-point or list of geo-points to its geoJSON counterpart as well as make sure any geo-shape input is formatted correctly. If geo-points are provided only a simple geoJSON point or polygon will be made, there is currently no support for multi-polygon construction or polygon/multipolygon with holes
+> Converts a geo-point or a list of geo-points to geoJSON. Only supports geoJSON points or simple polygons, there is currently no support for multi-polygons or polygons/ multipolygons with holes
 
 #### Accepts
 
@@ -545,7 +563,7 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a value to a geo-point
+> Converts the input to a geo-point
 
 #### Accepts
 
@@ -580,7 +598,7 @@ latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
 
 **Type:** `FIELD_TRANSFORM`
 
-> Parses a JSON string, constructing the value or object described by the string
+> Parses a JSON string and returns the value or object according to the arg options
 
 #### Arguments
 
@@ -588,14 +606,13 @@ latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
 
  - **array**:  `Boolean` - Indicates whether the field is an array
 
- - **description**:  `Text` - A new description for the field
+ - **description**:  `Text` - Set the description for the field
 
- - **locale**:  `String` - Specify the locale for the field (only compatible with some field types).
-Must be represented in a Language Tags (BCP 47)
+ - **locale**:  `String` - Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag
 
- - **indexed**:  `Boolean` - Specifies whether the field is index in elasticsearch (Only type Object currently support this)
+ - **indexed**:  `Boolean` - Specifies whether the field is indexed in elasticsearch (Only type Object currently support this)
 
- - **format**:  `String` - The format for the field. Currently only Date field support it
+ - **format**:  `String` - The format for the field. Currently only supported by Date fields
 
  - **is_primary_date**:  `Boolean` - Used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm
 
@@ -611,7 +628,7 @@ Must be represented in a Language Tags (BCP 47)
 
 **Type:** `FIELD_TRANSFORM`
 
-> Replace missing values in a column with a constant value
+> Replaces missing values in a column with a constant value
 
 #### Arguments
 
@@ -657,7 +674,7 @@ bigNum: 278218429446951548637196401 => toJSON() // outputs "{"bigNum":"278218429
 
 **Type:** `FIELD_TRANSFORM`
 
-> Add time to a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
+> Returns the input date added to a date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
 
 #### Arguments
 
@@ -695,7 +712,7 @@ For example, `1h` or `1h+2m`
 ```
 
 ```ts
-"2019-10-22T22:00:00.000Z" => addToDate() // throws Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
+"2019-10-22T22:00:00.000Z" => addToDate() // throws Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
 ```
 
 ```ts
@@ -706,13 +723,13 @@ For example, `1h` or `1h+2m`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a date value to formatted date string, when specifying the format it applies to the output value
+> Converts a date value to a formatted date string.  Can specify the format with args to format the output value
 
 #### Arguments
 
  - **format**:  `String` - When the value is a string, this indicates the date string format.
 See https://date-fns.org/v2.16.1/docs/parse for more info.
-Default: iso_8601 for strings and epoch_millis for number
+Default: iso_8601 for strings and epoch_millis for numbers
 
 #### Accepts
 
@@ -742,7 +759,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the day of the month of the given date in UTC Time
+> Returns the day of the month of the input date in UTC Time
 
 #### Accepts
 
@@ -772,7 +789,7 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outpu
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hours of the given date in UTC Time
+> Returns the hours of the input date in UTC Time
 
 #### Accepts
 
@@ -802,7 +819,7 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outp
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the milliseconds of the given date
+> Returns the milliseconds of the input date
 
 #### Accepts
 
@@ -828,7 +845,7 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() 
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the minutes of the given date
+> Returns the minutes of the input date in UTC time
 
 #### Accepts
 
@@ -854,7 +871,7 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // ou
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the month of the given date in UTC Time
+> Returns the month of the input date in UTC Time
 
 #### Accepts
 
@@ -884,7 +901,7 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outp
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the seconds of the given date
+> Returns the seconds of the input date
 
 #### Accepts
 
@@ -910,15 +927,15 @@ Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // ou
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns time duration between input and start or end time.  Returns the duration as a number or in the ISO 8601 duration format
+> Returns the time duration between the input value and start or end arg.  Can also select the interval and format with the args interval option
 
 #### Arguments
 
- - **start**:  `Date` - Start time of time range, if start is after input will return a negative number
+ - **start**:  `Date` - Start time of time range, if start is after the input it will return a negative number
 
- - **end**:  `Date` - End time of time range, if provided end is after input the return value will be negative
+ - **end**:  `Date` - End time of time range, if end is before the input it will return a negative number
 
- - **format**: (required) `String` - The format of the return value
+ - **interval**: (required) `String` - The interval of the return value.  Accepts milliseconds, seconds, minutes, hours, days, calendarDays, businessDays, weeks, calendarWeeks, months, calendarMonths, quarters, calendarQuarters, years, calendarYears, calendarISOWeekYears and ISOWeekYears or use ISO8601 to get the return value in ISO-8601 duration format, see https://www.digi.com/resources/documentation/digidocs/90001437-13/reference/r_iso_8601_duration_format.htm
 
 #### Accepts
 
@@ -929,15 +946,19 @@ Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // ou
 #### Examples
 
 ```ts
-Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(start: "2021-05-10T10:00:00.000Z", format: "milliseconds") // outputs 1000
+Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(start: "2021-05-10T10:00:00.000Z", interval: "milliseconds") // outputs 1000
 ```
 
 ```ts
-"2021-05-09T10:00:00.000Z" => getTimeBetween(end: "2021-05-10T10:00:00.000Z", format: "days") // outputs 1
+"2021-05-09T10:00:00.000Z" => getTimeBetween(end: "2021-05-10T10:00:00.000Z", interval: "days") // outputs 1
 ```
 
 ```ts
-1620764440001 => getTimeBetween(end: 1620764441001, format: "seconds") // outputs 1
+1620764440001 => getTimeBetween(end: 1620764441001, interval: "seconds") // outputs 1
+```
+
+```ts
+"2021-05-10T10:00:00.000Z" => getTimeBetween(end: "2023-01-09T18:19:23.132Z", interval: "ISO8601") // outputs "P1Y7M30DT8H19M23S"
 ```
 
 ### `getTimezoneOffset`
@@ -945,7 +966,7 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(sta
 **Type:** `FIELD_TRANSFORM`
 
 > Given a date and timezone, it will return the offset from UTC in minutes.
->     This is more accurate than timezoneToOffset as it can better account for day lights saving time
+>     This is more accurate than timezoneToOffset as it can better account for daylight saving time
 
 #### Arguments
 
@@ -983,7 +1004,7 @@ Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the year of the given date in UTC Time
+> Returns the year of the input date in UTC Time
 
 #### Accepts
 
@@ -1013,7 +1034,7 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outpu
 
 **Type:** `FIELD_TRANSFORM`
 
-> Takes in a geo point like entity and returns the timezone of its location
+> Returns the timezone of a geo point's location
 
 #### Accepts
 
@@ -1047,11 +1068,11 @@ lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Eur
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the day of the month of the input date
+> Returns the input date with the day of the month set to the args value
 
 #### Arguments
 
- - **date**: (required) `Number` - Value to set day of the month to, must be between 1 and 31
+ - **value**: (required) `Number` - Value to set day of the month to, must be between 1 and 31
 
 #### Accepts
 
@@ -1062,26 +1083,26 @@ lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Eur
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setDate(date: 12) // outputs "2021-05-12T20:45:30.000Z"
+"2021-05-14T20:45:30.000Z" => setDate(value: 12) // outputs "2021-05-12T20:45:30.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(date: 22) // outputs "2021-05-22T20:45:30.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(value: 22) // outputs "2021-05-22T20:45:30.091Z"
 ```
 
 ```ts
-1715472000000 => setDate(date: 1) // outputs "2024-05-01T00:00:00.000Z"
+1715472000000 => setDate(value: 1) // outputs "2024-05-01T00:00:00.000Z"
 ```
 
 ### `setHours`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the hours of the input date
+> Returns the input date with the hours set to the args value
 
 #### Arguments
 
- - **hours**: (required) `Number` - Value to set hours to, must be between 0 and 23
+ - **hours**:  `Number` - Value to set hours to, must be between 0 and 23
 
 #### Accepts
 
@@ -1092,26 +1113,26 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(date: 22) 
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setHours(hours: 12) // outputs "2021-05-14T12:45:30.000Z"
+"2021-05-14T20:45:30.000Z" => setHours(value: 12) // outputs "2021-05-14T12:45:30.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(hours: 22) // outputs "2021-05-14T22:45:30.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(value: 22) // outputs "2021-05-14T22:45:30.091Z"
 ```
 
 ```ts
-1715472000000 => setHours(hours: 1) // outputs "2024-05-12T01:00:00.000Z"
+1715472000000 => setHours(value: 1) // outputs "2024-05-12T01:00:00.000Z"
 ```
 
 ### `setMilliseconds`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the milliseconds of the input date
+> Returns the input date with the milliseconds set to the args value
 
 #### Arguments
 
- - **milliseconds**: (required) `Number` - Value to set milliseconds to, must be between 0 and 999
+ - **value**: (required) `Number` - Value to set milliseconds to, must be between 0 and 999
 
 #### Accepts
 
@@ -1122,26 +1143,26 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(hours: 22
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setMilliseconds(milliseconds: 392) // outputs "2021-05-14T20:45:30.392Z"
+"2021-05-14T20:45:30.000Z" => setMilliseconds(value: 392) // outputs "2021-05-14T20:45:30.392Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(milliseconds: 483) // outputs "2021-05-14T20:45:30.483Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(value: 483) // outputs "2021-05-14T20:45:30.483Z"
 ```
 
 ```ts
-1715472000000 => setMilliseconds(milliseconds: 1) // outputs "2024-05-12T00:00:00.001Z"
+1715472000000 => setMilliseconds(value: 1) // outputs "2024-05-12T00:00:00.001Z"
 ```
 
 ### `setMinutes`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the minutes of the input date
+> Returns the input date with the minutes set to the args value
 
 #### Arguments
 
- - **minutes**: (required) `Number` - Value to set minutes to, must be between 0 and 59
+ - **value**: (required) `Number` - Value to set minutes to, must be between 0 and 59
 
 #### Accepts
 
@@ -1152,26 +1173,26 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(mi
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setMinutes(minutes: 12) // outputs "2021-05-14T20:12:30.000Z"
+"2021-05-14T20:45:30.000Z" => setMinutes(value: 12) // outputs "2021-05-14T20:12:30.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(minutes: 22) // outputs "2021-05-14T20:22:30.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(value: 22) // outputs "2021-05-14T20:22:30.091Z"
 ```
 
 ```ts
-1715472000000 => setMinutes(minutes: 1) // outputs "2024-05-12T00:01:00.000Z"
+1715472000000 => setMinutes(value: 1) // outputs "2024-05-12T00:01:00.000Z"
 ```
 
 ### `setMonth`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the month of the input month
+> Returns the input date with the month set to the args value
 
 #### Arguments
 
- - **month**: (required) `Number` - Value to set month to, must be between 1 and 12
+ - **value**: (required) `Number` - Value to set value to, must be between 1 and 12
 
 #### Accepts
 
@@ -1182,26 +1203,26 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(minutes
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setMonth(month: 12) // outputs "2021-12-14T20:45:30.000Z"
+"2021-05-14T20:45:30.000Z" => setMonth(value: 12) // outputs "2021-12-14T20:45:30.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(month: 2) // outputs "2021-02-14T20:45:30.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(value: 2) // outputs "2021-02-14T20:45:30.091Z"
 ```
 
 ```ts
-1715472000000 => setMonth(month: 1) // outputs "2024-01-12T00:00:00.000Z"
+1715472000000 => setMonth(value: 1) // outputs "2024-01-12T00:00:00.000Z"
 ```
 
 ### `setSeconds`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the seconds of the input date
+> Returns the input date with the seconds set to the args value
 
 #### Arguments
 
- - **seconds**: (required) `Number` - Value to set seconds to, must be between 0 and 59
+ - **value**: (required) `Number` - Value to set seconds to, must be between 0 and 59
 
 #### Accepts
 
@@ -1212,26 +1233,26 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(month: 2)
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setSeconds(seconds: 12) // outputs "2021-05-14T20:45:12.000Z"
+"2021-05-14T20:45:30.000Z" => setSeconds(value: 12) // outputs "2021-05-14T20:45:12.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds: 22) // outputs "2021-05-14T20:45:22.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(value: 22) // outputs "2021-05-14T20:45:22.091Z"
 ```
 
 ```ts
-1715472000000 => setSeconds(seconds: 1) // outputs "2024-05-12T00:00:01.000Z"
+1715472000000 => setSeconds(value: 1) // outputs "2024-05-12T00:00:01.000Z"
 ```
 
 ### `setTimezone`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the timezone on for the date value
+> Returns the input date with the timezone set to the args value
 
 #### Arguments
 
- - **timezone**: (required) `Any` - Value to set day of the month to, must be between 1 and 31
+ - **timezone**: (required) `Any` - Value to set timezone to in minutes or timezone name.  Offset must be between -1440 and 1440
 
 #### Accepts
 
@@ -1253,11 +1274,11 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds
 
 **Type:** `FIELD_TRANSFORM`
 
-> Set the year of the input date
+> Returns the input date with the year set to the args value
 
 #### Arguments
 
- - **year**: (required) `Number` - Value to set year to, must be an integer
+ - **value**: (required) `Number` - Value to set year to, must be an integer
 
 #### Accepts
 
@@ -1268,43 +1289,43 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(seconds
 #### Examples
 
 ```ts
-"2021-05-14T20:45:30.000Z" => setYear(year: 2024) // outputs "2024-05-14T20:45:30.000Z"
+"2021-05-14T20:45:30.000Z" => setYear(value: 2024) // outputs "2024-05-14T20:45:30.000Z"
 ```
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(year: 1984) // outputs "1984-05-14T20:45:30.091Z"
+Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(value: 1984) // outputs "1984-05-14T20:45:30.091Z"
 ```
 
 ```ts
-1715472000000 => setYear(year: 2001) // outputs "2001-05-12T00:00:00.000Z"
+1715472000000 => setYear(value: 2001) // outputs "2001-05-12T00:00:00.000Z"
 ```
 
 ### `subtractFromDate`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Subtract time from a date expression or specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
+> Returns the input date minus the date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds
 
 #### Arguments
 
  - **expr**:  `String` - The date math expression used to subtract from the input date.
 For example, `1h` or `1h+2m`
 
- - **years**:  `Integer` - The number of years from subtract from the date. This cannot be specified with expr
+ - **years**:  `Integer` - The number of years to subtract from the date. This cannot be specified with expr
 
- - **months**:  `Integer` - The number of months from subtract from the date. This cannot be specified with expr
+ - **months**:  `Integer` - The number of months to subtract from the date. This cannot be specified with expr
 
- - **weeks**:  `Integer` - The number of weeks from subtract from the date. This cannot be specified with expr
+ - **weeks**:  `Integer` - The number of weeks to subtract from the date. This cannot be specified with expr
 
- - **days**:  `Integer` - The number of days from subtract from the date. This cannot be specified with expr
+ - **days**:  `Integer` - The number of days to subtract from the date. This cannot be specified with expr
 
- - **hours**:  `Integer` - The number of hours from subtract from the date. This cannot be specified with expr
+ - **hours**:  `Integer` - The number of hours to subtract from the date. This cannot be specified with expr
 
- - **minutes**:  `Integer` - The number of minutes from subtract from the date. This cannot be specified with expr
+ - **minutes**:  `Integer` - The number of minutes to subtract from the date. This cannot be specified with expr
 
- - **seconds**:  `Integer` - The number of seconds from subtract from the date. This cannot be specified with expr
+ - **seconds**:  `Integer` - The number of seconds to subtract from the date. This cannot be specified with expr
 
- - **milliseconds**:  `Integer` - The number of milliseconds from subtract from the date. This cannot be specified with expr
+ - **milliseconds**:  `Integer` - The number of milliseconds to subtract from the date. This cannot be specified with expr
 
 #### Accepts
 
@@ -1321,7 +1342,7 @@ For example, `1h` or `1h+2m`
 ```
 
 ```ts
-"2019-10-22T22:00:00.000Z" => subtractFromDate() // throws Expected at least either expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
+"2019-10-22T22:00:00.000Z" => subtractFromDate() // throws Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
 ```
 
 ```ts
@@ -1334,7 +1355,7 @@ For example, `1h` or `1h+2m`
 
 > Given a timezone, it will return the offset from UTC in minutes.
 >     This uses current server time as the reference for a date, so results may vary
->     depending on daylight savings time adjustments
+>     depending on daylight saving time adjustments
 
 #### Accepts
 
@@ -1362,7 +1383,7 @@ For example, `1h` or `1h+2m`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a value to a date value, when specifying the format it applies to the input value
+> Converts a value to a date value, specify a format to apply it to the input value
 
 #### Arguments
 
@@ -1456,7 +1477,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is after the arg date
+> Returns the input if it is after the arg date, otherwise returns null
 
 #### Arguments
 
@@ -1490,7 +1511,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is before the arg date
+> Returns the input if it is before the arg date, otherwise returns null
 
 #### Arguments
 
@@ -1524,7 +1545,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is before the arg date
+> Returns the input if it is between the args start and end dates, otherwise returns null
 
 #### Arguments
 
@@ -1560,7 +1581,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid date, if format is provided the format will also be validated
+> Returns the input if it is a valid date, if format is provided the format will be applied to the validation
 
 #### Arguments
 
@@ -1597,7 +1618,7 @@ Default: iso_8601 for strings and epoch_millis for number
 **Type:** `FIELD_VALIDATION`
 **Aliases:** `isUnixTime`
 
-> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number
+> Returns the input if it is a valid epoch timestamp. Accuracy is not guaranteed since any number could be a valid epoch timestamp
 
 #### Arguments
 
@@ -1633,7 +1654,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since it is just a number
+> Returns the input if it is a valid epoch timestamp (in milliseconds). Accuracy is not guaranteed since any number could be a valid epoch timestamp
 
 #### Arguments
 
@@ -1669,7 +1690,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Friday
+> Returns the given date if it is on a Friday, otherwise returns null
 
 #### Accepts
 
@@ -1691,7 +1712,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is in the future
+> Returns the the input if it is in the future, otherwise returns null
 
 #### Accepts
 
@@ -1713,7 +1734,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid epoch timestamp. Accuracy is not guaranteed since it is just a number
+> Returns the input if it is a valid ISO-8601 date, otherwise returns null
 
 #### Accepts
 
@@ -1735,7 +1756,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is in a leap year
+> Returns the the input if it is in a leap year, otherwise returns null
 
 #### Accepts
 
@@ -1757,7 +1778,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Monday
+> Returns the the input if it is on a Monday
 
 #### Accepts
 
@@ -1779,7 +1800,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is in the past
+> Returns the input if it is in the past, otherwise returns null
 
 #### Accepts
 
@@ -1801,7 +1822,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Saturday
+> Returns the input if it is on a Saturday, otherwise returns null
 
 #### Accepts
 
@@ -1823,7 +1844,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Sunday
+> Returns the input if it is on a Sunday, otherwise returns null
 
 #### Accepts
 
@@ -1845,7 +1866,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Thursday
+> Returns the input if it is on a Thursday, otherwise returns null
 
 #### Accepts
 
@@ -1867,7 +1888,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on the same day (utc-time)
+> Returns the input if it is on the same day (utc-time), otherwise returns null
 
 #### Accepts
 
@@ -1879,7 +1900,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 This input is created at execution time
 ```ts
-"2021-05-25T17:18:36.410Z" => isToday() // outputs "2021-05-25T17:18:36.410Z"
+"2021-05-27T22:17:23.106Z" => isToday() // outputs "2021-05-27T22:17:23.106Z"
 ```
 
 ```ts
@@ -1890,7 +1911,7 @@ This input is created at execution time
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on the next day (utc-time)
+> Returns the input if it is on the next day (utc-time), otherwise returns null
 
 #### Accepts
 
@@ -1902,19 +1923,19 @@ This input is created at execution time
 
 Represents current time
 ```ts
-"2021-05-25T17:18:36.410Z" => isTomorrow() // outputs null
+"2021-05-27T22:17:23.107Z" => isTomorrow() // outputs null
 ```
 
 Represents day after current time
 ```ts
-"2021-05-26T17:18:36.410Z" => isTomorrow() // outputs "2021-05-26T17:18:36.410Z"
+"2021-05-28T22:17:23.107Z" => isTomorrow() // outputs "2021-05-28T22:17:23.107Z"
 ```
 
 ### `isTuesday`
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Tuesday
+> Returns the input if it is on a Tuesday, otherwise returns null
 
 #### Accepts
 
@@ -1936,7 +1957,7 @@ Represents day after current time
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Wednesday
+> Returns the input if it is on a Wednesday, otherwise returns null
 
 #### Accepts
 
@@ -1958,7 +1979,7 @@ Represents day after current time
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Weekday (Monday-Friday)
+> Returns the input if it is on a Weekday (Monday-Friday), otherwise returns null
 
 #### Accepts
 
@@ -1988,7 +2009,7 @@ Represents day after current time
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on a Weekend (Saturday-Sunday)
+> Returns the input if it is on a Weekend (Saturday-Sunday), otherwise returns null
 
 #### Accepts
 
@@ -2018,7 +2039,7 @@ Represents day after current time
 
 **Type:** `FIELD_VALIDATION`
 
-> Determines if the given date is on the day before (utc-time)
+> Returns the input if it is on the day before (utc-time), otherwise returns null
 
 #### Accepts
 
@@ -2030,12 +2051,12 @@ Represents day after current time
 
 Represents current time
 ```ts
-"2021-05-25T17:18:36.412Z" => isYesterday() // outputs null
+"2021-05-27T22:17:23.111Z" => isYesterday() // outputs null
 ```
 
 Represents day before current time
 ```ts
-"2021-05-24T17:18:36.412Z" => isYesterday() // outputs "2021-05-24T17:18:36.412Z"
+"2021-05-26T22:17:23.111Z" => isYesterday() // outputs "2021-05-26T22:17:23.111Z"
 ```
 
 ## CATEGORY: Numeric
@@ -2044,7 +2065,7 @@ Represents day before current time
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the absolute value of a number. That is, it returns x if x is positive or zero, and the negation of x if x is negative
+> Returns the absolute value of a number
 
 #### Accepts
 
@@ -2076,7 +2097,7 @@ Represents day before current time
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hyperbolic arc-cosine of a given number. If given a number less than 1, null will be returned
+> Returns the hyperbolic arc-cosine of a given number. If given the number is less than 1, returns null
 
 #### Accepts
 
@@ -2097,7 +2118,7 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 **Type:** `FIELD_TRANSFORM`
 
-> Add a numeric value to another
+> Returns the sum of the input and the args value
 
 #### Arguments
 
@@ -2129,7 +2150,7 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 **Type:** `FIELD_TRANSFORM`
 
-> Add the values with a given field, this requires an array to function correctly
+> Adds the values with a given field, this requires an array to function correctly
 
 #### Accepts
 
@@ -2346,7 +2367,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hyperbolic cosine of a number, that can be expressed using the constant e
+> Returns the hyperbolic cosine of a number that can be expressed using the constant e
 
 #### Accepts
 
@@ -2366,11 +2387,11 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Divide a numeric value
+> Returns the quotient from the input divided by the args value
 
 #### Arguments
 
- - **value**: (required) `Number` - Value to divide against the input
+ - **value**: (required) `Number` - Value to divide into the input
 
 #### Accepts
 
@@ -2394,7 +2415,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Divide the values with a given field, this requires an array to function correctly
+> Divides the values with a given field, this requires an array to function correctly
 
 #### Accepts
 
@@ -2466,7 +2487,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Rounds a number down to the next largest integer
+> Rounds a number down to the previous largest integer
 
 #### Accepts
 
@@ -2642,7 +2663,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Get the minimum value in an array, this requires an array to function correctly
+> Returns the minimum value in an array, this requires an array to function correctly
 
 #### Accepts
 
@@ -2675,11 +2696,11 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 **Type:** `FIELD_TRANSFORM`
 **Aliases:** `mod`
 
-> Calculate the modulus from the specified value
+> Returns the modulus from the input divided by the args value
 
 #### Arguments
 
- - **value**: (required) `Number` - How much to modulus
+ - **value**: (required) `Number` - Value to divide into the input
 
 #### Accepts
 
@@ -2707,11 +2728,11 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Multiply a numeric value
+> Returns the product of the input multiplied by the args value
 
 #### Arguments
 
- - **value**: (required) `Number` - Value to multiply against the input
+ - **value**: (required) `Number` - Value to multiply the input by
 
 #### Accepts
 
@@ -2735,7 +2756,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Multiply the values with a given field, this requires an array to function correctly
+> Multiplies the values with a given field, this requires an array to function correctly
 
 #### Accepts
 
@@ -2768,7 +2789,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 **Type:** `FIELD_TRANSFORM`
 **Aliases:** `power`
 
-> Returns a number representing the given base taken to the power of the given exponent
+> Returns a number representing the input value taken to the power of the args exp value
 
 #### Arguments
 
@@ -2792,7 +2813,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Generate a random number between a given range
+> Returns a random number between the args min and max values
 
 #### Arguments
 
@@ -2834,7 +2855,7 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns a truncated number to nth decimal places. The values will skip rounding if truncate: true is specified
+> Returns a truncated number to the nth decimal places. The values will skip rounding if truncate: true is specified
 
 #### Arguments
 
@@ -2886,7 +2907,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns a number representing the sign of the given argument:
+> Returns a number representing the sign of the input value:
 >- If the argument is positive, returns 1
 >- If the argument is negative, returns -1
 >- If the argument is positive zero, returns 0
@@ -2915,7 +2936,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the sine of the given number
+> Returns the sine of the input value
 
 #### Accepts
 
@@ -2939,7 +2960,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the hyperbolic sine of a number, that can be expressed using the constant e
+> Returns the hyperbolic sine of the input, that can be expressed using the constant e
 
 #### Accepts
 
@@ -2963,7 +2984,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the square root of a number
+> Returns the square root of the input
 
 #### Accepts
 
@@ -2987,7 +3008,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Subtract a numeric value
+> Returns the result of subtracting the args value from the input value
 
 #### Arguments
 
@@ -3019,7 +3040,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Subtract the values with a given field, this requires an array to function correctly
+> Subtracts the values with a given field, this requires an array to function correctly
 
 #### Accepts
 
@@ -3087,7 +3108,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Convert a fahrenheit value to celsius
+> Returns the equivalent celsius value from the fahrenheit input
 
 #### Accepts
 
@@ -3107,7 +3128,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_TRANSFORM`
 
-> Convert a celsius value to fahrenheit
+> Returns the equivalent fahrenheit value from the celsius input
 
 #### Accepts
 
@@ -3155,13 +3176,13 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if a number is within a given min and max value, optionally inclusive or exclusive
+> Returns the input if it is within the given min and max values, arg option for inclusive or exclusive
 
 #### Arguments
 
- - **min**:  `Number` - The maximum value allowed in the range, defaults to Negative Infinity
+ - **min**:  `Number` - The minimum value allowed in the range, defaults to Negative Infinity
 
- - **max**:  `Number` - The minimum value allowed in the range, defaults to Positive Infinity
+ - **max**:  `Number` - The maximum value allowed in the range, defaults to Positive Infinity
 
  - **inclusive**:  `Boolean` - Whether not the min and max values should be included in the range
 
@@ -3191,7 +3212,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is even
+> Returns the input if it is an even number
 
 #### Accepts
 
@@ -3211,7 +3232,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is greater than the specified value
+> Returns the input if it is greater than the args value
 
 #### Arguments
 
@@ -3243,7 +3264,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is greater than or equal to the specified value
+> Returns the input if it is greater than or equal to the args value
 
 #### Arguments
 
@@ -3275,7 +3296,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is less than the specified value
+> Returns the input if it is a number less than the args value
 
 #### Arguments
 
@@ -3307,7 +3328,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is less than or equal to the specified value
+> Returns the input if it is a number less than or equal to the args value
 
 #### Arguments
 
@@ -3339,7 +3360,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Check if a number is odd
+> Returns the input if it is an odd number
 
 #### Accepts
 
@@ -3361,7 +3382,7 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input matches the value
+> Returns the input if it matches the args value, otherwise returns null
 
 #### Arguments
 
@@ -3397,7 +3418,7 @@ false => equals(value: true) // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is empty
+> Returns the input if it is empty, otherwise returns null
 
 #### Arguments
 
@@ -3452,7 +3473,7 @@ false => equals(value: true) // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if string contains substring. This operations is case-sensitive
+> Returns the input string if it contains the args substring value, otherwise returns null. This operations is case-sensitive
 
 #### Arguments
 
@@ -3480,11 +3501,11 @@ false => equals(value: true) // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Validation that determines whether or not a string ends with another string. This is case-sensitive
+> Returns the input if it ends with the args value string, otherwise returns null. This is case-sensitive
 
 #### Arguments
 
- - **value**: (required) `String` - The value that must match at the end of the input string
+ - **value**: (required) `String` - The value compared to the end of the input string
 
 #### Accepts
 
@@ -3512,11 +3533,11 @@ false => equals(value: true) // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a string composed of only alphabetical characters
+> Returns the input if it is a string composed of only alphabetical characters, otherwise returns null
 
 #### Arguments
 
- - **locale**:  `String` - Specify locale to check for valid alphabetical characters, defaults to en-US if not provided
+ - **locale**:  `String` - Specify the locale to check for valid alphabetical characters, defaults to en-US if not provided
 
 #### Accepts
 
@@ -3544,7 +3565,7 @@ true => isAlpha() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a string composed of only alpha-numeric characters
+> Returns the input if it is a string composed of only alpha-numeric characters, otherwise returns null
 
 #### Arguments
 
@@ -3576,7 +3597,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid base64 string
+> Returns the input if it is a valid base64 string, otherwise returns null
 
 #### Accepts
 
@@ -3600,7 +3621,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid ISO 3166-1 alpha-2 country code
+> Returns the input if it is a valid ISO 3166-1 alpha-2 country code, otherwise returns null
 
 #### Accepts
 
@@ -3632,7 +3653,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is an email
+> Returns the input if it is a valid email formatted string, otherwise returns null
 
 #### Accepts
 
@@ -3680,7 +3701,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a fully qualified domain name
+> Returns the input if it is a fully qualified domain name, otherwise returns null
 
 #### Accepts
 
@@ -3720,11 +3741,11 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a hash
+> Returns the input if it is a hashed value, otherwise returns null
 
 #### Arguments
 
- - **algo**: (required) `String` - Which algorithm to check values against
+ - **algo**: (required) `String` - The hashing algorithm to check values against
 
 #### Accepts
 
@@ -3744,7 +3765,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number
+> Returns the input if it is a valid phone number.  If the country arg is not provided then it is processed as an international formatted phone number
 
 #### Arguments
 
@@ -3777,15 +3798,15 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input either matches a certain length, or is within a range
+> Returns the input if it either matches a certain length, or is within the specified range.  Otherwise returns null
 
 #### Arguments
 
- - **size**:  `Number` - The value's length must exact match this parameter if specified
+ - **size**:  `Number` - The value's length must equal this parameter if specified
 
  - **min**:  `Number` - The value's length must be greater than or equal to this parameter if specified
 
- - **max**:  `Number` - The value's length must be lesser than or equal to this parameter if specified
+ - **max**:  `Number` - The value's length must be less than or equal to this parameter if specified
 
 #### Accepts
 
@@ -3817,11 +3838,11 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid mac address
+> Returns the input if it is a valid mac address, otherwise returns null
 
 #### Arguments
 
- - **delimiter**:  `String` - Specify delimiter character for mac address format, may be set to one of space, colon, dash, dot, none and any
+ - **delimiter**:  `String` - Specify delimiter character for the mac address format, may be set to one of space, colon, dash, dot, none and any
 
 #### Accepts
 
@@ -3873,7 +3894,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type
+> Returns the input if it is a valid Media or MIME (Multipurpose Internet Mail Extensions) Type, otherwise returns null
 
 #### Accepts
 
@@ -3901,7 +3922,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input looks like a phone number
+> A simplified phone number check that returns the input if it has the basic requirements of a phone number, otherwise returns null.  Useful if the phone number's country is not known
 
 #### Accepts
 
@@ -3934,7 +3955,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid port
+> Returns the input it it is a valid TCP or UDP port, otherwise returns null
 
 #### Accepts
 
@@ -3963,11 +3984,11 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a valid postal code
+> Returns the input if it is a valid postal code, otherwise returns null
 
 #### Arguments
 
- - **locale**:  `String` - Specify locale to check for postal code, defaults to any if locale is not provided
+ - **locale**:  `String` - Specify the locale to check for valid postal codes in specific regions, defaults to any if locale is not provided
 
 #### Accepts
 
@@ -3996,7 +4017,7 @@ true => isAlphaNumeric() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a string
+> Returns the input if it is is a string, otherwise returns null
 
 #### Accepts
 
@@ -4028,7 +4049,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a string
+> Returns the input if it is a valid url string, otherwise returns null
 
 #### Accepts
 
@@ -4072,7 +4093,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks to see if input is a UUID
+> Returns the input if it is a valid UUID, otherwise returns null
 
 #### Accepts
 
@@ -4104,7 +4125,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_VALIDATION`
 
-> Validation that determines whether or not a string begins with another string. This is case-sensitive
+> Returns the input if it begins with the args value string. This is case-sensitive
 
 #### Arguments
 
@@ -4140,7 +4161,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a base64 hash back to its value
+> Returns the base64-decoded version of the input string
 
 #### Accepts
 
@@ -4156,7 +4177,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a hexadecimal hash back to its value
+> Returns the hexadecimal-decoded version of the input string
 
 #### Accepts
 
@@ -4172,7 +4193,7 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Decodes a URL encoded value
+> Returns the url-decoded version of the input string
 
 #### Accepts
 
@@ -4188,13 +4209,13 @@ hello: "i am an object" => isString() // outputs null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a value to a hash using a specified algorithm
+> Returns a hashed version of the input string.  The hashing algorithm and digest must be specified in the args
 
 #### Arguments
 
- - **algo**: (required) `String` - Which hashing algorithm to use
+ - **algo**: (required) `String` - The hashing algorithm applied to the input
 
- - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex". Only used when algorithm is not base64, hex, or url
+ - **digest**:  `String` - The hash digest applied to the input, may be set to either "base64" or "hex", defaults to "hex". Only used when algorithm is not base64, hex, or url
 
 #### Accepts
 
@@ -4227,7 +4248,7 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts value to a base64 hash
+> Returns a base64 hashed version of the input string
 
 #### Accepts
 
@@ -4243,7 +4264,7 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts value to a hexadecimal hash
+> Returns a hexadecimal hashed version of the input string
 
 #### Accepts
 
@@ -4259,7 +4280,7 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts to a SHA encoded value
+> Returns a SHA encoded version of the input string.  Specify the hash algorithm and digest with the args options
 
 #### Arguments
 
@@ -4286,11 +4307,11 @@ Hashing algorithm defaults to sha256, and digest defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts to a SHA1 encoded value
+> Returns a SHA1 encoded version of the input value
 
 #### Arguments
 
- - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
+ - **digest**:  `String` - Hash digest to used, may be set to either "base64" or "hex", defaults to "hex"
 
 #### Accepts
 
@@ -4298,7 +4319,7 @@ Hashing algorithm defaults to sha256, and digest defaults to hex
 
 #### Examples
 
-If digest is not provided, it defaults to hex
+If the digest is not provided, it defaults to hex
 ```ts
 "{ "some": "data" }" => encodeSHA1() // outputs "e8cb1404796eba6779a276377cce99a502a36481"
 ```
@@ -4311,7 +4332,7 @@ If digest is not provided, it defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> URL encodes a value
+> Returns a URL encoded version of the input value
 
 #### Accepts
 
@@ -4327,7 +4348,7 @@ If digest is not provided, it defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Extract values from strings
+> Returns an extracted substring or an array of substrings from the input string
 
 #### Arguments
 
@@ -4365,7 +4386,7 @@ If digest is not provided, it defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts an array of string values joins by the delimiter provided
+> Returns a string from an array of values joined by the delimiter
 
 #### Arguments
 
@@ -4397,7 +4418,7 @@ If digest is not provided, it defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Reverses the string value
+> Returns the input string with its characters in reverse order
 
 #### Accepts
 
@@ -4421,7 +4442,7 @@ If digest is not provided, it defaults to hex
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts a string to an array of characters split by the delimiter provided, defaults to splitting up every char
+> Returns an array based off the input split by the args delimiter, defaults to splitting by each character
 
 #### Arguments
 
@@ -4478,7 +4499,7 @@ Delimiter is not found so the whole input is returned
 
 **Type:** `FIELD_TRANSFORM`
 
-> Parses a string or number to a fully validated phone number
+> Converts the input to the ISDN format, if it is a valid phone number.  Otherwise returns null
 
 #### Accepts
 
@@ -4511,7 +4532,7 @@ Delimiter is not found so the whole input is returned
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts on ore more words into a single word joined by dashes
+> Converts one or more words into a single word joined by dashes
 
 #### Accepts
 
@@ -4603,7 +4624,7 @@ Delimiter is not found so the whole input is returned
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts input values to strings
+> Converts the input value to a string.  If the input is an array each array item will be converted to a string
 
 #### Examples
 
@@ -4627,7 +4648,7 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts one or more words into a whitespace separated word with each word starting with a capital letter
+> Converts one or more words into a whitespace separated string with each word starting with a capital letter
 
 #### Accepts
 
@@ -4725,14 +4746,7 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"
-
-trim this
-
-" => trim(chars: "
-") // outputs "
-
-trim this"
+"	trim this" => trim(chars: "") // outputs "	trim this"
 ```
 
 ```ts
@@ -4779,7 +4793,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Trims whitespace or characters from start of a string
+> Trims whitespace or characters from the start of a string
 
 #### Arguments
 
@@ -4811,7 +4825,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Limits the size of string to a specific length, if the length is greater than the specified size, the excess is removed
+> Limits the size of the input string to a specific length, if the length is greater than the specified size, the excess is removed
 
 #### Arguments
 
@@ -4837,7 +4851,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a valid ipv4 or ipv6 ip address.  Accepts dot notation for ipv4 addresses and hexadecimal separated by colons for ipv6 addresses
+> Returns the input if it is a valid ipv4 or ipv6 ip address.  Accepts dot notation for ipv4 addresses and hexadecimal separated by colons for ipv6 addresses
 
 #### Accepts
 
@@ -4870,7 +4884,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the ip is within a range, inclusive.  Accepts min, max or cidr notation for the ip range.  Function accepts min without a max and vice versa
+> Returns the input if the ip is within the given range, inclusive.  Accepts min, max or cidr notation for the ip range, also accepts min without a max and vice versa
 
 #### Arguments
 
@@ -4907,7 +4921,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a valid ipv4 or ipv6 ip address in CIDR notation
+> Returns the input if it is a valid ipv4 or ipv6 ip address in CIDR notation, otherwise returns null
 
 #### Accepts
 
@@ -4936,7 +4950,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a valid ipv4 address in dot notation
+> Returns the input if it is a valid ipv4 address in dot notation, otherwise returns null
 
 #### Accepts
 
@@ -4965,7 +4979,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a valid ipv6 ip address in hexadecimal separated by colons format
+> Returns the input if it is a valid ipv6 ip address in hexadecimal separated by colons format, otherwise returns null
 
 #### Accepts
 
@@ -4998,7 +5012,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a non-routable ip address, handles ipv6 and ipv4 address.  Non-routable ip ranges are private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, broadcast
+> Returns the input if it is a non-routable ip address, handles ipv6 and ipv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
 
 #### Accepts
 
@@ -5031,7 +5045,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is a routable ipv4 or ipv6 address.  Routable ranges are defined as anything that is not in the following ip ranges: private, uniqueLocal, loopback, unspecified, carrierGradeNat, linkLocal, reserved, rfc6052, teredo, 6to4, or broadcast
+> Returns the input if it is a routable ipv4 or ipv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
 
 #### Accepts
 
@@ -5064,7 +5078,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Checks if the input is an ipv4 address mapped to an ipv6 address
+> Returns the input if it is an ipv4 address mapped to an ipv6 address, otherwise returns null
 
 #### Accepts
 
@@ -5097,7 +5111,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Extracts a mapped IPv4 address from an IPv6 address
+> Extracts a mapped IPv4 address from an IPv6 address and returns the IPv4 address
 
 #### Accepts
 
