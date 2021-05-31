@@ -8272,6 +8272,11 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
+peggy@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/peggy/-/peggy-1.1.0.tgz#aca11837e60d83bc9490c3483d0462f934fa501a"
+  integrity sha512-bErGGMGiCxH8HHJh2M9+bUuUJi9zzqVLhrisQBlfBEi1aRqP/r4yfQX0k5od3a9SNfpzJsbaTfruNW7Y1lbJrQ==
+
 pegjs@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
@@ -10174,12 +10179,12 @@ ts-jest@^26.5.5:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-pegjs@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-0.3.1.tgz#63dfc07bd4b358deb850cf0536391580861a660b"
-  integrity sha512-4FqLW/HdZ4KvKHUpnaf7yeZM2L/1Y9cHlQ0Z59bVNABPbMEFQnKAYs/3p0zMvvCWkY3fnjMyr/F7wKzZ//vHIw==
+ts-pegjs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.0.0.tgz#1edfd09631d20cc6931d542aecd3ac79b4b1e547"
+  integrity sha512-LfVyO5Knuw2ld9ZAUPFHd8shJGWV+KCCbsi/N7WSjwY/j/ioNtnOL3+QbFNZFtv9138nR0RGtnA9wFnk8aCgFA==
   dependencies:
-    pegjs "^0.10.0"
+    peggy "1.1.0"
 
 tsconfig-paths@^3.9.0:
   version "3.9.0"
