@@ -71,5 +71,6 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
             array: false,
             description: 'Value to use in the comparison'
         }
-    }
+    },
+    required_arguments: ['value']
 };
