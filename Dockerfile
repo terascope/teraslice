@@ -6,6 +6,7 @@ ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
 
 COPY package.json yarn.lock tsconfig.json .yarnrc /app/source/
 COPY .yarnclean.ci /app/source/.yarnclean
+COPY .yarn /app/source/.yarn
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 
