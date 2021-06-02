@@ -50,7 +50,7 @@
     },
     "devDependencies": {
         "@types/netmask": "^1.0.30",
-        "pegjs": "^0.10.0",
+        "peggy": "^1.1.0",
         "ts-pegjs": "^1.0.0"
     },
     "engines": {
