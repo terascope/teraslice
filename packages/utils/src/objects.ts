@@ -2,8 +2,10 @@ import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
 import { get, getTypeOf, isPlainObject } from './deps';
 import { DataEntity } from './entities';
-import { isArrayLike } from './arrays';
+import { isArrayLike, isArray } from './arrays';
 import { isBuffer } from './buffers';
+import { isString, trim } from './strings';
+import { toNumber, isNumber } from './numbers';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
@@ -199,14 +201,37 @@ export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-export function lookup(obj: unknown): (key: unknown) => any {
-    if (!isObjectEntity(obj)) {
-        throw Error(`input must be an Object Entity, received ${getTypeOf(obj)}`);
+export function lookup(input: unknown): (key: unknown) => any {
+    // lookup entity can be a string, object or array
+    if (!isObjectEntity(input) && !isString(input) && !isArray(input)) {
+        throw Error(`input must be an Object Entity, String, received ${getTypeOf(input)}`);
     }
 
     return function _lookup(key: unknown) {
-        if (!key) return null;
-        const lookupObj = obj as Record<string, unknown>;
+        if (key == null) return null;
+
+        // This may be too restrictive at some point
+        if (!isString(key) && !isNumber(key)) {
+            throw Error(`lookup key must be a String or a Number, received ${getTypeOf(key)}`);
+        }
+
+        if (isString(input)) {
+            return _lookupStringToObject(input)[key as string];
+        }
+
+        if (isArray(input)) return input[toNumber(key)];
+
+        const lookupObj = input as Record<string, unknown>;
         return lookupObj[key as string];
     };
+}
+
+function _lookupStringToObject(stringInput: string): Record<string, string> {
+    return stringInput.split('\n').reduce((asObj, line) => {
+        const [k, v] = trim(line).split(':');
+
+        asObj[trim(k)] = trim(v);
+
+        return asObj;
+    }, {});
 }

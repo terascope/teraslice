@@ -6,7 +6,7 @@ import {
 } from '../interfaces';
 
 export interface LookupArgs {
-    readonly in: Record<string, unknown>
+    readonly in: Record<string, unknown> | string | any[];
 }
 
 export const lookupConfig: FieldTransformConfig<LookupArgs> = {
@@ -45,6 +45,32 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             field: 'testField',
             input: 'key3',
             output: undefined
+        },
+        {
+            args: {
+                in: `
+                    1:foo
+                    2:bar
+                    3:max
+                `
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 2,
+            output: 'bar'
+        },
+        {
+            args: { in: ['foo', 'bar', 'max'] },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 2,
+            output: 'max'
         }
     ],
     create({ args }) {
@@ -52,9 +78,9 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
     },
     argument_schema: {
         in: {
-            type: FieldType.Object,
+            type: FieldType.Any,
             array: false,
-            description: 'Object or table that is used for the key lookup.  Keys must strings or numbers.'
+            description: 'Data set that is used for the key lookup.  Can be an object, array, or formatted string (see example).  Keys must strings or numbers.'
         }
     },
     accepts: [FieldType.Number, FieldType.String],
