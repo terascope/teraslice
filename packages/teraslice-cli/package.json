@@ -72,7 +72,7 @@
         "jest-fixtures": "^0.6.0",
         "nock": "^13.0.11",
         "yeoman-assert": "^3.1.1",
-        "yeoman-test": "^2.7.0"
+        "yeoman-test": "^5.1.0"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
