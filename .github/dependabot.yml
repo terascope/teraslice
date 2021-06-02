@@ -1,195 +1,70 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "04:00"
-    timezone: US/Arizona
-  open-pull-requests-limit: 3
-  assignees:
-  - peterdemartini
-  versioning-strategy: increase
-  ignore:
-  - dependency-name: apollo-server-express
-    versions:
-    - "> 2.6.9, < 3"
-  - dependency-name: aws-sdk
-    versions:
-    - ">= 2.631.a, < 2.632"
-  - dependency-name: aws-sdk
-    versions:
-    - ">= 2.757.a, < 2.758"
-  - dependency-name: aws-sdk
-    versions:
-    - ">= 2.762.a, < 2.763"
-  - dependency-name: aws-sdk
-    versions:
-    - "> 2.885.0"
-  - dependency-name: convict
-    versions:
-    - "> 4.4.1"
-  - dependency-name: convict
-    versions:
-    - ">= 5.a, < 6"
-  - dependency-name: date-fns
-    versions:
-    - ">= 2.4.a, < 2.5"
-  - dependency-name: elasticsearch
-    versions:
-    - "> 15.5.0"
-  - dependency-name: got
-    versions:
-    - ">= 10.a, < 11"
-  - dependency-name: kubernetes-client
-    versions:
-    - ">= 8.2.a, < 8.3"
-  - dependency-name: latlon-geohash
-    versions:
-    - "> 1.1.0"
-  - dependency-name: mongoose
-    versions:
-    - ">= 5.10.a, < 5.11"
-  - dependency-name: mongoose
-    versions:
-    - "> 5.11.20"
-  - dependency-name: socket.io
-    versions:
-    - "> 1.7.4"
-  - dependency-name: socket.io-client
-    versions:
-    - "> 1.7.4"
-  - dependency-name: sort-package-json
-    versions:
-    - ">= 1.42.a, < 1.43"
-  - dependency-name: tty-table
-    versions:
-    - ">= 3.a, < 4"
-  - dependency-name: typedoc
-    versions:
-    - ">= 0.16.a, < 0.17"
-  - dependency-name: "@types/mongoose"
-    versions:
-    - "> 5.10.4"
-  - dependency-name: "@types/node"
-    versions:
-    - "> 14.14.37"
-  - dependency-name: date-fns
-    versions:
-    - 2.21.0
-  - dependency-name: redis
-    versions:
-    - 3.1.0
-    - 3.1.1
-  - dependency-name: ajv
-    versions:
-    - 7.0.3
-    - 7.1.0
-    - 7.1.1
-    - 7.2.1
-    - 7.2.3
-    - 8.0.1
-    - 8.0.5
-    - 8.1.0
-  - dependency-name: "@typescript-eslint/parser"
-    versions:
-    - 4.22.0
-  - dependency-name: aws-sdk
-    versions:
-    - 2.834.0
-    - 2.839.0
-    - 2.848.0
-    - 2.858.0
-    - 2.863.0
-    - 2.868.0
-    - 2.879.0
-    - 2.884.0
-  - dependency-name: "@types/fs-extra"
-    versions:
-    - 9.0.10
-    - 9.0.11
-    - 9.0.7
-    - 9.0.8
-  - dependency-name: "@types/prompts"
-    versions:
-    - 2.0.10
-  - dependency-name: "@types/jest"
-    versions:
-    - 26.0.21
-  - dependency-name: "@types/mongoose"
-    versions:
-    - 5.10.4
-  - dependency-name: typescript
-    versions:
-    - 4.1.3
-    - 4.1.5
-    - 4.2.3
-  - dependency-name: eslint
-    versions:
-    - 7.22.0
-  - dependency-name: "@types/node"
-    versions:
-    - 14.14.25
-    - 14.14.28
-    - 14.14.31
-    - 14.14.34
-  - dependency-name: yeoman-environment
-    versions:
-    - 3.0.0
-    - 3.0.1
-    - 3.1.0
-    - 3.2.0
-  - dependency-name: yeoman-generator
-    versions:
-    - 4.13.0
-    - 5.0.0
-    - 5.0.1
-    - 5.1.0
-    - 5.2.0
-  - dependency-name: node-notifier
-    versions:
-    - 9.0.1
-  - dependency-name: "@types/socket.io-client"
-    versions:
-    - 1.4.36
-  - dependency-name: "@types/convict"
-    versions:
-    - 6.0.0
-    - 6.0.1
-  - dependency-name: yeoman-test
-    versions:
-    - 4.0.2
-    - 5.0.1
-    - 5.1.0
-  - dependency-name: mongoose
-    versions:
-    - 5.11.14
-    - 5.11.16
-    - 5.11.18
-  - dependency-name: "@types/socket.io"
-    versions:
-    - 2.1.13
-  - dependency-name: nock
-    versions:
-    - 13.0.7
-  - dependency-name: "@turf/boolean-within"
-    versions:
-    - 6.3.0
-  - dependency-name: "@terascope/fetch-github-release"
-    versions:
-    - 0.7.4
-  - dependency-name: awesome-phonenumber
-    versions:
-    - 2.45.0
-  - dependency-name: graphql
-    versions:
-    - 15.5.0
-- package-ecosystem: npm
-  directory: "/website"
-  schedule:
-    interval: daily
-    time: "04:00"
-    timezone: US/Arizona
-  open-pull-requests-limit: 3
-  assignees:
-  - peterdemartini
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: daily
+      time: '04:00'
+      timezone: US/Arizona
+    open-pull-requests-limit: 4
+    assignees:
+      - peterdemartini
+    versioning-strategy: increase
+    ignore:
+      - dependency-name: aws-sdk
+        versions:
+          - '> 2.885.0'
+      - dependency-name: convict
+        versions:
+          - '> 4.4.1'
+      - dependency-name: convict
+        versions:
+          - '>= 5.a, < 6'
+      - dependency-name: '@types/convict'
+        versions:
+          - '>= 6'
+      - dependency-name: elasticsearch
+        versions:
+          - '> 15.5.0'
+      - dependency-name: kubernetes-client
+        versions:
+          - '>= 8.2.a, < 8.3'
+      - dependency-name: mongoose
+        versions:
+          - '> 5.11.20'
+      - dependency-name: socket.io
+        versions:
+          - '> 1.7.4'
+      - dependency-name: socket.io-client
+        versions:
+          - '> 1.7.4'
+      - dependency-name: '@types/socket.io'
+        versions:
+          - 2.1.13
+      - dependency-name: '@types/socket.io-client'
+        versions:
+          - 1.4.36
+      - dependency-name: sort-package-json
+        versions:
+          - '>= 1.42.a, < 1.43'
+      - dependency-name: tty-table
+        versions:
+          - '>= 3.a, < 4'
+      - dependency-name: redis
+        versions:
+          - '>= 3'
+      - dependency-name: mongoose
+        versions:
+          - '>= 5'
+      - dependency-name: graphql
+        versions:
+          - '>= 15'
+  - package-ecosystem: npm
+    directory: '/website'
+    schedule:
+      interval: daily
+      time: '04:00'
+      timezone: US/Arizona
+    open-pull-requests-limit: 2
+    assignees:
+      - peterdemartini
