@@ -1285,10 +1285,10 @@
     "@types/bson" "*"
     "@types/node" "*"
 
-"@types/mongoose@^5.10.3":
-  version "5.11.39"
-  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.11.39.tgz#990804f928c24ded52dc744854ea1edd9991fece"
-  integrity sha512-zF0NGPR2R+NKlXmrIelRRUcfSCWchO6qsTAi2UEJti9fBTx2siQPm+mEkxoDVXcSuY9NvG0ynph8xmP9W48F+g==
+"@types/mongoose@^5.11.87":
+  version "5.11.87"
+  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.11.87.tgz#f2331872b10fb6672cca1dd346996417235a7a84"
+  integrity sha512-GNenEKjq4KR56LYtYV+A4NNf1qqKDgTBDvh4yML3br5pH8ODqpC8E6V9JKM/Et0o8s5phKWc/nuncQfrg/eKYg==
   dependencies:
     mongoose "*"
 
@@ -4089,10 +4089,10 @@ execa@^4.0.0:
     signal-exit "^3.0.2"
     strip-final-newline "^2.0.0"
 
-execa@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/execa/-/execa-5.0.1.tgz#aee63b871c9b2cb56bc9addcd3c70a785c6bf0d1"
-  integrity sha512-4hFTjFbFzQa3aCLobpbPJR/U+VoL1wdV5ozOWjeet0AWDeYr9UFGM1eUFWHX+VtOWFq4p0xXUXfW1YxUaP4fpw==
+execa@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/execa/-/execa-5.1.0.tgz#3ea50ee863d226bfa323528cce1684e7481dfe46"
+  integrity sha512-CkdUB7s2y6S+d4y+OM/+ZtQcJCiKUCth4cNImGMqrt2zEVtW2rfHGspQBE1GDo6LjeNIQmTPKXqTCKjqFKyu3A==
   dependencies:
     cross-spawn "^7.0.3"
     get-stream "^6.0.0"
