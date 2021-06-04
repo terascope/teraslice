@@ -57,10 +57,13 @@ export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
  */
 export function makeISODate(value?: Date|number|string|null|undefined): string {
     if (value == null) return new Date().toISOString();
+
     const date = getValidDate(value);
+
     if (date === false) {
         throw new Error(`Invalid date ${date}`);
     }
+
     return date.toISOString();
 }
 
@@ -95,7 +98,9 @@ export function getValidDate(val: unknown): Date | false {
     if (isDateTuple(val)) return new Date(val[0]);
 
     const d = new Date(val as string);
+
     if (isValidDateInstance(d)) return d;
+
     return false;
 }
 
@@ -393,26 +398,32 @@ export function parseDateValue(
  * Format the parsed date value
 */
 export function formatDateValue(
-    value: Date|number,
+    value: Date|number|DateTuple,
     format: DateFormat|string|undefined,
 ): string|number {
+    const inMs = _toMilliseconds(value);
+
     if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
-        return value instanceof Date ? value.getTime() : value;
+        return inMs;
     }
 
     if (format === DateFormat.epoch || format === DateFormat.seconds) {
-        const ms = value instanceof Date ? value.getTime() : value;
-        return Math.floor(ms / 1000);
+        return Math.floor(inMs / 1000);
     }
 
     if (format && !(format in DateFormat)) {
-        const ms = value instanceof Date ? value.getTime() : value;
         // need add our offset here to
-        // in order to deal with UTC time
-        return formatDate(ms + timezoneOffset, format);
+        // deal with UTC time
+        return formatDate(inMs + timezoneOffset, format);
     }
 
     return toISO8601(value);
+}
+
+function _toMilliseconds(value: Date | number | DateTuple): number {
+    if (isDateTuple(value)) return value[0];
+
+    return value instanceof Date ? value.getTime() : value;
 }
 
 export const getDurationFunc = {
@@ -436,40 +447,23 @@ export const getDurationFunc = {
 };
 
 export interface GetTimeBetweenArgs {
-    start?: Date | string | number;
-    end?: Date | string | number;
+    start?: DateTypes;
+    end?: DateTypes;
     interval: TimeBetweenIntervals;
 }
+
+type DateTypes = Date | string | number | DateTuple;
 
 export function getTimeBetween(
     input: unknown,
     args: GetTimeBetweenArgs
 ): string | number {
-    const { interval, start, end } = args;
+    const { interval } = args;
 
-    if (start == null && end == null) {
-        throw Error('Must provide a start or an end argument');
-    }
+    const [time1, time2] = _getStartEndTime(input, args);
 
-    let time1;
-    let time2;
-
-    if (start) {
-        time1 = start;
-        time2 = input;
-    }
-
-    if (end) {
-        time1 = input;
-        time2 = end;
-    }
-
-    const date1 = getValidDate(time1 as Date);
-    const date2 = getValidDate(time2 as Date);
-
-    if (date1 === false || date2 === false) {
-        throw Error('Could not parse date values into dates');
-    }
+    const date1 = _getDateValue(time1);
+    const date2 = _getDateValue(time2);
 
     if (interval === 'ISO8601') {
         return formatISODuration(intervalToDuration({
@@ -479,6 +473,24 @@ export function getTimeBetween(
     }
 
     return getDurationFunc[interval](date2, date1);
+}
+
+function _getStartEndTime(input: unknown, args: GetTimeBetweenArgs): [DateTypes, DateTypes] {
+    const { start, end } = args;
+
+    if (start == null && end == null) {
+        throw Error('Must provide a start or an end argument');
+    }
+
+    if (start) return [start, input as DateTypes];
+
+    return [input as DateTypes, end as DateTypes];
+}
+
+function _getDateValue(input: DateTypes): Date {
+    if (isDateTuple(input)) return getValidDateOrThrow(toISO8601(input));
+
+    return getValidDateOrThrow(input);
 }
 
 /**
@@ -804,43 +816,49 @@ export function setYear(year: number): (input: unknown) => number {
 }
 
 export function getMilliseconds(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCMilliseconds();
+    return getValidDateOrThrow(input as any).getUTCMilliseconds();
 }
 
 export function getSeconds(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCSeconds();
+    return getValidDateOrThrow(input as any).getUTCSeconds();
 }
 
 export function getMinutes(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
+    if (isDateTuple(input)) {
+        return getValidDateOrThrow(toISO8601(input)).getUTCMinutes();
+    }
 
-    return inputDate.getUTCMinutes();
+    return getValidDateOrThrow(input as any).getUTCMinutes();
 }
 
 export function getHours(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
+    if (isDateTuple(input)) {
+        return getValidDateOrThrow(toISO8601(input)).getUTCHours();
+    }
 
-    return inputDate.getUTCHours();
+    return getValidDateOrThrow(input as any).getUTCHours();
 }
 
 export function getDate(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
+    if (isDateTuple(input)) {
+        return getValidDateOrThrow(toISO8601(input)).getUTCDate();
+    }
 
-    return inputDate.getUTCDate();
+    return getValidDateOrThrow(input as any).getUTCDate();
 }
 
 export function getMonth(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
+    if (isDateTuple(input)) {
+        return getValidDateOrThrow(toISO8601(input)).getUTCMonth();
+    }
 
-    return inputDate.getUTCMonth() + 1;
+    return getValidDateOrThrow(input as any).getUTCMonth() + 1;
 }
 
 export function getYear(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
+    if (isDateTuple(input)) {
+        return getValidDateOrThrow(toISO8601(input)).getUTCFullYear();
+    }
 
-    return inputDate.getUTCFullYear();
+    return getValidDateOrThrow(input as any).getUTCFullYear();
 }

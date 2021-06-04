@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DateFormat, ISO8601DateSegment } from '@terascope/types';
+import { DateFormat, ISO8601DateSegment, DateTuple } from '@terascope/types';
 import {
     isISO8601,
     toISO8601,
@@ -26,7 +26,8 @@ import {
     getHours,
     getDate,
     getMonth,
-    getYear
+    getYear,
+    addToDate
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -99,10 +100,13 @@ describe('date utils', () => {
             [102390933000, DateFormat.epoch, 102390933],
             [-102390933000, DateFormat.seconds, -102390933],
             [102390933000, DateFormat.milliseconds, 102390933000],
+            [new Date(102390933000), DateFormat.milliseconds, 102390933000],
             [-102390933000, DateFormat.epoch_millis, -102390933000],
+            [new Date('2021-06-03T22:46:15.244Z'), 'MM/dd/yy', '06/03/21'],
+            [[1622760480654, 60] as DateTuple, DateFormat.iso_8601, '2021-06-03T22:48:00.654+01:00'],
+            [[1622760480654, 60] as DateTuple, 'MM/dd/yyyy', '06/03/2021'],
         ])('should handle %p and return %p', (input, format, expected) => {
             expect(formatDateValue(input, format)).toBe(expected);
-            expect(formatDateValue(new Date(input), format)).toBe(expected);
         });
     });
 
@@ -180,12 +184,12 @@ describe('date utils', () => {
 
         it('should throw if input is an invalid date', () => {
             expect(() => { getTimeBetween('bad date', { start: 1715472000000, interval: 'seconds' }); })
-                .toThrowError('Could not parse date values into dates');
+                .toThrowError('Expected bad date (String) to be in a standard date format');
         });
 
         it('should throw if start or end arg is an invalid date', () => {
             expect(() => { getTimeBetween('1715472000000', { start: 'bad date', interval: 'seconds' }); })
-                .toThrowError('Could not parse date values into dates');
+                .toThrowError('Expected bad date (String) to be in a standard date format');
         });
     });
 
@@ -392,7 +396,8 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', 0],
             [1715472000231, 231],
             [1715472131, 131],
-            ['08/05/2021', 0]
+            ['08/05/2021', 0],
+            [[1621026000012, -420], 12]
         ])('for date %p getMilliseconds should return %p', (input, expected) => {
             expect(getMilliseconds(input)).toEqual(expected);
         });
@@ -409,7 +414,8 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', 0],
             [1715472019231, 19],
             [1715472343, 12],
-            ['08/05/2021', 0]
+            ['08/05/2021', 0],
+            [[1621026002000, -420], 2]
         ])('for date %p getSeconds should return %p', (input, expected) => {
             expect(getSeconds(input)).toEqual(expected);
         });
@@ -426,7 +432,9 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', 0],
             [1311874359231, 32],
             [1715472343, 31],
-            ['08/05/2021', 0]
+            ['08/05/2021', 0],
+            [[1621026300000, -420], 5],
+            [[1621026300000, -418], 3]
         ])('for date %p getMinutes should return %p', (input, expected) => {
             expect(getMinutes(input)).toEqual(expected);
         });
@@ -444,7 +452,9 @@ describe('date utils', () => {
             [1311874359231, 17],
             [1715472343, 20],
             ['08/05/2021 UTC', 0],
-            ['2021-05-10T03:00:00.000-05:00', 8]
+            ['08/05/2021 EST', 5],
+            ['2021-05-10T03:00:00.000-05:00', 8],
+            [[1621026300000, -420], 4]
         ])('for date %p getHours should return %p', (input, expected) => {
             expect(getHours(input)).toEqual(expected);
         });
@@ -460,7 +470,8 @@ describe('date utils', () => {
             ['2021-05-10T10:19:12.746Z', 10],
             [1311874359231, 28],
             [1715472343, 20],
-            ['08/05/2021', 5]
+            ['08/05/2021', 5],
+            [[1621026300000, -420], 15]
         ])('for date %p getDate should return %p', (input, expected) => {
             expect(getDate(input)).toEqual(expected);
         });
@@ -479,7 +490,8 @@ describe('date utils', () => {
             ['08/05/2021', 8],
             ['2021-05-10T10:19:12.746Z', 5],
             ['12/05/2021', 12],
-            ['01/05/2021', 1]
+            ['01/05/2021', 1],
+            [[1621026300000, -420], 4]
         ])('for date %p getMonth should return %p', (input, expected) => {
             expect(getMonth(input)).toEqual(expected);
         });
@@ -490,9 +502,20 @@ describe('date utils', () => {
             ['2021-05-10T10:19:12.746Z', 2021],
             [1311874359231, 2011],
             [1715472343, 1970],
-            ['08/05/1872', 1872]
+            ['08/05/1872', 1872],
+            [[1621026300000, -420], 2021]
         ])('for date %p getYear should return %p', (input, expected) => {
             expect(getYear(input)).toEqual(expected);
+        });
+    });
+
+    describe('addToDate', () => {
+        test.each([
+            ['2019-10-22T22:00:00.000Z', { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
+            [[1571781600000, 420], { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
+            [[1571781600000, 420], { years: 4 }, 1698012000000]
+        ])('for date %p and exp %p addToDate should return %p', (input, args, expected) => {
+            expect(addToDate(input, args)).toEqual(expected);
         });
     });
 });
