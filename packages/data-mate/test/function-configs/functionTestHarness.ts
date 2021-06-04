@@ -1,7 +1,6 @@
 import 'jest-extended';
-import { isObjectEntity, toJSONCompatibleValue } from '@terascope/utils';
+import { isObjectEntity } from '@terascope/utils';
 import {
-    functionAdapter,
     dataFrameAdapter,
     FunctionDefinitionConfig,
     DataFrame,
@@ -40,67 +39,69 @@ export function functionTestHarness<T extends Record<string, any>>(
             ));
 
         if (!successCases.length) return;
+        // disabling tests till we have a clearer use case
+        // describe('when using the function adapter', () => {
+        //     test.each(successCases)('should handle the input %p with args %p',
+        // (input, _a, testCase) => {
+        //         function getOutput(output: unknown) {
+        //             if (output == null) return [null];
+        //             if (testCase.serialize_output) {
+        //                 return [testCase.serialize_output(
+        //                     toJSONCompatibleValue(output)
+        //                 )];
+        //             }
+        //             return [toJSONCompatibleValue(output)];
+        //         }
 
-        describe('when using the function adapter', () => {
-            test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
-                function getOutput(output: unknown) {
-                    if (output == null) return [null];
-                    if (testCase.serialize_output) {
-                        return [testCase.serialize_output(
-                            toJSONCompatibleValue(output)
-                        )];
-                    }
-                    return [toJSONCompatibleValue(output)];
-                }
+        //         if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
+        //             expect(getOutput(
+        //                 functionAdapter(fnDef, {
+        //                     args: testCase.args,
+        //                     field: testCase.field,
+        //                     config: testCase.config
+        //                 }).column([input])[0]
+        //             )).toEqual(
+        //                 getOutput(testCase.output)
+        //             );
+        //         } else {
+        //             verifyObjectEntity(input);
+        //             expect(getOutput(functionAdapter(fnDef, {
+        //                 args: testCase.args,
+        //                 field: testCase.field,
+        //                 config: testCase.config
+        //             }).rows([input]))).toEqual(
+        //                 getOutput(testCase.output)
+        //             );
+        //         }
+        //     });
 
-                if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
-                    expect(getOutput(
-                        functionAdapter(fnDef, {
-                            args: testCase.args,
-                            field: testCase.field,
-                            config: testCase.config
-                        }).column([input])[0]
-                    )).toEqual(
-                        getOutput(testCase.output)
-                    );
-                } else {
-                    verifyObjectEntity(input);
-                    expect(getOutput(functionAdapter(fnDef, {
-                        args: testCase.args,
-                        field: testCase.field,
-                        config: testCase.config
-                    }).rows([input]))).toEqual(
-                        getOutput(testCase.output)
-                    );
-                }
-            });
-
-            if (!failureCases.length) return;
-            test.each(failureCases)('should throw if given the input %p with args %p', (input, _a, testCase) => {
-                if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
-                    expect(() => {
-                        functionAdapter(fnDef, {
-                            args: testCase.args,
-                            field: testCase.field,
-                            config: testCase.config
-                        }).column([input]);
-                    }).toThrowError(
-                        testCase.output ? String(testCase.output) : undefined
-                    );
-                } else {
-                    verifyObjectEntity(input);
-                    expect(() => {
-                        functionAdapter(fnDef, {
-                            args: testCase.args,
-                            field: testCase.field,
-                            config: testCase.config
-                        }).rows([input]);
-                    }).toThrowError(
-                        testCase.output ? String(testCase.output) : undefined
-                    );
-                }
-            });
-        });
+        //     if (!failureCases.length) return;
+        // test.each(failureCases)('should throw if given the input %p with args %p',
+        // (input, _a, testCase) => {
+        //         if (isFieldTransform(fnDef) || isFieldValidation(fnDef)) {
+        //             expect(() => {
+        //                 functionAdapter(fnDef, {
+        //                     args: testCase.args,
+        //                     field: testCase.field,
+        //                     config: testCase.config
+        //                 }).column([input]);
+        //             }).toThrowError(
+        //                 testCase.output ? String(testCase.output) : undefined
+        //             );
+        //         } else {
+        //             verifyObjectEntity(input);
+        //             expect(() => {
+        //                 functionAdapter(fnDef, {
+        //                     args: testCase.args,
+        //                     field: testCase.field,
+        //                     config: testCase.config
+        //                 }).rows([input]);
+        //             }).toThrowError(
+        //                 testCase.output ? String(testCase.output) : undefined
+        //             );
+        //         }
+        //     });
+        // });
 
         describe('when using the data frame adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
