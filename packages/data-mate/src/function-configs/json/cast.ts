@@ -25,7 +25,8 @@ export interface CastArgs {
     child_config?: DataTypeFields
 }
 
-export const castConfig: FieldTransformConfig<CastArgs> = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const castConfig: FieldTransformConfig<CastArgs> = {
     name: 'cast',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
