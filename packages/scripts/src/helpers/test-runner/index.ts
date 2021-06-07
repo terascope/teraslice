@@ -180,8 +180,7 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const [registry] = rootInfo.terascope.docker.registries;
-    const e2eImage = `${registry}:e2e`;
+    const e2eImage = `${rootInfo.name}:e2e`;
 
     if (isCI) {
         // pull the services first in CI
