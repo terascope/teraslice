@@ -50,8 +50,8 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
 
-    - name: 'Unit Test Suite (node 12)'
-      node_js: '12.20'
+    - name: 'Unit Test Suite (node 14)'
+      node_js: '14.17'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
