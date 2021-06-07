@@ -16,6 +16,9 @@ install:
   - export YARN_SETUP_ARGS="--prod=false --silent"
   - yarn setup
 
+env:
+  - MAX_PROJECTS_PER_BATCH=20
+
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)
 jobs:
