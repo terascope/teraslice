@@ -24,6 +24,7 @@ import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
+import { MAX_PROJECTS_PER_BATCH } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -83,13 +84,11 @@ async function runTestSuite(
 ): Promise<void> {
     if (suite === 'e2e') return;
 
-    // jest or our tests have a memory leak, limiting this seems to help
-    const MAX_CHUNK_SIZE = isCI ? 5 : 10;
-    const CHUNK_SIZE = options.debug ? 1 : MAX_CHUNK_SIZE;
+    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
-    if (options.watch && pkgInfos.length > MAX_CHUNK_SIZE) {
+    if (options.watch && pkgInfos.length > MAX_PROJECTS_PER_BATCH) {
         throw new Error(
-            `Running more than ${MAX_CHUNK_SIZE} packages will cause memory leaks`
+            `Running more than ${MAX_PROJECTS_PER_BATCH} packages will cause memory leaks`
         );
     }
 

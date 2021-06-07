@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import decompress from 'decompress';
-import { newTestJobConfig, DataEntity } from '@terascope/job-components';
+import { newTestJobConfig, DataEntity, uniqBy } from '@terascope/job-components';
 import { WorkerTestHarness, DownloadExternalAsset } from '../src';
 
 describe('download-external-asset', () => {
@@ -16,7 +16,7 @@ describe('download-external-asset', () => {
             name: 'Jungle Processors',
             draft: false,
             prerelease: false,
-            assets: [
+            assets: uniqBy([
                 {
                     name: 'jungle-v1.0.0-node-10-linux-x64.zip',
                     url: 'https://api.github.com/files/jungle-v1.0.0-node-10-linux-x64.zip'
@@ -33,14 +33,14 @@ describe('download-external-asset', () => {
                     name: `jungle-v1.0.0-${build}.zip`,
                     url: `https://api.github.com/files/jungle-v1.0.0-${build}.zip`
                 }
-            ]
+            ], 'name')
         },
         {
             tag_name: 'v0.2.9',
             name: 'Jungle Processors',
             draft: false,
             prerelease: true,
-            assets: [
+            assets: uniqBy([
                 {
                     name: 'jungle-0.2.9-node-10-linux-x64.zip',
                     url: 'https://api.github.com/files/jungle-0.2.9-node-10-linux-x64.zip'
@@ -57,7 +57,7 @@ describe('download-external-asset', () => {
                     name: `jungle-0.2.9-${build}.zip`,
                     url: `https://api.github.com/files/jungle-0.2.9-${build}.zip`
                 }
-            ]
+            ], 'name')
         }
     ];
 
