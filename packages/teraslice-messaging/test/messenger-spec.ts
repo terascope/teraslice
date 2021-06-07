@@ -246,16 +246,18 @@ describe('Messenger', () => {
             setup();
         });
 
-        afterAll((done) => {
-            server.onClientShutdown(() => {
-                server.shutdown()
-                    .then(() => {
-                        server.shutdown();
-                        done();
-                    })
-                    .catch(fail);
+        afterAll(async () => {
+            await new Promise<void>((resolve, reject) => {
+                server.onClientShutdown(() => {
+                    server.shutdown()
+                        .then(() => {
+                            server.shutdown();
+                            resolve();
+                        })
+                        .catch(reject);
+                });
+                client.shutdown().catch(reject);
             });
-            client.shutdown().catch(fail);
         });
 
         it('should have the correct client properties', () => {
