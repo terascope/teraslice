@@ -47,6 +47,12 @@ export const DEV_TAG = toSafeString((
 // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/')[0]);
 
+/**
+ * Use this to override the default dev docker image tag, if this
+ * is set, using DEV_TAG is no longer needed
+*/
+export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
+
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
