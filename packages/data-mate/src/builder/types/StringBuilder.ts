@@ -1,10 +1,10 @@
-import { primitiveToString } from '@terascope/utils';
+import { coerceToType } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class StringBuilder extends Builder<string> {
-    _valueFrom = primitiveToString;
+    _valueFrom = coerceToType<string>(this.config, this.childConfig);
 
     constructor(
         data: WritableData<string>,

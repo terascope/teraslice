@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { toIntegerOrThrow, validateNumberType } from '@terascope/utils';
+import { coerceToType } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -11,15 +11,12 @@ export const INT_SIZES = {
 } as const;
 
 export class IntBuilder extends Builder<number> {
-    // this is only here because typescript cant
-    // differentiate between an instance and a prototype
-    _valueFrom = toIntegerOrThrow;
+    _valueFrom = coerceToType<number>(this.config, this.childConfig);
 
     constructor(
         data: WritableData<number>,
         options: BuilderOptions
     ) {
         super(VectorType.Int, data, options);
-        this._valueFrom = validateNumberType(this.config.type as FieldType);
     }
 }
