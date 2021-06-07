@@ -55,6 +55,11 @@ describe('IndexStore (timeseries)', () => {
         afterAll(async () => {
             await cleanupIndexStore(indexStore);
 
+            await indexStore.flush(true).catch((err) => {
+                // this should probably throw
+                // but it is not a deal breaker
+                console.error(err);
+            });
             await indexStore.shutdown();
         });
 
@@ -568,22 +573,27 @@ describe('IndexStore (timeseries)', () => {
             });
 
             it('should be able to bulk delete the records', async () => {
-                for (const record of records) {
-                    await indexStore.bulk('delete', record.test_id);
+                try {
+                    for (const record of records) {
+                        await indexStore.bulk('delete', record.test_id);
+                    }
+
+                    await indexStore.flush(true);
+
+                    await indexStore.refresh();
+
+                    const {
+                        results
+                    } = await indexStore.search(`test_keyword: ${keyword}`, {
+                        sort: 'test_id',
+                        size: records.length + 1,
+                    });
+
+                    expect(results).toBeArrayOfSize(0);
+                } finally {
+                    // make sure we always flush to avoid breaking after all
+                    await indexStore.flush(true);
                 }
-
-                await indexStore.flush(true);
-
-                await indexStore.refresh();
-
-                const {
-                    results
-                } = await indexStore.search(`test_keyword: ${keyword}`, {
-                    sort: 'test_id',
-                    size: records.length + 1,
-                });
-
-                expect(results).toBeArrayOfSize(0);
             });
         });
     });
