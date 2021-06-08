@@ -8,7 +8,7 @@ import {
     isString, primitiveToString, toString
 } from './strings';
 import {
-    isIP, isCIDR, isIPOrThrow, isIPRangeOrThrow
+    isIP, isCIDR, isIPRangeOrThrow
 } from './ip';
 import {
     isValidDate,
@@ -59,6 +59,16 @@ export function coerceToType<T = unknown>(
 // We convert Int, Byte and Short to Integers
 function _shouldConvertToInteger(type: FieldType) {
     return [FieldType.Integer, FieldType.Byte, FieldType.Short].includes(type);
+}
+
+export function isIPOrThrow(input: unknown): string {
+    const ipValue = primitiveToString(input);
+
+    if (!isString(input) || !isIP(ipValue)) {
+        throw new TypeError(`Expected ${ipValue} (${getTypeOf(input)}) to be a valid IP`);
+    }
+
+    return ipValue;
 }
 
 export function coerceToNumberType(type: FieldType): (input: unknown) => number {

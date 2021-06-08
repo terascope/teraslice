@@ -2,24 +2,13 @@ import _isIP from 'is-ip';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
-import { FieldType } from '@terascope/types';
 import validateCidr from 'is-cidr';
-import { isString, primitiveToString } from './strings';
+import { isString } from './strings';
 import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
 import { getTypeOf } from './deps';
 
-export function isIP(input: unknown): input is FieldType.IP {
+export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);
-}
-
-export function isIPOrThrow(input: unknown): string {
-    const ipValue = primitiveToString(input);
-
-    if (!isString(input) || !isIP(ipValue)) {
-        throw new TypeError(`Expected ${ipValue} (${getTypeOf(input)}) to be a valid IP`);
-    }
-
-    return ipValue;
 }
 
 export function isIPRangeOrThrow(input: unknown): string {
