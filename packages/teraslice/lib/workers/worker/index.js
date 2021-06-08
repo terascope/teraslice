@@ -192,7 +192,7 @@ class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(block = true) {
+    async shutdown(block = true, event, shutdownError) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;
@@ -220,7 +220,16 @@ class Worker {
             shutdownErrs.push(err);
         };
 
-        this.logger.warn(`worker shutdown was called for execution ${exId}`);
+        const extra = event ? ` due to event: ${event}` : '';
+        this.logger.warn(`worker shutdown was called for execution ${exId}${extra}`);
+
+        // set the slice to to failed to avoid
+        // flushing the slice at the end
+        // we need to check if this.executionContext.sliceState
+        // in case a slice isn't currently active
+        if (shutdownError && this.executionContext.sliceState) {
+            this.executionContext.onSliceFailed();
+        }
 
         // attempt to flush the slice
         // and wait for the slice to finish
