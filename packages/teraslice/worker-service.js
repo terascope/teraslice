@@ -72,9 +72,9 @@ class Service {
 const context = makeTerafoundationContext();
 const cmd = new Service(context);
 
-cmd.shutdownHandler = shutdownHandler(context, () => {
+cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
     if (!cmd.instance) return Promise.resolve();
-    return cmd.instance.shutdown();
+    return cmd.instance.shutdown(true, event, err);
 });
 
 Promise.resolve()

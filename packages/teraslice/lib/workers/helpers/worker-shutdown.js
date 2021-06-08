@@ -102,14 +102,16 @@ function shutdownHandler(context, shutdownFn) {
 
         try {
             await shutdownWithTimeout(event, err);
-            logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}`);
         } catch (error) {
             logError(logger, error, `${assignment} while shutting down`);
         } finally {
             await flushLogs();
             if (allowNonZeroExitCode) {
+                const code = process.exitCode != null ? process.exitCode : 0;
+                logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}, exit with ${code} status code`);
                 process.exit();
             } else {
+                logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}, exit with zero status code`);
                 process.exit(0);
             }
         }
