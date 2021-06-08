@@ -11,7 +11,7 @@ import {
 export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     name: 'getTimeBetween',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the time duration between the input value and start or end arg.  Can also select the interval and format with the args interval option.',
     examples: [
@@ -44,6 +44,16 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             field: 'testField',
             input: 1620764440001,
             output: 1
+        },
+        {
+            args: { end: '2021-05-10T09:59:00.000+02:00', interval: 'milliseconds' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1620640800000, -60],
+            output: 10860000
         },
         {
             args: { end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' },

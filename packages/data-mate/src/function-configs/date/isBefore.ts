@@ -1,17 +1,13 @@
-import { FieldType } from '@terascope/types';
+import { FieldType, IsBeforeArgs } from '@terascope/types';
 import { isBefore, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
 } from '../interfaces';
 
-export interface IsBeforeArgs {
-    date: string | number | Date;
-}
-
 export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     name: 'isBefore',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input if it is before the arg date, otherwise returns null',
     examples: [
@@ -54,6 +50,16 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
             field: 'testField',
             input: '2021-05-11T10:00:00.000Z',
             output: null
+        },
+        {
+            args: { date: [1620640800000, -120] },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1620640800000, 0],
+            output: [1620640800000, 0]
         }
     ],
     argument_schema: {
@@ -66,7 +72,12 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     create({ args: { date } }) {
         return (input: unknown) => isBefore(input, date);
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number,
+        FieldType.DateTuple
+    ],
     validate_arguments(args) {
         if (!isValidDate(args.date)) {
             throw new Error(`Invalid date paramter, could not convert ${args.date} to a date`);
