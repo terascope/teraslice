@@ -55,6 +55,13 @@ export const DEV_TAG = toSafeString((
 */
 export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
 
+/**
+ * Use this to skip the docker build command in e2e tests, this might be
+ * useful if you pull down a cache image outside of this and you know it
+ * is up-to-date
+*/
+export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
+
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
 /**

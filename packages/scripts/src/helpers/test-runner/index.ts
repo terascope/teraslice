@@ -11,6 +11,7 @@ import {
     getRootDir,
     getRootInfo,
     getAvailableTestSuites,
+    getDevDockerImage,
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
@@ -24,7 +25,10 @@ import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
-import { MAX_PROJECTS_PER_BATCH } from '../config';
+import {
+    MAX_PROJECTS_PER_BATCH,
+    SKIP_DOCKER_BUILD_IN_E2E
+} from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -187,8 +191,13 @@ async function runE2ETest(
     }
 
     try {
-        const devImage = await buildDevDockerImage();
-        await dockerTag(devImage, e2eImage);
+        if (SKIP_DOCKER_BUILD_IN_E2E) {
+            const devImage = getDevDockerImage();
+            await dockerTag(devImage, e2eImage);
+        } else {
+            const devImage = await buildDevDockerImage();
+            await dockerTag(devImage, e2eImage);
+        }
     } catch (err) {
         tracker.addError(err);
     }
