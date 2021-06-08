@@ -533,7 +533,8 @@ describe('date utils', () => {
         test.each([
             ['2019-10-22T22:00:00.000Z', { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
             [[1571781600000, 0], { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
-            [[1571781600000, 420], { years: 4 }, 1697986800000]
+            [[1571781600000, 420], { years: 4 }, 1697986800000],
+            [[1571781600000, -60], { months: 1, minutes: 2 }, 1574463720000]
         ])('for date %p and exp %p addToDate should return %p', (input, args, expected) => {
             expect(addToDate(input, args)).toEqual(expected);
         });

@@ -1,6 +1,7 @@
 import {
     isNil,
-    flatten
+    flatten,
+    isDateTuple
 } from '@terascope/utils';
 
 /** This function is used to call a function on a value or recursively on a list/sub-list of values
@@ -16,7 +17,7 @@ export function callValue<T>(
 ): (T|null)[] {
     const results: (T|null)[] = [];
 
-    if (Array.isArray(input)) {
+    if (!isDateTuple(input) && Array.isArray(input)) {
         const mappedInput = flatten(
             input.map((newValue) => callValue(fn, newValue, preserveNulls, isValidator, index))
         );
