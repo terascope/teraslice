@@ -844,3 +844,16 @@ export function getYear(input: unknown): number {
 
     return inputDate.getUTCFullYear();
 }
+
+/** Will convert a date to its epoch millisecond format or throw if invalid  */
+export function toEpochMSOrThrow(input: unknown): DateTuple|number {
+    if (isDateTuple(input)) return input;
+
+    const epochMillis = getTime(input as any);
+
+    if (epochMillis === false) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
+    }
+
+    return epochMillis;
+}

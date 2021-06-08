@@ -1,14 +1,9 @@
 import 'jest-extended';
-import {
-    cloneDeep, DataEntity,
-    isEmpty, isNotNil, withoutNil
-} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
     ProcessMode, FunctionContext
 } from '../../../src';
-import { ColumnTests, RowsTests } from '../interfaces';
 
 const isBooleanConfig = functionConfigRepository.isBoolean;
 
@@ -40,6 +35,7 @@ describe('isBooleanConfig', () => {
         });
     });
 
+    // We are keeping this for future tests for functionAdapter when we review it
     // describe('when paired with fieldFunctionAdapter', () => {
     //     const field = 'test_field';
     //     const time = new Date();

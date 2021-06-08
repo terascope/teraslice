@@ -1,6 +1,6 @@
 import {
-    DataTypeFieldConfig, FieldType, Maybe,
-    DateTuple, GeoShape, GeoPoint, GeoPointInput,
+    DataTypeFieldConfig, FieldType,
+    GeoShape, GeoPoint, GeoPointInput,
     DataTypeFields, ReadonlyDataTypeFields
 } from '@terascope/types';
 import { createHash } from 'crypto';
@@ -8,14 +8,13 @@ import {
     isString, primitiveToString, toString
 } from './strings';
 import {
-    isIP, isCIDR, isIPOrThrow
+    isIP, isCIDR, isIPOrThrow, isIPRangeOrThrow
 } from './ip';
 import {
     isValidDate,
-    isDateTuple,
-    getTime
+    toEpochMSOrThrow
 } from './dates';
-import { isBoolean, toBoolean, isBooleanLike } from './booleans';
+import { isBoolean, toBooleanOrThrow } from './booleans';
 import {
     isNumber, isValidateNumberType, isBigInt,
     toBigIntOrThrow, toFloatOrThrow, toNumberOrThrow,
@@ -26,7 +25,7 @@ import {
 } from './geo';
 import { isObjectEntity, hasOwn } from './objects';
 import {
-    isArray, isArrayLike, sortBy, castArray
+    isArray, isArrayLike, castArray
 } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
 import { isFunction } from './functions';
@@ -34,7 +33,7 @@ import { isNotNil } from './empty';
 
 export const HASH_CODE_SYMBOL = Symbol('__hash__');
 
-type CoerceFN<T = unknown> = (input: unknown) => Maybe<T>
+type CoerceFN<T = unknown> = (input: unknown) => T
 
 export function coerceToType<T = unknown>(
     fieldConfig: DataTypeFieldConfig,
@@ -43,37 +42,18 @@ export function coerceToType<T = unknown>(
     if (fieldConfig.array) {
         const newFieldConfig = { ...fieldConfig, array: false };
         const fn = getTransformerForFieldType<T>(newFieldConfig, childConfig);
-        const converter = (value: unknown): Maybe<T> => (
-            value != null ? fn(value) as T : null
+        const converter = (value: unknown) => (
+            value != null ? fn(value) : null
         );
 
-        // @ts-expect-error
         return function _coerceToType(inputs: unknown) {
             return createArrayValue(
                 castArray(inputs).map(converter)
-            );
+            ) as unknown as T;
         };
     }
-    // @ts-expect-error
+
     return getTransformerForFieldType<T>(fieldConfig, childConfig) as CoerceFN<T>;
-}
-
-function coerceToBoolean(input: unknown): boolean {
-    if (!isBooleanLike(input)) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be boolean like`);
-    }
-    return toBoolean(input);
-}
-
-function coerceToDate(input: unknown): DateTuple|number {
-    if (isDateTuple(input)) return input;
-
-    const epochMillis = getTime(input as any);
-    if (epochMillis === false) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
-    }
-
-    return epochMillis;
 }
 
 // We convert Int, Byte and Short to Integers
@@ -81,11 +61,11 @@ function _shouldConvertToInteger(type: FieldType) {
     return [FieldType.Integer, FieldType.Byte, FieldType.Short].includes(type);
 }
 
-function coerceToNumberType(type: FieldType) {
+export function coerceToNumberType(type: FieldType): (input: unknown) => number {
     const numberValidator = isValidateNumberType(type);
     const coerceFn = _shouldConvertToInteger(type) ? toIntegerOrThrow : toNumberOrThrow;
 
-    return function _coerceToNumberType(input: unknown) {
+    return function _coerceToNumberType(input: unknown): number {
         const num = coerceFn(input);
         if (numberValidator(num)) return num;
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a a valid ${type}`);
@@ -98,6 +78,7 @@ function coerceToGeoJSON(input: unknown) {
     if (typeof input === 'object' && input != null && weakSet.has(input)) {
         return input as GeoShape;
     }
+
     const result = toGeoJSONOrThrow(input);
 
     weakSet.add(result);
@@ -199,13 +180,6 @@ function _createArrayHashCode(): string {
     return createHashCode(this, false);
 }
 
-function coerceToIPRange(input: unknown) {
-    if (!isCIDR(input)) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP range`);
-    }
-    return input;
-}
-
 function getChildDataTypeConfig(
     config: DataTypeFields|ReadonlyDataTypeFields,
     baseField: string,
@@ -250,8 +224,7 @@ function formatObjectChildFields(childConfigs?: DataTypeFields) {
             return [field, transformer];
         })
         .filter(isNotNil) as ChildFields;
-        // TODO: any reason for the sorting?
-    // this.#childFields = sortBy(childFields as [string, Builder<any>][], '[0]');
+
     return childFields;
 }
 
@@ -297,8 +270,7 @@ function formatTupleChildFields(childConfigs?: DataTypeFields) {
             );
             return coerceToType(config, childConfig);
         });
-    // TODO: any reason for the sorting?
-    // this.#childFields = sortBy(childFields as [string, Builder<any>][], '[0]');
+
     return childFields;
 }
 
@@ -343,11 +315,11 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.IP:
             return isIPOrThrow;
         case FieldType.IPRange:
-            return coerceToIPRange;
+            return isIPRangeOrThrow;
         case FieldType.Date:
-            return coerceToDate;
+            return toEpochMSOrThrow;
         case FieldType.Boolean:
-            return coerceToBoolean;
+            return toBooleanOrThrow;
         case FieldType.Float:
             return toFloatOrThrow;
         case FieldType.Number:

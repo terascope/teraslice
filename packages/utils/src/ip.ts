@@ -12,7 +12,7 @@ export function isIP(input: unknown): input is FieldType.IP {
     return isString(input) && _isIP(input);
 }
 
-export function isIPOrThrow(input: unknown): FieldType.IP {
+export function isIPOrThrow(input: unknown): string {
     const ipValue = primitiveToString(input);
 
     if (!isString(input) || !isIP(ipValue)) {
@@ -20,6 +20,14 @@ export function isIPOrThrow(input: unknown): FieldType.IP {
     }
 
     return ipValue;
+}
+
+export function isIPRangeOrThrow(input: unknown): string {
+    if (!isCIDR(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP range`);
+    }
+
+    return input;
 }
 
 export function isIPV6(input: unknown): boolean {

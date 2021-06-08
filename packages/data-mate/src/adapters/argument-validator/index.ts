@@ -1,77 +1,10 @@
 import {
-    isNil,
-    isString,
-    isNumber,
-    isBoolean,
-    isValidDate,
-    isGeoJSON,
-    isGeoPoint,
-    isObjectEntity,
-    isIP,
-    joinList, getTypeOf, isEmpty, isBigInt,
-    isArray,
-    isValidateNumberType,
-    isCIDR
+    isNil, isNumber, isBoolean, getValidatorForFieldType,
+    joinList, getTypeOf, isEmpty,
 } from '@terascope/utils';
-import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
     FunctionDefinitionConfig,
 } from '../../function-configs/interfaces';
-
-function isIntOrBigint(input: unknown): boolean {
-    return isBigInt(input) || isNumber(input);
-}
-
-function getType(
-    argFieldType: DataTypeFieldConfig,
-): (input: unknown) => boolean {
-    switch (argFieldType.type) {
-        case FieldType.String:
-        case FieldType.Text:
-        case FieldType.Keyword:
-        case FieldType.KeywordCaseInsensitive:
-        case FieldType.KeywordTokens:
-        case FieldType.KeywordTokensCaseInsensitive:
-        case FieldType.KeywordPathAnalyzer:
-        case FieldType.Domain:
-        case FieldType.Hostname:
-        case FieldType.NgramTokens:
-            return isString;
-        case FieldType.IP:
-            return isIP;
-        case FieldType.IPRange:
-            return isCIDR;
-        case FieldType.Date:
-            return isValidDate;
-        case FieldType.Boolean:
-            return isBoolean;
-        case FieldType.Float:
-        case FieldType.Number:
-        case FieldType.Double:
-            return isNumber;
-        case FieldType.Byte:
-            return isValidateNumberType(FieldType.Byte);
-        case FieldType.Short:
-            return isValidateNumberType(FieldType.Short);
-        case FieldType.Integer:
-            return isValidateNumberType(FieldType.Integer);
-        case FieldType.Long:
-            return isIntOrBigint;
-        case FieldType.Geo:
-        case FieldType.GeoPoint:
-        case FieldType.Boundary:
-            return isGeoPoint;
-        case FieldType.GeoJSON:
-            return isGeoJSON;
-        case FieldType.Object:
-            return isObjectEntity;
-        case FieldType.Tuple:
-            return isArray;
-        default:
-            // equivalent to an any-builder
-            return () => true;
-    }
-}
 
 function isEmptyLike(input: unknown): boolean {
     // if it nil, or [], {}, booleans are fine
@@ -103,7 +36,7 @@ export function validateFunctionArgs<T extends Record<string, any>>(
 
         for (const [field, typeConfig] of Object.entries(fnDef.argument_schema)) {
             if (Object.hasOwnProperty.call(config, field)) {
-                const typeValidator = getType(typeConfig);
+                const typeValidator = getValidatorForFieldType(typeConfig);
                 // if its an array of values, check each one
                 if (typeConfig.array) {
                     if (!config[field].every(typeValidator)) {
