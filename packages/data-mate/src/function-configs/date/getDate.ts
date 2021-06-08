@@ -7,7 +7,7 @@ import {
 export const getDateConfig: FieldTransformConfig = {
     name: 'getDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the day of the month of the input date in UTC Time',
     examples: [
@@ -50,12 +50,27 @@ export const getDateConfig: FieldTransformConfig = {
             field: 'testField',
             input: 1510123223231,
             output: 8
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1621026300000, -420],
+            output: 15
         }
     ],
     create() {
         return getDate;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number,
+        FieldType.DateTuple
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

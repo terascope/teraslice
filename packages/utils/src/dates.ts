@@ -57,7 +57,6 @@ export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
  * A helper function for making an ISODate string
  */
 export function makeISODate(value?: Date|number|string|null|undefined|DateTuple): string {
-    console.log('incoming', value);
     if (value == null) return new Date().toISOString();
 
     const date = getValidDate(value);

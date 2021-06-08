@@ -1,6 +1,6 @@
 import { DateFormat, FieldType } from '@terascope/types';
 import {
-    formatDateValue, getValidDateOrNumberOrThrow
+    formatDateValue, getValidDateWithTimezoneOrThrow
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
@@ -16,7 +16,7 @@ export interface FormatDateArgs {
 export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     name: 'formatDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a date value to a formatted date string.  Can specify the format with args to format the output value',
     examples: [{
@@ -51,6 +51,19 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         input: '1973-03-31T01:55:33.000Z',
         output: 102390933000,
     }, {
+        args: { format: DateFormat.iso_8601 },
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.DateTuple,
+                }
+            }
+        },
+        field: 'testField',
+        input: [1622760480654, 60],
+        output: '2021-06-03T21:48:00.654Z',
+    }, {
         args: {},
         config: {
             version: 1,
@@ -63,7 +76,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     create({ args: { format } }) {
         return function formatDate(input: unknown): string|number {
             return formatDateValue(
-                getValidDateOrNumberOrThrow(input), format
+                getValidDateWithTimezoneOrThrow(input), format
             );
         };
     },
@@ -71,6 +84,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         FieldType.Date,
         FieldType.String,
         FieldType.Number,
+        FieldType.DateTuple
     ],
     argument_schema: {
         format: {

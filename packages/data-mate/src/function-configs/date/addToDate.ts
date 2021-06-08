@@ -12,59 +12,59 @@ import {
 export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'addToDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date added to a date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
-    //     args: { expr: '10h+2m' },
-    //     config: {
-    //         version: 1,
-    //         fields: { testField: { type: FieldType.Date } }
-    //     },
-    //     field: 'testField',
-    //     input: '2019-10-22T22:00:00.000Z',
-    //     output: new Date('2019-10-23T08:02:00.000Z').getTime(),
-    //     serialize_output: toISO8601
-    // }, {
-    //     args: { months: 1, minutes: 2 },
-    //     config: {
-    //         version: 1,
-    //         fields: { testField: { type: FieldType.Date } }
-    //     },
-    //     field: 'testField',
-    //     input: '2019-10-22T22:00:00.000Z',
-    //     output: new Date('2019-11-22T22:02:00.000Z').getTime(),
-    //     serialize_output: toISO8601
-    // }, {
+        args: { expr: '10h+2m' },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        output: new Date('2019-10-23T08:02:00.000Z').getTime(),
+        serialize_output: toISO8601
+    }, {
         args: { months: 1, minutes: 2 },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.DateTuple, array: true } }
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        output: new Date('2019-11-22T22:02:00.000Z').getTime(),
+        serialize_output: toISO8601
+    }, {
+        args: { months: 1, minutes: 2 },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.DateTuple } }
         },
         field: 'testField',
         input: [1571781600000, -60],
         output: new Date('2019-11-22T23:02:00.000Z').getTime(),
         serialize_output: toISO8601
-    // }, {
-    //     args: {},
-    //     config: {
-    //         version: 1,
-    //         fields: { testField: { type: FieldType.Date } }
-    //     },
-    //     field: 'testField',
-    //     input: '2019-10-22T22:00:00.000Z',
-    //     fails: true,
-    //     output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
-    // }, {
-    //     args: { expr: '1hr', months: 10 },
-    //     config: {
-    //         version: 1,
-    //         fields: { testField: { type: FieldType.Date } }
-    //     },
-    //     field: 'testField',
-    //     input: '2019-10-22T22:00:00.000Z',
-    //     fails: true,
-    //     output: 'Invalid use of months with expr parameter'
+    }, {
+        args: {},
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        fails: true,
+        output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
+    }, {
+        args: { expr: '1hr', months: 10 },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: '2019-10-22T22:00:00.000Z',
+        fails: true,
+        output: 'Invalid use of months with expr parameter'
     }],
     create({ args }) {
         return addToDateFP(args);
@@ -131,5 +131,16 @@ For example, \`1h\` or \`1h+2m\``
             const withoutExpr = argKeys.filter((k) => k !== 'expr');
             throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
         }
+    },
+    output_type(inputConfig) {
+        const { field_config } = inputConfig;
+
+        return {
+            field_config: {
+                description: field_config.description,
+                array: field_config.array,
+                type: FieldType.Date
+            },
+        };
     }
 };

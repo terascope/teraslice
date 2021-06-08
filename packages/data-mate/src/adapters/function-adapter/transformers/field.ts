@@ -5,8 +5,7 @@ import {
     isNotNil,
     cloneDeep,
     isNil,
-    unset,
-    isDateTuple
+    unset
 } from '@terascope/utils';
 import { FieldTransformConfig, InitialFunctionContext } from '../../../function-configs/interfaces';
 import { callValue } from '../utils';
@@ -217,7 +216,7 @@ export function fieldTransformColumnExecution<
             const value = input[i];
 
             if (isNotNil(value)) {
-                if (!isDateTuple(value) && Array.isArray(value)) {
+                if (Array.isArray(value)) {
                     const fieldList = callValue(fn, input, preserveNulls, false, i);
 
                     if (fieldList.length > 0) {

@@ -7,7 +7,7 @@ import {
 export const getMinutesConfig: FieldTransformConfig = {
     name: 'getMinutes',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the minutes of the input date in UTC time',
     examples: [
@@ -40,12 +40,27 @@ export const getMinutesConfig: FieldTransformConfig = {
             field: 'testField',
             input: 1715472323231,
             output: 5
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1621026300000, -418],
+            output: 3
         }
     ],
     create() {
         return getMinutes;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number,
+        FieldType.DateTuple
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

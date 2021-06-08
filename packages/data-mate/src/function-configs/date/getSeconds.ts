@@ -7,7 +7,7 @@ import {
 export const getSecondsConfig: FieldTransformConfig = {
     name: 'getSeconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the seconds of the input date',
     examples: [
@@ -40,12 +40,27 @@ export const getSecondsConfig: FieldTransformConfig = {
             field: 'testField',
             input: 1715472323231,
             output: 23
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1621026002000, -420],
+            output: 2
         }
     ],
     create() {
         return getSeconds;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number,
+        FieldType.DateTuple
+    ],
     output_type({ field_config }) {
         return {
             field_config: {
