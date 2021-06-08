@@ -57,7 +57,7 @@ const nodeVersion = getMajorVersion(process.version);
 */
 function isCompatibleNodeVersion(version) {
     if (version == null) return true;
-    return getMajorVersion(version) === nodeVersion;
+    return getMajorVersion(version) >= nodeVersion;
 }
 
 function _isCompatibleAsset(name, range, skipRestrictions = false) {
