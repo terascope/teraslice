@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
@@ -203,14 +204,20 @@ describe('dynamic args', () => {
     //         }
 
     //         it('on columns', () => {
-    //             const api = functionAdapter(getTimezoneOffsetConfig, { args: dynamicArgs, field });
+    //             const api = functionAdapter(
+    //                  getTimezoneOffsetConfig,
+    //                  { args: dynamicArgs, field }
+    //              );
     //             const newResults = api.column(values);
 
     //             expect(newResults).toEqual(expectedResults);
     //         });
 
     //         it('on frames', () => {
-    //             const api = functionAdapter(getTimezoneOffsetConfig, { args: dynamicArgs, field });
+    //             const api = functionAdapter(
+    //                  getTimezoneOffsetConfig,
+    //                  { args: dynamicArgs, field }
+    //              );
     //             const newResults = api.rows(frameData);
 
     //             expect(newResults).toEqual(expectedFrameData);

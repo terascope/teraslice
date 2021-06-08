@@ -1,16 +1,11 @@
 import 'jest-extended';
 import {
-    cloneDeep, DataEntity,
-    isEmpty, isNotNil, withoutNil,
-} from '@terascope/utils';
-import {
     FieldType, Maybe, GeoPointInput
 } from '@terascope/types';
 import {
     functionConfigRepository, FunctionDefinitionType,
     ProcessMode, Column, dataFrameAdapter, FunctionContext
 } from '../../../src';
-import { ColumnTests, RowsTests } from '../interfaces';
 
 const toGeoPointConfig = functionConfigRepository.toGeoPoint;
 
@@ -122,19 +117,24 @@ describe('toGeoPointConfig', () => {
     //             expect(api.column(column)).toEqual(result);
     //         });
 
-    //         it(`should validate ${JSON.stringify(column)} with preserveNull set to false`, () => {
+    //         it(
+    //    `should validate ${JSON.stringify(column)} with preserveNull set to false`, () => {
     //             const api = functionAdapter(toGeoPointConfig, { preserveNulls: false });
     //             expect(api.column(column)).toEqual(result.filter(isNotNil));
     //         });
     //     });
 
-    //     describe('when given bad data or incorrectly configured api while executing columns', () => {
+    //     describe('when given bad data or incorrectly configured api while executing columns',
+    //  () => {
     //         it('should throw if input is not an array', () => {
     //             const api = functionAdapter(toGeoPointConfig, { field });
 
-    //             expect(() => api.column({} as Array<any>)).toThrowError('Invalid input, expected an array of values');
-    //             expect(() => api.column('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
-    //             expect(() => api.column(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column({} as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column('hello' as unknown as Array<any>))
+    //  .toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column(null as unknown as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of values');
     //         });
     //     });
 
@@ -153,7 +153,8 @@ describe('toGeoPointConfig', () => {
     //                 rows.forEach((record, ind) => {
     //                     expect(record).toMatchObject(clonedInput[ind]);
     //                     // @ts-expect-error
-    //                     expect(record.getMetadata('time')).toEqual(clonedInput[ind].getMetadata('time'));
+    //                     expect(record.getMetadata('time'))
+    //    .toEqual(clonedInput[ind].getMetadata('time'));
     //                 });
     //             } else {
     //                 expect(rows).toEqual(clonedInput);
@@ -172,7 +173,10 @@ describe('toGeoPointConfig', () => {
     //             expect(api.rows(rows)).toEqual(results);
     //         });
 
-    //         it(`should validate ${JSON.stringify(rows)} with preserveNull set to false and preserveEmptyObjects set to false`, () => {
+    //         it(
+    //    `should validate ${JSON.stringify(rows)} with preserveNull
+    // set to false and preserveEmptyObjects set to false`
+    //    , () => {
     //             const api = functionAdapter(
     //                 toGeoPointConfig,
     //                 { field, preserveNulls: false, preserveEmptyObjects: false }

@@ -183,9 +183,12 @@ describe('isBooleanConfig', () => {
     //         it('should throw if input is not an array', () => {
     //             const api = functionAdapter(isBooleanConfig, { field });
 
-    //             expect(() => api.column({} as Array<any>)).toThrowError('Invalid input, expected an array of values');
-    //             expect(() => api.column('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
-    //             expect(() => api.column(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column({} as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column('hello' as unknown as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of values');
+    //             expect(() => api.column(null as unknown as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of values');
     //         });
     //     });
 
@@ -204,7 +207,8 @@ describe('isBooleanConfig', () => {
     //                 rows.forEach((record, ind) => {
     //                     expect(record).toMatchObject(clonedInput[ind]);
     //                     // @ts-expect-error
-    //                     expect(record.getMetadata('time')).toEqual(clonedInput[ind].getMetadata('time'));
+    //                     expect(record.getMetadata('time'))
+    //    .toEqual(clonedInput[ind].getMetadata('time'));
     //                 });
     //             } else {
     //                 expect(rows).toEqual(clonedInput);
@@ -235,7 +239,10 @@ describe('isBooleanConfig', () => {
     //             expect(api.rows(rows)).toEqual(results);
     //         });
 
-    //         it(`should validate ${JSON.stringify(rows)} with preserveNull set to false and preserveEmptyObjects set to false`, () => {
+    //         it(
+    // `should validate ${JSON.stringify(rows)} with preserveNull set to false
+    //  and preserveEmptyObjects set to false`
+    //      , () => {
     //             const api = functionAdapter(
     //                 isBooleanConfig,
     //                 { field, preserveNulls: false, preserveEmptyObjects: false }
@@ -269,21 +276,27 @@ describe('isBooleanConfig', () => {
     //         });
     //     });
 
-    //     describe('when given bad data or incorrectly configured api while executing rows', () => {
+    //     describe(
+    //     'when given bad data or incorrectly configured api while executing rows', () => {
     //         it('should throw if field is not supplied', () => {
     //             const api = functionAdapter(isBooleanConfig);
     //             const correctApi = functionAdapter(isBooleanConfig, { field });
 
-    //             expect(() => api.rows([{ [field]: 'data' }])).toThrowError('Must provide a field option when running a row');
-    //             expect(() => correctApi.rows([{ [field]: 'data' }])).not.toThrowError();
+    //             expect(() => api.rows([{ [field]: 'data' }]))
+    //    .toThrowError('Must provide a field option when running a row');
+    //             expect(() => correctApi.rows([{ [field]: 'data' }]))
+    //    .not.toThrowError();
     //         });
 
     //         it('should throw if input is not an array', () => {
     //             const api = functionAdapter(isBooleanConfig, { field });
 
-    //             expect(() => api.rows({} as Array<any>)).toThrowError('Invalid input, expected an array of objects');
-    //             expect(() => api.rows('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
-    //             expect(() => api.rows(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
+    //             expect(() => api.rows({} as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of objects');
+    //             expect(() => api.rows('hello' as unknown as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of objects');
+    //             expect(() => api.rows(null as unknown as Array<any>))
+    //    .toThrowError('Invalid input, expected an array of objects');
     //         });
 
     //         it('should throw if input is mixed data', () => {
@@ -291,8 +304,12 @@ describe('isBooleanConfig', () => {
     //             const data = [{ [field]: true }, 'hello'] as Record<string, unknown>[];
     //             const data2 = [{ [field]: true }, null] as Record<string, unknown>[];
 
-    //             expect(() => api.rows(data)).toThrowError('Invalid record "hello", expected an array of simple objects or data-entities');
-    //             expect(() => api.rows(data2)).toThrowError('Invalid record null, expected an array of simple objects or data-entities');
+    //             expect(() => api.rows(data))
+    //    .toThrowError(
+    //    'Invalid record "hello", expected an array of simple objects or data-entities');
+    //             expect(() => api.rows(data2))
+    //    .toThrowError(
+    //    'Invalid record null, expected an array of simple objects or data-entities');
     //         });
     //     });
     // });
