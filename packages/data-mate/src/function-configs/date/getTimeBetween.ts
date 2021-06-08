@@ -1,7 +1,6 @@
-import { FieldType } from '@terascope/types';
+import { FieldType, GetTimeBetweenArgs } from '@terascope/types';
 import {
     getTimeBetween,
-    GetTimeBetweenArgs,
     getDurationFunc,
     joinList
 } from '@terascope/utils';
