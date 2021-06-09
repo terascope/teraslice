@@ -6,7 +6,7 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
 export interface FormatDateArgs {

@@ -1,21 +1,22 @@
-import { isNil } from '@terascope/utils';
+import { isNil, isFunction, isString } from '@terascope/utils';
 import { validateFunctionArgs } from '../argument-validator';
 import {
     Column, validateAccepts,
     getFieldTypesFromFieldConfigAndChildConfig,
     ColumnOptions, mapVectorEach, mapVectorEachValue,
+    dynamicMapVectorEach, dynamicMapVectorEachValue
 } from '../../column';
 import { DataFrame } from '../../data-frame';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
     FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig,
-    FunctionContext, TransformContext
+    FunctionContext, DynamicFrameFunctionContext
 } from '../../function-configs/interfaces';
 import { Builder } from '../../builder';
 import { WritableData } from '../../core';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
-    args?: T,
+    args?: T | ((index: number) => T),
     field?: string;
 }
 
@@ -26,11 +27,11 @@ export interface FrameAdapterFn {
 
 function transformColumnData<T extends Record<string, any>>(
     column: Column,
-    transformConfig: FieldTransformConfig<T>,
-    args: T
+    fnDef: FieldTransformConfig<T>,
+    options: DataFrameAdapterOptions<T>
 ): Column {
     const err = validateAccepts(
-        transformConfig.accepts,
+        fnDef.accepts,
         getFieldTypesFromFieldConfigAndChildConfig(
             column.vector.config,
             column.vector.childConfig,
@@ -39,25 +40,28 @@ function transformColumnData<T extends Record<string, any>>(
 
     if (err) throw err;
 
+    const columnOptions: ColumnOptions = {
+        name: column.name,
+        version: column.version,
+    };
+
     const inputConfig: DataTypeFieldAndChildren = {
         field_config: column.config,
         child_config: column.vector.childConfig
     };
+
     let outputConfig: DataTypeFieldAndChildren;
 
-    if (transformConfig.output_type) {
-        outputConfig = transformConfig.output_type(
+    const args = isFunction(options.args) ? options.args(0) : options.args as T;
+
+    if (fnDef.output_type) {
+        outputConfig = fnDef.output_type(
             inputConfig,
             args
         );
     } else {
         outputConfig = inputConfig;
     }
-
-    const options: ColumnOptions = {
-        name: column.name,
-        version: column.version,
-    };
 
     const builder = Builder.make(
         new WritableData(column.vector.size),
@@ -68,23 +72,51 @@ function transformColumnData<T extends Record<string, any>>(
         },
     );
 
-    const context: TransformContext<T> = {
+    if (isFunction(options.args)) {
+        const context: DynamicFrameFunctionContext<T> = {
+            args: options.args,
+            parent: column,
+            inputConfig,
+        };
+
+        if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
+            return new Column(
+                dynamicMapVectorEach(
+                    column.vector,
+                    builder,
+                    dynamicTransformerFN(fnDef, context),
+                ),
+                columnOptions
+            );
+        }
+
+        return new Column(
+            dynamicMapVectorEach(
+                column.vector,
+                builder,
+                dynamicTransformerFN(fnDef, context),
+            ),
+            columnOptions
+        );
+    }
+
+    const context: FunctionContext<T> = {
         args,
         parent: column,
         inputConfig,
         outputConfig
     };
 
-    const transformFn = transformConfig.create(context);
+    const transformFn = fnDef.create(context);
 
-    if (transformConfig.process_mode === ProcessMode.FULL_VALUES) {
+    if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
         return new Column(
             mapVectorEach(
                 column.vector,
                 builder,
                 transformFn,
             ),
-            options
+            columnOptions
         );
     }
 
@@ -94,17 +126,59 @@ function transformColumnData<T extends Record<string, any>>(
             builder,
             transformFn,
         ),
-        options
+        columnOptions
     );
+}
+
+function validatorTransformFN(validatorFn: (value: unknown, index: number) => unknown) {
+    return function _validatorTransform(value: unknown, index: number): unknown {
+        if (validatorFn(value, index)) return value;
+        return null;
+    };
+}
+
+function dynamicValidatorFN<T>(
+    fnDef: FieldValidateConfig<T>,
+    context: DynamicFrameFunctionContext<T>
+) {
+    return function _dynamicValidatorFN(index: number) {
+        const newArgs = context.args(index);
+        const args = validateFunctionArgs(fnDef, newArgs);
+
+        const fullContext = {
+            ...context,
+            args
+        };
+
+        const validatorFn = fnDef.create(fullContext);
+        return validatorTransformFN(validatorFn);
+    };
+}
+
+function dynamicTransformerFN<T>(
+    fnDef: FieldTransformConfig<T>,
+    context: DynamicFrameFunctionContext<T>
+) {
+    return function _dynamicTransformerFN(index: number) {
+        const newArgs = context.args(index);
+        const args = validateFunctionArgs(fnDef, newArgs);
+
+        const fullContext = {
+            ...context,
+            args
+        };
+
+        return fnDef.create(fullContext);
+    };
 }
 
 function validateColumnData<T extends Record<string, any>>(
     column: Column,
-    validationConfig: FieldValidateConfig<T>,
-    args: T
+    fnDef: FieldValidateConfig<T>,
+    options: DataFrameAdapterOptions<T>
 ): Column {
     const err = validateAccepts(
-        validationConfig.accepts,
+        fnDef.accepts,
         getFieldTypesFromFieldConfigAndChildConfig(
             column.vector.config, column.vector.childConfig
         ),
@@ -116,7 +190,7 @@ function validateColumnData<T extends Record<string, any>>(
         return column.clearAll();
     }
 
-    const options: ColumnOptions = {
+    const columnOptions: ColumnOptions = {
         name: column.name,
         version: column.version,
     };
@@ -125,14 +199,6 @@ function validateColumnData<T extends Record<string, any>>(
         field_config: column.config,
         child_config: column.vector.childConfig,
     };
-
-    const context: FunctionContext<T> = {
-        args,
-        parent: column,
-        inputConfig
-    };
-
-    const validatorFn = validationConfig.create(context);
 
     const builder = Builder.make(
         new WritableData(column.vector.size),
@@ -143,19 +209,53 @@ function validateColumnData<T extends Record<string, any>>(
         },
     );
 
-    function validatorTransform(value: unknown, index: number): unknown {
-        if (validatorFn(value, index)) return value;
-        return null;
+    // since this is a function, it will return dynamic args
+    // need to use separate logic for that feature
+    if (isFunction(options.args)) {
+        const context: DynamicFrameFunctionContext<T> = {
+            args: options.args,
+            parent: column,
+            inputConfig,
+        };
+
+        if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
+            return new Column(
+                dynamicMapVectorEach(
+                    column.vector,
+                    builder,
+                    dynamicValidatorFN(fnDef, context),
+                ),
+                columnOptions
+            );
+        }
+
+        return new Column(
+            dynamicMapVectorEachValue(
+                column.vector,
+                builder,
+                dynamicValidatorFN(fnDef, context),
+            ),
+            columnOptions
+        );
     }
 
-    if (validationConfig.process_mode === ProcessMode.FULL_VALUES) {
+    const context: FunctionContext<T> = {
+        args: options.args as T,
+        parent: column,
+        inputConfig
+    };
+
+    const validatorFn = fnDef.create(context);
+    const validatorTransform = validatorTransformFN(validatorFn);
+
+    if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
         return new Column(
             mapVectorEach(
                 column.vector,
                 builder,
                 validatorTransform,
             ),
-            options
+            columnOptions
         );
     }
 
@@ -165,53 +265,55 @@ function validateColumnData<T extends Record<string, any>>(
             builder,
             validatorTransform,
         ),
-        options
+        columnOptions
     );
 }
 
 function validateColumn<T extends Record<string, any>>(
-    config: FieldValidateConfig<T>, args: T,
+    fnDef: FieldValidateConfig<T>, options: DataFrameAdapterOptions<T>
 ) {
     return function _validateColumn(column: Column<any>): Column<any> {
-        return validateColumnData(column, config, args);
+        return validateColumnData(column, fnDef, options);
     };
 }
 
 function transformColumn<T extends Record<string, any>>(
-    config: FieldTransformConfig<T>, args: T
+    fnDef: FieldTransformConfig<T>, options: DataFrameAdapterOptions<T>
 ) {
     return function _transformColumn(column: Column): Column {
-        return transformColumnData(column, config, args);
+        return transformColumnData(column, fnDef, options);
     };
 }
 
 function validateFrame<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
-    args: T,
-    field?: string
+    options: DataFrameAdapterOptions<T>
 ) {
     return function _validateFrame(
         frame: DataFrame<Record<string, unknown>>
     ): DataFrame<Record<string, unknown>> {
-        if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
+        const { field } = options;
+        if (isNil(options.field) || !isString(field)) throw new Error('Must provide a field option when running a DataFrame');
 
         const col = frame.getColumnOrThrow(field);
-        const validCol = validateColumnData(col, fnDef, args);
+        // TODO: should we pass along the parent dataFrame as well?
+        const validCol = validateColumnData(col, fnDef, options);
         return frame.assign([validCol]);
     };
 }
 
 function transformFrame<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
-    args: T,
-    field?: string
+    options: DataFrameAdapterOptions<T>
 ) {
     return function _transformFrame(
         frame: DataFrame<Record<string, unknown>>
     ): DataFrame<Record<string, unknown>> {
-        if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
+        const { field } = options;
+
+        if (isNil(field) || !isString(field)) throw new Error('Must provide a field option when running a DataFrame');
         const col = frame.getColumnOrThrow(field);
-        const newCol = transformColumnData(col, fnDef, args);
+        const newCol = transformColumnData(col, fnDef, options);
 
         return frame.assign([newCol]);
     };
@@ -221,22 +323,23 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
     fnDef: FunctionDefinitionConfig<T>,
     options: DataFrameAdapterOptions<T> = {}
 ): FrameAdapterFn {
-    const { field } = options;
-    const args = { ...options.args } as T;
-
-    validateFunctionArgs(fnDef, args);
+    if (isNil(options.args)) options.args = {} as T;
+    // we will validate on each call later
+    if (!isFunction(options.args)) {
+        options.args = validateFunctionArgs(fnDef, options.args);
+    }
 
     if (isFieldValidation(fnDef)) {
         return {
-            column: validateColumn(fnDef, args),
-            frame: validateFrame(fnDef, args, field)
+            column: validateColumn(fnDef, options),
+            frame: validateFrame(fnDef, options)
         };
     }
 
     if (isFieldTransform(fnDef)) {
         return {
-            column: transformColumn(fnDef, args),
-            frame: transformFrame(fnDef, args, field)
+            column: transformColumn(fnDef, options),
+            frame: transformFrame(fnDef, options)
         };
     }
 

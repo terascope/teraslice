@@ -1,7 +1,7 @@
 import { absConfig } from './abs';
 import { acosConfig } from './acos';
 import { acoshConfig } from './acosh';
-import { addConfig } from './add';
+import { addConfig, AddArgs } from './add';
 import { addValuesConfig } from './addValues';
 import { asinConfig } from './asin';
 import { asinhConfig } from './asinh';
@@ -13,37 +13,37 @@ import { ceilConfig } from './ceil';
 import { clz32Config } from './clz32';
 import { cosConfig } from './cos';
 import { coshConfig } from './cosh';
-import { divideConfig } from './divide';
+import { divideConfig, DivideArgs } from './divide';
 import { divideValuesConfig } from './divideValues';
 import { expConfig } from './exp';
 import { expm1Config } from './expm1';
 import { floorConfig } from './floor';
 import { froundConfig } from './fround';
 import { hypotConfig } from './hypot';
-import { inNumberRangeConfig } from './inNumberRange';
+import { inNumberRangeConfig, InNumberRangeArg } from './inNumberRange';
 import { isEvenConfig } from './isEven';
-import { isGreaterThanConfig } from './isGreaterThan';
-import { isGreaterThanOrEqualToConfig } from './isGreaterThanOrEqual';
-import { isLessThanConfig } from './isLessThan';
-import { isLessThanOrEqualToConfig } from './isLessThanOrEqual';
+import { isGreaterThanConfig, GreaterThanArgs } from './isGreaterThan';
+import { isGreaterThanOrEqualToConfig, GreaterThanOrEqualToArgs } from './isGreaterThanOrEqual';
+import { isLessThanConfig, LessThanArgs } from './isLessThan';
+import { isLessThanOrEqualToConfig, LessThanOrEqualToArgs } from './isLessThanOrEqual';
 import { isOddConfig } from './isOdd';
 import { logConfig } from './log';
 import { log10Config } from './log10';
 import { log1pConfig } from './log1p';
 import { log2Config } from './log2';
 import { minValuesConfig } from './minValues';
-import { modulusConfig } from './modulus';
-import { multiplyConfig } from './multiply';
+import { modulusConfig, ModulusArgs } from './modulus';
+import { multiplyConfig, MultiplyArgs } from './multiply';
 import { multiplyValuesConfig } from './multiplyValues';
-import { powConfig } from './pow';
-import { randomConfig } from './random';
+import { powConfig, PowerArgs } from './pow';
+import { randomConfig, RandomArgs } from './random';
 import { roundConfig } from './round';
-import { setPrecisionConfig } from './setPrecision';
+import { setPrecisionConfig, SetPrecisionArgs } from './setPrecision';
 import { signConfig } from './sign';
 import { sinConfig } from './sin';
 import { sinhConfig } from './sinh';
 import { sqrtConfig } from './sqrt';
-import { subtractConfig } from './subtract';
+import { subtractConfig, SubtractArgs } from './subtract';
 import { subtractValuesConfig } from './subtractValues';
 import { tanConfig } from './tan';
 import { tanhConfig } from './tanh';
@@ -104,4 +104,20 @@ export const numericRepository = {
     toCelsius: toCelsiusConfig,
     toFahrenheit: toFahrenheitConfig,
     toNumber: toNumberConfig,
+};
+
+export type {
+    AddArgs,
+    DivideArgs,
+    GreaterThanArgs,
+    GreaterThanOrEqualToArgs,
+    InNumberRangeArg,
+    LessThanArgs,
+    LessThanOrEqualToArgs,
+    ModulusArgs,
+    MultiplyArgs,
+    PowerArgs,
+    RandomArgs,
+    SetPrecisionArgs,
+    SubtractArgs
 };

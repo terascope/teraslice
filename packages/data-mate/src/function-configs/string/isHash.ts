@@ -6,6 +6,10 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
+export interface IsHashArgs {
+    algo: string;
+}
+
 export type HashConfigAlgorithms =
  | 'md4'
  | 'md5'
@@ -36,10 +40,6 @@ const listOfAlgorithms = [
     'crc32',
     'crc32b'
 ];
-
-export interface IsHashArgs {
-    algo: string;
-}
 
 export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
     name: 'isHash',

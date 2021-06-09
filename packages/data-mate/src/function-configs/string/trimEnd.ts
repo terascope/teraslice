@@ -13,6 +13,7 @@ import {
 export interface TrimEndArgs {
     chars?: string;
 }
+
 const examples: FunctionDefinitionExample<TrimEndArgs>[] = [
     {
         args: {},

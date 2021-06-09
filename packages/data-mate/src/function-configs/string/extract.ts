@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType,
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
-    FunctionDefinitionExample
+    FunctionDefinitionExample,
 } from '../interfaces';
 
 export interface ExtractArgs {

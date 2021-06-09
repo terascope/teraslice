@@ -6,8 +6,10 @@ import {
     FieldTransformConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
 } from '../interfaces';
+
+export type { AdjustDateArgs };
 
 export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'addToDate',

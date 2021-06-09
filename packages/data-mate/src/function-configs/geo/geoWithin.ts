@@ -1,5 +1,5 @@
 import { geoWithinFP, toGeoJSON } from '@terascope/utils';
-import { FieldType, GeoInput, GeoShapeType } from '@terascope/types';
+import { FieldType, GeoShapeType, GeoInput } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,

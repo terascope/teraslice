@@ -28,6 +28,16 @@ export function toNumber(input: unknown): number {
     return Number(input);
 }
 
+/** Will throw if converted number is NaN */
+export function toNumberOrThrow(input: unknown): number {
+    const num = toNumber(input);
+
+    if (!isNumber(num)) {
+        throw new Error(`Could not convert ${input} to a number`);
+    }
+    return num;
+}
+
 /** Check if value is a bigint */
 export function isBigInt(input: unknown): input is bigint {
     return typeof input === 'bigint';

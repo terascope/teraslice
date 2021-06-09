@@ -6,7 +6,7 @@ import {
     FunctionDefinitionType, FunctionDefinitionExample
 } from '../interfaces';
 
-export interface AlphaLocale {
+export interface IsAlphaArgs {
     locale?: validator.AlphaLocale;
 }
 
@@ -69,7 +69,7 @@ const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     }
 ];
 
-export const isAlphaConfig: FieldValidateConfig<AlphaLocale> = {
+export const isAlphaConfig: FieldValidateConfig<IsAlphaArgs> = {
     name: 'isAlpha',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -87,7 +87,7 @@ export const isAlphaConfig: FieldValidateConfig<AlphaLocale> = {
     examples,
     accepts: [FieldType.String],
     required_arguments: [],
-    validate_arguments({ locale }: AlphaLocale) {
+    validate_arguments({ locale }: IsAlphaArgs) {
         if (locale == null || (isString(locale)
             && validator.isAlphaLocales.includes(locale))) {
             return;

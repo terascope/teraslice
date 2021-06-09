@@ -53,6 +53,43 @@ export function mapVectorEachValue<T, R = T>(
     return transformVectorToBuilder(vector, builder, _mapValue);
 }
 
+export function dynamicMapVectorEach<T, R = T>(
+    vector: Vector<T>|ListVector<T>,
+    builder: Builder<R>,
+    dynamicFn: (index: number) =>
+    (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>,
+): Vector<R> {
+    let i = 0;
+
+    for (const value of vector) {
+        const ind = i++;
+        const fn = dynamicFn(ind);
+        builder.set(ind, fn(value, ind));
+    }
+
+    return builder.toVector();
+}
+
+export function dynamicMapVectorEachValue<T, R = T>(
+    vector: Vector<T>|ListVector<T>,
+    builder: Builder<R>,
+    dynamicFn: (index: number) => (value: T, index: number) => Maybe<R>,
+): Vector<R> {
+    function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
+        const fn = dynamicFn(index);
+
+        if (isArrayLike<readonly Maybe<T>[]>(value)) {
+            return value.map((v): Maybe<R> => (
+                v != null ? fn(v, index) : null
+            ));
+        }
+
+        return fn(value as T, index);
+    }
+
+    return transformVectorToBuilder(vector, builder, _mapValue);
+}
+
 export function validateFieldTransformArgs<A extends Record<string, any>>(
     schema?: DataTypeFields, requiredArgs?: string[], args?: Partial<A>
 ): A {
@@ -71,6 +108,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
         const builder = Builder.make(WritableData.emptyData, {
             config,
         });
+
         if (result[field] != null) {
             result[field] = builder.valueFrom(result[field]) as any;
         }

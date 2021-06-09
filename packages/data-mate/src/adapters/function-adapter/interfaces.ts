@@ -1,11 +1,12 @@
 import { DataTypeConfig } from '@terascope/types';
+import { FunctionContext, DynamicFunctionContext } from '../../function-configs/interfaces';
 
 export interface FunctionAdapterOptions<T extends Record<string, any>> {
     /**
      * Required with using the data field config
     */
     readonly field?: string,
-    readonly args?: T,
+    readonly args?: T | ((index: number) => T),
     readonly config?: DataTypeConfig;
     readonly preserveNulls?: boolean;
     readonly preserveEmptyObjects?: boolean;
@@ -14,7 +15,18 @@ export interface FunctionAdapterOptions<T extends Record<string, any>> {
 export interface RecordFunctionAdapterOperation {
     rows: (records: Record<string, unknown>[]) => Record<string, unknown>[];
 }
-
 export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOperation {
     column(values: unknown[]): unknown[];
+}
+
+export interface FunctionAdapterContext<T> extends FunctionContext<T> {
+    preserveNulls: boolean;
+    preserveEmptyObjects: boolean;
+    field?: string
+}
+
+export interface DynamicFunctionAdapterContext<T> extends DynamicFunctionContext<T> {
+    preserveNulls: boolean;
+    preserveEmptyObjects: boolean;
+    field?: string
 }

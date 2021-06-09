@@ -3,7 +3,7 @@ import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface GreaterThanArgs {

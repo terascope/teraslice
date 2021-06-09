@@ -2,17 +2,18 @@ import { FieldType } from '@terascope/types';
 import { isString, isNil } from '@terascope/utils';
 import validator from 'validator';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
-export interface LengthArgs {
+export interface IsLengthArgs {
     /** Check to see if it exactly matches size */
     readonly size?: number;
     readonly min?: number;
     readonly max?: number;
 }
 
-export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
+export const isLengthConfig: FieldValidateConfig<IsLengthArgs> = {
     name: 'isLength',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -85,7 +86,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
 };
 // TODO: might need to change how array is handled
 function isLength(
-    input: unknown, { size, min = -Infinity, max = Infinity }: LengthArgs
+    input: unknown, { size, min = -Infinity, max = Infinity }: IsLengthArgs
 ): boolean {
     if (isString(input)) {
         if (size) return input.length === size;

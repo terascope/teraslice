@@ -2,7 +2,7 @@ import {
     geoPointWithinRangeFP, isGeoPoint, joinList,
     parseGeoDistance
 } from '@terascope/utils';
-import { FieldType, GeoPointInput, GEO_DISTANCE_UNITS } from '@terascope/types';
+import { FieldType, GEO_DISTANCE_UNITS, GeoPointInput } from '@terascope/types';
 import {
     FieldValidateConfig,
     ProcessMode,

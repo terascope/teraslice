@@ -1,7 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { isUnixTimeFP } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface IsEpochArgs {

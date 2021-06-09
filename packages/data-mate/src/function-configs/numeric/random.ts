@@ -5,7 +5,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-    DataTypeFieldAndChildren,
+    DataTypeFieldAndChildren
 } from '../interfaces';
 
 export interface RandomArgs {

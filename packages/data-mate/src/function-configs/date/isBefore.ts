@@ -1,7 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { isBefore, isValidDate } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export interface IsBeforeArgs {
