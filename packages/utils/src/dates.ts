@@ -490,7 +490,9 @@ export function getTimeBetween(
     return getDurationFunc[interval](date2, date1);
 }
 
-function _getStartEndTime(input: unknown, args: GetTimeBetweenArgs): [DateInputTypes, DateInputTypes] {
+function _getStartEndTime(
+    input: unknown, args: GetTimeBetweenArgs
+): [DateInputTypes, DateInputTypes] {
     const { start, end } = args;
 
     if (start == null && end == null) {
