@@ -12,7 +12,7 @@ import {
 export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'subtractFromDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date minus the date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
@@ -24,6 +24,16 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: '2019-10-22T22:00:00.000Z',
         output: new Date('2019-10-22T12:02:00.000Z').getTime(),
+        serialize_output: toISO8601
+    }, {
+        args: { expr: '10h+2m' },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.DateTuple } }
+        },
+        field: 'testField',
+        input: [1571781600000, 60],
+        output: new Date('2019-10-22T11:02:00.000Z').getTime(),
         serialize_output: toISO8601
     }, {
         args: { months: 1, minutes: 2 },
@@ -60,7 +70,8 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         return subtractFromDateFP(args);
     },
     accepts: [
-        FieldType.Date
+        FieldType.Date,
+        FieldType.DateTuple
     ],
     argument_schema: {
         expr: {
@@ -120,5 +131,16 @@ For example, \`1h\` or \`1h+2m\``
             const withoutExpr = argKeys.filter((k) => k !== 'expr');
             throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
         }
+    },
+    output_type(inputConfig) {
+        const { field_config } = inputConfig;
+
+        return {
+            field_config: {
+                description: field_config.description,
+                array: field_config.array,
+                type: FieldType.Date
+            },
+        };
     }
 };

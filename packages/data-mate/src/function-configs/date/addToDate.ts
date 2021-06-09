@@ -71,6 +71,8 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     },
     accepts: [
         FieldType.Date,
+        FieldType.String,
+        FieldType.Number,
         FieldType.DateTuple
     ],
     argument_schema: {

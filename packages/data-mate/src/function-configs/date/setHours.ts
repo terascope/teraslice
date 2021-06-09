@@ -9,7 +9,7 @@ import {
 export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setHours',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the hours set to the args value.',
     examples: [
@@ -33,6 +33,17 @@ export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
             field: 'testField',
             input: new Date('2021-05-14T20:45:30.091Z'),
             output: new Date('2021-05-14T22:45:30.091Z').getTime(),
+            serialize_output: toISO8601
+        },
+        {
+            args: { value: 12 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple } }
+            },
+            field: 'testField',
+            input: [1621026000000, 120],
+            output: new Date('2021-05-14T12:00:00.000Z').getTime(),
             serialize_output: toISO8601
         },
         {
@@ -63,7 +74,12 @@ export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
         }
     },
     required_arguments: ['value'],
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
+    ],
     output_type({ field_config }) {
         return {
             field_config: {
