@@ -41,7 +41,8 @@ export function mapVectorEachValue<T, R = T>(
     builder: Builder<R>,
     fn: (value: T, index: number) => Maybe<R>,
 ): Vector<R> {
-    const containsArray = vector.type === VectorType.Tuple || vector.config.array;
+    const containsArray = vector.type === VectorType.Tuple || vector.config.array
+        || vector.type === VectorType.Any;
 
     function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
         if (containsArray && value != null) {
