@@ -9,7 +9,7 @@ import {
 } from '../interfaces';
 import { cryptoEncode } from './encode-utils';
 
-export interface EncodeSHAConfig {
+export interface EncodeSHAArgs {
     hash?: string;
     digest?: BinaryToTextEncoding;
 }
@@ -17,7 +17,7 @@ export interface EncodeSHAConfig {
 const hashDefault = 'sha256';
 const digestDefault: BinaryToTextEncoding = 'hex';
 
-export const encodeSHAConfig: FieldTransformConfig<EncodeSHAConfig> = {
+export const encodeSHAConfig: FieldTransformConfig<EncodeSHAArgs> = {
     name: 'encodeSHA',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

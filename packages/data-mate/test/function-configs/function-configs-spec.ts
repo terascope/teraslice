@@ -16,7 +16,7 @@ describe('function configs', () => {
             for (const fnDef of Object.values(functionConfigRepository)) {
                 yield fnDef.name.toLowerCase();
 
-                if (fnDef.aliases) yield* fnDef.aliases.map((s) => s.toLowerCase());
+                if (fnDef.aliases) yield* fnDef.aliases.map((s: string) => s.toLowerCase());
             }
         }
         const names = Array.from(allFnNames());

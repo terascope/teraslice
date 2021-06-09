@@ -3,10 +3,15 @@ import {
     setHours, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig
 } from '../interfaces';
 
-export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
+export interface SetHoursArgs {
+    value: number
+}
+
+export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {
     name: 'setHours',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -62,7 +67,7 @@ export const setHoursConfig: FieldTransformConfig<{ value: number }> = {
         return setHours(value);
     },
     argument_schema: {
-        hours: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set hours to, must be between 0 and 23'
         }

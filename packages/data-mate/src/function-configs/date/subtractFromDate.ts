@@ -9,6 +9,8 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
+// AdjustDateArgs is not export as addFromDate does so, cannot double export
+
 export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'subtractFromDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,

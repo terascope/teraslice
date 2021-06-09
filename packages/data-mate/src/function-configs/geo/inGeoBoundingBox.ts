@@ -4,15 +4,15 @@ import {
     FieldValidateConfig,
     ProcessMode,
     FunctionDefinitionType,
-    FunctionDefinitionCategory
+    FunctionDefinitionCategory,
 } from '../interfaces';
 
-export interface PointInBoundingBoxArgs {
+export interface InGeoBoundingBoxArgs {
     top_left: GeoPointInput;
     bottom_right: GeoPointInput
 }
 
-export const inGeoBoundingBoxConfig: FieldValidateConfig<PointInBoundingBoxArgs> = {
+export const inGeoBoundingBoxConfig: FieldValidateConfig<InGeoBoundingBoxArgs> = {
     name: 'inGeoBoundingBox',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     aliases: ['geoBox'],

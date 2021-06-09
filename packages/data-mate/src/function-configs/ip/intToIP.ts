@@ -2,7 +2,8 @@ import { intToIP, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig
 } from '../interfaces';
 
 export interface IntToIPArgs {

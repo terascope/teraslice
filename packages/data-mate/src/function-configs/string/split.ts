@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionExample, FunctionDefinitionCategory
+    FunctionDefinitionExample, FunctionDefinitionCategory,
 } from '../interfaces';
 
 export interface SplitArgs {

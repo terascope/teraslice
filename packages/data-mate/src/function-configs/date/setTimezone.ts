@@ -6,10 +6,15 @@ import {
     toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig
 } from '../interfaces';
 
-export const setTimezoneConfig: FieldTransformConfig<{ timezone: number|string }> = {
+export interface SetTimezoneArgs {
+    timezone: number|string
+}
+
+export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
     name: 'setTimezone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

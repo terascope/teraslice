@@ -5,9 +5,28 @@ import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import { isString } from './strings';
 import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
+import { getTypeOf } from './deps';
 
-export function isIP(input: unknown): boolean {
+export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);
+}
+
+/** Will throw if input is not a valid CIDR */
+export function isIPRangeOrThrow(input: unknown): string {
+    if (!isCIDR(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP range`);
+    }
+
+    return input;
+}
+
+/** Will throw if input is not a valid IP */
+export function isIPOrThrow(input: unknown): string {
+    if (!isString(input) || !isIP(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a valid IP`);
+    }
+
+    return input;
 }
 
 export function isIPV6(input: unknown): boolean {

@@ -1,8 +1,10 @@
 import {
     DataTypeFieldConfig, FieldType, DataTypeFields,
-    ReadonlyDataTypeFields, ReadonlyDataTypeConfig
+    ReadonlyDataTypeFields, ReadonlyDataTypeConfig,
 } from '@terascope/types';
 import { Column } from '../column';
+
+export type { InNumberRangeArg } from '@terascope/utils';
 
 export enum FunctionDefinitionType {
     FIELD_TRANSFORM = 'FIELD_TRANSFORM',
@@ -132,17 +134,33 @@ export interface FunctionDefinitionConfig<T extends Record<string, any>> {
 export interface FunctionContext<T extends Record<string, any> = Record<string, unknown>> {
     readonly args: T,
     readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly outputConfig?: DataTypeFieldAndChildren,
     readonly parent: Column<unknown>|unknown[]
 }
 
-/** This interface might change, not certain of use of  outputConfig */
-export interface TransformContext<
+export interface DynamicFrameFunctionContext<
     T extends Record<string, any> = Record<string, unknown>
-> extends FunctionContext<T> {
+> {
+    readonly args: (index: number) => T,
+    readonly inputConfig?: DataTypeFieldAndChildren,
     readonly outputConfig?: DataTypeFieldAndChildren,
+    readonly parent: Column<unknown>
 }
 
-export type InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> = Pick<FunctionContext<T>, 'inputConfig'|'args'>
+export interface DynamicFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
+    readonly args: (index: number) => T,
+    readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly outputConfig?: DataTypeFieldAndChildren,
+    readonly parent: unknown[]
+}
+
+export interface InitialFunctionContext<T extends Record<string, any> = Record<string, unknown>> {
+    readonly args: T | ((index: number) => T),
+    readonly inputConfig?: DataTypeFieldAndChildren,
+    readonly preserveNulls: boolean,
+    readonly preserveEmptyObjects: boolean,
+    readonly field?: string
+}
 
 export interface FieldValidateConfig<
     T extends Record<string, any> = Record<string, unknown>
@@ -161,7 +179,7 @@ export interface FieldTransformConfig<
         inputConfig: DataTypeFieldAndChildren,
         args: T
     ) => DataTypeFieldAndChildren;
-    readonly create: (config: TransformContext<T>) => (value: unknown, index: number) => unknown;
+    readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => unknown;
 }
 
 export interface RecordTransformConfig<
@@ -172,15 +190,16 @@ export interface RecordTransformConfig<
         inputConfig: ReadonlyDataTypeFields,
         args?: T
     ) => ReadonlyDataTypeFields,
-    readonly create: (config: TransformContext<T>) =>
-    (value: Record<string, unknown>, index: number) => Record<string, unknown>
+    readonly create: (
+        config: FunctionContext<T>
+    ) => (value: Record<string, unknown>, index: number) => Record<string, unknown>
 }
 
 export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
     readonly type: FunctionDefinitionType.RECORD_VALIDATION,
-    readonly create: (config: TransformContext<T>) =>
+    readonly create: (config: FunctionContext<T>) =>
     (value: Record<string, unknown>, index: number) => boolean
 }
 

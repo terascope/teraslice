@@ -2,7 +2,7 @@ import { isDeepEqualFP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
-    FunctionDefinitionCategory, FunctionDefinitionExample
+    FunctionDefinitionCategory, FunctionDefinitionExample,
 } from '../interfaces';
 
 export interface EqualsArgs {
@@ -71,5 +71,6 @@ export const equalsConfig: FieldValidateConfig<EqualsArgs> = {
             array: false,
             description: 'Value to use in the comparison'
         }
-    }
+    },
+    required_arguments: ['value']
 };

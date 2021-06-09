@@ -1,77 +1,9 @@
 import {
-    isNil,
-    isString,
-    isNumber,
-    isBoolean,
-    isValidDate,
-    isGeoJSON,
-    isGeoPoint,
-    isObjectEntity,
-    isIP,
-    joinList, getTypeOf, isEmpty, isBigInt,
-    isArray,
-    isValidateNumberType,
-    isCIDR
+    isNil, isNumber, isBoolean, coerceToType,
+    joinList, set, isEmpty,
 } from '@terascope/utils';
-import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import {
-    FunctionDefinitionConfig,
-} from '../../function-configs/interfaces';
-
-function isIntOrBigint(input: unknown): boolean {
-    return isBigInt(input) || isNumber(input);
-}
-
-function getType(
-    argFieldType: DataTypeFieldConfig,
-): (input: unknown) => boolean {
-    switch (argFieldType.type) {
-        case FieldType.String:
-        case FieldType.Text:
-        case FieldType.Keyword:
-        case FieldType.KeywordCaseInsensitive:
-        case FieldType.KeywordTokens:
-        case FieldType.KeywordTokensCaseInsensitive:
-        case FieldType.KeywordPathAnalyzer:
-        case FieldType.Domain:
-        case FieldType.Hostname:
-        case FieldType.NgramTokens:
-            return isString;
-        case FieldType.IP:
-            return isIP;
-        case FieldType.IPRange:
-            return isCIDR;
-        case FieldType.Date:
-            return isValidDate;
-        case FieldType.Boolean:
-            return isBoolean;
-        case FieldType.Float:
-        case FieldType.Number:
-        case FieldType.Double:
-            return isNumber;
-        case FieldType.Byte:
-            return isValidateNumberType(FieldType.Byte);
-        case FieldType.Short:
-            return isValidateNumberType(FieldType.Short);
-        case FieldType.Integer:
-            return isValidateNumberType(FieldType.Integer);
-        case FieldType.Long:
-            return isIntOrBigint;
-        case FieldType.Geo:
-        case FieldType.GeoPoint:
-        case FieldType.Boundary:
-            return isGeoPoint;
-        case FieldType.GeoJSON:
-            return isGeoJSON;
-        case FieldType.Object:
-            return isObjectEntity;
-        case FieldType.Tuple:
-            return isArray;
-        default:
-            // equivalent to an any-builder
-            return () => true;
-    }
-}
+import { getDataTypeFieldAndChildren } from '../utils';
+import { FunctionDefinitionConfig, DataTypeFieldAndChildren } from '../../function-configs/interfaces';
 
 function isEmptyLike(input: unknown): boolean {
     // if it nil, or [], {}, booleans are fine
@@ -80,11 +12,13 @@ function isEmptyLike(input: unknown): boolean {
 
 export function validateFunctionArgs<T extends Record<string, any>>(
     fnDef: FunctionDefinitionConfig<T>,
-    args?: T
-): asserts args is T {
+    fnArgs = {} as T
+): T {
+    let args = fnArgs;
+
     // check required fields
     if (fnDef?.required_arguments?.length) {
-        if (isNil(args) || !Object.keys(args).length) {
+        if (!Object.keys(args).length) {
             throw new Error(`No arguments were provided but ${fnDef.name} requires ${joinList(
                 fnDef.required_arguments as string[]
             )} to be set`);
@@ -99,24 +33,26 @@ export function validateFunctionArgs<T extends Record<string, any>>(
 
     // check fields are right type;
     if (fnDef.argument_schema) {
-        const config = args ?? {};
+        let newArgs = {} as Partial<T>;
 
-        for (const [field, typeConfig] of Object.entries(fnDef.argument_schema)) {
-            if (Object.hasOwnProperty.call(config, field)) {
-                const typeValidator = getType(typeConfig);
-                // if its an array of values, check each one
-                if (typeConfig.array) {
-                    if (!config[field].every(typeValidator)) {
-                        throw new Error(`Invalid argument value set at key ${field}, expected ${config[field]} to be compatible with type ${typeConfig.type}[]`);
-                    }
-                } else if (!typeValidator(config[field])) {
-                    throw new Error(`Invalid argument value set at key ${field}, expected ${getTypeOf(config[field])} to be compatible with type ${typeConfig.type}`);
-                }
+        for (const field of Object.keys(fnDef.argument_schema)) {
+            if (Object.hasOwnProperty.call(args, field)) {
+                const { field_config, child_config } = getDataTypeFieldAndChildren(
+                    { fields: fnDef.argument_schema },
+                    field,
+                ) as DataTypeFieldAndChildren;
+                const coerceValue = coerceToType(field_config, child_config);
+
+                newArgs = set(newArgs, field, coerceValue(args[field]));
             }
         }
+
+        args = newArgs as T;
     }
 
     if (fnDef.validate_arguments) {
         fnDef.validate_arguments(args ?? ({} as T));
     }
+
+    return args;
 }

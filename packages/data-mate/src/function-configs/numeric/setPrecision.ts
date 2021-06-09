@@ -11,12 +11,12 @@ import {
     FunctionDefinitionCategory,
 } from '../interfaces';
 
-export interface ToPrecisionArgs {
+export interface SetPrecisionArgs {
     readonly digits: number;
     readonly truncate?: boolean;
 }
 
-export const setPrecisionConfig: FieldTransformConfig<ToPrecisionArgs> = {
+export const setPrecisionConfig: FieldTransformConfig<SetPrecisionArgs> = {
     name: 'setPrecision',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,

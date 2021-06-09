@@ -2,7 +2,8 @@ import { isCIDR } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
 } from '../interfaces';
 
 export const isCIDRConfig: FieldValidateConfig = {

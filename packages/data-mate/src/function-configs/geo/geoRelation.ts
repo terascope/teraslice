@@ -2,7 +2,7 @@ import {
     joinList, geoRelationFP, toGeoJSON
 } from '@terascope/utils';
 import {
-    FieldType, GeoShapeRelation, GeoInput, GeoShapeType
+    FieldType, GeoShapeRelation, GeoShapeType, GeoInput
 } from '@terascope/types';
 import {
     FieldValidateConfig,

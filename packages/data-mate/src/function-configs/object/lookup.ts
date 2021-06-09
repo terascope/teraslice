@@ -1,8 +1,8 @@
 import { lookup } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig,
-    DataTypeFieldAndChildren
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig, DataTypeFieldAndChildren
 } from '../interfaces';
 
 export interface LookupArgs {

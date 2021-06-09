@@ -3,10 +3,15 @@ import {
     setMonth, isInteger, inNumberRange, toISO8601
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
+    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
+    FieldTransformConfig
 } from '../interfaces';
 
-export const setMonthConfig: FieldTransformConfig<{ value: number }> = {
+export interface SetMonthArgs {
+    value: number
+}
+
+export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
     name: 'setMonth',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
