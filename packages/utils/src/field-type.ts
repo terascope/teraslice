@@ -8,7 +8,7 @@ import {
     isString, primitiveToString, toString
 } from './strings';
 import {
-    isIP, isCIDR, isIPRangeOrThrow
+    isIP, isCIDR, isIPRangeOrThrow, isIPOrThrow
 } from './ip';
 import {
     isValidDate,
@@ -35,6 +35,9 @@ export const HASH_CODE_SYMBOL = Symbol('__hash__');
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 
+/** Will return a function that will coerce the input values to the DataTypeFieldConfig provided.
+ * The parameter childConfig is only necessary with Tuple or Object field types
+ */
 export function coerceToType<T = unknown>(
     fieldConfig: DataTypeFieldConfig,
     childConfig?: DataTypeFields
@@ -56,24 +59,23 @@ export function coerceToType<T = unknown>(
     return getTransformerForFieldType<T>(fieldConfig, childConfig) as CoerceFN<T>;
 }
 
-// We convert Int, Byte and Short to Integers
-function _shouldConvertToInteger(type: FieldType) {
-    return [FieldType.Integer, FieldType.Byte, FieldType.Short].includes(type);
-}
-
-export function isIPOrThrow(input: unknown): string {
-    const ipValue = primitiveToString(input);
-
-    if (!isString(input) || !isIP(ipValue)) {
-        throw new TypeError(`Expected ${ipValue} (${getTypeOf(input)}) to be a valid IP`);
-    }
-
-    return ipValue;
-}
+const NumberTypeFNDict = {
+    [FieldType.Float]: toFloatOrThrow,
+    [FieldType.Number]: toNumberOrThrow,
+    [FieldType.Double]: toNumberOrThrow,
+    [FieldType.Integer]: toIntegerOrThrow,
+    [FieldType.Byte]: toIntegerOrThrow,
+    [FieldType.Short]: toIntegerOrThrow,
+    [FieldType.Long]: toBigIntOrThrow,
+};
 
 export function coerceToNumberType(type: FieldType): (input: unknown) => number {
     const numberValidator = isValidateNumberType(type);
-    const coerceFn = _shouldConvertToInteger(type) ? toIntegerOrThrow : toNumberOrThrow;
+    const coerceFn = NumberTypeFNDict[type];
+
+    if (coerceFn == null) {
+        throw new Error(`Unsupported type ${type}, please provide a valid numerical field type`);
+    }
 
     return function _coerceToNumberType(input: unknown): number {
         const num = coerceFn(input);
@@ -331,18 +333,13 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.Boolean:
             return toBooleanOrThrow;
         case FieldType.Float:
-            return toFloatOrThrow;
         case FieldType.Number:
         case FieldType.Double:
-            return toNumberOrThrow;
         case FieldType.Byte:
-            return coerceToNumberType(FieldType.Byte);
         case FieldType.Short:
-            return coerceToNumberType(FieldType.Short);
         case FieldType.Integer:
-            return coerceToNumberType(FieldType.Integer);
         case FieldType.Long:
-            return toBigIntOrThrow;
+            return coerceToNumberType(argFieldType.type as FieldType);
         case FieldType.Geo:
         case FieldType.GeoPoint:
         case FieldType.Boundary:
@@ -353,9 +350,10 @@ function getTransformerForFieldType<T = unknown>(
             return coerceToObject(argFieldType, childConfig);
         case FieldType.Tuple:
             return coerceToTuple(argFieldType, childConfig);
-        default:
-            // equivalent to an any-builder
+        case FieldType.Any:
             return (input) => input;
+        default:
+            throw new Error(`Invalid FieldType ${argFieldType.type}, was pulled from the type field of input ${JSON.stringify(argFieldType, null, 2)}`);
     }
 }
 
