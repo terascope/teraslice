@@ -3,8 +3,8 @@ import JobTestHarness from './job-test-harness';
 import OpTestHarness from './op-test-harness';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
-import DownloadExternalAsset from './download-external-asset';
 
+export * from './download-external-asset';
 export * from './interfaces';
 export {
     JobTestHarness,
@@ -13,5 +13,4 @@ export {
     WorkerTestHarness,
     newTestSlice,
     newTestJobConfig,
-    DownloadExternalAsset
 };

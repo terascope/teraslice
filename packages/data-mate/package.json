@@ -32,7 +32,7 @@
         "@terascope/data-types": "^0.30.0-rc.1",
         "@terascope/types": "^0.10.0-rc.1",
         "@terascope/utils": "^0.40.0-rc.1",
-        "date-fns": "^2.21.1",
+        "date-fns": "^2.22.1",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.3",
         "ipaddr.js": "^2.0.0",

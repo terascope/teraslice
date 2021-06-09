@@ -1,5 +1,7 @@
 import { address } from 'ip';
-import { toBoolean, toSafeString, isCI } from '@terascope/utils';
+import {
+    toBoolean, toSafeString, isCI, toIntegerOrThrow
+} from '@terascope/utils';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -47,7 +49,25 @@ export const DEV_TAG = toSafeString((
 // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/')[0]);
 
+/**
+ * Use this to override the default dev docker image tag, if this
+ * is set, using DEV_TAG is no longer needed
+*/
+export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
+
+/**
+ * Use this to skip the docker build command in e2e tests, this might be
+ * useful if you pull down a cache image outside of this and you know it
+ * is up-to-date
+*/
+export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
+
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
+
+/**
+ * jest or our tests have a memory leak, limiting this seems to help
+ */
+export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 10);
 
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);

@@ -51,13 +51,15 @@ function getMajorVersion(version) {
     return semver.major(version);
 }
 
-const nodeVersion = getMajorVersion(process.version);
+const SYSTEM_NODE_VERSION = getMajorVersion(process.version);
 /**
  * This just compares the major version
 */
 function isCompatibleNodeVersion(version) {
     if (version == null) return true;
-    return getMajorVersion(version) === nodeVersion;
+
+    // anything less than or equal to current node version
+    return getMajorVersion(version) <= SYSTEM_NODE_VERSION;
 }
 
 function _isCompatibleAsset(name, range, skipRestrictions = false) {

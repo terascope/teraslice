@@ -37,33 +37,29 @@ describe('Op Test Harness', () => {
     });
 
     describe('With event callbacks', () => {
-        it('should run successfully', (done) => {
+        it('should run successfully', () => {
             const harness = opHarness(opEvents);
-            harness
+            return harness
                 .runSlices([[{}]], {
                     eventName: 'worker:shutdown'
                 })
                 .then((results) => {
                     expect(results[1]).toEqual(1);
-                    done();
-                })
-                .catch(fail);
+                });
         });
     });
 
     describe('With multiple slices', () => {
-        it('should run successfully', (done) => {
+        it('should run successfully', () => {
             const harness = opHarness(opFoo);
-            harness
+            return harness
                 .runSlices([[{}], [{}]])
                 .then((results) => {
                     expect(results.length).toEqual(3);
                     expect(results[0]).toEqual([{ foo: 'foo' }]);
                     expect(results[1]).toEqual([{ foo: 'foo' }]);
                     expect(results[2]).toEqual([]);
-                    done();
-                })
-                .catch(fail);
+                });
         });
     });
 

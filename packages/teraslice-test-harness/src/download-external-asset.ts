@@ -6,7 +6,7 @@ import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
 import * as I from './interfaces';
 
-export default class DownLoadExternalAsset {
+export class DownloadExternalAsset {
     zipped_path: string;
     unzipped_path: string;
     build: string;
