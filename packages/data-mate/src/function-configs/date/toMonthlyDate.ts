@@ -12,27 +12,41 @@ import {
 export const toMonthlyDateConfig: FieldTransformConfig = {
     name: 'toMonthlyDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a value to a monthly ISO 8601 date segment',
-    examples: [{
-        args: { },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+    examples: [
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2019-10-22T01:00:00.000Z',
+            output: new Date('2019-10-01T00:00:00.000Z').getTime(),
+            serialize_output: toISO8601
         },
-        field: 'testField',
-        input: '2019-10-22T01:00:00.000Z',
-        output: new Date('2019-10-01T00:00:00.000Z').getTime(),
-        serialize_output: toISO8601
-    }],
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.DateTuple, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: [new Date('2019-10-22T01:00:00.000Z').getTime(), 120],
+            output: new Date('2019-10-01T00:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        }
+    ],
     create() {
         return trimISODateSegment(ISO8601DateSegment.monthly);
     },
     accepts: [
         FieldType.String,
         FieldType.Number,
-        FieldType.Date
+        FieldType.Date,
+        FieldType.DateTuple
     ],
     argument_schema: {},
     output_type(inputConfig) {

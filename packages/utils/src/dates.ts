@@ -158,14 +158,14 @@ export function isValidDateInstance(val: unknown): val is Date {
 }
 
 /** Ensure unix time */
-export function getTime(val?: string|number|Date): number | false {
+export function getTime(val?: DateTypes): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
     if (result === false) return false;
     return result.getTime();
 }
 
-export function getUnixTime(val?: string|number|Date): number | false {
+export function getUnixTime(val?: DateTypes): number | false {
     const time = getTime(val);
     if (time !== false) return Math.floor(time / 1000);
     return time;
@@ -274,12 +274,12 @@ export function isDateTuple(input: unknown): input is DateTuple {
 }
 
 /**
- * Returns a function to trim the ISO 8601 date segment, this useful
- * for creating yearly, monthly, daily or hourly dates
+ * Returns a function to trim the ISO 8601 date segment
+ * useful for creating yearly, monthly, daily or hourly dates
 */
 export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => number {
     return function _trimISODate(input) {
-        const date = getValidDateOrThrow(input);
+        const date = getValidDateWithTimezoneOrThrow(input);
 
         if (segment === ISO8601DateSegment.hourly) {
             return new Date(
