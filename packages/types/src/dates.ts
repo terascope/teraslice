@@ -24,16 +24,3 @@ export interface GetTimeBetweenArgs {
     end?: DateTypes;
     interval: TimeBetweenIntervals;
 }
-
-export interface IsAfterArgs {
-    date: string | number | Date | DateTuple;
-}
-
-export interface IsBeforeArgs {
-    date: string | number | Date | DateTuple;
-}
-
-export interface IsBetweenArgs {
-    start: string | number | Date | DateTuple;
-    end: string | number | Date | DateTuple;
-}

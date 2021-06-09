@@ -1,9 +1,13 @@
-import { FieldType, IsAfterArgs } from '@terascope/types';
+import { FieldType, DateTuple } from '@terascope/types';
 import { isAfter, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
+
+export interface IsAfterArgs {
+    date: string | number | Date | DateTuple;
+}
 
 export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
     name: 'isAfter',
