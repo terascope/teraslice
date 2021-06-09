@@ -8,7 +8,6 @@ export enum FieldType {
     Boundary = 'Boundary',
     Byte = 'Byte',
     Date = 'Date',
-    DateTuple = 'DateTuple',
     Domain = 'Domain',
     Double = 'Double',
     Float = 'Float',

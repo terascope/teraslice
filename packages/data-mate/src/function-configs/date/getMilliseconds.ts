@@ -7,7 +7,7 @@ import {
 export const getMillisecondsConfig: FieldTransformConfig = {
     name: 'getMilliseconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the milliseconds of the input date',
     examples: [
@@ -45,7 +45,7 @@ export const getMillisecondsConfig: FieldTransformConfig = {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026000012, -420],
@@ -58,8 +58,7 @@ export const getMillisecondsConfig: FieldTransformConfig = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

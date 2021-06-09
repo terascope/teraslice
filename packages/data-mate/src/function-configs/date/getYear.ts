@@ -7,7 +7,7 @@ import {
 export const getYearConfig: FieldTransformConfig = {
     name: 'getYear',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the year of the input date in UTC Time',
     examples: [
@@ -55,7 +55,7 @@ export const getYearConfig: FieldTransformConfig = {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026300000, -420],
@@ -68,8 +68,7 @@ export const getYearConfig: FieldTransformConfig = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

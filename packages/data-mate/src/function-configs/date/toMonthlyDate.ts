@@ -12,7 +12,7 @@ import {
 export const toMonthlyDateConfig: FieldTransformConfig = {
     name: 'toMonthlyDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a value to a monthly ISO 8601 date segment',
     examples: [
@@ -31,7 +31,7 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
             args: { },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple, format: DateFormat.iso_8601 } }
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
             },
             field: 'testField',
             input: [new Date('2019-10-22T01:00:00.000Z').getTime(), 120],
@@ -45,8 +45,7 @@ export const toMonthlyDateConfig: FieldTransformConfig = {
     accepts: [
         FieldType.String,
         FieldType.Number,
-        FieldType.Date,
-        FieldType.DateTuple
+        FieldType.Date
     ],
     argument_schema: {},
     output_type(inputConfig) {

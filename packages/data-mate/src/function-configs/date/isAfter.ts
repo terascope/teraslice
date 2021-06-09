@@ -7,7 +7,7 @@ import {
 export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
     name: 'isAfter',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input if it is after the arg date, otherwise returns null',
     examples: [
@@ -55,11 +55,11 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
             args: { date: '2021-05-10T10:00:00.000Z' },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1620640800000, -420],
-            output: [1620640800000, -420]
+            output: '2021-05-10T10:00:00.000-07:00'
         },
         {
             args: { date: [1620640800000, -420] },
@@ -85,8 +85,7 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     validate_arguments(args) {
         if (!isValidDate(args.date)) {

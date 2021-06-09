@@ -31,7 +31,7 @@ export const toDailyDateConfig: FieldTransformConfig = {
             args: { },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple, format: DateFormat.iso_8601 } }
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
             },
             field: 'testField',
             input: [1571706000000, 60],
@@ -45,8 +45,7 @@ export const toDailyDateConfig: FieldTransformConfig = {
     accepts: [
         FieldType.String,
         FieldType.Number,
-        FieldType.Date,
-        FieldType.DateTuple
+        FieldType.Date
     ],
     argument_schema: {},
     output_type(inputConfig) {

@@ -1,4 +1,4 @@
-import { isYesterday, subtractFromDate } from '@terascope/utils';
+import { isYesterday, subtractFromDate, toISO8601 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldValidateConfig
@@ -12,7 +12,7 @@ const yesterdayDate = new Date(yesterday).toISOString();
 export const isYesterdayConfig: FieldValidateConfig = {
     name: 'isYesterday',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -25,10 +25,11 @@ export const isYesterdayConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
-            input: [new Date(yesterdayDate).getTime(), 60],
-            output: [new Date(yesterdayDate).getTime(), 60]
+            input: [new Date(yesterdayDate).getTime(), 0],
+            output: new Date(yesterdayDate).getTime(),
+            serialize_output: toISO8601
         },
         {
             args: {},
@@ -43,8 +44,7 @@ export const isYesterdayConfig: FieldValidateConfig = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     create() {
         return isYesterday;

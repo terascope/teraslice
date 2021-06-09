@@ -9,7 +9,7 @@ import {
 export const setMinutesConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setMinutes',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the minutes set to the args value.',
     examples: [
@@ -39,7 +39,7 @@ export const setMinutesConfig: FieldTransformConfig<{ value: number }> = {
             args: { value: 59 },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026000000, -120],
@@ -77,8 +77,7 @@ export const setMinutesConfig: FieldTransformConfig<{ value: number }> = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

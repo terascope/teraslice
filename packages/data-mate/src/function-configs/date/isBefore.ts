@@ -7,7 +7,7 @@ import {
 export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     name: 'isBefore',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input if it is before the arg date, otherwise returns null',
     examples: [
@@ -55,11 +55,11 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
             args: { date: [1620640800000, -120] },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1620640800000, 0],
-            output: [1620640800000, 0]
+            output: '2021-05-10T10:00:00.000Z'
         }
     ],
     argument_schema: {
@@ -75,8 +75,7 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     validate_arguments(args) {
         if (!isValidDate(args.date)) {

@@ -12,7 +12,7 @@ import {
 export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'subtractFromDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date minus the date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
@@ -29,7 +29,7 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         args: { expr: '10h+2m' },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.DateTuple } }
+            fields: { testField: { type: FieldType.Date } }
         },
         field: 'testField',
         input: [1571781600000, 60],
@@ -69,10 +69,7 @@ export const subtractFromDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     create({ args }) {
         return subtractFromDateFP(args);
     },
-    accepts: [
-        FieldType.Date,
-        FieldType.DateTuple
-    ],
+    accepts: [FieldType.Date],
     argument_schema: {
         expr: {
             type: FieldType.String,

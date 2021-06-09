@@ -7,7 +7,7 @@ import {
 export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     name: 'isBetween',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input if it is between the args start and end dates, otherwise returns null',
     examples: [
@@ -55,11 +55,11 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
             args: { start: [1620640800000, 60], end: [1620640800000, -60] },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1620640800000, 0],
-            output: [1620640800000, 0]
+            output: '2021-05-10T10:00:00.000Z'
         }
     ],
     argument_schema: {
@@ -79,8 +79,7 @@ export const isBetweenConfig: FieldValidateConfig<IsBetweenArgs> = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     validate_arguments(args) {
         if (!isValidDate(args.start)) {

@@ -12,7 +12,7 @@ import {
 export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     name: 'addToDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date added to a date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
     examples: [{
@@ -39,7 +39,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         args: { months: 1, minutes: 2 },
         config: {
             version: 1,
-            fields: { testField: { type: FieldType.DateTuple } }
+            fields: { testField: { type: FieldType.Date } }
         },
         field: 'testField',
         input: [1571781600000, -60],
@@ -72,8 +72,7 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     argument_schema: {
         expr: {

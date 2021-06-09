@@ -11,7 +11,7 @@ import {
 export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
     name: 'getTimeBetween',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the time duration between the input value and start or end arg.  Can also select the interval and format with the args interval option.',
     examples: [
@@ -49,11 +49,11 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             args: { end: '2021-05-10T09:59:00.000+02:00', interval: 'milliseconds' },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: [1620640800000, -60],
-            output: 10860000
+            input: [1620640800000, 180],
+            output: 3540000
         },
         {
             args: { end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' },
@@ -84,7 +84,11 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
         return (input: unknown) => getTimeBetween(input, args);
     },
     required_arguments: ['interval'],
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
+    ],
     validate_arguments({ start, end }: GetTimeBetweenArgs) {
         if ((start == null && end == null) || (start != null && end != null)) {
             throw Error('Must provide a start or an end value');

@@ -9,7 +9,7 @@ import {
 export const setDateConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the day of the month set to the args value.',
     examples: [
@@ -28,7 +28,7 @@ export const setDateConfig: FieldTransformConfig<{ value: number }> = {
             args: { value: 12 },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026000000, 420],
@@ -77,8 +77,7 @@ export const setDateConfig: FieldTransformConfig<{ value: number }> = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

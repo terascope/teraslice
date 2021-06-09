@@ -9,7 +9,7 @@ const date = new Date().toISOString();
 export const isTodayConfig: FieldValidateConfig = {
     name: 'isToday',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -22,14 +22,14 @@ export const isTodayConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
-            input: [new Date(date).getTime(), 60],
-            output: [new Date(date).getTime(), 60]
+            input: [new Date(date).getTime(), 0],
+            output: date
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date(date).getTime(), 1440],
             output: null
@@ -46,8 +46,7 @@ export const isTodayConfig: FieldValidateConfig = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     create() {
         return isToday;

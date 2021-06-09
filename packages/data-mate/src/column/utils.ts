@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { isArrayLike, joinList } from '@terascope/utils';
+import { joinList } from '@terascope/utils';
 import {
     DataTypeFieldConfig,
     DataTypeFields, FieldType, Maybe, ReadonlyDataTypeFields
@@ -7,7 +7,8 @@ import {
 import { Builder, transformVectorToBuilder } from '../builder';
 import {
     ListVector,
-    Vector
+    Vector,
+    VectorType
 } from '../vector';
 import { numericTypes, stringTypes, WritableData } from '../core';
 
@@ -40,9 +41,11 @@ export function mapVectorEachValue<T, R = T>(
     builder: Builder<R>,
     fn: (value: T, index: number) => Maybe<R>,
 ): Vector<R> {
+    const containsArray = vector.type === VectorType.Tuple || vector.config.array;
+
     function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
-        if (isArrayLike<readonly Maybe<T>[]>(value)) {
-            return value.map((v): Maybe<R> => (
+        if (containsArray && value != null) {
+            return (value as readonly Maybe<T>[]).map((v): Maybe<R> => (
                 v != null ? fn(v, index) : null
             ));
         }

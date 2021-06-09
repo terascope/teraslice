@@ -7,7 +7,7 @@ import {
 export const setYearConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setYear',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the year set to the args value.',
     examples: [
@@ -37,7 +37,7 @@ export const setYearConfig: FieldTransformConfig<{ value: number }> = {
             args: { value: 2023 },
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026000000, 420],
@@ -74,8 +74,7 @@ export const setYearConfig: FieldTransformConfig<{ value: number }> = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type(inputConfig) {
         const { field_config } = inputConfig;

@@ -7,7 +7,7 @@ import {
 export const isWeekdayConfig: FieldValidateConfig = {
     name: 'isWeekday',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -26,10 +26,10 @@ export const isWeekdayConfig: FieldValidateConfig = {
         },
         {
             args: {},
-            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date('2021-05-13T10:00:00.000Z').getTime(), 60],
-            output: [new Date('2021-05-13T10:00:00.000Z').getTime(), 60]
+            output: '2021-05-13T10:00:00.000+01:00'
         },
         {
             args: {},
@@ -50,8 +50,7 @@ export const isWeekdayConfig: FieldValidateConfig = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     create() {
         return isWeekday;

@@ -41,7 +41,7 @@ export function functionTestHarness<T extends Record<string, any>>(
 
         if (!successCases.length) return;
 
-        describe('when using the function adapter', () => {
+        xdescribe('when using the function adapter', () => {
             test.each(successCases)('should handle the input %p with args %p', (input, _a, testCase) => {
                 function getOutput(output: unknown) {
                     if (output == null) return [null];

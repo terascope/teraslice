@@ -9,7 +9,7 @@ import {
 export const setSecondsConfig: FieldTransformConfig<{ value: number }> = {
     name: 'setSeconds',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date with the seconds set to the args value.',
     examples: [
@@ -77,8 +77,7 @@ export const setSecondsConfig: FieldTransformConfig<{ value: number }> = {
     accepts: [
         FieldType.String,
         FieldType.Date,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

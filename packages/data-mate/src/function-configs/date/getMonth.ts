@@ -55,7 +55,7 @@ export const getMonthConfig: FieldTransformConfig = {
             args: {},
             config: {
                 version: 1,
-                fields: { testField: { type: FieldType.DateTuple } }
+                fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
             input: [1621026300000, -420],
@@ -68,8 +68,7 @@ export const getMonthConfig: FieldTransformConfig = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     output_type({ field_config }) {
         return {

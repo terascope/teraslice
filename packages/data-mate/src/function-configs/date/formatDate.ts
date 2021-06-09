@@ -16,7 +16,7 @@ export interface FormatDateArgs {
 export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     name: 'formatDate',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a date value to a formatted date string.  Can specify the format with args to format the output value',
     examples: [{
@@ -56,7 +56,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
             version: 1,
             fields: {
                 testField: {
-                    type: FieldType.DateTuple,
+                    type: FieldType.Date,
                 }
             }
         },
@@ -83,8 +83,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
-        FieldType.DateTuple
+        FieldType.Number
     ],
     argument_schema: {
         format: {
