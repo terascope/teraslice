@@ -4,29 +4,17 @@ import {
     DataTypeFields, ReadonlyDataTypeFields
 } from '@terascope/types';
 import { createHash } from 'crypto';
+import { primitiveToString, toString } from './strings';
+import { isIPRangeOrThrow, isIPOrThrow } from './ip';
+import { toEpochMSOrThrow } from './dates';
+import { toBooleanOrThrow } from './booleans';
 import {
-    isString, primitiveToString, toString
-} from './strings';
-import {
-    isIP, isCIDR, isIPRangeOrThrow, isIPOrThrow
-} from './ip';
-import {
-    isValidDate,
-    toEpochMSOrThrow
-} from './dates';
-import { isBoolean, toBooleanOrThrow } from './booleans';
-import {
-    isNumber, isValidateNumberType, isBigInt,
-    toBigIntOrThrow, toFloatOrThrow, toNumberOrThrow,
-    bigIntToJSON, toIntegerOrThrow
+    isValidateNumberType, toBigIntOrThrow, toFloatOrThrow,
+    toNumberOrThrow, bigIntToJSON, toIntegerOrThrow
 } from './numbers';
-import {
-    isGeoPoint, isGeoJSON, toGeoJSONOrThrow, parseGeoPoint
-} from './geo';
-import { isObjectEntity, hasOwn } from './objects';
-import {
-    isArray, isArrayLike, castArray
-} from './arrays';
+import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
+import { hasOwn } from './objects';
+import { isArrayLike, castArray } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
 import { isFunction } from './functions';
 import { isNotNil } from './empty';
@@ -365,59 +353,4 @@ function getTransformerForFieldType<T = unknown>(
         default:
             throw new Error(`Invalid FieldType ${argFieldType.type}, was pulled from the type field of input ${JSON.stringify(argFieldType, null, 2)}`);
     }
-}
-
-export function getValidatorForFieldType(
-    argFieldType: DataTypeFieldConfig,
-): (input: unknown) => boolean {
-    switch (argFieldType.type) {
-        case FieldType.String:
-        case FieldType.Text:
-        case FieldType.Keyword:
-        case FieldType.KeywordCaseInsensitive:
-        case FieldType.KeywordTokens:
-        case FieldType.KeywordTokensCaseInsensitive:
-        case FieldType.KeywordPathAnalyzer:
-        case FieldType.Domain:
-        case FieldType.Hostname:
-        case FieldType.NgramTokens:
-            return isString;
-        case FieldType.IP:
-            return isIP;
-        case FieldType.IPRange:
-            return isCIDR;
-        case FieldType.Date:
-            return isValidDate;
-        case FieldType.Boolean:
-            return isBoolean;
-        case FieldType.Float:
-        case FieldType.Number:
-        case FieldType.Double:
-            return isNumber;
-        case FieldType.Byte:
-            return isValidateNumberType(FieldType.Byte);
-        case FieldType.Short:
-            return isValidateNumberType(FieldType.Short);
-        case FieldType.Integer:
-            return isValidateNumberType(FieldType.Integer);
-        case FieldType.Long:
-            return _isIntOrBigint;
-        case FieldType.Geo:
-        case FieldType.GeoPoint:
-        case FieldType.Boundary:
-            return isGeoPoint;
-        case FieldType.GeoJSON:
-            return isGeoJSON;
-        case FieldType.Object:
-            return isObjectEntity;
-        case FieldType.Tuple:
-            return isArray;
-        default:
-            // equivalent to an any-builder
-            return () => true;
-    }
-}
-
-function _isIntOrBigint(input: unknown): boolean {
-    return isBigInt(input) || isNumber(input);
 }
