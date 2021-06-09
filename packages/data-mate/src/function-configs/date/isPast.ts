@@ -7,7 +7,7 @@ import {
 export const isPastConfig: FieldValidateConfig = {
     name: 'isPast',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -19,6 +19,13 @@ export const isPastConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [1620640800000, 60],
+            output: [1620640800000, 60]
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2121-05-09T10:00:00.000Z',
@@ -27,7 +34,10 @@ export const isPastConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is in the past, otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
     ],
     create() {
         return isPast;

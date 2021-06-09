@@ -7,7 +7,7 @@ import {
 export const isFridayConfig: FieldValidateConfig = {
     name: 'isFriday',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -19,6 +19,20 @@ export const isFridayConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [1620986400000, -620],
+            output: [1620986400000, -620]
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [1620936000000, 120], // '2021-05-14T01:00:00.000+02:00'
+            output: null
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2021-05-09T10:00:00.000Z',
@@ -27,7 +41,10 @@ export const isFridayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the given date if it is on a Friday, otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
     ],
     create() {
         return isFriday;

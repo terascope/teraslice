@@ -7,7 +7,7 @@ import {
 export const isLeapYearConfig: FieldValidateConfig = {
     name: 'isLeapYear',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -19,6 +19,13 @@ export const isLeapYearConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [1589104800000, 60],
+            output: [1589104800000, 60]
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2021-05-10T10:00:00.000Z',
@@ -27,7 +34,10 @@ export const isLeapYearConfig: FieldValidateConfig = {
     ],
     description: 'Returns the the input if it is in a leap year, otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
     ],
     create() {
         return isLeapYear;

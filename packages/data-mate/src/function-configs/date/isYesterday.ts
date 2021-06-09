@@ -12,7 +12,7 @@ const yesterdayDate = new Date(yesterday).toISOString();
 export const isYesterdayConfig: FieldValidateConfig = {
     name: 'isYesterday',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -25,6 +25,13 @@ export const isYesterdayConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [new Date(yesterdayDate).getTime(), 60],
+            output: [new Date(yesterdayDate).getTime(), 60]
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: yesterdayDate,
@@ -34,7 +41,10 @@ export const isYesterdayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is on the day before (utc-time), otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
     ],
     create() {
         return isYesterday;

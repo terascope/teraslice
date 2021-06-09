@@ -12,7 +12,7 @@ const tomorrowDate = new Date(tomorrow).toISOString();
 export const isTomorrowConfig: FieldValidateConfig = {
     name: 'isTomorrow',
     type: FunctionDefinitionType.FIELD_VALIDATION,
-    process_mode: ProcessMode.INDIVIDUAL_VALUES,
+    process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     examples: [
         {
@@ -31,10 +31,20 @@ export const isTomorrowConfig: FieldValidateConfig = {
             output: tomorrowDate,
             description: 'represents day after current time'
         },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.DateTuple } } },
+            field: 'testField',
+            input: [new Date(tomorrow).getTime(), 60],
+            output: [new Date(tomorrow).getTime(), 60]
+        },
     ],
     description: 'Returns the input if it is on the next day (utc-time), otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number,
+        FieldType.DateTuple
     ],
     create() {
         return isTomorrow;

@@ -69,5 +69,5 @@ Default: iso_8601 for strings and epoch_millis for number`
             return isMatch(primitiveToString(input), format);
         };
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [FieldType.Date, FieldType.String, FieldType.Number]
 };
