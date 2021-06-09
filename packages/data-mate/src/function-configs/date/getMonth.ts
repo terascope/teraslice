@@ -7,7 +7,7 @@ import {
 export const getMonthConfig: FieldTransformConfig = {
     name: 'getMonth',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
-    process_mode: ProcessMode.FULL_VALUES,
+    process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the month of the input date in UTC Time',
     examples: [

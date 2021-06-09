@@ -45,7 +45,7 @@ export function mapVectorEachValue<T, R = T>(
         || vector.type === VectorType.Any;
 
     function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
-        if (containsArray && value != null) {
+        if (containsArray && Array.isArray(value)) {
             return (value as readonly Maybe<T>[]).map((v): Maybe<R> => (
                 v != null ? fn(v, index) : null
             ));

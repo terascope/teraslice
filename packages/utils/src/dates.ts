@@ -37,7 +37,7 @@ import {
     DateFormat,
     ISO8601DateSegment,
     DateTuple,
-    DateTypes,
+    DateInputTypes,
     GetTimeBetweenArgs
 } from '@terascope/types';
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
@@ -158,14 +158,14 @@ export function isValidDateInstance(val: unknown): val is Date {
 }
 
 /** Ensure unix time */
-export function getTime(val?: DateTypes): number | false {
+export function getTime(val?: DateInputTypes): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
     if (result === false) return false;
     return result.getTime();
 }
 
-export function getUnixTime(val?: DateTypes): number | false {
+export function getUnixTime(val?: DateInputTypes): number | false {
     const time = getTime(val);
     if (time !== false) return Math.floor(time / 1000);
     return time;
@@ -490,16 +490,16 @@ export function getTimeBetween(
     return getDurationFunc[interval](date2, date1);
 }
 
-function _getStartEndTime(input: unknown, args: GetTimeBetweenArgs): [DateTypes, DateTypes] {
+function _getStartEndTime(input: unknown, args: GetTimeBetweenArgs): [DateInputTypes, DateInputTypes] {
     const { start, end } = args;
 
     if (start == null && end == null) {
         throw Error('Must provide a start or an end argument');
     }
 
-    if (start) return [start, input as DateTypes];
+    if (start) return [start, input as DateInputTypes];
 
-    return [input as DateTypes, end as DateTypes];
+    return [input as DateInputTypes, end as DateInputTypes];
 }
 
 /**
@@ -663,7 +663,7 @@ export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => nu
     };
 }
 
-export function isBefore(input: unknown, date: DateTypes): boolean {
+export function isBefore(input: unknown, date: DateInputTypes): boolean {
     const date1 = getValidDateWithTimezone(input as Date);
     const date2 = getValidDateWithTimezone(date);
 
@@ -674,7 +674,7 @@ export function isBefore(input: unknown, date: DateTypes): boolean {
     return false;
 }
 
-export function isAfter(input: unknown, date: DateTypes): boolean {
+export function isAfter(input: unknown, date: DateInputTypes): boolean {
     const date1 = getValidDateWithTimezone(input as Date);
     const date2 = getValidDateWithTimezone(date);
 
@@ -686,8 +686,8 @@ export function isAfter(input: unknown, date: DateTypes): boolean {
 }
 
 export function isBetween(input: unknown, args: {
-    start: DateTypes;
-    end: DateTypes;
+    start: DateInputTypes;
+    end: DateInputTypes;
 }): boolean {
     const { start, end } = args;
 

@@ -17,10 +17,13 @@ export type TimeBetweenIntervals = 'milliseconds' | 'seconds' | 'minutes' | 'hou
 */
 export type DateTuple = readonly [epoch_millis: number, timezone: number];
 
-export type DateTypes = Date | string | number | DateTuple;
+/**
+ * Type that encompasses all the possible date types for easier reference
+ */
+export type DateInputTypes = Date | string | number | DateTuple;
 
 export interface GetTimeBetweenArgs {
-    start?: DateTypes;
-    end?: DateTypes;
+    start?: DateInputTypes;
+    end?: DateInputTypes;
     interval: TimeBetweenIntervals;
 }
