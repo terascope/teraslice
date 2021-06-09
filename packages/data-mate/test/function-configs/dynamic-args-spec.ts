@@ -1,16 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, Column, dataFrameAdapter, DataFrame,
     IsLengthArgs, GetTimezoneOffsetArgs,
-    JoinArgs, EqualsArgs
 } from '../../src';
 
 const isLengthConfig = functionConfigRepository.isLength;
 const getTimezoneOffsetConfig = functionConfigRepository.getTimezoneOffset;
-const joinConfig = functionConfigRepository.join;
-const equalsConfig = functionConfigRepository.equals;
 
 describe('dynamic args', () => {
     const field = 'testField';

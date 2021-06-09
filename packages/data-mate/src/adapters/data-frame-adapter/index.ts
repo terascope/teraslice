@@ -142,9 +142,8 @@ function dynamicValidatorFN<T>(
     context: DynamicFrameFunctionContext<T>
 ) {
     return function _dynamicValidatorFN(index: number) {
-        const args = context.args(index);
-
-        validateFunctionArgs(fnDef, args);
+        const newArgs = context.args(index);
+        const args = validateFunctionArgs(fnDef, newArgs);
 
         const fullContext = {
             ...context,
@@ -161,9 +160,8 @@ function dynamicTransformerFN<T>(
     context: DynamicFrameFunctionContext<T>
 ) {
     return function _dynamicTransformerFN(index: number) {
-        const args = context.args(index);
-
-        validateFunctionArgs(fnDef, args);
+        const newArgs = context.args(index);
+        const args = validateFunctionArgs(fnDef, newArgs);
 
         const fullContext = {
             ...context,
@@ -328,7 +326,7 @@ export function dataFrameAdapter<T extends Record<string, any> = Record<string, 
     if (isNil(options.args)) options.args = {} as T;
     // we will validate on each call later
     if (!isFunction(options.args)) {
-        validateFunctionArgs(fnDef, options.args);
+        options.args = validateFunctionArgs(fnDef, options.args);
     }
 
     if (isFieldValidation(fnDef)) {

@@ -59,6 +59,10 @@ export function coerceToType<T = unknown>(
     return getTransformerForFieldType<T>(fieldConfig, childConfig) as CoerceFN<T>;
 }
 
+function _shouldCheckIntSize(type: FieldType) {
+    return [FieldType.Integer, FieldType.Byte, FieldType.Short].includes(type);
+}
+
 const NumberTypeFNDict = {
     [FieldType.Float]: toFloatOrThrow,
     [FieldType.Number]: toNumberOrThrow,
@@ -72,6 +76,7 @@ const NumberTypeFNDict = {
 export function coerceToNumberType(type: FieldType): (input: unknown) => number {
     const numberValidator = isValidateNumberType(type);
     const coerceFn = NumberTypeFNDict[type];
+    const smallSize = _shouldCheckIntSize(type);
 
     if (coerceFn == null) {
         throw new Error(`Unsupported type ${type}, please provide a valid numerical field type`);
@@ -79,8 +84,13 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
 
     return function _coerceToNumberType(input: unknown): number {
         const num = coerceFn(input);
-        if (numberValidator(num)) return num;
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a a valid ${type}`);
+
+        if (smallSize) {
+            if (numberValidator(input)) return num;
+            throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a a valid ${type}`);
+        }
+
+        return num;
     };
 }
 

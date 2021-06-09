@@ -56,7 +56,7 @@ export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {
         return setHours(value);
     },
     argument_schema: {
-        hours: {
+        value: {
             type: FieldType.Number,
             description: 'Value to set hours to, must be between 0 and 23'
         }

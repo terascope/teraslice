@@ -1,4 +1,3 @@
-import { DataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
 import { isFunction } from '@terascope/utils';
 import {
     fieldValidationRowExecution,
@@ -27,11 +26,10 @@ import {
     isRecordValidation,
     ProcessMode,
     FunctionDefinitionConfig,
-    DataTypeFieldAndChildren,
     InitialFunctionContext
 } from '../../function-configs/interfaces';
 import { validateFunctionArgs } from '../argument-validator';
-import { getChildDataTypeConfig } from '../../core';
+import { getDataTypeFieldAndChildren } from '../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
@@ -104,16 +102,4 @@ function functionAdapter<T extends Record<string, any> = Record<string, unknown>
     }
 
     throw new Error(`Function definition ${JSON.stringify(fnDef, null, 4)} is not currently supported`);
-}
-
-export function getDataTypeFieldAndChildren(
-    config: DataTypeConfig|undefined, field: string|undefined
-): DataTypeFieldAndChildren|undefined {
-    if (!field || !config) return;
-    const fieldConfig = config.fields[field];
-    if (!fieldConfig) return;
-    const childConfig: DataTypeFields|undefined = getChildDataTypeConfig(
-        config.fields, field, fieldConfig.type as FieldType
-    );
-    return { field_config: fieldConfig, child_config: childConfig };
 }

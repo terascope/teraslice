@@ -49,7 +49,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
     ],
     argument_schema: {
         exp: {
-            type: FieldType.Integer,
+            type: FieldType.Number,
             array: false,
             description: 'The exponent used to raise the base'
         },
