@@ -38,8 +38,8 @@
         "@turf/invariant": "^6.2.0",
         "@turf/random": "^6.3.0",
         "@types/netmask": "^1.0.30",
-        "pegjs": "^0.10.0",
-        "ts-pegjs": "^0.3.1"
+        "peggy": "~1.1.0",
+        "ts-pegjs": "^1.0.0"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",

@@ -65,6 +65,12 @@ describe('IndexStore', () => {
         afterAll(async () => {
             await cleanupIndexStore(indexStore);
 
+            await indexStore.flush(true).catch((err) => {
+                // this should probably throw
+                // but it is not a deal breaker
+                console.error(err);
+            });
+
             // it should be able to call shutdown twice
             await indexStore.shutdown();
             await indexStore.shutdown();
@@ -577,22 +583,27 @@ describe('IndexStore', () => {
             });
 
             it('should be able to bulk delete the records', async () => {
-                for (const record of records) {
-                    await indexStore.bulk('delete', record.test_id);
+                try {
+                    for (const record of records) {
+                        await indexStore.bulk('delete', record.test_id);
+                    }
+
+                    await indexStore.flush(true);
+
+                    await indexStore.refresh();
+
+                    const {
+                        results
+                    } = await indexStore.search(`test_keyword: ${keyword}`, {
+                        sort: 'test_id',
+                        size: records.length + 1,
+                    });
+
+                    expect(results).toBeArrayOfSize(0);
+                } finally {
+                    // make sure always flush to avoid breaking afterAll
+                    await indexStore.flush(true);
                 }
-
-                await indexStore.flush(true);
-
-                await indexStore.refresh();
-
-                const {
-                    results
-                } = await indexStore.search(`test_keyword: ${keyword}`, {
-                    sort: 'test_id',
-                    size: records.length + 1,
-                });
-
-                expect(results).toBeArrayOfSize(0);
             });
         });
     });

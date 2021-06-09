@@ -23,6 +23,7 @@ export = {
         yargs.positional('asset', yargsOptions.buildPositional('asset'));
         yargs.option('arch', yargsOptions.buildOption('arch'));
         yargs.option('build', yargsOptions.buildOption('build'));
+        yargs.option('bundle', yargsOptions.buildOption('bundle'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('file', yargsOptions.buildOption('file'));
         yargs.option('node-version', yargsOptions.buildOption('node-version'));
@@ -39,7 +40,7 @@ export = {
 
         yargs.example(
             '$0 assets deploy ts-test1',
-            'Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy'
+            'Deploys to cluster at alias ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy'
         );
         yargs.example(
             '$0 assets deploy ts-test1 --build',
@@ -48,6 +49,10 @@ export = {
         yargs.example(
             '$0 assets deploy ts-test1 terascope/file-assets',
             'deploys the latest github asset terascope/file-assets to cluster ts-test1'
+        );
+        yargs.example(
+            '$0 assets deploy ts-test1 --bundle terascope/file-assets',
+            'deploys the latest bundled asset terascope/file-assets to cluster ts-test1'
         );
         yargs.example(
             '$0 assets deploy ts-test1 terascope/file-assets@v1.2.3',
@@ -91,7 +96,8 @@ export = {
                     arch: cliConfig.args.arch,
                     platform: cliConfig.args.platform,
                     nodeVersion: cliConfig.args.nodeVersion,
-                    assetString: cliConfig.args.asset
+                    assetString: cliConfig.args.asset,
+                    bundle: cliConfig.args.bundle
                 };
                 // TODO: We should prevent people from uploading the wrong arch
                 // if cluster.info() is available
@@ -100,13 +106,15 @@ export = {
                     const clusterInfoResponse = await terasliceClient.cluster.info();
                     clusterInfo = Object.assign({}, clusterInfoResponse, {
                         nodeVersion: clusterInfoResponse.node_version,
-                        assetString: cliConfig.args.asset
+                        assetString: cliConfig.args.asset,
+                        bundle: cliConfig.args.bundle
                     });
                 } catch (err) {
                     reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
                     return;
                 }
             }
+
             const asset = new GithubAsset(clusterInfo as GithubAssetConfig);
 
             try {

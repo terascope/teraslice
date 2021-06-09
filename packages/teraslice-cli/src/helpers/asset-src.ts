@@ -166,14 +166,19 @@ export class AssetSrc {
             reply.info('* running yarn --prod --no-progress');
             await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
-            // NOTE: This still assumes a typescript asset with a `dist`
-            // subdirectory, anything other than tmp/asset/dist failed to build
-            // maybe a fallthrough of many dirs would work here, I think we
-            // can accept this limitation now.
+            // Since we now require bundled assets to implement a registry, we
+            // require that Javascript assets place it at `asset/index.js` and
+            // TypeScript assets place it at `asset/src/index.ts`
             let entryPoint = '';
             try {
-                entryPoint = require.resolve(path.join(tmpDir.name, 'asset', 'src', 'index.ts'));
-                reply.warning(`entryPoint: ${entryPoint}`);
+                if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'index.js'))) {
+                    entryPoint = path.join(tmpDir.name, 'asset', 'index.js');
+                } else if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'src', 'index.ts'))) {
+                    entryPoint = path.join(tmpDir.name, 'asset', 'src', 'index.ts');
+                } else {
+                    reply.fatal('Bundled assets require an asset registry at either asset/index.js or asset/src/index.ts');
+                }
+                reply.warning(`* entryPoint: ${entryPoint}`);
             } catch (err) {
                 reply.fatal(`Unable to resolve entry point due to error: ${err}`);
             }

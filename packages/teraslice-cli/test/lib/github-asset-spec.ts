@@ -16,6 +16,7 @@ describe('GithubAsset', () => {
         config = {
             arch: 'x64',
             assetString: 'terascope/file-assets@v2.0.0',
+            bundle: false,
             nodeVersion: 'v8.12.0',
             platform: 'linux'
         };
@@ -26,12 +27,19 @@ describe('GithubAsset', () => {
         expect(testAsset).toEqual({
             arch: config.arch,
             assetString: config.assetString,
+            bundle: false,
             nodeVersion: config.nodeVersion,
             platform: config.platform,
             user: 'terascope',
             name: 'file-assets',
             version: 'v2.0.0'
         });
+    });
+
+    it('should have bundle true if it is set', () => {
+        config.bundle = true;
+        testAsset = new GithubAsset(config);
+        expect(testAsset.bundle).toBe(true);
     });
 
     it('should know the nodeMajorVersion', () => {
@@ -55,6 +63,7 @@ describe('GithubAsset', () => {
             const testConfig = {
                 arch: 'x64',
                 assetString: 'terascope/elasticsearch-assets',
+                bundle: false,
                 nodeVersion: 'v10.16.3',
                 platform: 'linux'
             };
@@ -81,6 +90,7 @@ describe('GithubAsset', () => {
             const testConfig = {
                 arch: 'x64',
                 assetString: 'terascope/elasticsearch-assets@v9.9.9',
+                bundle: false,
                 nodeVersion: 'v8.16.1',
                 platform: 'linux'
             };
@@ -105,6 +115,7 @@ describe('GithubAsset', () => {
             const testConfig = {
                 arch: 'x64',
                 assetString: 'terascope/elasticsearch-assets@v1.5.6',
+                bundle: false,
                 nodeVersion: 'v8.16.1',
                 platform: 'linux'
             };

@@ -229,11 +229,13 @@ describe('ExecutionController', () => {
             });
 
             describe('when receiving finished', () => {
-                beforeAll((done) => {
-                    client.onExecutionFinished(() => {
-                        done();
+                beforeAll(async () => {
+                    await new Promise<void>((resolve) => {
+                        client.onExecutionFinished(() => {
+                            resolve();
+                        });
+                        server.sendExecutionFinishedToAll('some-ex-id');
                     });
-                    server.sendExecutionFinishedToAll('some-ex-id');
                 });
 
                 it('should call client.onExecutionFinished', () => {

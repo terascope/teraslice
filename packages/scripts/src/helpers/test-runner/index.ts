@@ -11,6 +11,7 @@ import {
     getRootDir,
     getRootInfo,
     getAvailableTestSuites,
+    getDevDockerImage,
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
@@ -24,6 +25,10 @@ import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
+import {
+    MAX_PROJECTS_PER_BATCH,
+    SKIP_DOCKER_BUILD_IN_E2E
+} from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -83,13 +88,11 @@ async function runTestSuite(
 ): Promise<void> {
     if (suite === 'e2e') return;
 
-    // jest or our tests have a memory leak, limiting this seems to help
-    const MAX_CHUNK_SIZE = isCI ? 5 : 10;
-    const CHUNK_SIZE = options.debug ? 1 : MAX_CHUNK_SIZE;
+    const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
-    if (options.watch && pkgInfos.length > MAX_CHUNK_SIZE) {
+    if (options.watch && pkgInfos.length > MAX_PROJECTS_PER_BATCH) {
         throw new Error(
-            `Running more than ${MAX_CHUNK_SIZE} packages will cause memory leaks`
+            `Running more than ${MAX_PROJECTS_PER_BATCH} packages will cause memory leaks`
         );
     }
 
@@ -180,8 +183,7 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const [registry] = rootInfo.terascope.docker.registries;
-    const e2eImage = `${registry}:e2e`;
+    const e2eImage = `${rootInfo.name}:e2e`;
 
     if (isCI) {
         // pull the services first in CI
@@ -189,8 +191,13 @@ async function runE2ETest(
     }
 
     try {
-        const devImage = await buildDevDockerImage();
-        await dockerTag(devImage, e2eImage);
+        if (SKIP_DOCKER_BUILD_IN_E2E) {
+            const devImage = getDevDockerImage();
+            await dockerTag(devImage, e2eImage);
+        } else {
+            const devImage = await buildDevDockerImage();
+            await dockerTag(devImage, e2eImage);
+        }
     } catch (err) {
         tracker.addError(err);
     }
