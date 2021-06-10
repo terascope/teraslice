@@ -80,7 +80,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
         in: {
             type: FieldType.Any,
             array: false,
-            description: 'Data set that is used for the key lookup.  Can be an object, array, or formatted string (see example).  Keys must strings or numbers.'
+            description: 'Data set that is used for the key lookup. Can be an object, array, or formatted string (see example). Keys must be strings or numbers.'
         }
     },
     accepts: [FieldType.Number, FieldType.String],
