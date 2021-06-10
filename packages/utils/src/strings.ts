@@ -596,3 +596,44 @@ export function joinList(
         return `${acc}${sep} ${curr}`;
     }, '');
 }
+
+export type StringEntropyFN = (input: unknown) => number
+
+function shannonEntropy(input: unknown) {
+    if (!isString(input)) {
+        throw new Error(`Invalid input ${input}, must be of type String`);
+    }
+
+    return [...new Set(input)]
+        .map(
+            (chr) => {
+                const matching = input.match(new RegExp(chr, 'g')) as RegExpMatchArray;
+                return matching.length;
+            }
+        )
+        .reduce((sum, frequency) => {
+            const p = frequency / input.length;
+            return sum + p * Math.log2(1 / p);
+        }, 0);
+}
+
+export enum StringEntropy {
+    shannon = 'shannon'
+}
+
+const StringEntropyDict: Record<StringEntropy, StringEntropyFN> = {
+    [StringEntropy.shannon]: shannonEntropy
+};
+
+export function stringEntropy(
+    algo: StringEntropy = StringEntropy.shannon
+): StringEntropyFN {
+    const fn = StringEntropyDict[algo];
+
+    if (fn == null) {
+        const keys = Object.keys(StringEntropyDict);
+        throw new Error(`Unsupported algorithm ${algo}, please use the available algorithms ${joinList(keys, ', ')}`);
+    }
+
+    return fn;
+}
