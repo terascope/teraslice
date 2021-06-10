@@ -25,14 +25,16 @@ export const isTodayConfig: FieldValidateConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date(date).getTime(), 0],
-            output: date
+            output: date,
+            test_only: true
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date(date).getTime(), 1440],
-            output: null
+            output: null,
+            test_only: true
         },
         {
             args: {},

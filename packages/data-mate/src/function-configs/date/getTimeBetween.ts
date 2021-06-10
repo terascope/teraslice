@@ -54,7 +54,8 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             },
             field: 'testField',
             input: [1620640800000, 180],
-            output: 3540000
+            output: 3540000,
+            test_only: true,
         },
         {
             args: { end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' },

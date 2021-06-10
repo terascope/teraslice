@@ -49,7 +49,8 @@ export const setSecondsConfig: FieldTransformConfig<SetSecondsArgs> = {
             field: 'testField',
             input: [1621026000000, -60],
             output: new Date('2021-05-14T21:00:15.000Z').getTime(),
-            serialize_output: toISO8601
+            serialize_output: toISO8601,
+            test_only: true,
         },
         {
             args: { value: 1 },

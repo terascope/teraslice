@@ -78,6 +78,12 @@ export interface FunctionDefinitionExample<T extends Record<string, any>, O = un
      * Optionally describe the behavior of this example
     */
     readonly description?: string;
+
+    /**
+     * Setting this to true will be exclude it from the
+     * documentation
+    */
+    readonly test_only?: boolean;
 }
 
 export interface FunctionDefinitionConfig<T extends Record<string, any>> {

@@ -29,7 +29,8 @@ export const isYesterdayConfig: FieldValidateConfig = {
             field: 'testField',
             input: [new Date(yesterdayDate).getTime(), 0],
             output: new Date(yesterdayDate).getTime(),
-            serialize_output: toISO8601
+            serialize_output: toISO8601,
+            test_only: true,
         },
         {
             args: {},

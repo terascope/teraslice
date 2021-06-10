@@ -49,7 +49,8 @@ export const getMillisecondsConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026000012, -420],
-            output: 12
+            output: 12,
+            test_only: true,
         }
     ],
     create() {

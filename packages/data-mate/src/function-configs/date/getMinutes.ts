@@ -49,7 +49,8 @@ export const getMinutesConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -418],
-            output: 3
+            output: 3,
+            test_only: true,
         }
     ],
     create() {

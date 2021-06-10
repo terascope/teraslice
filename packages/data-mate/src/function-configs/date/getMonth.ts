@@ -59,7 +59,8 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 5
+            output: 5,
+            test_only: true,
         }
     ],
     create() {

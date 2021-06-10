@@ -36,7 +36,8 @@ export const isTomorrowConfig: FieldValidateConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date(tomorrow).getTime(), 0],
-            output: tomorrowDate
+            output: tomorrowDate,
+            test_only: true
         },
     ],
     description: 'Returns the input if it is on the next day (utc-time), otherwise returns null',

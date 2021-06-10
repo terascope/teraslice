@@ -66,7 +66,7 @@ function generateExamples(fnDef, examples) {
     if (!examples || !examples.length) return [];
     return [
         '#### Examples',
-        ...uniq(examples.map(generateExample(fnDef)))
+        ...uniq(examples.filter((ex) => !ex.test_only).map(generateExample(fnDef)))
     ];
 }
 

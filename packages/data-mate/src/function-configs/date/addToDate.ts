@@ -46,7 +46,8 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         field: 'testField',
         input: [1571781600000, -60],
         output: new Date('2019-11-22T23:02:00.000Z').getTime(),
-        serialize_output: toISO8601
+        serialize_output: toISO8601,
+        test_only: true
     }, {
         args: {},
         config: {

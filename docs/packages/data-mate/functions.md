@@ -694,10 +694,6 @@ For example, `1h` or `1h+2m`
 ```
 
 ```ts
-[1571781600000, -60] => addToDate(months: 1, minutes: 2) // outputs "2019-11-22T23:02:00.000Z"
-```
-
-```ts
 "2019-10-22T22:00:00.000Z" => addToDate() // throws Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
 ```
 
@@ -738,10 +734,6 @@ Default: iso_8601 for strings and epoch_millis for numbers
 ```
 
 ```ts
-[1622760480654, 60] => formatDate(format: "iso_8601") // outputs "2021-06-03T21:48:00.654Z"
-```
-
-```ts
 "2001-01-01T01:00:00.000Z" => formatDate() // outputs "2001-01-01T01:00:00.000Z"
 ```
 
@@ -775,10 +767,6 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outpu
 1510123223231 => getDate() // outputs 8
 ```
 
-```ts
-[1621026300000, -420] => getDate() // outputs 15
-```
-
 ### `getHours`
 
 **Type:** `FIELD_TRANSFORM`
@@ -809,10 +797,6 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outp
 17154123223231 => getHours() // outputs 2
 ```
 
-```ts
-[1621026300000, -420] => getHours() // outputs 4
-```
-
 ### `getMilliseconds`
 
 **Type:** `FIELD_TRANSFORM`
@@ -839,10 +823,6 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() 
 1715472000231 => getMilliseconds() // outputs 231
 ```
 
-```ts
-[1621026000012, -420] => getMilliseconds() // outputs 12
-```
-
 ### `getMinutes`
 
 **Type:** `FIELD_TRANSFORM`
@@ -867,10 +847,6 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // ou
 
 ```ts
 1715472323231 => getMinutes() // outputs 5
-```
-
-```ts
-[1621026300000, -418] => getMinutes() // outputs 3
 ```
 
 ### `getMonth`
@@ -903,10 +879,6 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outp
 1510123223231 => getMonth() // outputs 11
 ```
 
-```ts
-[1621026300000, -420] => getMonth() // outputs 5
-```
-
 ### `getSeconds`
 
 **Type:** `FIELD_TRANSFORM`
@@ -931,10 +903,6 @@ Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // ou
 
 ```ts
 1715472323231 => getSeconds() // outputs 23
-```
-
-```ts
-[1621026002000, -420] => getSeconds() // outputs 2
 ```
 
 ### `getTimeBetween`
@@ -969,10 +937,6 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(sta
 
 ```ts
 1620764440001 => getTimeBetween(end: 1620764441001, interval: "seconds") // outputs 1
-```
-
-```ts
-[1620640800000, 180] => getTimeBetween(end: "2021-05-10T09:59:00.000+02:00", interval: "milliseconds") // outputs 3540000
 ```
 
 ```ts
@@ -1048,10 +1012,6 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outpu
 1510123223231 => getYear() // outputs 2017
 ```
 
-```ts
-[1621026300000, -420] => getYear() // outputs 2021
-```
-
 ### `lookupTimezone`
 
 **Type:** `FIELD_TRANSFORM`
@@ -1109,10 +1069,6 @@ lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Eur
 ```
 
 ```ts
-[1621026000000, 420] => setDate(value: 12) // outputs "2021-05-12T14:00:00.000Z"
-```
-
-```ts
 Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(value: 22) // outputs "2021-05-22T20:45:30.091Z"
 ```
 
@@ -1147,10 +1103,6 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(value: 22
 ```
 
 ```ts
-[1621026000000, 120] => setHours(value: 12) // outputs "2021-05-14T12:00:00.000Z"
-```
-
-```ts
 1715472000000 => setHours(value: 1) // outputs "2024-05-12T01:00:00.000Z"
 ```
 
@@ -1178,10 +1130,6 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(value: 22
 
 ```ts
 Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(value: 483) // outputs "2021-05-14T20:45:30.483Z"
-```
-
-```ts
-[1621026049859, -60] => setMilliseconds(value: 15) // outputs "2021-05-14T21:00:49.015Z"
 ```
 
 ```ts
@@ -1215,10 +1163,6 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(value: 
 ```
 
 ```ts
-[1621026000000, -120] => setMinutes(value: 59) // outputs "2021-05-14T23:59:00.000Z"
-```
-
-```ts
 1715472000000 => setMinutes(value: 1) // outputs "2024-05-12T00:01:00.000Z"
 ```
 
@@ -1249,10 +1193,6 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(value: 2)
 ```
 
 ```ts
-[1621026000000, -120] => setMonth(value: 12) // outputs "2021-12-14T23:00:00.000Z"
-```
-
-```ts
 1715472000000 => setMonth(value: 1) // outputs "2024-01-12T00:00:00.000Z"
 ```
 
@@ -1280,10 +1220,6 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(value: 2)
 
 ```ts
 Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(value: 22) // outputs "2021-05-14T20:45:22.091Z"
-```
-
-```ts
-[1621026000000, -60] => setSeconds(value: 15) // outputs "2021-05-14T21:00:15.000Z"
 ```
 
 ```ts
@@ -1385,10 +1321,6 @@ For example, `1h` or `1h+2m`
 
 ```ts
 "2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "10h+2m") // outputs "2019-10-22T12:02:00.000Z"
-```
-
-```ts
-[1571781600000, 60] => subtractFromDate(expr: "10h+2m") // outputs "2019-10-22T11:02:00.000Z"
 ```
 
 ```ts
@@ -1495,10 +1427,6 @@ Default: iso_8601 for strings and epoch_millis for number
 "2019-10-22T01:05:20.000Z" => toHourlyDate() // outputs "2019-10-22T01:00:00.000Z"
 ```
 
-```ts
-[1571706320000, -120] => toHourlyDate() // outputs "2019-10-22T03:00:00.000Z"
-```
-
 ### `toMonthlyDate`
 
 **Type:** `FIELD_TRANSFORM`
@@ -1539,10 +1467,6 @@ Default: iso_8601 for strings and epoch_millis for number
 "2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
 ```
 
-```ts
-[Mon Oct 21 2019 18:00:00 GMT-0700 (Mountain Standard Time), 120] => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
-```
-
 ### `isAfter`
 
 **Type:** `FIELD_VALIDATION`
@@ -1575,10 +1499,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2021-05-09T10:00:00.000Z" => isAfter(date: "2021-05-10T10:00:00.000Z") // outputs null
-```
-
-```ts
-[1620640800000, -420] => isAfter(date: "2021-05-10T10:00:00.000Z") // outputs "2021-05-10T10:00:00.000-07:00"
 ```
 
 ```ts
@@ -1619,10 +1539,6 @@ Default: iso_8601 for strings and epoch_millis for number
 "2021-05-11T10:00:00.000Z" => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs null
 ```
 
-```ts
-[1620640800000, 0] => isBefore(date: [1620640800000, -120]) // outputs "2021-05-10T10:00:00.000Z"
-```
-
 ### `isBetween`
 
 **Type:** `FIELD_VALIDATION`
@@ -1657,10 +1573,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2021-05-15T10:00:00.000Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs null
-```
-
-```ts
-[1620640800000, 0] => isBetween(start: [1620640800000, 60], end: [1620640800000, -60]) // outputs "2021-05-10T10:00:00.000Z"
 ```
 
 ### `isDate`
@@ -1795,10 +1707,6 @@ Default: iso_8601 for strings and epoch_millis for number
 ```
 
 ```ts
-[1620936000000, 120] => isFriday() // outputs null
-```
-
-```ts
 "2021-05-09T10:00:00.000Z" => isFriday() // outputs null
 ```
 
@@ -1822,10 +1730,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2121-05-09T10:00:00.000Z" => isFuture() // outputs "2121-05-09T10:00:00.000Z"
-```
-
-```ts
-[4776228000000, -420] => isFuture() // outputs "2121-05-09T10:00:00.000-07:00"
 ```
 
 ### `isISO8601`
@@ -1895,10 +1799,6 @@ Default: iso_8601 for strings and epoch_millis for number
 ```
 
 ```ts
-[1620640800000, 60] => isMonday() // outputs "2021-05-10T10:00:00.000+01:00"
-```
-
-```ts
 "2021-05-09T10:00:00.000Z" => isMonday() // outputs null
 ```
 
@@ -1918,10 +1818,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2021-05-10T10:00:00.000Z" => isPast() // outputs "2021-05-10T10:00:00.000Z"
-```
-
-```ts
-[1620640800000, 60] => isPast() // outputs "2021-05-10T10:00:00.000+01:00"
 ```
 
 ```ts
@@ -1947,10 +1843,6 @@ Default: iso_8601 for strings and epoch_millis for number
 ```
 
 ```ts
-[1620468000000, 60] => isSaturday() // outputs "2021-05-08T10:00:00.000+01:00"
-```
-
-```ts
 "2021-05-09T10:00:00.000Z" => isSaturday() // outputs null
 ```
 
@@ -1970,10 +1862,6 @@ Default: iso_8601 for strings and epoch_millis for number
 
 ```ts
 "2021-05-09T10:00:00.000Z" => isSunday() // outputs "2021-05-09T10:00:00.000Z"
-```
-
-```ts
-[1620554400000, 60] => isSunday() // outputs "2021-05-09T10:00:00.000+01:00"
 ```
 
 ```ts
@@ -1999,10 +1887,6 @@ Default: iso_8601 for strings and epoch_millis for number
 ```
 
 ```ts
-[1620900000000, 60] => isThursday() // outputs "2021-05-13T10:00:00.000+01:00"
-```
-
-```ts
 "2021-05-09T10:00:00.000Z" => isThursday() // outputs null
 ```
 
@@ -2022,15 +1906,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 This input is created at execution time
 ```ts
-"2021-06-10T21:01:15.598Z" => isToday() // outputs "2021-06-10T21:01:15.598Z"
-```
-
-```ts
-[1623358875598, 0] => isToday() // outputs "2021-06-10T21:01:15.598Z"
-```
-
-```ts
-[1623358875598, 1440] => isToday() // outputs null
+"2021-06-10T21:41:46.314Z" => isToday() // outputs "2021-06-10T21:41:46.314Z"
 ```
 
 ```ts
@@ -2053,16 +1929,12 @@ This input is created at execution time
 
 Represents current time
 ```ts
-"2021-06-10T21:01:15.598Z" => isTomorrow() // outputs null
+"2021-06-10T21:41:46.315Z" => isTomorrow() // outputs null
 ```
 
 Represents day after current time
 ```ts
-"2021-06-11T21:01:15.598Z" => isTomorrow() // outputs "2021-06-11T21:01:15.598Z"
-```
-
-```ts
-[1623445275598, 0] => isTomorrow() // outputs "2021-06-11T21:01:15.598Z"
+"2021-06-11T21:41:46.315Z" => isTomorrow() // outputs "2021-06-11T21:41:46.315Z"
 ```
 
 ### `isTuesday`
@@ -2081,10 +1953,6 @@ Represents day after current time
 
 ```ts
 "2021-05-11T10:00:00.000Z" => isTuesday() // outputs "2021-05-11T10:00:00.000Z"
-```
-
-```ts
-[1620727200000, 60] => isTuesday() // outputs "2021-05-11T10:00:00.000+01:00"
 ```
 
 ```ts
@@ -2107,14 +1975,6 @@ Represents day after current time
 
 ```ts
 "2021-05-12T10:00:00.000Z" => isWednesday() // outputs "2021-05-12T10:00:00.000Z"
-```
-
-```ts
-[1620813600000, 60] => isWednesday() // outputs "2021-05-12T10:00:00.000+01:00"
-```
-
-```ts
-[1620781200000, 120] => isWednesday() // outputs null
 ```
 
 ```ts
@@ -2141,10 +2001,6 @@ Represents day after current time
 
 ```ts
 "2021-05-13T10:00:00.000Z" => isWeekday() // outputs "2021-05-13T10:00:00.000Z"
-```
-
-```ts
-[1620900000000, 60] => isWeekday() // outputs "2021-05-13T10:00:00.000+01:00"
 ```
 
 ```ts
@@ -2178,10 +2034,6 @@ Represents day after current time
 ```
 
 ```ts
-[1620554400000, 60] => isWeekend() // outputs "2021-05-09T10:00:00.000+01:00"
-```
-
-```ts
 "2021-05-09T10:00:00.000Z" => isWeekend() // outputs "2021-05-09T10:00:00.000Z"
 ```
 
@@ -2205,16 +2057,12 @@ Represents day after current time
 
 Represents current time
 ```ts
-"2021-06-10T21:01:15.600Z" => isYesterday() // outputs null
-```
-
-```ts
-[1623272475600, 0] => isYesterday() // outputs "2021-06-09T21:01:15.600Z"
+"2021-06-10T21:41:46.319Z" => isYesterday() // outputs null
 ```
 
 Represents day before current time
 ```ts
-"2021-06-09T21:01:15.600Z" => isYesterday() // outputs "2021-06-09T21:01:15.600Z"
+"2021-06-09T21:41:46.319Z" => isYesterday() // outputs "2021-06-09T21:41:46.319Z"
 ```
 
 ## CATEGORY: Numeric
@@ -2979,11 +2827,11 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 **Type:** `FIELD_TRANSFORM`
 **Aliases:** `power`
 
-> Returns a number representing the input value taken to the power of the args exp value
+> Returns a number representing the input value taken to the power of the value
 
 #### Arguments
 
- - **exp**: (required) `Number` - The exponent used to raise the base
+ - **value**: (required) `Number` - The exponent used to raise the base
 
 #### Accepts
 
@@ -2992,11 +2840,11 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 #### Examples
 
 ```ts
-7 => pow(exp: 3) // outputs 343
+7 => pow(value: 3) // outputs 343
 ```
 
 ```ts
-4 => pow(exp: 0.5) // outputs 2
+4 => pow(value: 0.5) // outputs 2
 ```
 
 ### `random`
@@ -5041,7 +4889,14 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 ```
 
 ```ts
-"	trim this" => trim(chars: "") // outputs "	trim this"
+"
+
+trim this
+
+" => trim(chars: "
+") // outputs "
+
+trim this"
 ```
 
 ```ts

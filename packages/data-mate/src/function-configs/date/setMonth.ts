@@ -49,7 +49,8 @@ export const setMonthConfig: FieldTransformConfig<SetMonthArgs> = {
             field: 'testField',
             input: [1621026000000, -120],
             output: new Date('2021-12-14T23:00:00.000Z').getTime(),
-            serialize_output: toISO8601
+            serialize_output: toISO8601,
+            test_only: true,
         },
         {
             args: { value: 1 },

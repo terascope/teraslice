@@ -59,7 +59,8 @@ export const getYearConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 2021
+            output: 2021,
+            test_only: true,
         }
     ],
     create() {

@@ -74,7 +74,7 @@ export const toDateConfig: FieldTransformConfig<ToDateArgs> = {
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
         output: new Date('2001-01-01T01:00:00.000Z').getTime(),
-        serialize_output: toISO8601
+        serialize_output: toISO8601,
     }],
     create({ args: { format } }) {
         const referenceDate = new Date();
