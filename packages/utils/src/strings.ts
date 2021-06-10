@@ -612,7 +612,7 @@ export function shannonEntropy(input: unknown): number {
 
     // get number of chars per string
     for (const char of input) {
-        if (dict[char]) {
+        if (dict[char] !== null) {
             dict[char]++;
         } else {
             dict[char] = 1;
