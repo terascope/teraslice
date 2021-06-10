@@ -32,17 +32,17 @@ function desc(input, prefix = '') {
 */
 function getExampleOutput(example) {
     if (example.fails) {
-        return `**Throws:**
+        return `<small>Throws:</small>
 \`${example.output}\``;
     }
     if (example.serialize_output == null) {
-        return `**Output:**
+        return `<small>Output:</small>
 
 \`\`\`ts
 ${prettyPrint(example.output)}
 \`\`\``;
     }
-    return `**Output:**
+    return `<small>Output:</small>
 
 \`\`\`ts
 ${prettyPrint(example.serialize_output(example.output))}
@@ -66,7 +66,7 @@ ${desc(example)}
 ${fnDef.name}(${prettyPrint(example.args)})
 \`\`\`
 
-**Input:**
+<small>Input:</small>
 
 \`\`\`ts
 ${prettyPrint(example.input)}

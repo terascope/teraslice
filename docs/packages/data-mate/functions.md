@@ -19,13 +19,13 @@ sidebar_label: Functions
 isBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'TRUE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -37,13 +37,13 @@ null
 isBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 false
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 false
@@ -55,13 +55,13 @@ false
 isBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -73,13 +73,13 @@ null
 isBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -91,13 +91,13 @@ null
 isBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -117,13 +117,13 @@ null
 isBooleanLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'TRUE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'TRUE'
@@ -135,13 +135,13 @@ isBooleanLike()
 isBooleanLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'false'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'false'
@@ -153,13 +153,13 @@ isBooleanLike()
 isBooleanLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -171,13 +171,13 @@ isBooleanLike()
 isBooleanLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -189,13 +189,13 @@ null
 isBooleanLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -215,13 +215,13 @@ null
 toBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'TRUE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 true
@@ -233,13 +233,13 @@ true
 toBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 true
@@ -251,13 +251,13 @@ true
 toBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 false
@@ -269,13 +269,13 @@ false
 toBoolean()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 null
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -310,13 +310,13 @@ null
 geoContains({ value: '33.435518,-111.873616' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '33.435518,-111.873616'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '33.435518,-111.873616'
@@ -328,13 +328,13 @@ geoContains({ value: '33.435518,-111.873616' })
 geoContains({ value: { type: 'Point', coordinates: [ -111.873616, 33.435518 ] } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '45.518,-21.816'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -346,7 +346,7 @@ null
 geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -355,7 +355,7 @@ geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -388,7 +388,7 @@ geoContains({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -408,7 +408,7 @@ geoContains({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -434,7 +434,7 @@ geoContains({
 geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -446,7 +446,7 @@ geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -484,13 +484,13 @@ null
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '33.435967,-111.867710'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '33.435967,-111.867710'
@@ -502,13 +502,13 @@ geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '22.435967,-150.867710'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -541,13 +541,13 @@ null
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '-33.435967,-111.867710'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '-33.435967,-111.867710'
@@ -559,13 +559,13 @@ geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -582,7 +582,7 @@ geoDisjoint({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -591,7 +591,7 @@ geoDisjoint({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -611,7 +611,7 @@ geoDisjoint({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -631,7 +631,7 @@ geoDisjoint({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -664,13 +664,13 @@ null
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
@@ -682,7 +682,7 @@ geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -691,7 +691,7 @@ geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -711,7 +711,7 @@ geoIntersects({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -731,7 +731,7 @@ geoIntersects({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -780,13 +780,13 @@ geoIntersects({
 geoRelation({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '20,20'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '20,20'
@@ -801,13 +801,13 @@ geoRelation({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '20,20'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '20,20'
@@ -822,13 +822,13 @@ geoRelation({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '20,20'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -846,7 +846,7 @@ geoRelation({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -855,7 +855,7 @@ geoRelation({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -873,7 +873,7 @@ geoRelation({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -882,7 +882,7 @@ geoRelation({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -900,7 +900,7 @@ geoRelation({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -909,7 +909,7 @@ geoRelation({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -942,13 +942,13 @@ null
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
@@ -960,13 +960,13 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '20,20'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '20,20'
@@ -978,7 +978,7 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -987,7 +987,7 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1020,7 +1020,7 @@ geoWithin({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1040,7 +1040,7 @@ geoWithin({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1084,7 +1084,7 @@ geoWithin({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1096,7 +1096,7 @@ geoWithin({
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1130,7 +1130,7 @@ geoWithin({
 geoContainsPoint({ point: '15, 15' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1139,7 +1139,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1154,7 +1154,7 @@ geoContainsPoint({ point: '15, 15' })
 geoContainsPoint({ point: '15, 15' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1174,7 +1174,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1200,7 +1200,7 @@ geoContainsPoint({ point: '15, 15' })
 geoContainsPoint({ point: '15, 15' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1224,7 +1224,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1238,7 +1238,7 @@ Point is within a polygon with holes
 geoContainsPoint({ point: '15, 15' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1250,7 +1250,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1270,13 +1270,13 @@ Point can match against a geo-shape point
 geoContainsPoint({ point: '15, 15' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 15, 15 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 15, 15 ] }
@@ -1315,13 +1315,13 @@ inGeoBoundingBox({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '33.2,-112.3'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '33.2,-112.3'
@@ -1336,13 +1336,13 @@ inGeoBoundingBox({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '43,-132'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1357,13 +1357,13 @@ inGeoBoundingBox({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ -112, 33 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ -112, 33 ] }
@@ -1388,13 +1388,13 @@ inGeoBoundingBox({
 isGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '60,40'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1406,13 +1406,13 @@ null
 isGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { lat: 60, lon: 40 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1424,13 +1424,13 @@ null
 isGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
@@ -1442,7 +1442,7 @@ isGeoJSON()
 isGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1451,7 +1451,7 @@ isGeoJSON()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1466,7 +1466,7 @@ isGeoJSON()
 isGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1486,7 +1486,7 @@ isGeoJSON()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1520,13 +1520,13 @@ isGeoJSON()
 isGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '60,40'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '60,40'
@@ -1538,13 +1538,13 @@ isGeoPoint()
 isGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 60, 40 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 60, 40 ]
@@ -1556,13 +1556,13 @@ isGeoPoint()
 isGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { lat: 60, lon: 40 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lat: 60, lon: 40 }
@@ -1574,13 +1574,13 @@ isGeoPoint()
 isGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { latitude: 60, longitude: 40 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { latitude: 60, longitude: 40 }
@@ -1592,13 +1592,13 @@ isGeoPoint()
 isGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'something'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1623,13 +1623,13 @@ null
 isGeoShapeMultiPolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1641,7 +1641,7 @@ null
 isGeoShapeMultiPolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1650,7 +1650,7 @@ isGeoShapeMultiPolygon()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1662,7 +1662,7 @@ null
 isGeoShapeMultiPolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1682,7 +1682,7 @@ isGeoShapeMultiPolygon()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1721,13 +1721,13 @@ isGeoShapeMultiPolygon()
 isGeoShapePoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
@@ -1739,7 +1739,7 @@ isGeoShapePoint()
 isGeoShapePoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1748,7 +1748,7 @@ isGeoShapePoint()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1760,7 +1760,7 @@ null
 isGeoShapePoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1780,7 +1780,7 @@ isGeoShapePoint()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1805,13 +1805,13 @@ null
 isGeoShapePolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1823,7 +1823,7 @@ null
 isGeoShapePolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1832,7 +1832,7 @@ isGeoShapePolygon()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1847,7 +1847,7 @@ isGeoShapePolygon()
 isGeoShapePolygon()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1867,7 +1867,7 @@ isGeoShapePolygon()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -1896,13 +1896,13 @@ null
 toGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '60,40'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { type: 'Point', coordinates: [ 40, 60 ] }
@@ -1914,13 +1914,13 @@ toGeoJSON()
 toGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ '10,10', '10,50', '50,50', '50,10', '10,10' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1935,7 +1935,7 @@ toGeoJSON()
 toGeoJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 {
@@ -1955,7 +1955,7 @@ toGeoJSON()
 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 {
@@ -1998,13 +1998,13 @@ toGeoJSON()
 toGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '60,40'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lon: 40, lat: 60 }
@@ -2016,13 +2016,13 @@ toGeoPoint()
 toGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { latitude: 40, longitude: 60 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lon: 60, lat: 40 }
@@ -2034,13 +2034,13 @@ toGeoPoint()
 toGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 50, 60 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lon: 50, lat: 60 }
@@ -2052,13 +2052,13 @@ toGeoPoint()
 toGeoPoint()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an geo point'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `null`
 
 ## CATEGORY: JSON
@@ -2091,13 +2091,13 @@ toGeoPoint()
 setDefault({ value: 'example' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 null
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'example'
@@ -2109,13 +2109,13 @@ null
 setDefault({ value: 'example' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 null
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'example' ]
@@ -2135,13 +2135,13 @@ null
 toJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 278218429446951548637196401n
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '278218429446951548637196400'
@@ -2153,13 +2153,13 @@ toJSON()
 toJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 false
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'false'
@@ -2171,13 +2171,13 @@ false
 toJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { some: 1234 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '{"some":1234}'
@@ -2189,13 +2189,13 @@ toJSON()
 toJSON()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { bigNum: 278218429446951548637196401n }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '{"bigNum":"278218429446951548637196400"}'
@@ -2244,13 +2244,13 @@ For example, `1h` or `1h+2m`
 addToDate({ expr: '10h+2m' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-23T08:02:00.000Z'
@@ -2262,13 +2262,13 @@ addToDate({ expr: '10h+2m' })
 addToDate({ months: 1, minutes: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-11-22T22:02:00.000Z'
@@ -2280,13 +2280,13 @@ addToDate({ months: 1, minutes: 2 })
 addToDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
 
 ##### Example (4)
@@ -2295,13 +2295,13 @@ addToDate()
 addToDate({ expr: '1hr', months: 10 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Invalid use of months with expr parameter`
 
 ### `formatDate`
@@ -2330,13 +2330,13 @@ Default: iso_8601 for strings and epoch_millis for numbers
 formatDate({ format: 'yyyy-MM-dd' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T00:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22'
@@ -2348,13 +2348,13 @@ formatDate({ format: 'yyyy-MM-dd' })
 formatDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1970-01-02T04:26:30.933Z'
@@ -2366,13 +2366,13 @@ formatDate()
 formatDate({ format: 'milliseconds' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1973-03-31T01:55:33.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 102390933000
@@ -2384,13 +2384,13 @@ formatDate({ format: 'milliseconds' })
 formatDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
@@ -2416,13 +2416,13 @@ formatDate()
 getDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-11T10:12:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 11
@@ -2434,13 +2434,13 @@ getDate()
 getDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-16T10:59:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 16
@@ -2452,13 +2452,13 @@ getDate()
 getDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '05/22/2021 EST'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 22
@@ -2470,13 +2470,13 @@ getDate()
 getDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1510123223231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 8
@@ -2502,13 +2502,13 @@ getDate()
 getHours()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:12:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -2520,13 +2520,13 @@ getHours()
 getHours()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-10T10:59:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -2538,13 +2538,13 @@ getHours()
 getHours()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '05/22/2021 EST'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -2556,13 +2556,13 @@ getHours()
 getHours()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 17154123223231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -2588,13 +2588,13 @@ getHours()
 getMilliseconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:01.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 91
@@ -2606,13 +2606,13 @@ getMilliseconds()
 getMilliseconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-10T10:00:01.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 91
@@ -2624,13 +2624,13 @@ getMilliseconds()
 getMilliseconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 231
@@ -2656,13 +2656,13 @@ getMilliseconds()
 getMinutes()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:12:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 12
@@ -2674,13 +2674,13 @@ getMinutes()
 getMinutes()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-10T10:59:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 59
@@ -2692,13 +2692,13 @@ getMinutes()
 getMinutes()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472323231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -2724,13 +2724,13 @@ getMinutes()
 getMonth()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-11T10:12:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -2742,13 +2742,13 @@ getMonth()
 getMonth()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-16T10:59:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -2760,13 +2760,13 @@ getMonth()
 getMonth()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '05/22/2021 EST'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -2778,13 +2778,13 @@ getMonth()
 getMonth()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1510123223231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 11
@@ -2810,13 +2810,13 @@ getMonth()
 getSeconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 41
@@ -2828,13 +2828,13 @@ getSeconds()
 getSeconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-10T10:00:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 19
@@ -2846,13 +2846,13 @@ getSeconds()
 getSeconds()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472323231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 23
@@ -2886,13 +2886,13 @@ getSeconds()
 getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-10T10:00:01.000Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1000
@@ -2904,13 +2904,13 @@ getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
 getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -2922,13 +2922,13 @@ getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
 getTimeBetween({ end: 1620764441001, interval: 'seconds' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1620764440001
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -2940,13 +2940,13 @@ getTimeBetween({ end: 1620764441001, interval: 'seconds' })
 getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'P1Y7M30DT8H19M23S'
@@ -2977,13 +2977,13 @@ getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
 getTimezoneOffset({ timezone: 'Africa/Accra' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-20T15:13:52.131Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -2995,13 +2995,13 @@ getTimezoneOffset({ timezone: 'Africa/Accra' })
 getTimezoneOffset({ timezone: 'America/Anchorage' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-20T15:13:52.131Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -480
@@ -3013,13 +3013,13 @@ getTimezoneOffset({ timezone: 'America/Anchorage' })
 getTimezoneOffset({ timezone: 'America/Aruba' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-20T15:13:52.131Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -240
@@ -3031,13 +3031,13 @@ getTimezoneOffset({ timezone: 'America/Aruba' })
 getTimezoneOffset({ timezone: 'Asia/Istanbul' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-20T15:13:52.131Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 180
@@ -3049,13 +3049,13 @@ getTimezoneOffset({ timezone: 'Asia/Istanbul' })
 getTimezoneOffset({ timezone: 'Australia/Canberra' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-20T15:13:52.131Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 600
@@ -3081,13 +3081,13 @@ getTimezoneOffset({ timezone: 'Australia/Canberra' })
 getYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-11T10:12:41.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2021
@@ -3099,13 +3099,13 @@ getYear()
 getYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-16T10:59:19.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2021
@@ -3117,13 +3117,13 @@ getYear()
 getYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '05/22/2021 EST'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2021
@@ -3135,13 +3135,13 @@ getYear()
 getYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1510123223231
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2017
@@ -3170,13 +3170,13 @@ getYear()
 lookupTimezone()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '33.385765, -111.891167'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'America/Phoenix'
@@ -3190,13 +3190,13 @@ In ocean outside Morocco
 lookupTimezone()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '30.00123,-12.233'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Etc/GMT+1'
@@ -3208,13 +3208,13 @@ lookupTimezone()
 lookupTimezone()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 30.00123, 12.233 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Africa/Khartoum'
@@ -3226,13 +3226,13 @@ lookupTimezone()
 lookupTimezone()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { lat: 48.86168702148502, lon: 2.3366209636711 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Europe/Paris'
@@ -3262,13 +3262,13 @@ lookupTimezone()
 setDate({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-12T20:45:30.000Z'
@@ -3280,13 +3280,13 @@ setDate({ value: 12 })
 setDate({ value: 22 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-22T20:45:30.091Z'
@@ -3298,13 +3298,13 @@ setDate({ value: 22 })
 setDate({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-01T00:00:00.000Z'
@@ -3334,13 +3334,13 @@ setDate({ value: 1 })
 setHours({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T12:45:30.000Z'
@@ -3352,13 +3352,13 @@ setHours({ value: 12 })
 setHours({ value: 22 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T22:45:30.091Z'
@@ -3370,13 +3370,13 @@ setHours({ value: 22 })
 setHours({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-12T01:00:00.000Z'
@@ -3406,13 +3406,13 @@ setHours({ value: 1 })
 setMilliseconds({ value: 392 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:45:30.392Z'
@@ -3424,13 +3424,13 @@ setMilliseconds({ value: 392 })
 setMilliseconds({ value: 483 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:45:30.483Z'
@@ -3442,13 +3442,13 @@ setMilliseconds({ value: 483 })
 setMilliseconds({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-12T00:00:00.001Z'
@@ -3478,13 +3478,13 @@ setMilliseconds({ value: 1 })
 setMinutes({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:12:30.000Z'
@@ -3496,13 +3496,13 @@ setMinutes({ value: 12 })
 setMinutes({ value: 22 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:22:30.091Z'
@@ -3514,13 +3514,13 @@ setMinutes({ value: 22 })
 setMinutes({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-12T00:01:00.000Z'
@@ -3550,13 +3550,13 @@ setMinutes({ value: 1 })
 setMonth({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-12-14T20:45:30.000Z'
@@ -3568,13 +3568,13 @@ setMonth({ value: 12 })
 setMonth({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-02-14T20:45:30.091Z'
@@ -3586,13 +3586,13 @@ setMonth({ value: 2 })
 setMonth({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-01-12T00:00:00.000Z'
@@ -3622,13 +3622,13 @@ setMonth({ value: 1 })
 setSeconds({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:45:12.000Z'
@@ -3640,13 +3640,13 @@ setSeconds({ value: 12 })
 setSeconds({ value: 22 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:45:22.091Z'
@@ -3658,13 +3658,13 @@ setSeconds({ value: 22 })
 setSeconds({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-12T00:00:01.000Z'
@@ -3694,13 +3694,13 @@ setSeconds({ value: 1 })
 setTimezone({ timezone: 420 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T20:45:30.000+07:00'
@@ -3712,13 +3712,13 @@ setTimezone({ timezone: 420 })
 setTimezone({ timezone: 120 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2020-02-14T20:45:30.091Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2020-02-14T20:45:30.091+02:00'
@@ -3748,13 +3748,13 @@ setTimezone({ timezone: 120 })
 setYear({ value: 2024 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T20:45:30.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2024-05-14T20:45:30.000Z'
@@ -3766,13 +3766,13 @@ setYear({ value: 2024 })
 setYear({ value: 1984 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2021-05-14T20:45:30.091Z
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1984-05-14T20:45:30.091Z'
@@ -3784,13 +3784,13 @@ setYear({ value: 1984 })
 setYear({ value: 2023 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 1621026000000, 420 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2023-05-14T14:00:00.000Z'
@@ -3802,13 +3802,13 @@ setYear({ value: 2023 })
 setYear({ value: 2001 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1715472000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001-05-12T00:00:00.000Z'
@@ -3853,13 +3853,13 @@ For example, `1h` or `1h+2m`
 subtractFromDate({ expr: '10h+2m' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22T12:02:00.000Z'
@@ -3871,13 +3871,13 @@ subtractFromDate({ expr: '10h+2m' })
 subtractFromDate({ months: 1, minutes: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-09-22T21:58:00.000Z'
@@ -3889,13 +3889,13 @@ subtractFromDate({ months: 1, minutes: 2 })
 subtractFromDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
 
 ##### Example (4)
@@ -3904,13 +3904,13 @@ subtractFromDate()
 subtractFromDate({ expr: '1hr', months: 10 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T22:00:00.000Z'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Invalid use of months with expr parameter`
 
 ### `timezoneToOffset`
@@ -3945,13 +3945,13 @@ subtractFromDate({ expr: '1hr', months: 10 })
 toDailyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22T00:00:00.000Z'
@@ -3963,13 +3963,13 @@ toDailyDate()
 toDailyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 1571706000000, 60 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22T00:00:00.000Z'
@@ -4001,13 +4001,13 @@ Default: iso_8601 for strings and epoch_millis for number
 toDate({ format: 'yyyy-MM-dd' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22T00:00:00.000Z'
@@ -4019,13 +4019,13 @@ toDate({ format: 'yyyy-MM-dd' })
 toDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1970-01-02T04:26:30.933Z'
@@ -4037,13 +4037,13 @@ toDate()
 toDate({ format: 'seconds' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1973-03-31T01:55:33.000Z'
@@ -4055,13 +4055,13 @@ toDate({ format: 'seconds' })
 toDate({ format: 'milliseconds' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1973-03-31T01:55:33.000Z'
@@ -4073,13 +4073,13 @@ toDate({ format: 'milliseconds' })
 toDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
@@ -4105,13 +4105,13 @@ toDate()
 toHourlyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T01:05:20.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22T01:00:00.000Z'
@@ -4137,13 +4137,13 @@ toHourlyDate()
 toMonthlyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-01T00:00:00.000Z'
@@ -4155,13 +4155,13 @@ toMonthlyDate()
 toMonthlyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 1571706000000, 120 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-01T00:00:00.000Z'
@@ -4187,13 +4187,13 @@ toMonthlyDate()
 toYearlyDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-01-01T00:00:00.000Z'
@@ -4223,13 +4223,13 @@ toYearlyDate()
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
@@ -4241,13 +4241,13 @@ isAfter({ date: '2021-05-09T10:00:00.000Z' })
 isAfter({ date: 1620554400000 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
@@ -4259,13 +4259,13 @@ isAfter({ date: 1620554400000 })
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1620640800000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1620640800000
@@ -4277,13 +4277,13 @@ isAfter({ date: '2021-05-09T10:00:00.000Z' })
 isAfter({ date: '2021-05-10T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4295,13 +4295,13 @@ null
 isAfter({ date: [ 1620640800000, -420 ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4331,13 +4331,13 @@ null
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
@@ -4349,13 +4349,13 @@ isBefore({ date: '2021-05-10T10:00:00.000Z' })
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1620554400000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1620554400000
@@ -4367,13 +4367,13 @@ isBefore({ date: '2021-05-10T10:00:00.000Z' })
 isBefore({ date: 1620640800000 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
@@ -4385,13 +4385,13 @@ isBefore({ date: 1620640800000 })
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-11T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4423,13 +4423,13 @@ null
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.001Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-10T10:00:00.001Z'
@@ -4441,13 +4441,13 @@ isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' }
 isBetween({ start: 1620554400000, end: 1620640800000 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1620554401000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1620554401000
@@ -4459,13 +4459,13 @@ isBetween({ start: 1620554400000, end: 1620640800000 })
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-07T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4477,13 +4477,13 @@ null
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-15T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4515,13 +4515,13 @@ Default: iso_8601 for strings and epoch_millis for number
 isDate({ format: 'yyyy-MM-dd' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2019-10-22'
@@ -4533,13 +4533,13 @@ isDate({ format: 'yyyy-MM-dd' })
 isDate({ format: 'yyyy-MM-dd' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10-22-2019'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4551,13 +4551,13 @@ null
 isDate({ format: 'epoch' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 102390933
@@ -4569,13 +4569,13 @@ isDate({ format: 'epoch' })
 isDate()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
@@ -4604,13 +4604,13 @@ isDate()
 isEpoch()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4622,13 +4622,13 @@ null
 isEpoch()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 102390933
@@ -4640,13 +4640,13 @@ isEpoch()
 isEpoch()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4658,13 +4658,13 @@ null
 isEpoch({ allowBefore1970: false })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4676,13 +4676,13 @@ null
 isEpoch()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -102390933
@@ -4710,13 +4710,13 @@ isEpoch()
 isEpochMillis()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2019-10-22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4728,13 +4728,13 @@ null
 isEpochMillis()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 102390933
@@ -4746,13 +4746,13 @@ isEpochMillis()
 isEpochMillis()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4764,13 +4764,13 @@ null
 isEpochMillis({ allowBefore1970: false })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4782,13 +4782,13 @@ null
 isEpochMillis()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -102390933
@@ -4814,13 +4814,13 @@ isEpochMillis()
 isFriday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-14T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T10:00:00.000Z'
@@ -4832,13 +4832,13 @@ isFriday()
 isFriday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 1620986400000, -620 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-14T10:00:00.000-10:20'
@@ -4850,13 +4850,13 @@ isFriday()
 isFriday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4882,13 +4882,13 @@ null
 isFuture()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4900,13 +4900,13 @@ null
 isFuture()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2121-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2121-05-09T10:00:00.000Z'
@@ -4932,13 +4932,13 @@ isFuture()
 isISO8601()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -4950,13 +4950,13 @@ null
 isISO8601()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
@@ -4968,13 +4968,13 @@ isISO8601()
 isISO8601()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 102390933
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5000,13 +5000,13 @@ null
 isLeapYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2020-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2020-05-10T10:00:00.000Z'
@@ -5018,13 +5018,13 @@ isLeapYear()
 isLeapYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 1589104800000, 60 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2020-05-10T10:00:00.000+01:00'
@@ -5036,13 +5036,13 @@ isLeapYear()
 isLeapYear()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5068,13 +5068,13 @@ null
 isMonday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
@@ -5086,13 +5086,13 @@ isMonday()
 isMonday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5118,13 +5118,13 @@ null
 isPast()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-10T10:00:00.000Z'
@@ -5136,13 +5136,13 @@ isPast()
 isPast()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2121-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5168,13 +5168,13 @@ null
 isSaturday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-08T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-08T10:00:00.000Z'
@@ -5186,13 +5186,13 @@ isSaturday()
 isSaturday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5218,13 +5218,13 @@ null
 isSunday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
@@ -5236,13 +5236,13 @@ isSunday()
 isSunday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1620554400000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1620554400000
@@ -5268,13 +5268,13 @@ isSunday()
 isThursday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-13T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-13T10:00:00.000Z'
@@ -5286,13 +5286,13 @@ isThursday()
 isThursday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5320,16 +5320,16 @@ This input is created at execution time
 isToday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
-'2021-06-10T22:33:40.191Z'
+'2021-06-10T22:36:00.946Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
-'2021-06-10T22:33:40.191Z'
+'2021-06-10T22:36:00.946Z'
 ```
 
 ##### Example (2)
@@ -5338,13 +5338,13 @@ isToday()
 isToday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2020-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5372,13 +5372,13 @@ Represents current time
 isTomorrow()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
-'2021-06-10T22:33:40.192Z'
+'2021-06-10T22:36:00.946Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5392,16 +5392,16 @@ Represents day after current time
 isTomorrow()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
-'2021-06-11T22:33:40.192Z'
+'2021-06-11T22:36:00.946Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
-'2021-06-11T22:33:40.192Z'
+'2021-06-11T22:36:00.946Z'
 ```
 
 ### `isTuesday`
@@ -5424,13 +5424,13 @@ isTomorrow()
 isTuesday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-11T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-11T10:00:00.000Z'
@@ -5442,13 +5442,13 @@ isTuesday()
 isTuesday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5474,13 +5474,13 @@ null
 isWednesday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-12T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-12T10:00:00.000Z'
@@ -5492,13 +5492,13 @@ isWednesday()
 isWednesday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5524,13 +5524,13 @@ null
 isWeekday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-12T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-12T10:00:00.000Z'
@@ -5542,13 +5542,13 @@ isWeekday()
 isWeekday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-13T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-13T10:00:00.000Z'
@@ -5560,13 +5560,13 @@ isWeekday()
 isWeekday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5578,13 +5578,13 @@ null
 isWeekday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-08T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5610,13 +5610,13 @@ null
 isWeekend()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-12T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5628,13 +5628,13 @@ null
 isWeekend()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-13T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5646,13 +5646,13 @@ null
 isWeekend()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-09T10:00:00.000Z'
@@ -5664,13 +5664,13 @@ isWeekend()
 isWeekend()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2021-05-08T10:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2021-05-08T10:00:00.000Z'
@@ -5698,13 +5698,13 @@ Represents current time
 isYesterday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
-'2021-06-10T22:33:40.201Z'
+'2021-06-10T22:36:00.949Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5718,16 +5718,16 @@ Represents day before current time
 isYesterday()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
-'2021-06-09T22:33:40.201Z'
+'2021-06-09T22:36:00.949Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
-'2021-06-09T22:33:40.201Z'
+'2021-06-09T22:36:00.949Z'
 ```
 
 ## CATEGORY: Numeric
@@ -5750,13 +5750,13 @@ isYesterday()
 abs()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -5780,13 +5780,13 @@ abs()
 acos()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 3.141592653589793
@@ -5810,13 +5810,13 @@ acos()
 acosh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -5830,13 +5830,13 @@ Since this function doesn't work with numbers <=0, null will be returned
 acosh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -5864,13 +5864,13 @@ null
 add({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 11
@@ -5882,13 +5882,13 @@ add({ value: 1 })
 add({ value: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 15
@@ -5900,13 +5900,13 @@ add({ value: 5 })
 add({ value: -5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -5918,13 +5918,13 @@ add({ value: -5 })
 add({ value: 12 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 12
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 24
@@ -5948,13 +5948,13 @@ add({ value: 12 })
 addValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 110
@@ -5966,13 +5966,13 @@ addValues()
 addValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -5984,13 +5984,13 @@ addValues()
 addValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100012
@@ -6002,13 +6002,13 @@ addValues()
 addValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100012
@@ -6020,13 +6020,13 @@ addValues()
 addValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -6050,13 +6050,13 @@ addValues()
 asin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.5707963267948966
@@ -6080,13 +6080,13 @@ asin()
 asinh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.881373587019543
@@ -6110,13 +6110,13 @@ asinh()
 atan()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.7853981633974483
@@ -6140,13 +6140,13 @@ atan()
 atan2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 15, 90 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.4056476493802699
@@ -6158,13 +6158,13 @@ atan2()
 atan2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 90, 15 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.16514867741462683
@@ -6176,13 +6176,13 @@ atan2()
 atan2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ -90, null ]
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Expected (x, y) coordinates, got [-90,null] (Array)`
 
 ### `atanh`
@@ -6203,13 +6203,13 @@ atan2()
 atanh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.5
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.5493061443340548
@@ -6223,13 +6223,13 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 atanh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -6253,13 +6253,13 @@ null
 cbrt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 64
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 4
@@ -6271,13 +6271,13 @@ cbrt()
 cbrt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6301,13 +6301,13 @@ cbrt()
 ceil()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.95
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6319,13 +6319,13 @@ ceil()
 ceil()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6337,13 +6337,13 @@ ceil()
 ceil()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -7.004
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -7
@@ -6367,13 +6367,13 @@ ceil()
 clz32()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 31
@@ -6385,13 +6385,13 @@ clz32()
 clz32()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 22
@@ -6403,13 +6403,13 @@ clz32()
 clz32()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 4
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 29
@@ -6433,13 +6433,13 @@ clz32()
 cos()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6451,13 +6451,13 @@ cos()
 cos()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 3.141592653589793
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -1
@@ -6469,13 +6469,13 @@ cos()
 cos()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 6.283185307179586
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6499,13 +6499,13 @@ cos()
 cosh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6517,13 +6517,13 @@ cosh()
 cosh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 3.141592653589793
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 11.591953275521519
@@ -6551,13 +6551,13 @@ cosh()
 divide({ value: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -6569,13 +6569,13 @@ divide({ value: 5 })
 divide({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -6587,13 +6587,13 @@ divide({ value: 1 })
 divide({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -6617,13 +6617,13 @@ divide({ value: 2 })
 divideValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -6635,13 +6635,13 @@ divideValues()
 divideValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -6653,13 +6653,13 @@ divideValues()
 divideValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.00005
@@ -6671,13 +6671,13 @@ divideValues()
 divideValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.00005
@@ -6689,13 +6689,13 @@ divideValues()
 divideValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -6719,13 +6719,13 @@ divideValues()
 exp()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -6737,13 +6737,13 @@ exp()
 exp()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2.718281828459045
@@ -6767,13 +6767,13 @@ exp()
 expm1()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -6785,13 +6785,13 @@ expm1()
 expm1()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.718281828459045
@@ -6815,13 +6815,13 @@ expm1()
 floor()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.95
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -6833,13 +6833,13 @@ floor()
 floor()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -6851,13 +6851,13 @@ floor()
 floor()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -7.004
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -8
@@ -6881,13 +6881,13 @@ floor()
 fround()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 5.5
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5.5
@@ -6899,13 +6899,13 @@ fround()
 fround()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -5.05
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -5.050000190734863
@@ -6929,13 +6929,13 @@ fround()
 hypot()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 3, 4 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -6947,13 +6947,13 @@ hypot()
 hypot()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 5, 12 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 13
@@ -6965,13 +6965,13 @@ hypot()
 hypot()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 3, 4, null, 5 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 7.0710678118654755
@@ -6983,13 +6983,13 @@ hypot()
 hypot()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 null
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7013,13 +7013,13 @@ null
 log()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -7031,13 +7031,13 @@ log()
 log()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2.302585092994046
@@ -7049,13 +7049,13 @@ log()
 log()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7079,13 +7079,13 @@ null
 log1p()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.6931471805599453
@@ -7097,13 +7097,13 @@ log1p()
 log1p()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -7117,13 +7117,13 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 log1p()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7137,13 +7137,13 @@ Typically this would return NaN but that cannot be stored or serialized so null 
 log1p()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7167,13 +7167,13 @@ null
 log2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7187,13 +7187,13 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 log2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7205,13 +7205,13 @@ null
 log2()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7235,13 +7235,13 @@ null
 log10()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7255,13 +7255,13 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 log10()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7273,13 +7273,13 @@ null
 log10()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -7303,13 +7303,13 @@ null
 maxValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100
@@ -7321,13 +7321,13 @@ maxValues()
 maxValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -7339,13 +7339,13 @@ maxValues()
 maxValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100000
@@ -7357,13 +7357,13 @@ maxValues()
 maxValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100000
@@ -7375,13 +7375,13 @@ maxValues()
 maxValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7405,13 +7405,13 @@ maxValues()
 minValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -7423,13 +7423,13 @@ minValues()
 minValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -7441,13 +7441,13 @@ minValues()
 minValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7459,13 +7459,13 @@ minValues()
 minValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7477,13 +7477,13 @@ minValues()
 minValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7512,13 +7512,13 @@ minValues()
 modulus({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -7530,13 +7530,13 @@ modulus({ value: 2 })
 modulus({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 9
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7548,13 +7548,13 @@ modulus({ value: 2 })
 modulus({ value: -5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -7566,13 +7566,13 @@ modulus({ value: -5 })
 modulus({ value: 10 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 101
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7600,13 +7600,13 @@ modulus({ value: 10 })
 multiply({ value: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 50
@@ -7618,13 +7618,13 @@ multiply({ value: 5 })
 multiply({ value: -2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -20
@@ -7636,13 +7636,13 @@ multiply({ value: -2 })
 multiply({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 20
@@ -7666,13 +7666,13 @@ multiply({ value: 2 })
 multiplyValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1000
@@ -7684,13 +7684,13 @@ multiplyValues()
 multiplyValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -7702,13 +7702,13 @@ multiplyValues()
 multiplyValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2000000
@@ -7720,13 +7720,13 @@ multiplyValues()
 multiplyValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2000000
@@ -7738,13 +7738,13 @@ multiplyValues()
 multiplyValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7773,13 +7773,13 @@ multiplyValues()
 pow({ value: 3 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 7
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 343
@@ -7791,13 +7791,13 @@ pow({ value: 3 })
 pow({ value: 0.5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 4
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -7823,13 +7823,13 @@ pow({ value: 0.5 })
 random({ min: 1, max: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7853,13 +7853,13 @@ random({ min: 1, max: 1 })
 round()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.95
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -7871,13 +7871,13 @@ round()
 round()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0.1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -7889,13 +7889,13 @@ round()
 round()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -7.004
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -7
@@ -7927,13 +7927,13 @@ round()
 setPrecision({ digits: 1, truncate: false })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10.123444'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10.1
@@ -7945,13 +7945,13 @@ setPrecision({ digits: 1, truncate: false })
 setPrecision({ digits: 1, truncate: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10.253444
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10.2
@@ -7963,13 +7963,13 @@ setPrecision({ digits: 1, truncate: true })
 setPrecision({ digits: 1, truncate: false })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10.253444
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10.3
@@ -7981,13 +7981,13 @@ setPrecision({ digits: 1, truncate: false })
 setPrecision({ digits: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 3.141592653589793
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 3.14
@@ -7999,13 +7999,13 @@ setPrecision({ digits: 2 })
 setPrecision({ digits: 0 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 3.141592653589793
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 3
@@ -8017,13 +8017,13 @@ setPrecision({ digits: 0 })
 setPrecision({ digits: -1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 23.4
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Expected digits to be between 0-100`
 
 ##### Example (7)
@@ -8032,13 +8032,13 @@ setPrecision({ digits: -1 })
 setPrecision({ digits: 1000 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 23.4
 ```
 
-**Throws:**
+<small>Throws:</small>
 `Expected digits to be between 0-100`
 
 ##### Example (8)
@@ -8047,13 +8047,13 @@ setPrecision({ digits: 1000 })
 setPrecision({ digits: 2, truncate: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { lat: 32.12399971230023, lon: -20.95522300035 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lat: 32.12, lon: -20.95 }
@@ -8065,13 +8065,13 @@ setPrecision({ digits: 2, truncate: true })
 setPrecision({ digits: 2, truncate: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { lat: 32.12399971230023, lon: -20.95522300035 }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { lat: 32.12, lon: -20.95 }
@@ -8100,13 +8100,13 @@ setPrecision({ digits: 2, truncate: true })
 sign()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 3
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -8118,13 +8118,13 @@ sign()
 sign()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -3
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -1
@@ -8136,13 +8136,13 @@ sign()
 sign()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -8166,13 +8166,13 @@ sign()
 sin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -8184,13 +8184,13 @@ sin()
 sin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0.8414709848078965
@@ -8202,13 +8202,13 @@ sin()
 sin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1.5707963267948966
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1
@@ -8232,13 +8232,13 @@ sin()
 sinh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -8250,13 +8250,13 @@ sinh()
 sinh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.1752011936438014
@@ -8268,13 +8268,13 @@ sinh()
 sinh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -1.1752011936438014
@@ -8298,13 +8298,13 @@ sinh()
 sqrt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 9
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 3
@@ -8316,13 +8316,13 @@ sqrt()
 sqrt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.4142135623730951
@@ -8334,13 +8334,13 @@ sqrt()
 sqrt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -8368,13 +8368,13 @@ null
 subtract({ value: 1 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 9
@@ -8386,13 +8386,13 @@ subtract({ value: 1 })
 subtract({ value: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 5
@@ -8404,13 +8404,13 @@ subtract({ value: 5 })
 subtract({ value: -5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 15
@@ -8422,13 +8422,13 @@ subtract({ value: -5 })
 subtract({ value: 2 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 8
@@ -8452,13 +8452,13 @@ subtract({ value: 2 })
 subtractValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 100, 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 90
@@ -8470,13 +8470,13 @@ subtractValues()
 subtractValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -8488,13 +8488,13 @@ subtractValues()
 subtractValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 10, 100000, 2 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -99992
@@ -8506,13 +8506,13 @@ subtractValues()
 subtractValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -99992
@@ -8524,13 +8524,13 @@ subtractValues()
 subtractValues()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 2
@@ -8554,13 +8554,13 @@ subtractValues()
 tan()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.5574077246549023
@@ -8584,13 +8584,13 @@ tan()
 tanh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 -1
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 -0.7615941559557649
@@ -8602,13 +8602,13 @@ tanh()
 tanh()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -8632,13 +8632,13 @@ tanh()
 toCelsius()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 32
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 0
@@ -8650,13 +8650,13 @@ toCelsius()
 toCelsius()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 69.8
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 21
@@ -8680,13 +8680,13 @@ toCelsius()
 toFahrenheit()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 0
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 32
@@ -8698,13 +8698,13 @@ toFahrenheit()
 toFahrenheit()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 22
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 71.6
@@ -8724,13 +8724,13 @@ toFahrenheit()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '13890472347692343249760902374089'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.3890472347692343e+31
@@ -8742,13 +8742,13 @@ toNumber()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 22
@@ -8760,13 +8760,13 @@ toNumber()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '22'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 22
@@ -8778,13 +8778,13 @@ toNumber()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10.16.32.210'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 168829138
@@ -8796,13 +8796,13 @@ toNumber()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:2::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '42540488320432167789079031612388147199'
@@ -8814,13 +8814,13 @@ toNumber()
 toNumber()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 978310800000
@@ -8852,13 +8852,13 @@ toNumber()
 inNumberRange({ min: 100, max: 110 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -8870,13 +8870,13 @@ null
 inNumberRange({ min: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -8888,13 +8888,13 @@ null
 inNumberRange({ min: 100, inclusive: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100
@@ -8906,13 +8906,13 @@ inNumberRange({ min: 100, inclusive: true })
 inNumberRange({ min: 0, max: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 10
@@ -8936,13 +8936,13 @@ inNumberRange({ min: 0, max: 100 })
 isEven()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100
@@ -8954,13 +8954,13 @@ isEven()
 isEven()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 99
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -8988,13 +8988,13 @@ null
 isGreaterThan({ value: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9006,13 +9006,13 @@ null
 isGreaterThan({ value: 50 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 50
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9024,13 +9024,13 @@ null
 isGreaterThan({ value: 110 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 120
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 120
@@ -9042,13 +9042,13 @@ isGreaterThan({ value: 110 })
 isGreaterThan({ value: 150 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 151
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 151
@@ -9076,13 +9076,13 @@ isGreaterThan({ value: 150 })
 isGreaterThanOrEqualTo({ value: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 10
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9094,13 +9094,13 @@ null
 isGreaterThanOrEqualTo({ value: 50 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 50
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 50
@@ -9112,13 +9112,13 @@ isGreaterThanOrEqualTo({ value: 50 })
 isGreaterThanOrEqualTo({ value: 110 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 120
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 120
@@ -9130,13 +9130,13 @@ isGreaterThanOrEqualTo({ value: 110 })
 isGreaterThanOrEqualTo({ value: 150 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 151
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 151
@@ -9164,13 +9164,13 @@ isGreaterThanOrEqualTo({ value: 150 })
 isLessThan({ value: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 110
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9182,13 +9182,13 @@ null
 isLessThan({ value: 50 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 50
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9200,13 +9200,13 @@ null
 isLessThan({ value: 110 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100
@@ -9218,13 +9218,13 @@ isLessThan({ value: 110 })
 isLessThan({ value: 150 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 149
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 149
@@ -9252,13 +9252,13 @@ isLessThan({ value: 150 })
 isLessThanOrEqualTo({ value: 100 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 110
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9270,13 +9270,13 @@ null
 isLessThanOrEqualTo({ value: 50 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 50
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 50
@@ -9288,13 +9288,13 @@ isLessThanOrEqualTo({ value: 50 })
 isLessThanOrEqualTo({ value: 110 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 100
@@ -9306,13 +9306,13 @@ isLessThanOrEqualTo({ value: 110 })
 isLessThanOrEqualTo({ value: 150 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 149
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 149
@@ -9336,13 +9336,13 @@ isLessThanOrEqualTo({ value: 150 })
 isOdd()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 100
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9354,13 +9354,13 @@ null
 isOdd()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 99
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 99
@@ -9386,13 +9386,13 @@ isOdd()
 equals({ value: 'thisisastring' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'thisisastring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'thisisastring'
@@ -9404,13 +9404,13 @@ equals({ value: 'thisisastring' })
 equals({ value: 'thisisastring' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1234
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9422,13 +9422,13 @@ null
 equals({ value: [ 'an', 'array', 'of', 'values' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 'an', 'array', 'of', 'values' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'an', 'array', 'of', 'values' ]
@@ -9440,13 +9440,13 @@ equals({ value: [ 'an', 'array', 'of', 'values' ] })
 equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { foo: 'bar', deep: { value: 'kitty' } }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 { foo: 'bar', deep: { value: 'kitty' } }
@@ -9458,13 +9458,13 @@ equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
 equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { foo: 'bar', deep: { value: 'other stuff' } }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9476,13 +9476,13 @@ null
 equals({ value: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 false
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9506,13 +9506,13 @@ null
 isEmpty()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9524,13 +9524,13 @@ null
 isEmpty()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 ''
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ''
@@ -9542,13 +9542,13 @@ isEmpty()
 isEmpty()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 []
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 []
@@ -9577,13 +9577,13 @@ isEmpty()
 lookup({ in: { key1: 'value1', key2: 'value2' } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'key1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'value1'
@@ -9595,13 +9595,13 @@ lookup({ in: { key1: 'value1', key2: 'value2' } })
 lookup({ in: { '123': 4567, '8910': 1112 } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 8910
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1112
@@ -9613,13 +9613,13 @@ lookup({ in: { '123': 4567, '8910': 1112 } })
 lookup({ in: { key1: 'value1', key2: 'value2' } })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'key3'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 undefined
@@ -9637,13 +9637,13 @@ lookup({
 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'bar'
@@ -9655,13 +9655,13 @@ lookup({
 lookup({ in: [ 'foo', 'bar', 'max' ] })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 2
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'max'
@@ -9691,13 +9691,13 @@ lookup({ in: [ 'foo', 'bar', 'max' ] })
 contains({ value: 'ample' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'example'
@@ -9709,13 +9709,13 @@ contains({ value: 'ample' })
 contains({ value: 'example' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'example'
@@ -9727,13 +9727,13 @@ contains({ value: 'example' })
 contains({ value: 'test' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9761,13 +9761,13 @@ null
 endsWith({ value: 'e' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'apple'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'apple'
@@ -9779,13 +9779,13 @@ endsWith({ value: 'e' })
 endsWith({ value: 'a' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'orange'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9797,13 +9797,13 @@ null
 endsWith({ value: 'so' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'some word'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9815,13 +9815,13 @@ null
 endsWith({ value: 'word' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'other word'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'other word'
@@ -9849,13 +9849,13 @@ endsWith({ value: 'word' })
 isAlpha()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example123456'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9867,13 +9867,13 @@ null
 isAlpha({ locale: 'pl-Pl' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'ThisiZĄĆĘŚŁ'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'ThisiZĄĆĘŚŁ'
@@ -9885,13 +9885,13 @@ isAlpha({ locale: 'pl-Pl' })
 isAlpha()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not_alpha.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9903,13 +9903,13 @@ null
 isAlpha()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 true
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9937,13 +9937,13 @@ null
 isAlphaNumeric()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example123456'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'example123456'
@@ -9955,13 +9955,13 @@ isAlphaNumeric()
 isAlphaNumeric({ locale: 'pl-Pl' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'ThisiZĄĆĘŚŁ1234'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'ThisiZĄĆĘŚŁ1234'
@@ -9973,13 +9973,13 @@ isAlphaNumeric({ locale: 'pl-Pl' })
 isAlphaNumeric()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not_alphanumeric.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -9991,13 +9991,13 @@ null
 isAlphaNumeric()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 true
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10021,13 +10021,13 @@ null
 isBase64()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'ZnJpZW5kbHlOYW1lNw=='
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'ZnJpZW5kbHlOYW1lNw=='
@@ -10039,13 +10039,13 @@ isBase64()
 isBase64()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'manufacturerUrl7'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10057,13 +10057,13 @@ null
 isBase64()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1234123
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10087,13 +10087,13 @@ null
 isCountryCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'US'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'US'
@@ -10105,13 +10105,13 @@ isCountryCode()
 isCountryCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'ZM'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'ZM'
@@ -10123,13 +10123,13 @@ isCountryCode()
 isCountryCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'GB'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'GB'
@@ -10141,13 +10141,13 @@ isCountryCode()
 isCountryCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'UK'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10159,13 +10159,13 @@ null
 isCountryCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 12345
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10189,13 +10189,13 @@ null
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'string@gmail.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'string@gmail.com'
@@ -10207,13 +10207,13 @@ isEmail()
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'non.us.email@thing.com.uk'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'non.us.email@thing.com.uk'
@@ -10225,13 +10225,13 @@ isEmail()
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Abc@def@example.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Abc@def@example.com'
@@ -10243,13 +10243,13 @@ isEmail()
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'cal+henderson@iamcalx.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'cal+henderson@iamcalx.com'
@@ -10261,13 +10261,13 @@ isEmail()
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'customer/department=shipping@example.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'customer/department=shipping@example.com'
@@ -10279,13 +10279,13 @@ isEmail()
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'user@blah.com/junk.junk?a=<tag value="junk"'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10297,13 +10297,13 @@ null
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Abc@def  @  example.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10315,13 +10315,13 @@ null
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'bad email address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10333,13 +10333,13 @@ null
 isEmail()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 12345
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10363,13 +10363,13 @@ null
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'example.com'
@@ -10381,13 +10381,13 @@ isFQDN()
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'international-example.com.br'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'international-example.com.br'
@@ -10399,13 +10399,13 @@ isFQDN()
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1234.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1234.com'
@@ -10417,13 +10417,13 @@ isFQDN()
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'no_underscores.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10435,13 +10435,13 @@ null
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '**.bad.domain.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10453,13 +10453,13 @@ null
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'example.0'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10471,13 +10471,13 @@ null
 isFQDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 12345
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10505,13 +10505,13 @@ null
 isHash({ algo: 'sha256' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
@@ -10523,13 +10523,13 @@ isHash({ algo: 'sha256' })
 isHash({ algo: 'md5' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10558,13 +10558,13 @@ null
 isISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '46707123456'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '46707123456'
@@ -10576,13 +10576,13 @@ isISDN()
 isISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1-808-915-6800'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1-808-915-6800'
@@ -10594,13 +10594,13 @@ isISDN()
 isISDN({ country: 'US' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8089156800'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8089156800'
@@ -10612,13 +10612,13 @@ isISDN({ country: 'US' })
 isISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8089156800'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10650,13 +10650,13 @@ null
 isLength({ size: 8 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'iam8char'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'iam8char'
@@ -10668,13 +10668,13 @@ isLength({ size: 8 })
 isLength({ size: 8 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'iamnot8char'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10686,13 +10686,13 @@ null
 isLength({ min: 3 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'aString'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'aString'
@@ -10704,13 +10704,13 @@ isLength({ min: 3 })
 isLength({ min: 3, max: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'aString'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10722,13 +10722,13 @@ null
 isLength({ min: 3, max: 5 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 4
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10756,13 +10756,13 @@ null
 isMACAddress()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '00:1f:f3:5b:2b:1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '00:1f:f3:5b:2b:1f'
@@ -10774,13 +10774,13 @@ isMACAddress()
 isMACAddress()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '001ff35b2b1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '001ff35b2b1f'
@@ -10792,13 +10792,13 @@ isMACAddress()
 isMACAddress()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
@@ -10810,13 +10810,13 @@ isMACAddress()
 isMACAddress({ delimiter: 'colon' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10828,13 +10828,13 @@ null
 isMACAddress({ delimiter: 'any' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
@@ -10846,13 +10846,13 @@ isMACAddress({ delimiter: 'any' })
 isMACAddress({ delimiter: 'dash' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '00-1f-f3-5b-2b-1f'
@@ -10864,13 +10864,13 @@ isMACAddress({ delimiter: 'dash' })
 isMACAddress({ delimiter: 'dot' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '001f.f35b.2b1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '001f.f35b.2b1f'
@@ -10882,13 +10882,13 @@ isMACAddress({ delimiter: 'dot' })
 isMACAddress({ delimiter: 'none' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '001ff35b2b1f'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '001ff35b2b1f'
@@ -10900,13 +10900,13 @@ isMACAddress({ delimiter: 'none' })
 isMACAddress()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'aString'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10918,13 +10918,13 @@ null
 isMACAddress()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 4
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -10948,13 +10948,13 @@ null
 isMIMEType()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'application/javascript'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'application/javascript'
@@ -10966,13 +10966,13 @@ isMIMEType()
 isMIMEType()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'text/html'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'text/html'
@@ -10984,13 +10984,13 @@ isMIMEType()
 isMIMEType()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'application'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11002,13 +11002,13 @@ null
 isMIMEType()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 ''
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11033,13 +11033,13 @@ null
 isPhoneNumberLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '46707123456'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '46707123456'
@@ -11051,13 +11051,13 @@ isPhoneNumberLike()
 isPhoneNumberLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1-808-915-6800'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1-808-915-6800'
@@ -11069,13 +11069,13 @@ isPhoneNumberLike()
 isPhoneNumberLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '79525554602'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '79525554602'
@@ -11087,13 +11087,13 @@ isPhoneNumberLike()
 isPhoneNumberLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '223457823432432423324'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11105,13 +11105,13 @@ null
 isPhoneNumberLike()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2234'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11136,13 +11136,13 @@ null
 isPort()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '49151'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '49151'
@@ -11154,13 +11154,13 @@ isPort()
 isPort()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '80'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '80'
@@ -11172,13 +11172,13 @@ isPort()
 isPort()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '65536'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11190,13 +11190,13 @@ null
 isPort()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not a port'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11225,13 +11225,13 @@ null
 isPostalCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '85249'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '85249'
@@ -11243,13 +11243,13 @@ isPostalCode()
 isPostalCode({ locale: 'RU' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '191123'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '191123'
@@ -11261,13 +11261,13 @@ isPostalCode({ locale: 'RU' })
 isPostalCode()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'bobsyouruncle'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11279,13 +11279,13 @@ null
 isPostalCode({ locale: 'CN' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'this is not a postal code'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11309,13 +11309,13 @@ null
 isString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'this is a string'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'this is a string'
@@ -11327,13 +11327,13 @@ isString()
 isString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '12345'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '12345'
@@ -11345,13 +11345,13 @@ isString()
 isString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { hello: 'i am an object' }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11363,13 +11363,13 @@ null
 isString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1234
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11381,13 +11381,13 @@ null
 isString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ '12345', 'some more stuff' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ '12345', 'some more stuff' ]
@@ -11411,13 +11411,13 @@ isString()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'http://someurl.com.uk'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'http://someurl.com.uk'
@@ -11429,13 +11429,13 @@ isURL()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'ftp://someurl.bom:8080?some=bar&hi=bob'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'ftp://someurl.bom:8080?some=bar&hi=bob'
@@ -11447,13 +11447,13 @@ isURL()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'http://xn--fsqu00a.xn--3lr804guic'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'http://xn--fsqu00a.xn--3lr804guic'
@@ -11465,13 +11465,13 @@ isURL()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'http://example.com/hello%20world'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'http://example.com/hello%20world'
@@ -11483,13 +11483,13 @@ isURL()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'bob.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'bob.com'
@@ -11501,13 +11501,13 @@ isURL()
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'isthis_valid_uri.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11519,13 +11519,13 @@ null
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'http://sthis valid uri.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11537,13 +11537,13 @@ null
 isURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'hello://validuri.com'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11567,13 +11567,13 @@ null
 isUUID()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '95ecc380-afe9-11e4-9b6c-751b66dd541e'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '95ecc380-afe9-11e4-9b6c-751b66dd541e'
@@ -11585,13 +11585,13 @@ isUUID()
 isUUID()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '123e4567-e89b-82d3-f456-426655440000'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '123e4567-e89b-82d3-f456-426655440000'
@@ -11603,13 +11603,13 @@ isUUID()
 isUUID()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '95ecc380:afe9:11e4:9b6c:751b66dd541e'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11621,13 +11621,13 @@ null
 isUUID()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '123e4567-e89b-x2d3-0456-426655440000'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11639,13 +11639,13 @@ null
 isUUID()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'randomstring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11673,13 +11673,13 @@ null
 startsWith({ value: 'a' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'apple'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'apple'
@@ -11691,13 +11691,13 @@ startsWith({ value: 'a' })
 startsWith({ value: 'a' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'orange'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11709,13 +11709,13 @@ null
 startsWith({ value: 'so' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'some word'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'some word'
@@ -11727,13 +11727,13 @@ startsWith({ value: 'so' })
 startsWith({ value: 'so' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'other word'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11745,13 +11745,13 @@ null
 startsWith({ value: 't' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'hat'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -11775,13 +11775,13 @@ null
 decodeBase64()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'c29tZSBzdHJpbmc='
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'some string'
@@ -11805,13 +11805,13 @@ decodeBase64()
 decodeHex()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '736f6d652076616c756520666f722068657820656e636f64696e67'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'some value for hex encoding'
@@ -11835,13 +11835,13 @@ decodeHex()
 decodeURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'google.com?q=HELLO AND GOODBYE'
@@ -11873,13 +11873,13 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 encode({ algo: 'sha256' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
@@ -11891,13 +11891,13 @@ encode({ algo: 'sha256' })
 encode({ algo: 'md5' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '7e33b72a611da99c7e9013dd44dbbdad'
@@ -11909,13 +11909,13 @@ encode({ algo: 'md5' })
 encode({ algo: 'url' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'google.com?q=HELLO AND GOODBYE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
@@ -11927,13 +11927,13 @@ encode({ algo: 'url' })
 encode({ algo: 'base64' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO AND GOODBYE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'SEVMTE8gQU5EIEdPT0RCWUU='
@@ -11945,13 +11945,13 @@ encode({ algo: 'base64' })
 encode({ algo: 'sha1', digest: 'base64' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '6MsUBHluumd5onY3fM6ZpQKjZIE='
@@ -11975,13 +11975,13 @@ encode({ algo: 'sha1', digest: 'base64' })
 encodeBase64()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'some string'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'c29tZSBzdHJpbmc='
@@ -12005,13 +12005,13 @@ encodeBase64()
 encodeHex()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'some value for hex encoding'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '736f6d652076616c756520666f722068657820656e636f64696e67'
@@ -12043,13 +12043,13 @@ Hashing algorithm defaults to sha256, and digest defaults to hex
 encodeSHA()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
@@ -12061,13 +12061,13 @@ encodeSHA()
 encodeSHA({ digest: 'base64' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U='
@@ -12097,13 +12097,13 @@ If the digest is not provided, it defaults to hex
 encodeSHA1()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'e8cb1404796eba6779a276377cce99a502a36481'
@@ -12115,13 +12115,13 @@ encodeSHA1()
 encodeSHA1({ digest: 'base64' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '{ "some": "data" }'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '6MsUBHluumd5onY3fM6ZpQKjZIE='
@@ -12145,13 +12145,13 @@ encodeSHA1({ digest: 'base64' })
 encodeURL()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'google.com?q=HELLO AND GOODBYE'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
@@ -12179,13 +12179,13 @@ encodeURL()
 entropy()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '0123456789abcdef'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 4
@@ -12197,13 +12197,13 @@ entropy()
 entropy({ algo: 'shannon' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1223334444'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 1.8464393446710154
@@ -12215,13 +12215,13 @@ entropy({ algo: 'shannon' })
 entropy({ algo: 'unknownAlgoName' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1223334444'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `null`
 
 ### `extract`
@@ -12252,13 +12252,13 @@ entropy({ algo: 'unknownAlgoName' })
 extract({ start: '<', end: '>' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '<hello>'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello'
@@ -12270,13 +12270,13 @@ extract({ start: '<', end: '>' })
 extract({ regex: 'he.*' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'hello'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello'
@@ -12288,13 +12288,13 @@ extract({ regex: 'he.*' })
 extract({ regex: '/([A-Z]\\w+)/', global: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hello World some other things'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'Hello', 'World' ]
@@ -12306,13 +12306,13 @@ extract({ regex: '/([A-Z]\\w+)/', global: true })
 extract({ start: '<', end: '>', global: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '<hello> some stuff <world>'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'hello', 'world' ]
@@ -12340,7 +12340,7 @@ extract({ start: '<', end: '>', global: true })
 join()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [
@@ -12350,7 +12350,7 @@ join()
 ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'a string'
@@ -12362,13 +12362,13 @@ join()
 join({ delimiter: ',' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 'a string', 'found' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'a string,found'
@@ -12380,13 +12380,13 @@ join({ delimiter: ',' })
 join({ delimiter: ' - ' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 'a', 'stri', 'ng' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'a - stri - ng'
@@ -12398,13 +12398,13 @@ join({ delimiter: ' - ' })
 join({ delimiter: ' ' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'a string'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'a string'
@@ -12434,13 +12434,13 @@ join({ delimiter: ' ' })
 replaceLiteral({ search: 'bob', replace: 'mel' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hi bob'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hi mel'
@@ -12454,13 +12454,13 @@ Does not replace as it is not an exact match
 replaceLiteral({ search: 'bob', replace: 'mel' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hi Bob'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hi Bob'
@@ -12494,13 +12494,13 @@ replaceLiteral({ search: 'bob', replace: 'mel' })
 replaceRegex({ regex: 's|e', replace: 'd' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'somestring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'domestring'
@@ -12512,13 +12512,13 @@ replaceRegex({ regex: 's|e', replace: 'd' })
 replaceRegex({ regex: 's|e', replace: 'd', global: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'somestring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'domddtring'
@@ -12530,13 +12530,13 @@ replaceRegex({ regex: 's|e', replace: 'd', global: true })
 replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'soMesTring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'soWesWring'
@@ -12548,13 +12548,13 @@ replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
 replaceRegex({ regex: '\\*', replace: '', global: true })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'a***a***a'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'aaa'
@@ -12578,13 +12578,13 @@ replaceRegex({ regex: '\\*', replace: '', global: true })
 reverse()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'hello'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'olleh'
@@ -12596,13 +12596,13 @@ reverse()
 reverse()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'more words'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'sdrow erom'
@@ -12614,13 +12614,13 @@ reverse()
 reverse()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ 'hello', 'more' ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'olleh', 'erom' ]
@@ -12648,13 +12648,13 @@ reverse()
 split()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'astring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [
@@ -12672,13 +12672,13 @@ Delimiter is not found so the whole input is returned
 split({ delimiter: ',' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'astring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'astring' ]
@@ -12690,13 +12690,13 @@ split({ delimiter: ',' })
 split({ delimiter: '-' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'a-stri-ng'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'a', 'stri', 'ng' ]
@@ -12708,13 +12708,13 @@ split({ delimiter: '-' })
 split({ delimiter: ' ' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'a string'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'a', 'string' ]
@@ -12738,13 +12738,13 @@ split({ delimiter: ' ' })
 toCamelCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'helloThere'
@@ -12756,13 +12756,13 @@ toCamelCase()
 toCamelCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'billy'
@@ -12774,13 +12774,13 @@ toCamelCase()
 toCamelCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'heyThere'
@@ -12805,13 +12805,13 @@ toCamelCase()
 toISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '+33-1-22-33-44-55'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '33122334455'
@@ -12823,13 +12823,13 @@ toISDN()
 toISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1(800)FloWErs'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '18003569377'
@@ -12841,13 +12841,13 @@ toISDN()
 toISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 4917600000000
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '4917600000000'
@@ -12859,13 +12859,13 @@ toISDN()
 toISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 49187484
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '49187484'
@@ -12877,13 +12877,13 @@ toISDN()
 toISDN()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'something'
 ```
 
-**Throws:**
+<small>Throws:</small>
 `null`
 
 ### `toKebabCase`
@@ -12904,13 +12904,13 @@ toISDN()
 toKebabCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello-there'
@@ -12922,13 +12922,13 @@ toKebabCase()
 toKebabCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'billy'
@@ -12940,13 +12940,13 @@ toKebabCase()
 toKebabCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hey-there'
@@ -12970,13 +12970,13 @@ toKebabCase()
 toLowerCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello there'
@@ -12988,13 +12988,13 @@ toLowerCase()
 toLowerCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'biLLy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'billy'
@@ -13018,13 +13018,13 @@ toLowerCase()
 toPascalCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'HelloThere'
@@ -13036,13 +13036,13 @@ toPascalCase()
 toPascalCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Billy'
@@ -13054,13 +13054,13 @@ toPascalCase()
 toPascalCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'HeyThere'
@@ -13084,13 +13084,13 @@ toPascalCase()
 toSnakeCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello_there'
@@ -13102,13 +13102,13 @@ toSnakeCase()
 toSnakeCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'billy'
@@ -13120,13 +13120,13 @@ toSnakeCase()
 toSnakeCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hey_there'
@@ -13146,13 +13146,13 @@ toSnakeCase()
 toString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 true
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'true'
@@ -13164,13 +13164,13 @@ true
 toString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 { hello: 'world' }
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '{"hello":"world"}'
@@ -13182,13 +13182,13 @@ toString()
 toString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 278218429446951548637196401n
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '278218429446951548637196400'
@@ -13200,13 +13200,13 @@ toString()
 toString()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 [ true, false ]
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 [ 'true', 'false' ]
@@ -13230,13 +13230,13 @@ toString()
 toTitleCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'HELLO there'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'HELLO There'
@@ -13248,13 +13248,13 @@ toTitleCase()
 toTitleCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Billy'
@@ -13266,13 +13266,13 @@ toTitleCase()
 toTitleCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hey There'
@@ -13296,13 +13296,13 @@ toTitleCase()
 toUpperCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'hello'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'HELLO'
@@ -13314,13 +13314,13 @@ toUpperCase()
 toUpperCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'billy'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'BILLY'
@@ -13332,13 +13332,13 @@ toUpperCase()
 toUpperCase()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hey There'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'HEY THERE'
@@ -13366,13 +13366,13 @@ toUpperCase()
 trim()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '   other_things         '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'other_things'
@@ -13384,13 +13384,13 @@ trim()
 trim()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Stuff        '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Stuff'
@@ -13402,13 +13402,13 @@ trim()
 trim()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '      hello'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'hello'
@@ -13420,13 +13420,13 @@ trim()
 trim()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '       '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ''
@@ -13438,13 +13438,13 @@ trim()
 trim()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Spider Man'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Spider Man'
@@ -13456,13 +13456,13 @@ trim()
 trim({ chars: 'a' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'aaaaSpider Manaaaa'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Spider Man'
@@ -13476,13 +13476,13 @@ Any new char, including whitespace will stop the trim, it must be consecutive
 trim({ chars: 'a' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'aa aaSpider Manaa aa'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ' aaSpider Manaa '
@@ -13494,13 +13494,13 @@ trim({ chars: 'a' })
 trim({ chars: 'fast' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fast cars race fast'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ' cars race '
@@ -13512,13 +13512,13 @@ trim({ chars: 'fast' })
 trim({ chars: 'fatc ' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fast example cata'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'st example'
@@ -13530,13 +13530,13 @@ trim({ chars: 'fatc ' })
 trim({ chars: '\r' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '\t\r\rtrim this\r\r'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '\t\r\rtrim this'
@@ -13548,13 +13548,13 @@ trim({ chars: '\r' })
 trim({ chars: '.*' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '.*.*a test.*.*.*.*'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'a test'
@@ -13582,13 +13582,13 @@ trim({ chars: '.*' })
 trimEnd()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '   left'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '   left'
@@ -13600,13 +13600,13 @@ trimEnd()
 trimEnd()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'right   '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'right'
@@ -13618,13 +13618,13 @@ trimEnd()
 trimEnd()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '       '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ''
@@ -13636,13 +13636,13 @@ trimEnd()
 trimEnd({ chars: '*' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '*****Hello****Bob*****'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '*****Hello****Bob'
@@ -13654,13 +13654,13 @@ trimEnd({ chars: '*' })
 trimEnd({ chars: 'fast' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fast cars race fast'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'fast cars race '
@@ -13688,13 +13688,13 @@ trimEnd({ chars: 'fast' })
 trimStart()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '    Hello Bob    '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hello Bob    '
@@ -13706,13 +13706,13 @@ trimStart()
 trimStart({ chars: '__--' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '__--__--__some__--__word'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'some__--__word'
@@ -13724,13 +13724,13 @@ trimStart({ chars: '__--' })
 trimStart()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '       '
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 ''
@@ -13742,13 +13742,13 @@ trimStart()
 trimStart({ chars: '*' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '*****Hello****Bob*****'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hello****Bob*****'
@@ -13776,13 +13776,13 @@ trimStart({ chars: '*' })
 truncate({ size: 4 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'thisisalongstring'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'this'
@@ -13794,13 +13794,13 @@ truncate({ size: 4 })
 truncate({ size: 8 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'Hello world'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'Hello wo'
@@ -13827,13 +13827,13 @@ truncate({ size: 8 })
 isIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '11.0.1.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '11.0.1.18'
@@ -13845,13 +13845,13 @@ isIP()
 isIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
@@ -13863,13 +13863,13 @@ isIP()
 isIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '172.394.0.1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -13881,13 +13881,13 @@ null
 isIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 1234567
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -13899,13 +13899,13 @@ null
 isIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an IP address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -13938,13 +13938,13 @@ null
 inIPRange({ cidr: '8.8.8.0/24' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.8.8'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.8.8'
@@ -13956,13 +13956,13 @@ inIPRange({ cidr: '8.8.8.0/24' })
 inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fd00::b000'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'fd00::b000'
@@ -13974,13 +13974,13 @@ inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
 inIPRange({ min: 'fd00::123' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fd00::b000'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'fd00::b000'
@@ -13992,13 +13992,13 @@ inIPRange({ min: 'fd00::123' })
 inIPRange({ cidr: '8.8.8.0/24' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.10.8'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14023,13 +14023,13 @@ null
 isCIDR()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1.2.3.4/32'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1.2.3.4/32'
@@ -14041,13 +14041,13 @@ isCIDR()
 isCIDR()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001::1234:5678/128'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001::1234:5678/128'
@@ -14059,13 +14059,13 @@ isCIDR()
 isCIDR()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.8.10'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14077,13 +14077,13 @@ null
 isCIDR()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'badIPAddress/24'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14108,13 +14108,13 @@ null
 isIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '11.0.1.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '11.0.1.18'
@@ -14126,13 +14126,13 @@ isIPv4()
 isIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14144,13 +14144,13 @@ null
 isIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '172.394.0.1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14162,13 +14162,13 @@ null
 isIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an IP address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14193,13 +14193,13 @@ null
 isIPv6()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
@@ -14211,13 +14211,13 @@ isIPv6()
 isIPv6()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'fc00:db8::1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 'fc00:db8::1'
@@ -14229,13 +14229,13 @@ isIPv6()
 isIPv6()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '::FFFF:12.155.166.101'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '::FFFF:12.155.166.101'
@@ -14247,13 +14247,13 @@ isIPv6()
 isIPv6()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '11.0.1.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14265,13 +14265,13 @@ null
 isIPv6()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an IP address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14296,13 +14296,13 @@ null
 isNonRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '192.168.0.1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '192.168.0.1'
@@ -14314,13 +14314,13 @@ isNonRoutableIP()
 isNonRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:db8::1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8::1'
@@ -14332,13 +14332,13 @@ isNonRoutableIP()
 isNonRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '172.28.4.1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '172.28.4.1'
@@ -14350,13 +14350,13 @@ isNonRoutableIP()
 isNonRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.8.8'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14368,13 +14368,13 @@ null
 isNonRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:2ff::ffff'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14399,13 +14399,13 @@ null
 isRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.8.8'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.8.8'
@@ -14417,13 +14417,13 @@ isRoutableIP()
 isRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2620:4f:123::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2620:4f:123::'
@@ -14435,13 +14435,13 @@ isRoutableIP()
 isRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '192.168.255.254'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14453,13 +14453,13 @@ null
 isRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:4:112::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14471,13 +14471,13 @@ null
 isRoutableIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an IP address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14502,13 +14502,13 @@ null
 isMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '::ffff:10.2.1.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '::ffff:10.2.1.18'
@@ -14520,13 +14520,13 @@ isMappedIPv4()
 isMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '::122.168.5.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '::122.168.5.18'
@@ -14538,13 +14538,13 @@ isMappedIPv4()
 isMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10.16.32.210'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14556,13 +14556,13 @@ null
 isMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:4:112::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14574,13 +14574,13 @@ null
 isMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 'not an IP address'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 null
@@ -14605,13 +14605,13 @@ null
 extractMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '::FFFF:192.52.193.1'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '192.52.193.1'
@@ -14623,13 +14623,13 @@ extractMappedIPv4()
 extractMappedIPv4()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '::122.168.5.18'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '122.168.5.18'
@@ -14654,13 +14654,13 @@ extractMappedIPv4()
 reverseIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10.16.32.210'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '210.32.16.10'
@@ -14672,13 +14672,13 @@ reverseIP()
 reverseIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0000:0000:0000:8a2e:0370:7334'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2'
@@ -14690,13 +14690,13 @@ reverseIP()
 reverseIP()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:2::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2'
@@ -14721,13 +14721,13 @@ reverseIP()
 ipToInt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '10.16.32.210'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 168829138
@@ -14739,13 +14739,13 @@ ipToInt()
 ipToInt()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:2::'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '42540488320432167789079031612388147199'
@@ -14774,13 +14774,13 @@ ipToInt()
 intToIP({ version: 4 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 168829138
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '10.16.32.210'
@@ -14792,13 +14792,13 @@ intToIP({ version: 4 })
 intToIP({ version: '6' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '42540488320432167789079031612388147200'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:2::'
@@ -14823,13 +14823,13 @@ intToIP({ version: '6' })
 getCIDRMin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.12.118/24'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.12.1'
@@ -14841,13 +14841,13 @@ getCIDRMin()
 getCIDRMin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:123:4567:89ab:cdef:1234:5678'
@@ -14859,13 +14859,13 @@ getCIDRMin()
 getCIDRMin()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:120::1'
@@ -14890,13 +14890,13 @@ getCIDRMin()
 getCIDRMax()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.12.118/24'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.12.254'
@@ -14908,13 +14908,13 @@ getCIDRMax()
 getCIDRMax()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:123:4567:89ab:cdef:1234:5678'
@@ -14926,13 +14926,13 @@ getCIDRMax()
 getCIDRMax()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:123:ffff:ffff:ffff:ffff:ffff'
@@ -14957,13 +14957,13 @@ getCIDRMax()
 getCIDRBroadcast()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.12.118/24'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.12.255'
@@ -14975,13 +14975,13 @@ getCIDRBroadcast()
 getCIDRBroadcast()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1.2.3.4/32'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1.2.3.4'
@@ -15006,13 +15006,13 @@ getCIDRBroadcast()
 getCIDRNetwork()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '8.8.12.118/24'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '8.8.12.0'
@@ -15024,13 +15024,13 @@ getCIDRNetwork()
 getCIDRNetwork()
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1.2.3.4/32'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1.2.3.4'
@@ -15059,13 +15059,13 @@ getCIDRNetwork()
 toCIDR({ suffix: 32 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1.2.3.4'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1.2.3.4/32'
@@ -15077,13 +15077,13 @@ toCIDR({ suffix: 32 })
 toCIDR({ suffix: 24 })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '1.2.3.4'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '1.2.3.0/24'
@@ -15095,13 +15095,13 @@ toCIDR({ suffix: 24 })
 toCIDR({ suffix: '46' })
 ```
 
-**Input:**
+<small>Input:</small>
 
 ```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678'
 ```
 
-**Output:**
+<small>Output:</small>
 
 ```ts
 '2001:db8:120::/46'
