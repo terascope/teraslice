@@ -2,15 +2,15 @@ import 'jest-extended';
 
 import {
     isIP,
-    isIPV6,
-    isIPV4,
+    isIPv6,
+    isIPv4,
     isCIDR,
     inIPRange,
     isRoutableIP,
     isNonRoutableIP,
     reverseIP,
-    isMappedIPV4,
-    extractMappedIPV4,
+    isMappedIPv4,
+    extractMappedIPv4,
     ipToInt,
     intToIP,
     getCIDRMin,
@@ -57,7 +57,7 @@ describe('IP Utils', () => {
         });
     });
 
-    describe('isIPV6', () => {
+    describe('isIPv6', () => {
         test.each([
             ['2001:db8::1', true],
             ['2001:db8:85a3:8d3:1319:8a2e:370:7348', true],
@@ -68,7 +68,7 @@ describe('IP Utils', () => {
             ['::192.168.1.18', true],
             ['::FFFF:12.155.166.101', true]
         ])('should return true for valid ipv6 address', (input, expected) => {
-            expect(isIPV6(input)).toEqual(expected);
+            expect(isIPv6(input)).toEqual(expected);
         });
 
         test.each([
@@ -81,17 +81,17 @@ describe('IP Utils', () => {
             [true, false],
             [123456678, false],
         ])('should return false for invalid ipv6 address', (input, expected) => {
-            expect(isIPV6(input)).toEqual(expected);
+            expect(isIPv6(input)).toEqual(expected);
         });
     });
 
-    describe('isIPV4', () => {
+    describe('isIPv4', () => {
         test.each([
             ['8.8.8.8', true],
             ['192.172.1.18', true],
             ['11.0.1.18', true],
         ])('should return true for valid ipv6 address', (input, expected) => {
-            expect(isIPV4(input)).toEqual(expected);
+            expect(isIPv4(input)).toEqual(expected);
         });
 
         test.each([
@@ -105,7 +105,7 @@ describe('IP Utils', () => {
             ['::192.168.1.18', false],
             ['::FFFF:12.155.166.101', false]
         ])('should return false for invalid ipv6 address', (input, expected) => {
-            expect(isIPV4(input)).toEqual(expected);
+            expect(isIPv4(input)).toEqual(expected);
         });
     });
 
@@ -354,25 +354,25 @@ describe('IP Utils', () => {
             ['2607:f8b0:4009:816::200e', false],
             ['bad ip address', false],
         ])('reverses the ip handles both ipv4 and ipv6 formats', (input, expected) => {
-            expect(isMappedIPV4(input)).toEqual(expected);
+            expect(isMappedIPv4(input)).toEqual(expected);
         });
     });
 
-    describe('extractMappedIPV4', () => {
+    describe('extractMappedIPv4', () => {
         test.each([
             ['::FFFF:192.52.193.1', '192.52.193.1'],
             ['::122.168.5.18', '122.168.5.18'],
             ['::ffff:10.2.1.18', '10.2.1.18']
         ])('reverses the ip handles both ipv4 and ipv6 formats', (input, expected) => {
-            expect(extractMappedIPV4(input)).toEqual(expected);
+            expect(extractMappedIPv4(input)).toEqual(expected);
         });
 
         it('should throw if input is not a IPv4 mapped address', () => {
-            expect(() => { extractMappedIPV4('10.16.32.210'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
+            expect(() => { extractMappedIPv4('10.16.32.210'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
         });
 
         it('should throw if input is an invalid ip address', () => {
-            expect(() => { extractMappedIPV4('bad ip address'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
+            expect(() => { extractMappedIPv4('bad ip address'); }).toThrowError('input must be an IPv4 address mapped to an IPv6 address');
         });
     });
 

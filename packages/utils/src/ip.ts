@@ -29,16 +29,16 @@ export function isIPOrThrow(input: unknown): string {
     return input;
 }
 
-export function isIPV6(input: unknown): boolean {
+export function isIPv6(input: unknown): boolean {
     return isString(input) && _isIP.v6(input);
 }
 
-export function isIPV4(input: unknown): boolean {
+export function isIPv4(input: unknown): boolean {
     return isString(input) && _isIP.v4(input);
 }
 
-export function isMappedIPV4(input: unknown): boolean {
-    if (isIPV6(input)) {
+export function isMappedIPv4(input: unknown): boolean {
+    if (isIPv6(input)) {
         const parsed = ipaddr.parse(input as string) as IPv6;
 
         return parsed.isIPv4MappedAddress();
@@ -47,8 +47,8 @@ export function isMappedIPV4(input: unknown): boolean {
     return false;
 }
 
-export function extractMappedIPV4(input: unknown): string {
-    if (isIPV6(input) && isMappedIPV4(input)) {
+export function extractMappedIPv4(input: unknown): string {
+    if (isIPv6(input) && isMappedIPv4(input)) {
         const parsed = ipaddr.parse(input as string) as IPv6;
 
         const ipv4 = parsed.toIPv4Address();
@@ -119,8 +119,8 @@ function _isPrivateIP(input: string): boolean {
 }
 
 function _parseIpAddress(input: string): ipaddr.IPv4 | ipaddr.IPv6 {
-    if (isMappedIPV4(input)) {
-        return ipaddr.parse(extractMappedIPV4(input));
+    if (isMappedIPv4(input)) {
+        return ipaddr.parse(extractMappedIPv4(input));
     }
 
     return ipaddr.parse(input);
@@ -189,7 +189,7 @@ export function getCIDRBroadcast(input: unknown): string {
     if (isCIDR(input)) {
         const asCIDR = createCIDR(input as string);
 
-        if (isIPV4(asCIDR.address().toString())) {
+        if (isIPv4(asCIDR.address().toString())) {
             return asCIDR.broadcast().toString();
         }
     }
@@ -203,7 +203,7 @@ export function getCIDRNetwork(input: unknown): string {
 
         const address = asCIDR.address().toString();
 
-        if (isIPV4(address)) {
+        if (isIPv4(address)) {
             return ipaddr.IPv4.networkAddressFromCIDR(input as string).octets.join('.');
         }
     }

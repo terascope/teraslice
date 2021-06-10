@@ -47,7 +47,7 @@ export const inIPRangeConfig: FieldValidateConfig = {
             output: null,
         }
     ],
-    description: 'Returns the input if the IP is within the given range, boundaries are inclusive. Accepts min, max or cidr notation for the ip range, also accepts min without a max and vice versa.',
+    description: 'Returns the input if the IP is within the given range, boundaries are inclusive. Accepts min, max or cidr notation for the IP range, also accepts min without a max and vice versa.',
     create({ args }) {
         return (input: unknown) => inIPRange(input, args);
     },
@@ -68,11 +68,11 @@ export const inIPRangeConfig: FieldValidateConfig = {
     },
     validate_arguments({ min, max, cidr }: InIPRangeArgs) {
         if (min && !isIP(min)) {
-            throw Error('min must be a valid ip address');
+            throw Error('min must be a valid IP address');
         }
 
         if (max && !isIP(max)) {
-            throw Error('max must be a valid ip address');
+            throw Error('max must be a valid IP address');
         }
 
         if (cidr && !isCIDR(cidr)) {

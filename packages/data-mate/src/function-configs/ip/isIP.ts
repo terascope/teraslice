@@ -44,11 +44,11 @@ export const isIPConfig: FieldValidateConfig = {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: 'not an ip address',
+            input: 'not an IP address',
             output: null,
         },
     ],
-    description: 'Returns the input if it is a valid ipv4 or ipv6 ip address.  Accepts dot notation for ipv4 addresses and hexadecimal separated by colons for ipv6 addresses',
+    description: 'Returns the input if it is a valid IPv4 or IPv6 IP address.  Accepts dot notation for IPv4 addresses and hexadecimal separated by colons for IPv6 addresses',
     create() { return isIP; },
     accepts: [FieldType.String, FieldType.IP]
 };

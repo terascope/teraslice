@@ -1,4 +1,4 @@
-import { extractMappedIPV4Config } from './extractMappedIPV4';
+import { extractMappedIPv4Config } from './extractMappedIPv4';
 import { getCIDRBroadcastConfig } from './getCIDRBroadcast';
 import { getCIDRMaxConfig } from './getCIDRMax';
 import { getCIDRMinConfig } from './getCIDRMin';
@@ -8,9 +8,9 @@ import { intToIPConfig, IntToIPArgs } from './intToIP';
 import { ipToIntConfig } from './ipToInt';
 import { isCIDRConfig } from './isCIDR';
 import { isIPConfig } from './isIP';
-import { isIPV4Config } from './isIPV4';
-import { isIPV6Config } from './isIPV6';
-import { isMappedIPV4Config } from './isMappedIPV4';
+import { isIPv4Config } from './isIPv4';
+import { isIPv6Config } from './isIPv6';
+import { isMappedIPv4Config } from './isMappedIPv4';
 import { isNonRoutableIPConfig } from './isNonRoutableIP';
 import { isRoutableIPConfig } from './isRoutableIP';
 import { reverseIPConfig } from './reverseIP';
@@ -20,12 +20,12 @@ export const ipRepository = {
     isIP: isIPConfig,
     inIPRange: inIPRangeConfig,
     isCIDR: isCIDRConfig,
-    isIPV4: isIPV4Config,
-    isIPV6: isIPV6Config,
+    isIPv4: isIPv4Config,
+    isIPv6: isIPv6Config,
     isNonRoutableIP: isNonRoutableIPConfig,
     isRoutableIP: isRoutableIPConfig,
-    isMappedIPV4: isMappedIPV4Config,
-    extractMappedIPV4: extractMappedIPV4Config,
+    isMappedIPv4: isMappedIPv4Config,
+    extractMappedIPv4: extractMappedIPv4Config,
     reverseIP: reverseIPConfig,
     ipToInt: ipToIntConfig,
     intToIP: intToIPConfig,

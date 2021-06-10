@@ -1,4 +1,4 @@
-import { isIPV4 } from '@terascope/utils';
+import { isMappedIPv4 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
@@ -6,8 +6,8 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export const isIPV4Config: FieldValidateConfig = {
-    name: 'isIPV4',
+export const isMappedIPv4Config: FieldValidateConfig = {
+    name: 'isMappedIPv4',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.IP,
@@ -16,32 +16,39 @@ export const isIPV4Config: FieldValidateConfig = {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '11.0.1.18',
-            output: '11.0.1.18',
+            input: '::ffff:10.2.1.18',
+            output: '::ffff:10.2.1.18',
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '2001:db8:85a3:8d3:1319:8a2e:370:7348',
+            input: '::122.168.5.18',
+            output: '::122.168.5.18',
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.String } } },
+            field: 'testField',
+            input: '10.16.32.210',
             output: null,
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: '172.394.0.1',
+            input: '2001:4:112::',
             output: null,
         },
         {
             args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
-            input: 'not an ip address',
+            input: 'not an IP address',
             output: null,
         },
     ],
-    description: 'Returns the input if it is a valid ipv4 address in dot notation, otherwise returns null',
-    create() { return isIPV4; },
+    description: 'Returns the input if it is an IPv4 address mapped to an IPv6 address, otherwise returns null',
+    create() { return isMappedIPv4; },
     accepts: [FieldType.String, FieldType.IP],
 };

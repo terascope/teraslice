@@ -34,11 +34,12 @@ export const intToIPConfig: FieldTransformConfig<IntToIPArgs> = {
     argument_schema: {
         version: {
             type: FieldType.Any,
-            description: 'Which version of ip to create, 4 => IPv4, 6 => IPv6'
+            description: 'Which version of IP to create, 4 => IPv4, 6 => IPv6'
         }
     },
     accepts: [FieldType.String, FieldType.Number],
-    description: 'Converts an integer to an ip address, must provide the version of the returned ip address.',
+    required_arguments: ['version'],
+    description: 'Converts an integer to an IP address, must provide the version of the returned IP address.',
     create({ args: { version } }) {
         return (input: unknown) => intToIP(input, toString(version));
     },

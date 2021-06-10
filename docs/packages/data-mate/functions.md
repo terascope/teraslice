@@ -1906,7 +1906,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 This input is created at execution time
 ```ts
-"2021-06-10T21:41:46.314Z" => isToday() // outputs "2021-06-10T21:41:46.314Z"
+"2021-06-10T22:09:47.906Z" => isToday() // outputs "2021-06-10T22:09:47.906Z"
 ```
 
 ```ts
@@ -1929,12 +1929,12 @@ This input is created at execution time
 
 Represents current time
 ```ts
-"2021-06-10T21:41:46.315Z" => isTomorrow() // outputs null
+"2021-06-10T22:09:47.907Z" => isTomorrow() // outputs null
 ```
 
 Represents day after current time
 ```ts
-"2021-06-11T21:41:46.315Z" => isTomorrow() // outputs "2021-06-11T21:41:46.315Z"
+"2021-06-11T22:09:47.907Z" => isTomorrow() // outputs "2021-06-11T22:09:47.907Z"
 ```
 
 ### `isTuesday`
@@ -2057,12 +2057,12 @@ Represents day after current time
 
 Represents current time
 ```ts
-"2021-06-10T21:41:46.319Z" => isYesterday() // outputs null
+"2021-06-10T22:09:47.914Z" => isYesterday() // outputs null
 ```
 
 Represents day before current time
 ```ts
-"2021-06-09T21:41:46.319Z" => isYesterday() // outputs "2021-06-09T21:41:46.319Z"
+"2021-06-09T22:09:47.914Z" => isYesterday() // outputs "2021-06-09T22:09:47.914Z"
 ```
 
 ## CATEGORY: Numeric
@@ -3484,7 +3484,7 @@ false => equals(value: true) // outputs null
 
 #### Arguments
 
- - **in**: (required) `Any` - Data set that is used for the key lookup.  Can be an object, array, or formatted string (see example).  Keys must strings or numbers
+ - **in**: (required) `Any` - Data set that is used for the key lookup. Can be an object, array, or formatted string (see example). Keys must be strings or numbers
 
 #### Accepts
 
@@ -3527,7 +3527,7 @@ false => equals(value: true) // outputs null
 
 #### Arguments
 
- - **substr**: (required) `String` - A string that must partially or completely match
+ - **value**: (required) `String` - A string that must partially or completely match
 
 #### Accepts
 
@@ -3536,15 +3536,15 @@ false => equals(value: true) // outputs null
 #### Examples
 
 ```ts
-"example" => contains(substr: "ample") // outputs "example"
+"example" => contains(value: "ample") // outputs "example"
 ```
 
 ```ts
-"example" => contains(substr: "example") // outputs "example"
+"example" => contains(value: "example") // outputs "example"
 ```
 
 ```ts
-"example" => contains(substr: "test") // outputs null
+"example" => contains(value: "test") // outputs null
 ```
 
 ### `endsWith`
@@ -5001,7 +5001,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a valid ipv4 or ipv6 ip address.  Accepts dot notation for ipv4 addresses and hexadecimal separated by colons for ipv6 addresses
+> Returns the input if it is a valid IPv4 or IPv6 IP address.  Accepts dot notation for IPv4 addresses and hexadecimal separated by colons for IPv6 addresses
 
 #### Accepts
 
@@ -5027,22 +5027,22 @@ trim this"
 ```
 
 ```ts
-"not an ip address" => isIP() // outputs null
+"not an IP address" => isIP() // outputs null
 ```
 
 ### `inIPRange`
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if the ip is within the given range, inclusive.  Accepts min, max or cidr notation for the ip range, also accepts min without a max and vice versa
+> Returns the input if the IP is within the given range, boundaries are inclusive. Accepts min, max or cidr notation for the IP range, also accepts min without a max and vice versa
 
 #### Arguments
 
- - **min**:  `String` - IPv4 or IPv6 value, used for the bottom of the range
+ - **min**:  `String` - IPv4 or IPv6 value, used for the bottom of the range, this value inclusive
 
- - **max**:  `String` - IPv4 or IPv6 value, used for the top of the range
+ - **max**:  `String` - IPv4 or IPv6 value, used for the top of the range, this value inclusive
 
- - **cidr**:  `String` - IPv4 or IPv6 range expressed in CIDR notation
+ - **cidr**:  `String` - IPv4 or IPv6 range expressed in CIDR notation, this value inclusive
 
 #### Accepts
 
@@ -5071,7 +5071,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a valid ipv4 or ipv6 ip address in CIDR notation, otherwise returns null
+> Returns the input if it is a valid IPv4 or IPv6 IP address in CIDR notation, otherwise returns null
 
 #### Accepts
 
@@ -5096,11 +5096,11 @@ trim this"
 "badIPAddress/24" => isCIDR() // outputs null
 ```
 
-### `isIPV4`
+### `isIPv4`
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a valid ipv4 address in dot notation, otherwise returns null
+> Returns the input if it is a valid IPv4 address in dot notation, otherwise returns null
 
 #### Accepts
 
@@ -5110,26 +5110,26 @@ trim this"
 #### Examples
 
 ```ts
-"11.0.1.18" => isIPV4() // outputs "11.0.1.18"
+"11.0.1.18" => isIPv4() // outputs "11.0.1.18"
 ```
 
 ```ts
-"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPV4() // outputs null
+"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPv4() // outputs null
 ```
 
 ```ts
-"172.394.0.1" => isIPV4() // outputs null
+"172.394.0.1" => isIPv4() // outputs null
 ```
 
 ```ts
-"not an ip address" => isIPV4() // outputs null
+"not an IP address" => isIPv4() // outputs null
 ```
 
-### `isIPV6`
+### `isIPv6`
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a valid ipv6 ip address in hexadecimal separated by colons format, otherwise returns null
+> Returns the input if it is a valid IPv6 IP address in hexadecimal separated by colons format, otherwise returns null
 
 #### Accepts
 
@@ -5139,30 +5139,30 @@ trim this"
 #### Examples
 
 ```ts
-"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPV6() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
+"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPv6() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
 ```
 
 ```ts
-"fc00:db8::1" => isIPV6() // outputs "fc00:db8::1"
+"fc00:db8::1" => isIPv6() // outputs "fc00:db8::1"
 ```
 
 ```ts
-"::FFFF:12.155.166.101" => isIPV6() // outputs "::FFFF:12.155.166.101"
+"::FFFF:12.155.166.101" => isIPv6() // outputs "::FFFF:12.155.166.101"
 ```
 
 ```ts
-"11.0.1.18" => isIPV6() // outputs null
+"11.0.1.18" => isIPv6() // outputs null
 ```
 
 ```ts
-"not an ip address" => isIPV6() // outputs null
+"not an IP address" => isIPv6() // outputs null
 ```
 
 ### `isNonRoutableIP`
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a non-routable ip address, handles ipv6 and ipv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+> Returns the input if it is a non-routable IP address, handles IPv6 and IPv4 address. See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
 
 #### Accepts
 
@@ -5195,7 +5195,7 @@ trim this"
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is a routable ipv4 or ipv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+> Returns the input if it is a routable IPv4 or IPv6 address.  See https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml and https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
 
 #### Accepts
 
@@ -5221,14 +5221,14 @@ trim this"
 ```
 
 ```ts
-"not an ip address" => isRoutableIP() // outputs null
+"not an IP address" => isRoutableIP() // outputs null
 ```
 
-### `isMappedIPV4`
+### `isMappedIPv4`
 
 **Type:** `FIELD_VALIDATION`
 
-> Returns the input if it is an ipv4 address mapped to an ipv6 address, otherwise returns null
+> Returns the input if it is an IPv4 address mapped to an IPv6 address, otherwise returns null
 
 #### Accepts
 
@@ -5238,26 +5238,26 @@ trim this"
 #### Examples
 
 ```ts
-"::ffff:10.2.1.18" => isMappedIPV4() // outputs "::ffff:10.2.1.18"
+"::ffff:10.2.1.18" => isMappedIPv4() // outputs "::ffff:10.2.1.18"
 ```
 
 ```ts
-"::122.168.5.18" => isMappedIPV4() // outputs "::122.168.5.18"
+"::122.168.5.18" => isMappedIPv4() // outputs "::122.168.5.18"
 ```
 
 ```ts
-"10.16.32.210" => isMappedIPV4() // outputs null
+"10.16.32.210" => isMappedIPv4() // outputs null
 ```
 
 ```ts
-"2001:4:112::" => isMappedIPV4() // outputs null
+"2001:4:112::" => isMappedIPv4() // outputs null
 ```
 
 ```ts
-"not an ip address" => isMappedIPV4() // outputs null
+"not an IP address" => isMappedIPv4() // outputs null
 ```
 
-### `extractMappedIPV4`
+### `extractMappedIPv4`
 
 **Type:** `FIELD_TRANSFORM`
 
@@ -5271,18 +5271,18 @@ trim this"
 #### Examples
 
 ```ts
-"::FFFF:192.52.193.1" => extractMappedIPV4() // outputs "192.52.193.1"
+"::FFFF:192.52.193.1" => extractMappedIPv4() // outputs "192.52.193.1"
 ```
 
 ```ts
-"::122.168.5.18" => extractMappedIPV4() // outputs "122.168.5.18"
+"::122.168.5.18" => extractMappedIPv4() // outputs "122.168.5.18"
 ```
 
 ### `reverseIP`
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the ip address in reverse notation, accepts both IPv4 and IPv6 addresses
+> Returns the IP address in reverse notation, accepts both IPv4 and IPv6 addresses
 
 #### Accepts
 
@@ -5307,7 +5307,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns the ip as an integer or a big int
+> Returns the IP as an integer or a big int
 
 #### Accepts
 
@@ -5328,11 +5328,11 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Converts an integer to an ip address, must provide the version of the returned ip address
+> Converts an integer to an IP address, must provide the version of the returned IP address
 
 #### Arguments
 
- - **version**:  `Any` - Which version of ip to create, 4 => IPv4, 6 => IPv6
+ - **version**: (required) `Any` - Which version of IP to create, 4 => IPv4, 6 => IPv6
 
 #### Accepts
 
@@ -5445,7 +5445,7 @@ trim this"
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns a CIDR address based on the provided ip and suffix
+> Returns a CIDR address based on the provided IP and suffix
 
 #### Arguments
 
