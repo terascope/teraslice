@@ -32,21 +32,21 @@ function desc(input, prefix = '') {
 */
 function getExampleOutput(example) {
     if (example.fails) {
-        return `/**
-* THROWS
-*/
-"${example.output}"`;
+        return `<small>Throws:</small>
+\`${example.output}\``;
     }
     if (example.serialize_output == null) {
-        return `/**
-* OUTPUT
-*/
-${prettyPrint(example.output)}`;
+        return `<small>Output:</small>
+
+\`\`\`ts
+${prettyPrint(example.output)}
+\`\`\``;
     }
-    return `/**
-* OUTPUT
-*/
-${prettyPrint(example.serialize_output(example.output))}`;
+    return `<small>Output:</small>
+
+\`\`\`ts
+${prettyPrint(example.serialize_output(example.output))}
+\`\`\``;
 }
 
 /**
@@ -56,25 +56,23 @@ function generateExample(fnDef) {
     /**
      * @param example {import('..').FunctionDefinitionExample}
     */
-    return function _generateExample(example) {
+    return function _generateExample(example, index) {
         return `
 ${desc(example)}
 
+##### Example (${index + 1})
+
 \`\`\`ts
-/**
- * EXAMPLE
-*/
 ${fnDef.name}(${prettyPrint(example.args)})
-
-/**
- * INPUT
-*/
-${prettyPrint(example.input)}
-
-${getExampleOutput(example)}
 \`\`\`
 
+<small>Input:</small>
 
+\`\`\`ts
+${prettyPrint(example.input)}
+\`\`\`
+
+${getExampleOutput(example)}
         `.trim();
     };
 }

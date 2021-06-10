@@ -13,88 +13,93 @@ sidebar_label: Functions
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isBoolean()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isBoolean()
+```
+
+<small>Input:</small>
+
+```ts
 'TRUE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBoolean()
+```
 
-/**
- * INPUT
-*/
-false
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 false
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isBoolean()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+false
+```
+
+##### Example (3)
+
+```ts
+isBoolean()
+```
+
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isBoolean()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isBoolean()
+```
+
+<small>Input:</small>
+
+```ts
 102
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBoolean()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'example'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -106,88 +111,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBooleanLike()
+```
 
-/**
- * INPUT
-*/
-'TRUE'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'TRUE'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'TRUE'
+```
+
+##### Example (2)
+
+```ts
 isBooleanLike()
+```
 
-/**
- * INPUT
-*/
-'false'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'false'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'false'
+```
+
+##### Example (3)
+
+```ts
 isBooleanLike()
+```
 
-/**
- * INPUT
-*/
-1
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 1
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isBooleanLike()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+1
+```
+
+##### Example (4)
+
+```ts
+isBooleanLike()
+```
+
+<small>Input:</small>
+
+```ts
 102
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBooleanLike()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'example'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -199,71 +209,75 @@ null
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-toBoolean()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+toBoolean()
+```
+
+<small>Input:</small>
+
+```ts
 'TRUE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 true
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-toBoolean()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+toBoolean()
+```
+
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 true
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toBoolean()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 false
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toBoolean()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 null
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -290,67 +304,69 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoContains({ value: '33.435518,-111.873616' })
+```
 
-/**
- * INPUT
-*/
-'33.435518,-111.873616'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '33.435518,-111.873616'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'33.435518,-111.873616'
+```
+
+##### Example (2)
+
+```ts
 geoContains({ value: { type: 'Point', coordinates: [ -111.873616, 33.435518 ] } })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '45.518,-21.816'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 0, 0 ], [ 100, 0 ], [ 100, 60 ], [ 0, 60 ], [ 0, 0 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 0, 0 ], [ 100, 0 ], [ 100, 60 ], [ 0, 60 ], [ 0, 0 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 100, 0 ], [ 100, 60 ], [ 0, 60 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
 geoContains({
   value: {
     type: 'MultiPolygon',
@@ -370,29 +386,11 @@ geoContains({
     ]
   }
 })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'MultiPolygon',
-  coordinates: [
-    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
-    [
-      [
-        [ -10, -10 ],
-        [ -10, -50 ],
-        [ -50, -50 ],
-        [ -50, -10 ],
-        [ -10, -10 ]
-      ]
-    ]
-  ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -410,15 +408,35 @@ geoContains({
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (5)
+
+```ts
+geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -426,10 +444,11 @@ geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
     [ [ [ 30, 30 ], [ 30, 40 ], [ 40, 40 ], [ 40, 30 ], [ 30, 30 ] ] ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -459,37 +478,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
+```
 
-/**
- * INPUT
-*/
-'33.435967,-111.867710'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '33.435967,-111.867710'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'33.435967,-111.867710'
+```
+
+##### Example (2)
+
+```ts
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '22.435967,-150.867710'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -514,82 +535,85 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-'-33.435967,-111.867710'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '-33.435967,-111.867710'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'-33.435967,-111.867710'
+```
+
+##### Example (2)
+
+```ts
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoDisjoint({
   value: {
     type: 'Polygon',
     coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
   }
 })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
 geoDisjoint({
   value: {
     type: 'Polygon',
     coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
   }
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -605,10 +629,11 @@ geoDisjoint({
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -633,60 +658,62 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-{ type: 'Point', coordinates: [ 20, 20 ] }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+##### Example (2)
+
+```ts
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (3)
+
+```ts
 geoIntersects({
   value: {
     type: 'Polygon',
     coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
   }
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -702,10 +729,11 @@ geoIntersects({
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -746,67 +774,69 @@ geoIntersects({
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoRelation({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-'20,20'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '20,20'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'20,20'
+```
+
+##### Example (2)
+
+```ts
 geoRelation({
   value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
   relation: 'within'
 })
+```
 
-/**
- * INPUT
-*/
-'20,20'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '20,20'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'20,20'
+```
+
+##### Example (3)
+
+```ts
 geoRelation({
   value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
   relation: 'contains'
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '20,20'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoRelation({
   value: {
     type: 'Polygon',
@@ -814,70 +844,74 @@ geoRelation({
   },
   relation: 'disjoint'
 })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (5)
+
+```ts
 geoRelation({
   value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
   relation: 'intersects'
 })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-geoRelation({
-  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
-  relation: 'disjoint'
-})
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
 }
+```
 
-/**
-* OUTPUT
-*/
+##### Example (6)
+
+```ts
+geoRelation({
+  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
+  relation: 'disjoint'
+})
+```
+
+<small>Input:</small>
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -902,67 +936,69 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-{ type: 'Point', coordinates: [ 20, 20 ] }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+##### Example (2)
+
+```ts
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-'20,20'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '20,20'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'20,20'
+```
+
+##### Example (3)
+
+```ts
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
 geoWithin({
   value: {
     type: 'MultiPolygon',
@@ -982,29 +1018,11 @@ geoWithin({
     ]
   }
 })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'MultiPolygon',
-  coordinates: [
-    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
-    [
-      [
-        [ -10, -10 ],
-        [ -10, -50 ],
-        [ -50, -50 ],
-        [ -50, -10 ],
-        [ -10, -10 ]
-      ]
-    ]
-  ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1022,10 +1040,29 @@ geoWithin({
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (5)
+
+```ts
 geoWithin({
   value: {
     type: 'MultiPolygon',
@@ -1045,10 +1082,11 @@ geoWithin({
     ]
   }
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1056,10 +1094,11 @@ geoWithin({
     [ [ [ 30, 30 ], [ 30, 40 ], [ 40, 40 ], [ 40, 30 ], [ 30, 30 ] ] ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1085,57 +1124,39 @@ geoWithin({
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoContainsPoint({ point: '15, 15' })
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-geoContainsPoint({ point: '15, 15' })
-
-/**
- * INPUT
-*/
 {
-  type: 'MultiPolygon',
-  coordinates: [
-    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
-    [
-      [
-        [ -10, -10 ],
-        [ -10, -50 ],
-        [ -50, -50 ],
-        [ -50, -10 ],
-        [ -10, -10 ]
-      ]
-    ]
-  ]
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
 }
+```
 
-/**
-* OUTPUT
-*/
+##### Example (2)
+
+```ts
+geoContainsPoint({ point: '15, 15' })
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1153,15 +1174,35 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-geoContainsPoint({ point: '15, 15' })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (3)
+
+```ts
+geoContainsPoint({ point: '15, 15' })
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [
@@ -1181,24 +1222,25 @@ geoContainsPoint({ point: '15, 15' })
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
 Point is within a polygon with holes
 
-```ts
-/**
- * EXAMPLE
-*/
-geoContainsPoint({ point: '15, 15' })
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+geoContainsPoint({ point: '15, 15' })
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [
@@ -1206,10 +1248,11 @@ geoContainsPoint({ point: '15, 15' })
     [ [ 20, 20 ], [ 20, 40 ], [ 40, 40 ], [ 40, 20 ], [ 20, 20 ] ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [
@@ -1221,20 +1264,21 @@ geoContainsPoint({ point: '15, 15' })
 
 Point can match against a geo-shape point
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 geoContainsPoint({ point: '15, 15' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { type: 'Point', coordinates: [ 15, 15 ] }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { type: 'Point', coordinates: [ 15, 15 ] }
 ```
 
@@ -1262,63 +1306,66 @@ geoContainsPoint({ point: '15, 15' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inGeoBoundingBox({
   top_left: '33.906320,-112.758421',
   bottom_right: '32.813646,-111.058902'
 })
+```
 
-/**
- * INPUT
-*/
-'33.2,-112.3'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '33.2,-112.3'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'33.2,-112.3'
+```
+
+##### Example (2)
+
+```ts
 inGeoBoundingBox({
   top_left: '33.906320,-112.758421',
   bottom_right: '32.813646,-111.058902'
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '43,-132'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inGeoBoundingBox({
   top_left: '33.906320,-112.758421',
   bottom_right: '32.813646,-111.058902'
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { type: 'Point', coordinates: [ -112, 33 ] }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { type: 'Point', coordinates: [ -112, 33 ] }
 ```
 
@@ -1335,89 +1382,93 @@ inGeoBoundingBox({
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoJSON()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isGeoJSON()
+```
+
+<small>Input:</small>
+
+```ts
 '60,40'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoJSON()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+isGeoJSON()
+```
+
+<small>Input:</small>
+
+```ts
 { lat: 60, lon: 40 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoJSON()
+```
 
-/**
- * INPUT
-*/
-{ type: 'Point', coordinates: [ 12, 12 ] }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+##### Example (4)
+
+```ts
 isGeoJSON()
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoJSON()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (5)
+
+```ts
+isGeoJSON()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1433,10 +1484,11 @@ isGeoJSON()
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1462,88 +1514,93 @@ isGeoJSON()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoPoint()
+```
 
-/**
- * INPUT
-*/
-'60,40'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '60,40'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoPoint()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'60,40'
+```
+
+##### Example (2)
+
+```ts
+isGeoPoint()
+```
+
+<small>Input:</small>
+
+```ts
 [ 60, 40 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 60, 40 ]
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoPoint()
+```
 
-/**
- * INPUT
-*/
-{ lat: 60, lon: 40 }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { lat: 60, lon: 40 }
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+{ lat: 60, lon: 40 }
+```
+
+##### Example (4)
+
+```ts
 isGeoPoint()
+```
 
-/**
- * INPUT
-*/
-{ latitude: 60, longitude: 40 }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { latitude: 60, longitude: 40 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoPoint()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{ latitude: 60, longitude: 40 }
+```
+
+##### Example (5)
+
+```ts
+isGeoPoint()
+```
+
+<small>Input:</small>
+
+```ts
 'something'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -1560,52 +1617,54 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoShapeMultiPolygon()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoShapeMultiPolygon()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+isGeoShapeMultiPolygon()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoShapeMultiPolygon()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+isGeoShapeMultiPolygon()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1621,10 +1680,11 @@ isGeoShapeMultiPolygon()
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1655,52 +1715,54 @@ isGeoShapeMultiPolygon()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoShapePoint()
+```
 
-/**
- * INPUT
-*/
-{ type: 'Point', coordinates: [ 12, 12 ] }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoShapePoint()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+##### Example (2)
+
+```ts
+isGeoShapePoint()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoShapePoint()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+isGeoShapePoint()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1716,10 +1778,11 @@ isGeoShapePoint()
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -1736,55 +1799,57 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoShapePolygon()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { type: 'Point', coordinates: [ 12, 12 ] }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGeoShapePolygon()
+```
 
-/**
- * INPUT
-*/
-{
-  type: 'Polygon',
-  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
-}
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isGeoShapePolygon()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+##### Example (3)
+
+```ts
+isGeoShapePolygon()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1800,10 +1865,11 @@ isGeoShapePolygon()
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -1824,52 +1890,54 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '60,40'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { type: 'Point', coordinates: [ 40, 60 ] }
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ '10,10', '10,50', '50,50', '50,10', '10,10' ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'Polygon',
   coordinates: [ [ [ 10, 10 ], [ 50, 10 ], [ 50, 50 ], [ 10, 50 ], [ 10, 10 ] ] ]
 }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-toGeoJSON()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+toGeoJSON()
+```
+
+<small>Input:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1885,10 +1953,11 @@ toGeoJSON()
     ]
   ]
 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 {
   type: 'MultiPolygon',
   coordinates: [
@@ -1923,73 +1992,74 @@ toGeoJSON()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoPoint()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '60,40'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { lon: 40, lat: 60 }
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoPoint()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { latitude: 40, longitude: 60 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { lon: 60, lat: 40 }
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoPoint()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 50, 60 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 { lon: 50, lat: 60 }
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toGeoPoint()
-
-/**
- * INPUT
-*/
-'not an geo point'
-
-/**
-* THROWS
-*/
-"null"
 ```
+
+<small>Input:</small>
+
+```ts
+'not an geo point'
+```
+
+<small>Throws:</small>
+`null`
 
 ## CATEGORY: JSON
 
@@ -2015,37 +2085,39 @@ toGeoPoint()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setDefault({ value: 'example' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 null
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'example'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setDefault({ value: 'example' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 null
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'example' ]
 ```
 
@@ -2057,71 +2129,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 278218429446951548637196401n
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '278218429446951548637196400'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 false
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'false'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { some: 1234 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '{"some":1234}'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toJSON()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { bigNum: 278218429446951548637196401n }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '{"bigNum":"278218429446951548637196400"}'
 ```
 
@@ -2162,73 +2238,71 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addToDate({ expr: '10h+2m' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T22:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-23T08:02:00.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addToDate({ months: 1, minutes: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T22:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-11-22T22:02:00.000Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addToDate()
-
-/**
- * INPUT
-*/
-'2019-10-22T22:00:00.000Z'
-
-/**
-* THROWS
-*/
-"Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds"
 ```
+
+<small>Input:</small>
 
 ```ts
-/**
- * EXAMPLE
-*/
-addToDate({ expr: '1hr', months: 10 })
-
-/**
- * INPUT
-*/
 '2019-10-22T22:00:00.000Z'
-
-/**
-* THROWS
-*/
-"Invalid use of months with expr parameter"
 ```
+
+<small>Throws:</small>
+`Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
+
+##### Example (4)
+
+```ts
+addToDate({ expr: '1hr', months: 10 })
+```
+
+<small>Input:</small>
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+<small>Throws:</small>
+`Invalid use of months with expr parameter`
 
 ### `formatDate`
 
@@ -2250,71 +2324,75 @@ Default: iso_8601 for strings and epoch_millis for numbers
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 formatDate({ format: 'yyyy-MM-dd' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T00:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 formatDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1970-01-02T04:26:30.933Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 formatDate({ format: 'milliseconds' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1973-03-31T01:55:33.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 102390933000
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 formatDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
@@ -2332,71 +2410,75 @@ formatDate()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-11T10:12:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 11
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-16T10:59:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 16
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '05/22/2021 EST'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 22
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1510123223231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 8
 ```
 
@@ -2414,71 +2496,75 @@ getDate()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-getHours()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+getHours()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:12:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getHours()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+getHours()
+```
+
+<small>Input:</small>
+
+```ts
 2021-05-10T10:59:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getHours()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '05/22/2021 EST'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getHours()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 17154123223231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -2496,54 +2582,57 @@ getHours()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-getMilliseconds()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+getMilliseconds()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:01.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 91
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getMilliseconds()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+getMilliseconds()
+```
+
+<small>Input:</small>
+
+```ts
 2021-05-10T10:00:01.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 91
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getMilliseconds()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 231
 ```
 
@@ -2561,54 +2650,57 @@ getMilliseconds()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getMinutes()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:12:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 12
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getMinutes()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-10T10:59:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 59
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getMinutes()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472323231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
@@ -2626,71 +2718,75 @@ getMinutes()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-getMonth()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+getMonth()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-11T10:12:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getMonth()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+getMonth()
+```
+
+<small>Input:</small>
+
+```ts
 2021-05-16T10:59:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getMonth()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+getMonth()
+```
+
+<small>Input:</small>
+
+```ts
 '05/22/2021 EST'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getMonth()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1510123223231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 11
 ```
 
@@ -2708,54 +2804,57 @@ getMonth()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getSeconds()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 41
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getSeconds()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-10T10:00:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 19
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getSeconds()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472323231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 23
 ```
 
@@ -2781,71 +2880,75 @@ getSeconds()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-10T10:00:01.000Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1000
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimeBetween({ end: 1620764441001, interval: 'seconds' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1620764440001
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'P1Y7M30DT8H19M23S'
 ```
 
@@ -2868,88 +2971,93 @@ getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimezoneOffset({ timezone: 'Africa/Accra' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-20T15:13:52.131Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimezoneOffset({ timezone: 'America/Anchorage' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-20T15:13:52.131Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -480
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimezoneOffset({ timezone: 'America/Aruba' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-20T15:13:52.131Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -240
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimezoneOffset({ timezone: 'Asia/Istanbul' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-20T15:13:52.131Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 180
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getTimezoneOffset({ timezone: 'Australia/Canberra' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-20T15:13:52.131Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 600
 ```
 
@@ -2967,71 +3075,75 @@ getTimezoneOffset({ timezone: 'Australia/Canberra' })
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-getYear()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+getYear()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-11T10:12:41.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2021
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getYear()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+getYear()
+```
+
+<small>Input:</small>
+
+```ts
 2021-05-16T10:59:19.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2021
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-getYear()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+getYear()
+```
+
+<small>Input:</small>
+
+```ts
 '05/22/2021 EST'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2021
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getYear()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1510123223231
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2017
 ```
 
@@ -3052,73 +3164,77 @@ getYear()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookupTimezone()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '33.385765, -111.891167'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'America/Phoenix'
 ```
 
 In ocean outside Morocco
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookupTimezone()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '30.00123,-12.233'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Etc/GMT+1'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookupTimezone()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 30.00123, 12.233 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Africa/Khartoum'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookupTimezone()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { lat: 48.86168702148502, lon: 2.3366209636711 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Europe/Paris'
 ```
 
@@ -3140,54 +3256,57 @@ lookupTimezone()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setDate({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-12T20:45:30.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setDate({ value: 22 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-22T20:45:30.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setDate({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-01T00:00:00.000Z'
 ```
 
@@ -3209,54 +3328,57 @@ setDate({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setHours({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T12:45:30.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setHours({ value: 22 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T22:45:30.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setHours({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-12T01:00:00.000Z'
 ```
 
@@ -3278,54 +3400,57 @@ setHours({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMilliseconds({ value: 392 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:45:30.392Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMilliseconds({ value: 483 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:45:30.483Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMilliseconds({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-12T00:00:00.001Z'
 ```
 
@@ -3347,54 +3472,57 @@ setMilliseconds({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMinutes({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:12:30.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMinutes({ value: 22 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:22:30.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMinutes({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-12T00:01:00.000Z'
 ```
 
@@ -3416,54 +3544,57 @@ setMinutes({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMonth({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-12-14T20:45:30.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMonth({ value: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-02-14T20:45:30.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setMonth({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-01-12T00:00:00.000Z'
 ```
 
@@ -3485,54 +3616,57 @@ setMonth({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setSeconds({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:45:12.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setSeconds({ value: 22 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:45:22.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setSeconds({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-12T00:00:01.000Z'
 ```
 
@@ -3554,37 +3688,39 @@ setSeconds({ value: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setTimezone({ timezone: 420 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T20:45:30.000+07:00'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setTimezone({ timezone: 120 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2020-02-14T20:45:30.091Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2020-02-14T20:45:30.091+02:00'
 ```
 
@@ -3606,71 +3742,75 @@ setTimezone({ timezone: 120 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setYear({ value: 2024 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-14T20:45:30.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2024-05-14T20:45:30.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setYear({ value: 1984 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2021-05-14T20:45:30.091Z
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1984-05-14T20:45:30.091Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setYear({ value: 2023 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 1621026000000, 420 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2023-05-14T14:00:00.000Z'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setYear({ value: 2001 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1715472000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001-05-12T00:00:00.000Z'
 ```
 
@@ -3707,73 +3847,71 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractFromDate({ expr: '10h+2m' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T22:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22T12:02:00.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractFromDate({ months: 1, minutes: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T22:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-09-22T21:58:00.000Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractFromDate()
-
-/**
- * INPUT
-*/
-'2019-10-22T22:00:00.000Z'
-
-/**
-* THROWS
-*/
-"Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds"
 ```
+
+<small>Input:</small>
 
 ```ts
-/**
- * EXAMPLE
-*/
-subtractFromDate({ expr: '1hr', months: 10 })
-
-/**
- * INPUT
-*/
 '2019-10-22T22:00:00.000Z'
-
-/**
-* THROWS
-*/
-"Invalid use of months with expr parameter"
 ```
+
+<small>Throws:</small>
+`Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
+
+##### Example (4)
+
+```ts
+subtractFromDate({ expr: '1hr', months: 10 })
+```
+
+<small>Input:</small>
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+<small>Throws:</small>
+`Invalid use of months with expr parameter`
 
 ### `timezoneToOffset`
 
@@ -3801,37 +3939,39 @@ subtractFromDate({ expr: '1hr', months: 10 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDailyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22T00:00:00.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDailyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 1571706000000, 60 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22T00:00:00.000Z'
 ```
 
@@ -3855,88 +3995,93 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDate({ format: 'yyyy-MM-dd' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22T00:00:00.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1970-01-02T04:26:30.933Z'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDate({ format: 'seconds' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1973-03-31T01:55:33.000Z'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDate({ format: 'milliseconds' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 102390933000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1973-03-31T01:55:33.000Z'
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
@@ -3954,20 +4099,21 @@ toDate()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toHourlyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T01:05:20.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-22T01:00:00.000Z'
 ```
 
@@ -3985,37 +4131,39 @@ toHourlyDate()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toMonthlyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-01T00:00:00.000Z'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toMonthlyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 1571706000000, 120 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-10-01T00:00:00.000Z'
 ```
 
@@ -4033,20 +4181,21 @@ toMonthlyDate()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toYearlyDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2019-10-22T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2019-01-01T00:00:00.000Z'
 ```
 
@@ -4068,88 +4217,93 @@ toYearlyDate()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
-'2021-05-10T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isAfter({ date: 1620554400000 })
+```
 
-/**
- * INPUT
-*/
-'2021-05-10T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
-1620640800000
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 1620640800000
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+1620640800000
+```
+
+##### Example (4)
+
+```ts
 isAfter({ date: '2021-05-10T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAfter({ date: [ 1620640800000, -420 ] })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4171,71 +4325,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
-'2021-05-09T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
-1620554400000
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 1620554400000
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+1620554400000
+```
+
+##### Example (3)
+
+```ts
 isBefore({ date: 1620640800000 })
+```
 
-/**
- * INPUT
-*/
-'2021-05-09T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (4)
+
+```ts
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-11T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4259,71 +4417,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
+```
 
-/**
- * INPUT
-*/
-'2021-05-10T10:00:00.001Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-10T10:00:00.001Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-10T10:00:00.001Z'
+```
+
+##### Example (2)
+
+```ts
 isBetween({ start: 1620554400000, end: 1620640800000 })
+```
 
-/**
- * INPUT
-*/
-1620554401000
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 1620554401000
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+1620554401000
+```
+
+##### Example (3)
+
+```ts
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-07T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-15T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4347,71 +4509,75 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isDate({ format: 'yyyy-MM-dd' })
+```
 
-/**
- * INPUT
-*/
-'2019-10-22'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2019-10-22'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2019-10-22'
+```
+
+##### Example (2)
+
+```ts
 isDate({ format: 'yyyy-MM-dd' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '10-22-2019'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isDate({ format: 'epoch' })
+```
 
-/**
- * INPUT
-*/
-102390933
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 102390933
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+102390933
+```
+
+##### Example (4)
+
+```ts
 isDate()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
 ```
 
@@ -4432,88 +4598,93 @@ isDate()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isEpoch()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isEpoch()
+```
+
+<small>Input:</small>
+
+```ts
 '2019-10-22'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpoch()
+```
 
-/**
- * INPUT
-*/
-102390933
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 102390933
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEpoch()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+102390933
+```
+
+##### Example (3)
+
+```ts
+isEpoch()
+```
+
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpoch({ allowBefore1970: false })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpoch()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -102390933
 ```
 
@@ -4533,88 +4704,93 @@ isEpoch()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isEpochMillis()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isEpochMillis()
+```
+
+<small>Input:</small>
+
+```ts
 '2019-10-22'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpochMillis()
+```
 
-/**
- * INPUT
-*/
-102390933
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 102390933
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEpochMillis()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+102390933
+```
+
+##### Example (3)
+
+```ts
+isEpochMillis()
+```
+
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpochMillis({ allowBefore1970: false })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEpochMillis()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -102390933
 ```
 
@@ -4632,54 +4808,57 @@ isEpochMillis()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFriday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-14T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-14T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-14T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isFriday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 1620986400000, -620 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-14T10:00:00.000-10:20'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFriday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4697,37 +4876,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFuture()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFuture()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2121-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2121-05-09T10:00:00.000Z'
 ```
 
@@ -4745,38 +4926,58 @@ isFuture()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isISO8601()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 102390933
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isISO8601()
+```
 
-/**
- * INPUT
-*/
-'2001-01-01T01:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2001-01-01T01:00:00.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+isISO8601()
+```
+
+<small>Input:</small>
+
+```ts
+102390933
+```
+
+<small>Output:</small>
+
+```ts
+null
 ```
 
 ### `isLeapYear`
@@ -4793,54 +4994,57 @@ isISO8601()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLeapYear()
+```
 
-/**
- * INPUT
-*/
-'2020-05-10T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2020-05-10T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2020-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isLeapYear()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 1589104800000, 60 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2020-05-10T10:00:00.000+01:00'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLeapYear()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-10T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4858,37 +5062,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMonday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-10T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isMonday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4906,37 +5112,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPast()
+```
 
-/**
- * INPUT
-*/
-'2021-05-10T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-10T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isPast()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2121-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -4954,37 +5162,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isSaturday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-08T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-08T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-08T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isSaturday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5002,37 +5212,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isSunday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-09T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isSunday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1620554400000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1620554400000
 ```
 
@@ -5050,37 +5262,39 @@ isSunday()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isThursday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-13T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-13T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-13T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isThursday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5100,37 +5314,39 @@ null
 
 This input is created at execution time
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isToday()
-
-/**
- * INPUT
-*/
-'2021-06-10T22:41:14.783Z'
-
-/**
-* OUTPUT
-*/
-'2021-06-10T22:41:14.783Z'
 ```
 
+<small>Input:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-06-10T22:36:00.946Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2021-06-10T22:36:00.946Z'
+```
+
+##### Example (2)
+
+```ts
 isToday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2020-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5150,40 +5366,42 @@ null
 
 Represents current time
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isTomorrow()
+```
 
-/**
- * INPUT
-*/
-'2021-06-10T22:41:14.784Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
+'2021-06-10T22:36:00.946Z'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
 Represents day after current time
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isTomorrow()
+```
 
-/**
- * INPUT
-*/
-'2021-06-11T22:41:14.784Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
-'2021-06-11T22:41:14.784Z'
+```ts
+'2021-06-11T22:36:00.946Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2021-06-11T22:36:00.946Z'
 ```
 
 ### `isTuesday`
@@ -5200,37 +5418,39 @@ isTomorrow()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isTuesday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-11T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-11T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-11T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isTuesday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5248,37 +5468,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isWednesday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-12T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-12T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-12T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isWednesday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5296,71 +5518,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isWeekday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-12T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-12T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-12T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
 isWeekday()
+```
 
-/**
- * INPUT
-*/
-'2021-05-13T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-13T10:00:00.000Z'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isWeekday()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+isWeekday()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-09T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isWeekday()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-08T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5378,71 +5604,75 @@ null
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isWeekend()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isWeekend()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-12T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isWeekend()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+isWeekend()
+```
+
+<small>Input:</small>
+
+```ts
 '2021-05-13T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isWeekend()
+```
 
-/**
- * INPUT
-*/
-'2021-05-09T10:00:00.000Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2021-05-09T10:00:00.000Z'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (4)
+
+```ts
 isWeekend()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2021-05-08T10:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2021-05-08T10:00:00.000Z'
 ```
 
@@ -5462,40 +5692,42 @@ isWeekend()
 
 Represents current time
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isYesterday()
+```
 
-/**
- * INPUT
-*/
-'2021-06-10T22:41:14.788Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
+'2021-06-10T22:36:00.949Z'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
 Represents day before current time
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isYesterday()
+```
 
-/**
- * INPUT
-*/
-'2021-06-09T22:41:14.788Z'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
-'2021-06-09T22:41:14.788Z'
+```ts
+'2021-06-09T22:36:00.949Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2021-06-09T22:36:00.949Z'
 ```
 
 ## CATEGORY: Numeric
@@ -5512,20 +5744,21 @@ isYesterday()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 abs()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -5541,20 +5774,21 @@ abs()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 acos()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 3.141592653589793
 ```
 
@@ -5570,39 +5804,41 @@ acos()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 acosh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
 Since this function doesn't work with numbers <=0, null will be returned
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 acosh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5622,71 +5858,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 add({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 11
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 add({ value: 5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 15
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 add({ value: -5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 add({ value: 12 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 12
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 24
 ```
 
@@ -5702,88 +5942,93 @@ add({ value: 12 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 110
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-addValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+addValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 100012
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-addValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+addValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 100012
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 addValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -5799,20 +6044,21 @@ addValues()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 asin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.5707963267948966
 ```
 
@@ -5828,20 +6074,21 @@ asin()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 asinh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.881373587019543
 ```
 
@@ -5857,20 +6104,21 @@ asinh()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atan()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.7853981633974483
 ```
 
@@ -5886,56 +6134,56 @@ atan()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atan2()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 15, 90 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.4056476493802699
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atan2()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 90, 15 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.16514867741462683
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atan2()
-
-/**
- * INPUT
-*/
-[ -90, null ]
-
-/**
-* THROWS
-*/
-"Expected (x, y) coordinates, got [-90,null] (Array)"
 ```
+
+<small>Input:</small>
+
+```ts
+[ -90, null ]
+```
+
+<small>Throws:</small>
+`Expected (x, y) coordinates, got [-90,null] (Array)`
 
 ### `atanh`
 
@@ -5949,39 +6197,41 @@ atan2()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atanh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0.5
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.5493061443340548
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 atanh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -5997,37 +6247,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cbrt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 64
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 4
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cbrt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -6043,54 +6295,57 @@ cbrt()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-ceil()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+ceil()
+```
+
+<small>Input:</small>
+
+```ts
 0.95
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-ceil()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+ceil()
+```
+
+<small>Input:</small>
+
+```ts
 0.1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 ceil()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -7.004
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -7
 ```
 
@@ -6106,54 +6361,57 @@ ceil()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 clz32()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 31
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 clz32()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 22
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 clz32()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 4
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 29
 ```
 
@@ -6169,54 +6427,57 @@ clz32()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cos()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cos()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 3.141592653589793
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -1
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cos()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 6.283185307179586
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -6232,37 +6493,39 @@ cos()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cosh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 cosh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 3.141592653589793
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 11.591953275521519
 ```
 
@@ -6282,54 +6545,57 @@ cosh()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 divide({ value: 5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 divide({ value: 1 })
+```
 
-/**
- * INPUT
-*/
-10
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 10
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-divide({ value: 2 })
-
-/**
- * INPUT
-*/
 10
+```
 
-/**
-* OUTPUT
-*/
+##### Example (3)
+
+```ts
+divide({ value: 2 })
+```
+
+<small>Input:</small>
+
+```ts
+10
+```
+
+<small>Output:</small>
+
+```ts
 5
 ```
 
@@ -6345,88 +6611,93 @@ divide({ value: 2 })
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-divideValues()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-divideValues()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-divideValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.00005
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-divideValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.00005
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 divideValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -6442,37 +6713,39 @@ divideValues()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 exp()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 exp()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2.718281828459045
 ```
 
@@ -6488,37 +6761,39 @@ exp()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 expm1()
+```
 
-/**
- * INPUT
-*/
-0
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 0
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+0
+```
+
+##### Example (2)
+
+```ts
 expm1()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.718281828459045
 ```
 
@@ -6534,54 +6809,57 @@ expm1()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-floor()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+floor()
+```
+
+<small>Input:</small>
+
+```ts
 0.95
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-floor()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+floor()
+```
+
+<small>Input:</small>
+
+```ts
 0.1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 floor()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -7.004
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -8
 ```
 
@@ -6597,37 +6875,39 @@ floor()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 fround()
+```
 
-/**
- * INPUT
-*/
-5.5
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 5.5
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+5.5
+```
+
+##### Example (2)
+
+```ts
 fround()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -5.05
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -5.050000190734863
 ```
 
@@ -6643,71 +6923,75 @@ fround()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 hypot()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 3, 4 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 hypot()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 5, 12 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 13
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 hypot()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 3, 4, null, 5 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 7.0710678118654755
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 hypot()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 null
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -6723,54 +7007,57 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2.302585092994046
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -6786,75 +7073,79 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log1p()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.6931471805599453
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log1p()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log1p()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
 Typically this would return NaN but that cannot be stored or serialized so null is returned
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log1p()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -6870,56 +7161,59 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log2()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log2()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log2()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -6935,56 +7229,59 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log10()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log10()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 log10()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -7000,88 +7297,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 maxValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 100
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 maxValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-maxValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+maxValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 100000
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-maxValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+maxValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 100000
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 maxValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -7097,88 +7399,93 @@ maxValues()
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-minValues()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+minValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-minValues()
+##### Example (2)
 
-/**
- * INPUT
-*/
+```ts
+minValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-minValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+minValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-minValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+minValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 minValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -7199,71 +7506,75 @@ minValues()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 modulus({ value: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 modulus({ value: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 9
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 modulus({ value: -5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 modulus({ value: 10 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 101
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -7283,54 +7594,57 @@ modulus({ value: 10 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiply({ value: 5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 50
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiply({ value: -2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -20
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiply({ value: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 20
 ```
 
@@ -7346,88 +7660,93 @@ multiply({ value: 2 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiplyValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1000
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiplyValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-multiplyValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+multiplyValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2000000
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-multiplyValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+multiplyValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2000000
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 multiplyValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -7448,37 +7767,39 @@ multiplyValues()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 pow({ value: 3 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 7
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 343
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 pow({ value: 0.5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 4
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -7496,20 +7817,21 @@ pow({ value: 0.5 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 random({ min: 1, max: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -7525,54 +7847,57 @@ random({ min: 1, max: 1 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 round()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0.95
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 round()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0.1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 round()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -7.004
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -7
 ```
 
@@ -7596,139 +7921,159 @@ round()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: 1, truncate: false })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '10.123444'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10.1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: 1, truncate: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10.253444
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10.2
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: 1, truncate: false })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10.253444
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10.3
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 3.141592653589793
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 3.14
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: 0 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 3.141592653589793
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 3
 ```
 
+##### Example (6)
+
 ```ts
-/**
- * EXAMPLE
-*/
 setPrecision({ digits: -1 })
-
-/**
- * INPUT
-*/
-23.4
-
-/**
-* THROWS
-*/
-"Expected digits to be between 0-100"
 ```
 
+<small>Input:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+23.4
+```
+
+<small>Throws:</small>
+`Expected digits to be between 0-100`
+
+##### Example (7)
+
+```ts
 setPrecision({ digits: 1000 })
-
-/**
- * INPUT
-*/
-23.4
-
-/**
-* THROWS
-*/
-"Expected digits to be between 0-100"
 ```
 
+<small>Input:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+23.4
+```
+
+<small>Throws:</small>
+`Expected digits to be between 0-100`
+
+##### Example (8)
+
+```ts
 setPrecision({ digits: 2, truncate: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { lat: 32.12399971230023, lon: -20.95522300035 }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
+{ lat: 32.12, lon: -20.95 }
+```
+
+##### Example (9)
+
+```ts
+setPrecision({ digits: 2, truncate: true })
+```
+
+<small>Input:</small>
+
+```ts
+{ lat: 32.12399971230023, lon: -20.95522300035 }
+```
+
+<small>Output:</small>
+
+```ts
 { lat: 32.12, lon: -20.95 }
 ```
 
@@ -7749,54 +8094,57 @@ setPrecision({ digits: 2, truncate: true })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sign()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 3
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sign()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -3
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -1
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sign()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
@@ -7812,54 +8160,57 @@ sign()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sin()
+```
 
-/**
- * INPUT
-*/
-0
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 0
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+0
+```
+
+##### Example (2)
+
+```ts
 sin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0.8414709848078965
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1.5707963267948966
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1
 ```
 
@@ -7875,54 +8226,57 @@ sin()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sinh()
+```
 
-/**
- * INPUT
-*/
-0
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 0
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+0
+```
+
+##### Example (2)
+
+```ts
 sinh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.1752011936438014
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sinh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -1.1752011936438014
 ```
 
@@ -7938,54 +8292,57 @@ sinh()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sqrt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 9
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 3
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sqrt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.4142135623730951
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 sqrt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -8005,71 +8362,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtract({ value: 1 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 9
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtract({ value: 5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 5
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtract({ value: -5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 15
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtract({ value: 2 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 8
 ```
 
@@ -8085,88 +8446,93 @@ subtract({ value: 2 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 100, 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 90
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 10 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-subtractValues()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+subtractValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ 10, 100000, 2 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -99992
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-subtractValues()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+subtractValues()
+```
+
+<small>Input:</small>
+
+```ts
 [ [ 10, null ], 100000, [ 2 ], null ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -99992
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 subtractValues()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 2
 ```
 
@@ -8182,20 +8548,21 @@ subtractValues()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 tan()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.5574077246549023
 ```
 
@@ -8211,37 +8578,39 @@ tan()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 tanh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 -1
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 -0.7615941559557649
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 tanh()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
@@ -8257,37 +8626,39 @@ tanh()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCelsius()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 32
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 0
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCelsius()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 69.8
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 21
 ```
 
@@ -8303,37 +8674,39 @@ toCelsius()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toFahrenheit()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 0
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 32
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toFahrenheit()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 22
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 71.6
 ```
 
@@ -8345,88 +8718,111 @@ toFahrenheit()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toNumber()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '13890472347692343249760902374089'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.3890472347692343e+31
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toNumber()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '22'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 22
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toNumber()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
+'22'
+```
+
+<small>Output:</small>
+
+```ts
+22
+```
+
+##### Example (4)
+
+```ts
+toNumber()
+```
+
+<small>Input:</small>
+
+```ts
 '10.16.32.210'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 168829138
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toNumber()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:2::'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '42540488320432167789079031612388147199'
 ```
 
+##### Example (6)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toNumber()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001-01-01T01:00:00.000Z'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 978310800000
 ```
 
@@ -8450,71 +8846,75 @@ toNumber()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inNumberRange({ min: 100, max: 110 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inNumberRange({ min: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 100
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inNumberRange({ min: 100, inclusive: true })
+```
 
-/**
- * INPUT
-*/
-100
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 100
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+100
+```
+
+##### Example (4)
+
+```ts
 inNumberRange({ min: 0, max: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 10
 ```
 
@@ -8530,37 +8930,39 @@ inNumberRange({ min: 0, max: 100 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEven()
+```
 
-/**
- * INPUT
-*/
-100
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 100
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+100
+```
+
+##### Example (2)
+
+```ts
 isEven()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 99
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -8580,71 +8982,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGreaterThan({ value: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGreaterThan({ value: 50 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 50
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGreaterThan({ value: 110 })
+```
 
-/**
- * INPUT
-*/
-120
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 120
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+120
+```
+
+##### Example (4)
+
+```ts
 isGreaterThan({ value: 150 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 151
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 151
 ```
 
@@ -8664,71 +9070,75 @@ isGreaterThan({ value: 150 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGreaterThanOrEqualTo({ value: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 10
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isGreaterThanOrEqualTo({ value: 50 })
+```
 
-/**
- * INPUT
-*/
-50
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 50
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+50
+```
+
+##### Example (3)
+
+```ts
 isGreaterThanOrEqualTo({ value: 110 })
+```
 
-/**
- * INPUT
-*/
-120
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 120
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+120
+```
+
+##### Example (4)
+
+```ts
 isGreaterThanOrEqualTo({ value: 150 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 151
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 151
 ```
 
@@ -8748,71 +9158,75 @@ isGreaterThanOrEqualTo({ value: 150 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLessThan({ value: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 110
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLessThan({ value: 50 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 50
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLessThan({ value: 110 })
+```
 
-/**
- * INPUT
-*/
-100
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 100
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+100
+```
+
+##### Example (4)
+
+```ts
 isLessThan({ value: 150 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 149
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 149
 ```
 
@@ -8832,71 +9246,75 @@ isLessThan({ value: 150 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLessThanOrEqualTo({ value: 100 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 110
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLessThanOrEqualTo({ value: 50 })
+```
 
-/**
- * INPUT
-*/
-50
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 50
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+50
+```
+
+##### Example (3)
+
+```ts
 isLessThanOrEqualTo({ value: 110 })
+```
 
-/**
- * INPUT
-*/
-100
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 100
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+100
+```
+
+##### Example (4)
+
+```ts
 isLessThanOrEqualTo({ value: 150 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 149
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 149
 ```
 
@@ -8912,37 +9330,39 @@ isLessThanOrEqualTo({ value: 150 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isOdd()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 100
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isOdd()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 99
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 99
 ```
 
@@ -8960,105 +9380,111 @@ isOdd()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 equals({ value: 'thisisastring' })
+```
 
-/**
- * INPUT
-*/
-'thisisastring'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'thisisastring'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-equals({ value: 'thisisastring' })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'thisisastring'
+```
+
+##### Example (2)
+
+```ts
+equals({ value: 'thisisastring' })
+```
+
+<small>Input:</small>
+
+```ts
 1234
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 equals({ value: [ 'an', 'array', 'of', 'values' ] })
+```
 
-/**
- * INPUT
-*/
-[ 'an', 'array', 'of', 'values' ]
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 [ 'an', 'array', 'of', 'values' ]
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+[ 'an', 'array', 'of', 'values' ]
+```
+
+##### Example (4)
+
+```ts
 equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
+```
 
-/**
- * INPUT
-*/
-{ foo: 'bar', deep: { value: 'kitty' } }
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 { foo: 'bar', deep: { value: 'kitty' } }
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+{ foo: 'bar', deep: { value: 'kitty' } }
+```
+
+##### Example (5)
+
+```ts
+equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
+```
+
+<small>Input:</small>
+
+```ts
 { foo: 'bar', deep: { value: 'other stuff' } }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (6)
+
 ```ts
-/**
- * EXAMPLE
-*/
 equals({ value: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 false
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9074,54 +9500,57 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEmpty()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEmpty()
+```
 
-/**
- * INPUT
-*/
-''
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 ''
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+''
+```
+
+##### Example (3)
+
+```ts
 isEmpty()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 []
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 []
 ```
 
@@ -9142,61 +9571,63 @@ isEmpty()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookup({ in: { key1: 'value1', key2: 'value2' } })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'key1'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'value1'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookup({ in: { '123': 4567, '8910': 1112 } })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 8910
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1112
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookup({ in: { key1: 'value1', key2: 'value2' } })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'key3'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 undefined
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookup({
   in: '\n' +
     '                    1:foo\n' +
@@ -9204,32 +9635,35 @@ lookup({
     '                    3:max\n' +
     '                '
 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'bar'
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 lookup({ in: [ 'foo', 'bar', 'max' ] })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 2
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'max'
 ```
 
@@ -9251,54 +9685,57 @@ lookup({ in: [ 'foo', 'bar', 'max' ] })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 contains({ value: 'ample' })
+```
 
-/**
- * INPUT
-*/
-'example'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'example'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'example'
+```
+
+##### Example (2)
+
+```ts
 contains({ value: 'example' })
+```
 
-/**
- * INPUT
-*/
-'example'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'example'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-contains({ value: 'test' })
-
-/**
- * INPUT
-*/
 'example'
+```
 
-/**
-* OUTPUT
-*/
+##### Example (3)
+
+```ts
+contains({ value: 'test' })
+```
+
+<small>Input:</small>
+
+```ts
+'example'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9318,71 +9755,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 endsWith({ value: 'e' })
+```
 
-/**
- * INPUT
-*/
-'apple'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'apple'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'apple'
+```
+
+##### Example (2)
+
+```ts
 endsWith({ value: 'a' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'orange'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 endsWith({ value: 'so' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'some word'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 endsWith({ value: 'word' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'other word'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'other word'
 ```
 
@@ -9402,71 +9843,75 @@ endsWith({ value: 'word' })
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-isAlpha()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+isAlpha()
+```
+
+<small>Input:</small>
+
+```ts
 'example123456'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAlpha({ locale: 'pl-Pl' })
+```
 
-/**
- * INPUT
-*/
-'ThisiZĄĆĘŚŁ'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'ThisiZĄĆĘŚŁ'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'ThisiZĄĆĘŚŁ'
+```
+
+##### Example (3)
+
+```ts
 isAlpha()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not_alpha.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAlpha()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 true
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9486,71 +9931,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAlphaNumeric()
+```
 
-/**
- * INPUT
-*/
-'example123456'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'example123456'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'example123456'
+```
+
+##### Example (2)
+
+```ts
 isAlphaNumeric({ locale: 'pl-Pl' })
+```
 
-/**
- * INPUT
-*/
-'ThisiZĄĆĘŚŁ1234'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'ThisiZĄĆĘŚŁ1234'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'ThisiZĄĆĘŚŁ1234'
+```
+
+##### Example (3)
+
+```ts
 isAlphaNumeric()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not_alphanumeric.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isAlphaNumeric()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 true
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9566,54 +10015,57 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBase64()
+```
 
-/**
- * INPUT
-*/
-'ZnJpZW5kbHlOYW1lNw=='
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'ZnJpZW5kbHlOYW1lNw=='
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'ZnJpZW5kbHlOYW1lNw=='
+```
+
+##### Example (2)
+
+```ts
 isBase64()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'manufacturerUrl7'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isBase64()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 1234123
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9629,88 +10081,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isCountryCode()
+```
 
-/**
- * INPUT
-*/
-'US'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'US'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'US'
+```
+
+##### Example (2)
+
+```ts
 isCountryCode()
+```
 
-/**
- * INPUT
-*/
-'ZM'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'ZM'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'ZM'
+```
+
+##### Example (3)
+
+```ts
 isCountryCode()
+```
 
-/**
- * INPUT
-*/
-'GB'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'GB'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isCountryCode()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'GB'
+```
+
+##### Example (4)
+
+```ts
+isCountryCode()
+```
+
+<small>Input:</small>
+
+```ts
 'UK'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isCountryCode()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 12345
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9726,156 +10183,165 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEmail()
+```
 
-/**
- * INPUT
-*/
-'string@gmail.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'string@gmail.com'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEmail()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'string@gmail.com'
+```
+
+##### Example (2)
+
+```ts
+isEmail()
+```
+
+<small>Input:</small>
+
+```ts
 'non.us.email@thing.com.uk'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'non.us.email@thing.com.uk'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEmail()
+```
 
-/**
- * INPUT
-*/
-'Abc@def@example.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'Abc@def@example.com'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'Abc@def@example.com'
+```
+
+##### Example (4)
+
+```ts
 isEmail()
+```
 
-/**
- * INPUT
-*/
-'cal+henderson@iamcalx.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'cal+henderson@iamcalx.com'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'cal+henderson@iamcalx.com'
+```
+
+##### Example (5)
+
+```ts
 isEmail()
+```
 
-/**
- * INPUT
-*/
-'customer/department=shipping@example.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'customer/department=shipping@example.com'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEmail()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'customer/department=shipping@example.com'
+```
+
+##### Example (6)
+
+```ts
+isEmail()
+```
+
+<small>Input:</small>
+
+```ts
 'user@blah.com/junk.junk?a=<tag value="junk"'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEmail()
+##### Example (7)
 
-/**
- * INPUT
-*/
+```ts
+isEmail()
+```
+
+<small>Input:</small>
+
+```ts
 'Abc@def  @  example.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isEmail()
+##### Example (8)
 
-/**
- * INPUT
-*/
+```ts
+isEmail()
+```
+
+<small>Input:</small>
+
+```ts
 'bad email address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (9)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isEmail()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 12345
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -9891,122 +10357,129 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFQDN()
+```
 
-/**
- * INPUT
-*/
-'example.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'example.com'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'example.com'
+```
+
+##### Example (2)
+
+```ts
 isFQDN()
+```
 
-/**
- * INPUT
-*/
-'international-example.com.br'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'international-example.com.br'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'international-example.com.br'
+```
+
+##### Example (3)
+
+```ts
 isFQDN()
+```
 
-/**
- * INPUT
-*/
-'1234.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '1234.com'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isFQDN()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'1234.com'
+```
+
+##### Example (4)
+
+```ts
+isFQDN()
+```
+
+<small>Input:</small>
+
+```ts
 'no_underscores.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isFQDN()
+##### Example (5)
 
-/**
- * INPUT
-*/
+```ts
+isFQDN()
+```
+
+<small>Input:</small>
+
+```ts
 '**.bad.domain.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isFQDN()
+##### Example (6)
 
-/**
- * INPUT
-*/
+```ts
+isFQDN()
+```
+
+<small>Input:</small>
+
+```ts
 'example.0'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (7)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isFQDN()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 12345
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10026,37 +10499,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isHash({ algo: 'sha256' })
+```
 
-/**
- * INPUT
-*/
-'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-isHash({ algo: 'md5' })
-
-/**
- * INPUT
-*/
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
 
-/**
-* OUTPUT
-*/
+##### Example (2)
+
+```ts
+isHash({ algo: 'md5' })
+```
+
+<small>Input:</small>
+
+```ts
+'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10077,71 +10552,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isISDN()
+```
 
-/**
- * INPUT
-*/
-'46707123456'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '46707123456'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'46707123456'
+```
+
+##### Example (2)
+
+```ts
 isISDN()
+```
 
-/**
- * INPUT
-*/
-'1-808-915-6800'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '1-808-915-6800'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'1-808-915-6800'
+```
+
+##### Example (3)
+
+```ts
 isISDN({ country: 'US' })
+```
 
-/**
- * INPUT
-*/
-'8089156800'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '8089156800'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-isISDN()
-
-/**
- * INPUT
-*/
 '8089156800'
+```
 
-/**
-* OUTPUT
-*/
+##### Example (4)
+
+```ts
+isISDN()
+```
+
+<small>Input:</small>
+
+```ts
+'8089156800'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10165,88 +10644,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLength({ size: 8 })
+```
 
-/**
- * INPUT
-*/
-'iam8char'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'iam8char'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isLength({ size: 8 })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'iam8char'
+```
+
+##### Example (2)
+
+```ts
+isLength({ size: 8 })
+```
+
+<small>Input:</small>
+
+```ts
 'iamnot8char'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLength({ min: 3 })
+```
 
-/**
- * INPUT
-*/
-'aString'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'aString'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
-isLength({ min: 3, max: 5 })
-
-/**
- * INPUT
-*/
 'aString'
+```
 
-/**
-* OUTPUT
-*/
+##### Example (4)
+
+```ts
+isLength({ min: 3, max: 5 })
+```
+
+<small>Input:</small>
+
+```ts
+'aString'
+```
+
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isLength({ min: 3, max: 5 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 4
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10266,173 +10750,183 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMACAddress()
+```
 
-/**
- * INPUT
-*/
-'00:1f:f3:5b:2b:1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '00:1f:f3:5b:2b:1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'00:1f:f3:5b:2b:1f'
+```
+
+##### Example (2)
+
+```ts
 isMACAddress()
+```
 
-/**
- * INPUT
-*/
-'001ff35b2b1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '001ff35b2b1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'001ff35b2b1f'
+```
+
+##### Example (3)
+
+```ts
 isMACAddress()
+```
 
-/**
- * INPUT
-*/
-'00-1f-f3-5b-2b-1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (4)
+
+```ts
 isMACAddress({ delimiter: 'colon' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '00-1f-f3-5b-2b-1f'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMACAddress({ delimiter: 'any' })
+```
 
-/**
- * INPUT
-*/
-'00-1f-f3-5b-2b-1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (6)
+
+```ts
 isMACAddress({ delimiter: 'dash' })
+```
 
-/**
- * INPUT
-*/
-'00-1f-f3-5b-2b-1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '00-1f-f3-5b-2b-1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (7)
+
+```ts
 isMACAddress({ delimiter: 'dot' })
+```
 
-/**
- * INPUT
-*/
-'001f.f35b.2b1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '001f.f35b.2b1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'001f.f35b.2b1f'
+```
+
+##### Example (8)
+
+```ts
 isMACAddress({ delimiter: 'none' })
+```
 
-/**
- * INPUT
-*/
-'001ff35b2b1f'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '001ff35b2b1f'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'001ff35b2b1f'
+```
+
+##### Example (9)
+
+```ts
 isMACAddress()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'aString'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (10)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMACAddress()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 4
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10448,71 +10942,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMIMEType()
+```
 
-/**
- * INPUT
-*/
-'application/javascript'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'application/javascript'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'application/javascript'
+```
+
+##### Example (2)
+
+```ts
 isMIMEType()
+```
 
-/**
- * INPUT
-*/
-'text/html'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'text/html'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isMIMEType()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'text/html'
+```
+
+##### Example (3)
+
+```ts
+isMIMEType()
+```
+
+<small>Input:</small>
+
+```ts
 'application'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMIMEType()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 ''
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10529,88 +11027,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPhoneNumberLike()
+```
 
-/**
- * INPUT
-*/
-'46707123456'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '46707123456'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'46707123456'
+```
+
+##### Example (2)
+
+```ts
 isPhoneNumberLike()
+```
 
-/**
- * INPUT
-*/
-'1-808-915-6800'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '1-808-915-6800'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'1-808-915-6800'
+```
+
+##### Example (3)
+
+```ts
 isPhoneNumberLike()
+```
 
-/**
- * INPUT
-*/
-'79525554602'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '79525554602'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isPhoneNumberLike()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'79525554602'
+```
+
+##### Example (4)
+
+```ts
+isPhoneNumberLike()
+```
+
+<small>Input:</small>
+
+```ts
 '223457823432432423324'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPhoneNumberLike()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2234'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10627,71 +11130,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPort()
+```
 
-/**
- * INPUT
-*/
-'49151'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '49151'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'49151'
+```
+
+##### Example (2)
+
+```ts
 isPort()
+```
 
-/**
- * INPUT
-*/
-'80'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '80'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isPort()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'80'
+```
+
+##### Example (3)
+
+```ts
+isPort()
+```
+
+<small>Input:</small>
+
+```ts
 '65536'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPort()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not a port'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10712,71 +11219,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPostalCode()
+```
 
-/**
- * INPUT
-*/
-'85249'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '85249'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'85249'
+```
+
+##### Example (2)
+
+```ts
 isPostalCode({ locale: 'RU' })
+```
 
-/**
- * INPUT
-*/
-'191123'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '191123'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'191123'
+```
+
+##### Example (3)
+
+```ts
 isPostalCode()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'bobsyouruncle'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isPostalCode({ locale: 'CN' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'this is not a postal code'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -10792,88 +11303,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isString()
+```
 
-/**
- * INPUT
-*/
-'this is a string'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'this is a string'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'this is a string'
+```
+
+##### Example (2)
+
+```ts
 isString()
+```
 
-/**
- * INPUT
-*/
-'12345'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '12345'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isString()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'12345'
+```
+
+##### Example (3)
+
+```ts
+isString()
+```
+
+<small>Input:</small>
+
+```ts
 { hello: 'i am an object' }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isString()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isString()
+```
+
+<small>Input:</small>
+
+```ts
 1234
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isString()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ '12345', 'some more stuff' ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ '12345', 'some more stuff' ]
 ```
 
@@ -10889,139 +11405,147 @@ isString()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isURL()
+```
 
-/**
- * INPUT
-*/
-'http://someurl.com.uk'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'http://someurl.com.uk'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isURL()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'http://someurl.com.uk'
+```
+
+##### Example (2)
+
+```ts
+isURL()
+```
+
+<small>Input:</small>
+
+```ts
 'ftp://someurl.bom:8080?some=bar&hi=bob'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'ftp://someurl.bom:8080?some=bar&hi=bob'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isURL()
+```
 
-/**
- * INPUT
-*/
-'http://xn--fsqu00a.xn--3lr804guic'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'http://xn--fsqu00a.xn--3lr804guic'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'http://xn--fsqu00a.xn--3lr804guic'
+```
+
+##### Example (4)
+
+```ts
 isURL()
+```
 
-/**
- * INPUT
-*/
-'http://example.com/hello%20world'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'http://example.com/hello%20world'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'http://example.com/hello%20world'
+```
+
+##### Example (5)
+
+```ts
 isURL()
+```
 
-/**
- * INPUT
-*/
-'bob.com'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'bob.com'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isURL()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'bob.com'
+```
+
+##### Example (6)
+
+```ts
+isURL()
+```
+
+<small>Input:</small>
+
+```ts
 'isthis_valid_uri.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isURL()
+##### Example (7)
 
-/**
- * INPUT
-*/
+```ts
+isURL()
+```
+
+<small>Input:</small>
+
+```ts
 'http://sthis valid uri.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (8)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isURL()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'hello://validuri.com'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -11037,88 +11561,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isUUID()
+```
 
-/**
- * INPUT
-*/
-'95ecc380-afe9-11e4-9b6c-751b66dd541e'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '95ecc380-afe9-11e4-9b6c-751b66dd541e'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'95ecc380-afe9-11e4-9b6c-751b66dd541e'
+```
+
+##### Example (2)
+
+```ts
 isUUID()
+```
 
-/**
- * INPUT
-*/
-'123e4567-e89b-82d3-f456-426655440000'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '123e4567-e89b-82d3-f456-426655440000'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isUUID()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'123e4567-e89b-82d3-f456-426655440000'
+```
+
+##### Example (3)
+
+```ts
+isUUID()
+```
+
+<small>Input:</small>
+
+```ts
 '95ecc380:afe9:11e4:9b6c:751b66dd541e'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isUUID()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isUUID()
+```
+
+<small>Input:</small>
+
+```ts
 '123e4567-e89b-x2d3-0456-426655440000'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isUUID()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'randomstring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -11138,88 +11667,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 startsWith({ value: 'a' })
+```
 
-/**
- * INPUT
-*/
-'apple'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'apple'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-startsWith({ value: 'a' })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'apple'
+```
+
+##### Example (2)
+
+```ts
+startsWith({ value: 'a' })
+```
+
+<small>Input:</small>
+
+```ts
 'orange'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 startsWith({ value: 'so' })
+```
 
-/**
- * INPUT
-*/
-'some word'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'some word'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-startsWith({ value: 'so' })
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'some word'
+```
+
+##### Example (4)
+
+```ts
+startsWith({ value: 'so' })
+```
+
+<small>Input:</small>
+
+```ts
 'other word'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 startsWith({ value: 't' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'hat'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -11235,20 +11769,21 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 decodeBase64()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'c29tZSBzdHJpbmc='
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'some string'
 ```
 
@@ -11264,20 +11799,21 @@ decodeBase64()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 decodeHex()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '736f6d652076616c756520666f722068657820656e636f64696e67'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'some value for hex encoding'
 ```
 
@@ -11293,20 +11829,21 @@ decodeHex()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 decodeURL()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'google.com?q=HELLO AND GOODBYE'
 ```
 
@@ -11330,88 +11867,93 @@ decodeURL()
 
 Hashing algorithm defaults to 256, and digest defaults to hex
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encode({ algo: 'sha256' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encode({ algo: 'md5' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '7e33b72a611da99c7e9013dd44dbbdad'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encode({ algo: 'url' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'google.com?q=HELLO AND GOODBYE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encode({ algo: 'base64' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO AND GOODBYE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'SEVMTE8gQU5EIEdPT0RCWUU='
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encode({ algo: 'sha1', digest: 'base64' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '6MsUBHluumd5onY3fM6ZpQKjZIE='
 ```
 
@@ -11427,20 +11969,21 @@ encode({ algo: 'sha1', digest: 'base64' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeBase64()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'some string'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'c29tZSBzdHJpbmc='
 ```
 
@@ -11456,20 +11999,21 @@ encodeBase64()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeHex()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'some value for hex encoding'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '736f6d652076616c756520666f722068657820656e636f64696e67'
 ```
 
@@ -11493,37 +12037,39 @@ encodeHex()
 
 Hashing algorithm defaults to sha256, and digest defaults to hex
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeSHA()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeSHA({ digest: 'base64' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U='
 ```
 
@@ -11545,37 +12091,39 @@ encodeSHA({ digest: 'base64' })
 
 If the digest is not provided, it defaults to hex
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeSHA1()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'e8cb1404796eba6779a276377cce99a502a36481'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeSHA1({ digest: 'base64' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '{ "some": "data" }'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '6MsUBHluumd5onY3fM6ZpQKjZIE='
 ```
 
@@ -11591,20 +12139,21 @@ encodeSHA1({ digest: 'base64' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 encodeURL()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'google.com?q=HELLO AND GOODBYE'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
 ```
 
@@ -11624,56 +12173,56 @@ encodeURL()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 entropy()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '0123456789abcdef'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 4
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 entropy({ algo: 'shannon' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1223334444'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 1.8464393446710154
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 entropy({ algo: 'unknownAlgoName' })
-
-/**
- * INPUT
-*/
-'1223334444'
-
-/**
-* THROWS
-*/
-"null"
 ```
+
+<small>Input:</small>
+
+```ts
+'1223334444'
+```
+
+<small>Throws:</small>
+`null`
 
 ### `extract`
 
@@ -11697,71 +12246,75 @@ entropy({ algo: 'unknownAlgoName' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 extract({ start: '<', end: '>' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '<hello>'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hello'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 extract({ regex: 'he.*' })
+```
 
-/**
- * INPUT
-*/
-'hello'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'hello'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'hello'
+```
+
+##### Example (3)
+
+```ts
 extract({ regex: '/([A-Z]\\w+)/', global: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hello World some other things'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'Hello', 'World' ]
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 extract({ start: '<', end: '>', global: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '<hello> some stuff <world>'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'hello', 'world' ]
 ```
 
@@ -11781,75 +12334,79 @@ extract({ start: '<', end: '>', global: true })
 
 #### Examples
 
-```ts
-/**
- * EXAMPLE
-*/
-join()
+##### Example (1)
 
-/**
- * INPUT
-*/
+```ts
+join()
+```
+
+<small>Input:</small>
+
+```ts
 [
   'a', ' ', 's',
   't', 'r', 'i',
   'n', 'g'
 ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'a string'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 join({ delimiter: ',' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 'a string', 'found' ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'a string,found'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 join({ delimiter: ' - ' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 'a', 'stri', 'ng' ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'a - stri - ng'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 join({ delimiter: ' ' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'a string'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'a string'
 ```
 
@@ -11871,39 +12428,41 @@ join({ delimiter: ' ' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceLiteral({ search: 'bob', replace: 'mel' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hi bob'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hi mel'
 ```
 
 Does not replace as it is not an exact match
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceLiteral({ search: 'bob', replace: 'mel' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hi Bob'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hi Bob'
 ```
 
@@ -11929,71 +12488,75 @@ replaceLiteral({ search: 'bob', replace: 'mel' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceRegex({ regex: 's|e', replace: 'd' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'somestring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'domestring'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceRegex({ regex: 's|e', replace: 'd', global: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'somestring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'domddtring'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'soMesTring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'soWesWring'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 replaceRegex({ regex: '\\*', replace: '', global: true })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'a***a***a'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'aaa'
 ```
 
@@ -12009,54 +12572,57 @@ replaceRegex({ regex: '\\*', replace: '', global: true })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverse()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'hello'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'olleh'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverse()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'more words'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'sdrow erom'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverse()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ 'hello', 'more' ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'olleh', 'erom' ]
 ```
 
@@ -12076,20 +12642,21 @@ reverse()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 split()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'astring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [
   'a', 's', 't',
   'r', 'i', 'n',
@@ -12099,54 +12666,57 @@ split()
 
 Delimiter is not found so the whole input is returned
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 split({ delimiter: ',' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'astring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'astring' ]
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 split({ delimiter: '-' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'a-stri-ng'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'a', 'stri', 'ng' ]
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 split({ delimiter: ' ' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'a string'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'a', 'string' ]
 ```
 
@@ -12162,54 +12732,57 @@ split({ delimiter: ' ' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCamelCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'helloThere'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCamelCase()
+```
 
-/**
- * INPUT
-*/
-'billy'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'billy'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'billy'
+```
+
+##### Example (3)
+
+```ts
 toCamelCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'heyThere'
 ```
 
@@ -12226,90 +12799,92 @@ toCamelCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toISDN()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '+33-1-22-33-44-55'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '33122334455'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toISDN()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1(800)FloWErs'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '18003569377'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toISDN()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 4917600000000
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '4917600000000'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toISDN()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 49187484
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '49187484'
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toISDN()
-
-/**
- * INPUT
-*/
-'something'
-
-/**
-* THROWS
-*/
-"null"
 ```
+
+<small>Input:</small>
+
+```ts
+'something'
+```
+
+<small>Throws:</small>
+`null`
 
 ### `toKebabCase`
 
@@ -12323,54 +12898,57 @@ toISDN()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toKebabCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hello-there'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toKebabCase()
+```
 
-/**
- * INPUT
-*/
-'billy'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'billy'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'billy'
+```
+
+##### Example (3)
+
+```ts
 toKebabCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hey-there'
 ```
 
@@ -12386,37 +12964,39 @@ toKebabCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toLowerCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hello there'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toLowerCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'biLLy'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'billy'
 ```
 
@@ -12432,54 +13012,57 @@ toLowerCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toPascalCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'HelloThere'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toPascalCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'billy'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Billy'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toPascalCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'HeyThere'
 ```
 
@@ -12495,54 +13078,57 @@ toPascalCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toSnakeCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hello_there'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toSnakeCase()
+```
 
-/**
- * INPUT
-*/
-'billy'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'billy'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'billy'
+```
+
+##### Example (3)
+
+```ts
 toSnakeCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hey_there'
 ```
 
@@ -12554,71 +13140,75 @@ toSnakeCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toString()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 true
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'true'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toString()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 { hello: 'world' }
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '{"hello":"world"}'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toString()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 278218429446951548637196401n
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '278218429446951548637196400'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toString()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 [ true, false ]
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 [ 'true', 'false' ]
 ```
 
@@ -12634,54 +13224,57 @@ toString()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toTitleCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'HELLO there'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'HELLO There'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toTitleCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'billy'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Billy'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toTitleCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hey There'
 ```
 
@@ -12697,54 +13290,57 @@ toTitleCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toUpperCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'hello'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'HELLO'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toUpperCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'billy'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'BILLY'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toUpperCase()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hey There'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'HEY THERE'
 ```
 
@@ -12764,192 +13360,203 @@ toUpperCase()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '   other_things         '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'other_things'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Stuff        '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Stuff'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '      hello'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'hello'
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '       '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 ''
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim()
+```
 
-/**
- * INPUT
-*/
-'Spider Man'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'Spider Man'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'Spider Man'
+```
+
+##### Example (6)
+
+```ts
 trim({ chars: 'a' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'aaaaSpider Manaaaa'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Spider Man'
 ```
 
 Any new char, including whitespace will stop the trim, it must be consecutive
 
+##### Example (7)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim({ chars: 'a' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'aa aaSpider Manaa aa'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 ' aaSpider Manaa '
 ```
 
+##### Example (8)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim({ chars: 'fast' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'fast cars race fast'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 ' cars race '
 ```
 
+##### Example (9)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim({ chars: 'fatc ' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'fast example cata'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'st example'
 ```
 
+##### Example (10)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim({ chars: '\r' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '\t\r\rtrim this\r\r'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '\t\r\rtrim this'
 ```
 
+##### Example (11)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trim({ chars: '.*' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '.*.*a test.*.*.*.*'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'a test'
 ```
 
@@ -12969,88 +13576,93 @@ trim({ chars: '.*' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimEnd()
+```
 
-/**
- * INPUT
-*/
-'   left'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '   left'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'   left'
+```
+
+##### Example (2)
+
+```ts
 trimEnd()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'right   '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'right'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimEnd()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '       '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 ''
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimEnd({ chars: '*' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '*****Hello****Bob*****'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '*****Hello****Bob'
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimEnd({ chars: 'fast' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'fast cars race fast'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'fast cars race '
 ```
 
@@ -13070,71 +13682,75 @@ trimEnd({ chars: 'fast' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimStart()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '    Hello Bob    '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hello Bob    '
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimStart({ chars: '__--' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '__--__--__some__--__word'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'some__--__word'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimStart()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '       '
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 ''
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 trimStart({ chars: '*' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '*****Hello****Bob*****'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hello****Bob*****'
 ```
 
@@ -13154,37 +13770,39 @@ trimStart({ chars: '*' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 truncate({ size: 4 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'thisisalongstring'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'this'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 truncate({ size: 8 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'Hello world'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 'Hello wo'
 ```
 
@@ -13203,88 +13821,93 @@ truncate({ size: 8 })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIP()
+```
 
-/**
- * INPUT
-*/
-'11.0.1.18'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '11.0.1.18'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'11.0.1.18'
+```
+
+##### Example (2)
+
+```ts
 isIP()
+```
 
-/**
- * INPUT
-*/
-'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isIP()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+##### Example (3)
+
+```ts
+isIP()
+```
+
+<small>Input:</small>
+
+```ts
 '172.394.0.1'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isIP()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isIP()
+```
+
+<small>Input:</small>
+
+```ts
 1234567
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not an IP address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13309,71 +13932,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 inIPRange({ cidr: '8.8.8.0/24' })
+```
 
-/**
- * INPUT
-*/
-'8.8.8.8'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '8.8.8.8'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'8.8.8.8'
+```
+
+##### Example (2)
+
+```ts
 inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
+```
 
-/**
- * INPUT
-*/
-'fd00::b000'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'fd00::b000'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'fd00::b000'
+```
+
+##### Example (3)
+
+```ts
 inIPRange({ min: 'fd00::123' })
+```
 
-/**
- * INPUT
-*/
-'fd00::b000'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'fd00::b000'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'fd00::b000'
+```
+
+##### Example (4)
+
+```ts
 inIPRange({ cidr: '8.8.8.0/24' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '8.8.10.8'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13390,71 +14017,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isCIDR()
+```
 
-/**
- * INPUT
-*/
-'1.2.3.4/32'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '1.2.3.4/32'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'1.2.3.4/32'
+```
+
+##### Example (2)
+
+```ts
 isCIDR()
+```
 
-/**
- * INPUT
-*/
-'2001::1234:5678/128'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2001::1234:5678/128'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isCIDR()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'2001::1234:5678/128'
+```
+
+##### Example (3)
+
+```ts
+isCIDR()
+```
+
+<small>Input:</small>
+
+```ts
 '8.8.8.10'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isCIDR()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'badIPAddress/24'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13471,71 +14102,75 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIPv4()
+```
 
-/**
- * INPUT
-*/
-'11.0.1.18'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '11.0.1.18'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isIPv4()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'11.0.1.18'
+```
+
+##### Example (2)
+
+```ts
+isIPv4()
+```
+
+<small>Input:</small>
+
+```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isIPv4()
+##### Example (3)
 
-/**
- * INPUT
-*/
+```ts
+isIPv4()
+```
+
+<small>Input:</small>
+
+```ts
 '172.394.0.1'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (4)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIPv4()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not an IP address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13552,88 +14187,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIPv6()
+```
 
-/**
- * INPUT
-*/
-'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+##### Example (2)
+
+```ts
 isIPv6()
+```
 
-/**
- * INPUT
-*/
-'fc00:db8::1'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 'fc00:db8::1'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'fc00:db8::1'
+```
+
+##### Example (3)
+
+```ts
 isIPv6()
+```
 
-/**
- * INPUT
-*/
-'::FFFF:12.155.166.101'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '::FFFF:12.155.166.101'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isIPv6()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'::FFFF:12.155.166.101'
+```
+
+##### Example (4)
+
+```ts
+isIPv6()
+```
+
+<small>Input:</small>
+
+```ts
 '11.0.1.18'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isIPv6()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not an IP address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13650,88 +14290,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isNonRoutableIP()
+```
 
-/**
- * INPUT
-*/
-'192.168.0.1'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '192.168.0.1'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'192.168.0.1'
+```
+
+##### Example (2)
+
+```ts
 isNonRoutableIP()
+```
 
-/**
- * INPUT
-*/
-'2001:db8::1'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2001:db8::1'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'2001:db8::1'
+```
+
+##### Example (3)
+
+```ts
 isNonRoutableIP()
+```
 
-/**
- * INPUT
-*/
-'172.28.4.1'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '172.28.4.1'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isNonRoutableIP()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'172.28.4.1'
+```
+
+##### Example (4)
+
+```ts
+isNonRoutableIP()
+```
+
+<small>Input:</small>
+
+```ts
 '8.8.8.8'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isNonRoutableIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:2ff::ffff'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13748,88 +14393,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isRoutableIP()
+```
 
-/**
- * INPUT
-*/
-'8.8.8.8'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '8.8.8.8'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'8.8.8.8'
+```
+
+##### Example (2)
+
+```ts
 isRoutableIP()
+```
 
-/**
- * INPUT
-*/
-'2620:4f:123::'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '2620:4f:123::'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isRoutableIP()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'2620:4f:123::'
+```
+
+##### Example (3)
+
+```ts
+isRoutableIP()
+```
+
+<small>Input:</small>
+
+```ts
 '192.168.255.254'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isRoutableIP()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isRoutableIP()
+```
+
+<small>Input:</small>
+
+```ts
 '2001:4:112::'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isRoutableIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not an IP address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13846,88 +14496,93 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMappedIPv4()
+```
 
-/**
- * INPUT
-*/
-'::ffff:10.2.1.18'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '::ffff:10.2.1.18'
 ```
 
+<small>Output:</small>
+
 ```ts
-/**
- * EXAMPLE
-*/
+'::ffff:10.2.1.18'
+```
+
+##### Example (2)
+
+```ts
 isMappedIPv4()
+```
 
-/**
- * INPUT
-*/
-'::122.168.5.18'
+<small>Input:</small>
 
-/**
-* OUTPUT
-*/
+```ts
 '::122.168.5.18'
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isMappedIPv4()
+<small>Output:</small>
 
-/**
- * INPUT
-*/
+```ts
+'::122.168.5.18'
+```
+
+##### Example (3)
+
+```ts
+isMappedIPv4()
+```
+
+<small>Input:</small>
+
+```ts
 '10.16.32.210'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
-```ts
-/**
- * EXAMPLE
-*/
-isMappedIPv4()
+##### Example (4)
 
-/**
- * INPUT
-*/
+```ts
+isMappedIPv4()
+```
+
+<small>Input:</small>
+
+```ts
 '2001:4:112::'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
+##### Example (5)
+
 ```ts
-/**
- * EXAMPLE
-*/
 isMappedIPv4()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 'not an IP address'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 null
 ```
 
@@ -13944,37 +14599,39 @@ null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 extractMappedIPv4()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '::FFFF:192.52.193.1'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '192.52.193.1'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 extractMappedIPv4()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '::122.168.5.18'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '122.168.5.18'
 ```
 
@@ -13991,54 +14648,57 @@ extractMappedIPv4()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverseIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '10.16.32.210'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '210.32.16.10'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverseIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0000:0000:0000:8a2e:0370:7334'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 reverseIP()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:2::'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2'
 ```
 
@@ -14055,37 +14715,39 @@ reverseIP()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 ipToInt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '10.16.32.210'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 168829138
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 ipToInt()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:2::'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '42540488320432167789079031612388147199'
 ```
 
@@ -14106,37 +14768,39 @@ ipToInt()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 intToIP({ version: 4 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 168829138
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '10.16.32.210'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 intToIP({ version: '6' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '42540488320432167789079031612388147200'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:2::'
 ```
 
@@ -14153,54 +14817,57 @@ intToIP({ version: '6' })
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '8.8.12.118/24'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '8.8.12.1'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:db8:123:4567:89ab:cdef:1234:5678'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMin()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:db8:120::1'
 ```
 
@@ -14217,54 +14884,57 @@ getCIDRMin()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMax()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '8.8.12.118/24'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '8.8.12.254'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMax()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:db8:123:4567:89ab:cdef:1234:5678'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRMax()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:db8:123:ffff:ffff:ffff:ffff:ffff'
 ```
 
@@ -14281,37 +14951,39 @@ getCIDRMax()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRBroadcast()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '8.8.12.118/24'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '8.8.12.255'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRBroadcast()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1.2.3.4/32'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1.2.3.4'
 ```
 
@@ -14328,37 +15000,39 @@ getCIDRBroadcast()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRNetwork()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '8.8.12.118/24'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '8.8.12.0'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 getCIDRNetwork()
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1.2.3.4/32'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1.2.3.4'
 ```
 
@@ -14379,53 +15053,56 @@ getCIDRNetwork()
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCIDR({ suffix: 32 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1.2.3.4'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1.2.3.4/32'
 ```
 
+##### Example (2)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCIDR({ suffix: 24 })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '1.2.3.4'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '1.2.3.0/24'
 ```
 
+##### Example (3)
+
 ```ts
-/**
- * EXAMPLE
-*/
 toCIDR({ suffix: '46' })
+```
 
-/**
- * INPUT
-*/
+<small>Input:</small>
+
+```ts
 '2001:0db8:0123:4567:89ab:cdef:1234:5678'
+```
 
-/**
-* OUTPUT
-*/
+<small>Output:</small>
+
+```ts
 '2001:db8:120::/46'
 ```
