@@ -8,7 +8,7 @@ import {
 import { runMathFn } from './utils';
 
 export interface PowerArgs {
-    readonly exp: number;
+    readonly value: number;
 }
 
 export const powConfig: FieldTransformConfig<PowerArgs> = {
@@ -17,10 +17,10 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns a number representing the input value taken to the power of the args exp value',
+    description: 'Returns a number representing the input value taken to the power of the value',
     examples: [
         {
-            args: { exp: 3 },
+            args: { value: 3 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Byte } }
@@ -30,7 +30,7 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
             output: 343
         },
         {
-            args: { exp: 0.5 },
+            args: { value: 0.5 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Byte } }
@@ -40,21 +40,21 @@ export const powConfig: FieldTransformConfig<PowerArgs> = {
             output: 2
         }
     ],
-    create({ args: { exp } }) {
+    create({ args: { value } }) {
         // eslint-disable-next-line no-restricted-properties
-        return runMathFn(Math.pow, exp);
+        return runMathFn(Math.pow, value);
     },
     accepts: [
         FieldType.Number,
     ],
     argument_schema: {
-        exp: {
+        value: {
             type: FieldType.Number,
             array: false,
             description: 'The exponent used to raise the base'
         },
     },
-    required_arguments: ['exp'],
+    required_arguments: ['value'],
     output_type({ field_config }) {
         return {
             field_config: {
