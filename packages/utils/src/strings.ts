@@ -7,7 +7,7 @@ import lSnakeCase from 'lodash/snakeCase';
 import lKebabCase from 'lodash/kebabCase';
 import lStartCase from 'lodash/startCase';
 import { MACDelimiter } from '@terascope/types';
-import { isArrayLike, includes } from './arrays';
+import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 import { bigIntToJSON } from './numbers';
 
@@ -495,8 +495,20 @@ export function isUUID(input: unknown): boolean {
     return isString(input) && validator.isUUID(input);
 }
 
-export function contains(input: unknown, substring: string): boolean {
-    return isString(input) && includes(input, substring);
+/**
+ * Check whether a string includes another string
+*/
+export function contains(input: unknown, substring: string): input is string {
+    return isString(input) && input.includes(substring);
+}
+
+/**
+ * A function version of contains
+*/
+export function containsFP(substring: string) {
+    return function _contains(input: unknown): input is string {
+        return isString(input) && input.includes(substring);
+    };
 }
 
 export function isBase64(input: unknown): boolean {

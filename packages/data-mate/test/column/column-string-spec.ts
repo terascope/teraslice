@@ -171,7 +171,7 @@ describe('Column (String Types)', () => {
             const newCol = dataFrameAdapter(
                 functionConfigRepository.contains,
                 {
-                    args: { substr: 'Super' }
+                    args: { value: 'Super' }
                 }
             ).column(col);
 

@@ -1,4 +1,4 @@
-import { contains } from '@terascope/utils';
+import { containsFP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
@@ -6,7 +6,7 @@ import {
 } from '../interfaces';
 
 export interface ContainsArgs {
-    readonly substr: string;
+    readonly value: string;
 }
 
 export const containsConfig: FieldValidateConfig<ContainsArgs> = {
@@ -17,37 +17,37 @@ export const containsConfig: FieldValidateConfig<ContainsArgs> = {
     description: 'Returns the input string if it contains the args substring value, otherwise returns null. This operations is case-sensitive',
     examples: [
         {
-            args: { substr: 'ample' },
+            args: { value: 'ample' },
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'example',
             output: 'example'
         },
         {
-            args: { substr: 'example' },
+            args: { value: 'example' },
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'example',
             output: 'example'
         },
         {
-            args: { substr: 'test' },
+            args: { value: 'test' },
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: 'example',
             output: null
         },
     ],
-    create({ args: { substr } }) {
-        return (input: unknown) => contains(input, substr);
+    create({ args: { value } }) {
+        return containsFP(value);
     },
     accepts: [FieldType.String],
     argument_schema: {
-        substr: {
+        value: {
             type: FieldType.String,
             array: false,
             description: 'A string that must partially or completely match'
         }
     },
-    required_arguments: ['substr']
+    required_arguments: ['value']
 };
