@@ -31,7 +31,7 @@ jobs:
       # use node 12 to make sure we don't lose compatibility
       node_js: '12.20'
       # run on any pull_request
-      if: branch IN (master, date-mate-refactor) AND type IN (pull_request)
+      if: branch = master AND type IN (pull_request)
       # only cache on verify build
       cache:
         npm: false
@@ -47,25 +47,25 @@ jobs:
       # use node 12 to make sure we don't lose compatibility
       node_js: '12.20'
       # run only on pull-requests or cron
-      if: branch IN (master, date-mate-refactor) AND type IN (pull_request, cron)
+      if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
 
     - name: 'Unit Test Suite (node 14)'
       node_js: '14.17'
       # run only on pull-requests or cron
-      if: branch IN (master, date-mate-refactor) AND type IN (pull_request, cron)
+      if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
     - name: 'ES Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.20'
       # run only on pull-requests and cron
-      if: branch IN (master, date-mate-refactor) AND type IN (pull_request, cron)
+      if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
     - name: 'ES Test Suite (elasticsearch 7) (node 14)'
       node_js: '14.17'
       # run only on pull-requests
-      if: branch IN (master, date-mate-refactor) AND type IN (pull_request) AND commit_message !~ /^WIP/
+      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
     - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
