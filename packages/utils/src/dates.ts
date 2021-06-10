@@ -117,11 +117,19 @@ export function getValidDateOrThrow(val: unknown): Date {
 }
 
 /**
+ * @returns date object from date tuple
+ */
+
+function _dateTupleToDateObject(val: DateTuple): Date {
+    return new Date(val[0] - (val[1] * 60_000));
+}
+
+/**
  * Returns a valid date with the timezone applied or throws{@see getValidDate}
  */
 export function getValidDateWithTimezoneOrThrow(val: unknown): Date {
     if (isDateTuple(val)) {
-        return getValidDateOrThrow(toISO8601(val));
+        return _dateTupleToDateObject(val);
     }
 
     return getValidDateOrThrow(val);
@@ -132,7 +140,7 @@ export function getValidDateWithTimezoneOrThrow(val: unknown): Date {
  */
 export function getValidDateWithTimezone(val: unknown): Date | false {
     if (isDateTuple(val)) {
-        return getValidDate(toISO8601(val));
+        return _dateTupleToDateObject(val);
     }
 
     return getValidDate(val);
