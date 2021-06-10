@@ -36,8 +36,9 @@ import {
 import {
     DateFormat,
     ISO8601DateSegment,
-    TimeBetweenIntervals,
-    DateTuple
+    DateTuple,
+    DateInputTypes,
+    GetTimeBetweenArgs
 } from '@terascope/types';
 import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
 import { getTypeOf } from './deps';
@@ -55,12 +56,15 @@ export const timezoneOffset = new Date().getTimezoneOffset() * 60_000;
 /**
  * A helper function for making an ISODate string
  */
-export function makeISODate(value?: Date|number|string|null|undefined): string {
+export function makeISODate(value?: Date|number|string|null|undefined|DateTuple): string {
     if (value == null) return new Date().toISOString();
+
     const date = getValidDate(value);
+
     if (date === false) {
         throw new Error(`Invalid date ${date}`);
     }
+
     return date.toISOString();
 }
 
@@ -95,7 +99,9 @@ export function getValidDate(val: unknown): Date | false {
     if (isDateTuple(val)) return new Date(val[0]);
 
     const d = new Date(val as string);
+
     if (isValidDateInstance(d)) return d;
+
     return false;
 }
 
@@ -108,6 +114,36 @@ export function getValidDateOrThrow(val: unknown): Date {
         throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
     }
     return date;
+}
+
+/**
+ * @returns date object from date tuple
+ */
+
+function _dateTupleToDateObject(val: DateTuple): Date {
+    return new Date(val[0] - (val[1] * 60_000));
+}
+
+/**
+ * Returns a valid date with the timezone applied or throws{@see getValidDate}
+ */
+export function getValidDateWithTimezoneOrThrow(val: unknown): Date {
+    if (isDateTuple(val)) {
+        return _dateTupleToDateObject(val);
+    }
+
+    return getValidDateOrThrow(val);
+}
+
+/**
+ * Returns a valid date with the timezone applied {@see getValidDate}
+ */
+export function getValidDateWithTimezone(val: unknown): Date | false {
+    if (isDateTuple(val)) {
+        return _dateTupleToDateObject(val);
+    }
+
+    return getValidDate(val);
 }
 
 /**
@@ -130,14 +166,14 @@ export function isValidDateInstance(val: unknown): val is Date {
 }
 
 /** Ensure unix time */
-export function getTime(val?: string|number|Date): number | false {
+export function getTime(val?: DateInputTypes): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
     if (result === false) return false;
     return result.getTime();
 }
 
-export function getUnixTime(val?: string|number|Date): number | false {
+export function getUnixTime(val?: DateInputTypes): number | false {
     const time = getTime(val);
     if (time !== false) return Math.floor(time / 1000);
     return time;
@@ -246,12 +282,12 @@ export function isDateTuple(input: unknown): input is DateTuple {
 }
 
 /**
- * Returns a function to trim the ISO 8601 date segment, this useful
- * for creating yearly, monthly, daily or hourly dates
+ * Returns a function to trim the ISO 8601 date segment
+ * useful for creating yearly, monthly, daily or hourly dates
 */
 export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => number {
     return function _trimISODate(input) {
-        const date = getValidDateOrThrow(input);
+        const date = getValidDateWithTimezoneOrThrow(input);
 
         if (segment === ISO8601DateSegment.hourly) {
             return new Date(
@@ -393,26 +429,32 @@ export function parseDateValue(
  * Format the parsed date value
 */
 export function formatDateValue(
-    value: Date|number,
+    value: Date|number|DateTuple,
     format: DateFormat|string|undefined,
 ): string|number {
+    const inMs = _toMilliseconds(value);
+
     if (format === DateFormat.epoch_millis || format === DateFormat.milliseconds) {
-        return value instanceof Date ? value.getTime() : value;
+        return inMs;
     }
 
     if (format === DateFormat.epoch || format === DateFormat.seconds) {
-        const ms = value instanceof Date ? value.getTime() : value;
-        return Math.floor(ms / 1000);
+        return Math.floor(inMs / 1000);
     }
 
     if (format && !(format in DateFormat)) {
-        const ms = value instanceof Date ? value.getTime() : value;
         // need add our offset here to
-        // in order to deal with UTC time
-        return formatDate(ms + timezoneOffset, format);
+        // deal with UTC time
+        return formatDate(inMs + timezoneOffset, format);
     }
 
     return toISO8601(value);
+}
+
+function _toMilliseconds(value: Date | number | DateTuple): number {
+    if (isDateTuple(value)) return value[0];
+
+    return value instanceof Date ? value.getTime() : value;
 }
 
 export const getDurationFunc = {
@@ -435,41 +477,16 @@ export const getDurationFunc = {
     ISOWeekYears: differenceInISOWeekYears
 };
 
-export interface GetTimeBetweenArgs {
-    start?: Date | string | number;
-    end?: Date | string | number;
-    interval: TimeBetweenIntervals;
-}
-
 export function getTimeBetween(
     input: unknown,
     args: GetTimeBetweenArgs
 ): string | number {
-    const { interval, start, end } = args;
+    const { interval } = args;
 
-    if (start == null && end == null) {
-        throw Error('Must provide a start or an end argument');
-    }
+    const [time1, time2] = _getStartEndTime(input, args);
 
-    let time1;
-    let time2;
-
-    if (start) {
-        time1 = start;
-        time2 = input;
-    }
-
-    if (end) {
-        time1 = input;
-        time2 = end;
-    }
-
-    const date1 = getValidDate(time1 as Date);
-    const date2 = getValidDate(time2 as Date);
-
-    if (date1 === false || date2 === false) {
-        throw Error('Could not parse date values into dates');
-    }
+    const date1 = getValidDateWithTimezoneOrThrow(time1);
+    const date2 = getValidDateWithTimezoneOrThrow(time2);
 
     if (interval === 'ISO8601') {
         return formatISODuration(intervalToDuration({
@@ -479,6 +496,20 @@ export function getTimeBetween(
     }
 
     return getDurationFunc[interval](date2, date1);
+}
+
+function _getStartEndTime(
+    input: unknown, args: GetTimeBetweenArgs
+): [DateInputTypes, DateInputTypes] {
+    const { start, end } = args;
+
+    if (start == null && end == null) {
+        throw Error('Must provide a start or an end argument');
+    }
+
+    if (start) return [start, input as DateInputTypes];
+
+    return [input as DateInputTypes, end as DateInputTypes];
 }
 
 /**
@@ -491,56 +522,56 @@ export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
 }
 
 export function isSunday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 0;
 }
 
 export function isMonday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 1;
 }
 
 export function isTuesday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 2;
 }
 
 export function isWednesday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 3;
 }
 
 export function isThursday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 4;
 }
 
 export function isFriday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 5;
 }
 
 export function isSaturday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return date.getDay() === 6;
 }
 
 export function isWeekday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     const day = date.getDay();
@@ -548,7 +579,7 @@ export function isWeekday(input: unknown): boolean {
 }
 
 export function isWeekend(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     const day = date.getDay();
@@ -556,42 +587,42 @@ export function isWeekend(input: unknown): boolean {
 }
 
 export function isFuture(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isFuture(date);
 }
 
 export function isPast(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isPast(date);
 }
 
 export function isLeapYear(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isLeapYear(date);
 }
 
 export function isTomorrow(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isTomorrow(date);
 }
 
 export function isToday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isToday(date);
 }
 
 export function isYesterday(input: unknown): boolean {
-    const date = getValidDate(input as any);
+    const date = getValidDateWithTimezone(input as any);
     if (!date) return false;
 
     return _isYesterday(date);
@@ -611,11 +642,7 @@ export type AdjustDateArgs = {
 }
 
 export function addToDate(input: unknown, args: AdjustDateArgs): number {
-    const date = getValidDate(input as any);
-
-    if (date === false) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
-    }
+    const date = getValidDateWithTimezoneOrThrow(input);
 
     if ('expr' in args) {
         return parser.parse(`now+${args.expr}`, date);
@@ -631,11 +658,7 @@ export function addToDateFP(args: AdjustDateArgs): (input: unknown) => number {
 }
 
 export function subtractFromDate(input: unknown, args: AdjustDateArgs): number {
-    const date = getValidDate(input as any);
-
-    if (date === false) {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be a standard date value`);
-    }
+    const date = getValidDateWithTimezoneOrThrow(input);
 
     if ('expr' in args) {
         return parser.parse(`now-${args.expr}`, date);
@@ -650,9 +673,9 @@ export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => nu
     };
 }
 
-export function isBefore(input: unknown, date: Date | string | number): boolean {
-    const date1 = getValidDate(input as Date);
-    const date2 = getValidDate(date);
+export function isBefore(input: unknown, date: DateInputTypes): boolean {
+    const date1 = getValidDateWithTimezone(input as Date);
+    const date2 = getValidDateWithTimezone(date);
 
     if (date1 && date2) {
         return _isBefore(date1, date2);
@@ -661,9 +684,9 @@ export function isBefore(input: unknown, date: Date | string | number): boolean 
     return false;
 }
 
-export function isAfter(input: unknown, date: Date | string | number): boolean {
-    const date1 = getValidDate(input as Date);
-    const date2 = getValidDate(date);
+export function isAfter(input: unknown, date: DateInputTypes): boolean {
+    const date1 = getValidDateWithTimezone(input as Date);
+    const date2 = getValidDateWithTimezone(date);
 
     if (date1 && date2) {
         return _isAfter(date1, date2);
@@ -673,14 +696,14 @@ export function isAfter(input: unknown, date: Date | string | number): boolean {
 }
 
 export function isBetween(input: unknown, args: {
-    start: Date | string | number;
-    end: Date | string | number;
+    start: DateInputTypes;
+    end: DateInputTypes;
 }): boolean {
     const { start, end } = args;
 
-    const inputDate = getValidDate(input as any);
-    const date1 = getValidDate(start as Date);
-    const date2 = getValidDate(end as Date);
+    const inputDate = getValidDateWithTimezone(input);
+    const date1 = getValidDateWithTimezone(start);
+    const date2 = getValidDateWithTimezone(end);
 
     if (inputDate && date1 && date2) {
         return _isAfter(inputDate, date1) && _isBefore(inputDate, date2);
@@ -754,7 +777,7 @@ export function setMinutes(minutes: number): (input: unknown) => number {
     }
 
     return function _setMinutes(input: unknown) {
-        const inputDate = getValidDateOrThrow(input as any);
+        const inputDate = getValidDateWithTimezoneOrThrow(input as any);
         return inputDate.setUTCMinutes(minutes);
     };
 }
@@ -765,7 +788,7 @@ export function setHours(hours: number):(input: unknown) => number {
     }
 
     return function _setHours(input: unknown) {
-        const inputDate = getValidDateOrThrow(input as any);
+        const inputDate = getValidDateWithTimezoneOrThrow(input as any);
         return inputDate.setUTCHours(hours);
     };
 }
@@ -776,7 +799,7 @@ export function setDate(date: number): (input: unknown) => number {
     }
 
     return function _setDate(input: unknown) {
-        const inputDate = getValidDateOrThrow(input as any);
+        const inputDate = getValidDateWithTimezoneOrThrow(input as any);
         return inputDate.setUTCDate(date);
     };
 }
@@ -787,7 +810,7 @@ export function setMonth(month: number): (input: unknown) => number {
     }
 
     return function _setMonth(input: unknown) {
-        const inputDate = getValidDateOrThrow(input as any);
+        const inputDate = getValidDateWithTimezoneOrThrow(input as any);
         return inputDate.setUTCMonth(month - 1);
     };
 }
@@ -798,51 +821,37 @@ export function setYear(year: number): (input: unknown) => number {
     }
 
     return function _setYear(input: unknown) {
-        const inputDate = getValidDateOrThrow(input as any);
+        const inputDate = getValidDateWithTimezoneOrThrow(input as any);
         return inputDate.setUTCFullYear(year);
     };
 }
 
 export function getMilliseconds(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCMilliseconds();
+    return getValidDateOrThrow(input as any).getUTCMilliseconds();
 }
 
 export function getSeconds(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCSeconds();
+    return getValidDateOrThrow(input as any).getUTCSeconds();
 }
 
 export function getMinutes(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCMinutes();
+    return getValidDateWithTimezoneOrThrow(input).getUTCMinutes();
 }
 
 export function getHours(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCHours();
+    return getValidDateWithTimezoneOrThrow(input).getUTCHours();
 }
 
 export function getDate(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCDate();
+    return getValidDateWithTimezoneOrThrow(input).getUTCDate();
 }
 
 export function getMonth(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCMonth() + 1;
+    return getValidDateWithTimezoneOrThrow(input).getUTCMonth() + 1;
 }
 
 export function getYear(input: unknown): number {
-    const inputDate = getValidDateOrThrow(input as any);
-
-    return inputDate.getUTCFullYear();
+    return getValidDateWithTimezoneOrThrow(input).getUTCFullYear();
 }
 
 /** Will convert a date to its epoch millisecond format or throw if invalid  */

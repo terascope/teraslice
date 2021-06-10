@@ -15,17 +15,30 @@ export const toHourlyDateConfig: FieldTransformConfig = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Converts a value to a hourly ISO 8601 date segment',
-    examples: [{
-        args: { },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+    examples: [
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2019-10-22T01:05:20.000Z',
+            output: new Date('2019-10-22T01:00:00.000Z').getTime(),
+            serialize_output: toISO8601
         },
-        field: 'testField',
-        input: '2019-10-22T01:05:20.000Z',
-        output: new Date('2019-10-22T01:00:00.000Z').getTime(),
-        serialize_output: toISO8601
-    }],
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: [new Date('2019-10-22T01:05:20.000Z').getTime(), -120],
+            output: new Date('2019-10-22T03:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        }
+    ],
     create() {
         return trimISODateSegment(ISO8601DateSegment.hourly);
     },

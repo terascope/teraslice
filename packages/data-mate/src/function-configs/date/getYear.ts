@@ -50,12 +50,26 @@ export const getYearConfig: FieldTransformConfig = {
             field: 'testField',
             input: 1510123223231,
             output: 2017
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1621026300000, -420],
+            output: 2021
         }
     ],
     create() {
         return getYear;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

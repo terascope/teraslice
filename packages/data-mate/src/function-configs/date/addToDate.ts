@@ -38,6 +38,16 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         output: new Date('2019-11-22T22:02:00.000Z').getTime(),
         serialize_output: toISO8601
     }, {
+        args: { months: 1, minutes: 2 },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.Date } }
+        },
+        field: 'testField',
+        input: [1571781600000, -60],
+        output: new Date('2019-11-22T23:02:00.000Z').getTime(),
+        serialize_output: toISO8601
+    }, {
         args: {},
         config: {
             version: 1,
@@ -62,7 +72,9 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
         return addToDateFP(args);
     },
     accepts: [
-        FieldType.Date
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
     ],
     argument_schema: {
         expr: {
@@ -122,5 +134,16 @@ For example, \`1h\` or \`1h+2m\``
             const withoutExpr = argKeys.filter((k) => k !== 'expr');
             throw new Error(`Invalid use of ${joinList(withoutExpr)} with expr parameter`);
         }
+    },
+    output_type(inputConfig) {
+        const { field_config } = inputConfig;
+
+        return {
+            field_config: {
+                description: field_config.description,
+                array: field_config.array,
+                type: FieldType.Date
+            },
+        };
     }
 };

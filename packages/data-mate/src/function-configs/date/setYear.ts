@@ -39,6 +39,17 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
             serialize_output: toISO8601
         },
         {
+            args: { value: 2023 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1621026000000, 420],
+            output: new Date('2023-05-14T14:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        },
+        {
             args: { value: 2001 },
             config: {
                 version: 1,
@@ -65,7 +76,11 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
         }
     },
     required_arguments: ['value'],
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
+    ],
     output_type(inputConfig) {
         const { field_config } = inputConfig;
 

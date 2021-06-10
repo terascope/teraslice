@@ -1,4 +1,4 @@
-import { isYesterday, subtractFromDate } from '@terascope/utils';
+import { isYesterday, subtractFromDate, toISO8601 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldValidateConfig
@@ -25,6 +25,14 @@ export const isYesterdayConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
+            field: 'testField',
+            input: [new Date(yesterdayDate).getTime(), 0],
+            output: new Date(yesterdayDate).getTime(),
+            serialize_output: toISO8601
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: yesterdayDate,
@@ -34,7 +42,9 @@ export const isYesterdayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is on the day before (utc-time), otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
     ],
     create() {
         return isYesterday;

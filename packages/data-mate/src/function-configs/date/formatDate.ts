@@ -1,6 +1,6 @@
 import { DateFormat, FieldType } from '@terascope/types';
 import {
-    formatDateValue, getValidDateOrNumberOrThrow
+    formatDateValue, getValidDateWithTimezoneOrThrow
 } from '@terascope/utils';
 import {
     FieldTransformConfig,
@@ -51,6 +51,19 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         input: '1973-03-31T01:55:33.000Z',
         output: 102390933000,
     }, {
+        args: { format: DateFormat.iso_8601 },
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.Date,
+                }
+            }
+        },
+        field: 'testField',
+        input: [1622760480654, 60],
+        output: '2021-06-03T21:48:00.654Z',
+    }, {
         args: {},
         config: {
             version: 1,
@@ -63,14 +76,14 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
     create({ args: { format } }) {
         return function formatDate(input: unknown): string|number {
             return formatDateValue(
-                getValidDateOrNumberOrThrow(input), format
+                getValidDateWithTimezoneOrThrow(input), format
             );
         };
     },
     accepts: [
         FieldType.Date,
         FieldType.String,
-        FieldType.Number,
+        FieldType.Number
     ],
     argument_schema: {
         format: {

@@ -1,6 +1,6 @@
-import { FieldType } from '@terascope/types';
+import { FieldType, GetTimeBetweenArgs } from '@terascope/types';
 import {
-    getTimeBetween, getDurationFunc, joinList, GetTimeBetweenArgs
+    getTimeBetween, getDurationFunc, joinList
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
@@ -47,6 +47,16 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
             output: 1
         },
         {
+            args: { end: '2021-05-10T09:59:00.000+02:00', interval: 'milliseconds' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1620640800000, 180],
+            output: 3540000
+        },
+        {
             args: { end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' },
             config: {
                 version: 1,
@@ -75,7 +85,11 @@ export const getTimeBetweenConfig: FieldTransformConfig<GetTimeBetweenArgs> = {
         return (input: unknown) => getTimeBetween(input, args);
     },
     required_arguments: ['interval'],
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
+    ],
     validate_arguments({ start, end }: GetTimeBetweenArgs) {
         if ((start == null && end == null) || (start != null && end != null)) {
             throw Error('Must provide a start or an end value');

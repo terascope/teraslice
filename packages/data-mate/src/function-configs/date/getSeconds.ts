@@ -40,12 +40,26 @@ export const getSecondsConfig: FieldTransformConfig = {
             field: 'testField',
             input: 1715472323231,
             output: 23
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1621026002000, -420],
+            output: 2
         }
     ],
     create() {
         return getSeconds;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

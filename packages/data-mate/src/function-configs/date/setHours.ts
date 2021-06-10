@@ -41,6 +41,17 @@ export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {
             serialize_output: toISO8601
         },
         {
+            args: { value: 12 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1621026000000, 120],
+            output: new Date('2021-05-14T12:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        },
+        {
             args: { value: 1 },
             config: {
                 version: 1,
@@ -68,7 +79,11 @@ export const setHoursConfig: FieldTransformConfig<SetHoursArgs> = {
         }
     },
     required_arguments: ['value'],
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

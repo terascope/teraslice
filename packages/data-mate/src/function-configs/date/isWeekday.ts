@@ -26,6 +26,13 @@ export const isWeekdayConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
+            field: 'testField',
+            input: [new Date('2021-05-13T10:00:00.000Z').getTime(), 60],
+            output: '2021-05-13T10:00:00.000+01:00'
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2021-05-09T10:00:00.000Z',
@@ -41,7 +48,9 @@ export const isWeekdayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the input if it is on a Weekday (Monday-Friday), otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
     ],
     create() {
         return isWeekday;

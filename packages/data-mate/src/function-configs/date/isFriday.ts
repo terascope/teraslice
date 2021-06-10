@@ -19,6 +19,20 @@ export const isFridayConfig: FieldValidateConfig = {
         },
         {
             args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
+            field: 'testField',
+            input: [1620986400000, -620],
+            output: '2021-05-14T10:00:00.000-10:20'
+        },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
+            field: 'testField',
+            input: [1620936000000, 120], // '2021-05-14T01:00:00.000+02:00'
+            output: null
+        },
+        {
+            args: {},
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2021-05-09T10:00:00.000Z',
@@ -27,7 +41,9 @@ export const isFridayConfig: FieldValidateConfig = {
     ],
     description: 'Returns the given date if it is on a Friday, otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
     ],
     create() {
         return isFriday;

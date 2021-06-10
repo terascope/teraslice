@@ -31,10 +31,19 @@ export const isTomorrowConfig: FieldValidateConfig = {
             output: tomorrowDate,
             description: 'represents day after current time'
         },
+        {
+            args: {},
+            config: { version: 1, fields: { testField: { type: FieldType.Date } } },
+            field: 'testField',
+            input: [new Date(tomorrow).getTime(), 0],
+            output: tomorrowDate
+        },
     ],
     description: 'Returns the input if it is on the next day (utc-time), otherwise returns null',
     accepts: [
-        FieldType.String, FieldType.Date, FieldType.Number
+        FieldType.String,
+        FieldType.Date,
+        FieldType.Number
     ],
     create() {
         return isTomorrow;

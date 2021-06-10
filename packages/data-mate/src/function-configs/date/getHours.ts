@@ -50,12 +50,26 @@ export const getHoursConfig: FieldTransformConfig = {
             field: 'testField',
             input: 17154123223231,
             output: 2
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1621026300000, -420],
+            output: 4
         }
     ],
     create() {
         return getHours;
     },
-    accepts: [FieldType.Date, FieldType.String, FieldType.Number],
+    accepts: [
+        FieldType.Date,
+        FieldType.String,
+        FieldType.Number
+    ],
     output_type({ field_config }) {
         return {
             field_config: {

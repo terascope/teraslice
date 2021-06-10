@@ -1,6 +1,6 @@
 import {
     isNil,
-    flatten
+    flatten,
 } from '@terascope/utils';
 
 /** This function is used to call a function on a value or recursively on a list/sub-list of values
