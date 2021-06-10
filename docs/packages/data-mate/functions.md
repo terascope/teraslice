@@ -13,7 +13,7 @@ sidebar_label: Functions
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isBoolean()
@@ -31,7 +31,7 @@ isBoolean()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isBoolean()
@@ -49,7 +49,7 @@ false
 false
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isBoolean()
@@ -67,7 +67,7 @@ isBoolean()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isBoolean()
@@ -85,7 +85,7 @@ isBoolean()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isBoolean()
@@ -111,7 +111,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isBooleanLike()
@@ -129,7 +129,7 @@ isBooleanLike()
 'TRUE'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isBooleanLike()
@@ -147,7 +147,7 @@ isBooleanLike()
 'false'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isBooleanLike()
@@ -165,7 +165,7 @@ isBooleanLike()
 1
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isBooleanLike()
@@ -183,7 +183,7 @@ isBooleanLike()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isBooleanLike()
@@ -209,7 +209,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toBoolean()
@@ -227,7 +227,7 @@ toBoolean()
 true
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toBoolean()
@@ -245,7 +245,7 @@ toBoolean()
 true
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toBoolean()
@@ -263,7 +263,7 @@ toBoolean()
 false
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toBoolean()
@@ -304,7 +304,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoContains({ value: '33.435518,-111.873616' })
@@ -322,7 +322,7 @@ geoContains({ value: '33.435518,-111.873616' })
 '33.435518,-111.873616'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoContains({ value: { type: 'Point', coordinates: [ -111.873616, 33.435518 ] } })
@@ -340,7 +340,7 @@ geoContains({ value: { type: 'Point', coordinates: [ -111.873616, 33.435518 ] } 
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -364,7 +364,7 @@ geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 geoContains({
@@ -428,7 +428,7 @@ geoContains({
 }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
@@ -478,7 +478,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
@@ -496,7 +496,7 @@ geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
 '33.435967,-111.867710'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
@@ -535,7 +535,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -553,7 +553,7 @@ geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 '-33.435967,-111.867710'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -571,7 +571,7 @@ geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoDisjoint({
@@ -600,7 +600,7 @@ geoDisjoint({
 }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 geoDisjoint({
@@ -658,7 +658,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -676,7 +676,7 @@ geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -700,7 +700,7 @@ geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoIntersects({
@@ -774,7 +774,7 @@ geoIntersects({
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoRelation({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -792,7 +792,7 @@ geoRelation({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 '20,20'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoRelation({
@@ -813,7 +813,7 @@ geoRelation({
 '20,20'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoRelation({
@@ -834,7 +834,7 @@ geoRelation({
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 geoRelation({
@@ -864,7 +864,7 @@ geoRelation({
 }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 geoRelation({
@@ -891,7 +891,7 @@ geoRelation({
 }
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 geoRelation({
@@ -936,7 +936,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -954,7 +954,7 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 { type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -972,7 +972,7 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 '20,20'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
@@ -996,7 +996,7 @@ geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 geoWithin({
@@ -1060,7 +1060,7 @@ geoWithin({
 }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 geoWithin({
@@ -1124,7 +1124,7 @@ geoWithin({
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 geoContainsPoint({ point: '15, 15' })
@@ -1148,7 +1148,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 geoContainsPoint({ point: '15, 15' })
@@ -1194,7 +1194,7 @@ geoContainsPoint({ point: '15, 15' })
 }
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 geoContainsPoint({ point: '15, 15' })
@@ -1232,7 +1232,7 @@ null
 
 Point is within a polygon with holes
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 geoContainsPoint({ point: '15, 15' })
@@ -1264,7 +1264,7 @@ geoContainsPoint({ point: '15, 15' })
 
 Point can match against a geo-shape point
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 geoContainsPoint({ point: '15, 15' })
@@ -1306,7 +1306,7 @@ geoContainsPoint({ point: '15, 15' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 inGeoBoundingBox({
@@ -1327,7 +1327,7 @@ inGeoBoundingBox({
 '33.2,-112.3'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 inGeoBoundingBox({
@@ -1348,7 +1348,7 @@ inGeoBoundingBox({
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 inGeoBoundingBox({
@@ -1382,7 +1382,7 @@ inGeoBoundingBox({
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGeoJSON()
@@ -1400,7 +1400,7 @@ isGeoJSON()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGeoJSON()
@@ -1418,7 +1418,7 @@ isGeoJSON()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGeoJSON()
@@ -1436,7 +1436,7 @@ isGeoJSON()
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isGeoJSON()
@@ -1460,7 +1460,7 @@ isGeoJSON()
 }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isGeoJSON()
@@ -1514,7 +1514,7 @@ isGeoJSON()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGeoPoint()
@@ -1532,7 +1532,7 @@ isGeoPoint()
 '60,40'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGeoPoint()
@@ -1550,7 +1550,7 @@ isGeoPoint()
 [ 60, 40 ]
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGeoPoint()
@@ -1568,7 +1568,7 @@ isGeoPoint()
 { lat: 60, lon: 40 }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isGeoPoint()
@@ -1586,7 +1586,7 @@ isGeoPoint()
 { latitude: 60, longitude: 40 }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isGeoPoint()
@@ -1617,7 +1617,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGeoShapeMultiPolygon()
@@ -1635,7 +1635,7 @@ isGeoShapeMultiPolygon()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGeoShapeMultiPolygon()
@@ -1656,7 +1656,7 @@ isGeoShapeMultiPolygon()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGeoShapeMultiPolygon()
@@ -1715,7 +1715,7 @@ isGeoShapeMultiPolygon()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGeoShapePoint()
@@ -1733,7 +1733,7 @@ isGeoShapePoint()
 { type: 'Point', coordinates: [ 12, 12 ] }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGeoShapePoint()
@@ -1754,7 +1754,7 @@ isGeoShapePoint()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGeoShapePoint()
@@ -1799,7 +1799,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGeoShapePolygon()
@@ -1817,7 +1817,7 @@ isGeoShapePolygon()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGeoShapePolygon()
@@ -1841,7 +1841,7 @@ isGeoShapePolygon()
 }
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGeoShapePolygon()
@@ -1890,7 +1890,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toGeoJSON()
@@ -1908,7 +1908,7 @@ toGeoJSON()
 { type: 'Point', coordinates: [ 40, 60 ] }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toGeoJSON()
@@ -1929,7 +1929,7 @@ toGeoJSON()
 }
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toGeoJSON()
@@ -1992,7 +1992,7 @@ toGeoJSON()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toGeoPoint()
@@ -2010,7 +2010,7 @@ toGeoPoint()
 { lon: 40, lat: 60 }
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toGeoPoint()
@@ -2028,7 +2028,7 @@ toGeoPoint()
 { lon: 60, lat: 40 }
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toGeoPoint()
@@ -2046,7 +2046,7 @@ toGeoPoint()
 { lon: 50, lat: 60 }
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toGeoPoint()
@@ -2085,7 +2085,7 @@ toGeoPoint()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setDefault({ value: 'example' })
@@ -2103,7 +2103,7 @@ null
 'example'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setDefault({ value: 'example' })
@@ -2129,7 +2129,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toJSON()
@@ -2147,7 +2147,7 @@ toJSON()
 '278218429446951548637196400'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toJSON()
@@ -2165,7 +2165,7 @@ false
 'false'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toJSON()
@@ -2183,7 +2183,7 @@ toJSON()
 '{"some":1234}'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toJSON()
@@ -2238,7 +2238,7 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 addToDate({ expr: '10h+2m' })
@@ -2256,7 +2256,7 @@ addToDate({ expr: '10h+2m' })
 '2019-10-23T08:02:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 addToDate({ months: 1, minutes: 2 })
@@ -2274,7 +2274,7 @@ addToDate({ months: 1, minutes: 2 })
 '2019-11-22T22:02:00.000Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 addToDate()
@@ -2289,7 +2289,7 @@ addToDate()
 <small>Throws:</small>
 `Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 addToDate({ expr: '1hr', months: 10 })
@@ -2324,7 +2324,7 @@ Default: iso_8601 for strings and epoch_millis for numbers
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 formatDate({ format: 'yyyy-MM-dd' })
@@ -2342,7 +2342,7 @@ formatDate({ format: 'yyyy-MM-dd' })
 '2019-10-22'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 formatDate()
@@ -2360,7 +2360,7 @@ formatDate()
 '1970-01-02T04:26:30.933Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 formatDate({ format: 'milliseconds' })
@@ -2378,7 +2378,7 @@ formatDate({ format: 'milliseconds' })
 102390933000
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 formatDate()
@@ -2410,7 +2410,7 @@ formatDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getDate()
@@ -2428,7 +2428,7 @@ getDate()
 11
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getDate()
@@ -2446,7 +2446,7 @@ getDate()
 16
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getDate()
@@ -2464,7 +2464,7 @@ getDate()
 22
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getDate()
@@ -2496,7 +2496,7 @@ getDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getHours()
@@ -2514,7 +2514,7 @@ getHours()
 10
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getHours()
@@ -2532,7 +2532,7 @@ getHours()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getHours()
@@ -2550,7 +2550,7 @@ getHours()
 5
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getHours()
@@ -2582,7 +2582,7 @@ getHours()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getMilliseconds()
@@ -2600,7 +2600,7 @@ getMilliseconds()
 91
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getMilliseconds()
@@ -2618,7 +2618,7 @@ getMilliseconds()
 91
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getMilliseconds()
@@ -2650,7 +2650,7 @@ getMilliseconds()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getMinutes()
@@ -2668,7 +2668,7 @@ getMinutes()
 12
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getMinutes()
@@ -2686,7 +2686,7 @@ getMinutes()
 59
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getMinutes()
@@ -2718,7 +2718,7 @@ getMinutes()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getMonth()
@@ -2736,7 +2736,7 @@ getMonth()
 5
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getMonth()
@@ -2754,7 +2754,7 @@ getMonth()
 5
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getMonth()
@@ -2772,7 +2772,7 @@ getMonth()
 5
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getMonth()
@@ -2804,7 +2804,7 @@ getMonth()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getSeconds()
@@ -2822,7 +2822,7 @@ getSeconds()
 41
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getSeconds()
@@ -2840,7 +2840,7 @@ getSeconds()
 19
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getSeconds()
@@ -2880,7 +2880,7 @@ getSeconds()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
@@ -2898,7 +2898,7 @@ getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
 1000
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
@@ -2916,7 +2916,7 @@ getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
 1
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getTimeBetween({ end: 1620764441001, interval: 'seconds' })
@@ -2934,7 +2934,7 @@ getTimeBetween({ end: 1620764441001, interval: 'seconds' })
 1
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
@@ -2971,7 +2971,7 @@ getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getTimezoneOffset({ timezone: 'Africa/Accra' })
@@ -2989,7 +2989,7 @@ getTimezoneOffset({ timezone: 'Africa/Accra' })
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getTimezoneOffset({ timezone: 'America/Anchorage' })
@@ -3007,7 +3007,7 @@ getTimezoneOffset({ timezone: 'America/Anchorage' })
 -480
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getTimezoneOffset({ timezone: 'America/Aruba' })
@@ -3025,7 +3025,7 @@ getTimezoneOffset({ timezone: 'America/Aruba' })
 -240
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getTimezoneOffset({ timezone: 'Asia/Istanbul' })
@@ -3043,7 +3043,7 @@ getTimezoneOffset({ timezone: 'Asia/Istanbul' })
 180
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 getTimezoneOffset({ timezone: 'Australia/Canberra' })
@@ -3075,7 +3075,7 @@ getTimezoneOffset({ timezone: 'Australia/Canberra' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getYear()
@@ -3093,7 +3093,7 @@ getYear()
 2021
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getYear()
@@ -3111,7 +3111,7 @@ getYear()
 2021
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getYear()
@@ -3129,7 +3129,7 @@ getYear()
 2021
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 getYear()
@@ -3164,7 +3164,7 @@ getYear()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 lookupTimezone()
@@ -3184,7 +3184,7 @@ lookupTimezone()
 
 In ocean outside Morocco
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 lookupTimezone()
@@ -3202,7 +3202,7 @@ lookupTimezone()
 'Etc/GMT+1'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 lookupTimezone()
@@ -3220,7 +3220,7 @@ lookupTimezone()
 'Africa/Khartoum'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 lookupTimezone()
@@ -3256,7 +3256,7 @@ lookupTimezone()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setDate({ value: 12 })
@@ -3274,7 +3274,7 @@ setDate({ value: 12 })
 '2021-05-12T20:45:30.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setDate({ value: 22 })
@@ -3292,7 +3292,7 @@ setDate({ value: 22 })
 '2021-05-22T20:45:30.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setDate({ value: 1 })
@@ -3328,7 +3328,7 @@ setDate({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setHours({ value: 12 })
@@ -3346,7 +3346,7 @@ setHours({ value: 12 })
 '2021-05-14T12:45:30.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setHours({ value: 22 })
@@ -3364,7 +3364,7 @@ setHours({ value: 22 })
 '2021-05-14T22:45:30.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setHours({ value: 1 })
@@ -3400,7 +3400,7 @@ setHours({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setMilliseconds({ value: 392 })
@@ -3418,7 +3418,7 @@ setMilliseconds({ value: 392 })
 '2021-05-14T20:45:30.392Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setMilliseconds({ value: 483 })
@@ -3436,7 +3436,7 @@ setMilliseconds({ value: 483 })
 '2021-05-14T20:45:30.483Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setMilliseconds({ value: 1 })
@@ -3472,7 +3472,7 @@ setMilliseconds({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setMinutes({ value: 12 })
@@ -3490,7 +3490,7 @@ setMinutes({ value: 12 })
 '2021-05-14T20:12:30.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setMinutes({ value: 22 })
@@ -3508,7 +3508,7 @@ setMinutes({ value: 22 })
 '2021-05-14T20:22:30.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setMinutes({ value: 1 })
@@ -3544,7 +3544,7 @@ setMinutes({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setMonth({ value: 12 })
@@ -3562,7 +3562,7 @@ setMonth({ value: 12 })
 '2021-12-14T20:45:30.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setMonth({ value: 2 })
@@ -3580,7 +3580,7 @@ setMonth({ value: 2 })
 '2021-02-14T20:45:30.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setMonth({ value: 1 })
@@ -3616,7 +3616,7 @@ setMonth({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setSeconds({ value: 12 })
@@ -3634,7 +3634,7 @@ setSeconds({ value: 12 })
 '2021-05-14T20:45:12.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setSeconds({ value: 22 })
@@ -3652,7 +3652,7 @@ setSeconds({ value: 22 })
 '2021-05-14T20:45:22.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setSeconds({ value: 1 })
@@ -3688,7 +3688,7 @@ setSeconds({ value: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setTimezone({ timezone: 420 })
@@ -3706,7 +3706,7 @@ setTimezone({ timezone: 420 })
 '2021-05-14T20:45:30.000+07:00'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setTimezone({ timezone: 120 })
@@ -3742,7 +3742,7 @@ setTimezone({ timezone: 120 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setYear({ value: 2024 })
@@ -3760,7 +3760,7 @@ setYear({ value: 2024 })
 '2024-05-14T20:45:30.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setYear({ value: 1984 })
@@ -3778,7 +3778,7 @@ setYear({ value: 1984 })
 '1984-05-14T20:45:30.091Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setYear({ value: 2023 })
@@ -3796,7 +3796,7 @@ setYear({ value: 2023 })
 '2023-05-14T14:00:00.000Z'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 setYear({ value: 2001 })
@@ -3847,7 +3847,7 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 subtractFromDate({ expr: '10h+2m' })
@@ -3865,7 +3865,7 @@ subtractFromDate({ expr: '10h+2m' })
 '2019-10-22T12:02:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 subtractFromDate({ months: 1, minutes: 2 })
@@ -3883,7 +3883,7 @@ subtractFromDate({ months: 1, minutes: 2 })
 '2019-09-22T21:58:00.000Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 subtractFromDate()
@@ -3898,7 +3898,7 @@ subtractFromDate()
 <small>Throws:</small>
 `Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 subtractFromDate({ expr: '1hr', months: 10 })
@@ -3939,7 +3939,7 @@ subtractFromDate({ expr: '1hr', months: 10 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toDailyDate()
@@ -3957,7 +3957,7 @@ toDailyDate()
 '2019-10-22T00:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toDailyDate()
@@ -3995,7 +3995,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toDate({ format: 'yyyy-MM-dd' })
@@ -4013,7 +4013,7 @@ toDate({ format: 'yyyy-MM-dd' })
 '2019-10-22T00:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toDate()
@@ -4031,7 +4031,7 @@ toDate()
 '1970-01-02T04:26:30.933Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toDate({ format: 'seconds' })
@@ -4049,7 +4049,7 @@ toDate({ format: 'seconds' })
 '1973-03-31T01:55:33.000Z'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toDate({ format: 'milliseconds' })
@@ -4067,7 +4067,7 @@ toDate({ format: 'milliseconds' })
 '1973-03-31T01:55:33.000Z'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 toDate()
@@ -4099,7 +4099,7 @@ toDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toHourlyDate()
@@ -4131,7 +4131,7 @@ toHourlyDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toMonthlyDate()
@@ -4149,7 +4149,7 @@ toMonthlyDate()
 '2019-10-01T00:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toMonthlyDate()
@@ -4181,7 +4181,7 @@ toMonthlyDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toYearlyDate()
@@ -4217,7 +4217,7 @@ toYearlyDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
@@ -4235,7 +4235,7 @@ isAfter({ date: '2021-05-09T10:00:00.000Z' })
 '2021-05-10T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isAfter({ date: 1620554400000 })
@@ -4253,7 +4253,7 @@ isAfter({ date: 1620554400000 })
 '2021-05-10T10:00:00.000Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isAfter({ date: '2021-05-09T10:00:00.000Z' })
@@ -4271,7 +4271,7 @@ isAfter({ date: '2021-05-09T10:00:00.000Z' })
 1620640800000
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isAfter({ date: '2021-05-10T10:00:00.000Z' })
@@ -4289,7 +4289,7 @@ isAfter({ date: '2021-05-10T10:00:00.000Z' })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isAfter({ date: [ 1620640800000, -420 ] })
@@ -4325,7 +4325,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
@@ -4343,7 +4343,7 @@ isBefore({ date: '2021-05-10T10:00:00.000Z' })
 '2021-05-09T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
@@ -4361,7 +4361,7 @@ isBefore({ date: '2021-05-10T10:00:00.000Z' })
 1620554400000
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isBefore({ date: 1620640800000 })
@@ -4379,7 +4379,7 @@ isBefore({ date: 1620640800000 })
 '2021-05-09T10:00:00.000Z'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isBefore({ date: '2021-05-10T10:00:00.000Z' })
@@ -4417,7 +4417,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
@@ -4435,7 +4435,7 @@ isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' }
 '2021-05-10T10:00:00.001Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isBetween({ start: 1620554400000, end: 1620640800000 })
@@ -4453,7 +4453,7 @@ isBetween({ start: 1620554400000, end: 1620640800000 })
 1620554401000
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
@@ -4471,7 +4471,7 @@ isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' }
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
@@ -4509,7 +4509,7 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isDate({ format: 'yyyy-MM-dd' })
@@ -4527,7 +4527,7 @@ isDate({ format: 'yyyy-MM-dd' })
 '2019-10-22'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isDate({ format: 'yyyy-MM-dd' })
@@ -4545,7 +4545,7 @@ isDate({ format: 'yyyy-MM-dd' })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isDate({ format: 'epoch' })
@@ -4563,7 +4563,7 @@ isDate({ format: 'epoch' })
 102390933
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isDate()
@@ -4598,7 +4598,7 @@ isDate()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isEpoch()
@@ -4616,7 +4616,7 @@ isEpoch()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isEpoch()
@@ -4634,7 +4634,7 @@ isEpoch()
 102390933
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isEpoch()
@@ -4652,7 +4652,7 @@ isEpoch()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isEpoch({ allowBefore1970: false })
@@ -4670,7 +4670,7 @@ isEpoch({ allowBefore1970: false })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isEpoch()
@@ -4704,7 +4704,7 @@ isEpoch()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isEpochMillis()
@@ -4722,7 +4722,7 @@ isEpochMillis()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isEpochMillis()
@@ -4740,7 +4740,7 @@ isEpochMillis()
 102390933
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isEpochMillis()
@@ -4758,7 +4758,7 @@ isEpochMillis()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isEpochMillis({ allowBefore1970: false })
@@ -4776,7 +4776,7 @@ isEpochMillis({ allowBefore1970: false })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isEpochMillis()
@@ -4808,7 +4808,7 @@ isEpochMillis()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isFriday()
@@ -4826,7 +4826,7 @@ isFriday()
 '2021-05-14T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isFriday()
@@ -4844,7 +4844,7 @@ isFriday()
 '2021-05-14T10:00:00.000-10:20'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isFriday()
@@ -4876,7 +4876,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isFuture()
@@ -4894,7 +4894,7 @@ isFuture()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isFuture()
@@ -4926,7 +4926,7 @@ isFuture()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isISO8601()
@@ -4944,7 +4944,7 @@ isISO8601()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isISO8601()
@@ -4962,7 +4962,7 @@ isISO8601()
 '2001-01-01T01:00:00.000Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isISO8601()
@@ -4994,7 +4994,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isLeapYear()
@@ -5012,7 +5012,7 @@ isLeapYear()
 '2020-05-10T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isLeapYear()
@@ -5030,7 +5030,7 @@ isLeapYear()
 '2020-05-10T10:00:00.000+01:00'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isLeapYear()
@@ -5062,7 +5062,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isMonday()
@@ -5080,7 +5080,7 @@ isMonday()
 '2021-05-10T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isMonday()
@@ -5112,7 +5112,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isPast()
@@ -5130,7 +5130,7 @@ isPast()
 '2021-05-10T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isPast()
@@ -5162,7 +5162,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isSaturday()
@@ -5180,7 +5180,7 @@ isSaturday()
 '2021-05-08T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isSaturday()
@@ -5212,7 +5212,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isSunday()
@@ -5230,7 +5230,7 @@ isSunday()
 '2021-05-09T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isSunday()
@@ -5262,7 +5262,7 @@ isSunday()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isThursday()
@@ -5280,7 +5280,7 @@ isThursday()
 '2021-05-13T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isThursday()
@@ -5314,7 +5314,7 @@ null
 
 This input is created at execution time
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isToday()
@@ -5323,16 +5323,16 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:36:00.946Z'
+'2021-06-10T22:49:25.506Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-10T22:36:00.946Z'
+'2021-06-10T22:49:25.506Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isToday()
@@ -5366,7 +5366,7 @@ null
 
 Represents current time
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isTomorrow()
@@ -5375,7 +5375,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:36:00.946Z'
+'2021-06-10T22:49:25.507Z'
 ```
 
 <small>Output:</small>
@@ -5386,7 +5386,7 @@ null
 
 Represents day after current time
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isTomorrow()
@@ -5395,13 +5395,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-11T22:36:00.946Z'
+'2021-06-11T22:49:25.507Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-11T22:36:00.946Z'
+'2021-06-11T22:49:25.507Z'
 ```
 
 ### `isTuesday`
@@ -5418,7 +5418,7 @@ isTomorrow()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isTuesday()
@@ -5436,7 +5436,7 @@ isTuesday()
 '2021-05-11T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isTuesday()
@@ -5468,7 +5468,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isWednesday()
@@ -5486,7 +5486,7 @@ isWednesday()
 '2021-05-12T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isWednesday()
@@ -5518,7 +5518,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isWeekday()
@@ -5536,7 +5536,7 @@ isWeekday()
 '2021-05-12T10:00:00.000Z'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isWeekday()
@@ -5554,7 +5554,7 @@ isWeekday()
 '2021-05-13T10:00:00.000Z'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isWeekday()
@@ -5572,7 +5572,7 @@ isWeekday()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isWeekday()
@@ -5604,7 +5604,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isWeekend()
@@ -5622,7 +5622,7 @@ isWeekend()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isWeekend()
@@ -5640,7 +5640,7 @@ isWeekend()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isWeekend()
@@ -5658,7 +5658,7 @@ isWeekend()
 '2021-05-09T10:00:00.000Z'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isWeekend()
@@ -5692,7 +5692,7 @@ isWeekend()
 
 Represents current time
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isYesterday()
@@ -5701,7 +5701,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:36:00.949Z'
+'2021-06-10T22:49:25.510Z'
 ```
 
 <small>Output:</small>
@@ -5712,7 +5712,7 @@ null
 
 Represents day before current time
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isYesterday()
@@ -5721,13 +5721,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-09T22:36:00.949Z'
+'2021-06-09T22:49:25.510Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-09T22:36:00.949Z'
+'2021-06-09T22:49:25.510Z'
 ```
 
 ## CATEGORY: Numeric
@@ -5744,7 +5744,7 @@ isYesterday()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 abs()
@@ -5774,7 +5774,7 @@ abs()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 acos()
@@ -5804,7 +5804,7 @@ acos()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 acosh()
@@ -5824,7 +5824,7 @@ acosh()
 
 Since this function doesn't work with numbers <=0, null will be returned
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 acosh()
@@ -5858,7 +5858,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 add({ value: 1 })
@@ -5876,7 +5876,7 @@ add({ value: 1 })
 11
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 add({ value: 5 })
@@ -5894,7 +5894,7 @@ add({ value: 5 })
 15
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 add({ value: -5 })
@@ -5912,7 +5912,7 @@ add({ value: -5 })
 5
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 add({ value: 12 })
@@ -5942,7 +5942,7 @@ add({ value: 12 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 addValues()
@@ -5960,7 +5960,7 @@ addValues()
 110
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 addValues()
@@ -5978,7 +5978,7 @@ addValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 addValues()
@@ -5996,7 +5996,7 @@ addValues()
 100012
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 addValues()
@@ -6014,7 +6014,7 @@ addValues()
 100012
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 addValues()
@@ -6044,7 +6044,7 @@ addValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 asin()
@@ -6074,7 +6074,7 @@ asin()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 asinh()
@@ -6104,7 +6104,7 @@ asinh()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 atan()
@@ -6134,7 +6134,7 @@ atan()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 atan2()
@@ -6152,7 +6152,7 @@ atan2()
 1.4056476493802699
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 atan2()
@@ -6170,7 +6170,7 @@ atan2()
 0.16514867741462683
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 atan2()
@@ -6197,7 +6197,7 @@ atan2()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 atanh()
@@ -6217,7 +6217,7 @@ atanh()
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 atanh()
@@ -6247,7 +6247,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 cbrt()
@@ -6265,7 +6265,7 @@ cbrt()
 4
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 cbrt()
@@ -6295,7 +6295,7 @@ cbrt()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 ceil()
@@ -6313,7 +6313,7 @@ ceil()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 ceil()
@@ -6331,7 +6331,7 @@ ceil()
 1
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 ceil()
@@ -6361,7 +6361,7 @@ ceil()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 clz32()
@@ -6379,7 +6379,7 @@ clz32()
 31
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 clz32()
@@ -6397,7 +6397,7 @@ clz32()
 22
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 clz32()
@@ -6427,7 +6427,7 @@ clz32()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 cos()
@@ -6445,7 +6445,7 @@ cos()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 cos()
@@ -6463,7 +6463,7 @@ cos()
 -1
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 cos()
@@ -6493,7 +6493,7 @@ cos()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 cosh()
@@ -6511,7 +6511,7 @@ cosh()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 cosh()
@@ -6545,7 +6545,7 @@ cosh()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 divide({ value: 5 })
@@ -6563,7 +6563,7 @@ divide({ value: 5 })
 2
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 divide({ value: 1 })
@@ -6581,7 +6581,7 @@ divide({ value: 1 })
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 divide({ value: 2 })
@@ -6611,7 +6611,7 @@ divide({ value: 2 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 divideValues()
@@ -6629,7 +6629,7 @@ divideValues()
 10
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 divideValues()
@@ -6647,7 +6647,7 @@ divideValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 divideValues()
@@ -6665,7 +6665,7 @@ divideValues()
 0.00005
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 divideValues()
@@ -6683,7 +6683,7 @@ divideValues()
 0.00005
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 divideValues()
@@ -6713,7 +6713,7 @@ divideValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 exp()
@@ -6731,7 +6731,7 @@ exp()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 exp()
@@ -6761,7 +6761,7 @@ exp()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 expm1()
@@ -6779,7 +6779,7 @@ expm1()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 expm1()
@@ -6809,7 +6809,7 @@ expm1()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 floor()
@@ -6827,7 +6827,7 @@ floor()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 floor()
@@ -6845,7 +6845,7 @@ floor()
 0
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 floor()
@@ -6875,7 +6875,7 @@ floor()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 fround()
@@ -6893,7 +6893,7 @@ fround()
 5.5
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 fround()
@@ -6923,7 +6923,7 @@ fround()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 hypot()
@@ -6941,7 +6941,7 @@ hypot()
 5
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 hypot()
@@ -6959,7 +6959,7 @@ hypot()
 13
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 hypot()
@@ -6977,7 +6977,7 @@ hypot()
 7.0710678118654755
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 hypot()
@@ -7007,7 +7007,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 log()
@@ -7025,7 +7025,7 @@ log()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 log()
@@ -7043,7 +7043,7 @@ log()
 2.302585092994046
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 log()
@@ -7073,7 +7073,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 log1p()
@@ -7091,7 +7091,7 @@ log1p()
 0.6931471805599453
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 log1p()
@@ -7111,7 +7111,7 @@ log1p()
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 log1p()
@@ -7131,7 +7131,7 @@ null
 
 Typically this would return NaN but that cannot be stored or serialized so null is returned
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 log1p()
@@ -7161,7 +7161,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 log2()
@@ -7181,7 +7181,7 @@ log2()
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 log2()
@@ -7199,7 +7199,7 @@ log2()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 log2()
@@ -7229,7 +7229,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 log10()
@@ -7249,7 +7249,7 @@ log10()
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 log10()
@@ -7267,7 +7267,7 @@ log10()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 log10()
@@ -7297,7 +7297,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 maxValues()
@@ -7315,7 +7315,7 @@ maxValues()
 100
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 maxValues()
@@ -7333,7 +7333,7 @@ maxValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 maxValues()
@@ -7351,7 +7351,7 @@ maxValues()
 100000
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 maxValues()
@@ -7369,7 +7369,7 @@ maxValues()
 100000
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 maxValues()
@@ -7399,7 +7399,7 @@ maxValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 minValues()
@@ -7417,7 +7417,7 @@ minValues()
 10
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 minValues()
@@ -7435,7 +7435,7 @@ minValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 minValues()
@@ -7453,7 +7453,7 @@ minValues()
 2
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 minValues()
@@ -7471,7 +7471,7 @@ minValues()
 2
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 minValues()
@@ -7506,7 +7506,7 @@ minValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 modulus({ value: 2 })
@@ -7524,7 +7524,7 @@ modulus({ value: 2 })
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 modulus({ value: 2 })
@@ -7542,7 +7542,7 @@ modulus({ value: 2 })
 1
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 modulus({ value: -5 })
@@ -7560,7 +7560,7 @@ modulus({ value: -5 })
 0
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 modulus({ value: 10 })
@@ -7594,7 +7594,7 @@ modulus({ value: 10 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 multiply({ value: 5 })
@@ -7612,7 +7612,7 @@ multiply({ value: 5 })
 50
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 multiply({ value: -2 })
@@ -7630,7 +7630,7 @@ multiply({ value: -2 })
 -20
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 multiply({ value: 2 })
@@ -7660,7 +7660,7 @@ multiply({ value: 2 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 multiplyValues()
@@ -7678,7 +7678,7 @@ multiplyValues()
 1000
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 multiplyValues()
@@ -7696,7 +7696,7 @@ multiplyValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 multiplyValues()
@@ -7714,7 +7714,7 @@ multiplyValues()
 2000000
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 multiplyValues()
@@ -7732,7 +7732,7 @@ multiplyValues()
 2000000
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 multiplyValues()
@@ -7767,7 +7767,7 @@ multiplyValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 pow({ value: 3 })
@@ -7785,7 +7785,7 @@ pow({ value: 3 })
 343
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 pow({ value: 0.5 })
@@ -7817,7 +7817,7 @@ pow({ value: 0.5 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 random({ min: 1, max: 1 })
@@ -7847,7 +7847,7 @@ random({ min: 1, max: 1 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 round()
@@ -7865,7 +7865,7 @@ round()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 round()
@@ -7883,7 +7883,7 @@ round()
 0
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 round()
@@ -7921,7 +7921,7 @@ round()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 setPrecision({ digits: 1, truncate: false })
@@ -7939,7 +7939,7 @@ setPrecision({ digits: 1, truncate: false })
 10.1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 setPrecision({ digits: 1, truncate: true })
@@ -7957,7 +7957,7 @@ setPrecision({ digits: 1, truncate: true })
 10.2
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 setPrecision({ digits: 1, truncate: false })
@@ -7975,7 +7975,7 @@ setPrecision({ digits: 1, truncate: false })
 10.3
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 setPrecision({ digits: 2 })
@@ -7993,7 +7993,7 @@ setPrecision({ digits: 2 })
 3.14
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 setPrecision({ digits: 0 })
@@ -8011,7 +8011,7 @@ setPrecision({ digits: 0 })
 3
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 setPrecision({ digits: -1 })
@@ -8026,7 +8026,7 @@ setPrecision({ digits: -1 })
 <small>Throws:</small>
 `Expected digits to be between 0-100`
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 setPrecision({ digits: 1000 })
@@ -8041,7 +8041,7 @@ setPrecision({ digits: 1000 })
 <small>Throws:</small>
 `Expected digits to be between 0-100`
 
-##### Example (8)
+**# Example (8)**
 
 ```ts
 setPrecision({ digits: 2, truncate: true })
@@ -8059,7 +8059,7 @@ setPrecision({ digits: 2, truncate: true })
 { lat: 32.12, lon: -20.95 }
 ```
 
-##### Example (9)
+**# Example (9)**
 
 ```ts
 setPrecision({ digits: 2, truncate: true })
@@ -8094,7 +8094,7 @@ setPrecision({ digits: 2, truncate: true })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 sign()
@@ -8112,7 +8112,7 @@ sign()
 1
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 sign()
@@ -8130,7 +8130,7 @@ sign()
 -1
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 sign()
@@ -8160,7 +8160,7 @@ sign()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 sin()
@@ -8178,7 +8178,7 @@ sin()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 sin()
@@ -8196,7 +8196,7 @@ sin()
 0.8414709848078965
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 sin()
@@ -8226,7 +8226,7 @@ sin()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 sinh()
@@ -8244,7 +8244,7 @@ sinh()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 sinh()
@@ -8262,7 +8262,7 @@ sinh()
 1.1752011936438014
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 sinh()
@@ -8292,7 +8292,7 @@ sinh()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 sqrt()
@@ -8310,7 +8310,7 @@ sqrt()
 3
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 sqrt()
@@ -8328,7 +8328,7 @@ sqrt()
 1.4142135623730951
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 sqrt()
@@ -8362,7 +8362,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 subtract({ value: 1 })
@@ -8380,7 +8380,7 @@ subtract({ value: 1 })
 9
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 subtract({ value: 5 })
@@ -8398,7 +8398,7 @@ subtract({ value: 5 })
 5
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 subtract({ value: -5 })
@@ -8416,7 +8416,7 @@ subtract({ value: -5 })
 15
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 subtract({ value: 2 })
@@ -8446,7 +8446,7 @@ subtract({ value: 2 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 subtractValues()
@@ -8464,7 +8464,7 @@ subtractValues()
 90
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 subtractValues()
@@ -8482,7 +8482,7 @@ subtractValues()
 10
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 subtractValues()
@@ -8500,7 +8500,7 @@ subtractValues()
 -99992
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 subtractValues()
@@ -8518,7 +8518,7 @@ subtractValues()
 -99992
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 subtractValues()
@@ -8548,7 +8548,7 @@ subtractValues()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 tan()
@@ -8578,7 +8578,7 @@ tan()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 tanh()
@@ -8596,7 +8596,7 @@ tanh()
 -0.7615941559557649
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 tanh()
@@ -8626,7 +8626,7 @@ tanh()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toCelsius()
@@ -8644,7 +8644,7 @@ toCelsius()
 0
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toCelsius()
@@ -8674,7 +8674,7 @@ toCelsius()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toFahrenheit()
@@ -8692,7 +8692,7 @@ toFahrenheit()
 32
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toFahrenheit()
@@ -8718,7 +8718,7 @@ toFahrenheit()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toNumber()
@@ -8736,7 +8736,7 @@ toNumber()
 1.3890472347692343e+31
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toNumber()
@@ -8754,7 +8754,7 @@ toNumber()
 22
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toNumber()
@@ -8772,7 +8772,7 @@ toNumber()
 22
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toNumber()
@@ -8790,7 +8790,7 @@ toNumber()
 168829138
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 toNumber()
@@ -8808,7 +8808,7 @@ toNumber()
 '42540488320432167789079031612388147199'
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 toNumber()
@@ -8846,7 +8846,7 @@ toNumber()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 inNumberRange({ min: 100, max: 110 })
@@ -8864,7 +8864,7 @@ inNumberRange({ min: 100, max: 110 })
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 inNumberRange({ min: 100 })
@@ -8882,7 +8882,7 @@ inNumberRange({ min: 100 })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 inNumberRange({ min: 100, inclusive: true })
@@ -8900,7 +8900,7 @@ inNumberRange({ min: 100, inclusive: true })
 100
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 inNumberRange({ min: 0, max: 100 })
@@ -8930,7 +8930,7 @@ inNumberRange({ min: 0, max: 100 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isEven()
@@ -8948,7 +8948,7 @@ isEven()
 100
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isEven()
@@ -8982,7 +8982,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGreaterThan({ value: 100 })
@@ -9000,7 +9000,7 @@ isGreaterThan({ value: 100 })
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGreaterThan({ value: 50 })
@@ -9018,7 +9018,7 @@ isGreaterThan({ value: 50 })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGreaterThan({ value: 110 })
@@ -9036,7 +9036,7 @@ isGreaterThan({ value: 110 })
 120
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isGreaterThan({ value: 150 })
@@ -9070,7 +9070,7 @@ isGreaterThan({ value: 150 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isGreaterThanOrEqualTo({ value: 100 })
@@ -9088,7 +9088,7 @@ isGreaterThanOrEqualTo({ value: 100 })
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isGreaterThanOrEqualTo({ value: 50 })
@@ -9106,7 +9106,7 @@ isGreaterThanOrEqualTo({ value: 50 })
 50
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isGreaterThanOrEqualTo({ value: 110 })
@@ -9124,7 +9124,7 @@ isGreaterThanOrEqualTo({ value: 110 })
 120
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isGreaterThanOrEqualTo({ value: 150 })
@@ -9158,7 +9158,7 @@ isGreaterThanOrEqualTo({ value: 150 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isLessThan({ value: 100 })
@@ -9176,7 +9176,7 @@ isLessThan({ value: 100 })
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isLessThan({ value: 50 })
@@ -9194,7 +9194,7 @@ isLessThan({ value: 50 })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isLessThan({ value: 110 })
@@ -9212,7 +9212,7 @@ isLessThan({ value: 110 })
 100
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isLessThan({ value: 150 })
@@ -9246,7 +9246,7 @@ isLessThan({ value: 150 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isLessThanOrEqualTo({ value: 100 })
@@ -9264,7 +9264,7 @@ isLessThanOrEqualTo({ value: 100 })
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isLessThanOrEqualTo({ value: 50 })
@@ -9282,7 +9282,7 @@ isLessThanOrEqualTo({ value: 50 })
 50
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isLessThanOrEqualTo({ value: 110 })
@@ -9300,7 +9300,7 @@ isLessThanOrEqualTo({ value: 110 })
 100
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isLessThanOrEqualTo({ value: 150 })
@@ -9330,7 +9330,7 @@ isLessThanOrEqualTo({ value: 150 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isOdd()
@@ -9348,7 +9348,7 @@ isOdd()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isOdd()
@@ -9380,7 +9380,7 @@ isOdd()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 equals({ value: 'thisisastring' })
@@ -9398,7 +9398,7 @@ equals({ value: 'thisisastring' })
 'thisisastring'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 equals({ value: 'thisisastring' })
@@ -9416,7 +9416,7 @@ equals({ value: 'thisisastring' })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 equals({ value: [ 'an', 'array', 'of', 'values' ] })
@@ -9434,7 +9434,7 @@ equals({ value: [ 'an', 'array', 'of', 'values' ] })
 [ 'an', 'array', 'of', 'values' ]
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
@@ -9452,7 +9452,7 @@ equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
 { foo: 'bar', deep: { value: 'kitty' } }
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
@@ -9470,7 +9470,7 @@ equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
 null
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 equals({ value: true })
@@ -9500,7 +9500,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isEmpty()
@@ -9518,7 +9518,7 @@ isEmpty()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isEmpty()
@@ -9536,7 +9536,7 @@ isEmpty()
 ''
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isEmpty()
@@ -9571,7 +9571,7 @@ isEmpty()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 lookup({ in: { key1: 'value1', key2: 'value2' } })
@@ -9589,7 +9589,7 @@ lookup({ in: { key1: 'value1', key2: 'value2' } })
 'value1'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 lookup({ in: { '123': 4567, '8910': 1112 } })
@@ -9607,7 +9607,7 @@ lookup({ in: { '123': 4567, '8910': 1112 } })
 1112
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 lookup({ in: { key1: 'value1', key2: 'value2' } })
@@ -9625,7 +9625,7 @@ lookup({ in: { key1: 'value1', key2: 'value2' } })
 undefined
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 lookup({
@@ -9649,7 +9649,7 @@ lookup({
 'bar'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 lookup({ in: [ 'foo', 'bar', 'max' ] })
@@ -9685,7 +9685,7 @@ lookup({ in: [ 'foo', 'bar', 'max' ] })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 contains({ value: 'ample' })
@@ -9703,7 +9703,7 @@ contains({ value: 'ample' })
 'example'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 contains({ value: 'example' })
@@ -9721,7 +9721,7 @@ contains({ value: 'example' })
 'example'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 contains({ value: 'test' })
@@ -9755,7 +9755,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 endsWith({ value: 'e' })
@@ -9773,7 +9773,7 @@ endsWith({ value: 'e' })
 'apple'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 endsWith({ value: 'a' })
@@ -9791,7 +9791,7 @@ endsWith({ value: 'a' })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 endsWith({ value: 'so' })
@@ -9809,7 +9809,7 @@ endsWith({ value: 'so' })
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 endsWith({ value: 'word' })
@@ -9843,7 +9843,7 @@ endsWith({ value: 'word' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isAlpha()
@@ -9861,7 +9861,7 @@ isAlpha()
 null
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isAlpha({ locale: 'pl-Pl' })
@@ -9879,7 +9879,7 @@ isAlpha({ locale: 'pl-Pl' })
 'ThisiZĄĆĘŚŁ'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isAlpha()
@@ -9897,7 +9897,7 @@ isAlpha()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isAlpha()
@@ -9931,7 +9931,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isAlphaNumeric()
@@ -9949,7 +9949,7 @@ isAlphaNumeric()
 'example123456'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isAlphaNumeric({ locale: 'pl-Pl' })
@@ -9967,7 +9967,7 @@ isAlphaNumeric({ locale: 'pl-Pl' })
 'ThisiZĄĆĘŚŁ1234'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isAlphaNumeric()
@@ -9985,7 +9985,7 @@ isAlphaNumeric()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isAlphaNumeric()
@@ -10015,7 +10015,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isBase64()
@@ -10033,7 +10033,7 @@ isBase64()
 'ZnJpZW5kbHlOYW1lNw=='
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isBase64()
@@ -10051,7 +10051,7 @@ isBase64()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isBase64()
@@ -10081,7 +10081,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isCountryCode()
@@ -10099,7 +10099,7 @@ isCountryCode()
 'US'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isCountryCode()
@@ -10117,7 +10117,7 @@ isCountryCode()
 'ZM'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isCountryCode()
@@ -10135,7 +10135,7 @@ isCountryCode()
 'GB'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isCountryCode()
@@ -10153,7 +10153,7 @@ isCountryCode()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isCountryCode()
@@ -10183,7 +10183,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isEmail()
@@ -10201,7 +10201,7 @@ isEmail()
 'string@gmail.com'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isEmail()
@@ -10219,7 +10219,7 @@ isEmail()
 'non.us.email@thing.com.uk'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isEmail()
@@ -10237,7 +10237,7 @@ isEmail()
 'Abc@def@example.com'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isEmail()
@@ -10255,7 +10255,7 @@ isEmail()
 'cal+henderson@iamcalx.com'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isEmail()
@@ -10273,7 +10273,7 @@ isEmail()
 'customer/department=shipping@example.com'
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 isEmail()
@@ -10291,7 +10291,7 @@ isEmail()
 null
 ```
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 isEmail()
@@ -10309,7 +10309,7 @@ isEmail()
 null
 ```
 
-##### Example (8)
+**# Example (8)**
 
 ```ts
 isEmail()
@@ -10327,7 +10327,7 @@ isEmail()
 null
 ```
 
-##### Example (9)
+**# Example (9)**
 
 ```ts
 isEmail()
@@ -10357,7 +10357,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isFQDN()
@@ -10375,7 +10375,7 @@ isFQDN()
 'example.com'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isFQDN()
@@ -10393,7 +10393,7 @@ isFQDN()
 'international-example.com.br'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isFQDN()
@@ -10411,7 +10411,7 @@ isFQDN()
 '1234.com'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isFQDN()
@@ -10429,7 +10429,7 @@ isFQDN()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isFQDN()
@@ -10447,7 +10447,7 @@ isFQDN()
 null
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 isFQDN()
@@ -10465,7 +10465,7 @@ isFQDN()
 null
 ```
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 isFQDN()
@@ -10499,7 +10499,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isHash({ algo: 'sha256' })
@@ -10517,7 +10517,7 @@ isHash({ algo: 'sha256' })
 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isHash({ algo: 'md5' })
@@ -10552,7 +10552,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isISDN()
@@ -10570,7 +10570,7 @@ isISDN()
 '46707123456'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isISDN()
@@ -10588,7 +10588,7 @@ isISDN()
 '1-808-915-6800'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isISDN({ country: 'US' })
@@ -10606,7 +10606,7 @@ isISDN({ country: 'US' })
 '8089156800'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isISDN()
@@ -10644,7 +10644,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isLength({ size: 8 })
@@ -10662,7 +10662,7 @@ isLength({ size: 8 })
 'iam8char'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isLength({ size: 8 })
@@ -10680,7 +10680,7 @@ isLength({ size: 8 })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isLength({ min: 3 })
@@ -10698,7 +10698,7 @@ isLength({ min: 3 })
 'aString'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isLength({ min: 3, max: 5 })
@@ -10716,7 +10716,7 @@ isLength({ min: 3, max: 5 })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isLength({ min: 3, max: 5 })
@@ -10750,7 +10750,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isMACAddress()
@@ -10768,7 +10768,7 @@ isMACAddress()
 '00:1f:f3:5b:2b:1f'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isMACAddress()
@@ -10786,7 +10786,7 @@ isMACAddress()
 '001ff35b2b1f'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isMACAddress()
@@ -10804,7 +10804,7 @@ isMACAddress()
 '00-1f-f3-5b-2b-1f'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isMACAddress({ delimiter: 'colon' })
@@ -10822,7 +10822,7 @@ isMACAddress({ delimiter: 'colon' })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isMACAddress({ delimiter: 'any' })
@@ -10840,7 +10840,7 @@ isMACAddress({ delimiter: 'any' })
 '00-1f-f3-5b-2b-1f'
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 isMACAddress({ delimiter: 'dash' })
@@ -10858,7 +10858,7 @@ isMACAddress({ delimiter: 'dash' })
 '00-1f-f3-5b-2b-1f'
 ```
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 isMACAddress({ delimiter: 'dot' })
@@ -10876,7 +10876,7 @@ isMACAddress({ delimiter: 'dot' })
 '001f.f35b.2b1f'
 ```
 
-##### Example (8)
+**# Example (8)**
 
 ```ts
 isMACAddress({ delimiter: 'none' })
@@ -10894,7 +10894,7 @@ isMACAddress({ delimiter: 'none' })
 '001ff35b2b1f'
 ```
 
-##### Example (9)
+**# Example (9)**
 
 ```ts
 isMACAddress()
@@ -10912,7 +10912,7 @@ isMACAddress()
 null
 ```
 
-##### Example (10)
+**# Example (10)**
 
 ```ts
 isMACAddress()
@@ -10942,7 +10942,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isMIMEType()
@@ -10960,7 +10960,7 @@ isMIMEType()
 'application/javascript'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isMIMEType()
@@ -10978,7 +10978,7 @@ isMIMEType()
 'text/html'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isMIMEType()
@@ -10996,7 +10996,7 @@ isMIMEType()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isMIMEType()
@@ -11027,7 +11027,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isPhoneNumberLike()
@@ -11045,7 +11045,7 @@ isPhoneNumberLike()
 '46707123456'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isPhoneNumberLike()
@@ -11063,7 +11063,7 @@ isPhoneNumberLike()
 '1-808-915-6800'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isPhoneNumberLike()
@@ -11081,7 +11081,7 @@ isPhoneNumberLike()
 '79525554602'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isPhoneNumberLike()
@@ -11099,7 +11099,7 @@ isPhoneNumberLike()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isPhoneNumberLike()
@@ -11130,7 +11130,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isPort()
@@ -11148,7 +11148,7 @@ isPort()
 '49151'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isPort()
@@ -11166,7 +11166,7 @@ isPort()
 '80'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isPort()
@@ -11184,7 +11184,7 @@ isPort()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isPort()
@@ -11219,7 +11219,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isPostalCode()
@@ -11237,7 +11237,7 @@ isPostalCode()
 '85249'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isPostalCode({ locale: 'RU' })
@@ -11255,7 +11255,7 @@ isPostalCode({ locale: 'RU' })
 '191123'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isPostalCode()
@@ -11273,7 +11273,7 @@ isPostalCode()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isPostalCode({ locale: 'CN' })
@@ -11303,7 +11303,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isString()
@@ -11321,7 +11321,7 @@ isString()
 'this is a string'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isString()
@@ -11339,7 +11339,7 @@ isString()
 '12345'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isString()
@@ -11357,7 +11357,7 @@ isString()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isString()
@@ -11375,7 +11375,7 @@ isString()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isString()
@@ -11405,7 +11405,7 @@ isString()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isURL()
@@ -11423,7 +11423,7 @@ isURL()
 'http://someurl.com.uk'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isURL()
@@ -11441,7 +11441,7 @@ isURL()
 'ftp://someurl.bom:8080?some=bar&hi=bob'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isURL()
@@ -11459,7 +11459,7 @@ isURL()
 'http://xn--fsqu00a.xn--3lr804guic'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isURL()
@@ -11477,7 +11477,7 @@ isURL()
 'http://example.com/hello%20world'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isURL()
@@ -11495,7 +11495,7 @@ isURL()
 'bob.com'
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 isURL()
@@ -11513,7 +11513,7 @@ isURL()
 null
 ```
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 isURL()
@@ -11531,7 +11531,7 @@ isURL()
 null
 ```
 
-##### Example (8)
+**# Example (8)**
 
 ```ts
 isURL()
@@ -11561,7 +11561,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isUUID()
@@ -11579,7 +11579,7 @@ isUUID()
 '95ecc380-afe9-11e4-9b6c-751b66dd541e'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isUUID()
@@ -11597,7 +11597,7 @@ isUUID()
 '123e4567-e89b-82d3-f456-426655440000'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isUUID()
@@ -11615,7 +11615,7 @@ isUUID()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isUUID()
@@ -11633,7 +11633,7 @@ isUUID()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isUUID()
@@ -11667,7 +11667,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 startsWith({ value: 'a' })
@@ -11685,7 +11685,7 @@ startsWith({ value: 'a' })
 'apple'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 startsWith({ value: 'a' })
@@ -11703,7 +11703,7 @@ startsWith({ value: 'a' })
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 startsWith({ value: 'so' })
@@ -11721,7 +11721,7 @@ startsWith({ value: 'so' })
 'some word'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 startsWith({ value: 'so' })
@@ -11739,7 +11739,7 @@ startsWith({ value: 'so' })
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 startsWith({ value: 't' })
@@ -11769,7 +11769,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 decodeBase64()
@@ -11799,7 +11799,7 @@ decodeBase64()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 decodeHex()
@@ -11829,7 +11829,7 @@ decodeHex()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 decodeURL()
@@ -11867,7 +11867,7 @@ decodeURL()
 
 Hashing algorithm defaults to 256, and digest defaults to hex
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encode({ algo: 'sha256' })
@@ -11885,7 +11885,7 @@ encode({ algo: 'sha256' })
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 encode({ algo: 'md5' })
@@ -11903,7 +11903,7 @@ encode({ algo: 'md5' })
 '7e33b72a611da99c7e9013dd44dbbdad'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 encode({ algo: 'url' })
@@ -11921,7 +11921,7 @@ encode({ algo: 'url' })
 'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 encode({ algo: 'base64' })
@@ -11939,7 +11939,7 @@ encode({ algo: 'base64' })
 'SEVMTE8gQU5EIEdPT0RCWUU='
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 encode({ algo: 'sha1', digest: 'base64' })
@@ -11969,7 +11969,7 @@ encode({ algo: 'sha1', digest: 'base64' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encodeBase64()
@@ -11999,7 +11999,7 @@ encodeBase64()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encodeHex()
@@ -12037,7 +12037,7 @@ encodeHex()
 
 Hashing algorithm defaults to sha256, and digest defaults to hex
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encodeSHA()
@@ -12055,7 +12055,7 @@ encodeSHA()
 'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 encodeSHA({ digest: 'base64' })
@@ -12091,7 +12091,7 @@ encodeSHA({ digest: 'base64' })
 
 If the digest is not provided, it defaults to hex
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encodeSHA1()
@@ -12109,7 +12109,7 @@ encodeSHA1()
 'e8cb1404796eba6779a276377cce99a502a36481'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 encodeSHA1({ digest: 'base64' })
@@ -12139,7 +12139,7 @@ encodeSHA1({ digest: 'base64' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 encodeURL()
@@ -12173,7 +12173,7 @@ encodeURL()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 entropy()
@@ -12191,7 +12191,7 @@ entropy()
 4
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 entropy({ algo: 'shannon' })
@@ -12209,7 +12209,7 @@ entropy({ algo: 'shannon' })
 1.8464393446710154
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 entropy({ algo: 'unknownAlgoName' })
@@ -12246,7 +12246,7 @@ entropy({ algo: 'unknownAlgoName' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 extract({ start: '<', end: '>' })
@@ -12264,7 +12264,7 @@ extract({ start: '<', end: '>' })
 'hello'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 extract({ regex: 'he.*' })
@@ -12282,7 +12282,7 @@ extract({ regex: 'he.*' })
 'hello'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 extract({ regex: '/([A-Z]\\w+)/', global: true })
@@ -12300,7 +12300,7 @@ extract({ regex: '/([A-Z]\\w+)/', global: true })
 [ 'Hello', 'World' ]
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 extract({ start: '<', end: '>', global: true })
@@ -12334,7 +12334,7 @@ extract({ start: '<', end: '>', global: true })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 join()
@@ -12356,7 +12356,7 @@ join()
 'a string'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 join({ delimiter: ',' })
@@ -12374,7 +12374,7 @@ join({ delimiter: ',' })
 'a string,found'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 join({ delimiter: ' - ' })
@@ -12392,7 +12392,7 @@ join({ delimiter: ' - ' })
 'a - stri - ng'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 join({ delimiter: ' ' })
@@ -12428,7 +12428,7 @@ join({ delimiter: ' ' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 replaceLiteral({ search: 'bob', replace: 'mel' })
@@ -12448,7 +12448,7 @@ replaceLiteral({ search: 'bob', replace: 'mel' })
 
 Does not replace as it is not an exact match
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 replaceLiteral({ search: 'bob', replace: 'mel' })
@@ -12488,7 +12488,7 @@ replaceLiteral({ search: 'bob', replace: 'mel' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 replaceRegex({ regex: 's|e', replace: 'd' })
@@ -12506,7 +12506,7 @@ replaceRegex({ regex: 's|e', replace: 'd' })
 'domestring'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 replaceRegex({ regex: 's|e', replace: 'd', global: true })
@@ -12524,7 +12524,7 @@ replaceRegex({ regex: 's|e', replace: 'd', global: true })
 'domddtring'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
@@ -12542,7 +12542,7 @@ replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
 'soWesWring'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 replaceRegex({ regex: '\\*', replace: '', global: true })
@@ -12572,7 +12572,7 @@ replaceRegex({ regex: '\\*', replace: '', global: true })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 reverse()
@@ -12590,7 +12590,7 @@ reverse()
 'olleh'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 reverse()
@@ -12608,7 +12608,7 @@ reverse()
 'sdrow erom'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 reverse()
@@ -12642,7 +12642,7 @@ reverse()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 split()
@@ -12666,7 +12666,7 @@ split()
 
 Delimiter is not found so the whole input is returned
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 split({ delimiter: ',' })
@@ -12684,7 +12684,7 @@ split({ delimiter: ',' })
 [ 'astring' ]
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 split({ delimiter: '-' })
@@ -12702,7 +12702,7 @@ split({ delimiter: '-' })
 [ 'a', 'stri', 'ng' ]
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 split({ delimiter: ' ' })
@@ -12732,7 +12732,7 @@ split({ delimiter: ' ' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toCamelCase()
@@ -12750,7 +12750,7 @@ toCamelCase()
 'helloThere'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toCamelCase()
@@ -12768,7 +12768,7 @@ toCamelCase()
 'billy'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toCamelCase()
@@ -12799,7 +12799,7 @@ toCamelCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toISDN()
@@ -12817,7 +12817,7 @@ toISDN()
 '33122334455'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toISDN()
@@ -12835,7 +12835,7 @@ toISDN()
 '18003569377'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toISDN()
@@ -12853,7 +12853,7 @@ toISDN()
 '4917600000000'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toISDN()
@@ -12871,7 +12871,7 @@ toISDN()
 '49187484'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 toISDN()
@@ -12898,7 +12898,7 @@ toISDN()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toKebabCase()
@@ -12916,7 +12916,7 @@ toKebabCase()
 'hello-there'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toKebabCase()
@@ -12934,7 +12934,7 @@ toKebabCase()
 'billy'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toKebabCase()
@@ -12964,7 +12964,7 @@ toKebabCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toLowerCase()
@@ -12982,7 +12982,7 @@ toLowerCase()
 'hello there'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toLowerCase()
@@ -13012,7 +13012,7 @@ toLowerCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toPascalCase()
@@ -13030,7 +13030,7 @@ toPascalCase()
 'HelloThere'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toPascalCase()
@@ -13048,7 +13048,7 @@ toPascalCase()
 'Billy'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toPascalCase()
@@ -13078,7 +13078,7 @@ toPascalCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toSnakeCase()
@@ -13096,7 +13096,7 @@ toSnakeCase()
 'hello_there'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toSnakeCase()
@@ -13114,7 +13114,7 @@ toSnakeCase()
 'billy'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toSnakeCase()
@@ -13140,7 +13140,7 @@ toSnakeCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toString()
@@ -13158,7 +13158,7 @@ true
 'true'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toString()
@@ -13176,7 +13176,7 @@ toString()
 '{"hello":"world"}'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toString()
@@ -13194,7 +13194,7 @@ toString()
 '278218429446951548637196400'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 toString()
@@ -13224,7 +13224,7 @@ toString()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toTitleCase()
@@ -13242,7 +13242,7 @@ toTitleCase()
 'HELLO There'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toTitleCase()
@@ -13260,7 +13260,7 @@ toTitleCase()
 'Billy'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toTitleCase()
@@ -13290,7 +13290,7 @@ toTitleCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toUpperCase()
@@ -13308,7 +13308,7 @@ toUpperCase()
 'HELLO'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toUpperCase()
@@ -13326,7 +13326,7 @@ toUpperCase()
 'BILLY'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toUpperCase()
@@ -13360,7 +13360,7 @@ toUpperCase()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 trim()
@@ -13378,7 +13378,7 @@ trim()
 'other_things'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 trim()
@@ -13396,7 +13396,7 @@ trim()
 'Stuff'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 trim()
@@ -13414,7 +13414,7 @@ trim()
 'hello'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 trim()
@@ -13432,7 +13432,7 @@ trim()
 ''
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 trim()
@@ -13450,7 +13450,7 @@ trim()
 'Spider Man'
 ```
 
-##### Example (6)
+**# Example (6)**
 
 ```ts
 trim({ chars: 'a' })
@@ -13470,7 +13470,7 @@ trim({ chars: 'a' })
 
 Any new char, including whitespace will stop the trim, it must be consecutive
 
-##### Example (7)
+**# Example (7)**
 
 ```ts
 trim({ chars: 'a' })
@@ -13488,7 +13488,7 @@ trim({ chars: 'a' })
 ' aaSpider Manaa '
 ```
 
-##### Example (8)
+**# Example (8)**
 
 ```ts
 trim({ chars: 'fast' })
@@ -13506,7 +13506,7 @@ trim({ chars: 'fast' })
 ' cars race '
 ```
 
-##### Example (9)
+**# Example (9)**
 
 ```ts
 trim({ chars: 'fatc ' })
@@ -13524,7 +13524,7 @@ trim({ chars: 'fatc ' })
 'st example'
 ```
 
-##### Example (10)
+**# Example (10)**
 
 ```ts
 trim({ chars: '\r' })
@@ -13542,7 +13542,7 @@ trim({ chars: '\r' })
 '\t\r\rtrim this'
 ```
 
-##### Example (11)
+**# Example (11)**
 
 ```ts
 trim({ chars: '.*' })
@@ -13576,7 +13576,7 @@ trim({ chars: '.*' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 trimEnd()
@@ -13594,7 +13594,7 @@ trimEnd()
 '   left'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 trimEnd()
@@ -13612,7 +13612,7 @@ trimEnd()
 'right'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 trimEnd()
@@ -13630,7 +13630,7 @@ trimEnd()
 ''
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 trimEnd({ chars: '*' })
@@ -13648,7 +13648,7 @@ trimEnd({ chars: '*' })
 '*****Hello****Bob'
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 trimEnd({ chars: 'fast' })
@@ -13682,7 +13682,7 @@ trimEnd({ chars: 'fast' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 trimStart()
@@ -13700,7 +13700,7 @@ trimStart()
 'Hello Bob    '
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 trimStart({ chars: '__--' })
@@ -13718,7 +13718,7 @@ trimStart({ chars: '__--' })
 'some__--__word'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 trimStart()
@@ -13736,7 +13736,7 @@ trimStart()
 ''
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 trimStart({ chars: '*' })
@@ -13770,7 +13770,7 @@ trimStart({ chars: '*' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 truncate({ size: 4 })
@@ -13788,7 +13788,7 @@ truncate({ size: 4 })
 'this'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 truncate({ size: 8 })
@@ -13821,7 +13821,7 @@ truncate({ size: 8 })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isIP()
@@ -13839,7 +13839,7 @@ isIP()
 '11.0.1.18'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isIP()
@@ -13857,7 +13857,7 @@ isIP()
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isIP()
@@ -13875,7 +13875,7 @@ isIP()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isIP()
@@ -13893,7 +13893,7 @@ isIP()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isIP()
@@ -13932,7 +13932,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 inIPRange({ cidr: '8.8.8.0/24' })
@@ -13950,7 +13950,7 @@ inIPRange({ cidr: '8.8.8.0/24' })
 '8.8.8.8'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
@@ -13968,7 +13968,7 @@ inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
 'fd00::b000'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 inIPRange({ min: 'fd00::123' })
@@ -13986,7 +13986,7 @@ inIPRange({ min: 'fd00::123' })
 'fd00::b000'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 inIPRange({ cidr: '8.8.8.0/24' })
@@ -14017,7 +14017,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isCIDR()
@@ -14035,7 +14035,7 @@ isCIDR()
 '1.2.3.4/32'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isCIDR()
@@ -14053,7 +14053,7 @@ isCIDR()
 '2001::1234:5678/128'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isCIDR()
@@ -14071,7 +14071,7 @@ isCIDR()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isCIDR()
@@ -14102,7 +14102,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isIPv4()
@@ -14120,7 +14120,7 @@ isIPv4()
 '11.0.1.18'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isIPv4()
@@ -14138,7 +14138,7 @@ isIPv4()
 null
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isIPv4()
@@ -14156,7 +14156,7 @@ isIPv4()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isIPv4()
@@ -14187,7 +14187,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isIPv6()
@@ -14205,7 +14205,7 @@ isIPv6()
 '2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isIPv6()
@@ -14223,7 +14223,7 @@ isIPv6()
 'fc00:db8::1'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isIPv6()
@@ -14241,7 +14241,7 @@ isIPv6()
 '::FFFF:12.155.166.101'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isIPv6()
@@ -14259,7 +14259,7 @@ isIPv6()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isIPv6()
@@ -14290,7 +14290,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isNonRoutableIP()
@@ -14308,7 +14308,7 @@ isNonRoutableIP()
 '192.168.0.1'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isNonRoutableIP()
@@ -14326,7 +14326,7 @@ isNonRoutableIP()
 '2001:db8::1'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isNonRoutableIP()
@@ -14344,7 +14344,7 @@ isNonRoutableIP()
 '172.28.4.1'
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isNonRoutableIP()
@@ -14362,7 +14362,7 @@ isNonRoutableIP()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isNonRoutableIP()
@@ -14393,7 +14393,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isRoutableIP()
@@ -14411,7 +14411,7 @@ isRoutableIP()
 '8.8.8.8'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isRoutableIP()
@@ -14429,7 +14429,7 @@ isRoutableIP()
 '2620:4f:123::'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isRoutableIP()
@@ -14447,7 +14447,7 @@ isRoutableIP()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isRoutableIP()
@@ -14465,7 +14465,7 @@ isRoutableIP()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isRoutableIP()
@@ -14496,7 +14496,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 isMappedIPv4()
@@ -14514,7 +14514,7 @@ isMappedIPv4()
 '::ffff:10.2.1.18'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 isMappedIPv4()
@@ -14532,7 +14532,7 @@ isMappedIPv4()
 '::122.168.5.18'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 isMappedIPv4()
@@ -14550,7 +14550,7 @@ isMappedIPv4()
 null
 ```
 
-##### Example (4)
+**# Example (4)**
 
 ```ts
 isMappedIPv4()
@@ -14568,7 +14568,7 @@ isMappedIPv4()
 null
 ```
 
-##### Example (5)
+**# Example (5)**
 
 ```ts
 isMappedIPv4()
@@ -14599,7 +14599,7 @@ null
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 extractMappedIPv4()
@@ -14617,7 +14617,7 @@ extractMappedIPv4()
 '192.52.193.1'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 extractMappedIPv4()
@@ -14648,7 +14648,7 @@ extractMappedIPv4()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 reverseIP()
@@ -14666,7 +14666,7 @@ reverseIP()
 '210.32.16.10'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 reverseIP()
@@ -14684,7 +14684,7 @@ reverseIP()
 '4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 reverseIP()
@@ -14715,7 +14715,7 @@ reverseIP()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 ipToInt()
@@ -14733,7 +14733,7 @@ ipToInt()
 168829138
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 ipToInt()
@@ -14768,7 +14768,7 @@ ipToInt()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 intToIP({ version: 4 })
@@ -14786,7 +14786,7 @@ intToIP({ version: 4 })
 '10.16.32.210'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 intToIP({ version: '6' })
@@ -14817,7 +14817,7 @@ intToIP({ version: '6' })
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getCIDRMin()
@@ -14835,7 +14835,7 @@ getCIDRMin()
 '8.8.12.1'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getCIDRMin()
@@ -14853,7 +14853,7 @@ getCIDRMin()
 '2001:db8:123:4567:89ab:cdef:1234:5678'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getCIDRMin()
@@ -14884,7 +14884,7 @@ getCIDRMin()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getCIDRMax()
@@ -14902,7 +14902,7 @@ getCIDRMax()
 '8.8.12.254'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getCIDRMax()
@@ -14920,7 +14920,7 @@ getCIDRMax()
 '2001:db8:123:4567:89ab:cdef:1234:5678'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 getCIDRMax()
@@ -14951,7 +14951,7 @@ getCIDRMax()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getCIDRBroadcast()
@@ -14969,7 +14969,7 @@ getCIDRBroadcast()
 '8.8.12.255'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getCIDRBroadcast()
@@ -15000,7 +15000,7 @@ getCIDRBroadcast()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 getCIDRNetwork()
@@ -15018,7 +15018,7 @@ getCIDRNetwork()
 '8.8.12.0'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 getCIDRNetwork()
@@ -15053,7 +15053,7 @@ getCIDRNetwork()
 
 #### Examples
 
-##### Example (1)
+**# Example (1)**
 
 ```ts
 toCIDR({ suffix: 32 })
@@ -15071,7 +15071,7 @@ toCIDR({ suffix: 32 })
 '1.2.3.4/32'
 ```
 
-##### Example (2)
+**# Example (2)**
 
 ```ts
 toCIDR({ suffix: 24 })
@@ -15089,7 +15089,7 @@ toCIDR({ suffix: 24 })
 '1.2.3.0/24'
 ```
 
-##### Example (3)
+**# Example (3)**
 
 ```ts
 toCIDR({ suffix: '46' })

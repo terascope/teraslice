@@ -60,7 +60,7 @@ function generateExample(fnDef) {
         return `
 ${desc(example)}
 
-##### Example (${index + 1})
+**# Example (${index + 1})**
 
 \`\`\`ts
 ${fnDef.name}(${prettyPrint(example.args)})
