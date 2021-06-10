@@ -3,27 +3,23 @@
 'use strict';
 
 const {
-    isString,
-    isPrimitiveValue,
-    primitiveToString,
     toTitleCase,
     isEmpty,
     flatten,
     flattenDeep,
     firstToUpper,
     uniq,
-    trimEnd
+    isPlainObject,
+    trimEnd,
 } = require('@terascope/utils');
+const { inspect } = require('util');
 const { functionConfigRepository } = require('..');
 
 function prettyPrint(input) {
-    if (input == null) return 'null';
-    if (isString(input)) return `"${input}"`;
-    if (isPrimitiveValue(input)) return `${primitiveToString(input)}`;
-    if (Array.isArray(input)) return `[${input.map(prettyPrint).join(', ')}]`;
-    return Object.entries(input).map(([key, value]) => (
-        `${key}: ${prettyPrint(value)}`
-    )).join(', ');
+    if (isPlainObject(input) && !Object.keys(input).length) {
+        return '';
+    }
+    return inspect(input, { depth: 10 });
 }
 
 function desc(input, prefix = '') {
@@ -35,11 +31,22 @@ function desc(input, prefix = '') {
  * @param example {import('..').FunctionDefinitionExample}
 */
 function getExampleOutput(example) {
-    if (example.fails) return `throws ${example.output}`;
-    if (example.serialize_output == null) {
-        return `outputs ${prettyPrint(example.output)}`;
+    if (example.fails) {
+        return `**Throws:**
+\`${example.output}\``;
     }
-    return `outputs ${prettyPrint(example.serialize_output(example.output))}`;
+    if (example.serialize_output == null) {
+        return `**Output:**
+
+\`\`\`ts
+${prettyPrint(example.output)}
+\`\`\``;
+    }
+    return `**Output:**
+
+\`\`\`ts
+${prettyPrint(example.serialize_output(example.output))}
+\`\`\``;
 }
 
 /**
@@ -49,12 +56,23 @@ function generateExample(fnDef) {
     /**
      * @param example {import('..').FunctionDefinitionExample}
     */
-    return function _generateExample(example) {
+    return function _generateExample(example, index) {
         return `
 ${desc(example)}
+
+##### Example (${index + 1})
+
 \`\`\`ts
-${prettyPrint(example.input)} => ${fnDef.name}(${prettyPrint(example.args)}) // ${getExampleOutput(example)}
+${fnDef.name}(${prettyPrint(example.args)})
 \`\`\`
+
+**Input:**
+
+\`\`\`ts
+${prettyPrint(example.input)}
+\`\`\`
+
+${getExampleOutput(example)}
         `.trim();
     };
 }

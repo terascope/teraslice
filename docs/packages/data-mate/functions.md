@@ -13,24 +13,94 @@ sidebar_label: Functions
 
 #### Examples
 
-```ts
-"TRUE" => isBoolean() // outputs null
-```
+##### Example (1)
 
 ```ts
-false => isBoolean() // outputs false
+isBoolean()
 ```
 
-```ts
-1 => isBoolean() // outputs null
-```
+**Input:**
 
 ```ts
-102 => isBoolean() // outputs null
+'TRUE'
 ```
 
+**Output:**
+
 ```ts
-"example" => isBoolean() // outputs null
+null
+```
+
+##### Example (2)
+
+```ts
+isBoolean()
+```
+
+**Input:**
+
+```ts
+false
+```
+
+**Output:**
+
+```ts
+false
+```
+
+##### Example (3)
+
+```ts
+isBoolean()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isBoolean()
+```
+
+**Input:**
+
+```ts
+102
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isBoolean()
+```
+
+**Input:**
+
+```ts
+'example'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isBooleanLike`
@@ -41,24 +111,94 @@ false => isBoolean() // outputs false
 
 #### Examples
 
-```ts
-"TRUE" => isBooleanLike() // outputs "TRUE"
-```
+##### Example (1)
 
 ```ts
-"false" => isBooleanLike() // outputs "false"
+isBooleanLike()
 ```
 
-```ts
-1 => isBooleanLike() // outputs 1
-```
+**Input:**
 
 ```ts
-102 => isBooleanLike() // outputs null
+'TRUE'
 ```
 
+**Output:**
+
 ```ts
-"example" => isBooleanLike() // outputs null
+'TRUE'
+```
+
+##### Example (2)
+
+```ts
+isBooleanLike()
+```
+
+**Input:**
+
+```ts
+'false'
+```
+
+**Output:**
+
+```ts
+'false'
+```
+
+##### Example (3)
+
+```ts
+isBooleanLike()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (4)
+
+```ts
+isBooleanLike()
+```
+
+**Input:**
+
+```ts
+102
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isBooleanLike()
+```
+
+**Input:**
+
+```ts
+'example'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `toBoolean`
@@ -69,20 +209,76 @@ false => isBoolean() // outputs false
 
 #### Examples
 
-```ts
-"TRUE" => toBoolean() // outputs true
-```
+##### Example (1)
 
 ```ts
-1 => toBoolean() // outputs true
+toBoolean()
 ```
 
-```ts
-0 => toBoolean() // outputs false
-```
+**Input:**
 
 ```ts
-null => toBoolean() // outputs null
+'TRUE'
+```
+
+**Output:**
+
+```ts
+true
+```
+
+##### Example (2)
+
+```ts
+toBoolean()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+true
+```
+
+##### Example (3)
+
+```ts
+toBoolean()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+false
+```
+
+##### Example (4)
+
+```ts
+toBoolean()
+```
+
+**Input:**
+
+```ts
+null
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ## CATEGORY: Geo
@@ -108,24 +304,152 @@ null => toBoolean() // outputs null
 
 #### Examples
 
-```ts
-"33.435518,-111.873616" => geoContains(value: "33.435518,-111.873616") // outputs "33.435518,-111.873616"
-```
+##### Example (1)
 
 ```ts
-"45.518,-21.816" => geoContains(value: type: "Point", coordinates: [-111.873616, 33.435518]) // outputs null
+geoContains({ value: '33.435518,-111.873616' })
 ```
 
-```ts
-type: "Polygon", coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]] => geoContains(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
-```
+**Input:**
 
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoContains(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+'33.435518,-111.873616'
 ```
 
+**Output:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]] => geoContains(value: type: "Point", coordinates: [-30, -30]) // outputs null
+'33.435518,-111.873616'
+```
+
+##### Example (2)
+
+```ts
+geoContains({ value: { type: 'Point', coordinates: [ -111.873616, 33.435518 ] } })
+```
+
+**Input:**
+
+```ts
+'45.518,-21.816'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+geoContains({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 100, 0 ], [ 100, 60 ], [ 0, 60 ], [ 0, 0 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 100, 0 ], [ 100, 60 ], [ 0, 60 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
+geoContains({
+  value: {
+    type: 'MultiPolygon',
+    coordinates: [
+      [
+        [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ]
+      ],
+      [
+        [
+          [ -10, -10 ],
+          [ -10, -50 ],
+          [ -50, -50 ],
+          [ -50, -10 ],
+          [ -10, -10 ]
+        ]
+      ]
+    ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (5)
+
+```ts
+geoContains({ value: { type: 'Point', coordinates: [ -30, -30 ] } })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 20 ], [ 20, 20 ], [ 20, 10 ], [ 10, 10 ] ] ],
+    [ [ [ 30, 30 ], [ 30, 40 ], [ 40, 40 ], [ 40, 30 ], [ 30, 30 ] ] ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `geoPointWithinRange`
@@ -154,12 +478,40 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 
 #### Examples
 
-```ts
-"33.435967,-111.867710" => geoPointWithinRange(point: "33.435518,-111.873616", distance: "5000m") // outputs "33.435967,-111.867710"
-```
+##### Example (1)
 
 ```ts
-"22.435967,-150.867710" => geoPointWithinRange(point: "33.435518,-111.873616", distance: "5000m") // outputs null
+geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
+```
+
+**Input:**
+
+```ts
+'33.435967,-111.867710'
+```
+
+**Output:**
+
+```ts
+'33.435967,-111.867710'
+```
+
+##### Example (2)
+
+```ts
+geoPointWithinRange({ point: '33.435518,-111.873616', distance: '5000m' })
+```
+
+**Input:**
+
+```ts
+'22.435967,-150.867710'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `geoDisjoint`
@@ -183,20 +535,106 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 
 #### Examples
 
-```ts
-"-33.435967,-111.867710" => geoDisjoint(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "-33.435967,-111.867710"
-```
+##### Example (1)
 
 ```ts
-type: "Point", coordinates: [20, 20] => geoDisjoint(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs null
+geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-```ts
-type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoDisjoint(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
-```
+**Input:**
 
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoDisjoint(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs null
+'-33.435967,-111.867710'
+```
+
+**Output:**
+
+```ts
+'-33.435967,-111.867710'
+```
+
+##### Example (2)
+
+```ts
+geoDisjoint({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
+
+**Input:**
+
+```ts
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+geoDisjoint({
+  value: {
+    type: 'Polygon',
+    coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
+geoDisjoint({
+  value: {
+    type: 'Polygon',
+    coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `geoIntersects`
@@ -220,16 +658,97 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-type: "Point", coordinates: [20, 20] => geoIntersects(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Point", coordinates: [20, 20]
-```
+##### Example (1)
 
 ```ts
-type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoIntersects(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
+**Input:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoIntersects(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+##### Example (2)
+
+```ts
+geoIntersects({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (3)
+
+```ts
+geoIntersects({
+  value: {
+    type: 'Polygon',
+    coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
 ```
 
 ### `geoRelation`
@@ -255,28 +774,145 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "20,20"
-```
+##### Example (1)
 
 ```ts
-"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "within") // outputs "20,20"
+geoRelation({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-```ts
-"20,20" => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "contains") // outputs null
-```
+**Input:**
 
 ```ts
-type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoRelation(value: type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]], relation: "disjoint") // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+'20,20'
 ```
 
-```ts
-type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "intersects") // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
-```
+**Output:**
 
 ```ts
-type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => geoRelation(value: ["10,10", "10,50", "50,50", "50,10", "10,10"], relation: "disjoint") // outputs null
+'20,20'
+```
+
+##### Example (2)
+
+```ts
+geoRelation({
+  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
+  relation: 'within'
+})
+```
+
+**Input:**
+
+```ts
+'20,20'
+```
+
+**Output:**
+
+```ts
+'20,20'
+```
+
+##### Example (3)
+
+```ts
+geoRelation({
+  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
+  relation: 'contains'
+})
+```
+
+**Input:**
+
+```ts
+'20,20'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+geoRelation({
+  value: {
+    type: 'Polygon',
+    coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+  },
+  relation: 'disjoint'
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (5)
+
+```ts
+geoRelation({
+  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
+  relation: 'intersects'
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (6)
+
+```ts
+geoRelation({
+  value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ],
+  relation: 'disjoint'
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `geoWithin`
@@ -300,24 +936,176 @@ type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => 
 
 #### Examples
 
-```ts
-type: "Point", coordinates: [20, 20] => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Point", coordinates: [20, 20]
-```
+##### Example (1)
 
 ```ts
-"20,20" => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs "20,20"
+geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
 ```
 
-```ts
-type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]] => geoWithin(value: ["10,10", "10,50", "50,50", "50,10", "10,10"]) // outputs type: "Polygon", coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
-```
+**Input:**
 
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoWithin(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+{ type: 'Point', coordinates: [ 20, 20 ] }
 ```
 
+**Output:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]] => geoWithin(value: type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]) // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [10, 10]]], [[[30, 30], [30, 40], [40, 40], [40, 30], [30, 30]]]]
+{ type: 'Point', coordinates: [ 20, 20 ] }
+```
+
+##### Example (2)
+
+```ts
+geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
+
+**Input:**
+
+```ts
+'20,20'
+```
+
+**Output:**
+
+```ts
+'20,20'
+```
+
+##### Example (3)
+
+```ts
+geoWithin({ value: [ '10,10', '10,50', '50,50', '50,10', '10,10' ] })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 20, 20 ], [ 20, 30 ], [ 30, 30 ], [ 30, 20 ], [ 20, 20 ] ] ]
+}
+```
+
+##### Example (4)
+
+```ts
+geoWithin({
+  value: {
+    type: 'MultiPolygon',
+    coordinates: [
+      [
+        [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ]
+      ],
+      [
+        [
+          [ -10, -10 ],
+          [ -10, -50 ],
+          [ -50, -50 ],
+          [ -50, -10 ],
+          [ -10, -10 ]
+        ]
+      ]
+    ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (5)
+
+```ts
+geoWithin({
+  value: {
+    type: 'MultiPolygon',
+    coordinates: [
+      [
+        [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ]
+      ],
+      [
+        [
+          [ -10, -10 ],
+          [ -10, -50 ],
+          [ -50, -50 ],
+          [ -50, -10 ],
+          [ -10, -10 ]
+        ]
+      ]
+    ]
+  }
+})
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 20 ], [ 20, 20 ], [ 20, 10 ], [ 10, 10 ] ] ],
+    [ [ [ 30, 30 ], [ 30, 40 ], [ 40, 40 ], [ 40, 30 ], [ 30, 30 ] ] ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 20 ], [ 20, 20 ], [ 20, 10 ], [ 10, 10 ] ] ],
+    [ [ [ 30, 30 ], [ 30, 40 ], [ 40, 40 ], [ 40, 30 ], [ 30, 30 ] ] ]
+  ]
+}
 ```
 
 ### `geoContainsPoint`
@@ -336,26 +1124,162 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 20], [20, 20], [20, 10], [1
 
 #### Examples
 
-```ts
-type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]]
-```
+##### Example (1)
 
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => geoContainsPoint(point: "15, 15") // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+geoContainsPoint({ point: '15, 15' })
 ```
 
+**Input:**
+
 ```ts
-type: "Polygon", coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]], [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]] => geoContainsPoint(point: "15, 15") // outputs null
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+##### Example (2)
+
+```ts
+geoContainsPoint({ point: '15, 15' })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+##### Example (3)
+
+```ts
+geoContainsPoint({ point: '15, 15' })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [
+    [
+      [ -10, -10 ],
+      [ -10, -50 ],
+      [ -50, -50 ],
+      [ -50, -10 ],
+      [ -10, -10 ]
+    ],
+    [
+      [ -20, -20 ],
+      [ -20, -40 ],
+      [ -40, -40 ],
+      [ -40, -20 ],
+      [ -20, -20 ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 Point is within a polygon with holes
+
+##### Example (4)
+
 ```ts
-type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]] => geoContainsPoint(point: "15, 15") // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]], [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]]
+geoContainsPoint({ point: '15, 15' })
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [
+    [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ],
+    [ [ 20, 20 ], [ 20, 40 ], [ 40, 40 ], [ 40, 20 ], [ 20, 20 ] ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [
+    [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ],
+    [ [ 20, 20 ], [ 20, 40 ], [ 40, 40 ], [ 40, 20 ], [ 20, 20 ] ]
+  ]
+}
 ```
 
 Point can match against a geo-shape point
+
+##### Example (5)
+
 ```ts
-type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // outputs type: "Point", coordinates: [15, 15]
+geoContainsPoint({ point: '15, 15' })
+```
+
+**Input:**
+
+```ts
+{ type: 'Point', coordinates: [ 15, 15 ] }
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ 15, 15 ] }
 ```
 
 ### `inGeoBoundingBox`
@@ -382,16 +1306,67 @@ type: "Point", coordinates: [15, 15] => geoContainsPoint(point: "15, 15") // out
 
 #### Examples
 
-```ts
-"33.2,-112.3" => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs "33.2,-112.3"
-```
+##### Example (1)
 
 ```ts
-"43,-132" => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs null
+inGeoBoundingBox({
+  top_left: '33.906320,-112.758421',
+  bottom_right: '32.813646,-111.058902'
+})
 ```
 
+**Input:**
+
 ```ts
-type: "Point", coordinates: [-112, 33] => inGeoBoundingBox(top_left: "33.906320,-112.758421", bottom_right: "32.813646,-111.058902") // outputs type: "Point", coordinates: [-112, 33]
+'33.2,-112.3'
+```
+
+**Output:**
+
+```ts
+'33.2,-112.3'
+```
+
+##### Example (2)
+
+```ts
+inGeoBoundingBox({
+  top_left: '33.906320,-112.758421',
+  bottom_right: '32.813646,-111.058902'
+})
+```
+
+**Input:**
+
+```ts
+'43,-132'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+inGeoBoundingBox({
+  top_left: '33.906320,-112.758421',
+  bottom_right: '32.813646,-111.058902'
+})
+```
+
+**Input:**
+
+```ts
+{ type: 'Point', coordinates: [ -112, 33 ] }
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ -112, 33 ] }
 ```
 
 ### `isGeoJSON`
@@ -407,24 +1382,128 @@ type: "Point", coordinates: [-112, 33] => inGeoBoundingBox(top_left: "33.906320,
 
 #### Examples
 
-```ts
-"60,40" => isGeoJSON() // outputs null
-```
+##### Example (1)
 
 ```ts
-lat: 60, lon: 40 => isGeoJSON() // outputs null
+isGeoJSON()
 ```
 
-```ts
-type: "Point", coordinates: [12, 12] => isGeoJSON() // outputs type: "Point", coordinates: [12, 12]
-```
+**Input:**
 
 ```ts
-type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]] => isGeoJSON() // outputs type: "Polygon", coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
+'60,40'
 ```
 
+**Output:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoJSON() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+null
+```
+
+##### Example (2)
+
+```ts
+isGeoJSON()
+```
+
+**Input:**
+
+```ts
+{ lat: 60, lon: 40 }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isGeoJSON()
+```
+
+**Input:**
+
+```ts
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+##### Example (4)
+
+```ts
+isGeoJSON()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 0, 0 ], [ 0, 15 ], [ 15, 15 ], [ 15, 0 ], [ 0, 0 ] ] ]
+}
+```
+
+##### Example (5)
+
+```ts
+isGeoJSON()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
 ```
 
 ### `isGeoPoint`
@@ -435,24 +1514,94 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-"60,40" => isGeoPoint() // outputs "60,40"
-```
+##### Example (1)
 
 ```ts
-[60, 40] => isGeoPoint() // outputs [60, 40]
+isGeoPoint()
 ```
 
-```ts
-lat: 60, lon: 40 => isGeoPoint() // outputs lat: 60, lon: 40
-```
+**Input:**
 
 ```ts
-latitude: 60, longitude: 40 => isGeoPoint() // outputs latitude: 60, longitude: 40
+'60,40'
 ```
 
+**Output:**
+
 ```ts
-"something" => isGeoPoint() // outputs null
+'60,40'
+```
+
+##### Example (2)
+
+```ts
+isGeoPoint()
+```
+
+**Input:**
+
+```ts
+[ 60, 40 ]
+```
+
+**Output:**
+
+```ts
+[ 60, 40 ]
+```
+
+##### Example (3)
+
+```ts
+isGeoPoint()
+```
+
+**Input:**
+
+```ts
+{ lat: 60, lon: 40 }
+```
+
+**Output:**
+
+```ts
+{ lat: 60, lon: 40 }
+```
+
+##### Example (4)
+
+```ts
+isGeoPoint()
+```
+
+**Input:**
+
+```ts
+{ latitude: 60, longitude: 40 }
+```
+
+**Output:**
+
+```ts
+{ latitude: 60, longitude: 40 }
+```
+
+##### Example (5)
+
+```ts
+isGeoPoint()
+```
+
+**Input:**
+
+```ts
+'something'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isGeoShapeMultiPolygon`
@@ -468,16 +1617,89 @@ latitude: 60, longitude: 40 => isGeoPoint() // outputs latitude: 60, longitude: 
 
 #### Examples
 
-```ts
-type: "Point", coordinates: [12, 12] => isGeoShapeMultiPolygon() // outputs null
-```
+##### Example (1)
 
 ```ts
-type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapeMultiPolygon() // outputs null
+isGeoShapeMultiPolygon()
 ```
 
+**Input:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapeMultiPolygon() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isGeoShapeMultiPolygon()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isGeoShapeMultiPolygon()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
 ```
 
 ### `isGeoShapePoint`
@@ -493,16 +1715,75 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-type: "Point", coordinates: [12, 12] => isGeoShapePoint() // outputs type: "Point", coordinates: [12, 12]
-```
+##### Example (1)
 
 ```ts
-type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapePoint() // outputs null
+isGeoShapePoint()
 ```
 
+**Input:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapePoint() // outputs null
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+##### Example (2)
+
+```ts
+isGeoShapePoint()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isGeoShapePoint()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isGeoShapePolygon`
@@ -518,16 +1799,78 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-type: "Point", coordinates: [12, 12] => isGeoShapePolygon() // outputs null
-```
+##### Example (1)
 
 ```ts
-type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]] => isGeoShapePolygon() // outputs type: "Polygon", coordinates: [[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]]
+isGeoShapePolygon()
 ```
 
+**Input:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => isGeoShapePolygon() // outputs null
+{ type: 'Point', coordinates: [ 12, 12 ] }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isGeoShapePolygon()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ]
+}
+```
+
+##### Example (3)
+
+```ts
+isGeoShapePolygon()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `toGeoJSON`
@@ -547,16 +1890,89 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-"60,40" => toGeoJSON() // outputs type: "Point", coordinates: [40, 60]
-```
+##### Example (1)
 
 ```ts
-["10,10", "10,50", "50,50", "50,10", "10,10"] => toGeoJSON() // outputs type: "Polygon", coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]]]
+toGeoJSON()
 ```
 
+**Input:**
+
 ```ts
-type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]] => toGeoJSON() // outputs type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]]], [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]]
+'60,40'
+```
+
+**Output:**
+
+```ts
+{ type: 'Point', coordinates: [ 40, 60 ] }
+```
+
+##### Example (2)
+
+```ts
+toGeoJSON()
+```
+
+**Input:**
+
+```ts
+[ '10,10', '10,50', '50,50', '50,10', '10,10' ]
+```
+
+**Output:**
+
+```ts
+{
+  type: 'Polygon',
+  coordinates: [ [ [ 10, 10 ], [ 50, 10 ], [ 50, 50 ], [ 10, 50 ], [ 10, 10 ] ] ]
+}
+```
+
+##### Example (3)
+
+```ts
+toGeoJSON()
+```
+
+**Input:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
+```
+
+**Output:**
+
+```ts
+{
+  type: 'MultiPolygon',
+  coordinates: [
+    [ [ [ 10, 10 ], [ 10, 50 ], [ 50, 50 ], [ 50, 10 ], [ 10, 10 ] ] ],
+    [
+      [
+        [ -10, -10 ],
+        [ -10, -50 ],
+        [ -50, -50 ],
+        [ -50, -10 ],
+        [ -10, -10 ]
+      ]
+    ]
+  ]
+}
 ```
 
 ### `toGeoPoint`
@@ -576,21 +1992,74 @@ type: "MultiPolygon", coordinates: [[[[10, 10], [10, 50], [50, 50], [50, 10], [1
 
 #### Examples
 
-```ts
-"60,40" => toGeoPoint() // outputs lon: 40, lat: 60
-```
+##### Example (1)
 
 ```ts
-latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
+toGeoPoint()
 ```
 
-```ts
-[50, 60] => toGeoPoint() // outputs lon: 50, lat: 60
-```
+**Input:**
 
 ```ts
-"not an geo point" => toGeoPoint() // throws null
+'60,40'
 ```
+
+**Output:**
+
+```ts
+{ lon: 40, lat: 60 }
+```
+
+##### Example (2)
+
+```ts
+toGeoPoint()
+```
+
+**Input:**
+
+```ts
+{ latitude: 40, longitude: 60 }
+```
+
+**Output:**
+
+```ts
+{ lon: 60, lat: 40 }
+```
+
+##### Example (3)
+
+```ts
+toGeoPoint()
+```
+
+**Input:**
+
+```ts
+[ 50, 60 ]
+```
+
+**Output:**
+
+```ts
+{ lon: 50, lat: 60 }
+```
+
+##### Example (4)
+
+```ts
+toGeoPoint()
+```
+
+**Input:**
+
+```ts
+'not an geo point'
+```
+
+**Throws:**
+`null`
 
 ## CATEGORY: JSON
 
@@ -616,12 +2085,40 @@ latitude: 40, longitude: 60 => toGeoPoint() // outputs lon: 60, lat: 40
 
 #### Examples
 
-```ts
-null => setDefault(value: "example") // outputs "example"
-```
+##### Example (1)
 
 ```ts
-null => setDefault(value: "example") // outputs ["example"]
+setDefault({ value: 'example' })
+```
+
+**Input:**
+
+```ts
+null
+```
+
+**Output:**
+
+```ts
+'example'
+```
+
+##### Example (2)
+
+```ts
+setDefault({ value: 'example' })
+```
+
+**Input:**
+
+```ts
+null
+```
+
+**Output:**
+
+```ts
+[ 'example' ]
 ```
 
 ### `toJSON`
@@ -632,20 +2129,76 @@ null => setDefault(value: "example") // outputs ["example"]
 
 #### Examples
 
-```ts
-278218429446951548637196401 => toJSON() // outputs "278218429446951548637196400"
-```
+##### Example (1)
 
 ```ts
-false => toJSON() // outputs "false"
+toJSON()
 ```
 
-```ts
-some: 1234 => toJSON() // outputs "{"some":1234}"
-```
+**Input:**
 
 ```ts
-bigNum: 278218429446951548637196401 => toJSON() // outputs "{"bigNum":"278218429446951548637196400"}"
+278218429446951548637196401n
+```
+
+**Output:**
+
+```ts
+'278218429446951548637196400'
+```
+
+##### Example (2)
+
+```ts
+toJSON()
+```
+
+**Input:**
+
+```ts
+false
+```
+
+**Output:**
+
+```ts
+'false'
+```
+
+##### Example (3)
+
+```ts
+toJSON()
+```
+
+**Input:**
+
+```ts
+{ some: 1234 }
+```
+
+**Output:**
+
+```ts
+'{"some":1234}'
+```
+
+##### Example (4)
+
+```ts
+toJSON()
+```
+
+**Input:**
+
+```ts
+{ bigNum: 278218429446951548637196401n }
+```
+
+**Output:**
+
+```ts
+'{"bigNum":"278218429446951548637196400"}'
 ```
 
 ## CATEGORY: Date
@@ -685,21 +2238,71 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-```ts
-"2019-10-22T22:00:00.000Z" => addToDate(expr: "10h+2m") // outputs "2019-10-23T08:02:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2019-10-22T22:00:00.000Z" => addToDate(months: 1, minutes: 2) // outputs "2019-11-22T22:02:00.000Z"
+addToDate({ expr: '10h+2m' })
 ```
 
-```ts
-"2019-10-22T22:00:00.000Z" => addToDate() // throws Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
-```
+**Input:**
 
 ```ts
-"2019-10-22T22:00:00.000Z" => addToDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
+'2019-10-22T22:00:00.000Z'
 ```
+
+**Output:**
+
+```ts
+'2019-10-23T08:02:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+addToDate({ months: 1, minutes: 2 })
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-11-22T22:02:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+addToDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Throws:**
+`Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
+
+##### Example (4)
+
+```ts
+addToDate({ expr: '1hr', months: 10 })
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Throws:**
+`Invalid use of months with expr parameter`
 
 ### `formatDate`
 
@@ -721,20 +2324,76 @@ Default: iso_8601 for strings and epoch_millis for numbers
 
 #### Examples
 
-```ts
-"2019-10-22T00:00:00.000Z" => formatDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
-```
+##### Example (1)
 
 ```ts
-102390933 => formatDate() // outputs "1970-01-02T04:26:30.933Z"
+formatDate({ format: 'yyyy-MM-dd' })
 ```
 
-```ts
-"1973-03-31T01:55:33.000Z" => formatDate(format: "milliseconds") // outputs 102390933000
-```
+**Input:**
 
 ```ts
-"2001-01-01T01:00:00.000Z" => formatDate() // outputs "2001-01-01T01:00:00.000Z"
+'2019-10-22T00:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-10-22'
+```
+
+##### Example (2)
+
+```ts
+formatDate()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+'1970-01-02T04:26:30.933Z'
+```
+
+##### Example (3)
+
+```ts
+formatDate({ format: 'milliseconds' })
+```
+
+**Input:**
+
+```ts
+'1973-03-31T01:55:33.000Z'
+```
+
+**Output:**
+
+```ts
+102390933000
+```
+
+##### Example (4)
+
+```ts
+formatDate()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
 ```
 
 ### `getDate`
@@ -751,20 +2410,76 @@ Default: iso_8601 for strings and epoch_millis for numbers
 
 #### Examples
 
-```ts
-"2021-05-11T10:12:41.091Z" => getDate() // outputs 11
-```
+##### Example (1)
 
 ```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outputs 16
+getDate()
 ```
 
-```ts
-"05/22/2021 EST" => getDate() // outputs 22
-```
+**Input:**
 
 ```ts
-1510123223231 => getDate() // outputs 8
+'2021-05-11T10:12:41.091Z'
+```
+
+**Output:**
+
+```ts
+11
+```
+
+##### Example (2)
+
+```ts
+getDate()
+```
+
+**Input:**
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+**Output:**
+
+```ts
+16
+```
+
+##### Example (3)
+
+```ts
+getDate()
+```
+
+**Input:**
+
+```ts
+'05/22/2021 EST'
+```
+
+**Output:**
+
+```ts
+22
+```
+
+##### Example (4)
+
+```ts
+getDate()
+```
+
+**Input:**
+
+```ts
+1510123223231
+```
+
+**Output:**
+
+```ts
+8
 ```
 
 ### `getHours`
@@ -781,20 +2496,76 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getDate() // outpu
 
 #### Examples
 
-```ts
-"2021-05-10T10:12:41.091Z" => getHours() // outputs 10
-```
+##### Example (1)
 
 ```ts
-Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outputs 10
+getHours()
 ```
 
-```ts
-"05/22/2021 EST" => getHours() // outputs 5
-```
+**Input:**
 
 ```ts
-17154123223231 => getHours() // outputs 2
+'2021-05-10T10:12:41.091Z'
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (2)
+
+```ts
+getHours()
+```
+
+**Input:**
+
+```ts
+2021-05-10T10:59:19.091Z
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+getHours()
+```
+
+**Input:**
+
+```ts
+'05/22/2021 EST'
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (4)
+
+```ts
+getHours()
+```
+
+**Input:**
+
+```ts
+17154123223231
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `getMilliseconds`
@@ -811,16 +2582,58 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getHours() // outp
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:01.091Z" => getMilliseconds() // outputs 91
-```
+##### Example (1)
 
 ```ts
-Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() // outputs 91
+getMilliseconds()
 ```
 
+**Input:**
+
 ```ts
-1715472000231 => getMilliseconds() // outputs 231
+'2021-05-10T10:00:01.091Z'
+```
+
+**Output:**
+
+```ts
+91
+```
+
+##### Example (2)
+
+```ts
+getMilliseconds()
+```
+
+**Input:**
+
+```ts
+2021-05-10T10:00:01.091Z
+```
+
+**Output:**
+
+```ts
+91
+```
+
+##### Example (3)
+
+```ts
+getMilliseconds()
+```
+
+**Input:**
+
+```ts
+1715472000231
+```
+
+**Output:**
+
+```ts
+231
 ```
 
 ### `getMinutes`
@@ -837,16 +2650,58 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getMilliseconds() 
 
 #### Examples
 
-```ts
-"2021-05-10T10:12:41.091Z" => getMinutes() // outputs 12
-```
+##### Example (1)
 
 ```ts
-Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // outputs 59
+getMinutes()
 ```
 
+**Input:**
+
 ```ts
-1715472323231 => getMinutes() // outputs 5
+'2021-05-10T10:12:41.091Z'
+```
+
+**Output:**
+
+```ts
+12
+```
+
+##### Example (2)
+
+```ts
+getMinutes()
+```
+
+**Input:**
+
+```ts
+2021-05-10T10:59:19.091Z
+```
+
+**Output:**
+
+```ts
+59
+```
+
+##### Example (3)
+
+```ts
+getMinutes()
+```
+
+**Input:**
+
+```ts
+1715472323231
+```
+
+**Output:**
+
+```ts
+5
 ```
 
 ### `getMonth`
@@ -863,20 +2718,76 @@ Mon May 10 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMinutes() // ou
 
 #### Examples
 
-```ts
-"2021-05-11T10:12:41.091Z" => getMonth() // outputs 5
-```
+##### Example (1)
 
 ```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outputs 5
+getMonth()
 ```
 
-```ts
-"05/22/2021 EST" => getMonth() // outputs 5
-```
+**Input:**
 
 ```ts
-1510123223231 => getMonth() // outputs 11
+'2021-05-11T10:12:41.091Z'
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (2)
+
+```ts
+getMonth()
+```
+
+**Input:**
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (3)
+
+```ts
+getMonth()
+```
+
+**Input:**
+
+```ts
+'05/22/2021 EST'
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (4)
+
+```ts
+getMonth()
+```
+
+**Input:**
+
+```ts
+1510123223231
+```
+
+**Output:**
+
+```ts
+11
 ```
 
 ### `getSeconds`
@@ -893,16 +2804,58 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getMonth() // outp
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:41.091Z" => getSeconds() // outputs 41
-```
+##### Example (1)
 
 ```ts
-Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // outputs 19
+getSeconds()
 ```
 
+**Input:**
+
 ```ts
-1715472323231 => getSeconds() // outputs 23
+'2021-05-10T10:00:41.091Z'
+```
+
+**Output:**
+
+```ts
+41
+```
+
+##### Example (2)
+
+```ts
+getSeconds()
+```
+
+**Input:**
+
+```ts
+2021-05-10T10:00:19.091Z
+```
+
+**Output:**
+
+```ts
+19
+```
+
+##### Example (3)
+
+```ts
+getSeconds()
+```
+
+**Input:**
+
+```ts
+1715472323231
+```
+
+**Output:**
+
+```ts
+23
 ```
 
 ### `getTimeBetween`
@@ -927,20 +2880,76 @@ Mon May 10 2021 03:00:19 GMT-0700 (Mountain Standard Time) => getSeconds() // ou
 
 #### Examples
 
-```ts
-Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(start: "2021-05-10T10:00:00.000Z", interval: "milliseconds") // outputs 1000
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => getTimeBetween(end: "2021-05-10T10:00:00.000Z", interval: "days") // outputs 1
+getTimeBetween({ start: '2021-05-10T10:00:00.000Z', interval: 'milliseconds' })
 ```
 
-```ts
-1620764440001 => getTimeBetween(end: 1620764441001, interval: "seconds") // outputs 1
-```
+**Input:**
 
 ```ts
-"2021-05-10T10:00:00.000Z" => getTimeBetween(end: "2023-01-09T18:19:23.132Z", interval: "ISO8601") // outputs "P1Y7M30DT8H19M23S"
+2021-05-10T10:00:01.000Z
+```
+
+**Output:**
+
+```ts
+1000
+```
+
+##### Example (2)
+
+```ts
+getTimeBetween({ end: '2021-05-10T10:00:00.000Z', interval: 'days' })
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (3)
+
+```ts
+getTimeBetween({ end: 1620764441001, interval: 'seconds' })
+```
+
+**Input:**
+
+```ts
+1620764440001
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (4)
+
+```ts
+getTimeBetween({ end: '2023-01-09T18:19:23.132Z', interval: 'ISO8601' })
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'P1Y7M30DT8H19M23S'
 ```
 
 ### `getTimezoneOffset`
@@ -962,24 +2971,94 @@ Mon May 10 2021 03:00:01 GMT-0700 (Mountain Standard Time) => getTimeBetween(sta
 
 #### Examples
 
-```ts
-Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Africa/Accra") // outputs 0
-```
+##### Example (1)
 
 ```ts
-Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "America/Anchorage") // outputs -480
+getTimezoneOffset({ timezone: 'Africa/Accra' })
 ```
 
-```ts
-Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "America/Aruba") // outputs -240
-```
+**Input:**
 
 ```ts
-Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Asia/Istanbul") // outputs 180
+2021-05-20T15:13:52.131Z
 ```
 
+**Output:**
+
 ```ts
-Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(timezone: "Australia/Canberra") // outputs 600
+0
+```
+
+##### Example (2)
+
+```ts
+getTimezoneOffset({ timezone: 'America/Anchorage' })
+```
+
+**Input:**
+
+```ts
+2021-05-20T15:13:52.131Z
+```
+
+**Output:**
+
+```ts
+-480
+```
+
+##### Example (3)
+
+```ts
+getTimezoneOffset({ timezone: 'America/Aruba' })
+```
+
+**Input:**
+
+```ts
+2021-05-20T15:13:52.131Z
+```
+
+**Output:**
+
+```ts
+-240
+```
+
+##### Example (4)
+
+```ts
+getTimezoneOffset({ timezone: 'Asia/Istanbul' })
+```
+
+**Input:**
+
+```ts
+2021-05-20T15:13:52.131Z
+```
+
+**Output:**
+
+```ts
+180
+```
+
+##### Example (5)
+
+```ts
+getTimezoneOffset({ timezone: 'Australia/Canberra' })
+```
+
+**Input:**
+
+```ts
+2021-05-20T15:13:52.131Z
+```
+
+**Output:**
+
+```ts
+600
 ```
 
 ### `getYear`
@@ -996,20 +3075,76 @@ Thu May 20 2021 08:13:52 GMT-0700 (Mountain Standard Time) => getTimezoneOffset(
 
 #### Examples
 
-```ts
-"2021-05-11T10:12:41.091Z" => getYear() // outputs 2021
-```
+##### Example (1)
 
 ```ts
-Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outputs 2021
+getYear()
 ```
 
-```ts
-"05/22/2021 EST" => getYear() // outputs 2021
-```
+**Input:**
 
 ```ts
-1510123223231 => getYear() // outputs 2017
+'2021-05-11T10:12:41.091Z'
+```
+
+**Output:**
+
+```ts
+2021
+```
+
+##### Example (2)
+
+```ts
+getYear()
+```
+
+**Input:**
+
+```ts
+2021-05-16T10:59:19.091Z
+```
+
+**Output:**
+
+```ts
+2021
+```
+
+##### Example (3)
+
+```ts
+getYear()
+```
+
+**Input:**
+
+```ts
+'05/22/2021 EST'
+```
+
+**Output:**
+
+```ts
+2021
+```
+
+##### Example (4)
+
+```ts
+getYear()
+```
+
+**Input:**
+
+```ts
+1510123223231
+```
+
+**Output:**
+
+```ts
+2017
 ```
 
 ### `lookupTimezone`
@@ -1029,21 +3164,78 @@ Sun May 16 2021 03:59:19 GMT-0700 (Mountain Standard Time) => getYear() // outpu
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"33.385765, -111.891167" => lookupTimezone() // outputs "America/Phoenix"
+lookupTimezone()
+```
+
+**Input:**
+
+```ts
+'33.385765, -111.891167'
+```
+
+**Output:**
+
+```ts
+'America/Phoenix'
 ```
 
 In ocean outside Morocco
-```ts
-"30.00123,-12.233" => lookupTimezone() // outputs "Etc/GMT+1"
-```
+
+##### Example (2)
 
 ```ts
-[30.00123, 12.233] => lookupTimezone() // outputs "Africa/Khartoum"
+lookupTimezone()
 ```
 
+**Input:**
+
 ```ts
-lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Europe/Paris"
+'30.00123,-12.233'
+```
+
+**Output:**
+
+```ts
+'Etc/GMT+1'
+```
+
+##### Example (3)
+
+```ts
+lookupTimezone()
+```
+
+**Input:**
+
+```ts
+[ 30.00123, 12.233 ]
+```
+
+**Output:**
+
+```ts
+'Africa/Khartoum'
+```
+
+##### Example (4)
+
+```ts
+lookupTimezone()
+```
+
+**Input:**
+
+```ts
+{ lat: 48.86168702148502, lon: 2.3366209636711 }
+```
+
+**Output:**
+
+```ts
+'Europe/Paris'
 ```
 
 ### `setDate`
@@ -1064,16 +3256,58 @@ lat: 48.86168702148502, lon: 2.3366209636711 => lookupTimezone() // outputs "Eur
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setDate(value: 12) // outputs "2021-05-12T20:45:30.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(value: 22) // outputs "2021-05-22T20:45:30.091Z"
+setDate({ value: 12 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setDate(value: 1) // outputs "2024-05-01T00:00:00.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-12T20:45:30.000Z'
+```
+
+##### Example (2)
+
+```ts
+setDate({ value: 22 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-05-22T20:45:30.091Z'
+```
+
+##### Example (3)
+
+```ts
+setDate({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-05-01T00:00:00.000Z'
 ```
 
 ### `setHours`
@@ -1094,16 +3328,58 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setDate(value: 22)
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setHours(value: 12) // outputs "2021-05-14T12:45:30.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(value: 22) // outputs "2021-05-14T22:45:30.091Z"
+setHours({ value: 12 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setHours(value: 1) // outputs "2024-05-12T01:00:00.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T12:45:30.000Z'
+```
+
+##### Example (2)
+
+```ts
+setHours({ value: 22 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-05-14T22:45:30.091Z'
+```
+
+##### Example (3)
+
+```ts
+setHours({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-05-12T01:00:00.000Z'
 ```
 
 ### `setMilliseconds`
@@ -1124,16 +3400,58 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setHours(value: 22
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setMilliseconds(value: 392) // outputs "2021-05-14T20:45:30.392Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(value: 483) // outputs "2021-05-14T20:45:30.483Z"
+setMilliseconds({ value: 392 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setMilliseconds(value: 1) // outputs "2024-05-12T00:00:00.001Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:45:30.392Z'
+```
+
+##### Example (2)
+
+```ts
+setMilliseconds({ value: 483 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:45:30.483Z'
+```
+
+##### Example (3)
+
+```ts
+setMilliseconds({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-05-12T00:00:00.001Z'
 ```
 
 ### `setMinutes`
@@ -1154,16 +3472,58 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMilliseconds(va
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setMinutes(value: 12) // outputs "2021-05-14T20:12:30.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(value: 22) // outputs "2021-05-14T20:22:30.091Z"
+setMinutes({ value: 12 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setMinutes(value: 1) // outputs "2024-05-12T00:01:00.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:12:30.000Z'
+```
+
+##### Example (2)
+
+```ts
+setMinutes({ value: 22 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:22:30.091Z'
+```
+
+##### Example (3)
+
+```ts
+setMinutes({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-05-12T00:01:00.000Z'
 ```
 
 ### `setMonth`
@@ -1184,16 +3544,58 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMinutes(value: 
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setMonth(value: 12) // outputs "2021-12-14T20:45:30.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(value: 2) // outputs "2021-02-14T20:45:30.091Z"
+setMonth({ value: 12 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setMonth(value: 1) // outputs "2024-01-12T00:00:00.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-12-14T20:45:30.000Z'
+```
+
+##### Example (2)
+
+```ts
+setMonth({ value: 2 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-02-14T20:45:30.091Z'
+```
+
+##### Example (3)
+
+```ts
+setMonth({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-01-12T00:00:00.000Z'
 ```
 
 ### `setSeconds`
@@ -1214,16 +3616,58 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setMonth(value: 2)
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setSeconds(value: 12) // outputs "2021-05-14T20:45:12.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(value: 22) // outputs "2021-05-14T20:45:22.091Z"
+setSeconds({ value: 12 })
 ```
 
+**Input:**
+
 ```ts
-1715472000000 => setSeconds(value: 1) // outputs "2024-05-12T00:00:01.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:45:12.000Z'
+```
+
+##### Example (2)
+
+```ts
+setSeconds({ value: 22 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:45:22.091Z'
+```
+
+##### Example (3)
+
+```ts
+setSeconds({ value: 1 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2024-05-12T00:00:01.000Z'
 ```
 
 ### `setTimezone`
@@ -1244,12 +3688,40 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(value: 
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setTimezone(timezone: 420) // outputs "2021-05-14T20:45:30.000+07:00"
-```
+##### Example (1)
 
 ```ts
-"2020-02-14T20:45:30.091Z" => setTimezone(timezone: 120) // outputs "2020-02-14T20:45:30.091+02:00"
+setTimezone({ timezone: 420 })
+```
+
+**Input:**
+
+```ts
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T20:45:30.000+07:00'
+```
+
+##### Example (2)
+
+```ts
+setTimezone({ timezone: 120 })
+```
+
+**Input:**
+
+```ts
+'2020-02-14T20:45:30.091Z'
+```
+
+**Output:**
+
+```ts
+'2020-02-14T20:45:30.091+02:00'
 ```
 
 ### `setYear`
@@ -1270,20 +3742,76 @@ Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setSeconds(value: 
 
 #### Examples
 
-```ts
-"2021-05-14T20:45:30.000Z" => setYear(value: 2024) // outputs "2024-05-14T20:45:30.000Z"
-```
+##### Example (1)
 
 ```ts
-Fri May 14 2021 13:45:30 GMT-0700 (Mountain Standard Time) => setYear(value: 1984) // outputs "1984-05-14T20:45:30.091Z"
+setYear({ value: 2024 })
 ```
 
-```ts
-[1621026000000, 420] => setYear(value: 2023) // outputs "2023-05-14T14:00:00.000Z"
-```
+**Input:**
 
 ```ts
-1715472000000 => setYear(value: 2001) // outputs "2001-05-12T00:00:00.000Z"
+'2021-05-14T20:45:30.000Z'
+```
+
+**Output:**
+
+```ts
+'2024-05-14T20:45:30.000Z'
+```
+
+##### Example (2)
+
+```ts
+setYear({ value: 1984 })
+```
+
+**Input:**
+
+```ts
+2021-05-14T20:45:30.091Z
+```
+
+**Output:**
+
+```ts
+'1984-05-14T20:45:30.091Z'
+```
+
+##### Example (3)
+
+```ts
+setYear({ value: 2023 })
+```
+
+**Input:**
+
+```ts
+[ 1621026000000, 420 ]
+```
+
+**Output:**
+
+```ts
+'2023-05-14T14:00:00.000Z'
+```
+
+##### Example (4)
+
+```ts
+setYear({ value: 2001 })
+```
+
+**Input:**
+
+```ts
+1715472000000
+```
+
+**Output:**
+
+```ts
+'2001-05-12T00:00:00.000Z'
 ```
 
 ### `subtractFromDate`
@@ -1319,21 +3847,71 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-```ts
-"2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "10h+2m") // outputs "2019-10-22T12:02:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2019-10-22T22:00:00.000Z" => subtractFromDate(months: 1, minutes: 2) // outputs "2019-09-22T21:58:00.000Z"
+subtractFromDate({ expr: '10h+2m' })
 ```
 
-```ts
-"2019-10-22T22:00:00.000Z" => subtractFromDate() // throws Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds
-```
+**Input:**
 
 ```ts
-"2019-10-22T22:00:00.000Z" => subtractFromDate(expr: "1hr", months: 10) // throws Invalid use of months with expr parameter
+'2019-10-22T22:00:00.000Z'
 ```
+
+**Output:**
+
+```ts
+'2019-10-22T12:02:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+subtractFromDate({ months: 1, minutes: 2 })
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-09-22T21:58:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+subtractFromDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Throws:**
+`Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds`
+
+##### Example (4)
+
+```ts
+subtractFromDate({ expr: '1hr', months: 10 })
+```
+
+**Input:**
+
+```ts
+'2019-10-22T22:00:00.000Z'
+```
+
+**Throws:**
+`Invalid use of months with expr parameter`
 
 ### `timezoneToOffset`
 
@@ -1361,12 +3939,40 @@ For example, `1h` or `1h+2m`
 
 #### Examples
 
-```ts
-"2019-10-22T01:00:00.000Z" => toDailyDate() // outputs "2019-10-22T00:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-[1571706000000, 60] => toDailyDate() // outputs "2019-10-22T00:00:00.000Z"
+toDailyDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-10-22T00:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+toDailyDate()
+```
+
+**Input:**
+
+```ts
+[ 1571706000000, 60 ]
+```
+
+**Output:**
+
+```ts
+'2019-10-22T00:00:00.000Z'
 ```
 
 ### `toDate`
@@ -1389,24 +3995,94 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2019-10-22" => toDate(format: "yyyy-MM-dd") // outputs "2019-10-22T00:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-102390933 => toDate() // outputs "1970-01-02T04:26:30.933Z"
+toDate({ format: 'yyyy-MM-dd' })
 ```
 
-```ts
-102390933 => toDate(format: "seconds") // outputs "1973-03-31T01:55:33.000Z"
-```
+**Input:**
 
 ```ts
-102390933000 => toDate(format: "milliseconds") // outputs "1973-03-31T01:55:33.000Z"
+'2019-10-22'
 ```
 
+**Output:**
+
 ```ts
-"2001-01-01T01:00:00.000Z" => toDate() // outputs "2001-01-01T01:00:00.000Z"
+'2019-10-22T00:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+toDate()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+'1970-01-02T04:26:30.933Z'
+```
+
+##### Example (3)
+
+```ts
+toDate({ format: 'seconds' })
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+'1973-03-31T01:55:33.000Z'
+```
+
+##### Example (4)
+
+```ts
+toDate({ format: 'milliseconds' })
+```
+
+**Input:**
+
+```ts
+102390933000
+```
+
+**Output:**
+
+```ts
+'1973-03-31T01:55:33.000Z'
+```
+
+##### Example (5)
+
+```ts
+toDate()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
 ```
 
 ### `toHourlyDate`
@@ -1423,8 +4099,22 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"2019-10-22T01:05:20.000Z" => toHourlyDate() // outputs "2019-10-22T01:00:00.000Z"
+toHourlyDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T01:05:20.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-10-22T01:00:00.000Z'
 ```
 
 ### `toMonthlyDate`
@@ -1441,12 +4131,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2019-10-22T01:00:00.000Z" => toMonthlyDate() // outputs "2019-10-01T00:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-[1571706000000, 120] => toMonthlyDate() // outputs "2019-10-01T00:00:00.000Z"
+toMonthlyDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-10-01T00:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+toMonthlyDate()
+```
+
+**Input:**
+
+```ts
+[ 1571706000000, 120 ]
+```
+
+**Output:**
+
+```ts
+'2019-10-01T00:00:00.000Z'
 ```
 
 ### `toYearlyDate`
@@ -1463,8 +4181,22 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"2019-10-22T01:00:00.000Z" => toYearlyDate() // outputs "2019-01-01T00:00:00.000Z"
+toYearlyDate()
+```
+
+**Input:**
+
+```ts
+'2019-10-22T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2019-01-01T00:00:00.000Z'
 ```
 
 ### `isAfter`
@@ -1485,24 +4217,94 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:00.000Z" => isAfter(date: "2021-05-09T10:00:00.000Z") // outputs "2021-05-10T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-10T10:00:00.000Z" => isAfter(date: 1620554400000) // outputs "2021-05-10T10:00:00.000Z"
+isAfter({ date: '2021-05-09T10:00:00.000Z' })
 ```
 
-```ts
-1620640800000 => isAfter(date: "2021-05-09T10:00:00.000Z") // outputs 1620640800000
-```
+**Input:**
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isAfter(date: "2021-05-10T10:00:00.000Z") // outputs null
+'2021-05-10T10:00:00.000Z'
 ```
 
+**Output:**
+
 ```ts
-"2021-05-10T10:00:00.000Z" => isAfter(date: [1620640800000, -420]) // outputs null
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isAfter({ date: 1620554400000 })
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+isAfter({ date: '2021-05-09T10:00:00.000Z' })
+```
+
+**Input:**
+
+```ts
+1620640800000
+```
+
+**Output:**
+
+```ts
+1620640800000
+```
+
+##### Example (4)
+
+```ts
+isAfter({ date: '2021-05-10T10:00:00.000Z' })
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isAfter({ date: [ 1620640800000, -420 ] })
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isBefore`
@@ -1523,20 +4325,76 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-09T10:00:00.000Z" => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs "2021-05-09T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-1620554400000 => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs 1620554400000
+isBefore({ date: '2021-05-10T10:00:00.000Z' })
 ```
 
-```ts
-"2021-05-09T10:00:00.000Z" => isBefore(date: 1620640800000) // outputs "2021-05-09T10:00:00.000Z"
-```
+**Input:**
 
 ```ts
-"2021-05-11T10:00:00.000Z" => isBefore(date: "2021-05-10T10:00:00.000Z") // outputs null
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isBefore({ date: '2021-05-10T10:00:00.000Z' })
+```
+
+**Input:**
+
+```ts
+1620554400000
+```
+
+**Output:**
+
+```ts
+1620554400000
+```
+
+##### Example (3)
+
+```ts
+isBefore({ date: 1620640800000 })
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (4)
+
+```ts
+isBefore({ date: '2021-05-10T10:00:00.000Z' })
+```
+
+**Input:**
+
+```ts
+'2021-05-11T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isBetween`
@@ -1559,20 +4417,76 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:00.001Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs "2021-05-10T10:00:00.001Z"
-```
+##### Example (1)
 
 ```ts
-1620554401000 => isBetween(start: 1620554400000, end: 1620640800000) // outputs 1620554401000
+isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
 ```
 
-```ts
-"2021-05-07T10:00:00.000Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs null
-```
+**Input:**
 
 ```ts
-"2021-05-15T10:00:00.000Z" => isBetween(start: "2021-05-09T10:00:00.001Z", end: "2021-05-11T10:00:00.001Z") // outputs null
+'2021-05-10T10:00:00.001Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-10T10:00:00.001Z'
+```
+
+##### Example (2)
+
+```ts
+isBetween({ start: 1620554400000, end: 1620640800000 })
+```
+
+**Input:**
+
+```ts
+1620554401000
+```
+
+**Output:**
+
+```ts
+1620554401000
+```
+
+##### Example (3)
+
+```ts
+isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
+```
+
+**Input:**
+
+```ts
+'2021-05-07T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isBetween({ start: '2021-05-09T10:00:00.001Z', end: '2021-05-11T10:00:00.001Z' })
+```
+
+**Input:**
+
+```ts
+'2021-05-15T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isDate`
@@ -1595,20 +4509,76 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2019-10-22" => isDate(format: "yyyy-MM-dd") // outputs "2019-10-22"
-```
+##### Example (1)
 
 ```ts
-"10-22-2019" => isDate(format: "yyyy-MM-dd") // outputs null
+isDate({ format: 'yyyy-MM-dd' })
 ```
 
-```ts
-102390933 => isDate(format: "epoch") // outputs 102390933
-```
+**Input:**
 
 ```ts
-"2001-01-01T01:00:00.000Z" => isDate() // outputs "2001-01-01T01:00:00.000Z"
+'2019-10-22'
+```
+
+**Output:**
+
+```ts
+'2019-10-22'
+```
+
+##### Example (2)
+
+```ts
+isDate({ format: 'yyyy-MM-dd' })
+```
+
+**Input:**
+
+```ts
+'10-22-2019'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isDate({ format: 'epoch' })
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+102390933
+```
+
+##### Example (4)
+
+```ts
+isDate()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
 ```
 
 ### `isEpoch`
@@ -1628,24 +4598,94 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2019-10-22" => isEpoch() // outputs null
-```
+##### Example (1)
 
 ```ts
-102390933 => isEpoch() // outputs 102390933
+isEpoch()
 ```
 
-```ts
-"2001-01-01T01:00:00.000Z" => isEpoch() // outputs null
-```
+**Input:**
 
 ```ts
--102390933 => isEpoch(allowBefore1970: false) // outputs null
+'2019-10-22'
 ```
 
+**Output:**
+
 ```ts
--102390933 => isEpoch() // outputs -102390933
+null
+```
+
+##### Example (2)
+
+```ts
+isEpoch()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+102390933
+```
+
+##### Example (3)
+
+```ts
+isEpoch()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isEpoch({ allowBefore1970: false })
+```
+
+**Input:**
+
+```ts
+-102390933
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isEpoch()
+```
+
+**Input:**
+
+```ts
+-102390933
+```
+
+**Output:**
+
+```ts
+-102390933
 ```
 
 ### `isEpochMillis`
@@ -1664,24 +4704,94 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2019-10-22" => isEpochMillis() // outputs null
-```
+##### Example (1)
 
 ```ts
-102390933 => isEpochMillis() // outputs 102390933
+isEpochMillis()
 ```
 
-```ts
-"2001-01-01T01:00:00.000Z" => isEpochMillis() // outputs null
-```
+**Input:**
 
 ```ts
--102390933 => isEpochMillis(allowBefore1970: false) // outputs null
+'2019-10-22'
 ```
 
+**Output:**
+
 ```ts
--102390933 => isEpochMillis() // outputs -102390933
+null
+```
+
+##### Example (2)
+
+```ts
+isEpochMillis()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+102390933
+```
+
+##### Example (3)
+
+```ts
+isEpochMillis()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isEpochMillis({ allowBefore1970: false })
+```
+
+**Input:**
+
+```ts
+-102390933
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isEpochMillis()
+```
+
+**Input:**
+
+```ts
+-102390933
+```
+
+**Output:**
+
+```ts
+-102390933
 ```
 
 ### `isFriday`
@@ -1698,16 +4808,58 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-14T10:00:00.000Z" => isFriday() // outputs "2021-05-14T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-[1620986400000, -620] => isFriday() // outputs "2021-05-14T10:00:00.000-10:20"
+isFriday()
 ```
 
+**Input:**
+
 ```ts
-"2021-05-09T10:00:00.000Z" => isFriday() // outputs null
+'2021-05-14T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-14T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isFriday()
+```
+
+**Input:**
+
+```ts
+[ 1620986400000, -620 ]
+```
+
+**Output:**
+
+```ts
+'2021-05-14T10:00:00.000-10:20'
+```
+
+##### Example (3)
+
+```ts
+isFriday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isFuture`
@@ -1724,12 +4876,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:00.000Z" => isFuture() // outputs null
-```
+##### Example (1)
 
 ```ts
-"2121-05-09T10:00:00.000Z" => isFuture() // outputs "2121-05-09T10:00:00.000Z"
+isFuture()
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isFuture()
+```
+
+**Input:**
+
+```ts
+'2121-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2121-05-09T10:00:00.000Z'
 ```
 
 ### `isISO8601`
@@ -1746,12 +4926,58 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-102390933 => isISO8601() // outputs null
-```
+##### Example (1)
 
 ```ts
-"2001-01-01T01:00:00.000Z" => isISO8601() // outputs "2001-01-01T01:00:00.000Z"
+isISO8601()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isISO8601()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+isISO8601()
+```
+
+**Input:**
+
+```ts
+102390933
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isLeapYear`
@@ -1768,16 +4994,58 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2020-05-10T10:00:00.000Z" => isLeapYear() // outputs "2020-05-10T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-[1589104800000, 60] => isLeapYear() // outputs "2020-05-10T10:00:00.000+01:00"
+isLeapYear()
 ```
 
+**Input:**
+
 ```ts
-"2021-05-10T10:00:00.000Z" => isLeapYear() // outputs null
+'2020-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2020-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isLeapYear()
+```
+
+**Input:**
+
+```ts
+[ 1589104800000, 60 ]
+```
+
+**Output:**
+
+```ts
+'2020-05-10T10:00:00.000+01:00'
+```
+
+##### Example (3)
+
+```ts
+isLeapYear()
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isMonday`
@@ -1794,12 +5062,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:00.000Z" => isMonday() // outputs "2021-05-10T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isMonday() // outputs null
+isMonday()
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isMonday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isPast`
@@ -1816,12 +5112,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-10T10:00:00.000Z" => isPast() // outputs "2021-05-10T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2121-05-09T10:00:00.000Z" => isPast() // outputs null
+isPast()
+```
+
+**Input:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-10T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isPast()
+```
+
+**Input:**
+
+```ts
+'2121-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isSaturday`
@@ -1838,12 +5162,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-08T10:00:00.000Z" => isSaturday() // outputs "2021-05-08T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isSaturday() // outputs null
+isSaturday()
+```
+
+**Input:**
+
+```ts
+'2021-05-08T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-08T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isSaturday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isSunday`
@@ -1860,12 +5212,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-09T10:00:00.000Z" => isSunday() // outputs "2021-05-09T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-1620554400000 => isSunday() // outputs 1620554400000
+isSunday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isSunday()
+```
+
+**Input:**
+
+```ts
+1620554400000
+```
+
+**Output:**
+
+```ts
+1620554400000
 ```
 
 ### `isThursday`
@@ -1882,12 +5262,40 @@ Default: iso_8601 for strings and epoch_millis for number
 
 #### Examples
 
-```ts
-"2021-05-13T10:00:00.000Z" => isThursday() // outputs "2021-05-13T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isThursday() // outputs null
+isThursday()
+```
+
+**Input:**
+
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isThursday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isToday`
@@ -1905,12 +5313,41 @@ Default: iso_8601 for strings and epoch_millis for number
 #### Examples
 
 This input is created at execution time
-```ts
-"2021-06-10T22:09:47.906Z" => isToday() // outputs "2021-06-10T22:09:47.906Z"
-```
+
+##### Example (1)
 
 ```ts
-"2020-05-09T10:00:00.000Z" => isToday() // outputs null
+isToday()
+```
+
+**Input:**
+
+```ts
+'2021-06-10T22:33:40.191Z'
+```
+
+**Output:**
+
+```ts
+'2021-06-10T22:33:40.191Z'
+```
+
+##### Example (2)
+
+```ts
+isToday()
+```
+
+**Input:**
+
+```ts
+'2020-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isTomorrow`
@@ -1928,13 +5365,43 @@ This input is created at execution time
 #### Examples
 
 Represents current time
+
+##### Example (1)
+
 ```ts
-"2021-06-10T22:09:47.907Z" => isTomorrow() // outputs null
+isTomorrow()
+```
+
+**Input:**
+
+```ts
+'2021-06-10T22:33:40.192Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 Represents day after current time
+
+##### Example (2)
+
 ```ts
-"2021-06-11T22:09:47.907Z" => isTomorrow() // outputs "2021-06-11T22:09:47.907Z"
+isTomorrow()
+```
+
+**Input:**
+
+```ts
+'2021-06-11T22:33:40.192Z'
+```
+
+**Output:**
+
+```ts
+'2021-06-11T22:33:40.192Z'
 ```
 
 ### `isTuesday`
@@ -1951,12 +5418,40 @@ Represents day after current time
 
 #### Examples
 
-```ts
-"2021-05-11T10:00:00.000Z" => isTuesday() // outputs "2021-05-11T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isTuesday() // outputs null
+isTuesday()
+```
+
+**Input:**
+
+```ts
+'2021-05-11T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-11T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isTuesday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isWednesday`
@@ -1973,12 +5468,40 @@ Represents day after current time
 
 #### Examples
 
-```ts
-"2021-05-12T10:00:00.000Z" => isWednesday() // outputs "2021-05-12T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-09T10:00:00.000Z" => isWednesday() // outputs null
+isWednesday()
+```
+
+**Input:**
+
+```ts
+'2021-05-12T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-12T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isWednesday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isWeekday`
@@ -1995,20 +5518,76 @@ Represents day after current time
 
 #### Examples
 
-```ts
-"2021-05-12T10:00:00.000Z" => isWeekday() // outputs "2021-05-12T10:00:00.000Z"
-```
+##### Example (1)
 
 ```ts
-"2021-05-13T10:00:00.000Z" => isWeekday() // outputs "2021-05-13T10:00:00.000Z"
+isWeekday()
 ```
 
-```ts
-"2021-05-09T10:00:00.000Z" => isWeekday() // outputs null
-```
+**Input:**
 
 ```ts
-"2021-05-08T10:00:00.000Z" => isWeekday() // outputs null
+'2021-05-12T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-12T10:00:00.000Z'
+```
+
+##### Example (2)
+
+```ts
+isWeekday()
+```
+
+**Input:**
+
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+##### Example (3)
+
+```ts
+isWeekday()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isWeekday()
+```
+
+**Input:**
+
+```ts
+'2021-05-08T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isWeekend`
@@ -2025,20 +5604,76 @@ Represents day after current time
 
 #### Examples
 
-```ts
-"2021-05-12T10:00:00.000Z" => isWeekend() // outputs null
-```
+##### Example (1)
 
 ```ts
-"2021-05-13T10:00:00.000Z" => isWeekend() // outputs null
+isWeekend()
 ```
 
-```ts
-"2021-05-09T10:00:00.000Z" => isWeekend() // outputs "2021-05-09T10:00:00.000Z"
-```
+**Input:**
 
 ```ts
-"2021-05-08T10:00:00.000Z" => isWeekend() // outputs "2021-05-08T10:00:00.000Z"
+'2021-05-12T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isWeekend()
+```
+
+**Input:**
+
+```ts
+'2021-05-13T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isWeekend()
+```
+
+**Input:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-09T10:00:00.000Z'
+```
+
+##### Example (4)
+
+```ts
+isWeekend()
+```
+
+**Input:**
+
+```ts
+'2021-05-08T10:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+'2021-05-08T10:00:00.000Z'
 ```
 
 ### `isYesterday`
@@ -2056,13 +5691,43 @@ Represents day after current time
 #### Examples
 
 Represents current time
+
+##### Example (1)
+
 ```ts
-"2021-06-10T22:09:47.914Z" => isYesterday() // outputs null
+isYesterday()
+```
+
+**Input:**
+
+```ts
+'2021-06-10T22:33:40.201Z'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 Represents day before current time
+
+##### Example (2)
+
 ```ts
-"2021-06-09T22:09:47.914Z" => isYesterday() // outputs "2021-06-09T22:09:47.914Z"
+isYesterday()
+```
+
+**Input:**
+
+```ts
+'2021-06-09T22:33:40.201Z'
+```
+
+**Output:**
+
+```ts
+'2021-06-09T22:33:40.201Z'
 ```
 
 ## CATEGORY: Numeric
@@ -2079,8 +5744,22 @@ Represents day before current time
 
 #### Examples
 
+##### Example (1)
+
 ```ts
--1 => abs() // outputs 1
+abs()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `acos`
@@ -2095,8 +5774,22 @@ Represents day before current time
 
 #### Examples
 
+##### Example (1)
+
 ```ts
--1 => acos() // outputs 3.141592653589793
+acos()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+3.141592653589793
 ```
 
 ### `acosh`
@@ -2111,13 +5804,42 @@ Represents day before current time
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => acosh() // outputs 0
+acosh()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+0
 ```
 
 Since this function doesn't work with numbers <=0, null will be returned
+
+##### Example (2)
+
 ```ts
-0 => acosh() // outputs null
+acosh()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `add`
@@ -2136,20 +5858,76 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
-```ts
-10 => add(value: 1) // outputs 11
-```
+##### Example (1)
 
 ```ts
-10 => add(value: 5) // outputs 15
+add({ value: 1 })
 ```
 
-```ts
-10 => add(value: -5) // outputs 5
-```
+**Input:**
 
 ```ts
-12 => add(value: 12) // outputs 24
+10
+```
+
+**Output:**
+
+```ts
+11
+```
+
+##### Example (2)
+
+```ts
+add({ value: 5 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+15
+```
+
+##### Example (3)
+
+```ts
+add({ value: -5 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (4)
+
+```ts
+add({ value: 12 })
+```
+
+**Input:**
+
+```ts
+12
+```
+
+**Output:**
+
+```ts
+24
 ```
 
 ### `addValues`
@@ -2164,24 +5942,94 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
-```ts
-[100, 10] => addValues() // outputs 110
-```
+##### Example (1)
 
 ```ts
-[10] => addValues() // outputs 10
+addValues()
 ```
 
-```ts
-[10, 100000, 2] => addValues() // outputs 100012
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => addValues() // outputs 100012
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => addValues() // outputs 2
+110
+```
+
+##### Example (2)
+
+```ts
+addValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+addValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+100012
+```
+
+##### Example (4)
+
+```ts
+addValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+100012
+```
+
+##### Example (5)
+
+```ts
+addValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `asin`
@@ -2196,8 +6044,22 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => asin() // outputs 1.5707963267948966
+asin()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1.5707963267948966
 ```
 
 ### `asinh`
@@ -2212,8 +6074,22 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => asinh() // outputs 0.881373587019543
+asinh()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+0.881373587019543
 ```
 
 ### `atan`
@@ -2228,8 +6104,22 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => atan() // outputs 0.7853981633974483
+atan()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+0.7853981633974483
 ```
 
 ### `atan2`
@@ -2244,17 +6134,56 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
-```ts
-[15, 90] => atan2() // outputs 1.4056476493802699
-```
+##### Example (1)
 
 ```ts
-[90, 15] => atan2() // outputs 0.16514867741462683
+atan2()
 ```
 
+**Input:**
+
 ```ts
-[-90, null] => atan2() // throws Expected (x, y) coordinates, got [-90,null] (Array)
+[ 15, 90 ]
 ```
+
+**Output:**
+
+```ts
+1.4056476493802699
+```
+
+##### Example (2)
+
+```ts
+atan2()
+```
+
+**Input:**
+
+```ts
+[ 90, 15 ]
+```
+
+**Output:**
+
+```ts
+0.16514867741462683
+```
+
+##### Example (3)
+
+```ts
+atan2()
+```
+
+**Input:**
+
+```ts
+[ -90, null ]
+```
+
+**Throws:**
+`Expected (x, y) coordinates, got [-90,null] (Array)`
 
 ### `atanh`
 
@@ -2268,13 +6197,42 @@ Since this function doesn't work with numbers <=0, null will be returned
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-0.5 => atanh() // outputs 0.5493061443340548
+atanh()
+```
+
+**Input:**
+
+```ts
+0.5
+```
+
+**Output:**
+
+```ts
+0.5493061443340548
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+
+##### Example (2)
+
 ```ts
--1 => atanh() // outputs null
+atanh()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `cbrt`
@@ -2289,12 +6247,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-64 => cbrt() // outputs 4
-```
+##### Example (1)
 
 ```ts
-1 => cbrt() // outputs 1
+cbrt()
+```
+
+**Input:**
+
+```ts
+64
+```
+
+**Output:**
+
+```ts
+4
+```
+
+##### Example (2)
+
+```ts
+cbrt()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `ceil`
@@ -2309,16 +6295,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0.95 => ceil() // outputs 1
-```
+##### Example (1)
 
 ```ts
-0.1 => ceil() // outputs 1
+ceil()
 ```
 
+**Input:**
+
 ```ts
--7.004 => ceil() // outputs -7
+0.95
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+ceil()
+```
+
+**Input:**
+
+```ts
+0.1
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (3)
+
+```ts
+ceil()
+```
+
+**Input:**
+
+```ts
+-7.004
+```
+
+**Output:**
+
+```ts
+-7
 ```
 
 ### `clz32`
@@ -2333,16 +6361,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-1 => clz32() // outputs 31
-```
+##### Example (1)
 
 ```ts
-1000 => clz32() // outputs 22
+clz32()
 ```
 
+**Input:**
+
 ```ts
-4 => clz32() // outputs 29
+1
+```
+
+**Output:**
+
+```ts
+31
+```
+
+##### Example (2)
+
+```ts
+clz32()
+```
+
+**Input:**
+
+```ts
+1000
+```
+
+**Output:**
+
+```ts
+22
+```
+
+##### Example (3)
+
+```ts
+clz32()
+```
+
+**Input:**
+
+```ts
+4
+```
+
+**Output:**
+
+```ts
+29
 ```
 
 ### `cos`
@@ -2357,16 +6427,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0 => cos() // outputs 1
-```
+##### Example (1)
 
 ```ts
-3.141592653589793 => cos() // outputs -1
+cos()
 ```
 
+**Input:**
+
 ```ts
-6.283185307179586 => cos() // outputs 1
+0
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+cos()
+```
+
+**Input:**
+
+```ts
+3.141592653589793
+```
+
+**Output:**
+
+```ts
+-1
+```
+
+##### Example (3)
+
+```ts
+cos()
+```
+
+**Input:**
+
+```ts
+6.283185307179586
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `cosh`
@@ -2381,12 +6493,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0 => cosh() // outputs 1
-```
+##### Example (1)
 
 ```ts
-3.141592653589793 => cosh() // outputs 11.591953275521519
+cosh()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+cosh()
+```
+
+**Input:**
+
+```ts
+3.141592653589793
+```
+
+**Output:**
+
+```ts
+11.591953275521519
 ```
 
 ### `divide`
@@ -2405,16 +6545,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-10 => divide(value: 5) // outputs 2
-```
+##### Example (1)
 
 ```ts
-10 => divide(value: 1) // outputs 10
+divide({ value: 5 })
 ```
 
+**Input:**
+
 ```ts
-10 => divide(value: 2) // outputs 5
+10
+```
+
+**Output:**
+
+```ts
+2
+```
+
+##### Example (2)
+
+```ts
+divide({ value: 1 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+divide({ value: 2 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+5
 ```
 
 ### `divideValues`
@@ -2429,24 +6611,94 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-[100, 10] => divideValues() // outputs 10
-```
+##### Example (1)
 
 ```ts
-[10] => divideValues() // outputs 10
+divideValues()
 ```
 
-```ts
-[10, 100000, 2] => divideValues() // outputs 0.00005
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => divideValues() // outputs 0.00005
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => divideValues() // outputs 2
+10
+```
+
+##### Example (2)
+
+```ts
+divideValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+divideValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+0.00005
+```
+
+##### Example (4)
+
+```ts
+divideValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+0.00005
+```
+
+##### Example (5)
+
+```ts
+divideValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `exp`
@@ -2461,12 +6713,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0 => exp() // outputs 1
-```
+##### Example (1)
 
 ```ts
-1 => exp() // outputs 2.718281828459045
+exp()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+exp()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+2.718281828459045
 ```
 
 ### `expm1`
@@ -2481,12 +6761,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0 => expm1() // outputs 0
-```
+##### Example (1)
 
 ```ts
-1 => expm1() // outputs 1.718281828459045
+expm1()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+expm1()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1.718281828459045
 ```
 
 ### `floor`
@@ -2501,16 +6809,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0.95 => floor() // outputs 0
-```
+##### Example (1)
 
 ```ts
-0.1 => floor() // outputs 0
+floor()
 ```
 
+**Input:**
+
 ```ts
--7.004 => floor() // outputs -8
+0.95
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+floor()
+```
+
+**Input:**
+
+```ts
+0.1
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (3)
+
+```ts
+floor()
+```
+
+**Input:**
+
+```ts
+-7.004
+```
+
+**Output:**
+
+```ts
+-8
 ```
 
 ### `fround`
@@ -2525,12 +6875,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-5.5 => fround() // outputs 5.5
-```
+##### Example (1)
 
 ```ts
--5.05 => fround() // outputs -5.050000190734863
+fround()
+```
+
+**Input:**
+
+```ts
+5.5
+```
+
+**Output:**
+
+```ts
+5.5
+```
+
+##### Example (2)
+
+```ts
+fround()
+```
+
+**Input:**
+
+```ts
+-5.05
+```
+
+**Output:**
+
+```ts
+-5.050000190734863
 ```
 
 ### `hypot`
@@ -2545,20 +6923,76 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-[3, 4] => hypot() // outputs 5
-```
+##### Example (1)
 
 ```ts
-[5, 12] => hypot() // outputs 13
+hypot()
 ```
 
-```ts
-[3, 4, null, 5] => hypot() // outputs 7.0710678118654755
-```
+**Input:**
 
 ```ts
-null => hypot() // outputs null
+[ 3, 4 ]
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (2)
+
+```ts
+hypot()
+```
+
+**Input:**
+
+```ts
+[ 5, 12 ]
+```
+
+**Output:**
+
+```ts
+13
+```
+
+##### Example (3)
+
+```ts
+hypot()
+```
+
+**Input:**
+
+```ts
+[ 3, 4, null, 5 ]
+```
+
+**Output:**
+
+```ts
+7.0710678118654755
+```
+
+##### Example (4)
+
+```ts
+hypot()
+```
+
+**Input:**
+
+```ts
+null
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `log`
@@ -2573,16 +7007,58 @@ null => hypot() // outputs null
 
 #### Examples
 
-```ts
-1 => log() // outputs 0
-```
+##### Example (1)
 
 ```ts
-10 => log() // outputs 2.302585092994046
+log()
 ```
 
+**Input:**
+
 ```ts
--1 => log() // outputs null
+1
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+log()
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+2.302585092994046
+```
+
+##### Example (3)
+
+```ts
+log()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `log1p`
@@ -2597,22 +7073,80 @@ null => hypot() // outputs null
 
 #### Examples
 
-```ts
-1 => log1p() // outputs 0.6931471805599453
-```
+##### Example (1)
 
 ```ts
-0 => log1p() // outputs 0
+log1p()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+0.6931471805599453
+```
+
+##### Example (2)
+
+```ts
+log1p()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+0
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
+
+##### Example (3)
+
 ```ts
--1 => log1p() // outputs null
+log1p()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 Typically this would return NaN but that cannot be stored or serialized so null is returned
+
+##### Example (4)
+
 ```ts
--2 => log1p() // outputs null
+log1p()
+```
+
+**Input:**
+
+```ts
+-2
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `log2`
@@ -2627,17 +7161,60 @@ Typically this would return NaN but that cannot be stored or serialized so null 
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-2 => log2() // outputs 1
+log2()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
-```ts
-0 => log2() // outputs null
-```
+
+##### Example (2)
 
 ```ts
--2 => log2() // outputs null
+log2()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+log2()
+```
+
+**Input:**
+
+```ts
+-2
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `log10`
@@ -2652,17 +7229,60 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-10 => log10() // outputs 1
+log10()
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 Typically this would return -Infinity but that cannot be stored or serialized so null is returned
-```ts
-0 => log10() // outputs null
-```
+
+##### Example (2)
 
 ```ts
--2 => log10() // outputs null
+log10()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+log10()
+```
+
+**Input:**
+
+```ts
+-2
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `maxValues`
@@ -2677,24 +7297,94 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-[100, 10] => maxValues() // outputs 100
-```
+##### Example (1)
 
 ```ts
-[10] => maxValues() // outputs 10
+maxValues()
 ```
 
-```ts
-[10, 100000, 2] => maxValues() // outputs 100000
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => maxValues() // outputs 100000
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => maxValues() // outputs 2
+100
+```
+
+##### Example (2)
+
+```ts
+maxValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+maxValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+100000
+```
+
+##### Example (4)
+
+```ts
+maxValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+100000
+```
+
+##### Example (5)
+
+```ts
+maxValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `minValues`
@@ -2709,24 +7399,94 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-[100, 10] => minValues() // outputs 10
-```
+##### Example (1)
 
 ```ts
-[10] => minValues() // outputs 10
+minValues()
 ```
 
-```ts
-[10, 100000, 2] => minValues() // outputs 2
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => minValues() // outputs 2
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => minValues() // outputs 2
+10
+```
+
+##### Example (2)
+
+```ts
+minValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+minValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+2
+```
+
+##### Example (4)
+
+```ts
+minValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+2
+```
+
+##### Example (5)
+
+```ts
+minValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `modulus`
@@ -2746,20 +7506,76 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-10 => modulus(value: 2) // outputs 0
-```
+##### Example (1)
 
 ```ts
-9 => modulus(value: 2) // outputs 1
+modulus({ value: 2 })
 ```
 
-```ts
-10 => modulus(value: -5) // outputs 0
-```
+**Input:**
 
 ```ts
-101 => modulus(value: 10) // outputs 1
+10
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+modulus({ value: 2 })
+```
+
+**Input:**
+
+```ts
+9
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (3)
+
+```ts
+modulus({ value: -5 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (4)
+
+```ts
+modulus({ value: 10 })
+```
+
+**Input:**
+
+```ts
+101
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `multiply`
@@ -2778,16 +7594,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-10 => multiply(value: 5) // outputs 50
-```
+##### Example (1)
 
 ```ts
-10 => multiply(value: -2) // outputs -20
+multiply({ value: 5 })
 ```
 
+**Input:**
+
 ```ts
-10 => multiply(value: 2) // outputs 20
+10
+```
+
+**Output:**
+
+```ts
+50
+```
+
+##### Example (2)
+
+```ts
+multiply({ value: -2 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+-20
+```
+
+##### Example (3)
+
+```ts
+multiply({ value: 2 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+20
 ```
 
 ### `multiplyValues`
@@ -2802,24 +7660,94 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-[100, 10] => multiplyValues() // outputs 1000
-```
+##### Example (1)
 
 ```ts
-[10] => multiplyValues() // outputs 10
+multiplyValues()
 ```
 
-```ts
-[10, 100000, 2] => multiplyValues() // outputs 2000000
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => multiplyValues() // outputs 2000000
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => multiplyValues() // outputs 2
+1000
+```
+
+##### Example (2)
+
+```ts
+multiplyValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+multiplyValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+2000000
+```
+
+##### Example (4)
+
+```ts
+multiplyValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+2000000
+```
+
+##### Example (5)
+
+```ts
+multiplyValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `pow`
@@ -2839,12 +7767,40 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-7 => pow(value: 3) // outputs 343
-```
+##### Example (1)
 
 ```ts
-4 => pow(value: 0.5) // outputs 2
+pow({ value: 3 })
+```
+
+**Input:**
+
+```ts
+7
+```
+
+**Output:**
+
+```ts
+343
+```
+
+##### Example (2)
+
+```ts
+pow({ value: 0.5 })
+```
+
+**Input:**
+
+```ts
+4
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `random`
@@ -2861,8 +7817,22 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => random(min: 1, max: 1) // outputs 1
+random({ min: 1, max: 1 })
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `round`
@@ -2877,16 +7847,58 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-0.95 => round() // outputs 1
-```
+##### Example (1)
 
 ```ts
-0.1 => round() // outputs 0
+round()
 ```
 
+**Input:**
+
 ```ts
--7.004 => round() // outputs -7
+0.95
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+round()
+```
+
+**Input:**
+
+```ts
+0.1
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (3)
+
+```ts
+round()
+```
+
+**Input:**
+
+```ts
+-7.004
+```
+
+**Output:**
+
+```ts
+-7
 ```
 
 ### `setPrecision`
@@ -2909,36 +7921,160 @@ Typically this would return -Infinity but that cannot be stored or serialized so
 
 #### Examples
 
-```ts
-"10.123444" => setPrecision(digits: 1, truncate: false) // outputs 10.1
-```
+##### Example (1)
 
 ```ts
-10.253444 => setPrecision(digits: 1, truncate: true) // outputs 10.2
+setPrecision({ digits: 1, truncate: false })
 ```
 
-```ts
-10.253444 => setPrecision(digits: 1, truncate: false) // outputs 10.3
-```
+**Input:**
 
 ```ts
-3.141592653589793 => setPrecision(digits: 2) // outputs 3.14
+'10.123444'
 ```
 
-```ts
-3.141592653589793 => setPrecision(digits: 0) // outputs 3
-```
+**Output:**
 
 ```ts
-23.4 => setPrecision(digits: -1) // throws Expected digits to be between 0-100
+10.1
 ```
 
-```ts
-23.4 => setPrecision(digits: 1000) // throws Expected digits to be between 0-100
-```
+##### Example (2)
 
 ```ts
-lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate: true) // outputs lat: 32.12, lon: -20.95
+setPrecision({ digits: 1, truncate: true })
+```
+
+**Input:**
+
+```ts
+10.253444
+```
+
+**Output:**
+
+```ts
+10.2
+```
+
+##### Example (3)
+
+```ts
+setPrecision({ digits: 1, truncate: false })
+```
+
+**Input:**
+
+```ts
+10.253444
+```
+
+**Output:**
+
+```ts
+10.3
+```
+
+##### Example (4)
+
+```ts
+setPrecision({ digits: 2 })
+```
+
+**Input:**
+
+```ts
+3.141592653589793
+```
+
+**Output:**
+
+```ts
+3.14
+```
+
+##### Example (5)
+
+```ts
+setPrecision({ digits: 0 })
+```
+
+**Input:**
+
+```ts
+3.141592653589793
+```
+
+**Output:**
+
+```ts
+3
+```
+
+##### Example (6)
+
+```ts
+setPrecision({ digits: -1 })
+```
+
+**Input:**
+
+```ts
+23.4
+```
+
+**Throws:**
+`Expected digits to be between 0-100`
+
+##### Example (7)
+
+```ts
+setPrecision({ digits: 1000 })
+```
+
+**Input:**
+
+```ts
+23.4
+```
+
+**Throws:**
+`Expected digits to be between 0-100`
+
+##### Example (8)
+
+```ts
+setPrecision({ digits: 2, truncate: true })
+```
+
+**Input:**
+
+```ts
+{ lat: 32.12399971230023, lon: -20.95522300035 }
+```
+
+**Output:**
+
+```ts
+{ lat: 32.12, lon: -20.95 }
+```
+
+##### Example (9)
+
+```ts
+setPrecision({ digits: 2, truncate: true })
+```
+
+**Input:**
+
+```ts
+{ lat: 32.12399971230023, lon: -20.95522300035 }
+```
+
+**Output:**
+
+```ts
+{ lat: 32.12, lon: -20.95 }
 ```
 
 ### `sign`
@@ -2958,16 +8094,58 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-3 => sign() // outputs 1
-```
+##### Example (1)
 
 ```ts
--3 => sign() // outputs -1
+sign()
 ```
 
+**Input:**
+
 ```ts
-0 => sign() // outputs 0
+3
+```
+
+**Output:**
+
+```ts
+1
+```
+
+##### Example (2)
+
+```ts
+sign()
+```
+
+**Input:**
+
+```ts
+-3
+```
+
+**Output:**
+
+```ts
+-1
+```
+
+##### Example (3)
+
+```ts
+sign()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+0
 ```
 
 ### `sin`
@@ -2982,16 +8160,58 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-0 => sin() // outputs 0
-```
+##### Example (1)
 
 ```ts
-1 => sin() // outputs 0.8414709848078965
+sin()
 ```
 
+**Input:**
+
 ```ts
-1.5707963267948966 => sin() // outputs 1
+0
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+sin()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+0.8414709848078965
+```
+
+##### Example (3)
+
+```ts
+sin()
+```
+
+**Input:**
+
+```ts
+1.5707963267948966
+```
+
+**Output:**
+
+```ts
+1
 ```
 
 ### `sinh`
@@ -3006,16 +8226,58 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-0 => sinh() // outputs 0
-```
+##### Example (1)
 
 ```ts
-1 => sinh() // outputs 1.1752011936438014
+sinh()
 ```
 
+**Input:**
+
 ```ts
--1 => sinh() // outputs -1.1752011936438014
+0
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+sinh()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1.1752011936438014
+```
+
+##### Example (3)
+
+```ts
+sinh()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+-1.1752011936438014
 ```
 
 ### `sqrt`
@@ -3030,16 +8292,58 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-9 => sqrt() // outputs 3
-```
+##### Example (1)
 
 ```ts
-2 => sqrt() // outputs 1.4142135623730951
+sqrt()
 ```
 
+**Input:**
+
 ```ts
--1 => sqrt() // outputs null
+9
+```
+
+**Output:**
+
+```ts
+3
+```
+
+##### Example (2)
+
+```ts
+sqrt()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+1.4142135623730951
+```
+
+##### Example (3)
+
+```ts
+sqrt()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `subtract`
@@ -3058,20 +8362,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-10 => subtract(value: 1) // outputs 9
-```
+##### Example (1)
 
 ```ts
-10 => subtract(value: 5) // outputs 5
+subtract({ value: 1 })
 ```
 
-```ts
-10 => subtract(value: -5) // outputs 15
-```
+**Input:**
 
 ```ts
-10 => subtract(value: 2) // outputs 8
+10
+```
+
+**Output:**
+
+```ts
+9
+```
+
+##### Example (2)
+
+```ts
+subtract({ value: 5 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+5
+```
+
+##### Example (3)
+
+```ts
+subtract({ value: -5 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+15
+```
+
+##### Example (4)
+
+```ts
+subtract({ value: 2 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+8
 ```
 
 ### `subtractValues`
@@ -3086,24 +8446,94 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-[100, 10] => subtractValues() // outputs 90
-```
+##### Example (1)
 
 ```ts
-[10] => subtractValues() // outputs 10
+subtractValues()
 ```
 
-```ts
-[10, 100000, 2] => subtractValues() // outputs -99992
-```
+**Input:**
 
 ```ts
-[[10, null], 100000, [2], null] => subtractValues() // outputs -99992
+[ 100, 10 ]
 ```
 
+**Output:**
+
 ```ts
-2 => subtractValues() // outputs 2
+90
+```
+
+##### Example (2)
+
+```ts
+subtractValues()
+```
+
+**Input:**
+
+```ts
+[ 10 ]
+```
+
+**Output:**
+
+```ts
+10
+```
+
+##### Example (3)
+
+```ts
+subtractValues()
+```
+
+**Input:**
+
+```ts
+[ 10, 100000, 2 ]
+```
+
+**Output:**
+
+```ts
+-99992
+```
+
+##### Example (4)
+
+```ts
+subtractValues()
+```
+
+**Input:**
+
+```ts
+[ [ 10, null ], 100000, [ 2 ], null ]
+```
+
+**Output:**
+
+```ts
+-99992
+```
+
+##### Example (5)
+
+```ts
+subtractValues()
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+2
 ```
 
 ### `tan`
@@ -3118,8 +8548,22 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-1 => tan() // outputs 1.5574077246549023
+tan()
+```
+
+**Input:**
+
+```ts
+1
+```
+
+**Output:**
+
+```ts
+1.5574077246549023
 ```
 
 ### `tanh`
@@ -3134,12 +8578,40 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
--1 => tanh() // outputs -0.7615941559557649
-```
+##### Example (1)
 
 ```ts
-0 => tanh() // outputs 0
+tanh()
+```
+
+**Input:**
+
+```ts
+-1
+```
+
+**Output:**
+
+```ts
+-0.7615941559557649
+```
+
+##### Example (2)
+
+```ts
+tanh()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+0
 ```
 
 ### `toCelsius`
@@ -3154,12 +8626,40 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-32 => toCelsius() // outputs 0
-```
+##### Example (1)
 
 ```ts
-69.8 => toCelsius() // outputs 21
+toCelsius()
+```
+
+**Input:**
+
+```ts
+32
+```
+
+**Output:**
+
+```ts
+0
+```
+
+##### Example (2)
+
+```ts
+toCelsius()
+```
+
+**Input:**
+
+```ts
+69.8
+```
+
+**Output:**
+
+```ts
+21
 ```
 
 ### `toFahrenheit`
@@ -3174,12 +8674,40 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-0 => toFahrenheit() // outputs 32
-```
+##### Example (1)
 
 ```ts
-22 => toFahrenheit() // outputs 71.6
+toFahrenheit()
+```
+
+**Input:**
+
+```ts
+0
+```
+
+**Output:**
+
+```ts
+32
+```
+
+##### Example (2)
+
+```ts
+toFahrenheit()
+```
+
+**Input:**
+
+```ts
+22
+```
+
+**Output:**
+
+```ts
+71.6
 ```
 
 ### `toNumber`
@@ -3190,24 +8718,112 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-"13890472347692343249760902374089" => toNumber() // outputs 1.3890472347692343e+31
-```
+##### Example (1)
 
 ```ts
-"22" => toNumber() // outputs 22
+toNumber()
 ```
 
-```ts
-"10.16.32.210" => toNumber() // outputs 168829138
-```
+**Input:**
 
 ```ts
-"2001:2::" => toNumber() // outputs "42540488320432167789079031612388147199"
+'13890472347692343249760902374089'
 ```
 
+**Output:**
+
 ```ts
-"2001-01-01T01:00:00.000Z" => toNumber() // outputs 978310800000
+1.3890472347692343e+31
+```
+
+##### Example (2)
+
+```ts
+toNumber()
+```
+
+**Input:**
+
+```ts
+'22'
+```
+
+**Output:**
+
+```ts
+22
+```
+
+##### Example (3)
+
+```ts
+toNumber()
+```
+
+**Input:**
+
+```ts
+'22'
+```
+
+**Output:**
+
+```ts
+22
+```
+
+##### Example (4)
+
+```ts
+toNumber()
+```
+
+**Input:**
+
+```ts
+'10.16.32.210'
+```
+
+**Output:**
+
+```ts
+168829138
+```
+
+##### Example (5)
+
+```ts
+toNumber()
+```
+
+**Input:**
+
+```ts
+'2001:2::'
+```
+
+**Output:**
+
+```ts
+'42540488320432167789079031612388147199'
+```
+
+##### Example (6)
+
+```ts
+toNumber()
+```
+
+**Input:**
+
+```ts
+'2001-01-01T01:00:00.000Z'
+```
+
+**Output:**
+
+```ts
+978310800000
 ```
 
 ### `inNumberRange`
@@ -3230,20 +8846,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-10 => inNumberRange(min: 100, max: 110) // outputs null
-```
+##### Example (1)
 
 ```ts
-100 => inNumberRange(min: 100) // outputs null
+inNumberRange({ min: 100, max: 110 })
 ```
 
-```ts
-100 => inNumberRange(min: 100, inclusive: true) // outputs 100
-```
+**Input:**
 
 ```ts
-10 => inNumberRange(min: 0, max: 100) // outputs 10
+10
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+inNumberRange({ min: 100 })
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+inNumberRange({ min: 100, inclusive: true })
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+100
+```
+
+##### Example (4)
+
+```ts
+inNumberRange({ min: 0, max: 100 })
+```
+
+**Input:**
+
+```ts
+10
+```
+
+**Output:**
+
+```ts
+10
 ```
 
 ### `isEven`
@@ -3258,12 +8930,40 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-100 => isEven() // outputs 100
-```
+##### Example (1)
 
 ```ts
-99 => isEven() // outputs null
+isEven()
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+100
+```
+
+##### Example (2)
+
+```ts
+isEven()
+```
+
+**Input:**
+
+```ts
+99
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isGreaterThan`
@@ -3282,20 +8982,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-10 => isGreaterThan(value: 100) // outputs null
-```
+##### Example (1)
 
 ```ts
-50 => isGreaterThan(value: 50) // outputs null
+isGreaterThan({ value: 100 })
 ```
 
-```ts
-120 => isGreaterThan(value: 110) // outputs 120
-```
+**Input:**
 
 ```ts
-151 => isGreaterThan(value: 150) // outputs 151
+10
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isGreaterThan({ value: 50 })
+```
+
+**Input:**
+
+```ts
+50
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isGreaterThan({ value: 110 })
+```
+
+**Input:**
+
+```ts
+120
+```
+
+**Output:**
+
+```ts
+120
+```
+
+##### Example (4)
+
+```ts
+isGreaterThan({ value: 150 })
+```
+
+**Input:**
+
+```ts
+151
+```
+
+**Output:**
+
+```ts
+151
 ```
 
 ### `isGreaterThanOrEqualTo`
@@ -3314,20 +9070,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-10 => isGreaterThanOrEqualTo(value: 100) // outputs null
-```
+##### Example (1)
 
 ```ts
-50 => isGreaterThanOrEqualTo(value: 50) // outputs 50
+isGreaterThanOrEqualTo({ value: 100 })
 ```
 
-```ts
-120 => isGreaterThanOrEqualTo(value: 110) // outputs 120
-```
+**Input:**
 
 ```ts
-151 => isGreaterThanOrEqualTo(value: 150) // outputs 151
+10
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isGreaterThanOrEqualTo({ value: 50 })
+```
+
+**Input:**
+
+```ts
+50
+```
+
+**Output:**
+
+```ts
+50
+```
+
+##### Example (3)
+
+```ts
+isGreaterThanOrEqualTo({ value: 110 })
+```
+
+**Input:**
+
+```ts
+120
+```
+
+**Output:**
+
+```ts
+120
+```
+
+##### Example (4)
+
+```ts
+isGreaterThanOrEqualTo({ value: 150 })
+```
+
+**Input:**
+
+```ts
+151
+```
+
+**Output:**
+
+```ts
+151
 ```
 
 ### `isLessThan`
@@ -3346,20 +9158,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-110 => isLessThan(value: 100) // outputs null
-```
+##### Example (1)
 
 ```ts
-50 => isLessThan(value: 50) // outputs null
+isLessThan({ value: 100 })
 ```
 
-```ts
-100 => isLessThan(value: 110) // outputs 100
-```
+**Input:**
 
 ```ts
-149 => isLessThan(value: 150) // outputs 149
+110
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isLessThan({ value: 50 })
+```
+
+**Input:**
+
+```ts
+50
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isLessThan({ value: 110 })
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+100
+```
+
+##### Example (4)
+
+```ts
+isLessThan({ value: 150 })
+```
+
+**Input:**
+
+```ts
+149
+```
+
+**Output:**
+
+```ts
+149
 ```
 
 ### `isLessThanOrEqualTo`
@@ -3378,20 +9246,76 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-110 => isLessThanOrEqualTo(value: 100) // outputs null
-```
+##### Example (1)
 
 ```ts
-50 => isLessThanOrEqualTo(value: 50) // outputs 50
+isLessThanOrEqualTo({ value: 100 })
 ```
 
-```ts
-100 => isLessThanOrEqualTo(value: 110) // outputs 100
-```
+**Input:**
 
 ```ts
-149 => isLessThanOrEqualTo(value: 150) // outputs 149
+110
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isLessThanOrEqualTo({ value: 50 })
+```
+
+**Input:**
+
+```ts
+50
+```
+
+**Output:**
+
+```ts
+50
+```
+
+##### Example (3)
+
+```ts
+isLessThanOrEqualTo({ value: 110 })
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+100
+```
+
+##### Example (4)
+
+```ts
+isLessThanOrEqualTo({ value: 150 })
+```
+
+**Input:**
+
+```ts
+149
+```
+
+**Output:**
+
+```ts
+149
 ```
 
 ### `isOdd`
@@ -3406,12 +9330,40 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-100 => isOdd() // outputs null
-```
+##### Example (1)
 
 ```ts
-99 => isOdd() // outputs 99
+isOdd()
+```
+
+**Input:**
+
+```ts
+100
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isOdd()
+```
+
+**Input:**
+
+```ts
+99
+```
+
+**Output:**
+
+```ts
+99
 ```
 
 ## CATEGORY: Object
@@ -3428,28 +9380,112 @@ lat: 32.12399971230023, lon: -20.95522300035 => setPrecision(digits: 2, truncate
 
 #### Examples
 
-```ts
-"thisisastring" => equals(value: "thisisastring") // outputs "thisisastring"
-```
+##### Example (1)
 
 ```ts
-1234 => equals(value: "thisisastring") // outputs null
+equals({ value: 'thisisastring' })
 ```
 
-```ts
-["an", "array", "of", "values"] => equals(value: ["an", "array", "of", "values"]) // outputs ["an", "array", "of", "values"]
-```
+**Input:**
 
 ```ts
-foo: "bar", deep: value: "kitty" => equals(value: foo: "bar", deep: value: "kitty") // outputs foo: "bar", deep: value: "kitty"
+'thisisastring'
 ```
 
-```ts
-foo: "bar", deep: value: "other stuff" => equals(value: foo: "bar", deep: value: "kitty") // outputs null
-```
+**Output:**
 
 ```ts
-false => equals(value: true) // outputs null
+'thisisastring'
+```
+
+##### Example (2)
+
+```ts
+equals({ value: 'thisisastring' })
+```
+
+**Input:**
+
+```ts
+1234
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+equals({ value: [ 'an', 'array', 'of', 'values' ] })
+```
+
+**Input:**
+
+```ts
+[ 'an', 'array', 'of', 'values' ]
+```
+
+**Output:**
+
+```ts
+[ 'an', 'array', 'of', 'values' ]
+```
+
+##### Example (4)
+
+```ts
+equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
+```
+
+**Input:**
+
+```ts
+{ foo: 'bar', deep: { value: 'kitty' } }
+```
+
+**Output:**
+
+```ts
+{ foo: 'bar', deep: { value: 'kitty' } }
+```
+
+##### Example (5)
+
+```ts
+equals({ value: { foo: 'bar', deep: { value: 'kitty' } } })
+```
+
+**Input:**
+
+```ts
+{ foo: 'bar', deep: { value: 'other stuff' } }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (6)
+
+```ts
+equals({ value: true })
+```
+
+**Input:**
+
+```ts
+false
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isEmpty`
@@ -3464,16 +9500,58 @@ false => equals(value: true) // outputs null
 
 #### Examples
 
-```ts
-"85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isEmpty() // outputs null
-```
+##### Example (1)
 
 ```ts
-"" => isEmpty() // outputs ""
+isEmpty()
 ```
 
+**Input:**
+
 ```ts
-[] => isEmpty() // outputs []
+'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isEmpty()
+```
+
+**Input:**
+
+```ts
+''
+```
+
+**Output:**
+
+```ts
+''
+```
+
+##### Example (3)
+
+```ts
+isEmpty()
+```
+
+**Input:**
+
+```ts
+[]
+```
+
+**Output:**
+
+```ts
+[]
 ```
 
 ### `lookup`
@@ -3493,28 +9571,100 @@ false => equals(value: true) // outputs null
 
 #### Examples
 
-```ts
-"key1" => lookup(in: key1: "value1", key2: "value2") // outputs "value1"
-```
+##### Example (1)
 
 ```ts
-8910 => lookup(in: 123: 4567, 8910: 1112) // outputs 1112
+lookup({ in: { key1: 'value1', key2: 'value2' } })
 ```
 
-```ts
-"key3" => lookup(in: key1: "value1", key2: "value2") // outputs null
-```
+**Input:**
 
 ```ts
-2 => lookup(in: "
-                    1:foo
-                    2:bar
-                    3:max
-                ") // outputs "bar"
+'key1'
 ```
 
+**Output:**
+
 ```ts
-2 => lookup(in: ["foo", "bar", "max"]) // outputs "max"
+'value1'
+```
+
+##### Example (2)
+
+```ts
+lookup({ in: { '123': 4567, '8910': 1112 } })
+```
+
+**Input:**
+
+```ts
+8910
+```
+
+**Output:**
+
+```ts
+1112
+```
+
+##### Example (3)
+
+```ts
+lookup({ in: { key1: 'value1', key2: 'value2' } })
+```
+
+**Input:**
+
+```ts
+'key3'
+```
+
+**Output:**
+
+```ts
+undefined
+```
+
+##### Example (4)
+
+```ts
+lookup({
+  in: '\n' +
+    '                    1:foo\n' +
+    '                    2:bar\n' +
+    '                    3:max\n' +
+    '                '
+})
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+'bar'
+```
+
+##### Example (5)
+
+```ts
+lookup({ in: [ 'foo', 'bar', 'max' ] })
+```
+
+**Input:**
+
+```ts
+2
+```
+
+**Output:**
+
+```ts
+'max'
 ```
 
 ## CATEGORY: String
@@ -3535,16 +9685,58 @@ false => equals(value: true) // outputs null
 
 #### Examples
 
-```ts
-"example" => contains(value: "ample") // outputs "example"
-```
+##### Example (1)
 
 ```ts
-"example" => contains(value: "example") // outputs "example"
+contains({ value: 'ample' })
 ```
 
+**Input:**
+
 ```ts
-"example" => contains(value: "test") // outputs null
+'example'
+```
+
+**Output:**
+
+```ts
+'example'
+```
+
+##### Example (2)
+
+```ts
+contains({ value: 'example' })
+```
+
+**Input:**
+
+```ts
+'example'
+```
+
+**Output:**
+
+```ts
+'example'
+```
+
+##### Example (3)
+
+```ts
+contains({ value: 'test' })
+```
+
+**Input:**
+
+```ts
+'example'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `endsWith`
@@ -3563,20 +9755,76 @@ false => equals(value: true) // outputs null
 
 #### Examples
 
-```ts
-"apple" => endsWith(value: "e") // outputs "apple"
-```
+##### Example (1)
 
 ```ts
-"orange" => endsWith(value: "a") // outputs null
+endsWith({ value: 'e' })
 ```
 
-```ts
-"some word" => endsWith(value: "so") // outputs null
-```
+**Input:**
 
 ```ts
-"other word" => endsWith(value: "word") // outputs "other word"
+'apple'
+```
+
+**Output:**
+
+```ts
+'apple'
+```
+
+##### Example (2)
+
+```ts
+endsWith({ value: 'a' })
+```
+
+**Input:**
+
+```ts
+'orange'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+endsWith({ value: 'so' })
+```
+
+**Input:**
+
+```ts
+'some word'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+endsWith({ value: 'word' })
+```
+
+**Input:**
+
+```ts
+'other word'
+```
+
+**Output:**
+
+```ts
+'other word'
 ```
 
 ### `isAlpha`
@@ -3595,20 +9843,76 @@ false => equals(value: true) // outputs null
 
 #### Examples
 
-```ts
-"example123456" => isAlpha() // outputs null
-```
+##### Example (1)
 
 ```ts
-"ThisiZĄĆĘŚŁ" => isAlpha(locale: "pl-Pl") // outputs "ThisiZĄĆĘŚŁ"
+isAlpha()
 ```
 
-```ts
-"not_alpha.com" => isAlpha() // outputs null
-```
+**Input:**
 
 ```ts
-true => isAlpha() // outputs null
+'example123456'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (2)
+
+```ts
+isAlpha({ locale: 'pl-Pl' })
+```
+
+**Input:**
+
+```ts
+'ThisiZĄĆĘŚŁ'
+```
+
+**Output:**
+
+```ts
+'ThisiZĄĆĘŚŁ'
+```
+
+##### Example (3)
+
+```ts
+isAlpha()
+```
+
+**Input:**
+
+```ts
+'not_alpha.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isAlpha()
+```
+
+**Input:**
+
+```ts
+true
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isAlphaNumeric`
@@ -3627,20 +9931,76 @@ true => isAlpha() // outputs null
 
 #### Examples
 
-```ts
-"example123456" => isAlphaNumeric() // outputs "example123456"
-```
+##### Example (1)
 
 ```ts
-"ThisiZĄĆĘŚŁ1234" => isAlphaNumeric(locale: "pl-Pl") // outputs "ThisiZĄĆĘŚŁ1234"
+isAlphaNumeric()
 ```
 
-```ts
-"not_alphanumeric.com" => isAlphaNumeric() // outputs null
-```
+**Input:**
 
 ```ts
-true => isAlphaNumeric() // outputs null
+'example123456'
+```
+
+**Output:**
+
+```ts
+'example123456'
+```
+
+##### Example (2)
+
+```ts
+isAlphaNumeric({ locale: 'pl-Pl' })
+```
+
+**Input:**
+
+```ts
+'ThisiZĄĆĘŚŁ1234'
+```
+
+**Output:**
+
+```ts
+'ThisiZĄĆĘŚŁ1234'
+```
+
+##### Example (3)
+
+```ts
+isAlphaNumeric()
+```
+
+**Input:**
+
+```ts
+'not_alphanumeric.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isAlphaNumeric()
+```
+
+**Input:**
+
+```ts
+true
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isBase64`
@@ -3655,16 +10015,58 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"ZnJpZW5kbHlOYW1lNw==" => isBase64() // outputs "ZnJpZW5kbHlOYW1lNw=="
-```
+##### Example (1)
 
 ```ts
-"manufacturerUrl7" => isBase64() // outputs null
+isBase64()
 ```
 
+**Input:**
+
 ```ts
-1234123 => isBase64() // outputs null
+'ZnJpZW5kbHlOYW1lNw=='
+```
+
+**Output:**
+
+```ts
+'ZnJpZW5kbHlOYW1lNw=='
+```
+
+##### Example (2)
+
+```ts
+isBase64()
+```
+
+**Input:**
+
+```ts
+'manufacturerUrl7'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isBase64()
+```
+
+**Input:**
+
+```ts
+1234123
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isCountryCode`
@@ -3679,24 +10081,94 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"US" => isCountryCode() // outputs "US"
-```
+##### Example (1)
 
 ```ts
-"ZM" => isCountryCode() // outputs "ZM"
+isCountryCode()
 ```
 
-```ts
-"GB" => isCountryCode() // outputs "GB"
-```
+**Input:**
 
 ```ts
-"UK" => isCountryCode() // outputs null
+'US'
 ```
 
+**Output:**
+
 ```ts
-12345 => isCountryCode() // outputs null
+'US'
+```
+
+##### Example (2)
+
+```ts
+isCountryCode()
+```
+
+**Input:**
+
+```ts
+'ZM'
+```
+
+**Output:**
+
+```ts
+'ZM'
+```
+
+##### Example (3)
+
+```ts
+isCountryCode()
+```
+
+**Input:**
+
+```ts
+'GB'
+```
+
+**Output:**
+
+```ts
+'GB'
+```
+
+##### Example (4)
+
+```ts
+isCountryCode()
+```
+
+**Input:**
+
+```ts
+'UK'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isCountryCode()
+```
+
+**Input:**
+
+```ts
+12345
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isEmail`
@@ -3711,40 +10183,166 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"string@gmail.com" => isEmail() // outputs "string@gmail.com"
-```
+##### Example (1)
 
 ```ts
-"non.us.email@thing.com.uk" => isEmail() // outputs "non.us.email@thing.com.uk"
+isEmail()
 ```
 
-```ts
-"Abc@def@example.com" => isEmail() // outputs "Abc@def@example.com"
-```
+**Input:**
 
 ```ts
-"cal+henderson@iamcalx.com" => isEmail() // outputs "cal+henderson@iamcalx.com"
+'string@gmail.com'
 ```
 
-```ts
-"customer/department=shipping@example.com" => isEmail() // outputs "customer/department=shipping@example.com"
-```
+**Output:**
 
 ```ts
-"user@blah.com/junk.junk?a=<tag value="junk"" => isEmail() // outputs null
+'string@gmail.com'
 ```
 
-```ts
-"Abc@def  @  example.com" => isEmail() // outputs null
-```
+##### Example (2)
 
 ```ts
-"bad email address" => isEmail() // outputs null
+isEmail()
 ```
 
+**Input:**
+
 ```ts
-12345 => isEmail() // outputs null
+'non.us.email@thing.com.uk'
+```
+
+**Output:**
+
+```ts
+'non.us.email@thing.com.uk'
+```
+
+##### Example (3)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'Abc@def@example.com'
+```
+
+**Output:**
+
+```ts
+'Abc@def@example.com'
+```
+
+##### Example (4)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'cal+henderson@iamcalx.com'
+```
+
+**Output:**
+
+```ts
+'cal+henderson@iamcalx.com'
+```
+
+##### Example (5)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'customer/department=shipping@example.com'
+```
+
+**Output:**
+
+```ts
+'customer/department=shipping@example.com'
+```
+
+##### Example (6)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'user@blah.com/junk.junk?a=<tag value="junk"'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (7)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'Abc@def  @  example.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (8)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+'bad email address'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (9)
+
+```ts
+isEmail()
+```
+
+**Input:**
+
+```ts
+12345
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isFQDN`
@@ -3759,32 +10357,130 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"example.com" => isFQDN() // outputs "example.com"
-```
+##### Example (1)
 
 ```ts
-"international-example.com.br" => isFQDN() // outputs "international-example.com.br"
+isFQDN()
 ```
 
-```ts
-"1234.com" => isFQDN() // outputs "1234.com"
-```
+**Input:**
 
 ```ts
-"no_underscores.com" => isFQDN() // outputs null
+'example.com'
 ```
 
-```ts
-"**.bad.domain.com" => isFQDN() // outputs null
-```
+**Output:**
 
 ```ts
-"example.0" => isFQDN() // outputs null
+'example.com'
 ```
 
+##### Example (2)
+
 ```ts
-12345 => isFQDN() // outputs null
+isFQDN()
+```
+
+**Input:**
+
+```ts
+'international-example.com.br'
+```
+
+**Output:**
+
+```ts
+'international-example.com.br'
+```
+
+##### Example (3)
+
+```ts
+isFQDN()
+```
+
+**Input:**
+
+```ts
+'1234.com'
+```
+
+**Output:**
+
+```ts
+'1234.com'
+```
+
+##### Example (4)
+
+```ts
+isFQDN()
+```
+
+**Input:**
+
+```ts
+'no_underscores.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isFQDN()
+```
+
+**Input:**
+
+```ts
+'**.bad.domain.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (6)
+
+```ts
+isFQDN()
+```
+
+**Input:**
+
+```ts
+'example.0'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (7)
+
+```ts
+isFQDN()
+```
+
+**Input:**
+
+```ts
+12345
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isHash`
@@ -3803,12 +10499,40 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isHash(algo: "sha256") // outputs "85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33"
-```
+##### Example (1)
 
 ```ts
-"85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33" => isHash(algo: "md5") // outputs null
+isHash({ algo: 'sha256' })
+```
+
+**Input:**
+
+```ts
+'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
+
+**Output:**
+
+```ts
+'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
+
+##### Example (2)
+
+```ts
+isHash({ algo: 'md5' })
+```
+
+**Input:**
+
+```ts
+'85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isISDN`
@@ -3828,20 +10552,76 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"46707123456" => isISDN() // outputs "46707123456"
-```
+##### Example (1)
 
 ```ts
-"1-808-915-6800" => isISDN() // outputs "1-808-915-6800"
+isISDN()
 ```
 
-```ts
-"8089156800" => isISDN(country: "US") // outputs "8089156800"
-```
+**Input:**
 
 ```ts
-"8089156800" => isISDN() // outputs null
+'46707123456'
+```
+
+**Output:**
+
+```ts
+'46707123456'
+```
+
+##### Example (2)
+
+```ts
+isISDN()
+```
+
+**Input:**
+
+```ts
+'1-808-915-6800'
+```
+
+**Output:**
+
+```ts
+'1-808-915-6800'
+```
+
+##### Example (3)
+
+```ts
+isISDN({ country: 'US' })
+```
+
+**Input:**
+
+```ts
+'8089156800'
+```
+
+**Output:**
+
+```ts
+'8089156800'
+```
+
+##### Example (4)
+
+```ts
+isISDN()
+```
+
+**Input:**
+
+```ts
+'8089156800'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isLength`
@@ -3864,24 +10644,94 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"iam8char" => isLength(size: 8) // outputs "iam8char"
-```
+##### Example (1)
 
 ```ts
-"iamnot8char" => isLength(size: 8) // outputs null
+isLength({ size: 8 })
 ```
 
-```ts
-"aString" => isLength(min: 3) // outputs "aString"
-```
+**Input:**
 
 ```ts
-"aString" => isLength(min: 3, max: 5) // outputs null
+'iam8char'
 ```
 
+**Output:**
+
 ```ts
-4 => isLength(min: 3, max: 5) // outputs null
+'iam8char'
+```
+
+##### Example (2)
+
+```ts
+isLength({ size: 8 })
+```
+
+**Input:**
+
+```ts
+'iamnot8char'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isLength({ min: 3 })
+```
+
+**Input:**
+
+```ts
+'aString'
+```
+
+**Output:**
+
+```ts
+'aString'
+```
+
+##### Example (4)
+
+```ts
+isLength({ min: 3, max: 5 })
+```
+
+**Input:**
+
+```ts
+'aString'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isLength({ min: 3, max: 5 })
+```
+
+**Input:**
+
+```ts
+4
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isMACAddress`
@@ -3900,44 +10750,184 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"00:1f:f3:5b:2b:1f" => isMACAddress() // outputs "00:1f:f3:5b:2b:1f"
-```
+##### Example (1)
 
 ```ts
-"001ff35b2b1f" => isMACAddress() // outputs "001ff35b2b1f"
+isMACAddress()
 ```
 
-```ts
-"00-1f-f3-5b-2b-1f" => isMACAddress() // outputs "00-1f-f3-5b-2b-1f"
-```
+**Input:**
 
 ```ts
-"00-1f-f3-5b-2b-1f" => isMACAddress(delimiter: "colon") // outputs null
+'00:1f:f3:5b:2b:1f'
 ```
 
-```ts
-"00-1f-f3-5b-2b-1f" => isMACAddress(delimiter: "any") // outputs "00-1f-f3-5b-2b-1f"
-```
+**Output:**
 
 ```ts
-"00-1f-f3-5b-2b-1f" => isMACAddress(delimiter: "dash") // outputs "00-1f-f3-5b-2b-1f"
+'00:1f:f3:5b:2b:1f'
 ```
 
-```ts
-"001f.f35b.2b1f" => isMACAddress(delimiter: "dot") // outputs "001f.f35b.2b1f"
-```
+##### Example (2)
 
 ```ts
-"001ff35b2b1f" => isMACAddress(delimiter: "none") // outputs "001ff35b2b1f"
+isMACAddress()
 ```
 
-```ts
-"aString" => isMACAddress() // outputs null
-```
+**Input:**
 
 ```ts
-4 => isMACAddress() // outputs null
+'001ff35b2b1f'
+```
+
+**Output:**
+
+```ts
+'001ff35b2b1f'
+```
+
+##### Example (3)
+
+```ts
+isMACAddress()
+```
+
+**Input:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+**Output:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (4)
+
+```ts
+isMACAddress({ delimiter: 'colon' })
+```
+
+**Input:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isMACAddress({ delimiter: 'any' })
+```
+
+**Input:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+**Output:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (6)
+
+```ts
+isMACAddress({ delimiter: 'dash' })
+```
+
+**Input:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+**Output:**
+
+```ts
+'00-1f-f3-5b-2b-1f'
+```
+
+##### Example (7)
+
+```ts
+isMACAddress({ delimiter: 'dot' })
+```
+
+**Input:**
+
+```ts
+'001f.f35b.2b1f'
+```
+
+**Output:**
+
+```ts
+'001f.f35b.2b1f'
+```
+
+##### Example (8)
+
+```ts
+isMACAddress({ delimiter: 'none' })
+```
+
+**Input:**
+
+```ts
+'001ff35b2b1f'
+```
+
+**Output:**
+
+```ts
+'001ff35b2b1f'
+```
+
+##### Example (9)
+
+```ts
+isMACAddress()
+```
+
+**Input:**
+
+```ts
+'aString'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (10)
+
+```ts
+isMACAddress()
+```
+
+**Input:**
+
+```ts
+4
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isMIMEType`
@@ -3952,20 +10942,76 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"application/javascript" => isMIMEType() // outputs "application/javascript"
-```
+##### Example (1)
 
 ```ts
-"text/html" => isMIMEType() // outputs "text/html"
+isMIMEType()
 ```
 
-```ts
-"application" => isMIMEType() // outputs null
-```
+**Input:**
 
 ```ts
-"" => isMIMEType() // outputs null
+'application/javascript'
+```
+
+**Output:**
+
+```ts
+'application/javascript'
+```
+
+##### Example (2)
+
+```ts
+isMIMEType()
+```
+
+**Input:**
+
+```ts
+'text/html'
+```
+
+**Output:**
+
+```ts
+'text/html'
+```
+
+##### Example (3)
+
+```ts
+isMIMEType()
+```
+
+**Input:**
+
+```ts
+'application'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isMIMEType()
+```
+
+**Input:**
+
+```ts
+''
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isPhoneNumberLike`
@@ -3981,24 +11027,94 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"46707123456" => isPhoneNumberLike() // outputs "46707123456"
-```
+##### Example (1)
 
 ```ts
-"1-808-915-6800" => isPhoneNumberLike() // outputs "1-808-915-6800"
+isPhoneNumberLike()
 ```
 
-```ts
-"79525554602" => isPhoneNumberLike() // outputs "79525554602"
-```
+**Input:**
 
 ```ts
-"223457823432432423324" => isPhoneNumberLike() // outputs null
+'46707123456'
 ```
 
+**Output:**
+
 ```ts
-"2234" => isPhoneNumberLike() // outputs null
+'46707123456'
+```
+
+##### Example (2)
+
+```ts
+isPhoneNumberLike()
+```
+
+**Input:**
+
+```ts
+'1-808-915-6800'
+```
+
+**Output:**
+
+```ts
+'1-808-915-6800'
+```
+
+##### Example (3)
+
+```ts
+isPhoneNumberLike()
+```
+
+**Input:**
+
+```ts
+'79525554602'
+```
+
+**Output:**
+
+```ts
+'79525554602'
+```
+
+##### Example (4)
+
+```ts
+isPhoneNumberLike()
+```
+
+**Input:**
+
+```ts
+'223457823432432423324'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isPhoneNumberLike()
+```
+
+**Input:**
+
+```ts
+'2234'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isPort`
@@ -4014,20 +11130,76 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"49151" => isPort() // outputs "49151"
-```
+##### Example (1)
 
 ```ts
-"80" => isPort() // outputs "80"
+isPort()
 ```
 
-```ts
-"65536" => isPort() // outputs null
-```
+**Input:**
 
 ```ts
-"not a port" => isPort() // outputs null
+'49151'
+```
+
+**Output:**
+
+```ts
+'49151'
+```
+
+##### Example (2)
+
+```ts
+isPort()
+```
+
+**Input:**
+
+```ts
+'80'
+```
+
+**Output:**
+
+```ts
+'80'
+```
+
+##### Example (3)
+
+```ts
+isPort()
+```
+
+**Input:**
+
+```ts
+'65536'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isPort()
+```
+
+**Input:**
+
+```ts
+'not a port'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isPostalCode`
@@ -4047,20 +11219,76 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"85249" => isPostalCode() // outputs "85249"
-```
+##### Example (1)
 
 ```ts
-"191123" => isPostalCode(locale: "RU") // outputs "191123"
+isPostalCode()
 ```
 
-```ts
-"bobsyouruncle" => isPostalCode() // outputs null
-```
+**Input:**
 
 ```ts
-"this is not a postal code" => isPostalCode(locale: "CN") // outputs null
+'85249'
+```
+
+**Output:**
+
+```ts
+'85249'
+```
+
+##### Example (2)
+
+```ts
+isPostalCode({ locale: 'RU' })
+```
+
+**Input:**
+
+```ts
+'191123'
+```
+
+**Output:**
+
+```ts
+'191123'
+```
+
+##### Example (3)
+
+```ts
+isPostalCode()
+```
+
+**Input:**
+
+```ts
+'bobsyouruncle'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isPostalCode({ locale: 'CN' })
+```
+
+**Input:**
+
+```ts
+'this is not a postal code'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isString`
@@ -4075,24 +11303,94 @@ true => isAlphaNumeric() // outputs null
 
 #### Examples
 
-```ts
-"this is a string" => isString() // outputs "this is a string"
-```
+##### Example (1)
 
 ```ts
-"12345" => isString() // outputs "12345"
+isString()
 ```
 
-```ts
-hello: "i am an object" => isString() // outputs null
-```
+**Input:**
 
 ```ts
-1234 => isString() // outputs null
+'this is a string'
 ```
 
+**Output:**
+
 ```ts
-["12345", "some more stuff"] => isString() // outputs ["12345", "some more stuff"]
+'this is a string'
+```
+
+##### Example (2)
+
+```ts
+isString()
+```
+
+**Input:**
+
+```ts
+'12345'
+```
+
+**Output:**
+
+```ts
+'12345'
+```
+
+##### Example (3)
+
+```ts
+isString()
+```
+
+**Input:**
+
+```ts
+{ hello: 'i am an object' }
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isString()
+```
+
+**Input:**
+
+```ts
+1234
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isString()
+```
+
+**Input:**
+
+```ts
+[ '12345', 'some more stuff' ]
+```
+
+**Output:**
+
+```ts
+[ '12345', 'some more stuff' ]
 ```
 
 ### `isURL`
@@ -4107,36 +11405,148 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
-```ts
-"http://someurl.com.uk" => isURL() // outputs "http://someurl.com.uk"
-```
+##### Example (1)
 
 ```ts
-"ftp://someurl.bom:8080?some=bar&hi=bob" => isURL() // outputs "ftp://someurl.bom:8080?some=bar&hi=bob"
+isURL()
 ```
 
-```ts
-"http://xn--fsqu00a.xn--3lr804guic" => isURL() // outputs "http://xn--fsqu00a.xn--3lr804guic"
-```
+**Input:**
 
 ```ts
-"http://example.com/hello%20world" => isURL() // outputs "http://example.com/hello%20world"
+'http://someurl.com.uk'
 ```
 
-```ts
-"bob.com" => isURL() // outputs "bob.com"
-```
+**Output:**
 
 ```ts
-"isthis_valid_uri.com" => isURL() // outputs null
+'http://someurl.com.uk'
 ```
 
-```ts
-"http://sthis valid uri.com" => isURL() // outputs null
-```
+##### Example (2)
 
 ```ts
-"hello://validuri.com" => isURL() // outputs null
+isURL()
+```
+
+**Input:**
+
+```ts
+'ftp://someurl.bom:8080?some=bar&hi=bob'
+```
+
+**Output:**
+
+```ts
+'ftp://someurl.bom:8080?some=bar&hi=bob'
+```
+
+##### Example (3)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'http://xn--fsqu00a.xn--3lr804guic'
+```
+
+**Output:**
+
+```ts
+'http://xn--fsqu00a.xn--3lr804guic'
+```
+
+##### Example (4)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'http://example.com/hello%20world'
+```
+
+**Output:**
+
+```ts
+'http://example.com/hello%20world'
+```
+
+##### Example (5)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'bob.com'
+```
+
+**Output:**
+
+```ts
+'bob.com'
+```
+
+##### Example (6)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'isthis_valid_uri.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (7)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'http://sthis valid uri.com'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (8)
+
+```ts
+isURL()
+```
+
+**Input:**
+
+```ts
+'hello://validuri.com'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isUUID`
@@ -4151,24 +11561,94 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
-```ts
-"95ecc380-afe9-11e4-9b6c-751b66dd541e" => isUUID() // outputs "95ecc380-afe9-11e4-9b6c-751b66dd541e"
-```
+##### Example (1)
 
 ```ts
-"123e4567-e89b-82d3-f456-426655440000" => isUUID() // outputs "123e4567-e89b-82d3-f456-426655440000"
+isUUID()
 ```
 
-```ts
-"95ecc380:afe9:11e4:9b6c:751b66dd541e" => isUUID() // outputs null
-```
+**Input:**
 
 ```ts
-"123e4567-e89b-x2d3-0456-426655440000" => isUUID() // outputs null
+'95ecc380-afe9-11e4-9b6c-751b66dd541e'
 ```
 
+**Output:**
+
 ```ts
-"randomstring" => isUUID() // outputs null
+'95ecc380-afe9-11e4-9b6c-751b66dd541e'
+```
+
+##### Example (2)
+
+```ts
+isUUID()
+```
+
+**Input:**
+
+```ts
+'123e4567-e89b-82d3-f456-426655440000'
+```
+
+**Output:**
+
+```ts
+'123e4567-e89b-82d3-f456-426655440000'
+```
+
+##### Example (3)
+
+```ts
+isUUID()
+```
+
+**Input:**
+
+```ts
+'95ecc380:afe9:11e4:9b6c:751b66dd541e'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isUUID()
+```
+
+**Input:**
+
+```ts
+'123e4567-e89b-x2d3-0456-426655440000'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isUUID()
+```
+
+**Input:**
+
+```ts
+'randomstring'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `startsWith`
@@ -4187,24 +11667,94 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
-```ts
-"apple" => startsWith(value: "a") // outputs "apple"
-```
+##### Example (1)
 
 ```ts
-"orange" => startsWith(value: "a") // outputs null
+startsWith({ value: 'a' })
 ```
 
-```ts
-"some word" => startsWith(value: "so") // outputs "some word"
-```
+**Input:**
 
 ```ts
-"other word" => startsWith(value: "so") // outputs null
+'apple'
 ```
 
+**Output:**
+
 ```ts
-"hat" => startsWith(value: "t") // outputs null
+'apple'
+```
+
+##### Example (2)
+
+```ts
+startsWith({ value: 'a' })
+```
+
+**Input:**
+
+```ts
+'orange'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+startsWith({ value: 'so' })
+```
+
+**Input:**
+
+```ts
+'some word'
+```
+
+**Output:**
+
+```ts
+'some word'
+```
+
+##### Example (4)
+
+```ts
+startsWith({ value: 'so' })
+```
+
+**Input:**
+
+```ts
+'other word'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+startsWith({ value: 't' })
+```
+
+**Input:**
+
+```ts
+'hat'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `decodeBase64`
@@ -4219,8 +11769,22 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"c29tZSBzdHJpbmc=" => decodeBase64() // outputs "some string"
+decodeBase64()
+```
+
+**Input:**
+
+```ts
+'c29tZSBzdHJpbmc='
+```
+
+**Output:**
+
+```ts
+'some string'
 ```
 
 ### `decodeHex`
@@ -4235,8 +11799,22 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"736f6d652076616c756520666f722068657820656e636f64696e67" => decodeHex() // outputs "some value for hex encoding"
+decodeHex()
+```
+
+**Input:**
+
+```ts
+'736f6d652076616c756520666f722068657820656e636f64696e67'
+```
+
+**Output:**
+
+```ts
+'some value for hex encoding'
 ```
 
 ### `decodeURL`
@@ -4251,8 +11829,22 @@ hello: "i am an object" => isString() // outputs null
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"google.com%3Fq%3DHELLO%20AND%20GOODBYE" => decodeURL() // outputs "google.com?q=HELLO AND GOODBYE"
+decodeURL()
+```
+
+**Input:**
+
+```ts
+'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
+```
+
+**Output:**
+
+```ts
+'google.com?q=HELLO AND GOODBYE'
 ```
 
 ### `encode`
@@ -4274,24 +11866,95 @@ hello: "i am an object" => isString() // outputs null
 #### Examples
 
 Hashing algorithm defaults to 256, and digest defaults to hex
-```ts
-"{ "some": "data" }" => encode(algo: "sha256") // outputs "e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5"
-```
+
+##### Example (1)
 
 ```ts
-"{ "some": "data" }" => encode(algo: "md5") // outputs "7e33b72a611da99c7e9013dd44dbbdad"
+encode({ algo: 'sha256' })
 ```
 
-```ts
-"google.com?q=HELLO AND GOODBYE" => encode(algo: "url") // outputs "google.com%3Fq%3DHELLO%20AND%20GOODBYE"
-```
+**Input:**
 
 ```ts
-"HELLO AND GOODBYE" => encode(algo: "base64") // outputs "SEVMTE8gQU5EIEdPT0RCWUU="
+'{ "some": "data" }'
 ```
 
+**Output:**
+
 ```ts
-"{ "some": "data" }" => encode(algo: "sha1", digest: "base64") // outputs "6MsUBHluumd5onY3fM6ZpQKjZIE="
+'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
+```
+
+##### Example (2)
+
+```ts
+encode({ algo: 'md5' })
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'7e33b72a611da99c7e9013dd44dbbdad'
+```
+
+##### Example (3)
+
+```ts
+encode({ algo: 'url' })
+```
+
+**Input:**
+
+```ts
+'google.com?q=HELLO AND GOODBYE'
+```
+
+**Output:**
+
+```ts
+'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
+```
+
+##### Example (4)
+
+```ts
+encode({ algo: 'base64' })
+```
+
+**Input:**
+
+```ts
+'HELLO AND GOODBYE'
+```
+
+**Output:**
+
+```ts
+'SEVMTE8gQU5EIEdPT0RCWUU='
+```
+
+##### Example (5)
+
+```ts
+encode({ algo: 'sha1', digest: 'base64' })
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'6MsUBHluumd5onY3fM6ZpQKjZIE='
 ```
 
 ### `encodeBase64`
@@ -4306,8 +11969,22 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"some string" => encodeBase64() // outputs "c29tZSBzdHJpbmc="
+encodeBase64()
+```
+
+**Input:**
+
+```ts
+'some string'
+```
+
+**Output:**
+
+```ts
+'c29tZSBzdHJpbmc='
 ```
 
 ### `encodeHex`
@@ -4322,8 +11999,22 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"some value for hex encoding" => encodeHex() // outputs "736f6d652076616c756520666f722068657820656e636f64696e67"
+encodeHex()
+```
+
+**Input:**
+
+```ts
+'some value for hex encoding'
+```
+
+**Output:**
+
+```ts
+'736f6d652076616c756520666f722068657820656e636f64696e67'
 ```
 
 ### `encodeSHA`
@@ -4345,12 +12036,41 @@ Hashing algorithm defaults to 256, and digest defaults to hex
 #### Examples
 
 Hashing algorithm defaults to sha256, and digest defaults to hex
-```ts
-"{ "some": "data" }" => encodeSHA() // outputs "e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5"
-```
+
+##### Example (1)
 
 ```ts
-"{ "some": "data" }" => encodeSHA(digest: "base64") // outputs "5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U="
+encodeSHA()
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'e43e698b8ee20f09ae4257e81d7c8ac5074cdda2a8aef8d6c00dbbe5b404f7e5'
+```
+
+##### Example (2)
+
+```ts
+encodeSHA({ digest: 'base64' })
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'5D5pi47iDwmuQlfoHXyKxQdM3aKorvjWwA275bQE9+U='
 ```
 
 ### `encodeSHA1`
@@ -4370,12 +12090,41 @@ Hashing algorithm defaults to sha256, and digest defaults to hex
 #### Examples
 
 If the digest is not provided, it defaults to hex
-```ts
-"{ "some": "data" }" => encodeSHA1() // outputs "e8cb1404796eba6779a276377cce99a502a36481"
-```
+
+##### Example (1)
 
 ```ts
-"{ "some": "data" }" => encodeSHA1(digest: "base64") // outputs "6MsUBHluumd5onY3fM6ZpQKjZIE="
+encodeSHA1()
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'e8cb1404796eba6779a276377cce99a502a36481'
+```
+
+##### Example (2)
+
+```ts
+encodeSHA1({ digest: 'base64' })
+```
+
+**Input:**
+
+```ts
+'{ "some": "data" }'
+```
+
+**Output:**
+
+```ts
+'6MsUBHluumd5onY3fM6ZpQKjZIE='
 ```
 
 ### `encodeURL`
@@ -4390,8 +12139,22 @@ If the digest is not provided, it defaults to hex
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"google.com?q=HELLO AND GOODBYE" => encodeURL() // outputs "google.com%3Fq%3DHELLO%20AND%20GOODBYE"
+encodeURL()
+```
+
+**Input:**
+
+```ts
+'google.com?q=HELLO AND GOODBYE'
+```
+
+**Output:**
+
+```ts
+'google.com%3Fq%3DHELLO%20AND%20GOODBYE'
 ```
 
 ### `entropy`
@@ -4410,17 +12173,56 @@ If the digest is not provided, it defaults to hex
 
 #### Examples
 
-```ts
-"0123456789abcdef" => entropy() // outputs 4
-```
+##### Example (1)
 
 ```ts
-"1223334444" => entropy(algo: "shannon") // outputs 1.8464393446710154
+entropy()
 ```
 
+**Input:**
+
 ```ts
-"1223334444" => entropy(algo: "unknownAlgoName") // throws null
+'0123456789abcdef'
 ```
+
+**Output:**
+
+```ts
+4
+```
+
+##### Example (2)
+
+```ts
+entropy({ algo: 'shannon' })
+```
+
+**Input:**
+
+```ts
+'1223334444'
+```
+
+**Output:**
+
+```ts
+1.8464393446710154
+```
+
+##### Example (3)
+
+```ts
+entropy({ algo: 'unknownAlgoName' })
+```
+
+**Input:**
+
+```ts
+'1223334444'
+```
+
+**Throws:**
+`null`
 
 ### `extract`
 
@@ -4444,20 +12246,76 @@ If the digest is not provided, it defaults to hex
 
 #### Examples
 
-```ts
-"<hello>" => extract(start: "<", end: ">") // outputs "hello"
-```
+##### Example (1)
 
 ```ts
-"hello" => extract(regex: "he.*") // outputs "hello"
+extract({ start: '<', end: '>' })
 ```
 
-```ts
-"Hello World some other things" => extract(regex: "/([A-Z]\w+)/", global: true) // outputs ["Hello", "World"]
-```
+**Input:**
 
 ```ts
-"<hello> some stuff <world>" => extract(start: "<", end: ">", global: true) // outputs ["hello", "world"]
+'<hello>'
+```
+
+**Output:**
+
+```ts
+'hello'
+```
+
+##### Example (2)
+
+```ts
+extract({ regex: 'he.*' })
+```
+
+**Input:**
+
+```ts
+'hello'
+```
+
+**Output:**
+
+```ts
+'hello'
+```
+
+##### Example (3)
+
+```ts
+extract({ regex: '/([A-Z]\\w+)/', global: true })
+```
+
+**Input:**
+
+```ts
+'Hello World some other things'
+```
+
+**Output:**
+
+```ts
+[ 'Hello', 'World' ]
+```
+
+##### Example (4)
+
+```ts
+extract({ start: '<', end: '>', global: true })
+```
+
+**Input:**
+
+```ts
+'<hello> some stuff <world>'
+```
+
+**Output:**
+
+```ts
+[ 'hello', 'world' ]
 ```
 
 ### `join`
@@ -4476,20 +12334,80 @@ If the digest is not provided, it defaults to hex
 
 #### Examples
 
-```ts
-["a", " ", "s", "t", "r", "i", "n", "g"] => join() // outputs "a string"
-```
+##### Example (1)
 
 ```ts
-["a string", "found"] => join(delimiter: ",") // outputs "a string,found"
+join()
 ```
 
-```ts
-["a", "stri", "ng"] => join(delimiter: " - ") // outputs "a - stri - ng"
-```
+**Input:**
 
 ```ts
-"a string" => join(delimiter: " ") // outputs "a string"
+[
+  'a', ' ', 's',
+  't', 'r', 'i',
+  'n', 'g'
+]
+```
+
+**Output:**
+
+```ts
+'a string'
+```
+
+##### Example (2)
+
+```ts
+join({ delimiter: ',' })
+```
+
+**Input:**
+
+```ts
+[ 'a string', 'found' ]
+```
+
+**Output:**
+
+```ts
+'a string,found'
+```
+
+##### Example (3)
+
+```ts
+join({ delimiter: ' - ' })
+```
+
+**Input:**
+
+```ts
+[ 'a', 'stri', 'ng' ]
+```
+
+**Output:**
+
+```ts
+'a - stri - ng'
+```
+
+##### Example (4)
+
+```ts
+join({ delimiter: ' ' })
+```
+
+**Input:**
+
+```ts
+'a string'
+```
+
+**Output:**
+
+```ts
+'a string'
 ```
 
 ### `replaceLiteral`
@@ -4510,13 +12428,42 @@ If the digest is not provided, it defaults to hex
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"Hi bob" => replaceLiteral(search: "bob", replace: "mel") // outputs "Hi mel"
+replaceLiteral({ search: 'bob', replace: 'mel' })
+```
+
+**Input:**
+
+```ts
+'Hi bob'
+```
+
+**Output:**
+
+```ts
+'Hi mel'
 ```
 
 Does not replace as it is not an exact match
+
+##### Example (2)
+
 ```ts
-"Hi Bob" => replaceLiteral(search: "bob", replace: "mel") // outputs "Hi Bob"
+replaceLiteral({ search: 'bob', replace: 'mel' })
+```
+
+**Input:**
+
+```ts
+'Hi Bob'
+```
+
+**Output:**
+
+```ts
+'Hi Bob'
 ```
 
 ### `replaceRegex`
@@ -4541,20 +12488,76 @@ Does not replace as it is not an exact match
 
 #### Examples
 
-```ts
-"somestring" => replaceRegex(regex: "s|e", replace: "d") // outputs "domestring"
-```
+##### Example (1)
 
 ```ts
-"somestring" => replaceRegex(regex: "s|e", replace: "d", global: true) // outputs "domddtring"
+replaceRegex({ regex: 's|e', replace: 'd' })
 ```
 
-```ts
-"soMesTring" => replaceRegex(regex: "m|t", replace: "W", global: true, ignoreCase: true) // outputs "soWesWring"
-```
+**Input:**
 
 ```ts
-"a***a***a" => replaceRegex(regex: "\*", replace: "", global: true) // outputs "aaa"
+'somestring'
+```
+
+**Output:**
+
+```ts
+'domestring'
+```
+
+##### Example (2)
+
+```ts
+replaceRegex({ regex: 's|e', replace: 'd', global: true })
+```
+
+**Input:**
+
+```ts
+'somestring'
+```
+
+**Output:**
+
+```ts
+'domddtring'
+```
+
+##### Example (3)
+
+```ts
+replaceRegex({ regex: 'm|t', replace: 'W', global: true, ignoreCase: true })
+```
+
+**Input:**
+
+```ts
+'soMesTring'
+```
+
+**Output:**
+
+```ts
+'soWesWring'
+```
+
+##### Example (4)
+
+```ts
+replaceRegex({ regex: '\\*', replace: '', global: true })
+```
+
+**Input:**
+
+```ts
+'a***a***a'
+```
+
+**Output:**
+
+```ts
+'aaa'
 ```
 
 ### `reverse`
@@ -4569,16 +12572,58 @@ Does not replace as it is not an exact match
 
 #### Examples
 
-```ts
-"hello" => reverse() // outputs "olleh"
-```
+##### Example (1)
 
 ```ts
-"more words" => reverse() // outputs "sdrow erom"
+reverse()
 ```
 
+**Input:**
+
 ```ts
-["hello", "more"] => reverse() // outputs ["olleh", "erom"]
+'hello'
+```
+
+**Output:**
+
+```ts
+'olleh'
+```
+
+##### Example (2)
+
+```ts
+reverse()
+```
+
+**Input:**
+
+```ts
+'more words'
+```
+
+**Output:**
+
+```ts
+'sdrow erom'
+```
+
+##### Example (3)
+
+```ts
+reverse()
+```
+
+**Input:**
+
+```ts
+[ 'hello', 'more' ]
+```
+
+**Output:**
+
+```ts
+[ 'olleh', 'erom' ]
 ```
 
 ### `split`
@@ -4597,21 +12642,82 @@ Does not replace as it is not an exact match
 
 #### Examples
 
+##### Example (1)
+
 ```ts
-"astring" => split() // outputs ["a", "s", "t", "r", "i", "n", "g"]
+split()
+```
+
+**Input:**
+
+```ts
+'astring'
+```
+
+**Output:**
+
+```ts
+[
+  'a', 's', 't',
+  'r', 'i', 'n',
+  'g'
+]
 ```
 
 Delimiter is not found so the whole input is returned
-```ts
-"astring" => split(delimiter: ",") // outputs ["astring"]
-```
+
+##### Example (2)
 
 ```ts
-"a-stri-ng" => split(delimiter: "-") // outputs ["a", "stri", "ng"]
+split({ delimiter: ',' })
 ```
 
+**Input:**
+
 ```ts
-"a string" => split(delimiter: " ") // outputs ["a", "string"]
+'astring'
+```
+
+**Output:**
+
+```ts
+[ 'astring' ]
+```
+
+##### Example (3)
+
+```ts
+split({ delimiter: '-' })
+```
+
+**Input:**
+
+```ts
+'a-stri-ng'
+```
+
+**Output:**
+
+```ts
+[ 'a', 'stri', 'ng' ]
+```
+
+##### Example (4)
+
+```ts
+split({ delimiter: ' ' })
+```
+
+**Input:**
+
+```ts
+'a string'
+```
+
+**Output:**
+
+```ts
+[ 'a', 'string' ]
 ```
 
 ### `toCamelCase`
@@ -4626,16 +12732,58 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"HELLO there" => toCamelCase() // outputs "helloThere"
-```
+##### Example (1)
 
 ```ts
-"billy" => toCamelCase() // outputs "billy"
+toCamelCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toCamelCase() // outputs "heyThere"
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'helloThere'
+```
+
+##### Example (2)
+
+```ts
+toCamelCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'billy'
+```
+
+##### Example (3)
+
+```ts
+toCamelCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'heyThere'
 ```
 
 ### `toISDN`
@@ -4651,25 +12799,92 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"+33-1-22-33-44-55" => toISDN() // outputs "33122334455"
-```
+##### Example (1)
 
 ```ts
-"1(800)FloWErs" => toISDN() // outputs "18003569377"
+toISDN()
 ```
 
-```ts
-4917600000000 => toISDN() // outputs "4917600000000"
-```
+**Input:**
 
 ```ts
-49187484 => toISDN() // outputs "49187484"
+'+33-1-22-33-44-55'
 ```
 
+**Output:**
+
 ```ts
-"something" => toISDN() // throws null
+'33122334455'
 ```
+
+##### Example (2)
+
+```ts
+toISDN()
+```
+
+**Input:**
+
+```ts
+'1(800)FloWErs'
+```
+
+**Output:**
+
+```ts
+'18003569377'
+```
+
+##### Example (3)
+
+```ts
+toISDN()
+```
+
+**Input:**
+
+```ts
+4917600000000
+```
+
+**Output:**
+
+```ts
+'4917600000000'
+```
+
+##### Example (4)
+
+```ts
+toISDN()
+```
+
+**Input:**
+
+```ts
+49187484
+```
+
+**Output:**
+
+```ts
+'49187484'
+```
+
+##### Example (5)
+
+```ts
+toISDN()
+```
+
+**Input:**
+
+```ts
+'something'
+```
+
+**Throws:**
+`null`
 
 ### `toKebabCase`
 
@@ -4683,16 +12898,58 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"HELLO there" => toKebabCase() // outputs "hello-there"
-```
+##### Example (1)
 
 ```ts
-"billy" => toKebabCase() // outputs "billy"
+toKebabCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toKebabCase() // outputs "hey-there"
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'hello-there'
+```
+
+##### Example (2)
+
+```ts
+toKebabCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'billy'
+```
+
+##### Example (3)
+
+```ts
+toKebabCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'hey-there'
 ```
 
 ### `toLowerCase`
@@ -4707,12 +12964,40 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"HELLO there" => toLowerCase() // outputs "hello there"
-```
+##### Example (1)
 
 ```ts
-"biLLy" => toLowerCase() // outputs "billy"
+toLowerCase()
+```
+
+**Input:**
+
+```ts
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'hello there'
+```
+
+##### Example (2)
+
+```ts
+toLowerCase()
+```
+
+**Input:**
+
+```ts
+'biLLy'
+```
+
+**Output:**
+
+```ts
+'billy'
 ```
 
 ### `toPascalCase`
@@ -4727,16 +13012,58 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"HELLO there" => toPascalCase() // outputs "HelloThere"
-```
+##### Example (1)
 
 ```ts
-"billy" => toPascalCase() // outputs "Billy"
+toPascalCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toPascalCase() // outputs "HeyThere"
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'HelloThere'
+```
+
+##### Example (2)
+
+```ts
+toPascalCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'Billy'
+```
+
+##### Example (3)
+
+```ts
+toPascalCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'HeyThere'
 ```
 
 ### `toSnakeCase`
@@ -4751,16 +13078,58 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-"HELLO there" => toSnakeCase() // outputs "hello_there"
-```
+##### Example (1)
 
 ```ts
-"billy" => toSnakeCase() // outputs "billy"
+toSnakeCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toSnakeCase() // outputs "hey_there"
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'hello_there'
+```
+
+##### Example (2)
+
+```ts
+toSnakeCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'billy'
+```
+
+##### Example (3)
+
+```ts
+toSnakeCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'hey_there'
 ```
 
 ### `toString`
@@ -4771,20 +13140,76 @@ Delimiter is not found so the whole input is returned
 
 #### Examples
 
-```ts
-true => toString() // outputs "true"
-```
+##### Example (1)
 
 ```ts
-hello: "world" => toString() // outputs "{"hello":"world"}"
+toString()
 ```
 
-```ts
-278218429446951548637196401 => toString() // outputs "278218429446951548637196400"
-```
+**Input:**
 
 ```ts
-[true, false] => toString() // outputs ["true", "false"]
+true
+```
+
+**Output:**
+
+```ts
+'true'
+```
+
+##### Example (2)
+
+```ts
+toString()
+```
+
+**Input:**
+
+```ts
+{ hello: 'world' }
+```
+
+**Output:**
+
+```ts
+'{"hello":"world"}'
+```
+
+##### Example (3)
+
+```ts
+toString()
+```
+
+**Input:**
+
+```ts
+278218429446951548637196401n
+```
+
+**Output:**
+
+```ts
+'278218429446951548637196400'
+```
+
+##### Example (4)
+
+```ts
+toString()
+```
+
+**Input:**
+
+```ts
+[ true, false ]
+```
+
+**Output:**
+
+```ts
+[ 'true', 'false' ]
 ```
 
 ### `toTitleCase`
@@ -4799,16 +13224,58 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 
 #### Examples
 
-```ts
-"HELLO there" => toTitleCase() // outputs "HELLO There"
-```
+##### Example (1)
 
 ```ts
-"billy" => toTitleCase() // outputs "Billy"
+toTitleCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toTitleCase() // outputs "Hey There"
+'HELLO there'
+```
+
+**Output:**
+
+```ts
+'HELLO There'
+```
+
+##### Example (2)
+
+```ts
+toTitleCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'Billy'
+```
+
+##### Example (3)
+
+```ts
+toTitleCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'Hey There'
 ```
 
 ### `toUpperCase`
@@ -4823,16 +13290,58 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 
 #### Examples
 
-```ts
-"hello" => toUpperCase() // outputs "HELLO"
-```
+##### Example (1)
 
 ```ts
-"billy" => toUpperCase() // outputs "BILLY"
+toUpperCase()
 ```
 
+**Input:**
+
 ```ts
-"Hey There" => toUpperCase() // outputs "HEY THERE"
+'hello'
+```
+
+**Output:**
+
+```ts
+'HELLO'
+```
+
+##### Example (2)
+
+```ts
+toUpperCase()
+```
+
+**Input:**
+
+```ts
+'billy'
+```
+
+**Output:**
+
+```ts
+'BILLY'
+```
+
+##### Example (3)
+
+```ts
+toUpperCase()
+```
+
+**Input:**
+
+```ts
+'Hey There'
+```
+
+**Output:**
+
+```ts
+'HEY THERE'
 ```
 
 ### `trim`
@@ -4851,56 +13360,204 @@ hello: "world" => toString() // outputs "{"hello":"world"}"
 
 #### Examples
 
-```ts
-"   other_things         " => trim() // outputs "other_things"
-```
+##### Example (1)
 
 ```ts
-"Stuff        " => trim() // outputs "Stuff"
+trim()
 ```
 
-```ts
-"      hello" => trim() // outputs "hello"
-```
+**Input:**
 
 ```ts
-"       " => trim() // outputs ""
+'   other_things         '
 ```
 
-```ts
-"Spider Man" => trim() // outputs "Spider Man"
-```
+**Output:**
 
 ```ts
-"aaaaSpider Manaaaa" => trim(chars: "a") // outputs "Spider Man"
+'other_things'
+```
+
+##### Example (2)
+
+```ts
+trim()
+```
+
+**Input:**
+
+```ts
+'Stuff        '
+```
+
+**Output:**
+
+```ts
+'Stuff'
+```
+
+##### Example (3)
+
+```ts
+trim()
+```
+
+**Input:**
+
+```ts
+'      hello'
+```
+
+**Output:**
+
+```ts
+'hello'
+```
+
+##### Example (4)
+
+```ts
+trim()
+```
+
+**Input:**
+
+```ts
+'       '
+```
+
+**Output:**
+
+```ts
+''
+```
+
+##### Example (5)
+
+```ts
+trim()
+```
+
+**Input:**
+
+```ts
+'Spider Man'
+```
+
+**Output:**
+
+```ts
+'Spider Man'
+```
+
+##### Example (6)
+
+```ts
+trim({ chars: 'a' })
+```
+
+**Input:**
+
+```ts
+'aaaaSpider Manaaaa'
+```
+
+**Output:**
+
+```ts
+'Spider Man'
 ```
 
 Any new char, including whitespace will stop the trim, it must be consecutive
+
+##### Example (7)
+
 ```ts
-"aa aaSpider Manaa aa" => trim(chars: "a") // outputs " aaSpider Manaa "
+trim({ chars: 'a' })
 ```
 
+**Input:**
+
 ```ts
-"fast cars race fast" => trim(chars: "fast") // outputs " cars race "
+'aa aaSpider Manaa aa'
 ```
 
+**Output:**
+
 ```ts
-"fast example cata" => trim(chars: "fatc ") // outputs "st example"
+' aaSpider Manaa '
 ```
 
+##### Example (8)
+
 ```ts
-"
-
-trim this
-
-" => trim(chars: "
-") // outputs "
-
-trim this"
+trim({ chars: 'fast' })
 ```
 
+**Input:**
+
 ```ts
-".*.*a test.*.*.*.*" => trim(chars: ".*") // outputs "a test"
+'fast cars race fast'
+```
+
+**Output:**
+
+```ts
+' cars race '
+```
+
+##### Example (9)
+
+```ts
+trim({ chars: 'fatc ' })
+```
+
+**Input:**
+
+```ts
+'fast example cata'
+```
+
+**Output:**
+
+```ts
+'st example'
+```
+
+##### Example (10)
+
+```ts
+trim({ chars: '\r' })
+```
+
+**Input:**
+
+```ts
+'\t\r\rtrim this\r\r'
+```
+
+**Output:**
+
+```ts
+'\t\r\rtrim this'
+```
+
+##### Example (11)
+
+```ts
+trim({ chars: '.*' })
+```
+
+**Input:**
+
+```ts
+'.*.*a test.*.*.*.*'
+```
+
+**Output:**
+
+```ts
+'a test'
 ```
 
 ### `trimEnd`
@@ -4919,24 +13576,94 @@ trim this"
 
 #### Examples
 
-```ts
-"   left" => trimEnd() // outputs "   left"
-```
+##### Example (1)
 
 ```ts
-"right   " => trimEnd() // outputs "right"
+trimEnd()
 ```
 
-```ts
-"       " => trimEnd() // outputs ""
-```
+**Input:**
 
 ```ts
-"*****Hello****Bob*****" => trimEnd(chars: "*") // outputs "*****Hello****Bob"
+'   left'
 ```
 
+**Output:**
+
 ```ts
-"fast cars race fast" => trimEnd(chars: "fast") // outputs "fast cars race "
+'   left'
+```
+
+##### Example (2)
+
+```ts
+trimEnd()
+```
+
+**Input:**
+
+```ts
+'right   '
+```
+
+**Output:**
+
+```ts
+'right'
+```
+
+##### Example (3)
+
+```ts
+trimEnd()
+```
+
+**Input:**
+
+```ts
+'       '
+```
+
+**Output:**
+
+```ts
+''
+```
+
+##### Example (4)
+
+```ts
+trimEnd({ chars: '*' })
+```
+
+**Input:**
+
+```ts
+'*****Hello****Bob*****'
+```
+
+**Output:**
+
+```ts
+'*****Hello****Bob'
+```
+
+##### Example (5)
+
+```ts
+trimEnd({ chars: 'fast' })
+```
+
+**Input:**
+
+```ts
+'fast cars race fast'
+```
+
+**Output:**
+
+```ts
+'fast cars race '
 ```
 
 ### `trimStart`
@@ -4955,20 +13682,76 @@ trim this"
 
 #### Examples
 
-```ts
-"    Hello Bob    " => trimStart() // outputs "Hello Bob    "
-```
+##### Example (1)
 
 ```ts
-"__--__--__some__--__word" => trimStart(chars: "__--") // outputs "some__--__word"
+trimStart()
 ```
 
-```ts
-"       " => trimStart() // outputs ""
-```
+**Input:**
 
 ```ts
-"*****Hello****Bob*****" => trimStart(chars: "*") // outputs "Hello****Bob*****"
+'    Hello Bob    '
+```
+
+**Output:**
+
+```ts
+'Hello Bob    '
+```
+
+##### Example (2)
+
+```ts
+trimStart({ chars: '__--' })
+```
+
+**Input:**
+
+```ts
+'__--__--__some__--__word'
+```
+
+**Output:**
+
+```ts
+'some__--__word'
+```
+
+##### Example (3)
+
+```ts
+trimStart()
+```
+
+**Input:**
+
+```ts
+'       '
+```
+
+**Output:**
+
+```ts
+''
+```
+
+##### Example (4)
+
+```ts
+trimStart({ chars: '*' })
+```
+
+**Input:**
+
+```ts
+'*****Hello****Bob*****'
+```
+
+**Output:**
+
+```ts
+'Hello****Bob*****'
 ```
 
 ### `truncate`
@@ -4987,12 +13770,40 @@ trim this"
 
 #### Examples
 
-```ts
-"thisisalongstring" => truncate(size: 4) // outputs "this"
-```
+##### Example (1)
 
 ```ts
-"Hello world" => truncate(size: 8) // outputs "Hello wo"
+truncate({ size: 4 })
+```
+
+**Input:**
+
+```ts
+'thisisalongstring'
+```
+
+**Output:**
+
+```ts
+'this'
+```
+
+##### Example (2)
+
+```ts
+truncate({ size: 8 })
+```
+
+**Input:**
+
+```ts
+'Hello world'
+```
+
+**Output:**
+
+```ts
+'Hello wo'
 ```
 
 ## CATEGORY: Ip
@@ -5010,24 +13821,94 @@ trim this"
 
 #### Examples
 
-```ts
-"11.0.1.18" => isIP() // outputs "11.0.1.18"
-```
+##### Example (1)
 
 ```ts
-"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIP() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
+isIP()
 ```
 
-```ts
-"172.394.0.1" => isIP() // outputs null
-```
+**Input:**
 
 ```ts
-1234567 => isIP() // outputs null
+'11.0.1.18'
 ```
 
+**Output:**
+
 ```ts
-"not an IP address" => isIP() // outputs null
+'11.0.1.18'
+```
+
+##### Example (2)
+
+```ts
+isIP()
+```
+
+**Input:**
+
+```ts
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+**Output:**
+
+```ts
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+##### Example (3)
+
+```ts
+isIP()
+```
+
+**Input:**
+
+```ts
+'172.394.0.1'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isIP()
+```
+
+**Input:**
+
+```ts
+1234567
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isIP()
+```
+
+**Input:**
+
+```ts
+'not an IP address'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `inIPRange`
@@ -5051,20 +13932,76 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.8.8" => inIPRange(cidr: "8.8.8.0/24") // outputs "8.8.8.8"
-```
+##### Example (1)
 
 ```ts
-"fd00::b000" => inIPRange(min: "fd00::123", max: "fd00::ea00") // outputs "fd00::b000"
+inIPRange({ cidr: '8.8.8.0/24' })
 ```
 
-```ts
-"fd00::b000" => inIPRange(min: "fd00::123") // outputs "fd00::b000"
-```
+**Input:**
 
 ```ts
-"8.8.10.8" => inIPRange(cidr: "8.8.8.0/24") // outputs null
+'8.8.8.8'
+```
+
+**Output:**
+
+```ts
+'8.8.8.8'
+```
+
+##### Example (2)
+
+```ts
+inIPRange({ min: 'fd00::123', max: 'fd00::ea00' })
+```
+
+**Input:**
+
+```ts
+'fd00::b000'
+```
+
+**Output:**
+
+```ts
+'fd00::b000'
+```
+
+##### Example (3)
+
+```ts
+inIPRange({ min: 'fd00::123' })
+```
+
+**Input:**
+
+```ts
+'fd00::b000'
+```
+
+**Output:**
+
+```ts
+'fd00::b000'
+```
+
+##### Example (4)
+
+```ts
+inIPRange({ cidr: '8.8.8.0/24' })
+```
+
+**Input:**
+
+```ts
+'8.8.10.8'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isCIDR`
@@ -5080,20 +14017,76 @@ trim this"
 
 #### Examples
 
-```ts
-"1.2.3.4/32" => isCIDR() // outputs "1.2.3.4/32"
-```
+##### Example (1)
 
 ```ts
-"2001::1234:5678/128" => isCIDR() // outputs "2001::1234:5678/128"
+isCIDR()
 ```
 
-```ts
-"8.8.8.10" => isCIDR() // outputs null
-```
+**Input:**
 
 ```ts
-"badIPAddress/24" => isCIDR() // outputs null
+'1.2.3.4/32'
+```
+
+**Output:**
+
+```ts
+'1.2.3.4/32'
+```
+
+##### Example (2)
+
+```ts
+isCIDR()
+```
+
+**Input:**
+
+```ts
+'2001::1234:5678/128'
+```
+
+**Output:**
+
+```ts
+'2001::1234:5678/128'
+```
+
+##### Example (3)
+
+```ts
+isCIDR()
+```
+
+**Input:**
+
+```ts
+'8.8.8.10'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isCIDR()
+```
+
+**Input:**
+
+```ts
+'badIPAddress/24'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isIPv4`
@@ -5109,20 +14102,76 @@ trim this"
 
 #### Examples
 
-```ts
-"11.0.1.18" => isIPv4() // outputs "11.0.1.18"
-```
+##### Example (1)
 
 ```ts
-"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPv4() // outputs null
+isIPv4()
 ```
 
-```ts
-"172.394.0.1" => isIPv4() // outputs null
-```
+**Input:**
 
 ```ts
-"not an IP address" => isIPv4() // outputs null
+'11.0.1.18'
+```
+
+**Output:**
+
+```ts
+'11.0.1.18'
+```
+
+##### Example (2)
+
+```ts
+isIPv4()
+```
+
+**Input:**
+
+```ts
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (3)
+
+```ts
+isIPv4()
+```
+
+**Input:**
+
+```ts
+'172.394.0.1'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isIPv4()
+```
+
+**Input:**
+
+```ts
+'not an IP address'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isIPv6`
@@ -5138,24 +14187,94 @@ trim this"
 
 #### Examples
 
-```ts
-"2001:db8:85a3:8d3:1319:8a2e:370:7348" => isIPv6() // outputs "2001:db8:85a3:8d3:1319:8a2e:370:7348"
-```
+##### Example (1)
 
 ```ts
-"fc00:db8::1" => isIPv6() // outputs "fc00:db8::1"
+isIPv6()
 ```
 
-```ts
-"::FFFF:12.155.166.101" => isIPv6() // outputs "::FFFF:12.155.166.101"
-```
+**Input:**
 
 ```ts
-"11.0.1.18" => isIPv6() // outputs null
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
 ```
 
+**Output:**
+
 ```ts
-"not an IP address" => isIPv6() // outputs null
+'2001:db8:85a3:8d3:1319:8a2e:370:7348'
+```
+
+##### Example (2)
+
+```ts
+isIPv6()
+```
+
+**Input:**
+
+```ts
+'fc00:db8::1'
+```
+
+**Output:**
+
+```ts
+'fc00:db8::1'
+```
+
+##### Example (3)
+
+```ts
+isIPv6()
+```
+
+**Input:**
+
+```ts
+'::FFFF:12.155.166.101'
+```
+
+**Output:**
+
+```ts
+'::FFFF:12.155.166.101'
+```
+
+##### Example (4)
+
+```ts
+isIPv6()
+```
+
+**Input:**
+
+```ts
+'11.0.1.18'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isIPv6()
+```
+
+**Input:**
+
+```ts
+'not an IP address'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isNonRoutableIP`
@@ -5171,24 +14290,94 @@ trim this"
 
 #### Examples
 
-```ts
-"192.168.0.1" => isNonRoutableIP() // outputs "192.168.0.1"
-```
+##### Example (1)
 
 ```ts
-"2001:db8::1" => isNonRoutableIP() // outputs "2001:db8::1"
+isNonRoutableIP()
 ```
 
-```ts
-"172.28.4.1" => isNonRoutableIP() // outputs "172.28.4.1"
-```
+**Input:**
 
 ```ts
-"8.8.8.8" => isNonRoutableIP() // outputs null
+'192.168.0.1'
 ```
 
+**Output:**
+
 ```ts
-"2001:2ff::ffff" => isNonRoutableIP() // outputs null
+'192.168.0.1'
+```
+
+##### Example (2)
+
+```ts
+isNonRoutableIP()
+```
+
+**Input:**
+
+```ts
+'2001:db8::1'
+```
+
+**Output:**
+
+```ts
+'2001:db8::1'
+```
+
+##### Example (3)
+
+```ts
+isNonRoutableIP()
+```
+
+**Input:**
+
+```ts
+'172.28.4.1'
+```
+
+**Output:**
+
+```ts
+'172.28.4.1'
+```
+
+##### Example (4)
+
+```ts
+isNonRoutableIP()
+```
+
+**Input:**
+
+```ts
+'8.8.8.8'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isNonRoutableIP()
+```
+
+**Input:**
+
+```ts
+'2001:2ff::ffff'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isRoutableIP`
@@ -5204,24 +14393,94 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.8.8" => isRoutableIP() // outputs "8.8.8.8"
-```
+##### Example (1)
 
 ```ts
-"2620:4f:123::" => isRoutableIP() // outputs "2620:4f:123::"
+isRoutableIP()
 ```
 
-```ts
-"192.168.255.254" => isRoutableIP() // outputs null
-```
+**Input:**
 
 ```ts
-"2001:4:112::" => isRoutableIP() // outputs null
+'8.8.8.8'
 ```
 
+**Output:**
+
 ```ts
-"not an IP address" => isRoutableIP() // outputs null
+'8.8.8.8'
+```
+
+##### Example (2)
+
+```ts
+isRoutableIP()
+```
+
+**Input:**
+
+```ts
+'2620:4f:123::'
+```
+
+**Output:**
+
+```ts
+'2620:4f:123::'
+```
+
+##### Example (3)
+
+```ts
+isRoutableIP()
+```
+
+**Input:**
+
+```ts
+'192.168.255.254'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isRoutableIP()
+```
+
+**Input:**
+
+```ts
+'2001:4:112::'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isRoutableIP()
+```
+
+**Input:**
+
+```ts
+'not an IP address'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `isMappedIPv4`
@@ -5237,24 +14496,94 @@ trim this"
 
 #### Examples
 
-```ts
-"::ffff:10.2.1.18" => isMappedIPv4() // outputs "::ffff:10.2.1.18"
-```
+##### Example (1)
 
 ```ts
-"::122.168.5.18" => isMappedIPv4() // outputs "::122.168.5.18"
+isMappedIPv4()
 ```
 
-```ts
-"10.16.32.210" => isMappedIPv4() // outputs null
-```
+**Input:**
 
 ```ts
-"2001:4:112::" => isMappedIPv4() // outputs null
+'::ffff:10.2.1.18'
 ```
 
+**Output:**
+
 ```ts
-"not an IP address" => isMappedIPv4() // outputs null
+'::ffff:10.2.1.18'
+```
+
+##### Example (2)
+
+```ts
+isMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'::122.168.5.18'
+```
+
+**Output:**
+
+```ts
+'::122.168.5.18'
+```
+
+##### Example (3)
+
+```ts
+isMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'10.16.32.210'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (4)
+
+```ts
+isMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'2001:4:112::'
+```
+
+**Output:**
+
+```ts
+null
+```
+
+##### Example (5)
+
+```ts
+isMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'not an IP address'
+```
+
+**Output:**
+
+```ts
+null
 ```
 
 ### `extractMappedIPv4`
@@ -5270,12 +14599,40 @@ trim this"
 
 #### Examples
 
-```ts
-"::FFFF:192.52.193.1" => extractMappedIPv4() // outputs "192.52.193.1"
-```
+##### Example (1)
 
 ```ts
-"::122.168.5.18" => extractMappedIPv4() // outputs "122.168.5.18"
+extractMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'::FFFF:192.52.193.1'
+```
+
+**Output:**
+
+```ts
+'192.52.193.1'
+```
+
+##### Example (2)
+
+```ts
+extractMappedIPv4()
+```
+
+**Input:**
+
+```ts
+'::122.168.5.18'
+```
+
+**Output:**
+
+```ts
+'122.168.5.18'
 ```
 
 ### `reverseIP`
@@ -5291,16 +14648,58 @@ trim this"
 
 #### Examples
 
-```ts
-"10.16.32.210" => reverseIP() // outputs "210.32.16.10"
-```
+##### Example (1)
 
 ```ts
-"2001:0db8:0000:0000:0000:8a2e:0370:7334" => reverseIP() // outputs "4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2"
+reverseIP()
 ```
 
+**Input:**
+
 ```ts
-"2001:2::" => reverseIP() // outputs "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2"
+'10.16.32.210'
+```
+
+**Output:**
+
+```ts
+'210.32.16.10'
+```
+
+##### Example (2)
+
+```ts
+reverseIP()
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0000:0000:0000:8a2e:0370:7334'
+```
+
+**Output:**
+
+```ts
+'4.3.3.7.0.7.3.0.e.2.a.8.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2'
+```
+
+##### Example (3)
+
+```ts
+reverseIP()
+```
+
+**Input:**
+
+```ts
+'2001:2::'
+```
+
+**Output:**
+
+```ts
+'0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0.1.0.0.2'
 ```
 
 ### `ipToInt`
@@ -5316,12 +14715,40 @@ trim this"
 
 #### Examples
 
-```ts
-"10.16.32.210" => ipToInt() // outputs 168829138
-```
+##### Example (1)
 
 ```ts
-"2001:2::" => ipToInt() // outputs "42540488320432167789079031612388147199"
+ipToInt()
+```
+
+**Input:**
+
+```ts
+'10.16.32.210'
+```
+
+**Output:**
+
+```ts
+168829138
+```
+
+##### Example (2)
+
+```ts
+ipToInt()
+```
+
+**Input:**
+
+```ts
+'2001:2::'
+```
+
+**Output:**
+
+```ts
+'42540488320432167789079031612388147199'
 ```
 
 ### `intToIP`
@@ -5341,12 +14768,40 @@ trim this"
 
 #### Examples
 
-```ts
-168829138 => intToIP(version: 4) // outputs "10.16.32.210"
-```
+##### Example (1)
 
 ```ts
-"42540488320432167789079031612388147200" => intToIP(version: "6") // outputs "2001:2::"
+intToIP({ version: 4 })
+```
+
+**Input:**
+
+```ts
+168829138
+```
+
+**Output:**
+
+```ts
+'10.16.32.210'
+```
+
+##### Example (2)
+
+```ts
+intToIP({ version: '6' })
+```
+
+**Input:**
+
+```ts
+'42540488320432167789079031612388147200'
+```
+
+**Output:**
+
+```ts
+'2001:2::'
 ```
 
 ### `getCIDRMin`
@@ -5362,16 +14817,58 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.12.118/24" => getCIDRMin() // outputs "8.8.12.1"
-```
+##### Example (1)
 
 ```ts
-"2001:0db8:0123:4567:89ab:cdef:1234:5678/128" => getCIDRMin() // outputs "2001:db8:123:4567:89ab:cdef:1234:5678"
+getCIDRMin()
 ```
 
+**Input:**
+
 ```ts
-"2001:0db8:0123:4567:89ab:cdef:1234:5678/46" => getCIDRMin() // outputs "2001:db8:120::1"
+'8.8.12.118/24'
+```
+
+**Output:**
+
+```ts
+'8.8.12.1'
+```
+
+##### Example (2)
+
+```ts
+getCIDRMin()
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+**Output:**
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+##### Example (3)
+
+```ts
+getCIDRMin()
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+**Output:**
+
+```ts
+'2001:db8:120::1'
 ```
 
 ### `getCIDRMax`
@@ -5387,16 +14884,58 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.12.118/24" => getCIDRMax() // outputs "8.8.12.254"
-```
+##### Example (1)
 
 ```ts
-"2001:0db8:0123:4567:89ab:cdef:1234:5678/128" => getCIDRMax() // outputs "2001:db8:123:4567:89ab:cdef:1234:5678"
+getCIDRMax()
 ```
 
+**Input:**
+
 ```ts
-"2001:0db8:0123:4567:89ab:cdef:1234:5678/46" => getCIDRMax() // outputs "2001:db8:123:ffff:ffff:ffff:ffff:ffff"
+'8.8.12.118/24'
+```
+
+**Output:**
+
+```ts
+'8.8.12.254'
+```
+
+##### Example (2)
+
+```ts
+getCIDRMax()
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/128'
+```
+
+**Output:**
+
+```ts
+'2001:db8:123:4567:89ab:cdef:1234:5678'
+```
+
+##### Example (3)
+
+```ts
+getCIDRMax()
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678/46'
+```
+
+**Output:**
+
+```ts
+'2001:db8:123:ffff:ffff:ffff:ffff:ffff'
 ```
 
 ### `getCIDRBroadcast`
@@ -5412,12 +14951,40 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.12.118/24" => getCIDRBroadcast() // outputs "8.8.12.255"
-```
+##### Example (1)
 
 ```ts
-"1.2.3.4/32" => getCIDRBroadcast() // outputs "1.2.3.4"
+getCIDRBroadcast()
+```
+
+**Input:**
+
+```ts
+'8.8.12.118/24'
+```
+
+**Output:**
+
+```ts
+'8.8.12.255'
+```
+
+##### Example (2)
+
+```ts
+getCIDRBroadcast()
+```
+
+**Input:**
+
+```ts
+'1.2.3.4/32'
+```
+
+**Output:**
+
+```ts
+'1.2.3.4'
 ```
 
 ### `getCIDRNetwork`
@@ -5433,12 +15000,40 @@ trim this"
 
 #### Examples
 
-```ts
-"8.8.12.118/24" => getCIDRNetwork() // outputs "8.8.12.0"
-```
+##### Example (1)
 
 ```ts
-"1.2.3.4/32" => getCIDRNetwork() // outputs "1.2.3.4"
+getCIDRNetwork()
+```
+
+**Input:**
+
+```ts
+'8.8.12.118/24'
+```
+
+**Output:**
+
+```ts
+'8.8.12.0'
+```
+
+##### Example (2)
+
+```ts
+getCIDRNetwork()
+```
+
+**Input:**
+
+```ts
+'1.2.3.4/32'
+```
+
+**Output:**
+
+```ts
+'1.2.3.4'
 ```
 
 ### `toCIDR`
@@ -5458,14 +15053,56 @@ trim this"
 
 #### Examples
 
-```ts
-"1.2.3.4" => toCIDR(suffix: 32) // outputs "1.2.3.4/32"
-```
+##### Example (1)
 
 ```ts
-"1.2.3.4" => toCIDR(suffix: 24) // outputs "1.2.3.0/24"
+toCIDR({ suffix: 32 })
 ```
 
+**Input:**
+
 ```ts
-"2001:0db8:0123:4567:89ab:cdef:1234:5678" => toCIDR(suffix: "46") // outputs "2001:db8:120::/46"
+'1.2.3.4'
+```
+
+**Output:**
+
+```ts
+'1.2.3.4/32'
+```
+
+##### Example (2)
+
+```ts
+toCIDR({ suffix: 24 })
+```
+
+**Input:**
+
+```ts
+'1.2.3.4'
+```
+
+**Output:**
+
+```ts
+'1.2.3.0/24'
+```
+
+##### Example (3)
+
+```ts
+toCIDR({ suffix: '46' })
+```
+
+**Input:**
+
+```ts
+'2001:0db8:0123:4567:89ab:cdef:1234:5678'
+```
+
+**Output:**
+
+```ts
+'2001:db8:120::/46'
 ```
