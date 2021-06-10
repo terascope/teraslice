@@ -24,8 +24,12 @@ export * from './json';
 export * from './logger';
 export * from './numbers';
 export * from './objects';
+export * from './phone-number';
 export * from './promises';
 export * from './regex';
 export * from './queue';
 export * from './strings';
+export * from './ip';
+export * from './field-type';
+
 export { STATUS_CODES };

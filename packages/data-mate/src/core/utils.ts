@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import {
-    bigIntToJSON, isArrayLike, toString,
+    bigIntToJSON, isArrayLike,
     getTypeOf, hasOwn, isFunction,
-    isPrimitiveValue, TSError
+    TSError, primitiveToString
 } from '@terascope/utils';
 import {
     DataTypeFields, FieldType, ReadonlyDataTypeFields,
@@ -107,11 +107,10 @@ function _mapToString(input: any): string {
 export function createHashCode(value: unknown): string {
     if (value == null) return '~';
     if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
-    if (isPrimitiveValue(value)) return `|${value}`;
 
     const hash = typeof value === 'object'
         ? _mapToString(value)
-        : toString(value);
+        : primitiveToString(value);
 
     if (hash.length > 35) return `;${md5(hash)}`;
     return `:${hash}`;

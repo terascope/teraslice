@@ -1,15 +1,16 @@
 import { v4 as uuid } from 'uuid';
-import { isArrayLike, joinList, toString } from '@terascope/utils';
+import { joinList, isArrayLike } from '@terascope/utils';
 import {
-    DataTypeFieldConfig, DataTypeFields, Maybe
+    DataTypeFieldConfig,
+    DataTypeFields, FieldType, Maybe, ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
+import { Builder, transformVectorToBuilder } from '../builder';
 import {
     ListVector,
-    Vector, VectorType
+    Vector,
+    VectorType
 } from '../vector';
-import { ColumnTransformFn, TransformMode } from './interfaces';
-import { WritableData } from '../core';
+import { numericTypes, stringTypes, WritableData } from '../core';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -20,66 +21,74 @@ export function getVectorId(vector: Vector<any>): string {
     return newId;
 }
 
-/**
- * Map over the Vector
-*/
-export function mapVector<T, R = T>(
-    vector: Vector<T>,
-    transform: ColumnTransformFn<T, R>,
-    config?: Partial<DataTypeFieldConfig>,
-): Vector<R> {
-    const builder = Builder.make<R>(
-        new WritableData(vector.size),
-        {
-            childConfig: vector.childConfig,
-            config: { ...vector.config, ...config, ...transform.output },
-            name: vector.name,
-        },
-    );
-
-    if (transform.mode === TransformMode.NONE) {
-        return copyVectorToBuilder(vector, builder);
-    }
-
-    if (transform.mode === TransformMode.EACH) {
-        return mapVectorEach(
-            vector, builder, transform.fn
-        );
-    }
-
-    if (transform.mode === TransformMode.EACH_VALUE) {
-        return mapVectorEachValue(
-            vector, builder, transform.fn
-        );
-    }
-
-    throw new Error(`Unknown transformation ${toString(transform)}`);
-}
-
 export function mapVectorEach<T, R = T>(
     vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>,
+    fn: (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>,
 ): Vector<R> {
     let i = 0;
+
     for (const value of vector) {
-        builder.set(i++, fn(value));
+        const ind = i++;
+        builder.set(ind, fn(value, ind));
     }
+
     return builder.toVector();
 }
 
 export function mapVectorEachValue<T, R = T>(
     vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    fn: (value: T) => Maybe<R>,
+    fn: (value: T, index: number) => Maybe<R>,
 ): Vector<R> {
-    function _mapValue(value: T|readonly Maybe<T>[]): Maybe<R>|readonly Maybe<R>[] {
-        if (isArrayLike<readonly Maybe<T>[]>(value)) {
-            return value.map((v): Maybe<R> => (
-                v != null ? fn(v) : null
+    const containsArray = vector.type === VectorType.Tuple || vector.config.array
+        || vector.type === VectorType.Any;
+
+    function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
+        if (containsArray && Array.isArray(value)) {
+            return (value as readonly Maybe<T>[]).map((v): Maybe<R> => (
+                v != null ? fn(v, index) : null
             ));
         }
-        return fn(value as T);
+
+        return fn(value as T, index);
+    }
+
+    return transformVectorToBuilder(vector, builder, _mapValue);
+}
+
+export function dynamicMapVectorEach<T, R = T>(
+    vector: Vector<T>|ListVector<T>,
+    builder: Builder<R>,
+    dynamicFn: (index: number) =>
+    (value: Maybe<T|readonly Maybe<T>[]>, index: number) => Maybe<R|readonly Maybe<R>[]>,
+): Vector<R> {
+    let i = 0;
+
+    for (const value of vector) {
+        const ind = i++;
+        const fn = dynamicFn(ind);
+        builder.set(ind, fn(value, ind));
+    }
+
+    return builder.toVector();
+}
+
+export function dynamicMapVectorEachValue<T, R = T>(
+    vector: Vector<T>|ListVector<T>,
+    builder: Builder<R>,
+    dynamicFn: (index: number) => (value: T, index: number) => Maybe<R>,
+): Vector<R> {
+    function _mapValue(value: T|readonly Maybe<T>[], index: number): Maybe<R>|readonly Maybe<R>[] {
+        const fn = dynamicFn(index);
+
+        if (isArrayLike<readonly Maybe<T>[]>(value)) {
+            return value.map((v): Maybe<R> => (
+                v != null ? fn(v, index) : null
+            ));
+        }
+
+        return fn(value as T, index);
     }
 
     return transformVectorToBuilder(vector, builder, _mapValue);
@@ -103,6 +112,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
         const builder = Builder.make(WritableData.emptyData, {
             config,
         });
+
         if (result[field] != null) {
             result[field] = builder.valueFrom(result[field]) as any;
         }
@@ -111,16 +121,36 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-export function validateFieldTransformType(
-    accepts: VectorType[], vector: Vector<any>
-): void {
-    if (!accepts?.length) return;
-    // if the type is a List, then we need to give the child type
-    const type = vector.type === VectorType.List ? Vector.make([], {
-        config: { ...vector.config, array: false }
-    }).type : vector.type;
-
-    if (!accepts.includes(type)) {
-        throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
+/**
+ * This was created for validating the accepts
+*/
+export function getFieldTypesFromFieldConfigAndChildConfig(
+    config: Readonly<DataTypeFieldConfig>,
+    childConfig: DataTypeFields|ReadonlyDataTypeFields|undefined
+): readonly FieldType[] {
+    if (config.type !== FieldType.Tuple || !childConfig) {
+        return [config.type as FieldType];
     }
+
+    return Object.values(childConfig).map((c) => c.type as FieldType);
+}
+
+export function validateAccepts(
+    accepts: readonly FieldType[], types: readonly FieldType[]
+): Error | undefined {
+    if (!accepts?.length || !types.length) return;
+
+    for (const acceptType of accepts) {
+        if (acceptType === FieldType.Number && types.every((type) => numericTypes.has(type))) {
+            return;
+        }
+        if (acceptType === FieldType.String && types.every((type) => stringTypes.has(type))) {
+            return;
+        }
+        if (types.every((type) => type === acceptType || type === FieldType.Any)) {
+            return;
+        }
+    }
+
+    return new Error(`Incompatible with field type ${joinList(types)}, must be ${joinList(accepts)}`);
 }

@@ -1,3 +1,4 @@
+import { FieldType } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 
@@ -27,6 +28,16 @@ export function toNumber(input: unknown): number {
     return Number(input);
 }
 
+/** Will throw if converted number is NaN */
+export function toNumberOrThrow(input: unknown): number {
+    const num = toNumber(input);
+
+    if (!isNumber(num)) {
+        throw new Error(`Could not convert ${input} to a number`);
+    }
+    return num;
+}
+
 /** Check if value is a bigint */
 export function isBigInt(input: unknown): input is bigint {
     return typeof input === 'bigint';
@@ -50,6 +61,10 @@ const _maxBigInt: bigint = supportsBigInt
 
 /** Convert any input to a bigint */
 export function toBigIntOrThrow(input: unknown): bigint {
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
     if (isBigInt(input)) return input;
     if (!supportsBigInt) {
         throw new Error('BigInt isn\'t supported in this environment');
@@ -82,7 +97,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
 }
 
 /**
- * Convert a BigInt to either a number of a string
+ * Convert a BigInt to either a number or a string
 */
 export function bigIntToJSON(int: bigint): string|number {
     if (typeof int === 'number') return int;
@@ -123,7 +138,9 @@ export function toInteger(input: unknown): number | false {
 
 /** Convert an input to a integer or throw */
 export function toIntegerOrThrow(input: unknown): number {
-    if (isInteger(input)) return input;
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
 
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);
@@ -132,6 +149,8 @@ export function toIntegerOrThrow(input: unknown): number {
         }
         return val;
     }
+
+    if (isInteger(input) || isFloat(input)) return Math.trunc(input);
 
     if (!isNumberLike(input)) {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
@@ -162,6 +181,10 @@ export function toFloat(input: unknown): number | false {
 
 /** Convert an input to a float or throw */
 export function toFloatOrThrow(input: unknown): number {
+    if (typeof input === 'object') {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
     if (isFloat(input)) return input;
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);
@@ -224,10 +247,10 @@ export interface InNumberRangeArg {
  *      inNumberRange(42, { min: 0, max: 42, inclusive: true }) // true
 */
 export function inNumberRange(input: unknown, args: InNumberRangeArg): input is number {
-    if (!isNumber(input)) return false;
+    if (!isNumber(input) && !isBigInt(input)) return false;
 
-    const min = args.min == null ? -Infinity : args.min;
-    const max = args.max == null ? Infinity : args.max;
+    const min = args.min == null ? Number.NEGATIVE_INFINITY : args.min;
+    const max = args.max == null ? Number.POSITIVE_INFINITY : args.max;
 
     if (args.inclusive) {
         return (input >= min && input <= max);
@@ -237,7 +260,126 @@ export function inNumberRange(input: unknown, args: InNumberRangeArg): input is 
 }
 
 export function inNumberRangeFP(args: InNumberRangeArg) {
-    return function _inNumberRangeFP(input: number): input is number {
+    return function _inNumberRangeFP(input: unknown): input is number {
         return inNumberRange(input, args);
+    };
+}
+
+/**
+ * Returns a truncated number to nth decimal places.
+ *
+ * @param fractionDigits The number of decimal points to round to.
+ * @param truncate If this is true the number will not be rounded
+*/
+export function setPrecision(
+    input: unknown,
+    fractionDigits: number,
+    truncate = false
+): number {
+    const num = toFloatOrThrow(input);
+    if (!truncate) {
+        return parseFloat(num.toFixed(fractionDigits));
+    }
+    return parseFloat(
+        setPrecisionFromString(num.toString(), fractionDigits)
+    );
+}
+
+/**
+ * A functional programming version of setPrecision
+ *
+ * @param fractionDigits The number of decimal points to round to.
+ * @param truncate If this is true the number will not be rounded
+*/
+export function setPrecisionFP(
+    fractionDigits: number,
+    truncate = false
+): (input: unknown) => number {
+    return function _setPrecision(input) {
+        return setPrecision(input, fractionDigits, truncate);
+    };
+}
+
+/**
+ * this will always truncate (not round)
+*/
+function setPrecisionFromString(
+    input: string,
+    fractionDigits: number,
+): string {
+    const [int, points] = input.toString().split('.');
+    if (!points) return int || '0';
+
+    const remainingPoints = points.slice(0, fractionDigits);
+    if (!remainingPoints) return int || '0';
+    return `${int || '0'}.${remainingPoints}`;
+}
+
+/**
+ * Convert a fahrenheit value to celsius
+*/
+export function toCelsius(input: unknown): number {
+    const num = toFloatOrThrow(input);
+    return (num - 32) * (5 / 9);
+}
+
+/**
+ * Convert a celsius value to fahrenheit
+*/
+export function toFahrenheit(input: unknown): number {
+    const num = toFloatOrThrow(input);
+    return ((9 / 5) * num) + 32;
+}
+
+const INT_SIZES = {
+    [FieldType.Byte]: { min: -128, max: 127 },
+    [FieldType.Short]: { min: -32_768, max: 32_767 },
+    [FieldType.Integer]: { min: -(2 ** 31), max: (2 ** 31) - 1 },
+} as const;
+
+function _validateNumberFieldType(input: unknown, type: FieldType): number {
+    const int = toIntegerOrThrow(input);
+
+    if (INT_SIZES[type]) {
+        const { max, min } = INT_SIZES[type];
+        if (int > max) {
+            throw new TypeError(`Invalid byte, value of ${int} is greater than maximum size of ${max}`);
+        }
+
+        if (int < min) {
+            throw new TypeError(`Invalid byte, value of ${int} is less than minimum size of ${min}`);
+        }
+    }
+
+    return int;
+}
+
+export function validateByteNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Byte);
+}
+
+export function validateShortNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Short);
+}
+
+export function validateIntegerNumber(input: unknown): number {
+    return _validateNumberFieldType(input, FieldType.Integer);
+}
+
+export function validateNumberType(type: FieldType) {
+    return function _validateNumberType(input: unknown): number {
+        return _validateNumberFieldType(input, type);
+    };
+}
+
+export function isValidateNumberType(type: FieldType): (input: unknown) => boolean {
+    const fn = validateNumberType(type);
+
+    return function _isValidateNumberType(input: unknown): boolean {
+        try {
+            return fn(input) != null;
+        } catch (_err) {
+            return false;
+        }
     };
 }

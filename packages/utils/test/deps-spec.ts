@@ -1,12 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import { DataEntity } from '../src/entities';
-import { pDelay } from '../src/promises';
 import {
     getTypeOf,
     isPlainObject,
     cloneDeep,
-    pMap,
 } from '../src/deps';
 
 describe('Dependency Utils', () => {
@@ -176,38 +174,6 @@ describe('Dependency Utils', () => {
             output.value = 456;
             expect(output.value).toBe(456);
             expect(input.value).toBe(123);
-        });
-    });
-
-    describe('pMap', () => {
-        it('should be able to work without concurrency', () => {
-            const items: { int: number }[] = [{ int: 1 }, { int: 3 }];
-            return expect(pMap(items, (item) => {
-                item.int++;
-                return item;
-            })).resolves.toEqual([
-                { int: 2 }, { int: 4 }
-            ]);
-        });
-
-        it('should be able to work with a concurrency of 2', async () => {
-            const items: number[] = [1, 2, 3, 4, 5];
-            const start = Date.now();
-            const concurrency = 2;
-            const wait = 500;
-
-            const result = pMap(items, async (item, i) => {
-                const diff = Date.now() - start;
-                if (i % concurrency === 0) {
-                    await pDelay(wait);
-                }
-                return Math.floor(diff / wait) * wait;
-            }, {
-                concurrency
-            });
-            return expect(result).resolves.toEqual([
-                0, 0, 0, 500, 500
-            ]);
         });
     });
 });

@@ -3,7 +3,7 @@ import { Vector, VectorOptions } from '../Vector';
 import { VectorType, DataBuckets } from '../interfaces';
 
 export class BigIntVector extends Vector<bigint> {
-    valueToJSON = bigIntToJSON;
+    toJSONCompatibleValue = bigIntToJSON;
     getComparableValue = undefined;
 
     constructor(data: DataBuckets<bigint>, options: VectorOptions) {

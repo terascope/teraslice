@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "0.28.0",
+    "version": "0.29.0",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -29,16 +29,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.29.0",
-        "@terascope/types": "^0.9.0",
-        "@terascope/utils": "^0.39.0",
-        "@turf/bbox": "^6.2.0",
-        "@turf/bbox-polygon": "^6.3.0",
-        "@turf/boolean-point-in-polygon": "^6.2.0",
-        "@turf/circle": "^6.3.0",
-        "@turf/clean-coords": "^6.2.0",
-        "@turf/helpers": "^6.2.0",
-        "awesome-phonenumber": "^2.49.0",
+        "@terascope/data-types": "^0.30.0",
+        "@terascope/types": "^0.10.0",
+        "@terascope/utils": "^0.40.0",
         "date-fns": "^2.22.1",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.3",
@@ -50,12 +43,15 @@
         "uuid": "^8.3.2",
         "valid-url": "^1.0.9",
         "validator": "^13.6.0",
-        "xlucene-parser": "^0.36.0"
+        "xlucene-parser": "^0.37.0"
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.2",
         "@types/uuid": "^8.3.0",
-        "benchmark": "^2.1.4"
+        "awesome-phonenumber": "^2.51.2",
+        "benchmark": "^2.1.4",
+        "chance": "^1.1.7",
+        "lodash": "^4.17.21"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
