@@ -29,7 +29,10 @@ import {
     trimStart,
     trimEnd,
     isAlpha,
-    toTitleCase
+    toTitleCase,
+    stringEntropy,
+    StringEntropy,
+    shannonEntropy
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -521,6 +524,37 @@ describe('String Utils', () => {
             ['abastuffa a', 'abastuffa ', 'a'],
         ])('should convert %s to be %s', (input: any, expected: any, char?: string) => {
             expect(trimEnd(input, char)).toEqual(expected);
+        });
+    });
+
+    describe('shannonEntropy', () => {
+        test.each([
+            ['1223334444', 1.8464393446710154],
+            ['0', 0],
+            ['01', 1],
+            ['0123', 2],
+            ['01234567', 3],
+            ['0123456789abcdef', 4],
+            ['1035830701', 2.4464393446710155],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(shannonEntropy(input)).toEqual(expected);
+        });
+    });
+
+    describe('entropy', () => {
+        describe(`${StringEntropy.shannon}`, () => {
+            test.each([
+                ['1223334444', 1.8464393446710154],
+                ['0', 0],
+                ['01', 1],
+                ['0123', 2],
+                ['01234567', 3],
+                ['0123456789abcdef', 4],
+                ['1035830701', 2.4464393446710155],
+            ])('should convert %s to be %s', (input: any, expected: any) => {
+                const fn = stringEntropy(StringEntropy.shannon);
+                expect(fn(input)).toEqual(expected);
+            });
         });
     });
 });

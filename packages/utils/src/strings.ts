@@ -599,22 +599,33 @@ export function joinList(
 
 export type StringEntropyFN = (input: unknown) => number
 
-function shannonEntropy(input: unknown) {
+// inspired from https://gist.github.com/jabney/5018b4adc9b2bf488696
+/** Performs a Shannon entropy calculation on string inputs */
+export function shannonEntropy(input: unknown): number {
     if (!isString(input)) {
         throw new Error(`Invalid input ${input}, must be of type String`);
     }
 
-    return [...new Set(input)]
-        .map(
-            (chr) => {
-                const matching = input.match(new RegExp(chr, 'g')) as RegExpMatchArray;
-                return matching.length;
-            }
-        )
-        .reduce((sum, frequency) => {
-            const p = frequency / input.length;
-            return sum + p * Math.log2(1 / p);
-        }, 0);
+    let sum = 0;
+    const len = input.length;
+    const dict: Record<string, number> = Object.create(null);
+
+    // get number of chars per string
+    for (const char of input) {
+        if (dict[char]) {
+            dict[char]++;
+        } else {
+            dict[char] = 1;
+        }
+    }
+
+    for (const num of Object.values(dict)) {
+        const p = num / len;
+        const pLogCalc = p * Math.log(p);
+        sum -= pLogCalc / Math.log(2);
+    }
+
+    return sum;
 }
 
 export enum StringEntropy {
@@ -625,6 +636,9 @@ const StringEntropyDict: Record<StringEntropy, StringEntropyFN> = {
     [StringEntropy.shannon]: shannonEntropy
 };
 
+/** returns a function to perform entropy calculations, currently only supports
+ * the "shannon" algorithm
+ * */
 export function stringEntropy(
     algo: StringEntropy = StringEntropy.shannon
 ): StringEntropyFN {
