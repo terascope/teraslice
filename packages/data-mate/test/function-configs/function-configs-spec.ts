@@ -1,4 +1,6 @@
 import 'jest-extended';
+import fs from 'fs-extra';
+import path from 'path';
 import { uniq } from '@terascope/utils';
 import {
     functionConfigRepository,
@@ -23,3 +25,38 @@ describe('function configs', () => {
         expect(names).toEqual(uniq(names));
     });
 });
+
+describe('function registries', () => {
+    const dirPath = path.join(__dirname, '..', '..', 'src', 'function-configs');
+
+    const configDirs = fs.readdirSync(dirPath);
+
+    for (const item of configDirs) {
+        // ignore non-directories
+        if (item.includes('.ts')) continue;
+
+        const functionPath = path.join(dirPath, item);
+
+        const imports = parseIndexFile(path.join(functionPath, 'index.ts'));
+
+        const configFiles = fs.readdirSync(functionPath).filter((i) => !(i.includes('utils') || i === 'index.ts'));
+
+        for (const f of configFiles) {
+            it(`${f} should be exported by ${item}`, () => {
+                expect(imports.includes(f.split('.')[0])).toBeTrue();
+            });
+        }
+    }
+});
+
+function parseIndexFile(indexPath: string): string[] {
+    const indexFile = fs.readFileSync(indexPath, 'utf-8');
+
+    return indexFile.split('\n').reduce((imports: string[], line) => {
+        if (line.includes('import')) {
+            imports.push(line.split('from')[1].replace(/\W/g, ''));
+        }
+
+        return imports;
+    }, []);
+}
