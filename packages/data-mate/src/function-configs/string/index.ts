@@ -9,6 +9,7 @@ import { encodeSHAConfig, EncodeSHAArgs } from './encodeSHA';
 import { encodeSHA1Config, EncodeSHA1Args } from './encodeSHA1';
 import { encodeURLConfig } from './encodeURL';
 import { endsWithConfig, EndsWithArgs } from './endsWith';
+import { entropyConfig, EntropyArgs } from './entropy';
 import { extractConfig, ExtractArgs } from './extract';
 import { isAlphaConfig, IsAlphaArgs } from './isAlpha';
 import { isAlphaNumericConfig, IsAlphaNumericArgs } from './isAlphaNumeric';
@@ -59,6 +60,7 @@ export const stringRepository = {
     encodeSHA1: encodeSHA1Config,
     encodeURL: encodeURLConfig,
     endsWith: endsWithConfig,
+    entropy: entropyConfig,
     extract: extractConfig,
     isAlpha: isAlphaConfig,
     isAlphaNumeric: isAlphaNumericConfig,
@@ -104,6 +106,7 @@ export type {
     EncodeSHAArgs,
     EncodeSHA1Args,
     EndsWithArgs,
+    EntropyArgs,
     ExtractArgs,
     IsAlphaArgs,
     IsAlphaNumericArgs,
