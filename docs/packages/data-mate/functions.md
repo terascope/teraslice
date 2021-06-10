@@ -2058,8 +2058,7 @@ toGeoPoint()
 'not an geo point'
 ```
 
-<small>Throws:</small>
-`null`
+<small>Throws</small>
 
 ## CATEGORY: JSON
 
@@ -5323,13 +5322,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:49:25.506Z'
+'2021-06-10T22:52:32.840Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-10T22:49:25.506Z'
+'2021-06-10T22:52:32.840Z'
 ```
 
 **# Example (2)**
@@ -5375,7 +5374,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:49:25.507Z'
+'2021-06-10T22:52:32.841Z'
 ```
 
 <small>Output:</small>
@@ -5395,13 +5394,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-11T22:49:25.507Z'
+'2021-06-11T22:52:32.841Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-11T22:49:25.507Z'
+'2021-06-11T22:52:32.841Z'
 ```
 
 ### `isTuesday`
@@ -5701,7 +5700,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:49:25.510Z'
+'2021-06-10T22:52:32.846Z'
 ```
 
 <small>Output:</small>
@@ -5721,13 +5720,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-09T22:49:25.510Z'
+'2021-06-09T22:52:32.846Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-09T22:49:25.510Z'
+'2021-06-09T22:52:32.846Z'
 ```
 
 ## CATEGORY: Numeric
@@ -12221,8 +12220,7 @@ entropy({ algo: 'unknownAlgoName' })
 '1223334444'
 ```
 
-<small>Throws:</small>
-`null`
+<small>Throws</small>
 
 ### `extract`
 
@@ -12883,8 +12881,7 @@ toISDN()
 'something'
 ```
 
-<small>Throws:</small>
-`null`
+<small>Throws</small>
 
 ### `toKebabCase`
 

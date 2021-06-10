@@ -32,6 +32,9 @@ function desc(input, prefix = '') {
 */
 function getExampleOutput(example) {
     if (example.fails) {
+        if (!example.output) {
+            return '<small>Throws</small>';
+        }
         return `<small>Throws:</small>
 \`${example.output}\``;
     }
