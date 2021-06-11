@@ -21,10 +21,10 @@
         "bluebird": "^3.7.2"
     },
     "devDependencies": {
-        "@terascope/job-components": "^0.52.0"
+        "@terascope/job-components": "^0.52.2"
     },
     "peerDependencies": {
-        "@terascope/job-components": "^0.52.0"
+        "@terascope/job-components": "^0.52.2"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
