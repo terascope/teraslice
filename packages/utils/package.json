@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.40.1",
+    "version": "0.40.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -42,7 +42,6 @@
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.3.0",
         "awesome-phonenumber": "^2.51.2",
-        "crypto-js": "^4.0.0",
         "date-fns": "^2.22.1",
         "date-fns-tz": "^1.1.4",
         "datemath-parser": "^1.0.6",
@@ -64,7 +63,6 @@
         "validator": "^13.6.0"
     },
     "devDependencies": {
-        "@types/crypto-js": "^4.0.1",
         "@types/debug": "^4.1.5",
         "@types/js-string-escape": "^1.0.0",
         "@types/lodash": "^4.14.168",

@@ -3,7 +3,7 @@ import {
     GeoShape, GeoPoint, GeoPointInput,
     DataTypeFields, ReadonlyDataTypeFields
 } from '@terascope/types';
-import cryptoJS from 'crypto-js';
+import { createHash } from 'crypto';
 import { primitiveToString, toString } from './strings';
 import { isIPRangeOrThrow, isIPOrThrow } from './ip';
 import { toEpochMSOrThrow } from './dates';
@@ -139,8 +139,8 @@ function getHashCodeFrom(input: unknown): string {
     return createHashCode(input);
 }
 
-function md5(value: string): string {
-    return cryptoJS.MD5(value).toString(CryptoJS.enc.Hex);
+function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
 }
 
 function createHashCode(value: unknown): string {
