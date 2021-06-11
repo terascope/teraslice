@@ -138,6 +138,11 @@ export default class Options {
             describe: 'Run command in dev mode, for assets this means excluding the platform, arch, and node_version',
             type: 'boolean'
         }),
+        registry: () => ({
+            describe: 'Generate or update the registry for an asset',
+            type: 'boolean',
+            default: 'false'
+        }),
         start: () => ({
             describe: 'Option to start job ',
             alias: 'run',

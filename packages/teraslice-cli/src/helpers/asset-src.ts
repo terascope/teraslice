@@ -7,6 +7,7 @@ import { isCI, toInteger, TSError } from '@terascope/utils';
 import { build } from 'esbuild';
 import { wasmPlugin, getPackage } from '../helpers/utils';
 import reply from './reply';
+import glob from 'glob-promise';
 
 interface ZipResults {
     name: string;
@@ -93,6 +94,50 @@ export class AssetSrc {
      */
     private async _yarnCmd(dir: string, yarnArgs: string[]) {
         return execa('yarn', yarnArgs, { cwd: dir });
+    }
+
+    /**
+     * operatorFiles finds all of the Teraslice operator files, including:
+     *   processor.js
+     *   schema.js
+     *   FIXME: add the rest
+     * @returns {Array} array of paths to all of the operator files
+     */
+    async operatorFiles(): Promise<string[]> {
+        const matchString = path.join(this.srcDir, 'asset', '**/{processor,schema}.js')
+        // FIXME: delete console
+        console.error(`this is a test: ${matchString}`);
+        return await glob(matchString, { ignore: ['**/node_modules/**', '**/__lib/**'] });
+    }
+
+    /**
+     *
+     */
+    async generateRegistry() {
+        let assetRegistry = {};
+        const files = await this.operatorFiles()
+        // console.error(files)
+        for (const file of files) {
+            let parsedPath = path.parse(file)
+            console.error(parsedPath)
+            let processor = parsedPath.dir.split(path.sep).pop()
+            if (processor) {
+                switch (parsedPath.name) {
+                    case 'processor':
+                        assetRegistry[processor]['Processor'] = parsedPath.base
+                        break;
+                    case 'schema':
+                        assetRegistry[processor]['Schema'] = parsedPath.base
+                      break;
+                    default:
+                      console.error(`FIXME: Throw proper error`);
+                  }
+            } else {
+                // FIXME: do proper error handling
+                console.error(`boo ${parsedPath}`)
+            }
+        }
+        console.error(assetRegistry)
     }
 
     async build(): Promise<ZipResults> {
