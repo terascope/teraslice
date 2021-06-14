@@ -3,11 +3,14 @@ import prettyBytes from 'pretty-bytes';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { isCI, toInteger, TSError } from '@terascope/utils';
 import { build } from 'esbuild';
-import { wasmPlugin, getPackage } from '../helpers/utils';
-import reply from './reply';
 import glob from 'glob-promise';
+import set from 'lodash.set';
+
+import { isCI, toInteger, TSError } from '@terascope/utils';
+
+import reply from './reply';
+import { capitalizeFirstLetter, wasmPlugin, getPackage } from '../helpers/utils';
 
 interface ZipResults {
     name: string;
@@ -98,46 +101,41 @@ export class AssetSrc {
 
     /**
      * operatorFiles finds all of the Teraslice operator files, including:
+     *   api.js
+     *   fetcher.js
      *   processor.js
      *   schema.js
-     *   FIXME: add the rest
+     *   slicer.js
      * @returns {Array} array of paths to all of the operator files
      */
     async operatorFiles(): Promise<string[]> {
-        const matchString = path.join(this.srcDir, 'asset', '**/{processor,schema}.js')
-        // FIXME: delete console
-        console.error(`this is a test: ${matchString}`);
-        return await glob(matchString, { ignore: ['**/node_modules/**', '**/__lib/**'] });
+        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+        return glob(matchString, { ignore: ['**/node_modules/**', '**/__lib/**'] });
     }
 
     /**
-     *
+     * generates the registry object that is used to generate the index.js asset
+     * registry
      */
     async generateRegistry() {
-        let assetRegistry = {};
-        const files = await this.operatorFiles()
-        // console.error(files)
+        const assetRegistry = {};
+        const files = await this.operatorFiles();
+
         for (const file of files) {
-            let parsedPath = path.parse(file)
-            console.error(parsedPath)
-            let processor = parsedPath.dir.split(path.sep).pop()
-            if (processor) {
-                switch (parsedPath.name) {
-                    case 'processor':
-                        assetRegistry[processor]['Processor'] = parsedPath.base
-                        break;
-                    case 'schema':
-                        assetRegistry[processor]['Schema'] = parsedPath.base
-                      break;
-                    default:
-                      console.error(`FIXME: Throw proper error`);
-                  }
+            const parsedPath = path.parse(file);
+            const op_directory = parsedPath.dir.split(path.sep).pop();
+
+            if (op_directory) {
+                set(
+                    assetRegistry,
+                    `${op_directory}.${capitalizeFirstLetter(parsedPath.name)}`,
+                    parsedPath.base
+                );
             } else {
-                // FIXME: do proper error handling
-                console.error(`boo ${parsedPath}`)
+                console.error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
         }
-        console.error(assetRegistry)
+        return assetRegistry;
     }
 
     async build(): Promise<ZipResults> {

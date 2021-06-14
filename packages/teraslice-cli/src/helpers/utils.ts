@@ -30,6 +30,10 @@ export function camelCase(str: string): string {
         .replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
 }
 
+export function capitalizeFirstLetter(string: string): string {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 export function getPackage(filePath?: string): any {
     let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
     if (!fs.existsSync(dataPath)) {

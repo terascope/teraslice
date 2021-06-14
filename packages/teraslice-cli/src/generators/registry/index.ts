@@ -1,6 +1,7 @@
 import path from 'path';
-import { AssetSrc } from '../../helpers/asset-src';
 import Generator from 'yeoman-generator';
+
+import { AssetSrc } from '../../helpers/asset-src';
 import { getTemplatePath } from '../utils';
 
 export default class extends Generator {
@@ -14,27 +15,29 @@ export default class extends Generator {
     }
 
     paths(): void {
-        this.destinationRoot(path.join(this.options.asset_path));
+        this.destinationRoot(path.join(this.options.asset_path, 'asset'));
     }
 
-    // FIXME: I think this async results in errors thrown in here being lost
     async default(): Promise<void> {
-        let asset
-        let registry
+        let asset;
+        let registry;
         // find operators in asset
         try {
             asset = new AssetSrc(this.options.asset_path);
             registry = await asset.generateRegistry();
-            // console.error(`${operatorFiles}`);
+            console.error(`${JSON.stringify(registry)}`);
         } catch (error) {
-            console.log(`ERROR: ${error}`)
+            console.error(`ERROR: ${error}`);
         }
-        // console.error(await findTerasliceOperators(this.options.asset_path));
+
         // generate registry object
-        // copy over root files
-        this.fs.copyTpl(this.templatePath('index.js'), this.destinationPath('index.js'),
-            {
-                comment: 'awesome test',
-            });
+        try {
+            this.fs.copyTpl(this.templatePath('index.ejs'), this.destinationPath('index.js'),
+                {
+                    registry
+                });
+        } catch (error) {
+            console.error(`ERROR: ${error}`);
+        }
     }
 }
