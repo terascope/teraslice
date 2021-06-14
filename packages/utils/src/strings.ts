@@ -1,6 +1,15 @@
+import validator from 'validator';
+import lTrim from 'lodash/trim';
+import lTrimStart from 'lodash/trimStart';
+import lTrimEnd from 'lodash/trimEnd';
+import lCamelCase from 'lodash/camelCase';
+import lSnakeCase from 'lodash/snakeCase';
+import lKebabCase from 'lodash/kebabCase';
+import lStartCase from 'lodash/startCase';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
+import { bigIntToJSON } from './numbers';
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {
@@ -27,7 +36,9 @@ export function toString(val: unknown): string {
     }
 
     if (typeof val === 'bigint') {
-        return (val as BigInt).toLocaleString();
+        const res = bigIntToJSON(val);
+        if (typeof res === 'string') return res;
+        return `${res}`;
     }
 
     if (typeof val === 'function') {
@@ -92,67 +103,32 @@ export function primitiveToString(value: unknown): string {
     return `${value}`;
 }
 
-/** safely trim an input */
-export function trim(input: unknown, char = ' '): string {
-    if (char === ' ') return primitiveToString(input).trim();
-
-    return trimEnd(trimStart(input, char), char);
+/** safely trims whitespace from an input */
+export function trim(input: unknown, char?: string): string {
+    return lTrim(primitiveToString(input), char);
 }
 
-/** A functional version of trim */
-export function trimFP(char = ' ') {
+export function trimFP(char?: string) {
     return function _trim(input: unknown): string {
         return trim(input, char);
     };
 }
 
-export function trimStart(input: unknown, char = ' '): string {
-    const str = primitiveToString(input);
-    if (char === ' ') {
-        return str.trimStart();
-    }
-
-    let start = str.indexOf(char);
-    if (start === -1 || start > (str.length / 2)) return str;
-
-    for (start; start < str.length;) {
-        if (str.slice(start, start + char.length) !== char) {
-            break;
-        }
-        start += char.length;
-    }
-
-    return str.slice(start);
+export function trimStart(input: unknown, char?: string): string {
+    return lTrimStart(primitiveToString(input), char);
 }
 
-/** A functional version of trimStart */
-export function trimStartFP(char = ' ') {
+export function trimStartFP(char?: string) {
     return function _trimStart(input: unknown): string {
         return trimStart(input, char);
     };
 }
 
-export function trimEnd(input: unknown, char = ' '): string {
-    const str = primitiveToString(input);
-    if (char === ' ') {
-        return str.trimEnd();
-    }
-
-    let end = str.lastIndexOf(char);
-    if (end === -1 || end < (str.length / 2)) return str;
-
-    for (end; end >= 0;) {
-        if (str.slice(end - char.length, end) !== char) {
-            break;
-        }
-        end -= char.length;
-    }
-
-    return str.slice(0, end);
+export function trimEnd(input: unknown, char?: string): string {
+    return lTrimEnd(primitiveToString(input), char);
 }
 
-/** A functional version of trimStart */
-export function trimEndFP(char = ' ') {
+export function trimEndFP(char?: string) {
     return function _trimEnd(input: unknown): string {
         return trimEnd(input, char);
     };
@@ -216,23 +192,46 @@ export function unescapeString(str = ''): string {
 }
 
 /** A native implementation of lodash startsWith */
-export function startsWith(str: string, val: string): boolean {
+export function startsWith(str: unknown, val: unknown): boolean {
+    if (!isString(str)) return false;
     if (!isString(val)) return false;
+
     return str.startsWith(val);
 }
 
 /** A function version of startsWith */
-export function startsWithFP(val: string) {
-    return function _startsWithFP(str: string): boolean {
+export function startsWithFP(val: string): (input: unknown) => boolean {
+    if (!isString(val)) {
+        throw new Error(`Invalid argument "val", must be of type string, got ${getTypeOf(val)}`);
+    }
+    return function _startsWithFP(str: unknown): boolean {
         return startsWith(str, val);
+    };
+}
+
+/** A native implementation of lodash endsWith */
+export function endsWith(str: unknown, val: unknown): boolean {
+    if (!isString(str)) return false;
+    if (!isString(val)) return false;
+
+    return str.endsWith(val);
+}
+
+/** A function version of startsWith */
+export function endsWithFP(val: string): (input: unknown) => boolean {
+    if (!isString(val)) {
+        throw new Error(`Invalid argument "val", must be of type string, got ${getTypeOf(val)}`);
+    }
+    return function _startsWithFP(str: unknown): boolean {
+        return endsWith(str, val);
     };
 }
 
 /**
  * Truncate a string value, by default it will add an ellipsis (...) if truncated.
 */
-export function truncate(value: string, len: number, ellipsis = true): string {
-    if (!value) return value;
+export function truncate(value: unknown, len: number, ellipsis = true): string {
+    if (value == null || value === '') return '';
     if (!isString(value)) {
         throw new SyntaxError(`Expected string value to truncate, got ${getTypeOf(value)}`);
     }
@@ -247,7 +246,7 @@ export function truncate(value: string, len: number, ellipsis = true): string {
  * A functional version of truncate
 */
 export function truncateFP(len: number, ellipsis = true) {
-    return function _truncateFP(value: string): string {
+    return function _truncateFP(value: unknown): string {
         return truncate(value, len, ellipsis);
     };
 }
@@ -340,7 +339,7 @@ export const WORD_CHARS = {
 */
 export function getWordParts(input: string): string[] {
     if (!isString(input)) {
-        throw new Error(`Expected string, got "${input}"`);
+        throw new Error(`Expected string, got ${getTypeOf(input)}`);
     }
 
     const parts: string[] = [];
@@ -383,29 +382,23 @@ export function getWordParts(input: string): string[] {
 }
 
 export function toCamelCase(input: string): string {
-    return firstToLower(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
-    }).join(''));
+    return lCamelCase(input);
 }
 
 export function toPascalCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
-    }).join(''));
+    return firstToUpper(lCamelCase(input));
 }
 
 export function toKebabCase(input: string): string {
-    return getWordParts(input).join('-').toLowerCase();
+    return lKebabCase(input);
 }
 
 export function toSnakeCase(input: string): string {
-    return getWordParts(input).join('_').toLowerCase();
+    return lSnakeCase(input);
 }
 
 export function toTitleCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str)).join(' '));
+    return lStartCase(input);
 }
 
 /**
@@ -457,12 +450,12 @@ export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }
 
-// Email Validation as per RFC2822 standards. Straight from .net helpfiles
-// eslint-disable-next-line
-const EmailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/i;
+// http://www.regular-expressions.info/email.html
+// not an exhaustive email regex, which is impossible, but will catch obvious errors
+// is more lenient in most cases
+const EmailRegex = /^[A-Z0-9._%+-@]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,8}[A-Z]{2,63}$/i;
 export function isEmail(input: unknown): input is string {
-    if (!isString(input)) return false;
-    return EmailRegex.test(input);
+    return isString(input) && EmailRegex.test(input);
 }
 
 const macAddressDelimiters = {
@@ -473,17 +466,13 @@ const macAddressDelimiters = {
     none: /^([0-9a-fA-F]){12}$/
 } as const;
 
-export function isMacAddress(
-    input: unknown, delimiter?: MACDelimiter|MACDelimiter[]
+export function isMACAddress(
+    input: unknown, delimiter?: MACDelimiter
 ): input is string {
     if (!isString(input)) return false;
 
     if (!delimiter || delimiter === 'any') {
         return Object.values(macAddressDelimiters).some((d) => d.test(input));
-    }
-
-    if (Array.isArray(delimiter)) {
-        return delimiter.some((d) => macAddressDelimiters[d].test(input));
     }
 
     return macAddressDelimiters[delimiter].test(input);
@@ -492,10 +481,77 @@ export function isMacAddress(
 /**
  * A functional version of isMacAddress
 */
-export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
+export function isMACAddressFP(args?: MACDelimiter) {
     return function _isMacAddressFP(input: unknown): input is string {
-        return isMacAddress(input, args);
+        return isMACAddress(input, args);
     };
+}
+
+export function isURL(input: unknown): boolean {
+    return isString(input) && validator.isURL(input);
+}
+
+export function isUUID(input: unknown): boolean {
+    return isString(input) && validator.isUUID(input);
+}
+
+/**
+ * Check whether a string includes another string
+*/
+export function contains(input: unknown, substring: string): input is string {
+    return isString(input) && input.includes(substring);
+}
+
+/**
+ * A function version of contains
+*/
+export function containsFP(substring: string) {
+    return function _contains(input: unknown): input is string {
+        return isString(input) && input.includes(substring);
+    };
+}
+
+export function isBase64(input: unknown): boolean {
+    if (!isString(input)) return false;
+
+    const validatorValid = validator.isBase64(input);
+
+    if (validatorValid) {
+        const decode = Buffer.from(input, 'base64').toString('utf8');
+        const encode = Buffer.from(decode, 'utf8').toString('base64');
+
+        return input === encode;
+    }
+
+    return false;
+}
+
+export function isFQDN(input: unknown): boolean {
+    return isString(input) && validator.isFQDN(input);
+}
+
+export function isCountryCode(input: unknown): boolean {
+    return isString(input) && validator.isISO31661Alpha2(input);
+}
+
+export function isPostalCode(input: unknown, locale: validator.PostalCodeLocale | 'any' = 'any'): boolean {
+    return validator.isPostalCode(toString(input), locale);
+}
+
+export function isPort(input: unknown): boolean {
+    return validator.isPort(toString(input));
+}
+
+export function isAlpha(input: unknown, locale?: validator.AlphaLocale): boolean {
+    return isString(input) && validator.isAlpha(input, locale);
+}
+
+export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLocale): boolean {
+    return isString(input) && validator.isAlphanumeric(input, locale);
+}
+
+export function isMIMEType(input: unknown): boolean {
+    return validator.isMimeType(toString(input));
 }
 
 /**
@@ -519,10 +575,15 @@ export function parseList(input: unknown): string[] {
     return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
+type JoinListType = string|number|boolean|symbol|null|undefined;
 /**
  * Create a sentence from a list (all items will be unique, empty values will be skipped)
 */
-export function joinList(input: (string|number|boolean|symbol|null|undefined)[], sep = ',', join = 'and'): string {
+export function joinList(
+    input: (JoinListType)[]|readonly (JoinListType)[],
+    sep = ',',
+    join = 'and'
+): string {
     if (!Array.isArray(input)) {
         throw new Error('joinList requires input to be a array');
     }
@@ -546,4 +607,59 @@ export function joinList(input: (string|number|boolean|symbol|null|undefined)[],
         }
         return `${acc}${sep} ${curr}`;
     }, '');
+}
+
+export type StringEntropyFN = (input: unknown) => number
+
+// inspired from https://gist.github.com/jabney/5018b4adc9b2bf488696
+/** Performs a Shannon entropy calculation on string inputs */
+export function shannonEntropy(input: unknown): number {
+    if (!isString(input)) {
+        throw new Error(`Invalid input ${input}, must be of type String`);
+    }
+
+    let sum = 0;
+    const len = input.length;
+    const dict: Record<string, number> = Object.create(null);
+
+    // get number of chars per string
+    for (const char of input) {
+        if (dict[char] != null) {
+            dict[char]++;
+        } else {
+            dict[char] = 1;
+        }
+    }
+
+    for (const num of Object.values(dict)) {
+        const p = num / len;
+        const pLogCalc = p * Math.log(p);
+        sum -= pLogCalc / Math.log(2);
+    }
+
+    return sum;
+}
+
+export enum StringEntropy {
+    shannon = 'shannon'
+}
+
+const StringEntropyDict: Record<StringEntropy, StringEntropyFN> = {
+    [StringEntropy.shannon]: shannonEntropy
+};
+
+/** returns a function to perform entropy calculations, currently only supports
+ * the "shannon" algorithm
+ * */
+export function stringEntropy(
+    algo: StringEntropy = StringEntropy.shannon
+): StringEntropyFN {
+    const fn = StringEntropyDict[algo];
+
+    if (fn == null) {
+        const keys = Object.keys(StringEntropyDict);
+        throw new Error(`Unsupported algorithm ${algo}, please use the available algorithms ${joinList(keys, ', ')}`);
+    }
+
+    return fn;
 }

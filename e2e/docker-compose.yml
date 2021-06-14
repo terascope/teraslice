@@ -1,7 +1,7 @@
 version: '2.4'
 services:
     teraslice-master:
-        image: terascope/teraslice:e2e
+        image: teraslice-workspace:e2e
         ports:
             - '45678:45678'
         scale: 1
@@ -16,7 +16,7 @@ services:
             - ./.config:/app/config:ro
             - ./.assets:/app/assets:delegated
     teraslice-worker:
-        image: terascope/teraslice:e2e
+        image: teraslice-workspace:e2e
         scale: 2
         restart: 'no'
         stop_grace_period: 30s

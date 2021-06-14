@@ -137,8 +137,8 @@ describe('field FieldTransforms', () => {
             expect(FieldTransform.trim('   left')).toBe('left');
             expect(FieldTransform.trim('right    ')).toBe('right');
             expect(FieldTransform.trim('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race ');
-            expect(FieldTransform.trim('.*.*a regex test.*.*.*.* stuff', {}, { char: '.*' })).toBe('a regex test');
-            expect(FieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' })).toBe('trim this');
+            expect(FieldTransform.trim('.*.*a regex test.*.*.*.*', {}, { char: '.*' })).toBe('a regex test');
+            expect(FieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' })).toBe('\t\r\rtrim this');
             expect(FieldTransform.trim('        ')).toBe('');
         });
 
@@ -153,11 +153,10 @@ describe('field FieldTransforms', () => {
 
     describe('trimStart should', () => {
         it('should return the string trimmed from the start', () => {
-            expect(FieldTransform.trimStart('thisisastring', {}, { char: 's' })).toBe('isastring');
-            expect(FieldTransform.trimStart('thisisastring', {}, { char: 'isa' })).toBe('string');
+            expect(FieldTransform.trimStart('thisisastring', {}, { char: 'this' })).toBe('astring');
             expect(FieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
             expect(FieldTransform.trimStart('iiii-wordiwords-iii', {}, { char: 'i' })).toBe('-wordiwords-iii');
-            expect(FieldTransform.trimStart('__--__--__some__--__word', {}, { char: '__--' })).toBe('__some__--__word');
+            expect(FieldTransform.trimStart('__--__--__some__--__word', {}, { char: '__--' })).toBe('some__--__word');
             expect(FieldTransform.trimStart('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race fast');
             expect(FieldTransform.trimStart('        ')).toBe('');
             expect(FieldTransform.trimStart('start    ')).toBe('start    ');
@@ -175,7 +174,7 @@ describe('field FieldTransforms', () => {
 
     describe('trimEnd should', () => {
         it('should return the string trimmed from the end', () => {
-            expect(FieldTransform.trimEnd('this is a string', {}, { char: 's' })).toBe('this is a ');
+            expect(FieldTransform.trimEnd('this is a string', {}, { char: 's' })).toBe('this is a string');
             expect(FieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
             expect(FieldTransform.trimEnd('*****Hello****Bob*****', {}, { char: '*' })).toBe('*****Hello****Bob');
             expect(FieldTransform.trimEnd('fast cars race fast', {}, { char: 'fast' })).toBe('fast cars race ');
@@ -671,7 +670,7 @@ describe('field FieldTransforms', () => {
             expect(FieldTransform.toCamelCase('happyBirthday')).toBe('happyBirthday');
             expect(FieldTransform.toCamelCase('what_is_this')).toBe('whatIsThis');
             expect(FieldTransform.toCamelCase('this-should-be-camel')).toBe('thisShouldBeCamel');
-            expect(FieldTransform.toCamelCase('Cased   to Pass---this_____TEST')).toBe('casedToPassThisTEST');
+            expect(FieldTransform.toCamelCase('Cased   to Pass---this_____TEST')).toBe('casedToPassThisTest');
         });
 
         it('convert an array of values, ignores undefined/null', () => {
@@ -699,7 +698,7 @@ describe('field FieldTransforms', () => {
             expect(FieldTransform.toPascalCase('happyBirthday')).toBe('HappyBirthday');
             expect(FieldTransform.toPascalCase('what_is_this')).toBe('WhatIsThis');
             expect(FieldTransform.toPascalCase('this-should-be-pascal')).toBe('ThisShouldBePascal');
-            expect(FieldTransform.toPascalCase('Cased   to Pass---this_____TEST')).toBe('CasedToPassThisTEST');
+            expect(FieldTransform.toPascalCase('Cased   to Pass---this_____TEST')).toBe('CasedToPassThisTest');
         });
 
         it('convert an array of values, ignores undefined/null', () => {

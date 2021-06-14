@@ -2,7 +2,7 @@ import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import { bigIntToJSON } from '@terascope/utils';
 import {
-    Column, ColumnTransform
+    Column
 } from '../../src';
 
 describe('Column (Number Types)', () => {
@@ -57,96 +57,6 @@ describe('Column (Number Types)', () => {
                 undefined,
             ]);
         });
-
-        it('should be able to transform the column using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.String
-            });
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return `${value}`;
-            }));
-        });
-
-        it('should be able to transform using cast(type: "Keyword", array: true, description: "foo")', () => {
-            const newCol = col.transform(ColumnTransform.cast, {
-                type: FieldType.Keyword,
-                array: true,
-                description: 'foo'
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.Keyword,
-                array: true,
-                description: 'foo'
-            });
-            expect(newCol.toJSON()).toEqual([
-                ['7'],
-                ['2'],
-                ['6'],
-                undefined,
-                ['4'],
-            ]);
-        });
-
-        it('should be able to transform the column using increment', () => {
-            const newCol = col.transform(ColumnTransform.increment);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return value + 1;
-            }));
-        });
-
-        it('should be able to transform the column using increment(by: 1.5)', () => {
-            const newCol = col.transform(ColumnTransform.increment, {
-                by: 1.5
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return parseInt(`${value + 1.5}`, 10);
-            }));
-        });
-
-        it('should be able to transform the column using decrement', () => {
-            const newCol = col.transform(ColumnTransform.decrement);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return value - 1;
-            }));
-        });
-
-        it('should be able to transform the column using decrement(by: 1.5)', () => {
-            const newCol = col.transform(ColumnTransform.decrement, {
-                by: 1.5
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return parseInt(`${value - 1.5}`, 10);
-            }));
-        });
     });
 
     describe('when field type is Float', () => {
@@ -199,49 +109,6 @@ describe('Column (Number Types)', () => {
                 undefined,
             ]);
         });
-
-        it('should be able to transform the column using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.String
-            });
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return `${value}`;
-            }));
-        });
-
-        it('should be able to transform the column using increment(by: 1.5)', () => {
-            const newCol = col.transform(ColumnTransform.increment, {
-                by: 1.5
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return value + 1.5;
-            }));
-        });
-
-        it('should be able to transform the column using decrement(by: 1.5)', () => {
-            const newCol = col.transform(ColumnTransform.decrement, {
-                by: 1.5
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return value - 1.5;
-            }));
-        });
     });
 
     describe(`when field type is an array of ${FieldType.Short}`, () => {
@@ -274,58 +141,6 @@ describe('Column (Number Types)', () => {
 
         it('should be able to get the max of the values', () => {
             expect(col.max()).toBe(324);
-        });
-
-        it('should be able to transform the column using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.String
-            });
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-
-                return value.map((val) => (
-                    val != null ? `${val}` : undefined
-                ));
-            }));
-        });
-
-        it('should be able to transform the column using setDefault(value: 100)', () => {
-            const newCol = col.transform(ColumnTransform.setDefault, {
-                value: 100,
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual([
-                [7, 3],
-                [2, 100, 4],
-                [6, 324, 5],
-                [100],
-                [4, 2, 0],
-            ]);
-        });
-
-        it('should be able to transform the column using setDefault(value: [-50])', () => {
-            const newCol = col.transform(ColumnTransform.setDefault, {
-                value: [-50],
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual([
-                [7, 3],
-                [2, undefined, 4],
-                [6, 324, 5],
-                [-50],
-                [4, 2, 0],
-            ]);
         });
 
         it('should NOT be able to sort the values', () => {
@@ -393,49 +208,6 @@ describe('Column (Number Types)', () => {
                 bigIntToJSON(BigInt(12) ** multiplier),
                 undefined,
             ]);
-        });
-
-        it('should be able to transform the column using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.String
-            });
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return `${value}`;
-            }));
-        });
-
-        it('should be able to transform the column using increment(by: 100)', () => {
-            const newCol = col.transform(ColumnTransform.increment, {
-                by: 100
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return bigIntToJSON(value + BigInt(100));
-            }));
-        });
-
-        it('should be able to transform the column using decrement(by: 100)', () => {
-            const newCol = col.transform(ColumnTransform.decrement, {
-                by: 100
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual(col.config);
-
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                return bigIntToJSON(value - BigInt(100));
-            }));
         });
     });
 });

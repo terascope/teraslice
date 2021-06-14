@@ -1,3 +1,4 @@
+import 'jest-extended';
 import path from 'path';
 import { debugLogger } from '@terascope/utils';
 import { Loader, PhaseConfig, OperationsManager } from '../../src';

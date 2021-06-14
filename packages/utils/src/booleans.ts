@@ -1,3 +1,4 @@
+import { getTypeOf } from './deps';
 /**
  * Convert any input into a boolean, this will work with stringified boolean
  *
@@ -71,4 +72,13 @@ export function isBoolean(input: unknown): input is boolean {
 */
 export function isBooleanLike(input: unknown): boolean {
     return isFalsy(input) || isTruthy(input);
+}
+
+/** Will throw if input is not booleanLike, converts input to a Boolean */
+export function toBooleanOrThrow(input: unknown): boolean {
+    if (!isBooleanLike(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be boolean like`);
+    }
+
+    return toBoolean(input);
 }

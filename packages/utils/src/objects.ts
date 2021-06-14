@@ -1,9 +1,11 @@
 import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
-import { get, isPlainObject } from './deps';
+import { get, getTypeOf, isPlainObject } from './deps';
 import { DataEntity } from './entities';
-import { isArrayLike } from './arrays';
+import { isArrayLike, isArray } from './arrays';
 import { isBuffer } from './buffers';
+import { isString, trim } from './strings';
+import { toNumber, isNumber } from './numbers';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
@@ -191,52 +193,45 @@ export function getField<T, P extends keyof T, V>(
 }
 
 /**
- * Compares two values and returns a boolean if they are the same.
- * Object keys are sorted before comparison, arrays are NOT sorted and
- * are compared value for value
- *
- * @example
-        isSame({ key1: 1, key2: 2 }, { key2: 2, key1: 1 }) === true;
-        isSame(null, null) === true;
-        isSame(undefined, undefined) === true;
-        isSame(NaN, NaN) === true;
-        isSame(3, 3) === true
-        isSame('hello', 'hello') === true
-        isSame([1, 2, 3], [1, 2, 3]) === true
-        isSame([{ some: 'obj' }], [{ some: 'obj' }]) === true
-
-        isSame(undefined, null) === false;
-        isSame([1, 2, 3], [1, 3, 2]) === false
-        isSame([1, 2, 3], [1, 2, undefined, 3]) === false
-        isSame(true, 'true') === false;
-*/
-export function isSame(input: unknown, target: unknown): boolean {
-    if (input === target || Object.is(input, target)) return true;
-    if (isObjectEntity(input)) {
-        if (isObjectEntity(target)) {
-            const sortedInput = sortKeys(input as Record<string, unknown>, { deep: true });
-            const sortedTarget = sortKeys(target as Record<string, unknown>, { deep: true });
-            return JSON.stringify(sortedInput) === JSON.stringify(sortedTarget);
-        }
-        return false;
-    }
-
-    if (isArrayLike(input)) {
-        if (isArrayLike(target)) {
-            if (input.length !== target.length) return false;
-            return input.every((val, index) => isSame(val, target[index]));
-        }
-        return false;
-    }
-
-    return false;
-}
-
-/**
  * Check if a object has property (and not included in the prototype)
  * Different from has since it doesn't deal with dot notation values.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+export function lookup(input: unknown): (key: unknown) => any {
+    // lookup entity can be a string, object or array
+    if (!isObjectEntity(input) && !isString(input) && !isArray(input)) {
+        throw Error(`input must be an Object Entity, String, received ${getTypeOf(input)}`);
+    }
+
+    return function _lookup(key: unknown) {
+        if (key == null) return null;
+
+        // This may be too restrictive at some point
+        if (!isString(key) && !isNumber(key)) {
+            throw Error(`lookup key must be a String or a Number, received ${getTypeOf(key)}`);
+        }
+
+        if (isString(input)) {
+            return _lookupStringToObject(input)[key as string];
+        }
+
+        if (isArray(input)) return input[toNumber(key)];
+
+        const lookupObj = input as Record<string, unknown>;
+        return lookupObj[key as string];
+    };
+}
+
+function _lookupStringToObject(stringInput: string): Record<string, string> {
+    return stringInput.split('\n').reduce((asObj, line) => {
+        const [k, v] = trim(line).split(':');
+
+        asObj[trim(k)] = trim(v);
+
+        return asObj;
+    }, {});
 }

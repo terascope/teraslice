@@ -5,7 +5,7 @@ import defaultsDeep from 'lodash/defaultsDeep';
 import { isPlainObject, get, toTitleCase } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces';
-import { NPM_DEFAULT_REGISTRY, DEV_TAG } from './config';
+import { NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE } from './config';
 import signale from './signale';
 
 let rootDir: string | undefined;
@@ -92,6 +92,8 @@ export function getServicesForSuite(suite: string): Service[] {
 }
 
 export function getDevDockerImage(): string {
+    if (DEV_DOCKER_IMAGE) return DEV_DOCKER_IMAGE;
+
     const rootInfo = getRootInfo();
     const [registry] = rootInfo.terascope.docker.registries;
     return `${registry}:dev-${DEV_TAG}`;

@@ -5,7 +5,7 @@ import {
 } from '@terascope/types';
 import { Builder, getBuildersForConfig } from '../builder';
 import { Column, KeyAggFn } from '../column';
-import { createHashCode } from '../core';
+import { md5 } from '../core';
 
 export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,
@@ -106,8 +106,8 @@ export function processFieldFilter(
     json: boolean
 ): void {
     function getValue(v: any): any {
-        if (!json || !column.vector.valueToJSON) return v;
-        return column.vector.valueToJSON(v);
+        if (!json || !column.vector.toJSONCompatibleValue) return v;
+        return column.vector.toJSONCompatibleValue(v);
     }
     for (const [i, v] of column.vector.values()) {
         if (filter(getValue(v))) indices.add(i);
@@ -170,30 +170,28 @@ export function makeKeyForRow<T extends Record<string, any>>(
 ): { row: Partial<T>; key: string }|undefined {
     const row: Partial<T> = Object.create(null);
 
-    let valueKey = '';
+    let groupKey = '';
     let keyIndex = 0;
     let hasValues = false;
 
     for (const [field, getKey] of keyAggs) {
         const res = getKey(index);
-        valueKey += keyIndex;
+        groupKey += keyIndex++;
         if (res.key) {
             hasValues = true;
-            valueKey += res.key;
+            groupKey += res.key;
         }
 
         row[field] = res.value as any;
-        keyIndex++;
     }
 
     // this ensures that without a key aggregation
     // we create a global bucket
     if (!hasValues && keyAggs.size) return;
 
-    const groupKey = createHashCode(valueKey);
     return {
         row,
-        key: groupKey,
+        key: groupKey.length > 35 ? md5(groupKey) : groupKey,
     };
 }
 

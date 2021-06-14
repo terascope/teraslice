@@ -1,10 +1,9 @@
 import 'jest-extended';
-import { getValidDate } from '@terascope/utils';
+import { getValidDate, timezoneOffset } from '@terascope/utils';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
 import formatDate from 'date-fns/format';
-import parseDate from 'date-fns/parse';
 import {
-    Column, ColumnTransform, Vector
+    Column, dataFrameAdapter, functionConfigRepository, Vector
 } from '../../src';
 
 describe('Column (Date Types)', () => {
@@ -54,7 +53,9 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using toString', () => {
-            const newCol = col.transform(ColumnTransform.toString);
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toString
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
@@ -73,21 +74,21 @@ describe('Column (Date Types)', () => {
 
         it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
             const format = 'yyyy-MM-dd HH:mm:ss';
-            const newCol = col.transform(ColumnTransform.formatDate, {
-                format
-            });
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format } }
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format,
-                type: FieldType.Date
+                type: FieldType.String
             });
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return undefined;
                 const date = getValidDate(value);
                 if (date === false) return undefined;
-                return formatDate(date.getTime() - (date.getTimezoneOffset() * 60_000), format);
+                return formatDate(date.getTime() + timezoneOffset, format);
             }));
         });
 
@@ -108,35 +109,41 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should be able to transform using toDate(format: "yyyy-MM-dd")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: 'yyyy-MM-dd'
-            });
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd")', () => {
+            const format = 'yyyy-MM-dd';
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format } }
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd',
-                type: FieldType.Date
+                type: FieldType.String
             });
-            expect(newCol.toJSON()).toEqual(values);
+            expect(newCol.toJSON()).toEqual([
+                '2020-09-23',
+                undefined,
+                '2020-01-20'
+            ]);
         });
 
         it('should fail to transform toDate using an invalid format', () => {
             expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
-            }).toThrowError(/Expected value .* to be a date string with format/);
+                dataFrameAdapter(
+                    functionConfigRepository.toDate,
+                    { args: { format: 'M/d/YYYY' } }
+                ).column(col);
+            }).toThrowError('Expected value 2020-09-23 to be a date string with format M/d/YYYY');
         });
     });
 
     describe('when field type is Keyword (with time)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
-            '2018-02-02 00:23:01',
+            '2018-02-02T07:23:01.000Z',
             null,
-            '2016-12-12 19:23:02',
+            '2016-12-13T02:23:02.000Z',
         ];
 
         beforeEach(() => {
@@ -145,75 +152,36 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should be able to transform using toDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: 'yyyy-MM-dd HH:mm:ss'
-            });
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
+            const format = 'yyyy-MM-dd HH:mm:ss';
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format } }
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd HH:mm:ss',
-                type: FieldType.Date
+                type: FieldType.String
             });
             expect(newCol.toJSON()).toEqual([
-                '2018-02-02 00:23:01',
+                formatDate(new Date(values[0]!).getTime() + timezoneOffset, format),
                 undefined,
-                '2016-12-12 19:23:02',
+                formatDate(new Date(values[2]!).getTime() + timezoneOffset, format),
             ]);
         });
 
         it('should fail to transform toDate using an invalid format', () => {
             expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
-            }).toThrowError(/Expected value .* to be a date string with format/);
+                dataFrameAdapter(
+                    functionConfigRepository.toDate,
+                    { args: { format: 'M/d/YYYY' } }
+                ).column(col);
+            }).toThrowError('Expected value 2018-02-02T07:23:01.000Z to be a date string with format M/d/YYYY');
         });
     });
 
-    describe('when field type is Keyword (with time and timezone)', () => {
-        let col: Column<string>;
-        const values: Maybe<string>[] = [
-            '2018-02-02 00:23:0 -08:00',
-            undefined,
-            '2016-12-12 19:23:02 +02:00',
-        ];
-
-        beforeEach(() => {
-            col = Column.fromJSON<string>('date_str', {
-                type: FieldType.Keyword,
-            }, values);
-        });
-
-        it('should be able to transform using toDate', () => {
-            const format = 'yyyy-MM-dd HH:mm:ss xxx';
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format
-            });
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                format,
-                type: FieldType.Date
-            });
-            const referenceDate = new Date();
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return undefined;
-                const date = parseDate(value, format, referenceDate);
-                return formatDate(date, format);
-            }));
-        });
-
-        it('should fail to transform toDate using an invalid format', () => {
-            expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
-            }).toThrowError(/Expected value .* to be a date string with format/);
-        });
-    });
+    test.todo('when field type is Keyword (with time and timezone)');
 
     describe('when field type is Integer (millisecond)', () => {
         let col: Column<number>;
@@ -230,7 +198,8 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using toDate()', () => {
-            const newCol = col.transform(ColumnTransform.toDate);
+            const newCol = dataFrameAdapter(functionConfigRepository.toDate)
+                .column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
@@ -244,37 +213,30 @@ describe('Column (Date Types)', () => {
             ]);
         });
 
-        it('should be able to transform using toDate(format: "milliseconds")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: DateFormat.milliseconds
-            });
+        it('should be able to transform using formatDate(format: "milliseconds")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format: DateFormat.milliseconds } }
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.milliseconds,
-                type: FieldType.Date
+                type: FieldType.Number
             });
             expect(newCol.toJSON()).toEqual(values);
         });
 
-        it('should fail to transform toDate using an invalid format', () => {
-            expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
-            }).toThrowError('Expected string for formatted date fields');
-        });
-
-        it('should return valid dates when transform toDate(format: "seconds")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: DateFormat.seconds
-            });
+        it('should return valid dates when transform formatDate(format: "seconds")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format: DateFormat.seconds } }
+            ).column(col);
 
             expect(newCol.toJSON()).toEqual([
-                1600844405020,
+                1600844405,
                 undefined,
-                1579503620931,
+                1579503620,
             ]);
         });
     });
@@ -295,15 +257,18 @@ describe('Column (Date Types)', () => {
 
         it('should fail when transforming using toDate', () => {
             expect(() => {
-                col.transform(ColumnTransform.toDate);
+                dataFrameAdapter(
+                    functionConfigRepository.toDate,
+                ).column(col);
             }).toThrowError('Expected value 1600844405020 to be a valid date');
         });
 
         it('should fail to transform toDate using an invalid format', () => {
             expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
+                dataFrameAdapter(
+                    functionConfigRepository.toDate,
+                    { args: { format: 'M/d/yyyy' } }
+                ).column(col);
             }).toThrowError('Expected value 1600844405020 to be a date string with format M/d/yyyy');
         });
     });
@@ -323,31 +288,38 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using toDate(format: "seconds")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: DateFormat.seconds
-            });
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.toDate,
+                { args: { format: DateFormat.seconds } }
+            ).column(col);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.seconds,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values);
+
+            expect(newCol.toJSON()).toEqual([
+                new Date(1600844405 * 1000).toISOString(),
+                undefined,
+                new Date(1579503621 * 1000).toISOString(),
+            ]);
         });
 
         it('should fail to transform toDate using an invalid format', () => {
             expect(() => {
-                col.transform(ColumnTransform.toDate, {
-                    format: 'M/d/yyyy'
-                });
-            }).toThrowError('Expected string for formatted date fields');
+                dataFrameAdapter(
+                    functionConfigRepository.toDate,
+                    { args: { format: 'M/d/YYYY' } }
+                ).column(col);
+            }).toThrowError('Expected string for formatted date fields, got 1600844405');
         });
 
-        it('should return invalid dates when transform toDate(format: "milliseconds")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                format: DateFormat.milliseconds
-            });
+        it('should return invalid dates when transform formatDate(format: "milliseconds")', () => {
+            const newCol = dataFrameAdapter(
+                functionConfigRepository.formatDate,
+                { args: { format: DateFormat.milliseconds } }
+            ).column(col);
 
             expect(newCol.toJSON()).toEqual([
                 1600844405,
