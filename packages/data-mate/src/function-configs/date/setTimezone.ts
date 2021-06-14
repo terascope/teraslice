@@ -22,7 +22,7 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
     description: 'Returns the input date with the timezone set to the args value.',
     examples: [
         {
-            args: { timezone: 420 }, // 'America/Phoenix' },
+            args: { timezone: 420 },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -33,7 +33,29 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
             serialize_output: toISO8601
         },
         {
-            args: { timezone: 120 }, // 'Europe/Paris' },
+            args: { timezone: 'America/Phoenix' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: '2021-05-14T20:45:30.000Z',
+            output: [new Date('2021-05-14T20:45:30.000Z').getTime(), -7 * 60],
+            serialize_output: toISO8601
+        },
+        {
+            args: { timezone: 120 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: '2020-02-14T20:45:30.091Z',
+            output: [new Date('2020-02-14T20:45:30.091Z').getTime(), 2 * 60],
+            serialize_output: toISO8601
+        },
+        {
+            args: { timezone: 'Europe/Paris' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date } }

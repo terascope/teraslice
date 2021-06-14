@@ -251,20 +251,27 @@ function _padNum(input: number): string {
  * Set the timezone offset of a date, returns a date tuple
  */
 export function setTimezone(input: unknown, timezone: string|number): DateTuple {
-    if (isNumber(input)) return [input, timezone as number];
-    if (isDateTuple(input)) return [input[0], timezone as number];
-
-    const date = getValidDateOrThrow(input);
-    return [date.getTime(), timezone as number];
+    const validTZ: number = isNumber(timezone) ? timezone : timezoneToOffset(timezone);
+    return _makeDateTuple(input, validTZ);
 }
 
 /**
  * A curried version of setTimezone
 */
-export function setTimezoneFP(timezone: string|number) {
+export function setTimezoneFP(timezone: string|number): (input: unknown) => DateTuple {
+    const validTZ: number = isNumber(timezone) ? timezone : timezoneToOffset(timezone);
+
     return function _setTimezone(input: unknown): DateTuple {
-        return setTimezone(input, timezone);
+        return _makeDateTuple(input, validTZ);
     };
+}
+
+function _makeDateTuple(input: unknown, offset: number): DateTuple {
+    if (isNumber(input)) return [input, offset];
+    if (isDateTuple(input)) return [input[0], offset];
+
+    const date = getValidDateOrThrow(input);
+    return [date.getTime(), offset];
 }
 
 /**
