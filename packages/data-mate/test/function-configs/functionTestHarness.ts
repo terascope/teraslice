@@ -56,8 +56,10 @@ export function functionTestHarness<T extends Record<string, any>>(
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field
                     );
+
                     expect(fieldAndChildren).not.toBeNil();
                     expect(testCase.field).toBeString();
+
                     const column = Column.fromJSON(
                         testCase.field!,
                         fieldAndChildren!.field_config,
@@ -71,7 +73,9 @@ export function functionTestHarness<T extends Record<string, any>>(
                         field: testCase.field,
                     }).column(column);
 
-                    expect(outputColumn.toJSON()).toEqual(
+                    const results = outputColumn.toJSON();
+
+                    expect(results).toEqual(
                         getOutput(testCase.output)
                     );
                 } else {
@@ -100,8 +104,10 @@ export function functionTestHarness<T extends Record<string, any>>(
                     const fieldAndChildren = getDataTypeFieldAndChildren(
                         testCase.config, testCase.field
                     );
+
                     expect(fieldAndChildren).not.toBeNil();
                     expect(testCase.field).toBeString();
+
                     const column = Column.fromJSON(
                         testCase.field!,
                         fieldAndChildren!.field_config,
@@ -125,6 +131,7 @@ export function functionTestHarness<T extends Record<string, any>>(
                         testCase.config,
                         [input],
                     );
+
                     expect(() => {
                         dataFrameAdapter(fnDef, {
                             args: testCase.args,
