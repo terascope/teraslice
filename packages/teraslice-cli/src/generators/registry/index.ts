@@ -25,7 +25,6 @@ export default class extends Generator {
         try {
             asset = new AssetSrc(this.options.asset_path);
             registry = await asset.generateRegistry();
-            console.error(`${JSON.stringify(registry)}`);
         } catch (error) {
             console.error(`ERROR: ${error}`);
         }
