@@ -21,12 +21,13 @@ export default class extends Generator {
     async default(): Promise<void> {
         let asset;
         let registry;
+
         // find operators in asset
         try {
             asset = new AssetSrc(this.options.asset_path);
             registry = await asset.generateRegistry();
         } catch (error) {
-            console.error(`ERROR: ${error}`);
+            throw new Error(`ERROR: ${error}`);
         }
 
         // generate registry object

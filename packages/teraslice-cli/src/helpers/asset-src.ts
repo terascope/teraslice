@@ -7,15 +7,28 @@ import { build } from 'esbuild';
 import glob from 'glob-promise';
 import set from 'lodash.set';
 
-import { isCI, toInteger, TSError } from '@terascope/utils';
+import {
+    isCI,
+    toInteger,
+    TSError,
+    toPascalCase
+} from '@terascope/utils';
 
 import reply from './reply';
-import { capitalizeFirstLetter, wasmPlugin, getPackage } from '../helpers/utils';
+import { wasmPlugin, getPackage } from '../helpers/utils';
 
 interface ZipResults {
     name: string;
     bytes: string;
 }
+
+interface AssetRegistry {
+    [dir_name: string]: {
+        [property in OpType]: string
+    }
+}
+
+type OpType = 'Api' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
 
 export class AssetSrc {
     /**
@@ -54,6 +67,7 @@ export class AssetSrc {
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
+
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
@@ -63,10 +77,6 @@ export class AssetSrc {
         this.version = asset.version;
 
         this.outputFileName = path.join(this.buildDir, this.zipFileName);
-
-        if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
-            throw new Error(`Zipfile already exists "${this.outputFileName}"`);
-        }
     }
 
     /** @returns {string} Path to the output directory for the finished asset zipfile */
@@ -117,8 +127,8 @@ export class AssetSrc {
      * generates the registry object that is used to generate the index.js asset
      * registry
      */
-    async generateRegistry() {
-        const assetRegistry = {};
+    async generateRegistry(): Promise<AssetRegistry> {
+        const assetRegistry: AssetRegistry = {};
         const files = await this.operatorFiles();
 
         for (const file of files) {
@@ -128,18 +138,23 @@ export class AssetSrc {
             if (op_directory) {
                 set(
                     assetRegistry,
-                    `${op_directory}.${capitalizeFirstLetter(parsedPath.name)}`,
+                    `${op_directory}.${toPascalCase(parsedPath.name)}`,
                     parsedPath.base
                 );
             } else {
                 console.error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
         }
+
         return assetRegistry;
     }
 
     async build(): Promise<ZipResults> {
         let zipOutput;
+
+        if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
+            throw new Error(`Zipfile already exists "${this.outputFileName}"`);
+        }
 
         try {
             // make sure the build dir exists in the srcDir directory

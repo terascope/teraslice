@@ -1,7 +1,8 @@
 import path from 'path';
 import Generator from 'yeoman-generator';
+import { toPascalCase } from '@terascope/utils';
 import { getTemplatePath } from '../utils';
-import { snakeCase, camelCase } from '../../helpers/utils';
+import { snakeCase } from '../../helpers/utils';
 
 export default class extends Generator {
     answers!: any;
@@ -49,10 +50,6 @@ export default class extends Generator {
     }
 
     createProcessor(): void {
-        function capitalizeFirstLetter(value: string) {
-            return value.charAt(0).toUpperCase() + value.slice(1);
-        }
-
         let name = 'example';
         let type = 'batch';
 
@@ -69,7 +66,7 @@ export default class extends Generator {
 
         this.fs.copyTpl(this.templatePath(`base-op/${type}.js`),
             this.destinationPath(`asset/${name}/processor.js`),
-            { name: capitalizeFirstLetter(camelCase(name)) });
+            { name: toPascalCase(name) });
 
         this.fs.copyTpl(this.templatePath(`tests/${type}-spec.js`),
             this.destinationPath(`test/${name}-spec.js`),
