@@ -12,7 +12,7 @@ import {
     FieldValidateConfig, DataTypeFieldAndChildren, FunctionDefinitionConfig,
     FunctionContext, DynamicFrameFunctionContext
 } from '../../function-configs/interfaces';
-import { Builder } from '../../builder';
+import { Builder, copyVectorToBuilder } from '../../builder';
 import { WritableData } from '../../core';
 
 export interface DataFrameAdapterOptions<T extends Record<string, any>> {
@@ -79,6 +79,13 @@ function transformColumnData<T extends Record<string, any>>(
             inputConfig,
         };
 
+        if (fnDef.process_mode === ProcessMode.NONE) {
+            return new Column(
+                copyVectorToBuilder(column.vector, builder),
+                columnOptions
+            );
+        }
+
         if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
             return new Column(
                 dynamicMapVectorEach(
@@ -108,6 +115,13 @@ function transformColumnData<T extends Record<string, any>>(
     };
 
     const transformFn = fnDef.create(context);
+
+    if (fnDef.process_mode === ProcessMode.NONE) {
+        return new Column(
+            copyVectorToBuilder(column.vector, builder),
+            columnOptions
+        );
+    }
 
     if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
         return new Column(
