@@ -725,7 +725,7 @@ export function timezoneToOffset(timezone: unknown): number {
         throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
     }
 
-    return tzOffset(timezone) / (1000 * 60);
+    return Math.round(tzOffset(timezone) / (1000 * 60));
 }
 
 /** Given a date and timezone, it will return the offset from UTC in minutes.
@@ -738,7 +738,7 @@ export function getTimezoneOffset(input: unknown, timezone: string): number {
         throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
     }
 
-    return tzOffset(timezone, date) / (1000 * 60);
+    return Math.round(tzOffset(timezone, date) / (1000 * 60));
 }
 
 /** Given a timezone, it will return a function that will take in dates that will
@@ -752,7 +752,7 @@ export function getTimezoneOffsetFP(timezone: string): (input: unknown) => numbe
 
     return function _getTimezoneOffsetFP(input: unknown) {
         const date = getValidDateOrThrow(input);
-        return tzOffset(timezone, date) / (1000 * 60);
+        return Math.round(tzOffset(timezone, date) / (1000 * 60));
     };
 }
 

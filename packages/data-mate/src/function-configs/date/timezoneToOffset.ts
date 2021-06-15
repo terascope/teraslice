@@ -15,6 +15,18 @@ export const timezoneToOffsetConfig: FieldTransformConfig = {
     description: `Given a timezone, it will return the offset from UTC in minutes.
      This uses current server time as the reference for a date, so results may vary
      depending on daylight saving time adjustments`,
+    examples: [
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: 'America/Phoenix',
+            output: -420,
+        },
+    ],
     create() {
         return timezoneToOffset;
     },
