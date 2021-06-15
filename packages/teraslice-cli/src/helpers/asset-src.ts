@@ -5,13 +5,13 @@ import path from 'path';
 import tmp from 'tmp';
 import { build } from 'esbuild';
 import glob from 'glob-promise';
-import set from 'lodash.set';
 
 import {
     isCI,
     toInteger,
     TSError,
-    toPascalCase
+    toPascalCase,
+    set
 } from '@terascope/utils';
 
 import reply from './reply';
