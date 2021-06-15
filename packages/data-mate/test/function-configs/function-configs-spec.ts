@@ -10,7 +10,7 @@ import { functionTestHarness } from './functionTestHarness';
 
 describe('function configs', () => {
     Object.entries(functionConfigRepository).forEach(([key, fnDef]) => {
-        if (key === 'setTimezone') functionTestHarness(fnDef as FunctionDefinitionConfig<any>, key);
+        functionTestHarness(fnDef as FunctionDefinitionConfig<any>, key);
     });
 
     it('should not have any duplicate names', () => {
