@@ -13,6 +13,7 @@ import {
 import { numericTypes, stringTypes, WritableData } from '../core';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
+
 export function getVectorId(vector: Vector<any>): string {
     const id = _vectorIds.get(vector);
     if (id) return id;

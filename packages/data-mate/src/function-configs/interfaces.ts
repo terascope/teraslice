@@ -17,7 +17,9 @@ export enum ProcessMode {
     /** This indicates that it operations on non-nil individual values */
     INDIVIDUAL_VALUES = 'INDIVIDUAL_VALUES',
     /** This indicates that it operations on entire values, including nulls and arrays */
-    FULL_VALUES = 'FULL_VALUES'
+    FULL_VALUES = 'FULL_VALUES',
+    /** This indicates a noop, usually this is for metadata/datatype changes */
+    NONE = 'NONE'
 }
 
 export enum FunctionDefinitionCategory {
@@ -174,6 +176,10 @@ export interface FieldValidateConfig<
     readonly type: FunctionDefinitionType.FIELD_VALIDATION;
     readonly process_mode: ProcessMode;
     readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => boolean;
+    readonly output_type?: (
+        inputConfig: DataTypeFieldAndChildren,
+        args: T
+    ) => DataTypeFieldAndChildren;
 }
 
 export interface FieldTransformConfig<
@@ -186,6 +192,18 @@ export interface FieldTransformConfig<
         args: T
     ) => DataTypeFieldAndChildren;
     readonly create: (config: FunctionContext<T>) => (value: unknown, index: number) => unknown;
+}
+
+export interface FieldMetaTransform<
+    T extends Record<string, any> = Record<string, unknown>
+> extends FunctionDefinitionConfig<T> {
+    readonly type: FunctionDefinitionType.FIELD_TRANSFORM;
+    readonly process_mode: ProcessMode.NONE;
+    readonly create: (config: FunctionContext<T>) => void;
+    readonly output_type?: (
+        inputConfig: DataTypeFieldAndChildren,
+        args: T
+    ) => DataTypeFieldAndChildren;
 }
 
 export interface RecordTransformConfig<
