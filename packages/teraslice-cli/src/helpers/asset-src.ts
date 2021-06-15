@@ -3,10 +3,14 @@ import prettyBytes from 'pretty-bytes';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { isCI, toInteger, TSError } from '@terascope/utils';
 import { build } from 'esbuild';
-import { wasmPlugin, getPackage } from '../helpers/utils';
+import glob from 'glob-promise';
+import set from 'lodash.set';
+
+import { isCI, toInteger, TSError } from '@terascope/utils';
+
 import reply from './reply';
+import { capitalizeFirstLetter, wasmPlugin, getPackage } from '../helpers/utils';
 
 interface ZipResults {
     name: string;
@@ -93,6 +97,45 @@ export class AssetSrc {
      */
     private async _yarnCmd(dir: string, yarnArgs: string[]) {
         return execa('yarn', yarnArgs, { cwd: dir });
+    }
+
+    /**
+     * operatorFiles finds all of the Teraslice operator files, including:
+     *   api.js
+     *   fetcher.js
+     *   processor.js
+     *   schema.js
+     *   slicer.js
+     * @returns {Array} array of paths to all of the operator files
+     */
+    async operatorFiles(): Promise<string[]> {
+        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+        return glob(matchString, { ignore: ['**/node_modules/**', '**/__lib/**'] });
+    }
+
+    /**
+     * generates the registry object that is used to generate the index.js asset
+     * registry
+     */
+    async generateRegistry() {
+        const assetRegistry = {};
+        const files = await this.operatorFiles();
+
+        for (const file of files) {
+            const parsedPath = path.parse(file);
+            const op_directory = parsedPath.dir.split(path.sep).pop();
+
+            if (op_directory) {
+                set(
+                    assetRegistry,
+                    `${op_directory}.${capitalizeFirstLetter(parsedPath.name)}`,
+                    parsedPath.base
+                );
+            } else {
+                console.error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+            }
+        }
+        return assetRegistry;
     }
 
     async build(): Promise<ZipResults> {

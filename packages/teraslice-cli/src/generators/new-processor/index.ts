@@ -49,7 +49,7 @@ export default class extends Generator {
     }
 
     createProcessor(): void {
-        function capitolizeFirstLetter(value: string) {
+        function capitalizeFirstLetter(value: string) {
             return value.charAt(0).toUpperCase() + value.slice(1);
         }
 
@@ -69,7 +69,7 @@ export default class extends Generator {
 
         this.fs.copyTpl(this.templatePath(`base-op/${type}.js`),
             this.destinationPath(`asset/${name}/processor.js`),
-            { name: capitolizeFirstLetter(camelCase(name)) });
+            { name: capitalizeFirstLetter(camelCase(name)) });
 
         this.fs.copyTpl(this.templatePath(`tests/${type}-spec.js`),
             this.destinationPath(`test/${name}-spec.js`),
