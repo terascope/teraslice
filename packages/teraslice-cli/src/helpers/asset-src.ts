@@ -274,8 +274,12 @@ export class AssetSrc {
                     reply.info(`* overwriting ${this.outputFileName}`);
                     await fs.remove(this.outputFileName);
                 }
+
+                this._copyStaticAssets(tmpDir.name, bundleDir.name);
+
                 reply.info('* zipping the asset bundle');
                 // create zipfile
+                // cp include files that are not required, should require as much as possible
                 zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
                 // remove temp directories
                 await fs.remove(tmpDir.name);
@@ -345,5 +349,11 @@ export class AssetSrc {
         const { size } = await fs.stat(outputFileName);
 
         return { name: outputFileName, bytes: prettyBytes(size) };
+    }
+
+    private _copyStaticAssets(tempDir: string, bundleDir: string): void {
+        if (fs.existsSync(path.join(tempDir, 'asset', '__static_assets'))) {
+            fs.copySync(path.join(tempDir, 'asset', '__static_assets'), path.join(bundleDir, '__static_assets'));
+        }
     }
 }
