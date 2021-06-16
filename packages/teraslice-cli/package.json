@@ -63,7 +63,6 @@
         "@types/decompress": "^4.2.3",
         "@types/easy-table": "^0.0.32",
         "@types/js-yaml": "^4.0.1",
-        "@types/lodash.set": "^4.3.6",
         "@types/prompts": "^2.0.13",
         "@types/signale": "^1.4.0",
         "@types/tmp": "^0.2.0",

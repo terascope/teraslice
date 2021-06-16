@@ -19,25 +19,13 @@ export default class extends Generator {
     }
 
     async default(): Promise<void> {
-        let asset;
-        let registry;
+        const asset = new AssetSrc(this.options.asset_path);
+        const registry = await asset.generateRegistry();
 
-        // find operators in asset
-        try {
-            asset = new AssetSrc(this.options.asset_path);
-            registry = await asset.generateRegistry();
-        } catch (error) {
-            throw new Error(`ERROR: ${error}`);
-        }
-
-        // generate registry object
-        try {
-            this.fs.copyTpl(this.templatePath('index.ejs'), this.destinationPath('index.js'),
-                {
-                    registry
-                });
-        } catch (error) {
-            console.error(`ERROR: ${error}`);
-        }
+        this.fs.copyTpl(
+            this.templatePath('index.ejs'),
+            this.destinationPath('index.js'),
+            { registry }
+        );
     }
 }

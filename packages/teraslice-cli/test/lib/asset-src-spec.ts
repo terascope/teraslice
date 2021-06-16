@@ -90,7 +90,7 @@ describe('AssetSrc generateRegistry', () => {
                 Slicer: 'slicer.js'
             },
             proc2: {
-                Api: 'api.js',
+                API: 'api.js',
                 Schema: 'schema.js',
                 Fetcher: 'fetcher.js'
             }

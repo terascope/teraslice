@@ -11,7 +11,8 @@ import {
     toInteger,
     TSError,
     toPascalCase,
-    set
+    set,
+    toUpperCase
 } from '@terascope/utils';
 
 import reply from './reply';
@@ -28,7 +29,7 @@ interface AssetRegistry {
     }
 }
 
-type OpType = 'Api' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
+type OpType = 'API' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
 
 export class AssetSrc {
     /**
@@ -120,7 +121,7 @@ export class AssetSrc {
      */
     async operatorFiles(): Promise<string[]> {
         const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
-        return glob(matchString, { ignore: ['**/node_modules/**', '**/__lib/**'] });
+        return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
     /**
@@ -133,16 +134,18 @@ export class AssetSrc {
 
         for (const file of files) {
             const parsedPath = path.parse(file);
-            const op_directory = parsedPath.dir.split(path.sep).pop();
+            const opDirectory = parsedPath.dir.split(path.sep).pop();
 
-            if (op_directory) {
+            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+
+            if (opDirectory) {
                 set(
                     assetRegistry,
-                    `${op_directory}.${toPascalCase(parsedPath.name)}`,
+                    `${opDirectory}.${pathName}`,
                     parsedPath.base
                 );
             } else {
-                console.error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+                throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
         }
 
