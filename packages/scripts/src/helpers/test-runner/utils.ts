@@ -25,7 +25,6 @@ const logger = debugLogger('ts-scripts:cmd:test');
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
     args.forceExit = '';
-    args.passWithNoTests = '';
     args.coverage = 'true';
     if (config.FORCE_COLOR === '1') {
         args.color = '';
