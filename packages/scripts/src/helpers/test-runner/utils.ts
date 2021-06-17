@@ -41,8 +41,8 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.runInBand = '';
     } else {
         args.silent = '';
-        if (config.JEST_MAX_WORKERS) {
-            args.maxWorkers = config.JEST_MAX_WORKERS;
+        if (config.JEST_MAX_WORKERS != null) {
+            args.maxWorkers = String(config.JEST_MAX_WORKERS);
         }
     }
 
