@@ -2,37 +2,35 @@ import validator from 'validator';
 import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/lightFormat';
-import {
-    differenceInMilliseconds,
-    differenceInSeconds,
-    differenceInMinutes,
-    differenceInHours,
-    differenceInDays,
-    differenceInCalendarDays,
-    differenceInBusinessDays,
-    differenceInWeeks,
-    differenceInCalendarISOWeeks,
-    differenceInMonths,
-    differenceInCalendarMonths,
-    differenceInQuarters,
-    differenceInCalendarQuarters,
-    differenceInYears,
-    differenceInCalendarYears,
-    differenceInCalendarISOWeekYears,
-    differenceInISOWeekYears,
-    intervalToDuration,
-    formatISODuration,
-    isFuture as _isFuture,
-    isPast as _isPast,
-    isLeapYear as _isLeapYear,
-    isToday as _isToday,
-    isTomorrow as _isTomorrow,
-    isYesterday as _isYesterday,
-    add,
-    sub,
-    isBefore as _isBefore,
-    isAfter as _isAfter
-} from 'date-fns';
+import differenceInMilliseconds from 'date-fns/differenceInMilliseconds';
+import differenceInSeconds from 'date-fns/differenceInSeconds';
+import differenceInMinutes from 'date-fns/differenceInMinutes';
+import differenceInHours from 'date-fns/differenceInHours';
+import differenceInDays from 'date-fns/differenceInDays';
+import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
+import differenceInBusinessDays from 'date-fns/differenceInBusinessDays';
+import differenceInWeeks from 'date-fns/differenceInWeeks';
+import differenceInCalendarISOWeeks from 'date-fns/differenceInCalendarISOWeeks';
+import differenceInCalendarISOWeekYears from 'date-fns/differenceInCalendarISOWeekYears';
+import differenceInMonths from 'date-fns/differenceInMonths';
+import differenceInCalendarMonths from 'date-fns/differenceInCalendarMonths';
+import differenceInQuarters from 'date-fns/differenceInQuarters';
+import differenceInCalendarQuarters from 'date-fns/differenceInCalendarQuarters';
+import differenceInYears from 'date-fns/differenceInYears';
+import differenceInCalendarYears from 'date-fns/differenceInCalendarYears';
+import differenceInISOWeekYears from 'date-fns/differenceInISOWeekYears';
+import intervalToDuration from 'date-fns/intervalToDuration';
+import formatISODuration from 'date-fns/formatISODuration';
+import _isFuture from 'date-fns/isFuture';
+import _isPast from 'date-fns/isPast';
+import _isLeapYear from 'date-fns/isLeapYear';
+import _isToday from 'date-fns/isToday';
+import _isTomorrow from 'date-fns/isTomorrow';
+import _isYesterday from 'date-fns/isYesterday';
+import add from 'date-fns/add';
+import sub from 'date-fns/sub';
+import _isBefore from 'date-fns/isBefore';
+import _isAfter from 'date-fns/isAfter';
 import {
     DateFormat,
     ISO8601DateSegment,
@@ -40,7 +38,7 @@ import {
     DateInputTypes,
     GetTimeBetweenArgs
 } from '@terascope/types';
-import { getTimezoneOffset as tzOffset } from 'date-fns-tz';
+import tzOffset from 'date-fns-tz/getTimezoneOffset';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
