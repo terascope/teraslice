@@ -68,7 +68,7 @@ export class EventLoop {
             this.checkedInDiff = now - this.checkedIn;
             this.checkedIn = now;
             if (this.blocked) {
-                this.logger.debug(`* EVENT LOOP IS PROBABLY BLOCKED (${toHumanTime(this.checkedInDiff)} diff) *`);
+                this.logger?.warn(`* EVENT LOOP IS PROBABLY BLOCKED (${toHumanTime(this.checkedInDiff)} diff) *`);
             }
         }, this.heartbeat);
 
