@@ -48,7 +48,7 @@
     "devDependencies": {
         "@types/ip6addr": "^0.2.2",
         "@types/uuid": "^8.3.0",
-        "awesome-phonenumber": "^2.51.2",
+        "awesome-phonenumber": "^2.53.0",
         "benchmark": "^2.1.4",
         "chance": "^1.1.7",
         "lodash": "^4.17.21"
