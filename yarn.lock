@@ -737,12 +737,12 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@turf/bbox-polygon@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-6.3.0.tgz#9ffa79d56ae50cc7730b35b2a6d2a02493268365"
-  integrity sha512-CCyTBM8LzGRu/lReNlgDyjRO8NojtJ7EPPvSl3bdKQbNFsCm25gwe7Y3xsaCkWLNn5g89lQJI9Izf9xdEsENjQ==
+"@turf/bbox-polygon@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-6.4.0.tgz#58f7d713c61e1f8659b5053efca0d296424bb92a"
+  integrity sha512-r0flYt3PivNcZLioCBHZcTcLC4sbHLzKw4VPLknvKvet4cK6A33s8OguXp+hd4ITnby2LFUH5WquwS5oglkM6Q==
   dependencies:
-    "@turf/helpers" "^6.3.0"
+    "@turf/helpers" "^6.4.0"
 
 "@turf/bbox@*", "@turf/bbox@^6.2.0", "@turf/bbox@^6.3.0":
   version "6.3.0"
@@ -851,10 +851,10 @@
     "@turf/helpers" "^6.3.0"
     "@turf/invariant" "^6.3.0"
 
-"@turf/helpers@6.x", "@turf/helpers@^6.1.4", "@turf/helpers@^6.2.0", "@turf/helpers@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@turf/helpers/-/helpers-6.3.0.tgz#87f90f806c3f8ad6385ef8d2041d3662bf3c9fb1"
-  integrity sha512-kr6KuD4Z0GZ30tblTEvi90rvvVNlKieXuMC8CTzE/rVQb0/f/Cb29zCXxTD7giQTEQY/P2nRW23wEqqyNHulCg==
+"@turf/helpers@6.x", "@turf/helpers@^6.1.4", "@turf/helpers@^6.2.0", "@turf/helpers@^6.3.0", "@turf/helpers@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@turf/helpers/-/helpers-6.4.0.tgz#e263d960ab1caed3bfe86a7f2f4b2096dbbf0635"
+  integrity sha512-7vVpWZwHP0Qn8DDSlM++nhs3/6zfPt+GODjvLVZ+sWIG4S3vOtUUOfO5eIjRzxsUHHqhgiIL0QA17u79uLM+mQ==
 
 "@turf/invariant@^6.2.0", "@turf/invariant@^6.3.0":
   version "6.3.0"
@@ -2820,7 +2820,7 @@ colors@1.0.3:
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b"
   integrity sha1-BDP0TYCWgP3rYO0mDxsMJi6CpAs=
 
-colors@^1.1.2, colors@^1.4.0:
+colors@^1.1.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
   integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
@@ -4768,7 +4768,7 @@ glob@^6.0.1:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.0.0, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4:
+glob@^7.0.0, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.7:
   version "7.1.7"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.7.tgz#3b193e9233f01d42d0b3f78294bbeeb418f94a90"
   integrity sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==
@@ -7077,10 +7077,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-marked@~2.0.3:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-2.0.7.tgz#bc5b857a09071b48ce82a1f7304913a993d4b7d1"
-  integrity sha512-BJXxkuIfJchcXOJWTT2DOL+yFWifFv2yGYOUzvXg8Qz610QKw+sHCvTMYwA+qWGhlA2uivBezChZ/pBy1tWdkQ==
+marked@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-2.1.1.tgz#b7c27f520fc4de0ddd049d9b4be3b04e06314923"
+  integrity sha512-5XFS69o9CzDpQDSpUYC+AN2xvq8yl1EGa5SG/GI1hP78/uTeo3PDfiDNmsUyiahpyhToDDJhQk7fNtJsga+KVw==
 
 matcher@^3.0.0:
   version "3.0.0"
@@ -10464,34 +10464,32 @@ typedoc-default-themes@^0.12.10:
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.12.10.tgz#614c4222fe642657f37693ea62cad4dafeddf843"
   integrity sha512-fIS001cAYHkyQPidWXmHuhs8usjP5XVJjWB8oZGqkTowZaz3v7g3KDZeeqE82FBrmkAnIBOY3jgy7lnPnqATbA==
 
-typedoc-plugin-markdown@^3.8.1:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-3.9.0.tgz#d9c0390b8ddeeda56fdbf01264521ef04b3c19c7"
-  integrity sha512-s445YeUe8bH7me15T+hsHZgNmAvvF7QIpX02vFgseLGtghAwmtdZYVOqPneWoKqRv/JNpPSuyZb3CeblML9jOg==
+typedoc-plugin-markdown@^3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-3.10.0.tgz#fa06e9e67376095e68e2ce0a778b4827748d1b8b"
+  integrity sha512-FYset/F0zFuoTVn3ljUEH+CShMe95JPMnFOTFuqxJViztmgIIvGiygcQz2DKjdEv+fHTohrvjq30KGPkuv+6Qg==
   dependencies:
     handlebars "^4.7.7"
 
-typedoc@^0.20.37:
-  version "0.20.37"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.20.37.tgz#9b9417149cb815e3d569fc300b5d2c6e4e6c5d93"
-  integrity sha512-9+qDhdc4X00qTNOtii6QX2z7ndAeWVOso7w3MPSoSJdXlVhpwPfm1yEp4ooKuWA9fiQILR8FKkyjmeqa13hBbw==
+typedoc@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.21.0.tgz#d35dd69b1566032cd893f4f6f21f37156f5f78d2"
+  integrity sha512-InmPBVlpOXptIkg/WnsQhbGYhv9cuDh/cRACUSautQ0QwcJPLAK2kHcfP0Pld6z/NiDvHc159fMq2qS+b/ALUw==
   dependencies:
-    colors "^1.4.0"
-    fs-extra "^9.1.0"
+    glob "^7.1.7"
     handlebars "^4.7.7"
     lodash "^4.17.21"
     lunr "^2.3.9"
-    marked "~2.0.3"
+    marked "^2.1.1"
     minimatch "^3.0.0"
     progress "^2.0.3"
-    shelljs "^0.8.4"
     shiki "^0.9.3"
     typedoc-default-themes "^0.12.10"
 
-typescript@~4.2.4:
-  version "4.2.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
-  integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==
+typescript@~4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.4.tgz#3f85b986945bcf31071decdd96cf8bfa65f9dcbc"
+  integrity sha512-uauPG7XZn9F/mo+7MrsRjyvbxFpzemRjKEZXS4AK83oP2KKOJPvb+9cO/gmnv8arWZvhnjVOXz7B49m1l0e9Ew==
 
 typpy@^2.3.1:
   version "2.3.13"
