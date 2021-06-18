@@ -36,7 +36,7 @@
     },
     "devDependencies": {
         "@turf/invariant": "^6.2.0",
-        "@turf/random": "^6.3.0",
+        "@turf/random": "^6.4.0",
         "@types/netmask": "^1.0.30",
         "peggy": "~1.1.0",
         "ts-pegjs": "^1.0.0"
