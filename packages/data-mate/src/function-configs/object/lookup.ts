@@ -7,6 +7,7 @@ import {
 
 export interface LookupArgs {
     readonly in: Record<string, unknown> | string | any[];
+    pass?: boolean;
 }
 
 export const lookupConfig: FieldTransformConfig<LookupArgs> = {
@@ -63,19 +64,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: 'bar'
         },
         {
-            args: {
-                in: '1:foo\n2:bar\n3:max'
-            },
-            config: {
-                version: 1,
-                fields: { testField: { type: FieldType.Number } }
-            },
-            field: 'testField',
-            input: 2,
-            output: 'bar'
-        },
-        {
-            args: { in: ['foo', 'bar', 'max'] },
+            args: { in: ['foo', 'bar', 'max'], pass: false },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -83,10 +72,27 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             field: 'testField',
             input: 2,
             output: 'max'
-        }
+        },
+        {
+            args: { in: { key1: 'value1', key2: 'value2' }, pass: true },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.String } }
+            },
+            field: 'testField',
+            input: 'key3',
+            output: 'key3'
+        },
     ],
     create({ args }) {
-        return lookup(args.in);
+        return (input) => {
+            const result = lookup(args.in)(input);
+
+            console.log(args, result);
+            if (args.pass && result == null) return input;
+
+            return result;
+        };
     },
     argument_schema: {
         in: {
