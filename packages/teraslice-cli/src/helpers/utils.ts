@@ -1,5 +1,11 @@
 import signale from 'signale';
-import { has, parseErrorInfo } from '@terascope/utils';
+import {
+    has,
+    parseErrorInfo,
+    toKebabCase,
+    toSnakeCase,
+    toCamelCase
+} from '@terascope/utils';
 import TerasliceClient from 'teraslice-client-js';
 import fs from 'fs';
 import path from 'path';
@@ -9,25 +15,15 @@ function sanitize(str: string) {
 }
 
 export function kebabCase(str: string): string {
-    return sanitize(str)
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .replace(/\s+/g, '-')
-        .toLowerCase();
+    return sanitize(toKebabCase(str));
 }
 
 export function snakeCase(str: string): string {
-    if (!str) return '';
-
-    return sanitize(str)
-        .replace(/^[^A-Za-z0-9]*|[^A-Za-z0-9]*$/g, '')
-        .replace(/([a-z])([A-Z])/g, (m, a, b) => `${a}_${b.toLowerCase()}`)
-        .replace(/[^A-Za-z0-9]+|_+/g, '_')
-        .toLowerCase();
+    return sanitize(toSnakeCase(str));
 }
 
 export function camelCase(str: string): string {
-    return sanitize(str)
-        .replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
+    return sanitize(toCamelCase(str));
 }
 
 export function getPackage(filePath?: string): any {

@@ -1,17 +1,35 @@
 import execa from 'execa';
 import prettyBytes from 'pretty-bytes';
+import glob from 'glob-promise';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { isCI, toInteger, TSError } from '@terascope/utils';
 import { build } from 'esbuild';
-import { wasmPlugin, getPackage } from '../helpers/utils';
+
+import {
+    isCI,
+    toInteger,
+    TSError,
+    toPascalCase,
+    set,
+    toUpperCase
+} from '@terascope/utils';
+
 import reply from './reply';
+import { wasmPlugin, getPackage } from '../helpers/utils';
 
 interface ZipResults {
     name: string;
     bytes: string;
 }
+
+interface AssetRegistry {
+    [dir_name: string]: {
+        [property in OpType]: string
+    }
+}
+
+type OpType = 'API' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
 
 export class AssetSrc {
     /**
@@ -50,6 +68,7 @@ export class AssetSrc {
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
+
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
@@ -59,10 +78,6 @@ export class AssetSrc {
         this.version = asset.version;
 
         this.outputFileName = path.join(this.buildDir, this.zipFileName);
-
-        if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
-            throw new Error(`Zipfile already exists "${this.outputFileName}"`);
-        }
     }
 
     /** @returns {string} Path to the output directory for the finished asset zipfile */
@@ -95,8 +110,54 @@ export class AssetSrc {
         return execa('yarn', yarnArgs, { cwd: dir });
     }
 
+    /**
+     * operatorFiles finds all of the Teraslice operator files, including:
+     *   api.js
+     *   fetcher.js
+     *   processor.js
+     *   schema.js
+     *   slicer.js
+     * @returns {Array} array of paths to all of the operator files
+     */
+    async operatorFiles(): Promise<string[]> {
+        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+        return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
+    }
+
+    /**
+     * generates the registry object that is used to generate the index.js asset
+     * registry
+     */
+    async generateRegistry(): Promise<AssetRegistry> {
+        const assetRegistry: AssetRegistry = {};
+        const files = await this.operatorFiles();
+
+        for (const file of files) {
+            const parsedPath = path.parse(file);
+            const opDirectory = parsedPath.dir.split(path.sep).pop();
+
+            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+
+            if (opDirectory) {
+                set(
+                    assetRegistry,
+                    `${opDirectory}.${pathName}`,
+                    parsedPath.base
+                );
+            } else {
+                throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+            }
+        }
+
+        return assetRegistry;
+    }
+
     async build(): Promise<ZipResults> {
         let zipOutput;
+
+        if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
+            throw new Error(`Zipfile already exists "${this.outputFileName}"`);
+        }
 
         try {
             // make sure the build dir exists in the srcDir directory
@@ -216,8 +277,12 @@ export class AssetSrc {
                     reply.info(`* overwriting ${this.outputFileName}`);
                     await fs.remove(this.outputFileName);
                 }
+
+                await this._copyStaticAssets(tmpDir.name, bundleDir.name);
+
                 reply.info('* zipping the asset bundle');
                 // create zipfile
+                // cp include files that are not required, should require as much as possible
                 zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
                 // remove temp directories
                 await fs.remove(tmpDir.name);
@@ -287,5 +352,13 @@ export class AssetSrc {
         const { size } = await fs.stat(outputFileName);
 
         return { name: outputFileName, bytes: prettyBytes(size) };
+    }
+
+    private async _copyStaticAssets(tempDir: string, bundleDir: string): Promise<void> {
+        const exists = await fs.pathExists(path.join(tempDir, 'asset', '__static_assets'));
+
+        if (exists) {
+            await fs.copy(path.join(tempDir, 'asset', '__static_assets'), path.join(bundleDir, '__static_assets'));
+        }
     }
 }

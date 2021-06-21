@@ -71,3 +71,29 @@ describe('AssetSrc with build', () => {
         expect(yarn.stdout.toString()).toInclude('$ echo');
     });
 });
+
+describe('AssetSrc generateRegistry', () => {
+    let testAsset: any;
+    const srcDir = path.join(__dirname, '../fixtures/testAsset');
+
+    beforeEach(() => {
+        testAsset = new AssetSrc(srcDir);
+    });
+
+    test('-> registry object', async () => {
+        const registry = await testAsset.generateRegistry();
+
+        expect(registry).toEqual({
+            proc: {
+                Processor: 'processor.js',
+                Schema: 'schema.js',
+                Slicer: 'slicer.js'
+            },
+            proc2: {
+                API: 'api.js',
+                Schema: 'schema.js',
+                Fetcher: 'fetcher.js'
+            }
+        });
+    });
+});
