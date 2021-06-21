@@ -21,16 +21,14 @@ describe('processor generator with no new flag', () => {
         assert.file([
             path.join(testAssetPath, 'asset', 'index.js'),
         ]);
+    });
 
-        assert.fileContent([
-            // @ts-expect-error
-            [path.join(testAssetPath, 'asset', 'index.js'), 'Processor: require(\'./proc/processor.js\')',
-                'Schema: require(\'./proc/schema.js\')',
-                'Slicer: require(\'./proc/slicer.js\'),',
-                'Api: require(\'./proc2/api.js\'),',
-                'Fetcher: require(\'./proc2/fetcher.js\'),',
-                'Schema: require(\'./proc2/schema.js\'),'
-            ]
-        ]);
+    it('should create an index with correct object reference', () => {
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'Processor: require(\'./proc/processor.js\')');
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'Schema: require(\'./proc/schema.js\')');
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'Slicer: require(\'./proc/slicer.js\'),');
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'API: require(\'./proc2/api.js\'),');
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'Fetcher: require(\'./proc2/fetcher.js\'),');
+        assert.fileContent(path.join(testAssetPath, 'asset', 'index.js'), 'Schema: require(\'./proc2/schema.js\'),');
     });
 });

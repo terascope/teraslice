@@ -1,10 +1,10 @@
 import execa from 'execa';
 import prettyBytes from 'pretty-bytes';
+import glob from 'glob-promise';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
 import { build } from 'esbuild';
-import glob from 'glob-promise';
 
 import {
     isCI,
@@ -354,9 +354,11 @@ export class AssetSrc {
         return { name: outputFileName, bytes: prettyBytes(size) };
     }
 
-    private _copyStaticAssets(tempDir: string, bundleDir: string): void {
-        if (fs.existsSync(path.join(tempDir, 'asset', '__static_assets'))) {
-            fs.copySync(path.join(tempDir, 'asset', '__static_assets'), path.join(bundleDir, '__static_assets'));
+    private async _copyStaticAssets(tempDir: string, bundleDir: string): Promise<void> {
+        const exists = await fs.pathExists(path.join(tempDir, 'asset', '__static_assets'));
+
+        if (exists) {
+            await fs.copy(path.join(tempDir, 'asset', '__static_assets'), path.join(bundleDir, '__static_assets'));
         }
     }
 }
