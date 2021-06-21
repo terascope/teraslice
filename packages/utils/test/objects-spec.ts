@@ -165,12 +165,13 @@ describe('Objects', () => {
             ['foo', 'foo:bar', 'bar'],
             [123, '123:bar', 'bar'],
             [789, '123:bar\n456:baz\n789:max', 'max'],
+            ['one', 'one:bar\n two:baz\n three:max', 'bar'],
             [2, '123:bar\n456:baz\n789:max', undefined],
             [2, 'this is not a properly formated string', undefined],
             [1, ['deep', 'bob', 'ray', 'value'], 'bob'],
             [7, ['deep', 'bob', 'ray', 'value'], undefined],
             ['not a number', ['deep', 'bob', 'ray', 'value'], undefined]
-        ])('should return key from a value', (key: any, obj: any, value: any) => {
+        ])('should return key %p from a value %p', (key: any, obj: any, value: any) => {
             expect(lookup(obj)(key)).toEqual(value);
         });
 
