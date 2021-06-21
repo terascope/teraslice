@@ -252,7 +252,7 @@ export function intToIP(input: unknown, ipVersion: string | number): string {
 
     if (isNumberLike(input) && (versionAsInt === 4 || versionAsInt === 6)) {
         return stringify({
-            number: BigInt(input),
+            number: BigInt(input as string | number | bigint),
             version: versionAsInt,
             ipv4mapped: false,
             scopeid: false

@@ -278,7 +278,7 @@ export class AssetSrc {
                     await fs.remove(this.outputFileName);
                 }
 
-                this._copyStaticAssets(tmpDir.name, bundleDir.name);
+                await this._copyStaticAssets(tmpDir.name, bundleDir.name);
 
                 reply.info('* zipping the asset bundle');
                 // create zipfile

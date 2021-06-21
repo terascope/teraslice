@@ -25,7 +25,6 @@ const logger = debugLogger('ts-scripts:cmd:test');
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
     args.forceExit = '';
-    args.passWithNoTests = '';
     args.coverage = 'true';
     if (config.FORCE_COLOR === '1') {
         args.color = '';
@@ -41,8 +40,8 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.runInBand = '';
     } else {
         args.silent = '';
-        if (config.JEST_MAX_WORKERS) {
-            args.maxWorkers = config.JEST_MAX_WORKERS;
+        if (config.JEST_MAX_WORKERS != null) {
+            args.maxWorkers = String(config.JEST_MAX_WORKERS);
         }
     }
 

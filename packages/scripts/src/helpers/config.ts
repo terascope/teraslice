@@ -72,6 +72,8 @@ export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);
 
-export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS || undefined;
+export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
+    ? toIntegerOrThrow(process.env.JEST_MAX_WORKERS)
+    : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';

@@ -79,11 +79,7 @@ function filterRelease(release) {
 
 function filterAsset(asset) {
     // if it includes the bundle choose that
-    if (asset.name.includes(`node-${nodeVersion}-bundle.zip`)) {
-        return true;
-    }
-    const mustContain = `node-${nodeVersion}-linux-x64.zip`;
-    return asset.name.includes(mustContain);
+    return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
 }
 
 function listAssets() {
