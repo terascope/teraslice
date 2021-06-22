@@ -165,26 +165,28 @@ describe('Objects', () => {
             ['foo', 'foo:bar', 'bar'],
             [123, '123:bar', 'bar'],
             [789, '123:bar\n456:baz\n789:max', 'max'],
+            [789, '123 :bar \n456 : baz \n 789: max', 'max'],
+            [789, '123:bar\n  456:baz \n 789:max', 'max'],
             ['one', 'one:bar\n two:baz\n three:max', 'bar'],
             [2, '123:bar\n456:baz\n789:max', undefined],
             [2, 'this is not a properly formated string', undefined],
             [1, ['deep', 'bob', 'ray', 'value'], 'bob'],
             [7, ['deep', 'bob', 'ray', 'value'], undefined],
             ['not a number', ['deep', 'bob', 'ray', 'value'], undefined]
-        ])('should return key %p from a value %p', (key: any, obj: any, value: any) => {
-            expect(lookup(obj)(key)).toEqual(value);
+        ])('from key %p and table %p, should return value %p', (key: any, obj: any, value: any) => {
+            expect(lookup({ in: obj })(key)).toEqual(value);
         });
 
-        it('should throw an error if input is not an object, string or array', () => {
-            expect(() => {
-                lookup(123456)('key');
-            }).toThrowError('input must be an Object Entity, String, received Number');
-        });
-
-        it('should throw an error if key is not a number or string', () => {
-            expect(() => {
-                lookup(['deep', 'bob', 'ray', 'value'])(true);
-            }).toThrowError('lookup key must be a String or a Number, received Boolean');
+        test.each([
+            ['key', { key: 'value', key2: 'value2' }, 'value'],
+            [456, { 123: 'value', 456: 'value2' }, 'value2'],
+            ['key', { key1: 'value', key2: 'value2' }, 'key'],
+            [789, '123:bar\n456:baz\n789:max', 'max'],
+            [778, '123:bar\n456:baz\n789:max', 778],
+            [1, ['deep', 'bob', 'ray', 'value'], 'bob'],
+            ['not a number', ['deep', 'bob', 'ray', 'value'], 'not a number']
+        ])('if match_required is true - key %p and table %p, should return %p', (key: any, obj: any, value: any) => {
+            expect(lookup({ in: obj, match_required: true })(key)).toEqual(value);
         });
     });
 });

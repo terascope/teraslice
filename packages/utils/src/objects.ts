@@ -201,10 +201,15 @@ export function hasOwn(obj: any, prop: string|symbol|number): boolean {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-export function lookup(input: unknown): (key: unknown) => any {
-    // lookup entity can be a string, object or array
-    if (!isObjectEntity(input) && !isString(input) && !isArray(input)) {
-        throw Error(`input must be an Object Entity, String, received ${getTypeOf(input)}`);
+export function lookup(args: { in: unknown, match_required?: boolean }): (key: unknown) => any {
+    let table = args.in;
+
+    if (!isObjectEntity(table) && !isString(table) && !isArray(table)) {
+        throw Error(`table must be an Object Entity, String, received ${getTypeOf(table)}`);
+    }
+
+    if (isString(table)) {
+        table = _lookupStringToObject(table);
     }
 
     return function _lookup(key: unknown) {
@@ -215,14 +220,20 @@ export function lookup(input: unknown): (key: unknown) => any {
             throw Error(`lookup key must be a String or a Number, received ${getTypeOf(key)}`);
         }
 
-        if (isString(input)) {
-            return _lookupStringToObject(input)[key as string];
+        let result: any;
+
+        if (isArray(table)) result = table[toNumber(key)];
+        else {
+            const lookupObj = table as Record<string, unknown>;
+
+            result = lookupObj[key as string];
         }
 
-        if (isArray(input)) return input[toNumber(key)];
+        if (args.match_required && !result) {
+            return key;
+        }
 
-        const lookupObj = input as Record<string, unknown>;
-        return lookupObj[key as string];
+        return result;
     };
 }
 

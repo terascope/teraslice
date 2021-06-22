@@ -7,7 +7,7 @@ import {
 
 export interface LookupArgs {
     readonly in: Record<string, unknown> | string | any[];
-    pass?: boolean;
+    match_required?: boolean;
 }
 
 export const lookupConfig: FieldTransformConfig<LookupArgs> = {
@@ -64,7 +64,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: 'bar'
         },
         {
-            args: { in: ['foo', 'bar', 'max'], pass: false },
+            args: { in: ['foo', 'bar', 'max'] },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Number } }
@@ -74,7 +74,7 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             output: 'max'
         },
         {
-            args: { in: { key1: 'value1', key2: 'value2' }, pass: true },
+            args: { in: { key1: 'value1', key2: 'value2' }, match_required: true },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.String } }
@@ -85,20 +85,18 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
         },
     ],
     create({ args }) {
-        return (input) => {
-            const result = lookup(args.in)(input);
-
-            console.log(args, result);
-            if (args.pass && result == null) return input;
-
-            return result;
-        };
+        return lookup(args);
     },
     argument_schema: {
         in: {
             type: FieldType.Any,
             array: false,
             description: 'Data set that is used for the key lookup. Can be an object, array, or formatted string (see example). Keys must be strings or numbers.'
+        },
+        match_required: {
+            type: FieldType.Boolean,
+            array: false,
+            description: 'If set to true lookup returns the input if the input is not found in the table.  If false or missing, lookup returns null if the input is not found in the table',
         }
     },
     accepts: [FieldType.Number, FieldType.String],
