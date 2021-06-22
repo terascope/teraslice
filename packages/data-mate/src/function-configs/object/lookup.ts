@@ -83,6 +83,18 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             input: 'key3',
             output: 'key3'
         },
+        {
+            args: {
+                in: '132:foo\n232:bar'
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number } }
+            },
+            field: 'testField',
+            input: 132,
+            output: 'foo'
+        }
     ],
     create({ args }) {
         return lookup(args);
