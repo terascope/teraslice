@@ -7,6 +7,10 @@ export function getRetryConfig(): Partial<PRetryConfig> {
     return {
         retries: MAX_RETRIES,
         delay: RETRY_DELAY,
-        matches: ['es_rejected_execution_exception', 'No Living connections'],
+        matches: [
+            'node_disconnect_exception',
+            'es_rejected_execution_exception',
+            'No Living connections'
+        ],
     };
 }
