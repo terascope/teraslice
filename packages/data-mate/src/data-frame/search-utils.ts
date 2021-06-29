@@ -8,9 +8,15 @@ import type { DataFrame } from './DataFrame';
 export function buildSearchMatcherForQuery(
     frame: DataFrame<any>,
     query: string,
-    variables?: xLuceneVariables
+    variables?: xLuceneVariables,
+    _overrideParsedQuery?: p.Node
 ): BooleanCB {
-    const parser = new p.Parser(query, { type_config: frameToXluceneConfig(frame) });
+    const parser = new p.Parser(
+        query,
+        { type_config: frameToXluceneConfig(frame) },
+        _overrideParsedQuery
+    );
+
     if (variables) {
         return buildLogicFn(
             parser.resolveVariables(variables),
