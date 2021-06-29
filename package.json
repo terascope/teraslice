@@ -47,7 +47,7 @@
         "@types/node": "^15.12.0",
         "@types/uuid": "^8.3.0",
         "eslint": "^7.28.0",
-        "jest": "^27.0.5",
+        "jest": "^27.0.6",
         "jest-extended": "^0.11.5",
         "jest-watch-typeahead": "^0.6.3",
         "node-notifier": "^9.0.1",
