@@ -1,4 +1,4 @@
-import { ParserOptions } from './interfaces';
+import { ParserOptions, Node } from './interfaces';
 import { Parser } from './parser';
 
 type Cached = Map<string, Parser>;
@@ -9,7 +9,7 @@ export class CachedParser {
         _cache.set(this, new Map());
     }
 
-    make(query: string, options?: ParserOptions): Parser {
+    make(query: string, options?: ParserOptions, _overrideParsedQuery?: Node): Parser {
         const typeConfigKey = options?.type_config ? JSON.stringify(options.type_config) : '';
         const key = `${query}${typeConfigKey}`;
 
@@ -17,7 +17,7 @@ export class CachedParser {
         const cachedParser = cached.get(key);
         if (cachedParser) return cachedParser;
 
-        const parsed = new Parser(query, options);
+        const parsed = new Parser(query, options, _overrideParsedQuery);
         cached.set(key, parsed);
         return parsed;
     }

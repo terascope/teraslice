@@ -74,7 +74,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    private _restrict(q: string): p.Parser {
+    private _restrict(q: string, _overrideParsedQuery?: p.Node): p.Parser {
         let parser: p.Parser;
 
         const parserOptions: p.ParserOptions = {
@@ -82,7 +82,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         };
 
         try {
-            parser = this._parser.make(q, parserOptions);
+            parser = this._parser.make(q, parserOptions, _overrideParsedQuery);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query could not be parsed',
@@ -180,7 +180,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      */
     async restrictSearchQuery(
         query: string,
-        opts: i.RestrictSearchQueryOptions = {}
+        opts: i.RestrictSearchQueryOptions = {},
+        _overrideParsedQuery?: p.Node
     ): Promise<es.SearchParams> {
         const {
             params: _params = {},
@@ -195,7 +196,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         }
         const params = { ..._params };
 
-        const parser = this._restrict(query);
+        const parser = this._restrict(query, _overrideParsedQuery);
 
         await ts.pImmediate();
 
