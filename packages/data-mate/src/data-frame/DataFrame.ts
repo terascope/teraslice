@@ -5,6 +5,7 @@ import {
     DataTypeFields, DataTypeFieldConfig,
     xLuceneVariables,
 } from '@terascope/types';
+import { Node as xLuceneNode } from 'xlucene-parser';
 import {
     DataEntity, TSError,
     getTypeOf, isFunction,
@@ -408,8 +409,12 @@ export class DataFrame<
     /**
      * Search the DataFrame using an xLucene query
     */
-    search(query: string, variables?: xLuceneVariables): DataFrame<T> {
-        const matcher = buildSearchMatcherForQuery(this, query, variables);
+    search(
+        query: string,
+        variables?: xLuceneVariables,
+        _overrideParsedQuery?: xLuceneNode,
+    ): DataFrame<T> {
+        const matcher = buildSearchMatcherForQuery(this, query, variables, _overrideParsedQuery);
         return this.filterBy(matcher);
     }
 
