@@ -38,7 +38,7 @@
         "@turf/invariant": "^6.2.0",
         "@turf/random": "^6.4.0",
         "@types/netmask": "^1.0.30",
-        "peggy": "~1.1.0",
+        "peggy": "~1.2.0",
         "ts-pegjs": "^1.0.0"
     },
     "engines": {
