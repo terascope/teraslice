@@ -65,7 +65,7 @@
         "@types/js-yaml": "^4.0.1",
         "@types/prompts": "^2.0.13",
         "@types/signale": "^1.4.0",
-        "@types/tmp": "^0.2.0",
+        "@types/tmp": "^0.2.1",
         "@types/yargs": "^16.0.1",
         "@types/yeoman-assert": "^3.1.1",
         "@types/yeoman-environment": "^2.10.0",
