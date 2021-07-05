@@ -1410,10 +1410,10 @@
   resolved "https://registry.yarnpkg.com/@types/valid-url/-/valid-url-1.0.3.tgz#a124389fb953559c7f889795a98620e91adb3687"
   integrity sha512-+33x29mg+ecU88ODdWpqaie2upIuRkhujVLA7TuJjM823cNMbeggfI6NhxewaRaRF8dy+g33e4uIg/m5Mb3xDQ==
 
-"@types/validator@^13.1.4":
-  version "13.1.4"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.1.4.tgz#d2e3c27523ce1b5d9dc13d16cbce65dc4db2adbe"
-  integrity sha512-19C02B8mr53HufY7S+HO/EHBD7a/R22IwEwyqiHaR19iwL37dN3o0M8RianVInfSSqP7InVSg/o0mUATM4JWsQ==
+"@types/validator@^13.6.2":
+  version "13.6.2"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.6.2.tgz#0559af7f0b6eb34dacebb349087c503d932085fa"
+  integrity sha512-JP1yvp8yWJIxePOswaAqKOkLnMoZOr2XZBloyVE/fZSVuRtobFhI6mnwP1hWNFapKQrQ98p/w5ffELkfL9mo4Q==
 
 "@types/vinyl@*":
   version "2.0.4"
@@ -1481,10 +1481,10 @@
     chalk "^4.1.0"
     rxjs "^6.4.0"
 
-"@types/yeoman-generator@*", "@types/yeoman-generator@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-5.2.0.tgz#b39fcbe749d1fb698cd5a5d155396a48ea4820f7"
-  integrity sha512-aLJ4RrAKwbJr6n5irMor/J8rfQ6e+WsMOWmc95geThMagnW4ZnExm6aMgcGp6/lYDGX33yCNvKLjGggT1u0+TA==
+"@types/yeoman-generator@*", "@types/yeoman-generator@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-5.2.1.tgz#da0a88d36ad20f05afa59aa330f10d4936c2ed7c"
+  integrity sha512-3l6Jlc8oMRetDqkm1mFOx0KPKVlstWbeGqzETYABFORsJ+p9p2A+YVigUfYKSiptRM/iF/5TzAFvSNDwfwOVTQ==
   dependencies:
     "@types/debug" "*"
     "@types/ejs" "*"
