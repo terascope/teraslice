@@ -77,8 +77,6 @@ export default class IndexManager {
     /**
      * Safely setup a versioned Index, its template and any other required resources
      *
-     * @todo this should handle better index change detection
-     *
      * @returns a boolean that indicates whether the index was created or not
      */
     async indexSetup<T>(config: IndexConfig<T>): Promise<boolean> {
@@ -303,33 +301,50 @@ export default class IndexManager {
         let breakingChange = false;
         let safeChange = false;
 
-        for (const field of Object.keys(current)) {
-            if (existing[field] == null) {
-                logger.warn(`Missing field "${field}" on index ${index} (${type})`);
-                safeChange = true;
-                continue;
-            }
-            const cType = ts.get(current, [field, 'type']);
-            const eType = ts.get(existing, [field, 'type']);
-            if (cType === 'object' && ts.get(existing, [field, 'properties'])) {
-                continue;
-            }
+        const cFlattened = utils.getFlattenedNamesAndTypes(current);
+        const eFlattened = utils.getFlattenedNamesAndTypes(existing);
+        logger.trace({
+            current: cFlattened,
+            existing: eFlattened
+        }, `flattened mapping changes for ${index}`);
 
-            if (eType !== cType) {
-                logger.warn(`Field "${field}" changed on index ${index} (${type}) from type "${eType}" to "${cType}"`);
-                breakingChange = true;
+        const changes: [type: 'changed'|'removed'|'added', field: string][] = [];
+        for (const [field, [cType, cExtra]] of Object.entries(cFlattened)) {
+            const eConfig = eFlattened[field];
+            if (eConfig == null) {
+                safeChange = true;
+                changes.push(['added', field]);
+            } else {
+                const [eType, eExtra] = eConfig;
+                if (eType !== cType || eExtra !== cExtra) {
+                    breakingChange = true;
+                    changes.push(['changed', field]);
+                }
             }
         }
 
+        for (const field of Object.keys(eFlattened)) {
+            if (cFlattened[field] == null) {
+                changes.push(['removed', field]);
+            }
+        }
+
+        const changesList = changes.map(([changeType, field]) => `${changeType} field "${field}"`);
+        const changesInfo = changesList.length ? ` CHANGES: ${changesList.join(', ')}` : '';
         if (breakingChange) {
-            // FIXME should we crash
-            logger.error(`Index ${index} (${type}) has breaking change in the index, evaluate the differences and migrate if needed`);
-            return;
+            throw new Error(`Index ${index} (${type}) has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
         }
 
         if (safeChange) {
-            logger.info(`Detected a new field for ${index} (${type})`);
+            logger.info(`Detected mapping changes for ${index} (${type}).${changesInfo}`);
             await this.putMapping(index, type, current);
+            return;
+        }
+
+        if (changesInfo) {
+            logger.info(`No major changes for ${index} (${type}).${changesInfo}`);
+        } else {
+            logger.info(`No changes for ${index} (${type}).${changesInfo}`);
         }
     }
 

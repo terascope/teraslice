@@ -87,7 +87,7 @@ describe('IndexStore', () => {
                 test_id: 'hello-1234',
                 test_keyword: 'hello',
                 test_object: {
-                    some_obj: true,
+                    example: 'some-object',
                 },
                 test_number: 1234,
                 test_boolean: false,
@@ -394,7 +394,7 @@ describe('IndexStore', () => {
             const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
-                test_object: { bulk: true },
+                test_object: { example: 'bulk', },
                 test_number: (n + 10) * 2,
                 test_boolean: n % 2 === 0,
                 _updated: new Date().toISOString(),
@@ -421,7 +421,7 @@ describe('IndexStore', () => {
                         'update',
                         {
                             test_object: {
-                                updateAfterShutdown: true,
+                                example: 'updateAfterShutdown'
                             },
                         },
                         record.test_id
@@ -560,7 +560,7 @@ describe('IndexStore', () => {
                         'index',
                         Object.assign(record, {
                             test_object: {
-                                updated: true,
+                                example: 'updated',
                             },
                         }),
                         record.test_id
@@ -578,7 +578,7 @@ describe('IndexStore', () => {
                 });
 
                 expect(results[0]).toHaveProperty('test_object', {
-                    updated: true,
+                    example: 'updated',
                 });
             });
 

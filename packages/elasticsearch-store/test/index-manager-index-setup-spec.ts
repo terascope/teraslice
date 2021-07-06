@@ -69,6 +69,86 @@ describe('IndexManager->indexSetup()', () => {
             const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
         });
+
+        describe('when changing the data type', () => {
+            const configV2: IndexConfig<any> = {
+                ...config,
+                data_type: simple.dataTypeV2,
+            };
+
+            beforeAll(async () => {
+                result = await indexManager.indexSetup(configV2);
+            });
+
+            it('should have returned false since now index was created', () => {
+                expect(result).toBeFalse();
+            });
+
+            it('should have updated the index metadata', async () => {
+                const mapping = await indexManager.getMapping(index);
+
+                const properties = esVersion < 7
+                    ? mapping[index].mappings[config.name].properties
+                    : mapping[index].mappings.properties;
+
+                expect(properties).toMatchObject({
+                    test_object: {
+                        properties: {
+                            example: {
+                                type: 'keyword',
+                            },
+                            added: {
+                                type: 'keyword'
+                            }
+                        }
+                    },
+                });
+            });
+
+            describe('when making a breaking change to the data type', () => {
+                const configV3: IndexConfig<any> = {
+                    ...config,
+                    data_type: simple.dataTypeV3,
+                };
+                it('should throw attempting to change the index', async () => {
+                    const changes = 'CHANGES: changed field "test_keyword", changed field "test_number", removed field "test_object.added"';
+                    await expect(indexManager.indexSetup(configV3)).rejects.toThrowError(
+                        `Index ${index} (${config.name}) has breaking change in the mapping, increment the schema version to fix this. ${changes}`
+                    );
+                });
+            });
+
+            describe('when changing the back data type', () => {
+                beforeAll(async () => {
+                    result = await indexManager.indexSetup(config);
+                });
+
+                it('should have returned false since now index was created', () => {
+                    expect(result).toBeFalse();
+                });
+
+                it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
+                    const mapping = await indexManager.getMapping(index);
+
+                    const properties = esVersion < 7
+                        ? mapping[index].mappings[config.name].properties
+                        : mapping[index].mappings.properties;
+
+                    expect(properties).toMatchObject({
+                        test_object: {
+                            properties: {
+                                example: {
+                                    type: 'keyword',
+                                },
+                                added: {
+                                    type: 'keyword'
+                                }
+                            }
+                        },
+                    });
+                });
+            });
+        });
     });
 
     describe('using a templated index', () => {
