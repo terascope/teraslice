@@ -58,7 +58,7 @@ describe('IndexModel', () => {
     }
 
     const indexModel = new ExampleIndexModel(client, {
-        namespace: `${TEST_INDEX_PREFIX}indexmodel`,
+        namespace: `${TEST_INDEX_PREFIX}index-model`,
     });
 
     beforeAll(async () => {
@@ -161,7 +161,7 @@ describe('IndexModel', () => {
                 }
             });
 
-            it('should NOT be able to create a record with a similiar name and client', async () => {
+            it('should NOT be able to create a record with a similar name and client', async () => {
                 try {
                     await expect(indexModel.createRecord({
                         client_id: 5,
@@ -227,7 +227,7 @@ describe('IndexModel', () => {
             }
         });
 
-        describe('when using the convience method findAndApply', () => {
+        describe('when using the convenience method findAndApply', () => {
             describe('when given null', () => {
                 it('should throw an error', async () => {
                     try {
@@ -376,7 +376,7 @@ describe('IndexModel', () => {
         });
     });
 
-    describe('when creating mulitple records', () => {
+    describe('when creating multiple records', () => {
         beforeAll(async () => {
             await Promise.all(
                 times(5, (n) => indexModel.createRecord({
@@ -510,7 +510,7 @@ describe('IndexModel', () => {
             });
         });
 
-        describe('with query restirctions', () => {
+        describe('with query restrictions', () => {
             it('should be able to count all of the Bobs', async () => {
                 const queryAccess = new QueryAccess({
                     includes: ['name'],
