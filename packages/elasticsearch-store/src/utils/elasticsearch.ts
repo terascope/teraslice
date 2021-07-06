@@ -1,6 +1,6 @@
 import { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { isTest } from '@terascope/utils';
+import type { ESFieldType, ESTypeMapping } from '@terascope/types';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -30,7 +30,7 @@ export function timeSeriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFor
     if (!format) throw new Error(`Unsupported format "${timeSeriesFormat}"`);
 
     let dateStr: string;
-    if (isTest && __timeSeriesTest.date) {
+    if (ts.isTest && __timeSeriesTest.date) {
         dateStr = __timeSeriesTest.date.toISOString();
     } else {
         dateStr = new Date().toISOString();
@@ -157,4 +157,38 @@ export function fixMappingRequest(
     }
 
     return Object.assign({}, defaultParams, params);
+}
+
+/**
+ * This is the return type for {@link getFlattenedNamesAndTypes}
+*/
+export type FlattenProperties = Record<string, [type: ESFieldType, extra?: string]>;
+
+/**
+ * This is useful for diffing the property mappings, the keys should be
+ * sorted so this can be stringified and diffed.
+*/
+export function getFlattenedNamesAndTypes(config: ESTypeMapping): FlattenProperties {
+    const output: FlattenProperties = Object.create(null);
+    for (const field of Object.keys(config).sort()) {
+        const { type: _type, properties, ...extra } = config[field];
+
+        const type: ESFieldType = _type == null && properties != null ? 'object' : _type;
+
+        const extraSorted = ts.sortKeys(extra, { deep: true });
+
+        output[field] = ts.isEmpty(extraSorted) ? [type] : [
+            type,
+            JSON.stringify(extraSorted)
+        ];
+
+        // this means the object is nested
+        if (properties) {
+            const nestedOutput = getFlattenedNamesAndTypes(properties);
+            for (const [nestedField, nestedConfig] of Object.entries(nestedOutput)) {
+                output[`${field}.${nestedField}`] = nestedConfig;
+            }
+        }
+    }
+    return output;
 }

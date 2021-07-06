@@ -37,6 +37,13 @@ export const dataType = new DataType({
     }
 });
 
+export const dataTypeV2 = new DataType({
+    fields: {
+        ...dataType.fields,
+        'test_object.added': { type: FieldType.Keyword },
+    }
+});
+
 export const schema = {
     additionalProperties: false,
     properties: {
