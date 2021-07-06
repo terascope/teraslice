@@ -312,29 +312,20 @@ export default class IndexManager {
         for (const [field, [cType, cExtra]] of Object.entries(cFlattened)) {
             const eConfig = eFlattened[field];
             if (eConfig == null) {
-                logger.warn(`Missing field "${field}" on index ${index} (${type})`);
                 safeChange = true;
                 changes.push(['added', field]);
-                continue;
-            }
-            const [eType, eExtra] = eConfig;
-
-            if (eType !== cType) {
-                logger.warn(`Field "${field}" changed on index ${index} (${type}) from type "${eType}" to "${cType}"`);
-                breakingChange = true;
-                changes.push(['changed', field]);
-            } else if (eExtra !== cExtra) {
-                logger.warn(`Field "${field}" changed on index ${index} (${type}) from metadata "${eExtra}" to "${cExtra}"`);
-                breakingChange = true;
-                changes.push(['changed', field]);
+            } else {
+                const [eType, eExtra] = eConfig;
+                if (eType !== cType || eExtra !== cExtra) {
+                    breakingChange = true;
+                    changes.push(['changed', field]);
+                }
             }
         }
 
         for (const field of Object.keys(eFlattened)) {
             if (cFlattened[field] == null) {
-                logger.warn(`Removed field "${field}" on index ${index} (${type})`);
                 changes.push(['removed', field]);
-                continue;
             }
         }
 
