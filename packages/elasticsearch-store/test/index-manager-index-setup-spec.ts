@@ -87,22 +87,21 @@ describe('IndexManager->indexSetup()', () => {
             it('should have updated the index metadata', async () => {
                 const mapping = await indexManager.getMapping(index);
 
-                const name = esVersion < 7 ? config.name : '_doc';
-                expect(mapping[index].mappings).toMatchObject({
-                    [name]: {
+                const properties = esVersion < 7
+                    ? mapping[index].mappings[config.name].properties
+                    : mapping[index].mappings.properties;
+
+                expect(properties).toMatchObject({
+                    test_object: {
                         properties: {
-                            test_object: {
-                                properties: {
-                                    example: {
-                                        type: 'keyword',
-                                    },
-                                    added: {
-                                        type: 'keyword'
-                                    }
-                                }
+                            example: {
+                                type: 'keyword',
                             },
+                            added: {
+                                type: 'keyword'
+                            }
                         }
-                    }
+                    },
                 });
             });
 
@@ -112,10 +111,9 @@ describe('IndexManager->indexSetup()', () => {
                     data_type: simple.dataTypeV3,
                 };
                 it('should throw attempting to change the index', async () => {
-                    const name = esVersion < 7 ? config.name : '_doc';
                     const changes = 'CHANGES: changed field "test_keyword", changed field "test_number", removed field "test_object.added"';
                     await expect(indexManager.indexSetup(configV3)).rejects.toThrowError(
-                        `Index ${index} (${name}) has breaking change in the mapping, increment the schema version to fix this. ${changes}`
+                        `Index ${index} (${config.name}) has breaking change in the mapping, increment the schema version to fix this. ${changes}`
                     );
                 });
             });
@@ -132,22 +130,21 @@ describe('IndexManager->indexSetup()', () => {
                 it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
                     const mapping = await indexManager.getMapping(index);
 
-                    const name = esVersion < 7 ? config.name : '_doc';
-                    expect(mapping[index].mappings).toMatchObject({
-                        [name]: {
+                    const properties = esVersion < 7
+                        ? mapping[index].mappings[config.name].properties
+                        : mapping[index].mappings.properties;
+
+                    expect(properties).toMatchObject({
+                        test_object: {
                             properties: {
-                                test_object: {
-                                    properties: {
-                                        example: {
-                                            type: 'keyword',
-                                        },
-                                        added: {
-                                            type: 'keyword'
-                                        }
-                                    }
+                                example: {
+                                    type: 'keyword',
                                 },
+                                added: {
+                                    type: 'keyword'
+                                }
                             }
-                        }
+                        },
                     });
                 });
             });
