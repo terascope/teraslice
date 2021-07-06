@@ -106,6 +106,20 @@ describe('IndexManager->indexSetup()', () => {
                 });
             });
 
+            describe('when making a breaking change to the data type', () => {
+                const configV3: IndexConfig<any> = {
+                    ...config,
+                    data_type: simple.dataTypeV3,
+                };
+                it('should throw attempting to change the index', async () => {
+                    const name = esVersion < 7 ? config.name : '_doc';
+                    const changes = 'CHANGES: changed field "test_keyword", changed field "test_number", removed field "test_object.added"';
+                    await expect(indexManager.indexSetup(configV3)).rejects.toThrowError(
+                        `Index ${index} (${name}) has breaking change in the mapping, increment the schema version to fix this. ${changes}`
+                    );
+                });
+            });
+
             describe('when changing the back data type', () => {
                 beforeAll(async () => {
                     result = await indexManager.indexSetup(config);

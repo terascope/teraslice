@@ -341,7 +341,7 @@ export default class IndexManager {
         const changesList = changes.map(([changeType, field]) => `${changeType} field "${field}"`);
         const changesInfo = changesList.length ? ` CHANGES: ${changesList.join(', ')}` : '';
         if (breakingChange) {
-            throw new Error(`Index ${index} (${type}) has breaking change in the index, create a new schema version to fix this${changesInfo}`);
+            throw new Error(`Index ${index} (${type}) has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
         }
 
         if (safeChange) {

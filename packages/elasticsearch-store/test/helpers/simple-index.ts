@@ -44,6 +44,17 @@ export const dataTypeV2 = new DataType({
     }
 });
 
+/**
+ * This has a breaking change
+*/
+export const dataTypeV3 = new DataType({
+    fields: {
+        ...dataType.fields,
+        test_keyword: { type: FieldType.Domain },
+        test_number: { type: FieldType.Float },
+    }
+});
+
 export const schema = {
     additionalProperties: false,
     properties: {
