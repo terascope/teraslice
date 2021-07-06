@@ -69,7 +69,7 @@ describe('IndexManager->migrateIndex()', () => {
                         test_id: `id-${n}`,
                         test_keyword: 'hello',
                         test_object: {
-                            hello: true,
+                            example: 'hello',
                         },
                         test_boolean: false,
                         _created: new Date().toISOString(),

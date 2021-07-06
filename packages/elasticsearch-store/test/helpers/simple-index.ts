@@ -1,10 +1,13 @@
 import { Overwrite } from '@terascope/utils';
 import { DataType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 
 export interface SimpleRecord {
     test_id: string;
     test_keyword: string;
-    test_object: Record<string, any>;
+    test_object: {
+        example?: string;
+    };
     test_number: number;
     test_boolean: boolean;
     _created: string;
@@ -23,13 +26,14 @@ SimpleRecord,
 
 export const dataType = new DataType({
     fields: {
-        test_id: { type: 'Keyword' },
-        test_keyword: { type: 'Keyword' },
-        test_object: { type: 'Object', indexed: false },
-        test_number: { type: 'Integer' },
-        test_boolean: { type: 'Boolean' },
-        _created: { type: 'Keyword' },
-        _updated: { type: 'Keyword' },
+        test_id: { type: FieldType.Keyword },
+        test_keyword: { type: FieldType.Keyword },
+        test_object: { type: FieldType.Object },
+        'test_object.example': { type: FieldType.Keyword },
+        test_number: { type: FieldType.Integer },
+        test_boolean: { type: FieldType.Boolean },
+        _created: { type: FieldType.Keyword },
+        _updated: { type: FieldType.Keyword },
     }
 });
 
