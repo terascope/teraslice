@@ -58,7 +58,7 @@ describe('IndexModel', () => {
     }
 
     const indexModel = new ExampleIndexModel(client, {
-        namespace: `${TEST_INDEX_PREFIX}index-model`,
+        namespace: `${TEST_INDEX_PREFIX}index_model`,
     });
 
     beforeAll(async () => {
