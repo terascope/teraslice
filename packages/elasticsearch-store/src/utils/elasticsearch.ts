@@ -173,7 +173,9 @@ export function getFlattenedNamesAndTypes(config: ESTypeMapping): FlattenPropert
     for (const field of Object.keys(config).sort()) {
         const { type: _type, properties, ...extra } = config[field];
 
-        const type: ESFieldType = _type == null && properties != null ? 'object' : _type;
+        // if there is no type, elasticsearch returns "undefined" for the type
+        // but this will cause conflicts, we should set it to "object"
+        const type: ESFieldType = _type == null ? 'object' : _type;
 
         const extraSorted = ts.sortKeys(extra, { deep: true });
 
