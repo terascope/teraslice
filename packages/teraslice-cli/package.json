@@ -60,7 +60,7 @@
         "yo": "^3.1.1"
     },
     "devDependencies": {
-        "@types/decompress": "^4.2.3",
+        "@types/decompress": "^4.2.4",
         "@types/easy-table": "^0.0.32",
         "@types/js-yaml": "^4.0.1",
         "@types/prompts": "^2.0.13",
