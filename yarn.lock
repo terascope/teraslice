@@ -1468,10 +1468,10 @@
   resolved "https://registry.yarnpkg.com/@types/yeoman-assert/-/yeoman-assert-3.1.1.tgz#d1f683e5f6e6b15d36bfb216221a19bd7e9735c6"
   integrity sha512-ACDlMVhoLIA3VQPFKtJWlr3evUE3DaEbVxi1ukivBRNB1havMW+vo2J0+hNURF19yiqs7iu+yUHLG25bCi2xcw==
 
-"@types/yeoman-environment@*", "@types/yeoman-environment@^2.10.0":
-  version "2.10.3"
-  resolved "https://registry.yarnpkg.com/@types/yeoman-environment/-/yeoman-environment-2.10.3.tgz#e8e13b1238a32007b58290d79311aa5a9bf7e26c"
-  integrity sha512-1QQaJcXXFz5U/r83M6XShIr6GN3ps1mf/w4cDBrAmIP9ip+CPU+JklriPT6IMi2wb0oGzifx3iwjqXpHF63BlA==
+"@types/yeoman-environment@*", "@types/yeoman-environment@^2.10.4":
+  version "2.10.4"
+  resolved "https://registry.yarnpkg.com/@types/yeoman-environment/-/yeoman-environment-2.10.4.tgz#5494a9042bc94e1a7af5d2a75ca24f124adc68f3"
+  integrity sha512-huqBtpFmDjOKAKNY7lMqNf83pkxkWy0xa6VBht/DjuejzpA6yZ0G2NeywfmqEaA/G7rJxvft1V/f1HY4n2ebLQ==
   dependencies:
     "@types/diff" "*"
     "@types/inquirer" "*"
