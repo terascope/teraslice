@@ -40,7 +40,8 @@ export function pImmediate<T = undefined>(arg?: T): Promise<T> {
         if (supportsNextTick) {
             process.nextTick(resolve, arg);
         } else if (supportsSetImmediate) {
-            setImmediate(resolve, arg);
+            if (arg != null) setImmediate(resolve, arg);
+            else setImmediate(resolve as () => void);
         } else {
             setTimeout(resolve, 0, arg);
         }
