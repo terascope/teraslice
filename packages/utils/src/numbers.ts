@@ -139,7 +139,7 @@ export function toInteger(input: unknown): number | false {
 /** Convert an input to a integer or throw */
 export function toIntegerOrThrow(input: unknown): number {
     if (typeof input === 'object') {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
     }
 
     if (isBigInt(input)) {
