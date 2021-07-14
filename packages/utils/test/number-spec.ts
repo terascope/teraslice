@@ -210,6 +210,7 @@ describe('Numbers', () => {
             [32, 0],
             [69.8, 21],
             [26.42, -3.1],
+            [17.269, -8.18],
         ])('should convert %p to %p', (input, expected) => {
             expect(trunc(toCelsius(input))).toEqual(expected);
         });
@@ -220,6 +221,7 @@ describe('Numbers', () => {
             [0, 32],
             [21, 69.8],
             [-3.1, 26.42],
+            [-8.184, 17.27],
         ])('should convert %p to %p', (input, expected) => {
             expect(trunc(toFahrenheit(input))).toEqual(expected);
         });
