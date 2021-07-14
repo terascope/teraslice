@@ -47,7 +47,7 @@ export const DEV_TAG = toSafeString((
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
 // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
-).split('/')[0]);
+).split('/', 1)[0]);
 
 /**
  * Use this to override the default dev docker image tag, if this

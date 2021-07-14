@@ -245,7 +245,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         excludes: (keyof T)[]|undefined,
     } {
         const all = Object.keys(this.parsedTypeConfig)
-            .map((field) => field.split('.')[0]) as (keyof T)[];
+            .map((field) => field.split('.', 1)[0]) as (keyof T)[];
 
         return {
             includes: this._getSourceFields(this.includes, all, includes),

@@ -29,7 +29,7 @@ export class ObjectVector<
         }
         const childFields: ChildFields<T> = Object.entries(this.childConfig)
             .map(([field, config]): [string, Vector<any>]|undefined => {
-                const [base] = field.split('.');
+                const [base] = field.split('.', 1);
                 if (base !== field && this.childConfig![base]) return;
 
                 const vector = Vector.make<any>([], {

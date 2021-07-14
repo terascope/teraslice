@@ -92,7 +92,7 @@ export class AssetSrc {
             nodeVersion = this.bundleTarget?.replace('node', '');
             zipName = `${this.name}-v${this.version}-node-${nodeVersion}-bundle.zip`;
         } else {
-            nodeVersion = process.version.split('.')[0].substr(1);
+            nodeVersion = process.version.split('.', 1)[0].substr(1);
             zipName = `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
         }
         return zipName;
@@ -186,7 +186,7 @@ export class AssetSrc {
                 if (this.bundle) {
                     assetJSON.node_version = toInteger(this.bundleTarget?.replace('node', ''));
                 } else {
-                    assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+                    assetJSON.node_version = toInteger(process.version.split('.', 1)[0].substr(1));
                 }
                 restrictions.push('node_version');
             }
@@ -255,7 +255,7 @@ export class AssetSrc {
 
             // Test require the asset to make sure it loads, if the process node
             // version is the same as the buildTarget
-            if (this.bundleTarget?.replace('node', '') === process.version.split('.')[0].substr(1)) {
+            if (this.bundleTarget?.replace('node', '') === process.version.split('.', 1)[0].substr(1)) {
                 try {
                     const modulePath = require.resolve(bundleDir.name);
                     reply.info(`* doing a test require of ${modulePath}`);

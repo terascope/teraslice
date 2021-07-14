@@ -308,7 +308,7 @@ export class DataFrame<
             });
 
             if (matches) {
-                const [base] = field.split('.');
+                const [base] = field.split('.', 1);
                 matchedFields[base] ??= new Set();
                 if (field !== base) {
                     matchedFields[base].add(

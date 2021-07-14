@@ -51,8 +51,11 @@ interface ESData {
 try {
     if (command.t) {
         const segments = parseList(command.t as string);
-        segments.forEach((segment: string) => {
+        segments.forEach((segment: string, index: number) => {
             const pieces = segment.split(':');
+            if (pieces.length !== 2) {
+                throw new Error(`Expected -t option line #${index} to have key:value pair format, got ${segment}`);
+            }
             typesConfig[pieces[0].trim()] = pieces[1].trim();
         });
     }

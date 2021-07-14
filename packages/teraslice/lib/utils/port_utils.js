@@ -4,8 +4,8 @@ const shuffle = require('lodash/shuffle');
 const {
     get,
     times,
-    toInteger,
     pDelay,
+    toIntegerOrThrow,
 } = require('@terascope/utils');
 const porty = require('porty');
 
@@ -57,11 +57,11 @@ async function findPort(options = {}) {
 
 function getPorts(context) {
     const portConfig = get(context, 'sysconfig.teraslice.slicer_port_range');
-    const dataArray = portConfig.split(':');
-    const assetsPort = toInteger(dataArray[0]);
+    const dataArray = portConfig.split(':', 2);
+    const assetsPort = toIntegerOrThrow(dataArray[0]);
     const start = assetsPort + 1;
     // range end is exclusive, so we need to add one
-    const end = toInteger(dataArray[1]) + 1;
+    const end = toIntegerOrThrow(dataArray[1]) + 1;
     return { assetsPort, start, end };
 }
 

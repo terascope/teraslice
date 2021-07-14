@@ -8,7 +8,7 @@ import { newTestJobConfig, DataEntity, uniqBy } from '@terascope/job-components'
 import { WorkerTestHarness, DownloadExternalAsset } from '../src';
 
 describe('download-external-asset', () => {
-    const build = `node-${process.version.split('.')[0].slice(1)}-${os.platform()}-${os.arch()}`;
+    const build = `node-${process.version.split('.', 1)[0].slice(1)}-${os.platform()}-${os.arch()}`;
 
     const releasesJson = [
         {

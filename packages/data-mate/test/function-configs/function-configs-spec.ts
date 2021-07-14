@@ -53,7 +53,7 @@ async function parseIndexFile(indexPath: string): Promise<string[]> {
 
     return indexFile.split('\n').reduce((imports: string[], line) => {
         if (line.includes('import')) {
-            imports.push(line.split('from')[1].replace(/\W/g, ''));
+            imports.push(line.split('from', 2)[1].replace(/\W/g, ''));
         }
 
         return imports;

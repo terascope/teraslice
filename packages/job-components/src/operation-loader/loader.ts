@@ -249,7 +249,7 @@ export class OperationLoader {
     }
 
     loadAPI(name: string, assetIds?: string[]): APIModule {
-        const [apiName] = name.split(':');
+        const [apiName] = name.split(':', 1);
         const { path, bundle_type } = this.findOrThrow(apiName, assetIds);
 
         let API: OperationAPIConstructor | undefined;
