@@ -113,7 +113,7 @@ export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
 export function getESVersion(client: Client): number {
     const version = ts.get(client, 'transport._config.apiVersion', '6.5');
     if (version && ts.isString(version)) {
-        const [majorVersion] = version.split('.');
+        const [majorVersion] = version.split('.', 1);
         return ts.toNumber(majorVersion);
     }
     return 6;

@@ -61,7 +61,7 @@ export default class Options {
         'bundle-target': () => ({
             describe: 'Specify which version of node is used as the target for esbuild.'
                     + ' Defaults to current major node version',
-            default: `node${process.version.split('.')[0].substr(1)}`,
+            default: `node${process.version.split('.', 1)[0].substr(1)}`,
             choices: [
                 'node10',
                 'node12',

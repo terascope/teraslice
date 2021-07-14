@@ -292,7 +292,7 @@ export class TestContext implements i.Context {
                 const clients = {};
 
                 Object.keys(cachedClients).forEach((key) => {
-                    const [type, endpoint] = key.split(':') as [string, string];
+                    const [type, endpoint] = key.split(':', 2) as [string, string];
                     if (clients[type] == null) {
                         clients[type] = {};
                     }

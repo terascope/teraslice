@@ -15,7 +15,7 @@ export const LATEST_VERSION: DataTypeVersion = 1;
 export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
     for (const field of Object.keys(fields)) {
-        const [base] = field.split('.');
+        const [base] = field.split('.', 1);
         groupFields[base] ??= [];
         if (field === base) {
             groupFields[base].push(field);

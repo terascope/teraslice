@@ -27,7 +27,7 @@ export default class GithubAsset {
     }
 
     get nodeMajorVersion(): string {
-        return this.nodeVersion.split('.')[0].substr(1);
+        return this.nodeVersion.split('.', 1)[0].substr(1);
     }
 
     async download(outDir = '/tmp', quiet = false): Promise<string> {

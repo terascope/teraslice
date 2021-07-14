@@ -222,7 +222,7 @@ function formatObjectChildFields(childConfigs?: DataTypeFields) {
 
     const childFields: ChildFields = Object.entries(childConfigs)
         .map(([field, config]): [field: string, transformer: TFN]|undefined => {
-            const [base] = field.split('.');
+            const [base] = field.split('.', 1);
             if (base !== field && childConfigs![base]) return;
 
             const childConfig = getChildDataTypeConfig(

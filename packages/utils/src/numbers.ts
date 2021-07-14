@@ -139,7 +139,7 @@ export function toInteger(input: unknown): number | false {
 /** Convert an input to a integer or throw */
 export function toIntegerOrThrow(input: unknown): number {
     if (typeof input === 'object') {
-        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
     }
 
     if (isBigInt(input)) {
@@ -316,19 +316,23 @@ function setPrecisionFromString(
 }
 
 /**
- * Convert a fahrenheit value to celsius
+ * Convert a fahrenheit value to celsius, this will return a precision of
+ * 2 decimal points
 */
 export function toCelsius(input: unknown): number {
     const num = toFloatOrThrow(input);
-    return (num - 32) * (5 / 9);
+    const cNum = (num - 32) * (5 / 9);
+    return parseFloat(cNum.toFixed(2));
 }
 
 /**
- * Convert a celsius value to fahrenheit
+ * Convert a celsius value to fahrenheit, this will return a precision of
+ * 2 decimal points
 */
 export function toFahrenheit(input: unknown): number {
     const num = toFloatOrThrow(input);
-    return ((9 / 5) * num) + 32;
+    const fNum = ((9 / 5) * num) + 32;
+    return parseFloat(fNum.toFixed(2));
 }
 
 const INT_SIZES = {

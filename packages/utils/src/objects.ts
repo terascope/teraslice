@@ -228,7 +228,7 @@ export function lookup(input: unknown): (key: unknown) => any {
 
 function _lookupStringToObject(stringInput: string): Record<string, string> {
     return stringInput.split('\n').reduce((asObj, line) => {
-        const [k, v] = trim(line).split(':');
+        const [k, v] = trim(line).split(':', 2);
 
         asObj[trim(k)] = trim(v);
 

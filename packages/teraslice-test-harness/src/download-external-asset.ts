@@ -98,10 +98,10 @@ export class DownloadExternalAsset {
 
     private _getAssetFileName(repo: string, version: string | undefined): string {
         if (version) {
-            return `${repo.split('-')[0]}-${version}-${this.build}`;
+            return `${repo.split('-', 1)[0]}-${version}-${this.build}`;
         }
 
-        return repo.split('-')[0];
+        return repo.split('-', 1)[0];
     }
 
     private async _ensureDirExists(dirPath: string) {
@@ -135,6 +135,6 @@ export class DownloadExternalAsset {
     }
 
     private _majorNodeVersion() {
-        return process.version.split('.')[0].slice(1);
+        return process.version.split('.', 1)[0].slice(1);
     }
 }
