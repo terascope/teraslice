@@ -120,7 +120,7 @@ export = {
             try {
                 assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);
             } catch (err) {
-                reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
+                reply.fatal(`Unable to download ${cliConfig.args.asset}, you can download a prerelease asset by specifying its version.\n\nExample:\n\t${cliConfig.args.asset}@v1.2.3`);
                 return;
             }
         } else if (cliConfig.args.build || assetJsonExists) {
