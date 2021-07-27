@@ -42,7 +42,7 @@
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.4.0",
         "awesome-phonenumber": "^2.54.0",
-        "date-fns": "^2.22.1",
+        "date-fns": "^2.23.0",
         "date-fns-tz": "^1.1.5",
         "datemath-parser": "^1.0.6",
         "debug": "^4.3.2",
@@ -58,7 +58,7 @@
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
         "mnemonist": "^0.38.3",
-        "p-map": "^4.0.0",
+        "p-map": "^5.1.0",
         "shallow-clone": "^3.0.1",
         "validator": "^13.6.0"
     },
