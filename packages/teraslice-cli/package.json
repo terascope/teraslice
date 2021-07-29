@@ -76,9 +76,6 @@
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.7.0"
     },
-    "peerDependencies": {
-        "eslint": "^7.30.0"
-    },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
         "yarn": ">=1.16.0"
