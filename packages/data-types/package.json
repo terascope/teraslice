@@ -35,7 +35,7 @@
         "yargs": "^17.0.1"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.168",
+        "@types/lodash": "^4.14.172",
         "@types/yargs": "^16.0.1"
     },
     "engines": {
