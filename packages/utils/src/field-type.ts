@@ -1,6 +1,7 @@
 import {
-    DataTypeFieldConfig, FieldType, GeoPointInput,
-    DataTypeFields, ReadonlyDataTypeFields
+    DataTypeFieldConfig, FieldType,
+    DataTypeFields, ReadonlyDataTypeFields,
+    GeoPoint
 } from '@terascope/types';
 import { createHash } from 'crypto';
 import { primitiveToString, toString } from './strings';
@@ -81,8 +82,8 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
     };
 }
 
-function coerceToGeoPoint(input: unknown) {
-    return Object.freeze(parseGeoPoint(input as GeoPointInput, true));
+function coerceToGeoPoint(input: unknown): GeoPoint {
+    return Object.freeze(parseGeoPoint(input, true));
 }
 
 function _mapToString(input: any): string {

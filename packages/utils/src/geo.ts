@@ -6,7 +6,6 @@ import {
     GeoPoint,
     GeoDistanceObj,
     GeoShapeType,
-    JoinGeoShape,
     ESGeoShapeType,
     GeoShapePoint,
     GeoShapePolygon,
@@ -41,10 +40,9 @@ import { getCoords } from '@turf/invariant';
 // @ts-expect-error
 import geoToTimezone from 'geo-tz';
 import { isArrayLike } from './arrays';
-import { isPlainObject, geoHash } from './deps';
+import { isPlainObject, geoHash, getTypeOf } from './deps';
 import { trim, toString } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
-import { isNil } from './empty';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -93,23 +91,34 @@ export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {
     return unit;
 }
 
-export function getLonAndLat(input: unknown, throwInvalid = true): [number, number] | null {
-    let lat: number|string|undefined;
-    let lon: number|string|undefined;
-
-    if (isGeoShapePoint(input as JoinGeoShape)) {
-        [lon, lat] = (input as GeoShapePoint).coordinates;
-    } else if (isPlainObject(input)) {
-        const obj = (input as any);
-        lat = obj.lat ?? obj.latitude;
-        lon = obj.lon ?? obj.longitude;
+function getLonAndLat(input: unknown, throwInvalid = true): GeoPoint | null {
+    if (!isPlainObject(input)) {
+        if (!throwInvalid) return null;
+        throw new TypeError(`Invalid geo point, expected object, got ${input} (${getTypeOf(input)})`);
     }
 
-    if (throwInvalid && (isNil(lat) || isNil(lon))) {
-        if (isPlainObject(input)
-            && (isGeoShapePolygon(input as any) || isGeoShapeMultiPolygon(input as any))) {
+    const obj = input as Record<string, unknown>;
+
+    let lat: unknown;
+    let lon: unknown;
+
+    if ('lat' in obj && 'lon' in obj) {
+        if (isNumber(obj.lat) && isNumber(obj.lon)) {
+            return obj as unknown as GeoPoint;
+        }
+        lat = obj.lat;
+        lon = obj.lon;
+    } else if ('latitude' in obj && 'longitude' in obj) {
+        lat = obj.latitude;
+        lon = obj.longitude;
+    } else if (isGeoShapePoint(obj)) {
+        [lon, lat] = obj.coordinates;
+    }
+
+    if (throwInvalid && (lat == null || lon == null)) {
+        if (isGeoShapePolygon(obj) || isGeoShapeMultiPolygon(obj)) {
             throw new TypeError([
-                `Expected a Point geo shape, received a geo ${(input as any).type} shape,`,
+                `Expected a Point geo shape, received a geo ${obj.type} shape,`,
                 'you may need to switch to a polygon compatible operation'
             ].join(' '));
         }
@@ -125,13 +134,16 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
         return null;
     }
 
-    return [lat, lon];
+    return { lat, lon };
 }
 
-export function parseGeoPoint(point: GeoPointInput): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid: true): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid: false): GeoPoint | null;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoint | null {
+/**
+ * Convert an input into a Geo Point object with lat and lon
+*/
+export function parseGeoPoint(point: GeoPointInput|unknown): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid: true): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid: false): GeoPoint | null;
+export function parseGeoPoint(point: GeoPointInput|unknown, throwInvalid = true): GeoPoint | null {
     let lat: number | undefined;
     let lon: number | undefined;
 
@@ -140,21 +152,21 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
             [lat, lon] = parseNumberList(point);
         } else {
             try {
-                ({ lat, lon } = geoHash.decode(point));
+                return geoHash.decode(point);
             } catch (err) {
                 // do nothing
             }
         }
+    } else if (isPlainObject(point)) {
+        const results = getLonAndLat(point, throwInvalid);
+        if (results) return results;
     } else if (isArrayLike(point)) {
         // array of points are meant to be lon/lat format
         [lon, lat] = parseNumberList(point);
-    } else if (isPlainObject(point)) {
-        const results = getLonAndLat(point, throwInvalid);
-        if (results) [lat, lon] = results;
     }
 
     if (throwInvalid && (lat == null || lon == null)) {
-        throw new TypeError(`Invalid geo point given to parse, point:${point}`);
+        throw new TypeError(`Invalid geo point given to parse, got ${point} (${getTypeOf(point)})`);
     }
 
     // data incoming is lat,lon and we must return lon,lat

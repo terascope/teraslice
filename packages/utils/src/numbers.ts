@@ -208,12 +208,14 @@ export function toFloatOrThrow(input: unknown): number {
  * Like parseList, except it returns numbers
  */
 export function parseNumberList(input: unknown): number[] {
-    let items: (number | string)[] = [];
+    let items: (number | string)[];
 
     if (typeof input === 'string') {
         items = input.split(',');
-    } else if (isArrayLike(input)) {
+    } else if (Array.isArray(input)) {
         items = input;
+    } else if (isArrayLike(input)) {
+        items = Array.from(input);
     } else if (isNumber(input)) {
         return [input];
     } else {
@@ -222,13 +224,14 @@ export function parseNumberList(input: unknown): number[] {
 
     return items
         // filter out any empty string
-        .filter((item) => {
-            if (item == null) return false;
-            if (typeof item === 'string' && !item.trim().length) return false;
-            return true;
-        })
+        .filter(isConvertibleToNumber)
         .map(toNumber)
-        .filter(isNumber) as number[];
+        .filter(isNumber);
+}
+function isConvertibleToNumber(item: unknown): boolean {
+    if (item == null) return false;
+    if (typeof item === 'string' && !item.trim().length) return false;
+    return true;
 }
 
 export interface InNumberRangeArg {
