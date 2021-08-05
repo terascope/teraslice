@@ -46,9 +46,9 @@ export type GeoShape = GeoShapePoint | GeoShapePolygon | GeoShapeMultiPolygon;
 
 export type JoinGeoShape = GeoShape | ESGeoShape;
 
-export type CoordinateTuple = [number, number];
+export type CoordinateTuple = [lon: number, lat: number];
 
-type GeoPointArr = [number, number];
+type GeoPointArr = [lon: number, lat:number];
 type GeoPointStr = string;
 type GeoObjShort = { lat: string | number; lon: string | number };
 type GeoObjLong = { latitude: string | number; longitude: string | number };
@@ -61,8 +61,8 @@ export type GeoPointInput =
     GeoShapePoint;
 
 export interface GeoPoint {
-    lat: number;
-    lon: number;
+    readonly lat: number;
+    readonly lon: number;
 }
 
 export enum GeoShapeRelation {

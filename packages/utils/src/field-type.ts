@@ -1,7 +1,7 @@
 import {
     DataTypeFieldConfig, FieldType,
-    GeoShape, GeoPoint, GeoPointInput,
-    DataTypeFields, ReadonlyDataTypeFields
+    DataTypeFields, ReadonlyDataTypeFields,
+    GeoPoint
 } from '@terascope/types';
 import { createHash } from 'crypto';
 import { primitiveToString, toString } from './strings';
@@ -82,33 +82,8 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
     };
 }
 
-const weakSet = new WeakSet();
-
-function coerceToGeoJSON(input: unknown) {
-    if (typeof input === 'object' && input != null && weakSet.has(input)) {
-        return input as GeoShape;
-    }
-
-    const result = toGeoJSONOrThrow(input);
-
-    weakSet.add(result);
-
-    return result;
-}
-
-const geoPointWeakSet = new WeakSet();
-
-function coerceToGeoPoint(input: unknown) {
-    if (typeof input === 'object' && input != null && geoPointWeakSet.has(input)) {
-        return input as GeoPoint;
-    }
-
-    const result = Object.freeze(
-        parseGeoPoint(input as GeoPointInput, true)
-    );
-
-    geoPointWeakSet.add(result);
-    return result;
+function coerceToGeoPoint(input: unknown): GeoPoint {
+    return Object.freeze(parseGeoPoint(input, true));
 }
 
 function _mapToString(input: any): string {
@@ -343,7 +318,7 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.Boundary:
             return coerceToGeoPoint;
         case FieldType.GeoJSON:
-            return coerceToGeoJSON;
+            return toGeoJSONOrThrow;
         case FieldType.Object:
             return coerceToObject(argFieldType, childConfig);
         case FieldType.Tuple:
