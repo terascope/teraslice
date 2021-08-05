@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@terascope/data-types": "^0.30.6",
-        "@terascope/types": "^0.10.0",
+        "@terascope/types": "^0.10.1",
         "@terascope/utils": "^0.40.6",
         "date-fns": "^2.23.0",
         "ip-bigint": "^3.0.3",
