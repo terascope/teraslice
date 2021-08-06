@@ -15,7 +15,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     readonly name: string;
     readonly logger: ts.Logger;
 
-    private _uniqueFields: (keyof T)[];
+    private _uniqueFields: readonly (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
 
     constructor(

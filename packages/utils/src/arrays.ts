@@ -18,17 +18,20 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 }
 
 /** A simplified implementation of lodash castArray */
-export function castArray<T>(input: T|undefined|null|T[]): T[] {
+export function castArray<T>(input: T|undefined|null|T[]|(readonly T[])): T[] {
     if (input == null) return [];
-    if (input instanceof Set) return [...input];
     if (isArrayLike(input)) return input;
-    return [input];
+    if (input instanceof Set) return [...input];
+    return [input as T];
 }
 
 /**
  * Concat and unique the items in the array
  * Any non-array value will be converted to an array
 */
+export function concat<T>(arr: T| T[], arr1?: T|T[]): readonly T[];
+export function concat<T>(arr: readonly T[], arr1?: readonly T[]): readonly T[];
+export function concat<T>(arr: readonly T[], arr1?: T|T[]): readonly T[];
 export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
     return uniq(
         castArray(arr)
@@ -44,12 +47,12 @@ export function uniq<T>(arr: T[]|Set<T>): T[] {
 
 /** Sort an arr or set */
 export function sort<T>(
-    arr: T[]|Set<T>,
+    arr: T[]|(readonly T[])|Set<T>,
     compare?: (a: T, b: T) => number
 ): T[] {
     if (arr instanceof Set) return [...arr].sort(compare);
     if (isArrayLike(arr)) return arr.sort(compare);
-    return arr;
+    return arr as T[];
 }
 
 const numLike = {
@@ -122,21 +125,8 @@ export function* timesIter<T>(n: number, fn?: (index: number) => T): Iterable<nu
     }
 }
 
-/** Map an array faster without sparse array handling */
-export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
-    const { length } = arr;
-    const result = Array(length);
-
-    let i = -1;
-    while (++i < length) {
-        result[i] = fn(arr[i], i);
-    }
-
-    return result;
-}
-
 /** Chunk an array into specific sizes */
-export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
+export function chunk<T>(dataArray: T[]|Set<T>|readonly T[], size: number): T[][] {
     if (size < 1) return isArrayLike(dataArray) ? [dataArray] : [[...dataArray]];
     const results: T[][] = [];
     let chunked: T[] = [];
@@ -169,7 +159,7 @@ export function includes(input: unknown, key: string): boolean {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T | T[]): T|undefined {
+export function getFirst<T>(input: T | T[]|(readonly T[])): T|undefined {
     return castArray(input)[0];
 }
 
@@ -177,7 +167,7 @@ export function getFirst<T>(input: T | T[]): T|undefined {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getLast<T>(input: T | T[]): T|undefined {
+export function getLast<T>(input: T | T[]|(readonly T[])): T|undefined {
     return castArray(input).slice(-1)[0];
 }
 
@@ -200,5 +190,5 @@ export function isTypedArray<T = TypedArray>(input: unknown): input is T {
  * Check if an input is an TypedArray or Array instance
 */
 export function isArrayLike<T = any[]>(input: unknown): input is T {
-    return isArray(input) || isTypedArray(input);
+    return Array.isArray(input) || isTypedArray(input);
 }

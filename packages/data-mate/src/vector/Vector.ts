@@ -3,9 +3,11 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields,
 } from '@terascope/types';
-import { isPrimitiveValue } from '@terascope/utils';
 import {
-    ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
+    isPrimitiveValue, getHashCodeFrom,
+} from '@terascope/utils';
+import {
+    ReadableData, freezeArray, WritableData
 } from '../core';
 import {
     DataBuckets, SerializeOptions, VectorType
@@ -147,14 +149,6 @@ export abstract class Vector<T = unknown> {
             }
             offset += data.size;
         }
-    }
-
-    get [HASH_CODE_SYMBOL](): string {
-        if (this.#cachedHash) return this.#cachedHash;
-
-        const hash = createHashCode(this.toArray());
-        this.#cachedHash = hash;
-        return hash;
     }
 
     /**
