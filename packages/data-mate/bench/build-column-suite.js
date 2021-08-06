@@ -1,6 +1,7 @@
 'use strict';
 
 const { getGroupedFields } = require('@terascope/data-types');
+const { FieldType } = require('@terascope/types');
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
 const { Column } = require('./src');
@@ -10,6 +11,9 @@ const run = async () => {
 
     for (const name of Object.keys(getGroupedFields(config.fields))) {
         const fieldConfig = config.fields[name];
+        // FIXME this is temporary
+        if (fieldConfig.type !== FieldType.Object) continue;
+
         const values = data.map((row) => row[name]);
         const fieldInfo = `${name} (${fieldConfig.type}${fieldConfig.array ? '[]' : ''})`;
         suite.add(fieldInfo, {
