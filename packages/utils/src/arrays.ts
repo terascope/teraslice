@@ -20,8 +20,8 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 /** A simplified implementation of lodash castArray */
 export function castArray<T>(input: T|undefined|null|T[]): T[] {
     if (input == null) return [];
-    if (input instanceof Set) return [...input];
     if (isArrayLike(input)) return input;
+    if (input instanceof Set) return [...input];
     return [input];
 }
 
@@ -200,5 +200,5 @@ export function isTypedArray<T = TypedArray>(input: unknown): input is T {
  * Check if an input is an TypedArray or Array instance
 */
 export function isArrayLike<T = any[]>(input: unknown): input is T {
-    return isArray(input) || isTypedArray(input);
+    return Array.isArray(input) || isTypedArray(input);
 }
