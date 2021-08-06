@@ -30,8 +30,8 @@ export function castArray<T>(input: T|undefined|null|T[]|(readonly T[])): T[] {
  * Any non-array value will be converted to an array
 */
 export function concat<T>(arr: T| T[], arr1?: T|T[]): readonly T[];
-export function concat<T>(arr: T| readonly T[], arr1?: T| readonly T[]): readonly T[];
-export function concat<T>(arr: T| readonly T[], arr1?: T|T[]): readonly T[];
+export function concat<T>(arr: readonly T[], arr1?: readonly T[]): readonly T[];
+export function concat<T>(arr: readonly T[], arr1?: T|T[]): readonly T[];
 export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
     return uniq(
         castArray(arr)
