@@ -1,7 +1,6 @@
 'use strict';
 
 const { getGroupedFields } = require('@terascope/data-types');
-const { FieldType } = require('@terascope/types');
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
 const { Column } = require('./src');
