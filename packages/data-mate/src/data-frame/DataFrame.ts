@@ -10,8 +10,8 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    isInteger,
-    joinList
+    isInteger, joinList,
+    getHashCodeFrom, createHashCode
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -25,8 +25,8 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, flattenStringArg,
-    freezeArray, getFieldsFromArg, getHashCodeFrom,
+    FieldArg, flattenStringArg,
+    freezeArray, getFieldsFromArg,
     ReadableData,
     WritableData,
 } from '../core';

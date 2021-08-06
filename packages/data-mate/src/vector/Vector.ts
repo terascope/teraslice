@@ -3,9 +3,12 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields,
 } from '@terascope/types';
-import { isPrimitiveValue } from '@terascope/utils';
 import {
-    ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
+    isPrimitiveValue, createHashCode,
+    HASH_CODE_SYMBOL, getHashCodeFrom
+} from '@terascope/utils';
+import {
+    ReadableData, freezeArray, WritableData
 } from '../core';
 import {
     DataBuckets, SerializeOptions, VectorType

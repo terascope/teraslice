@@ -1,5 +1,3 @@
-export const HASH_CODE_SYMBOL = Symbol('__hash__');
-
 export const MAX_8BIT_INT = (2 ** 8) - 1;
 export const MAX_16BIT_INT = (2 ** 16) - 1;
 export const MAX_32BIT_INT = (2 ** 32) - 1;

@@ -1,15 +1,12 @@
-import { createHash } from 'crypto';
 import {
-    bigIntToJSON, isArrayLike,
-    getTypeOf, hasOwn, isFunction,
-    TSError, primitiveToString
+    getTypeOf, TSError
 } from '@terascope/utils';
 import {
     DataTypeFields, FieldType, ReadonlyDataTypeFields,
     TypedArray, TypedArrayConstructor
 } from '@terascope/types';
 import {
-    FieldArg, HASH_CODE_SYMBOL,
+    FieldArg,
     MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
 } from './interfaces';
 
@@ -80,83 +77,6 @@ export function getTypedArrayClass(size: number): TypedArrayConstructor {
     if (maxIndex <= MAX_32BIT_INT) return Uint32Array;
 
     return Float64Array;
-}
-
-export function md5(value: string|Buffer): string {
-    return createHash('md5').update(value).digest('hex');
-}
-
-function _mapToString(input: any): string {
-    let hash = '';
-
-    if (isArrayLike(input)) {
-        for (const value of input) {
-            hash += `,${getHashCodeFrom(value)}`;
-        }
-    } else {
-        for (const prop in input) {
-            if (hasOwn(input, prop)) {
-                hash += `,${prop}:${getHashCodeFrom(input[prop])}`;
-            }
-        }
-    }
-
-    return hash;
-}
-
-export function createHashCode(value: unknown): string {
-    if (value == null) return '~';
-    if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
-
-    const hash = typeof value === 'object'
-        ? _mapToString(value)
-        : primitiveToString(value);
-
-    if (hash.length > 35) return `;${md5(hash)}`;
-    return `:${hash}`;
-}
-
-export function getHashCodeFrom(input: unknown): string {
-    if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
-        if (isFunction(input[HASH_CODE_SYMBOL])) {
-            return input[HASH_CODE_SYMBOL]();
-        }
-        return input[HASH_CODE_SYMBOL];
-    }
-    return createHashCode(input);
-}
-
-export function createArrayValue<T extends any[]>(input: T): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createArrayHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    return Object.freeze(input) as T;
-}
-
-function _createArrayHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(this, false);
-}
-
-export function createObjectValue<T extends Record<string, any>>(input: T, skipFreeze = false): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createObjectHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    if (skipFreeze) return input;
-    return Object.freeze(input) as T;
-}
-
-function _createObjectHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(Object.entries(this));
 }
 
 export function freezeObject<T extends Record<string, any>>(

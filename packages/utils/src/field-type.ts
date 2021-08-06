@@ -29,22 +29,29 @@ type CoerceFN<T = unknown> = (input: unknown) => T
 export function coerceToType<T = unknown>(
     fieldConfig: DataTypeFieldConfig,
     childConfig?: DataTypeFields
-): (input: unknown|unknown[]) => T {
+): CoerceFN<T> {
     if (fieldConfig.array) {
-        const newFieldConfig = { ...fieldConfig, array: false };
-        const fn = getTransformerForFieldType<T>(newFieldConfig, childConfig);
-        const converter = (value: unknown) => (
-            value != null ? fn(value) : null
-        );
-
-        return function _coerceToType(inputs: unknown) {
-            return createArrayValue(
-                castArray(inputs).map(converter)
-            ) as unknown as T;
-        };
+        return _coerceToArrayType<T>({ ...fieldConfig, array: false }, childConfig);
     }
 
     return getTransformerForFieldType<T>(fieldConfig, childConfig) as CoerceFN<T>;
+}
+
+function _coerceToArrayType<T = unknown>(
+    fieldConfig: DataTypeFieldConfig,
+    childConfig?: DataTypeFields
+): CoerceFN<T> {
+    const fn = getTransformerForFieldType(fieldConfig, childConfig);
+
+    function _converter(value: unknown) {
+        return value != null ? fn(value) : null;
+    }
+
+    return function _coerceToType(inputs: unknown) {
+        return createArrayValue(
+            castArray(inputs).map(_converter)
+        ) as unknown as T;
+    };
 }
 
 function _shouldCheckIntSize(type: FieldType) {
@@ -104,7 +111,7 @@ function _mapToString(input: any): string {
     return hash;
 }
 
-function getHashCodeFrom(input: unknown): string {
+export function getHashCodeFrom(input: unknown): string {
     if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
         if (isFunction(input[HASH_CODE_SYMBOL])) {
             return input[HASH_CODE_SYMBOL]();
@@ -114,11 +121,11 @@ function getHashCodeFrom(input: unknown): string {
     return createHashCode(input);
 }
 
-function md5(value: string|Buffer): string {
+export function md5(value: string|Buffer): string {
     return createHash('md5').update(value).digest('hex');
 }
 
-function createHashCode(value: unknown): string {
+export function createHashCode(value: unknown): string {
     if (value == null) return '~';
     if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
 

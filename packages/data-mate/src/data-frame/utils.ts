@@ -3,9 +3,9 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     DataTypeFields, DataTypeVersion
 } from '@terascope/types';
+import { md5 } from '@terascope/utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { Column, KeyAggFn } from '../column';
-import { md5 } from '../core';
 
 export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,
