@@ -21,7 +21,13 @@ export function once<T extends((...args: any[]) => any)>(fn: T): (
     };
 }
 
-export function noop(..._args: any[]): any {}
+/**
+ * A simple function that does nothing but return the first
+ * argument
+*/
+export function noop(...args: any[]): any {
+    return args[0];
+}
 
 function _getArgCacheKey(args: any[]): string {
     const fixed = args.filter((a, i, arr) => {

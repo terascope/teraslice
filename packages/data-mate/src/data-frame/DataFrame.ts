@@ -11,7 +11,7 @@ import {
     getTypeOf, isFunction,
     isPlainObject, trimFP,
     isInteger, joinList,
-    getHashCodeFrom, createHashCode
+    getHashCodeFrom
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -246,7 +246,7 @@ export class DataFrame<
             .sort()
             .join(':');
 
-        const id = createHashCode(long);
+        const id = getHashCodeFrom(long);
         this.#id = id;
         return id;
     }

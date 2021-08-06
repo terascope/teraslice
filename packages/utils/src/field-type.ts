@@ -16,10 +16,8 @@ import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
 import { hasOwn } from './objects';
 import { isArrayLike, castArray } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
-import { isFunction, noop } from './functions';
+import { noop } from './functions';
 import { isNotNil } from './empty';
-
-export const HASH_CODE_SYMBOL = Symbol('__hash__');
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 
@@ -42,7 +40,7 @@ function coerceToArrayType<T = unknown>(
     fn: CoerceFN<T>,
 ): CoerceFN<T> {
     return function _coerceToArrayType(inputs: unknown): T {
-        return createArrayValue(castArray(inputs).map(fn)) as unknown as T;
+        return castArray(inputs).map(fn) as unknown as T;
     };
 }
 
@@ -106,21 +104,7 @@ function _mapToString(input: any): string {
     return hash;
 }
 
-export function getHashCodeFrom(input: unknown): string {
-    if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
-        if (isFunction(input[HASH_CODE_SYMBOL])) {
-            return input[HASH_CODE_SYMBOL]();
-        }
-        return input[HASH_CODE_SYMBOL];
-    }
-    return createHashCode(input);
-}
-
-export function md5(value: string|Buffer): string {
-    return createHash('md5').update(value).digest('hex');
-}
-
-export function createHashCode(value: unknown): string {
+export function getHashCodeFrom(value: unknown): string {
     if (value == null) return '~';
     if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
 
@@ -132,38 +116,8 @@ export function createHashCode(value: unknown): string {
     return `:${hash}`;
 }
 
-function _createObjectHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(Object.entries(this));
-}
-
-/** creates an immutable object */
-export function createObjectValue<T extends Record<string, any>>(input: T): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createObjectHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    return input;
-}
-
-/** create an immutable array */
-export function createArrayValue<T extends any[]>(input: T): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createArrayHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    return input;
-}
-
-function _createArrayHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(this, false);
+export function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
 }
 
 function getChildDataTypeConfig(
@@ -219,7 +173,7 @@ function coerceToObject(fieldConfig: DataTypeFieldConfig, childConfig?: DataType
         }
 
         if (!childFields.length && !fieldConfig._allow_empty) {
-            return createObjectValue({ ...input as Record<string, unknown> });
+            return { ...input as Record<string, unknown> };
         }
 
         const value = input as Readonly<Record<string, unknown>>;
@@ -227,7 +181,7 @@ function coerceToObject(fieldConfig: DataTypeFieldConfig, childConfig?: DataType
         function _valueMap([field, transformer]: [field: string, transformer: CoerceFN]) {
             return [field, transformer(value[field])];
         }
-        return createObjectValue(Object.fromEntries(childFields.map(_valueMap)));
+        return Object.fromEntries(childFields.map(_valueMap));
     };
 }
 
@@ -257,7 +211,7 @@ function coerceToTuple(_fieldConfig: DataTypeFieldConfig, childConfig?: DataType
             throw new TypeError(`Expected ${toString(input)} (${getTypeOf(input)}) to have a length of ${len}`);
         }
 
-        return createArrayValue(childFields.map((transformer, index) => transformer(input[index])));
+        return childFields.map((transformer, index) => transformer(input[index]));
     };
 }
 

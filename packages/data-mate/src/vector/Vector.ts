@@ -4,8 +4,7 @@ import {
     ReadonlyDataTypeFields,
 } from '@terascope/types';
 import {
-    isPrimitiveValue, createHashCode,
-    HASH_CODE_SYMBOL, getHashCodeFrom
+    isPrimitiveValue, getHashCodeFrom,
 } from '@terascope/utils';
 import {
     ReadableData, freezeArray, WritableData
@@ -150,14 +149,6 @@ export abstract class Vector<T = unknown> {
             }
             offset += data.size;
         }
-    }
-
-    get [HASH_CODE_SYMBOL](): string {
-        if (this.#cachedHash) return this.#cachedHash;
-
-        const hash = createHashCode(this.toArray());
-        this.#cachedHash = hash;
-        return hash;
     }
 
     /**
