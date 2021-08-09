@@ -41,7 +41,7 @@
         "chalk": "^4.1.2",
         "cli-table3": "^0.6.0",
         "easy-table": "^1.1.1",
-        "esbuild": "^0.12.18",
+        "esbuild": "^0.12.19",
         "execa": "^5.1.0",
         "fs-extra": "^9.1.0",
         "glob": "^7.1.7",
