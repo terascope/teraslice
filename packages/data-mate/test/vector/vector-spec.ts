@@ -411,6 +411,82 @@ describe('Vector', () => {
             it('should be able to slice the second half', () => {
                 expect(appended.slice(0, vector.size).size).toBe(vector.size);
             });
+
+            describe('when appended to itself again', () => {
+                let appended2: Vector<any>;
+                let newData2: ReadableData<any>;
+
+                beforeAll(() => {
+                    newData2 = new ReadableData(appended.data[1].toWritable());
+                    appended2 = appended.append(newData2);
+                });
+
+                it('should be have tripled in size', () => {
+                    expect(appended2.size).toEqual(expected.length * 3);
+                });
+
+                it('should be able to find the first half of the data', () => {
+                    const found = appended2.findDataWithIndex(1);
+                    if (found == null) {
+                        expect(found).not.toBeNil();
+                        return;
+                    }
+
+                    // this can't use toBe because jest throw cannot serialize bigint errors
+                    expect(found[0] === vector.data[0]).toBeTrue();
+                    expect(found[1]).toBe(1);
+                });
+
+                it('should be able to find the second half of the data', () => {
+                    const found = appended2.findDataWithIndex(vector.size);
+                    if (found == null) {
+                        expect(found).not.toBeNil();
+                        return;
+                    }
+
+                    // this can't use toBe because jest throw cannot serialize bigint errors
+                    expect(found[0] === newData).toBeTrue();
+                    expect(found[1]).toBe(0);
+                });
+
+                it('should be able to find the third half of the data', () => {
+                    const found = appended2.findDataWithIndex(appended.size);
+                    if (found == null) {
+                        expect(found).not.toBeNil();
+                        return;
+                    }
+
+                    // this can't use toBe because jest throw cannot serialize bigint errors
+                    expect(found[0] === newData2).toBeTrue();
+                    expect(found[1]).toBe(0);
+                });
+
+                it('should be able return triple the output', () => {
+                    expect(appended2.toJSON()).toEqual(
+                        expected.concat(expected, expected)
+                    );
+                });
+
+                it('should be able to slice the results to 1', () => {
+                    expect(appended2.slice(0, 1).size).toBe(1);
+                });
+
+                it('should be able to slice the results to the last item', () => {
+                    expect(appended2.slice(-1).size).toBe(1);
+                });
+
+                it('should be able to slice the first half', () => {
+                    expect(appended2.slice(appended.size).size).toBe(vector.size);
+                });
+
+                it('should be able to slice the second half', () => {
+                    expect(appended2.slice(0, appended.size).size).toBe(vector.size);
+                });
+
+                it('should be able to slice the third half', () => {
+                    expect(appended2.slice(appended.size, appended2.size).size).toBe(vector.size);
+                });
+            });
         });
 
         if (invalid?.length) {

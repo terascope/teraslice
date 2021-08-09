@@ -288,6 +288,26 @@ export abstract class Vector<T = unknown> {
      * @returns the data found and the index of the relative index of value
     */
     findDataWithIndex(index: number): [data:ReadableData<T>, actualIndex: number]|undefined {
+        if (this.data.length === 0) return;
+        if (this.data.length === 1) {
+            if (index + 1 > this.size) return;
+            return [this.data[0], index];
+        }
+
+        // if it on the second half of the data set then use the reverse index way
+        if (index > (this.size / 2)) {
+            return this._reverseFindDataWithIndex(index);
+        }
+        return this._forwardFindDataWithIndex(index);
+    }
+
+    /**
+     * Find the Data bucket that holds the value for that
+     * bucket
+    */
+    private _forwardFindDataWithIndex(
+        index: number
+    ): [data:ReadableData<T>, actualIndex: number]|undefined {
         // used to handle index offset between data buckets
         let offset = 0;
 
@@ -296,6 +316,27 @@ export abstract class Vector<T = unknown> {
                 return [data, index - offset];
             }
             offset += data.size;
+        }
+    }
+
+    /**
+     * Find the Data bucket that holds the value for that
+     * bucket this works the in the reverse direction, this
+     * will perform better when there are lots of buckets
+    */
+    private _reverseFindDataWithIndex(
+        index: number
+    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+        // used to handle index offset between data buckets
+        let offset = this.size;
+
+        const start = this.data.length - 1;
+        for (let i = start; i >= 0; i--) {
+            const data = this.data[i];
+            offset -= data.size;
+            if (index >= offset) {
+                return [data, index - offset];
+            }
         }
     }
 
