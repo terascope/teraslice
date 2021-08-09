@@ -101,8 +101,6 @@ export abstract class Vector<T = unknown> {
     */
     readonly size: number;
 
-    #cachedHash?: string|undefined;
-
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -135,6 +133,28 @@ export abstract class Vector<T = unknown> {
         for (const data of this.data) {
             yield* data;
         }
+    }
+
+    /**
+     * Check to see there are any nil values stored in the Vector
+    */
+    hasNilValues(): boolean {
+        return this.data.some((data) => data.values.size !== data.values.length);
+    }
+
+    /**
+     * Get the number of non-nil values in the Vector
+    */
+    countValues(): number {
+        return this.data.reduce((acc, data) => acc + data.values.size, 0);
+    }
+
+    /**
+     * Returns true if there are no non-nil values
+    */
+    isEmpty(): boolean {
+        if (this.size === 0) return true;
+        return this.data.every((data) => data.values.size === 0);
     }
 
     /**
@@ -216,11 +236,12 @@ export abstract class Vector<T = unknown> {
      * Add ReadableData to a end of the data buckets
     */
     append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
-        return this.fork(this.data.concat(
+        // Make sure to freeze here so freezeArray doesn't slice the data buckets
+        return this.fork(Object.freeze(this.data.concat(
             Array.isArray(data)
                 ? data
                 : [data as ReadableData<T>]
-        ));
+        )));
     }
 
     /**
@@ -230,7 +251,8 @@ export abstract class Vector<T = unknown> {
         const preData = Array.isArray(data)
             ? data
             : [data as ReadableData<T>];
-        return this.fork(preData.concat(this.data));
+        // Make sure to freeze here so freezeArray doesn't slice the data buckets
+        return this.fork(Object.freeze(preData.concat(this.data)));
     }
 
     /**
@@ -266,6 +288,26 @@ export abstract class Vector<T = unknown> {
      * @returns the data found and the index of the relative index of value
     */
     findDataWithIndex(index: number): [data:ReadableData<T>, actualIndex: number]|undefined {
+        if (this.data.length === 0) return;
+        if (this.data.length === 1) {
+            if (index + 1 > this.size) return;
+            return [this.data[0], index];
+        }
+
+        // if it on the second half of the data set then use the reverse index way
+        if (index > (this.size / 2)) {
+            return this._reverseFindDataWithIndex(index);
+        }
+        return this._forwardFindDataWithIndex(index);
+    }
+
+    /**
+     * Find the Data bucket that holds the value for that
+     * bucket
+    */
+    private _forwardFindDataWithIndex(
+        index: number
+    ): [data:ReadableData<T>, actualIndex: number]|undefined {
         // used to handle index offset between data buckets
         let offset = 0;
 
@@ -274,6 +316,27 @@ export abstract class Vector<T = unknown> {
                 return [data, index - offset];
             }
             offset += data.size;
+        }
+    }
+
+    /**
+     * Find the Data bucket that holds the value for that
+     * bucket this works the in the reverse direction, this
+     * will perform better when there are lots of buckets
+    */
+    private _reverseFindDataWithIndex(
+        index: number
+    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+        // used to handle index offset between data buckets
+        let offset = this.size;
+
+        const start = this.data.length - 1;
+        for (let i = start; i >= 0; i--) {
+            const data = this.data[i];
+            offset -= data.size;
+            if (index >= offset) {
+                return [data, index - offset];
+            }
         }
     }
 

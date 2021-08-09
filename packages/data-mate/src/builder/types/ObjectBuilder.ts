@@ -1,12 +1,11 @@
 import { coerceToType } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
-import { BuilderOptions } from '../Builder';
-import { BuilderWithCache } from '../BuilderWithCache';
+import { Builder, BuilderOptions } from '../Builder';
 
 export class ObjectBuilder<
     T extends Record<string, any> = Record<string, any>
-> extends BuilderWithCache<T> {
+> extends Builder<T> {
     _valueFrom = coerceToType<T>(this.config, this.childConfig);
 
     constructor(

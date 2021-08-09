@@ -2,10 +2,9 @@ import { FieldType } from '@terascope/types';
 import { TSError, coerceToType } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
-import { BuilderOptions } from '../Builder';
-import { BuilderWithCache } from '../BuilderWithCache';
+import { Builder, BuilderOptions } from '../Builder';
 
-export class TupleBuilder<T extends [...any] = [...any]> extends BuilderWithCache<T> {
+export class TupleBuilder<T extends [...any] = [...any]> extends Builder<T> {
     _valueFrom = coerceToType<T>(this.config, this.childConfig);
 
     constructor(
