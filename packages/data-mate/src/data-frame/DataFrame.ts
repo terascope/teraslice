@@ -512,7 +512,7 @@ export class DataFrame<
         if (returning === this.size) return this;
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-        // @ts-expect-error data is readonly
+            // @ts-expect-error data is readonly
             builder.data = builder.data
                 .resize(returning);
             return columns.get(name)!.fork(builder.toVector());
