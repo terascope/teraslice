@@ -20,7 +20,8 @@ import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
-    distributeRowsToColumns, isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
+    distributeRowsToColumns, getSortedColumnsByValueCount,
+    isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
@@ -494,13 +495,16 @@ export class DataFrame<
      * around as much memory
     */
     removeEmptyRows(): DataFrame<T> {
+        if (!this.hasEmptyRows()) return this;
+
         const len = this.size;
         let returning = len;
         const builders = getBuildersForConfig<T>(this.config, len);
         const columns = new Map(this.columns.map((col) => [col.name, col]));
 
+        const sortedColumns = getSortedColumnsByValueCount(this.columns);
         for (let i = 0; i < len; i++) {
-            if (isEmptyRow(this.columns, i)) {
+            if (isEmptyRow(sortedColumns, i)) {
                 returning--;
             } else {
                 for (const [name, builder] of builders) {
@@ -523,11 +527,14 @@ export class DataFrame<
      * Count the number of empty rows
     */
     countEmptyRows(): number {
+        if (!this.hasNilValues()) return 0;
+
         let empty = 0;
 
+        const columns = getSortedColumnsByValueCount(this.columns);
         const len = this.size;
         for (let i = 0; i < len; i++) {
-            if (isEmptyRow(this.columns, i)) {
+            if (isEmptyRow(columns, i)) {
                 empty++;
             }
         }
@@ -539,11 +546,24 @@ export class DataFrame<
      * Check if there are any empty rows at all
     */
     hasEmptyRows(): boolean {
+        if (!this.hasNilValues()) return false;
+
+        const columns = getSortedColumnsByValueCount(this.columns);
         const len = this.size;
         for (let i = 0; i < len; i++) {
-            if (isEmptyRow(this.columns, i)) {
+            if (isEmptyRow(columns, i)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Check if there are any columns with nil values
+    */
+    hasNilValues(): boolean {
+        for (const column of this.columns) {
+            if (column.vector.hasNilValues()) return true;
         }
         return false;
     }

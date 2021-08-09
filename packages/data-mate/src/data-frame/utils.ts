@@ -196,6 +196,20 @@ export function makeKeyForRow<T extends Record<string, any>>(
 }
 
 /**
+ * Sort the columns by likelihood of the values being there,
+ * this was initially created to be used in combination with isEmptyRow
+*/
+export function getSortedColumnsByValueCount(
+    _columns: readonly Column<any, any>[]
+): readonly Column<any, any>[] {
+    return _columns
+        .map((col): [Column<any, any>, number] => [col, col.vector.countValues()])
+        // this will reverse order the columns by count of values
+        .sort((a, b) => b[1] - a[1])
+        .map(([col]) => col);
+}
+
+/**
  * Verify the a column has null fields in a
 */
 export function isEmptyRow(columns: readonly Column<any, any>[], row: number): boolean {

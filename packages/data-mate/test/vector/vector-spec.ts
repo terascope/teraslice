@@ -338,6 +338,21 @@ describe('Vector', () => {
             });
         });
 
+        it('should be able to detect when there are non-nil values', () => {
+            expect(vector.hasNilValues()).toEqual(expected.some((value) => value == null));
+        });
+
+        it('should be able to detect count the non-nil values', () => {
+            expect(vector.countValues()).toEqual(expected.reduce((acc, value) => {
+                if (value == null) return acc;
+                return acc + 1;
+            }, 0));
+        });
+
+        it('should be able to detect if the vector is empty', () => {
+            expect(vector.isEmpty()).toBeFalse();
+        });
+
         describe('when appended to itself', () => {
             let appended: Vector<any>;
             let newData: ReadableData<any>;

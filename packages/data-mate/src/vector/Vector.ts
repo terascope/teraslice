@@ -136,6 +136,28 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
+     * Check to see there are any nil values stored in the Vector
+    */
+    hasNilValues(): boolean {
+        return this.data.some((data) => data.values.size !== data.values.length);
+    }
+
+    /**
+     * Get the number of non-nil values in the Vector
+    */
+    countValues(): number {
+        return this.data.reduce((acc, data) => acc + data.values.size, 0);
+    }
+
+    /**
+     * Returns true if there are no non-nil values
+    */
+    isEmpty(): boolean {
+        if (this.size === 0) return true;
+        return this.data.every((data) => data.values.size === 0);
+    }
+
+    /**
      * Iterate over the values and skip the nil ones,
      * returns tuples a with index and value
     */
