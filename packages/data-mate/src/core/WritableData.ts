@@ -1,5 +1,5 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
-import { Maybe } from '@terascope/types';
+import type { Maybe } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
 
 /**

@@ -536,6 +536,19 @@ export class DataFrame<
     }
 
     /**
+     * Check if there are any empty rows at all
+    */
+    hasEmptyRows(): boolean {
+        const len = this.size;
+        for (let i = 0; i < len; i++) {
+            if (isEmptyRow(this.columns, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
