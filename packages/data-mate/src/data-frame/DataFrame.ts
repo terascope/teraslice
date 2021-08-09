@@ -520,6 +520,22 @@ export class DataFrame<
     }
 
     /**
+     * Count the number of empty rows
+    */
+    countEmptyRows(): number {
+        let empty = 0;
+
+        const len = this.size;
+        for (let i = 0; i < len; i++) {
+            if (isEmptyRow(this.columns, i)) {
+                empty++;
+            }
+        }
+
+        return empty;
+    }
+
+    /**
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
