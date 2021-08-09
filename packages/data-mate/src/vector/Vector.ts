@@ -101,8 +101,6 @@ export abstract class Vector<T = unknown> {
     */
     readonly size: number;
 
-    #cachedHash?: string|undefined;
-
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -216,11 +214,12 @@ export abstract class Vector<T = unknown> {
      * Add ReadableData to a end of the data buckets
     */
     append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
-        return this.fork(this.data.concat(
+        // Make sure to freeze here so freezeArray doesn't slice the data buckets
+        return this.fork(Object.freeze(this.data.concat(
             Array.isArray(data)
                 ? data
                 : [data as ReadableData<T>]
-        ));
+        )));
     }
 
     /**
@@ -230,7 +229,8 @@ export abstract class Vector<T = unknown> {
         const preData = Array.isArray(data)
             ? data
             : [data as ReadableData<T>];
-        return this.fork(preData.concat(this.data));
+        // Make sure to freeze here so freezeArray doesn't slice the data buckets
+        return this.fork(Object.freeze(preData.concat(this.data)));
     }
 
     /**
