@@ -21,6 +21,7 @@ type Options = {
     'elasticsearch-api-version': string;
     'kafka-version': string;
     'minio-version': string;
+    'rabbitmq-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
 };
@@ -105,6 +106,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.MINIO_VERSION,
             })
+            .option('rabbitmq-version', {
+                description: 'The rabbitmq version to use',
+                type: 'string',
+                default: config.RABBITMQ_VERSION,
+            })
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -129,6 +135,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
+        const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
 
         if (debug && watch) {
@@ -148,6 +155,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             elasticsearchAPIVersion,
             kafkaVersion,
             minioVersion,
+            rabbitmqVersion,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,

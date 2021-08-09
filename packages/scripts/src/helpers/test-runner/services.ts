@@ -21,6 +21,9 @@ const logger = ts.debugLogger('ts-scripts:cmd:test');
 const serviceUpTimeout = ms('2m');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
+// TODO: remove hard file path
+// TODO: make temp dir ${getRootInfo().dir}/.ts-test-config/rabbitmq.conf
+const rabbitConfigPath = '/Users/jarednoble/Projects/terascope/teraslice/packages/scripts/src/helpers/test-runner/rabbitmq.conf';
 
 const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Elasticsearch]: {
@@ -71,6 +74,18 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         },
         network: config.DOCKER_NETWORK_NAME,
         args: ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+    },
+    [Service.RabbitMQ]: {
+        image: config.RABBITMQ_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.RABBITMQ_NAME}`,
+        ports: [`${config.RABBITMQ_PORT}:${config.RABBITMQ_PORT}`],
+        mount: `type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`,
+        env: {
+            RABBITMQ_HOST: config.RABBITMQ_HOST,
+            RABBITMQ_USER: config.RABBITMQ_USER,
+            RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
+        },
+        network: config.DOCKER_NETWORK_NAME,
     }
 };
 
@@ -92,6 +107,11 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 
         if (launchServices.includes(Service.Minio)) {
             const image = `${config.MINIO_DOCKER_IMAGE}:${options.minioVersion}`;
+            images.push(image);
+        }
+
+        if (launchServices.includes(Service.RabbitMQ)) {
+            const image = `${config.RABBITMQ_DOCKER_IMAGE}`;
             images.push(image);
         }
 
@@ -125,6 +145,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureMinio(options));
     }
 
+    if (launchServices.includes(Service.RabbitMQ)) {
+        promises.push(ensureRabbitMQ(options));
+    }
+
     const fns = await Promise.all(promises);
 
     return () => {
@@ -153,6 +177,14 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
     const startTime = Date.now();
     fn = await startService(options, Service.Elasticsearch);
     await checkElasticsearch(options, startTime);
+    return fn;
+}
+
+export async function ensureRabbitMQ(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    const startTime = Date.now();
+    fn = await startService(options, Service.RabbitMQ);
+    await checkRabbitMQ(options, startTime);
     return fn;
 }
 
@@ -268,6 +300,57 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
         },
         {
             name: `MinIO service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+        }
+    );
+}
+
+async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.RABBITMQ_HOST;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
+
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking RabbitMQ at ${host}`);
+            } else {
+                logger.debug(`checking RabbitMQ at ${host}`);
+            }
+
+            let statusCode: number;
+
+            try {
+                ({ statusCode } = await got('api/overview', {
+                    prefixUrl: host,
+                    responseType: 'json',
+                    throwHttpErrors: false,
+                    retry: 0,
+                    username: config.RABBITMQ_USER,
+                    password: config.RABBITMQ_PASSWORD
+                }));
+            } catch (err) {
+                statusCode = getErrorStatusCode(err);
+            }
+
+            if (options.trace) {
+                signale.debug('got response from RabbitMQ service', { statusCode });
+            } else {
+                logger.debug('got response from RabbitMQ service', { statusCode });
+            }
+
+            if (statusCode === 200) {
+                const took = ms(Date.now() - startTime);
+                signale.success(`RabbitMQ is running at ${host}, took ${took}`);
+                return true;
+            }
+
+            return false;
+        },
+        {
+            name: `RabbitMQ service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
         }

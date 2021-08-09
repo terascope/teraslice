@@ -15,6 +15,7 @@ export type TestOptions = {
     elasticsearchAPIVersion: string;
     kafkaVersion: string;
     minioVersion: string;
+    rabbitmqVersion: string;
     jestArgs?: string[];
 };
 

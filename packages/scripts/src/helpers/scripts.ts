@@ -230,6 +230,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
     network?: string;
     args?: string[];
+    mount?: string
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: boolean): Promise<() => void> {
@@ -240,6 +241,10 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
 
     if (!opt.name) {
         throw new Error('Missing required name option');
+    }
+
+    if (opt.mount) {
+        args.push('--mount', opt.mount);
     }
 
     if (opt.ports && opt.ports.length) {
@@ -272,6 +277,7 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
 
     args.push('--name', opt.name);
     args.push(`${opt.image}:${tag}`);
+
     if (opt.args) {
         args.push(...opt.args);
     }
@@ -283,7 +289,9 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
     if (debug) {
         signale.debug(`executing: docker ${args.join(' ')}`);
     }
+
     const subprocess = execa('docker', args);
+
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
     }
