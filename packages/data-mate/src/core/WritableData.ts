@@ -1,5 +1,5 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
-import { Maybe } from '@terascope/types';
+import type { Maybe } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
 
 /**
@@ -18,8 +18,7 @@ export class WritableData<T> {
     ): WritableData<R> {
         const data = new WritableData<R>(size);
         for (let i = 0; i < size; i++) {
-            const value = getValue(i);
-            if (value != null) data.set(i, value);
+            data.set(i, getValue(i));
         }
         return data;
     }

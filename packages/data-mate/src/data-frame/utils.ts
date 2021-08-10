@@ -3,9 +3,9 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     DataTypeFields, DataTypeVersion
 } from '@terascope/types';
+import { md5 } from '@terascope/utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { Column, KeyAggFn } from '../column';
-import { md5 } from '../core';
 
 export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,
@@ -193,6 +193,20 @@ export function makeKeyForRow<T extends Record<string, any>>(
         row,
         key: groupKey.length > 35 ? md5(groupKey) : groupKey,
     };
+}
+
+/**
+ * Sort the columns by likelihood of the values being there,
+ * this was initially created to be used in combination with isEmptyRow
+*/
+export function getSortedColumnsByValueCount(
+    _columns: readonly Column<any, any>[]
+): readonly Column<any, any>[] {
+    return _columns
+        .map((col): [Column<any, any>, number] => [col, col.vector.countValues()])
+        // this will reverse order the columns by count of values
+        .sort((a, b) => b[1] - a[1])
+        .map(([col]) => col);
 }
 
 /**

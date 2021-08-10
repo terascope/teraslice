@@ -140,8 +140,6 @@ export abstract class Builder<T = unknown> {
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        if (value == null) return this;
-
         this.data.set(index, this.valueFrom(value, index));
         return this;
     }
@@ -150,8 +148,6 @@ export abstract class Builder<T = unknown> {
      * Set a single unique value on multiple indices
     */
     mset(value: unknown, indices: Iterable<number>): Builder<T> {
-        if (value == null) return this;
-
         const val = this.valueFrom(value, indices);
         for (const index of indices) {
             this.data.set(index, val);

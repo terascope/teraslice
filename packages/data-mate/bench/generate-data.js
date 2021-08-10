@@ -44,9 +44,6 @@ const dataTypeConfig = {
         alive: {
             type: FieldType.Boolean
         },
-        location: {
-            type: FieldType.GeoPoint
-        },
         metadata: {
             type: FieldType.Object
         },
@@ -64,6 +61,28 @@ const dataTypeConfig = {
         },
         'metadata.requests.last': {
             type: FieldType.Date,
+        },
+        location: {
+            type: FieldType.GeoPoint
+        },
+        results: {
+            type: FieldType.Object,
+            array: true
+        },
+        'results.type': {
+            type: FieldType.Keyword
+        },
+        'results.number_of_friends': {
+            type: FieldType.Integer
+        },
+        'results.requests': {
+            type: FieldType.Object,
+        },
+        'results.requests.total': {
+            type: FieldType.Integer,
+        },
+        'results.requests.last': {
+            type: FieldType.Date,
         }
     }
 };
@@ -73,6 +92,16 @@ const numRecords = 1000; // this will be doubled
 const year = new Date().getFullYear();
 let records = times(numRecords, () => {
     const age = chance.age();
+    function genMetadata() {
+        return {
+            type: age > 20 ? 'parent' : 'child',
+            number_of_friends: random(1, 2000),
+            requests: random(0, 20) ? {
+                total: random(10, maxInt),
+                last: chance.date().toISOString()
+            } : null,
+        };
+    }
     return {
         _key: chance.guid({ version: 4 }),
         name: chance.name(),
@@ -85,18 +114,8 @@ let records = times(numRecords, () => {
         }).toISOString(),
         address: randNull(chance.address),
         alive: chance.bool(),
-        location: random(0, 30) ? {
-            lat: chance.latitude(),
-            lon: chance.longitude(),
-        } : null,
-        metadata: random(0, 20) ? {
-            type: age > 20 ? 'parent' : 'child',
-            number_of_friends: random(1, 2000),
-            requests: random(0, 20) ? {
-                total: random(10, maxInt),
-                last: chance.date().toISOString()
-            } : null
-        } : null
+        metadata: random(0, 20) ? genMetadata() : null,
+        results: times(random(10, 200), genMetadata)
     };
 });
 

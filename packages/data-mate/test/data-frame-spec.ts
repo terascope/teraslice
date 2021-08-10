@@ -824,6 +824,38 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->countEmptyRows', () => {
+            it('should be able count the empty rows', () => {
+                const frame = createPeopleDataFrame([
+                    { } as Partial<Person> as Person,
+                    { name: 'Jill', age: 39 },
+                    { friends: [] } as Partial<Person> as Person,
+                    { name: null as any } as Partial<Person> as Person,
+                ]);
+                expect(frame.countEmptyRows()).toBe(2);
+            });
+
+            it('should be able count the empty rows when there are none', () => {
+                expect(peopleDataFrame.countEmptyRows()).toBe(0);
+            });
+        });
+
+        describe('->hasEmptyRows', () => {
+            it('should be able to check if there are empty rows', () => {
+                const frame = createPeopleDataFrame([
+                    { } as Partial<Person> as Person,
+                    { name: 'Jill', age: 39 },
+                    { friends: [] } as Partial<Person> as Person,
+                    { name: null as any } as Partial<Person> as Person,
+                ]);
+                expect(frame.hasEmptyRows()).toBeTrue();
+            });
+
+            it('should be able to check if there are empty rows when there are none', () => {
+                expect(peopleDataFrame.hasEmptyRows()).toBeFalse();
+            });
+        });
+
         describe('->limit', () => {
             it('should be able to get the first two rows', () => {
                 const resultFrame = peopleDataFrame.limit(2);

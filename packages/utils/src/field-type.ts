@@ -16,10 +16,8 @@ import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
 import { hasOwn } from './objects';
 import { isArrayLike, castArray } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
-import { isFunction } from './functions';
+import { noop } from './functions';
 import { isNotNil } from './empty';
-
-export const HASH_CODE_SYMBOL = Symbol('__hash__');
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 
@@ -29,26 +27,28 @@ type CoerceFN<T = unknown> = (input: unknown) => T
 export function coerceToType<T = unknown>(
     fieldConfig: DataTypeFieldConfig,
     childConfig?: DataTypeFields
-): (input: unknown|unknown[]) => T {
+): CoerceFN<T> {
     if (fieldConfig.array) {
-        const newFieldConfig = { ...fieldConfig, array: false };
-        const fn = getTransformerForFieldType<T>(newFieldConfig, childConfig);
-        const converter = (value: unknown) => (
-            value != null ? fn(value) : null
-        );
-
-        return function _coerceToType(inputs: unknown) {
-            return createArrayValue(
-                castArray(inputs).map(converter)
-            ) as unknown as T;
-        };
+        const fn = getTransformerForFieldType<T>(fieldConfig, childConfig);
+        return callIfNotNil(coerceToArrayType<T>(fn));
     }
 
     return getTransformerForFieldType<T>(fieldConfig, childConfig) as CoerceFN<T>;
 }
 
+function coerceToArrayType<T = unknown>(
+    fn: CoerceFN<T>,
+): CoerceFN<T> {
+    return function _coerceToArrayType(inputs: unknown): T {
+        return castArray(inputs).map(fn) as unknown as T;
+    };
+}
+
 function _shouldCheckIntSize(type: FieldType) {
-    return [FieldType.Integer, FieldType.Byte, FieldType.Short].includes(type);
+    if (type === FieldType.Integer) return true;
+    if (type === FieldType.Short) return true;
+    if (type === FieldType.Byte) return true;
+    return false;
 }
 
 const NumberTypeFNDict = {
@@ -83,7 +83,7 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
 }
 
 function coerceToGeoPoint(input: unknown): GeoPoint {
-    return Object.freeze(parseGeoPoint(input, true));
+    return parseGeoPoint(input, true);
 }
 
 function _mapToString(input: any): string {
@@ -104,21 +104,7 @@ function _mapToString(input: any): string {
     return hash;
 }
 
-function getHashCodeFrom(input: unknown): string {
-    if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
-        if (isFunction(input[HASH_CODE_SYMBOL])) {
-            return input[HASH_CODE_SYMBOL]();
-        }
-        return input[HASH_CODE_SYMBOL];
-    }
-    return createHashCode(input);
-}
-
-function md5(value: string|Buffer): string {
-    return createHash('md5').update(value).digest('hex');
-}
-
-function createHashCode(value: unknown): string {
+export function getHashCodeFrom(value: unknown): string {
     if (value == null) return '~';
     if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
 
@@ -130,39 +116,8 @@ function createHashCode(value: unknown): string {
     return `:${hash}`;
 }
 
-function _createObjectHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(Object.entries(this));
-}
-
-/** creates an immutable object */
-export function createObjectValue<T extends Record<string, any>>(input: T, skipFreeze = false): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createObjectHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    if (skipFreeze) return input;
-    return Object.freeze(input) as T;
-}
-
-/** create an immutable array */
-export function createArrayValue<T extends any[]>(input: T): T {
-    Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createArrayHashCode.bind(input),
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    });
-
-    return Object.freeze(input) as T;
-}
-
-function _createArrayHashCode(): string {
-    // @ts-expect-error because this bound
-    return createHashCode(this, false);
+export function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
 }
 
 function getChildDataTypeConfig(
@@ -184,10 +139,8 @@ function getChildDataTypeConfig(
     return childConfig;
 }
 
-type TFN = (input: unknown) => unknown;
-
 type ChildFields = readonly (
-    [field: string, transformer: TFN]
+    [field: string, transformer: CoerceFN]
 )[];
 
 function formatObjectChildFields(childConfigs?: DataTypeFields) {
@@ -196,7 +149,7 @@ function formatObjectChildFields(childConfigs?: DataTypeFields) {
     }
 
     const childFields: ChildFields = Object.entries(childConfigs)
-        .map(([field, config]): [field: string, transformer: TFN]|undefined => {
+        .map(([field, config]): [field: string, transformer: CoerceFN]|undefined => {
             const [base] = field.split('.', 1);
             if (base !== field && childConfigs![base]) return;
 
@@ -204,9 +157,7 @@ function formatObjectChildFields(childConfigs?: DataTypeFields) {
                 childConfigs!, field, config.type as FieldType
             );
 
-            const transformer = coerceToType(config, childConfig);
-
-            return [field, transformer];
+            return [field, coerceToType(config, childConfig)];
         })
         .filter(isNotNil) as ChildFields;
 
@@ -222,41 +173,30 @@ function coerceToObject(fieldConfig: DataTypeFieldConfig, childConfig?: DataType
         }
 
         if (!childFields.length && !fieldConfig._allow_empty) {
-            return createObjectValue({ ...input as Record<string, unknown> }, false);
+            return { ...input as Record<string, unknown> };
         }
 
         const value = input as Readonly<Record<string, unknown>>;
-        const result = Object.create(null);
 
-        for (const [field, transformer] of childFields) {
-            if (value[field] != null) {
-                const fieldValue: any = transformer(value[field]);
-                Object.defineProperty(result, field, {
-                    value: fieldValue,
-                    enumerable: true,
-                    writable: false
-                });
-            }
+        function _valueMap([field, transformer]: [field: string, transformer: CoerceFN]) {
+            return [field, transformer(value[field])];
         }
-
-        return createObjectValue(result, true);
+        return Object.fromEntries(childFields.map(_valueMap));
     };
 }
 
-function formatTupleChildFields(childConfigs?: DataTypeFields) {
+function formatTupleChildFields(childConfigs?: DataTypeFields): readonly CoerceFN[] {
     if (!childConfigs) {
         return [];
     }
 
-    const childFields: TFN[] = Object.entries(childConfigs)
+    return Object.entries(childConfigs)
         .map(([field, config]) => {
             const childConfig = getChildDataTypeConfig(
                 childConfigs!, field, config.type as FieldType
             );
             return coerceToType(config, childConfig);
         });
-
-    return childFields;
 }
 
 function coerceToTuple(_fieldConfig: DataTypeFieldConfig, childConfig?: DataTypeFields) {
@@ -271,20 +211,18 @@ function coerceToTuple(_fieldConfig: DataTypeFieldConfig, childConfig?: DataType
             throw new TypeError(`Expected ${toString(input)} (${getTypeOf(input)}) to have a length of ${len}`);
         }
 
-        return createArrayValue(childFields.map((transformer, index) => {
-            const value = input[index];
-            return value != null ? transformer(value) : null;
-        }));
+        return childFields.map((transformer, index) => transformer(input[index]));
     };
 }
 
-/** This is a low level api, only coerceToType should reference this,
+/**
+ * This is a low level api, only coerceToType should reference this,
  * all other transforms should reference coerceToType as it handles arrays
 */
 function getTransformerForFieldType<T = unknown>(
     argFieldType: DataTypeFieldConfig,
     childConfig?: DataTypeFields
-): (input: unknown) => T|unknown {
+): CoerceFN<T> {
     switch (argFieldType.type) {
         case FieldType.String:
         case FieldType.Text:
@@ -296,15 +234,15 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.Domain:
         case FieldType.Hostname:
         case FieldType.NgramTokens:
-            return primitiveToString;
+            return callIfNotNil(primitiveToString) as CoerceFN<any>;
         case FieldType.IP:
-            return isIPOrThrow;
+            return callIfNotNil(isIPOrThrow) as CoerceFN<any>;
         case FieldType.IPRange:
-            return isIPRangeOrThrow;
+            return callIfNotNil(isIPRangeOrThrow) as CoerceFN<any>;
         case FieldType.Date:
-            return toEpochMSOrThrow;
+            return callIfNotNil(toEpochMSOrThrow) as CoerceFN<any>;
         case FieldType.Boolean:
-            return toBooleanOrThrow;
+            return callIfNotNil(toBooleanOrThrow) as CoerceFN<any>;
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
@@ -312,20 +250,28 @@ function getTransformerForFieldType<T = unknown>(
         case FieldType.Short:
         case FieldType.Integer:
         case FieldType.Long:
-            return coerceToNumberType(argFieldType.type as FieldType);
+            return callIfNotNil(
+                coerceToNumberType(argFieldType.type as FieldType)
+            ) as CoerceFN<any>;
         case FieldType.Geo:
         case FieldType.GeoPoint:
         case FieldType.Boundary:
-            return coerceToGeoPoint;
+            return callIfNotNil(coerceToGeoPoint) as CoerceFN<any>;
         case FieldType.GeoJSON:
-            return toGeoJSONOrThrow;
+            return callIfNotNil(toGeoJSONOrThrow) as CoerceFN<any>;
         case FieldType.Object:
-            return coerceToObject(argFieldType, childConfig);
+            return callIfNotNil(coerceToObject(argFieldType, childConfig)) as CoerceFN<any>;
         case FieldType.Tuple:
-            return coerceToTuple(argFieldType, childConfig);
+            return callIfNotNil(coerceToTuple(argFieldType, childConfig)) as CoerceFN<any>;
         case FieldType.Any:
-            return (input) => input;
+            return callIfNotNil(noop);
         default:
             throw new Error(`Invalid FieldType ${argFieldType.type}, was pulled from the type field of input ${JSON.stringify(argFieldType, null, 2)}`);
     }
+}
+
+function callIfNotNil<T extends(value: any) => any>(fn: T): T {
+    return function _callIfNotNil(value) {
+        return value != null ? fn(value) : undefined;
+    } as T;
 }
