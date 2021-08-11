@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.44.9",
+    "version": "0.44.10",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
