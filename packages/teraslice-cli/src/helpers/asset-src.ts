@@ -250,7 +250,8 @@ export class AssetSrc {
                 platform: 'node',
                 sourcemap: false,
                 target: this.bundleTarget,
-                plugins: [wasmPlugin]
+                plugins: [wasmPlugin],
+                keepNames: true
             });
 
             // Test require the asset to make sure it loads, if the process node
