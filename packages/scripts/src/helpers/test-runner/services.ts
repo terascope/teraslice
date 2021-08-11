@@ -2,6 +2,7 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
+import path from 'path';
 import * as ts from '@terascope/utils';
 import { getServicesForSuite, getRootDir } from '../misc';
 import {
@@ -20,10 +21,7 @@ const logger = ts.debugLogger('ts-scripts:cmd:test');
 
 const serviceUpTimeout = ms('2m');
 
-const rabbitConfigPath = `${getRootDir()}/.ts-test-config/rabbitmq.conf`;
-
-// we create the rabbitmq.conf file for tests
-fs.outputFileSync(rabbitConfigPath, 'loopback_users = none\nloopback_users.guest = false');
+const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
@@ -148,6 +146,8 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
     }
 
     if (launchServices.includes(Service.RabbitMQ)) {
+        // we create the rabbitmq.conf file for tests
+        await fs.outputFile(rabbitConfigPath, 'loopback_users = none\nloopback_users.guest = false');
         promises.push(ensureRabbitMQ(options));
     }
 
