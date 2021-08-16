@@ -71,3 +71,5 @@ website/build/
 website/node_modules
 website/i18n/*
 docs/packages/*/api
+
+.ts-test-config

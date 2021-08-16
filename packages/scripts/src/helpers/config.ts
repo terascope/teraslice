@@ -39,6 +39,15 @@ export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
 
+export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.9.1-management-alpine';
+export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
+export const RABBITMQ_NAME = process.env.RABBITMQ_NAME || 'rabbitmq';
+export const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 15672;
+export const RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || HOST_IP;
+export const RABBITMQ_HOST = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_PORT}`;
+export const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
+export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
+
 // make sure the string doesn't contain unwanted characters
 export const DEV_TAG = toSafeString((
     process.env.DEV_TAG

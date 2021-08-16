@@ -106,6 +106,13 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (launchServices.includes(Service.RabbitMQ)) {
+        Object.assign(env, {
+            RABBITMQ_HOST: config.RABBITMQ_HOST,
+            RABBITMQ_VERSION: options.rabbitmqVersion,
+        });
+    }
+
     if (options.keepOpen) {
         env.KEEP_OPEN = 'true';
     }
