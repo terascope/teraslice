@@ -207,7 +207,7 @@ function makeDateAgg(trimDateFn: (input: unknown) => number): MakeKeyAggFn {
             if (value == null) return { key: undefined, value };
 
             return {
-                key: `${trimDateFn(value)}`,
+                key: String(trimDateFn(value)),
                 value,
             };
         };
