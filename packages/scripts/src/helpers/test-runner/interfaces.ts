@@ -17,6 +17,7 @@ export type TestOptions = {
     minioVersion: string;
     rabbitmqVersion: string;
     jestArgs?: string[];
+    ignoreMount: boolean
 };
 
 export type GroupedPackages = {

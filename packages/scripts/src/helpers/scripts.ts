@@ -233,7 +233,7 @@ export type DockerRunOptions = {
     mount?: string
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: boolean): Promise<() => void> {
+export async function dockerRun(opt: DockerRunOptions, tag = 'latest', ignoreMount: boolean, debug?: boolean): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
@@ -243,7 +243,7 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
         throw new Error('Missing required name option');
     }
 
-    if (opt.mount) {
+    if (opt.mount && !ignoreMount) {
         args.push('--mount', opt.mount);
     }
 
