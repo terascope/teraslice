@@ -147,7 +147,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 
     if (launchServices.includes(Service.RabbitMQ)) {
         // we create the rabbitmq.conf file for tests
-        await fs.outputFile(rabbitConfigPath, 'loopback_users = none\nloopback_users.guest = false');
+        if (!options.ignoreMount) {
+            await fs.outputFile(rabbitConfigPath, 'loopback_users = none\nloopback_users.guest = false');
+        }
+
         promises.push(ensureRabbitMQ(options));
     }
 
@@ -375,7 +378,12 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    const fn = await dockerRun(services[service], version, options.debug || options.trace);
+    const fn = await dockerRun(
+        services[service],
+        version,
+        options.ignoreMount,
+        options.debug || options.trace
+    );
 
     return () => {
         try {

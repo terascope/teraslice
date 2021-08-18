@@ -24,6 +24,7 @@ type Options = {
     'rabbitmq-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
+    'ignore-mount': boolean
 };
 
 const jestArgs = getExtraArgs();
@@ -111,6 +112,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.RABBITMQ_VERSION,
             })
+            .option('ignore-mount', {
+                description: 'If we should ignore configured mount',
+                type: 'boolean',
+                default: false,
+            })
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -137,6 +143,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
         const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
+        const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -159,6 +166,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
+            ignoreMount
         });
     },
 };
