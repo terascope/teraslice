@@ -23,6 +23,7 @@ function runTest(map) {
     map.clear();
 }
 
+const ogDefaultMaxSize = BigMap.DEFAULT_MAX_SIZE;
 const run = async () => Suite('Map vs BigMap')
     .add('Map', {
         fn() {
@@ -31,12 +32,14 @@ const run = async () => Suite('Map vs BigMap')
     })
     .add('BigMap', {
         fn() {
+            BigMap.DEFAULT_MAX_SIZE = ogDefaultMaxSize;
             return runTest(new BigMap());
         }
     })
     .add('BigMap (multiple maps)', {
         fn() {
-            return runTest(new BigMap(Math.round(iterationsPer / 2)));
+            BigMap.DEFAULT_MAX_SIZE = Math.round(iterationsPer / 2);
+            return runTest(new BigMap());
         }
     })
     .run({

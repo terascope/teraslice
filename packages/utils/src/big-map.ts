@@ -5,14 +5,16 @@ const defaultMaxSize = 2 ** 24;
  * This class has the same API as Map but minus more differences in ->set and ->forEach
  */
 export class BigMap<K, V> {
+    static DEFAULT_MAX_SIZE = defaultMaxSize;
+
     readonly maxMapSize: number;
     private _maps: Map<K, V>[];
     private _current: Map<K, V>;
     private _simpleMode: boolean;
 
-    constructor(maxMapSize = defaultMaxSize) {
-        this.maxMapSize = maxMapSize;
-        this._current = new Map();
+    constructor(entries?: readonly (readonly [K, V])[] | null) {
+        this.maxMapSize = BigMap.DEFAULT_MAX_SIZE;
+        this._current = new Map(entries);
         this._simpleMode = true;
         this._maps = [this._current];
     }

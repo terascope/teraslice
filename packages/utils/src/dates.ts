@@ -75,6 +75,12 @@ export function isValidDate(val: unknown): boolean {
  * Coerces value into a valid date, returns false if it is invalid
 */
 export function getValidDate(val: unknown): Date | false {
+    // this is our hot path since this is how commonly store this
+    if (typeof val === 'number') {
+        if (!Number.isInteger(val)) return false;
+        return new Date(val);
+    }
+
     if (val == null || isBoolean(val)) return false;
     if (val instanceof Date) {
         if (!isValidDateInstance(val)) {
@@ -87,11 +93,6 @@ export function getValidDate(val: unknown): Date | false {
         // eslint-disable-next-line no-param-reassign
         val = bigIntToJSON(val);
         if (typeof val === 'string') return false;
-    }
-
-    if (typeof val === 'number') {
-        if (!Number.isInteger(val)) return false;
-        return new Date(val);
     }
 
     if (isDateTuple(val)) return new Date(val[0]);

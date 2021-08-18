@@ -4,20 +4,22 @@ const defaultMaxSize = 2 ** 24;
  * Avoid v8 maximum size for Set by spreading the cache across multiple Sets.
  * This class has the same API as Set but minus more differences in ->add and ->forEach
  */
-export class BigSet<V> {
+export class BigSet<T> {
+    static DEFAULT_MAX_SIZE = defaultMaxSize;
+
     readonly maxMapSize: number;
-    private _sets: Set<V>[];
-    private _current: Set<V>;
+    private _sets: Set<T>[];
+    private _current: Set<T>;
     private _simpleMode: boolean;
 
-    constructor(maxMapSize = defaultMaxSize) {
-        this.maxMapSize = maxMapSize;
-        this._current = new Set();
+    constructor(values?: readonly T[] | null) {
+        this.maxMapSize = BigSet.DEFAULT_MAX_SIZE;
+        this._current = new Set(values);
         this._simpleMode = true;
         this._sets = [this._current];
     }
 
-    add(value: V): Set<V> {
+    add(value: T): Set<T> {
         if (this._current.size >= this.maxMapSize) {
             this._current = new Set();
             this._sets.push(this._current);
@@ -27,14 +29,14 @@ export class BigSet<V> {
         return this._current.add(value);
     }
 
-    has(value: V): boolean {
+    has(value: T): boolean {
         if (this._simpleMode) {
             return this._current.has(value);
         }
         return _getSetWithValue(this._sets, value) !== undefined;
     }
 
-    delete(value: V): boolean {
+    delete(value: T): boolean {
         if (this._simpleMode) {
             return this._current.delete(value);
         }
@@ -75,7 +77,7 @@ export class BigSet<V> {
         return size;
     }
 
-    forEach(callbackFn: (value: V, value2: V, map: BigSet<V>) => void, thisArg?: unknown): void {
+    forEach(callbackFn: (value: T, value2: T, map: BigSet<T>) => void, thisArg?: unknown): void {
         if (thisArg) {
             for (const value of this) {
                 callbackFn.call(thisArg, value, value, this);
@@ -87,11 +89,11 @@ export class BigSet<V> {
         }
     }
 
-    [Symbol.iterator](): IterableIterator<V> {
+    [Symbol.iterator](): IterableIterator<T> {
         if (this._simpleMode) {
             return this._current[Symbol.iterator]();
         }
-        return _iterator<V>(this._sets, Symbol.iterator);
+        return _iterator<T>(this._sets, Symbol.iterator);
     }
 }
 

@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { EventLoop, BigMap } from '@terascope/utils';
+import { BigMap } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -70,6 +70,12 @@ export class AggregationFrame<
      * The field to sort by
     */
     protected _selectFields?: readonly (keyof T)[];
+
+    /**
+     * Use this to cache the the column index needed, this
+     * should speed things up
+    */
+    protected _fieldToColumnIndexCache?: Map<(keyof T), number>;
 
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
@@ -350,7 +356,16 @@ export class AggregationFrame<
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        if (this._fieldToColumnIndexCache?.has(field)) {
+            return this.getColumnAt<P>(this._fieldToColumnIndexCache.get(field)!);
+        }
+
         const index = this.columns.findIndex((col) => col.name === field);
+        if (!this._fieldToColumnIndexCache) {
+            this._fieldToColumnIndexCache = new Map([[field, index]]);
+        } else {
+            this._fieldToColumnIndexCache.set(field, index);
+        }
         return this.getColumnAt<P>(index);
     }
 
@@ -387,6 +402,7 @@ export class AggregationFrame<
                 return col.rename(renameTo);
             })
         );
+        this._fieldToColumnIndexCache?.clear();
 
         this.fields = Object.freeze(this.fields.map((field) => {
             if (field === name) return renameTo;
@@ -443,6 +459,7 @@ export class AggregationFrame<
             if (replaceCol) return replaceCol;
             return col;
         }).concat(newColumns)) as readonly Column<any>[];
+        this._fieldToColumnIndexCache?.clear();
 
         this.fields = Object.freeze(
             this.fields.concat(newColumns.map((col) => col.name))
@@ -467,6 +484,7 @@ export class AggregationFrame<
                 }
             }
             this.columns = Object.freeze(columns);
+            this._fieldToColumnIndexCache?.clear();
             return {
                 name: as,
                 type: col.config.type as FieldType
@@ -510,17 +528,18 @@ export class AggregationFrame<
             this._aggregationBuilders()
         );
         const builders = this._generateBuilders(buckets.size);
-        await EventLoop.wait();
 
-        for (const bucket of buckets.values()) {
+        for (const [key, bucket] of buckets) {
             this._buildBucket(builders, bucket);
-            await EventLoop.wait();
+            // free up that memory
+            buckets.delete(key);
         }
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
             const column = this.getColumnOrThrow(name);
             return column.fork(builder.toVector());
         }));
+        this._fieldToColumnIndexCache?.clear();
         return this;
     }
 
@@ -545,9 +564,8 @@ export class AggregationFrame<
         for (let i = 0; i < this.size; i++) {
             const res = makeKeyForRow(keyAggs, i);
             if (res) {
-                const fieldAggs = getFieldAggs(res.key, i);
                 fieldAggMakers.forEach(
-                    makeProcessFieldAgg(fieldAggs, i)
+                    makeProcessFieldAgg(getFieldAggs(res.key, i), i)
                 );
             }
         }
@@ -570,6 +588,31 @@ export class AggregationFrame<
     }
 
     private _buildBucket(
+        builders: Map<keyof T, Builder<any>>,
+        bucket: Bucket<T>,
+    ): void {
+        if (bucket[0].adjustsSelectedRow) {
+            return this._buildBucketWithAdjustedRowIndex(builders, bucket);
+        }
+
+        const [fieldAggs, startIndex] = bucket;
+        for (const [field, builder] of builders) {
+            const agg = fieldAggs.get(field);
+            if (agg != null) {
+                builder.append(agg.flush().value);
+            } else {
+                const col = this.getColumnOrThrow(field);
+                builders.get(field)!.append(col.vector.get(startIndex));
+            }
+        }
+    }
+
+    /**
+     * this is slower version of the aggregation
+     * that will select a specific row that shows more
+     * correct information, like for min and max
+    */
+    private _buildBucketWithAdjustedRowIndex(
         builders: Map<keyof T, Builder<any>>,
         [fieldAggs, startIndex]: Bucket<T>,
     ): void {
@@ -638,8 +681,11 @@ type WithAlias<T extends Record<string, unknown>, A extends string, V> = {
 
 type FieldAggMaker = [fieldAgg: () => FieldAgg, vector: Vector<any>];
 
+type FieldAggsMap<T extends Record<string, unknown>> = Map<keyof T, FieldAgg> & {
+    adjustsSelectedRow: boolean
+};
 type Bucket<T extends Record<string, unknown>> = [
-    fieldAggs: Map<keyof T, FieldAgg>, startIndex: number
+    fieldAggs: FieldAggsMap<T>, startIndex: number
 ];
 
 interface AggBuilders<T extends Record<string, any>> {
@@ -663,12 +709,12 @@ function curryFieldAgg(
 }
 
 function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string, Bucket<T>>) {
-    return function getFieldAggs(key: string, index: number): Map<keyof T, FieldAgg> {
+    return function getFieldAggs(key: string, index: number): FieldAggsMap<T> {
         const fieldAggRes = buckets.get(key);
-        let fieldAggs: Map<keyof T, FieldAgg>;
 
         if (!fieldAggRes) {
-            fieldAggs = new Map();
+            const fieldAggs = new Map() as FieldAggsMap<T>;
+            fieldAggs.adjustsSelectedRow = false;
             buckets.set(key, [fieldAggs, index]);
             return fieldAggs;
         }
@@ -677,13 +723,16 @@ function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string,
 }
 
 function makeProcessFieldAgg<T extends Record<string, any>>(
-    fieldAggs: Map<keyof T, FieldAgg>, index: number
+    fieldAggs: FieldAggsMap<T>, index: number
 ) {
     return function processFieldAgg(maker: FieldAggMaker, field: keyof T) {
         let agg = fieldAggs.get(field);
         if (!agg) {
             agg = maker[0]();
             fieldAggs.set(field, agg);
+        }
+        if (agg.adjustsSelectedRow) {
+            fieldAggs.adjustsSelectedRow = true;
         }
         agg.push(maker[1].get(index), index);
     };
