@@ -402,6 +402,7 @@ export class AggregationFrame<
                 return col.rename(renameTo);
             })
         );
+        this._fieldToColumnIndexCache?.clear();
 
         this.fields = Object.freeze(this.fields.map((field) => {
             if (field === name) return renameTo;
@@ -458,6 +459,7 @@ export class AggregationFrame<
             if (replaceCol) return replaceCol;
             return col;
         }).concat(newColumns)) as readonly Column<any>[];
+        this._fieldToColumnIndexCache?.clear();
 
         this.fields = Object.freeze(
             this.fields.concat(newColumns.map((col) => col.name))
@@ -482,6 +484,7 @@ export class AggregationFrame<
                 }
             }
             this.columns = Object.freeze(columns);
+            this._fieldToColumnIndexCache?.clear();
             return {
                 name: as,
                 type: col.config.type as FieldType
@@ -536,6 +539,7 @@ export class AggregationFrame<
             const column = this.getColumnOrThrow(name);
             return column.fork(builder.toVector());
         }));
+        this._fieldToColumnIndexCache?.clear();
         return this;
     }
 
@@ -560,9 +564,8 @@ export class AggregationFrame<
         for (let i = 0; i < this.size; i++) {
             const res = makeKeyForRow(keyAggs, i);
             if (res) {
-                const fieldAggs = getFieldAggs(res.key, i);
                 fieldAggMakers.forEach(
-                    makeProcessFieldAgg(fieldAggs, i)
+                    makeProcessFieldAgg(getFieldAggs(res.key, i), i)
                 );
             }
         }
@@ -586,12 +589,13 @@ export class AggregationFrame<
 
     private _buildBucket(
         builders: Map<keyof T, Builder<any>>,
-        [fieldAggs, startIndex]: Bucket<T>,
+        bucket: Bucket<T>,
     ): void {
-        if (fieldAggs.adjustsSelectedRow) {
-            return this._buildBucketWithAdjustedRowIndex(builders, [fieldAggs, startIndex]);
+        if (bucket[0].adjustsSelectedRow) {
+            return this._buildBucketWithAdjustedRowIndex(builders, bucket);
         }
 
+        const [fieldAggs, startIndex] = bucket;
         for (const [field, builder] of builders) {
             const agg = fieldAggs.get(field);
             if (agg != null) {
@@ -728,13 +732,7 @@ function makeProcessFieldAgg<T extends Record<string, any>>(
             fieldAggs.set(field, agg);
         }
         if (agg.adjustsSelectedRow) {
-            // if it is already set to true, the outcome
-            // will probably be wrong so lets ignore that
-            if (fieldAggs.adjustsSelectedRow) {
-                fieldAggs.adjustsSelectedRow = false;
-            } else {
-                fieldAggs.adjustsSelectedRow = true;
-            }
+            fieldAggs.adjustsSelectedRow = true;
         }
         agg.push(maker[1].get(index), index);
     };
