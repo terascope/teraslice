@@ -6,7 +6,8 @@ describe('BigMap', () => {
     let map: Map<string, string>;
 
     beforeEach(() => {
-        bigMap = new BigMap(1);
+        BigMap.DEFAULT_MAX_SIZE = 1;
+        bigMap = new BigMap();
         map = new Map();
     });
 

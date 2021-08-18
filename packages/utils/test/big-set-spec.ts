@@ -6,7 +6,8 @@ describe('BigSet', () => {
     let set: Set<string>;
 
     beforeEach(() => {
-        bigSet = new BigSet(1);
+        BigSet.DEFAULT_MAX_SIZE = 1;
+        bigSet = new BigSet();
         set = new Set();
     });
 
