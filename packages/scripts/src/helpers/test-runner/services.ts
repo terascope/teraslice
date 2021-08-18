@@ -19,7 +19,7 @@ import signale from '../signale';
 
 const logger = ts.debugLogger('ts-scripts:cmd:test');
 
-const serviceUpTimeout = ms('2m');
+const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
 
@@ -81,7 +81,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         ports: [`${config.RABBITMQ_PORT}:${config.RABBITMQ_PORT}`],
         mount: `type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`,
         env: {
-            RABBITMQ_HOST: config.RABBITMQ_HOST,
+            RABBITMQ_HOST: `http://0.0.0.0:${config.RABBITMQ_PORT}`,
             RABBITMQ_USER: config.RABBITMQ_USER,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
         },
