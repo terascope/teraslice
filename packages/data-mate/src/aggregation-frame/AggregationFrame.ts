@@ -71,6 +71,12 @@ export class AggregationFrame<
     */
     protected _selectFields?: readonly (keyof T)[];
 
+    /**
+     * Use this to cache the the column index needed, this
+     * should speed things up
+    */
+    protected _fieldToColumnIndexCache?: Map<(keyof T), number>;
+
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
         options: AggregationFrameOptions
@@ -350,7 +356,16 @@ export class AggregationFrame<
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        if (this._fieldToColumnIndexCache?.has(field)) {
+            return this.getColumnAt<P>(this._fieldToColumnIndexCache.get(field)!);
+        }
+
         const index = this.columns.findIndex((col) => col.name === field);
+        if (!this._fieldToColumnIndexCache) {
+            this._fieldToColumnIndexCache = new Map([[field, index]]);
+        } else {
+            this._fieldToColumnIndexCache.set(field, index);
+        }
         return this.getColumnAt<P>(index);
     }
 
