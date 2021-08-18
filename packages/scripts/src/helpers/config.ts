@@ -8,6 +8,9 @@ export const FORCE_COLOR = toBoolean(forceColor)
     ? '1'
     : '0';
 
+/** The timeout for how long a service has to stand up */
+export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
+
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
 export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 'true');
@@ -39,7 +42,7 @@ export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
 
-export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.9.1-management-alpine';
+export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.8.16-management-alpine';
 export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
 export const RABBITMQ_NAME = process.env.RABBITMQ_NAME || 'rabbitmq';
 export const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 15672;
