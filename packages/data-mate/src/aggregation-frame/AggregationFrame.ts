@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { EventLoop, BigMap } from '@terascope/utils';
+import { BigMap } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -510,11 +510,11 @@ export class AggregationFrame<
             this._aggregationBuilders()
         );
         const builders = this._generateBuilders(buckets.size);
-        await EventLoop.wait();
 
-        for (const bucket of buckets.values()) {
+        for (const [key, bucket] of buckets) {
             this._buildBucket(builders, bucket);
-            await EventLoop.wait();
+            // free up that memory
+            buckets.delete(key);
         }
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
@@ -570,6 +570,30 @@ export class AggregationFrame<
     }
 
     private _buildBucket(
+        builders: Map<keyof T, Builder<any>>,
+        [fieldAggs, startIndex]: Bucket<T>,
+    ): void {
+        if (fieldAggs.adjustsSelectedRow) {
+            return this._buildBucketWithAdjustedRowIndex(builders, [fieldAggs, startIndex]);
+        }
+
+        for (const [field, builder] of builders) {
+            const agg = fieldAggs.get(field);
+            if (agg != null) {
+                builder.append(agg.flush().value);
+            } else {
+                const col = this.getColumnOrThrow(field);
+                builders.get(field)!.append(col.vector.get(startIndex));
+            }
+        }
+    }
+
+    /**
+     * this is slower version of the aggregation
+     * that will select a specific row that shows more
+     * correct information, like for min and max
+    */
+    private _buildBucketWithAdjustedRowIndex(
         builders: Map<keyof T, Builder<any>>,
         [fieldAggs, startIndex]: Bucket<T>,
     ): void {
@@ -638,8 +662,11 @@ type WithAlias<T extends Record<string, unknown>, A extends string, V> = {
 
 type FieldAggMaker = [fieldAgg: () => FieldAgg, vector: Vector<any>];
 
+type FieldAggsMap<T extends Record<string, unknown>> = Map<keyof T, FieldAgg> & {
+    adjustsSelectedRow: boolean
+};
 type Bucket<T extends Record<string, unknown>> = [
-    fieldAggs: Map<keyof T, FieldAgg>, startIndex: number
+    fieldAggs: FieldAggsMap<T>, startIndex: number
 ];
 
 interface AggBuilders<T extends Record<string, any>> {
@@ -663,12 +690,12 @@ function curryFieldAgg(
 }
 
 function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string, Bucket<T>>) {
-    return function getFieldAggs(key: string, index: number): Map<keyof T, FieldAgg> {
+    return function getFieldAggs(key: string, index: number): FieldAggsMap<T> {
         const fieldAggRes = buckets.get(key);
-        let fieldAggs: Map<keyof T, FieldAgg>;
 
         if (!fieldAggRes) {
-            fieldAggs = new Map();
+            const fieldAggs = new Map() as FieldAggsMap<T>;
+            fieldAggs.adjustsSelectedRow = false;
             buckets.set(key, [fieldAggs, index]);
             return fieldAggs;
         }
@@ -677,13 +704,22 @@ function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string,
 }
 
 function makeProcessFieldAgg<T extends Record<string, any>>(
-    fieldAggs: Map<keyof T, FieldAgg>, index: number
+    fieldAggs: FieldAggsMap<T>, index: number
 ) {
     return function processFieldAgg(maker: FieldAggMaker, field: keyof T) {
         let agg = fieldAggs.get(field);
         if (!agg) {
             agg = maker[0]();
             fieldAggs.set(field, agg);
+        }
+        if (agg.adjustsSelectedRow) {
+            // if it is already set to true, the outcome
+            // will probably be wrong so lets ignore that
+            if (fieldAggs.adjustsSelectedRow) {
+                fieldAggs.adjustsSelectedRow = false;
+            } else {
+                fieldAggs.adjustsSelectedRow = true;
+            }
         }
         agg.push(maker[1].get(index), index);
     };

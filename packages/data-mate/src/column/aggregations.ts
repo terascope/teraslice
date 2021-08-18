@@ -14,10 +14,24 @@ export enum ValueAggregation {
     count = 'count',
 }
 
-export type FieldAgg = {
+export interface FieldAgg {
+    /**
+     * If this returns true, than the flush method will
+     * return a index which will indicate which row to select
+    */
+    adjustsSelectedRow: boolean;
     push(value: unknown, index: number): void;
-    flush(): { value: unknown, index?: number };
+    flush(): {
+        readonly value: unknown;
+        /**
+         * This index will indicate which row to select,
+         * this will conflict with other aggregations that
+         * return the same row
+        */
+        readonly index?: number;
+    };
 }
+
 export type MakeValueAgg = (vector: Vector<unknown>) => FieldAgg;
 
 export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
@@ -52,6 +66,7 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
     } = { value: 0 };
 
     return {
+        adjustsSelectedRow: false,
         push(value) {
             const res = getNumericValues(value);
             const sum = add(0, ...res.values);
@@ -77,6 +92,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     } = { total: 0 };
 
     return {
+        adjustsSelectedRow: false,
         push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
@@ -105,6 +121,7 @@ function makeMinAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
+        adjustsSelectedRow: true,
         push(value, index) {
             const res = getNumericValues(value);
             for (const num of res.values) {
@@ -129,6 +146,7 @@ function makeMaxAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
+        adjustsSelectedRow: true,
         push(value, index) {
             const res = getNumericValues(value);
             for (const num of res.values) {
@@ -149,6 +167,7 @@ function makeMaxAgg(): FieldAgg {
 function makeCountAgg(): FieldAgg {
     let count = 0;
     return {
+        adjustsSelectedRow: false,
         push(value) {
             if (value == null) return;
             count++;
