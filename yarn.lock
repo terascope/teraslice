@@ -1157,10 +1157,10 @@
   resolved "https://registry.yarnpkg.com/@types/jexl/-/jexl-2.2.0.tgz#f7d9c631e78a6d4bad716c79360a6acb1f4e24dd"
   integrity sha512-btcq6HoxgBeKEAWAgee45C9eO4F7ayWHi3pQK6NpEPYtfo8b4J13QkxcfWN4ck8QDTlnDRQJxMP4Ceb/4ncO7Q==
 
-"@types/js-string-escape@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@types/js-string-escape/-/js-string-escape-1.0.0.tgz#96738a64ea912f7d4b87ee097231d68fd1813332"
-  integrity sha512-UANTN9S09hivqbeR4unjVS7DrtgjYUFNK4UCmHGPuwMrHyMFeU3z9KMg0wja/fTflXo7fVl0BsAohlgRO4QowQ==
+"@types/js-string-escape@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/js-string-escape/-/js-string-escape-1.0.1.tgz#662b8795ac2842981f6c46dc2289c0a81940f605"
+  integrity sha512-s3Tz/P+u4X78n0TdgNR0l9Yu1jyH2dRwofi/DqGLpbbjiuIs0n6W8W4XfUI6+9K0lPK1fF4KHA5HcqtOsy1V0Q==
 
 "@types/js-yaml@^3.12.1":
   version "3.12.7"
