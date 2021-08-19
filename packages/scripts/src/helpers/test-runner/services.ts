@@ -78,10 +78,10 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RabbitMQ]: {
         image: config.RABBITMQ_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.RABBITMQ_NAME}`,
-        ports: [`${config.RABBITMQ_PORT}:${config.RABBITMQ_PORT}`],
+        ports: [`${config.RABBITMQ_MANAGEMENT_PORT}:15672`, `${config.RABBITMQ_PORT}:5672`],
         mount: `type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`,
         env: {
-            RABBITMQ_HOST: `http://0.0.0.0:${config.RABBITMQ_PORT}`,
+            RABBITMQ_HOSTNAME: '0.0.0.0',
             RABBITMQ_USER: config.RABBITMQ_USER,
             RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
         },
