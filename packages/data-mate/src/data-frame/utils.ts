@@ -228,13 +228,18 @@ export function splitOnNewLineIterator(data: Buffer|string): Iterable<Buffer|str
 
 function* splitStringOnNewLineIterator(data: string): Iterable<string> {
     let startIndex = 0;
+    let isEndSlice = false;
 
     while (true) {
-        const newLineIndex = data.indexOf('\n', startIndex);
-        // if this return -1 we are done
-        if (newLineIndex === -1) return;
+        let newLineIndex = data.indexOf('\n', startIndex);
 
-        yield data.slice(startIndex, newLineIndex + 1);
+        if (newLineIndex === -1) {
+            if (isEndSlice) return;
+            isEndSlice = true;
+            newLineIndex = data.length;
+        }
+
+        yield data.slice(startIndex, newLineIndex);
         startIndex = newLineIndex + 1;
     }
 }
@@ -242,13 +247,18 @@ function* splitStringOnNewLineIterator(data: string): Iterable<string> {
 const NEW_LINE_BYTE_CODE = 10;
 function* splitBufferOnNewLineIterator(data: Buffer): Iterable<Buffer> {
     let startIndex = 0;
+    let isEndSlice = false;
 
     while (true) {
-        const newLineIndex = data.indexOf(NEW_LINE_BYTE_CODE, startIndex);
-        // if this return -1 we are done
-        if (newLineIndex === -1) return;
+        let newLineIndex = data.indexOf(NEW_LINE_BYTE_CODE, startIndex);
 
-        yield data.slice(startIndex, newLineIndex + 1);
+        if (newLineIndex === -1) {
+            if (isEndSlice) return;
+            isEndSlice = true;
+            newLineIndex = data.length;
+        }
+
+        yield data.subarray(startIndex, newLineIndex);
         startIndex = newLineIndex + 1;
     }
 }

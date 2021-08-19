@@ -91,7 +91,7 @@ export class DataFrame<
 
         for await (const row of data) {
             // ensure empty rows don't get passed along
-            if (!row.length || row.toString() === '\n') continue;
+            if (row.length <= 1) continue;
 
             index++;
             if (index === 0) {
