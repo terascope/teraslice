@@ -19,7 +19,7 @@ describe('Data', () => {
             });
 
             it('should have the correct values', () => {
-                expect(readable._values).toStrictEqual(values.filter(isNotNil));
+                expect(Array.from(readable.values())).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -37,7 +37,7 @@ describe('Data', () => {
             });
 
             it('should have the correct values', () => {
-                expect(readable._values).toStrictEqual(values.filter(isNotNil));
+                expect(Array.from(readable.values())).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -61,7 +61,7 @@ describe('Data', () => {
             });
 
             it('should have the correct values', () => {
-                expect(readable._values).toStrictEqual(values.filter(isNotNil));
+                expect(Array.from(readable.values())).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -127,7 +127,7 @@ describe('Data', () => {
             });
 
             it('should have the correct values', () => {
-                expect(readable._values).toStrictEqual(values.filter(isNotNil));
+                expect(Array.from(readable.values())).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -177,7 +177,7 @@ describe('Data', () => {
         });
 
         it('should have the correct values', () => {
-            expect(readable._values).toStrictEqual(values.filter(isNotNil));
+            expect(Array.from(readable.values())).toStrictEqual(values.filter(isNotNil));
         });
 
         it('should be able to get all of the values', () => {

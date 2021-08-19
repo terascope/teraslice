@@ -139,14 +139,14 @@ export abstract class Vector<T = unknown> {
      * Check to see there are any nil values stored in the Vector
     */
     hasNilValues(): boolean {
-        return this.data.some((data) => data.values.size !== data.values.length);
+        return this.data.some((data) => data.hasNilValues());
     }
 
     /**
      * Get the number of non-nil values in the Vector
     */
     countValues(): number {
-        return this.data.reduce((acc, data) => acc + data.values.size, 0);
+        return this.data.reduce((acc, data) => acc + data.countValues(), 0);
     }
 
     /**
@@ -154,7 +154,7 @@ export abstract class Vector<T = unknown> {
     */
     isEmpty(): boolean {
         if (this.size === 0) return true;
-        return this.data.every((data) => data.values.size === 0);
+        return this.data.every((data) => data.isEmpty());
     }
 
     /**
@@ -164,7 +164,7 @@ export abstract class Vector<T = unknown> {
     * values(): IterableIterator<[index: number, value: T]> {
         let offset = 0;
         for (const data of this.data) {
-            for (const [i, v] of data.values) {
+            for (const [i, v] of data.entries()) {
                 yield [offset + i, v];
             }
             offset += data.size;
@@ -200,7 +200,7 @@ export abstract class Vector<T = unknown> {
         let offset = 0;
 
         for (const data of this.data) {
-            for (const [index, value] of data.values) {
+            for (const [index, value] of data.entries()) {
                 const hash = getHash(value);
                 if (!hashes.has(hash)) {
                     hashes.add(hash);
@@ -222,7 +222,7 @@ export abstract class Vector<T = unknown> {
         const getHash = this.data[0].isPrimitive ? (v: unknown) => v : getHashCodeFrom;
 
         for (const data of this.data) {
-            for (const value of data.values.values()) {
+            for (const value of data.values()) {
                 const hash = getHash(value);
                 if (!hashes.has(hash)) {
                     hashes.add(hash);
@@ -279,7 +279,7 @@ export abstract class Vector<T = unknown> {
     has(index: number): boolean {
         const found = this.findDataWithIndex(index);
         if (!found) return false;
-        return found[0].values.has(found[1]);
+        return found[0].has(found[1]);
     }
 
     /**
