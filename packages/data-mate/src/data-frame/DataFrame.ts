@@ -22,7 +22,8 @@ import {
     concatColumnsToColumns, createColumnsWithIndices,
     distributeRowsToColumns, getSortedColumnsByValueCount,
     isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
-    processFieldFilter
+    processFieldFilter,
+    splitOnNewLineIterator
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
@@ -124,7 +125,7 @@ export class DataFrame<
         R extends Record<string, unknown> = Record<string, any>,
     >(data: Buffer|string): Promise<DataFrame<R>> {
         return DataFrame.deserializeIterator(
-            data.toString('utf8').split('\n')
+            splitOnNewLineIterator(data)
         );
     }
 

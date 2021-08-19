@@ -218,3 +218,37 @@ export function isEmptyRow(columns: readonly Column<any, any>[], row: number): b
     }
     return true;
 }
+
+export function splitOnNewLineIterator(data: Buffer|string): Iterable<Buffer|string> {
+    if (typeof data === 'string') {
+        return splitStringOnNewLineIterator(data);
+    }
+    return splitBufferOnNewLineIterator(data);
+}
+
+function* splitStringOnNewLineIterator(data: string): Iterable<string> {
+    let startIndex = 0;
+
+    while (true) {
+        const newLineIndex = data.indexOf('\n', startIndex);
+        // if this return -1 we are done
+        if (newLineIndex === -1) return;
+
+        yield data.slice(startIndex, newLineIndex + 1);
+        startIndex = newLineIndex + 1;
+    }
+}
+
+const NEW_LINE_BYTE_CODE = 10;
+function* splitBufferOnNewLineIterator(data: Buffer): Iterable<Buffer> {
+    let startIndex = 0;
+
+    while (true) {
+        const newLineIndex = data.indexOf(NEW_LINE_BYTE_CODE, startIndex);
+        // if this return -1 we are done
+        if (newLineIndex === -1) return;
+
+        yield data.slice(startIndex, newLineIndex + 1);
+        startIndex = newLineIndex + 1;
+    }
+}
