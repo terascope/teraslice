@@ -49,6 +49,8 @@ export const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 45672;
 export const RABBITMQ_MANAGEMENT_PORT = process.env.RABBITMQ_MANAGEMENT_PORT || 55672;
 export const RABBITMQ_HOSTNAME = process.env.RABBITMQ_HOSTNAME || HOST_IP;
 export const RABBITMQ_HOST = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_PORT}`;
+export const RABBITMQ_MANAGEMENT = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_MANAGEMENT_PORT}`;
+
 export const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
 export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
 

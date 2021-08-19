@@ -312,7 +312,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
 }
 
 async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<void> {
-    const host = config.RABBITMQ_HOST;
+    const managementEndpoint = config.RABBITMQ_MANAGEMENT;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
@@ -320,16 +320,16 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
     await ts.pWhile(
         async () => {
             if (options.trace) {
-                signale.debug(`checking RabbitMQ at ${host}`);
+                signale.debug(`checking RabbitMQ at ${managementEndpoint}`);
             } else {
-                logger.debug(`checking RabbitMQ at ${host}`);
+                logger.debug(`checking RabbitMQ at ${managementEndpoint}`);
             }
 
             let statusCode: number;
 
             try {
                 ({ statusCode } = await got('api/overview', {
-                    prefixUrl: host,
+                    prefixUrl: managementEndpoint,
                     responseType: 'json',
                     throwHttpErrors: false,
                     retry: 0,
@@ -348,14 +348,14 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
 
             if (statusCode === 200) {
                 const took = ms(Date.now() - startTime);
-                signale.success(`RabbitMQ is running at ${host}, took ${took}`);
+                signale.success(`RabbitMQ is running at ${managementEndpoint}, took ${took}`);
                 return true;
             }
 
             return false;
         },
         {
-            name: `RabbitMQ service (${host})`,
+            name: `RabbitMQ service (${managementEndpoint})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
         }
