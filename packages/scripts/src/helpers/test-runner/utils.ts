@@ -108,8 +108,12 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
 
     if (launchServices.includes(Service.RabbitMQ)) {
         Object.assign(env, {
-            RABBITMQ_HOST: config.RABBITMQ_HOST,
+            RABBITMQ_HOSTNAME: config.RABBITMQ_HOSTNAME,
+            RABBITMQ_USER: config.RABBITMQ_USER,
             RABBITMQ_VERSION: options.rabbitmqVersion,
+            RABBITMQ_PORT: config.RABBITMQ_PORT,
+            RABBITMQ_MANAGEMENT_PORT: config.RABBITMQ_MANAGEMENT_PORT,
+            RABBITMQ_PASSWORD: config.RABBITMQ_PASSWORD,
         });
     }
 
