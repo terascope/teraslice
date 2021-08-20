@@ -39,11 +39,56 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
         return this.#_valueVector;
     }
 
+    /**
+     * Get list value by row index, returns an iterator that will serialize
+     * each value at a time
+    */
+    * getRowIterator(
+        index: number, json?: boolean, options?: SerializeOptions
+    ): Iterable<Maybe<T>> {
+        if (options?.skipDuplicateObjects) {
+            throw new Error('ListVector->getIterator is incompatible with skipDuplicateObjects');
+        }
+
+        if (options?.skipEmptyArrays && this.isEmpty()) {
+            return;
+        }
+
+        const found = this.findDataWithIndex(index);
+        if (!found) return;
+
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+        const vectorType = this.valueVector.config.type;
+        const isObjectType = vectorType === FieldType.Object;
+        const skipNilValues = (options?.skipNilListValues || (
+            isObjectType && options?.skipNilObjectValues
+        ));
+
+        const val = found[0].get(found[1]);
+        if (val == null) {
+            if (skipNilValues) return;
+            yield nilValue;
+            return;
+        }
+
+        const fn = this.convertValueToJSON(options);
+        for (const item of val) {
+            const result = json ? fn(item) : item;
+            if (result == null) {
+                if (!skipNilValues) {
+                    yield nilValue;
+                }
+            } else {
+                yield result;
+            }
+        }
+    }
+
     toJSONCompatibleValue(values: readonly Maybe<T>[], options?: SerializeOptions): any {
         let result = values.map(this.convertValueToJSON(options));
         const vectorType = this.valueVector.config.type;
         const isObjectType = vectorType === FieldType.Object;
-        // ordering doesn't mater here but I think
+        // ordering doesn't matter here but I think
         // might be a tad bit better to remove the
         // the nil values
         if (options?.skipNilListValues || (

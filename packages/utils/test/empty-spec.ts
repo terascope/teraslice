@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { timesIter } from '../src';
 import { isEmpty } from '../src/empty';
 
 describe('Empty Utils', () => {
@@ -8,6 +9,10 @@ describe('Empty Utils', () => {
 
         const set = new Set();
         set.add(1);
+
+        async function* asyncIterator(num: number): AsyncIterable<number> {
+            yield num;
+        }
 
         describe.each([
             [null, true],
@@ -28,6 +33,8 @@ describe('Empty Utils', () => {
             [[1, 2], false],
             [[null], false],
             ['howdy', false],
+            [timesIter(1), false],
+            [asyncIterator(1), false]
         ])('when given %p', (input, expected) => {
             it(`should return ${expected ? 'true' : 'false'}`, () => {
                 expect(isEmpty(input)).toBe(expected);
