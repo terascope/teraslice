@@ -218,3 +218,47 @@ export function isEmptyRow(columns: readonly Column<any, any>[], row: number): b
     }
     return true;
 }
+
+export function splitOnNewLineIterator(data: Buffer|string): Iterable<Buffer|string> {
+    if (typeof data === 'string') {
+        return splitStringOnNewLineIterator(data);
+    }
+    return splitBufferOnNewLineIterator(data);
+}
+
+function* splitStringOnNewLineIterator(data: string): Iterable<string> {
+    let startIndex = 0;
+    let isEndSlice = false;
+
+    while (true) {
+        let newLineIndex = data.indexOf('\n', startIndex);
+
+        if (newLineIndex === -1) {
+            if (isEndSlice) return;
+            isEndSlice = true;
+            newLineIndex = data.length;
+        }
+
+        yield data.slice(startIndex, newLineIndex);
+        startIndex = newLineIndex + 1;
+    }
+}
+
+const NEW_LINE_BYTE_CODE = 10;
+function* splitBufferOnNewLineIterator(data: Buffer): Iterable<Buffer> {
+    let startIndex = 0;
+    let isEndSlice = false;
+
+    while (true) {
+        let newLineIndex = data.indexOf(NEW_LINE_BYTE_CODE, startIndex);
+
+        if (newLineIndex === -1) {
+            if (isEndSlice) return;
+            isEndSlice = true;
+            newLineIndex = data.length;
+        }
+
+        yield data.subarray(startIndex, newLineIndex);
+        startIndex = newLineIndex + 1;
+    }
+}

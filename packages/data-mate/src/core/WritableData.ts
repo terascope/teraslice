@@ -1,5 +1,5 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
-import type { Maybe } from '@terascope/types';
+import type { Maybe, TypedArrayConstructor } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
 
 /**
@@ -14,7 +14,7 @@ export class WritableData<T> {
     */
     static make<R>(
         size: number,
-        getValue: (index: number) => Maybe<R>
+        getValue: (index: number) => Maybe<R>,
     ): WritableData<R> {
         const data = new WritableData<R>(size);
         for (let i = 0; i < size; i++) {
@@ -26,19 +26,23 @@ export class WritableData<T> {
     /**
      * The value to indices Map
     */
-    readonly values: SparseMap<T>;
+    private readonly _values: SparseMap<T>;
 
     /**
      * The total number of values stored
     */
     readonly size: number;
 
-    constructor(size: number) {
+    constructor(size: number, Values?: TypedArrayConstructor) {
         if (!isInteger(size)) {
             throw new Error(`Invalid size given to WritableData, got ${size} (${getTypeOf(size)})`);
         }
 
-        this.values = new SparseMap(size);
+        this._values = Values ? new SparseMap(
+            // @ts-expect-error because the types are wrong
+            Values, size
+        ) : new SparseMap(size);
+
         this.size = size;
     }
 
@@ -53,11 +57,11 @@ export class WritableData<T> {
         }
 
         if (value == null) {
-            this.values.delete(index);
+            this._values.delete(index);
             return this;
         }
 
-        this.values.set(index, value);
+        this._values.set(index, value);
         return this;
     }
 
@@ -65,7 +69,7 @@ export class WritableData<T> {
      * Reset the values
     */
     reset(): this {
-        this.values.clear();
+        this._values.clear();
         return this;
     }
 
@@ -76,7 +80,11 @@ export class WritableData<T> {
         if (size === this.size) return this;
         return WritableData.make(
             size,
-            this.values.get.bind(this.values)
+            this._values.get.bind(this._values)
         );
+    }
+
+    rawValues(): SparseMap<T> {
+        return this._values;
     }
 }

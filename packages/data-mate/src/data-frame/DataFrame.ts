@@ -22,7 +22,8 @@ import {
     concatColumnsToColumns, createColumnsWithIndices,
     distributeRowsToColumns, getSortedColumnsByValueCount,
     isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
-    processFieldFilter
+    processFieldFilter,
+    splitOnNewLineIterator
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
@@ -90,7 +91,7 @@ export class DataFrame<
 
         for await (const row of data) {
             // ensure empty rows don't get passed along
-            if (!row.length || row.toString() === '\n') continue;
+            if (row.length <= 1) continue;
 
             index++;
             if (index === 0) {
@@ -124,7 +125,7 @@ export class DataFrame<
         R extends Record<string, unknown> = Record<string, any>,
     >(data: Buffer|string): Promise<DataFrame<R>> {
         return DataFrame.deserializeIterator(
-            data.toString('utf8').split('\n')
+            splitOnNewLineIterator(data)
         );
     }
 
@@ -506,7 +507,6 @@ export class DataFrame<
         const len = this.size;
         let returning = len;
         const builders = getBuildersForConfig<T>(this.config, len);
-        const columns = new Map(this.columns.map((col) => [col.name, col]));
 
         const sortedColumns = getSortedColumnsByValueCount(this.columns);
         for (let i = 0; i < len; i++) {
@@ -514,7 +514,7 @@ export class DataFrame<
                 returning--;
             } else {
                 for (const [name, builder] of builders) {
-                    builder.append(columns.get(name)!.vector.get(i));
+                    builder.append(this.getColumnOrThrow(name).vector.get(i));
                 }
             }
         }
@@ -525,7 +525,7 @@ export class DataFrame<
             // @ts-expect-error data is readonly
             builder.data = builder.data
                 .resize(returning);
-            return columns.get(name)!.fork(builder.toVector());
+            return this.getColumnOrThrow(name).fork(builder.toVector());
         }));
     }
 
@@ -600,9 +600,8 @@ export class DataFrame<
         const buckets = new Set<string>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
 
-        const columns = new Map(this.columns.map((col) => [col.name, col]));
         for (const name of fields) {
-            const column = columns.get(name)!;
+            const column = this.getColumnOrThrow(name);
             if (column) {
                 keyAggs.set(column.name, makeUniqueKeyAgg(
                     column.vector, serializeOptions
@@ -617,9 +616,9 @@ export class DataFrame<
             buckets,
             (name, i) => {
                 if (!serializeOptions) {
-                    return columns.get(name)!.vector.get(i);
+                    return this.getColumnOrThrow(name).vector.get(i);
                 }
-                return columns.get(name)!.vector.get(
+                return this.getColumnOrThrow(name).vector.get(
                     i, true, serializeOptions
                 );
             }
@@ -636,7 +635,7 @@ export class DataFrame<
             // @ts-expect-error data is readonly
             builder.data = builder.data
                 .resize(buckets.size);
-            return columns.get(name)!.fork(builder.toVector());
+            return this.getColumnOrThrow(name).fork(builder.toVector());
         }));
     }
 

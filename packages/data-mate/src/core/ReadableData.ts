@@ -1,5 +1,4 @@
 import { Maybe } from '@terascope/types';
-import SparseMap from 'mnemonist/sparse-map';
 import {
     ReadonlySparseMap
 } from './interfaces';
@@ -14,7 +13,7 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     /**
      * The values to value index lookup table
     */
-    readonly values: ReadonlySparseMap<T>;
+    private readonly _values: ReadonlySparseMap<T>;
 
     /**
      * The number of total number of values stored
@@ -31,23 +30,45 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     readonly isPrimitive: boolean;
 
     constructor(data: WritableData<T>) {
-        this.values = Object.freeze(data.values) as any;
+        // freezing this is very important
+        this._values = Object.freeze(data.rawValues());
         this.size = data.size;
-        this.isPrimitive = isPrimitive(data.values);
+        this.isPrimitive = isPrimitive(this._values);
         Object.freeze(this);
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (let i = 0; i < this.size; i++) {
-            yield this.values.get(i) ?? null;
+            yield this.get(i);
         }
+    }
+
+    /**
+     * Iterate over the non-nil values
+    */
+    values(): Iterable<T> {
+        return this._values.values();
+    }
+
+    /**
+     * Iterate over the non-nil values with indices
+    */
+    entries(): Iterable<[index: number, value: T]> {
+        return this._values;
     }
 
     /**
      * Get a value by an index
     */
     get(index: number): Maybe<T> {
-        return this.values.get(index) ?? null;
+        return this._values.get(index) ?? null;
+    }
+
+    /**
+     * Check if the contains a particular value
+    */
+    has(index: number): boolean {
+        return this._values.has(index);
     }
 
     /**
@@ -58,7 +79,7 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     toWritable(size?: number): WritableData<T> {
         return WritableData.make<T>(
             size ?? this.size,
-            this.values.get.bind(this.values)
+            this._values.get.bind(this._values)
         );
     }
 
@@ -85,7 +106,7 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
 
         let writeIndex = 0;
         for (let i = startIndex; i < endIndex; i++) {
-            const val = this.values.get(i);
+            const val = this.get(i);
             data.set(writeIndex++, val);
         }
 
@@ -93,14 +114,28 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     }
 
     /**
-     * Get the internal values list do not mutate it
+     * Check to see there are any nil values stored
     */
-    get _values(): readonly T[] {
-        return [...this.values.values()];
+    hasNilValues(): boolean {
+        return this.countValues() !== this.size;
+    }
+
+    /**
+     * Get the number of non-nil values
+    */
+    countValues(): number {
+        return this._values.size;
+    }
+
+    /**
+     * Returns true if there are no non-nil values
+    */
+    isEmpty(): boolean {
+        return this.size === 0 || this.countValues() === 0;
     }
 }
 
-function isPrimitive(values: SparseMap<any>): boolean {
+function isPrimitive(values: ReadonlySparseMap<any>): boolean {
     if (!values.size) return true;
     // @ts-expect-error
     const val = values.vals[0];
