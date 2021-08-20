@@ -30,6 +30,7 @@ export * from './regex';
 export * from './queue';
 export * from './strings';
 export * from './ip';
+export * from './iterators';
 export * from './field-type';
 
 export { STATUS_CODES };
