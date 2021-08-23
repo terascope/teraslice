@@ -55,14 +55,14 @@
         "tmp": "^0.2.0",
         "tty-table": "^4.1.3",
         "yargs": "^17.1.1",
-        "yeoman-environment": "^2.10.3",
+        "yeoman-environment": "^3.6.0",
         "yeoman-generator": "^4.13.0",
         "yo": "^3.1.1"
     },
     "devDependencies": {
         "@types/decompress": "^4.2.4",
         "@types/easy-table": "^0.0.33",
-        "@types/js-yaml": "^4.0.1",
+        "@types/js-yaml": "^4.0.3",
         "@types/prompts": "^2.0.13",
         "@types/signale": "^1.4.2",
         "@types/tmp": "^0.2.1",
