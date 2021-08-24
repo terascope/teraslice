@@ -569,3 +569,14 @@ To tear everything down and start over, all you have to do is run:
 ```bash
 make destroy-all
 ```
+
+### How to run tests
+
+How to run just the unit tests on kubernetes backend:
+
+```bash
+# make sure dependencies are installed and typescript compiled
+yarn setup
+# run tests
+DEBUG=True npx jest --detectOpenHandles packages/teraslice/test/lib/cluster/services/cluster/backends/kubernetes/
+```
