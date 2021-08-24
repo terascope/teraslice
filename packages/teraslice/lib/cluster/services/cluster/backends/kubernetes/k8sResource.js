@@ -56,7 +56,7 @@ class K8sResource {
         this._setExternalPorts();
 
         if (resourceName === 'worker') {
-            this._setAntiAffinity();
+            this._setWorkerAntiAffinity();
         }
 
         // Execution controller targets are required nodeAffinities, if
@@ -124,31 +124,33 @@ class K8sResource {
         };
     }
 
-    _setAntiAffinity() {
+    _setWorkerAntiAffinity() {
         if (this.terasliceConfig.kubernetes_worker_antiaffinity) {
-            this.resource.spec.template.spec.affinity = {
-                podAntiAffinity: {
-                    preferredDuringSchedulingIgnoredDuringExecution: [
-                        {
-                            weight: 1,
-                            podAffinityTerm: {
-                                labelSelector: {
-                                    matchExpressions: [
-                                        {
-                                            key: 'app.kubernetes.io/name',
-                                            operator: 'In',
-                                            values: [
-                                                'teraslice'
-                                            ]
-                                        }
+            const targetKey = 'spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution';
+            if (!_.has(this.resource, targetKey)) {
+                _.set(this.resource, targetKey, []);
+            }
+
+            // eslint-disable-next-line max-len
+            this.resource.spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution.push(
+                {
+                    weight: 1,
+                    podAffinityTerm: {
+                        labelSelector: {
+                            matchExpressions: [
+                                {
+                                    key: 'app.kubernetes.io/name',
+                                    operator: 'In',
+                                    values: [
+                                        'teraslice'
                                     ]
-                                },
-                                topologyKey: 'kubernetes.io/hostname'
-                            }
-                        }
-                    ]
+                                }
+                            ]
+                        },
+                        topologyKey: 'kubernetes.io/hostname'
+                    }
                 }
-            };
+            );
         }
     }
 
