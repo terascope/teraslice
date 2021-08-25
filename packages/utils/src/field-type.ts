@@ -9,8 +9,9 @@ import { isIPRangeOrThrow, isIPOrThrow } from './ip';
 import { toEpochMSOrThrow } from './dates';
 import { toBooleanOrThrow } from './booleans';
 import {
-    isValidateNumberType, toBigIntOrThrow, toFloatOrThrow,
-    toNumberOrThrow, bigIntToJSON, toIntegerOrThrow
+    isValidateNumberType, toBigIntOrThrow,
+    toNumberOrThrow, toIntegerOrThrow,
+    toFloatOrThrow,
 } from './numbers';
 import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
 import { hasOwn } from './objects';
@@ -106,12 +107,14 @@ function _mapToString(input: any): string {
 }
 
 function _getHashCodeFrom(value: unknown): string {
-    if (value == null) return '~';
-    if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
+    if (value == null) return '';
 
-    return typeof value === 'object'
-        ? _mapToString(value)
-        : primitiveToString(value);
+    const typeOf = typeof value;
+    return typeOf + (
+        typeOf === 'object'
+            ? _mapToString(value)
+            : value
+    );
 }
 
 /**
@@ -119,7 +122,8 @@ function _getHashCodeFrom(value: unknown): string {
  * the value doesn't explode the memory but the also need to
  * worry about using md5 too much
 */
-const MAX_STRING_LENGTH_BEFORE_MD5 = 1024;
+export const MAX_STRING_LENGTH_BEFORE_MD5 = 1024;
+
 /**
  * Generate a unique hash code from a value, this is
  * not a guarantee but it is close enough for doing
