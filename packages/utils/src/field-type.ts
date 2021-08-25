@@ -118,9 +118,10 @@ function _getHashCodeFrom(value: unknown): string {
 }
 
 /**
- * If we has a hash a really long value we want to ensure that
- * the value doesn't explode the memory but the also need to
- * worry about using md5 too much
+ * If we have a hash that is a long value we want to ensure that
+ * the value doesn't explode the memory since we may be using
+ * that value as a key. So when a string exceeds this specified
+ * length we can reduce its length to 35 characters by using md5
 */
 export const MAX_STRING_LENGTH_BEFORE_MD5 = 1024;
 
