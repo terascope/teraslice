@@ -3,7 +3,6 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     DataTypeFields, DataTypeVersion
 } from '@terascope/types';
-import { md5 } from '@terascope/utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { Column, KeyAggFn } from '../column';
 
@@ -191,7 +190,7 @@ export function makeKeyForRow<T extends Record<string, any>>(
 
     return {
         row,
-        key: groupKey.length > 35 ? md5(groupKey) : groupKey,
+        key: groupKey,
     };
 }
 
