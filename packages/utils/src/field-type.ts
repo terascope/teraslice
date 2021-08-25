@@ -18,6 +18,7 @@ import { isArrayLike, castArray } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
 import { noop } from './functions';
 import { isNotNil } from './empty';
+import { isIterator } from './iterators';
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 
@@ -89,14 +90,14 @@ function coerceToGeoPoint(input: unknown): GeoPoint {
 function _mapToString(input: any): string {
     let hash = '';
 
-    if (isArrayLike(input)) {
+    if (isIterator(input)) {
         for (const value of input) {
-            hash += `,${getHashCodeFrom(value)}`;
+            hash += `,${_getHashCodeFrom(value)}`;
         }
     } else {
         for (const prop in input) {
             if (hasOwn(input, prop)) {
-                hash += `,${prop}:${getHashCodeFrom(input[prop])}`;
+                hash += `,${prop}:${_getHashCodeFrom(input[prop])}`;
             }
         }
     }
@@ -104,15 +105,29 @@ function _mapToString(input: any): string {
     return hash;
 }
 
-export function getHashCodeFrom(value: unknown): string {
+function _getHashCodeFrom(value: unknown): string {
     if (value == null) return '~';
     if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
 
-    const hash = typeof value === 'object'
+    return typeof value === 'object'
         ? _mapToString(value)
         : primitiveToString(value);
+}
 
-    if (hash.length > 35) return `;${md5(hash)}`;
+/**
+ * If we has a hash a really long value we want to ensure that
+ * the value doesn't explode the memory but the also need to
+ * worry about using md5 too much
+*/
+const MAX_STRING_LENGTH_BEFORE_MD5 = 1024;
+/**
+ * Generate a unique hash code from a value, this is
+ * not a guarantee but it is close enough for doing
+ * groupBys and caching
+*/
+export function getHashCodeFrom(value: unknown): string {
+    const hash = _getHashCodeFrom(value);
+    if (hash.length > MAX_STRING_LENGTH_BEFORE_MD5) return `;${md5(hash)}`;
     return `:${hash}`;
 }
 
