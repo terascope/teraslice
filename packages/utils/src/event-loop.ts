@@ -2,7 +2,7 @@ import clamp from 'lodash/clamp';
 import { toHumanTime } from './dates';
 import { debugLogger } from './logger';
 import { Logger } from './logger-interface';
-import { pDelay } from './promises';
+import { pDelay, pImmediate } from './promises';
 
 let _eventLoop: EventLoop|undefined;
 
@@ -28,13 +28,7 @@ export class EventLoop {
 
         const delay = EventLoop.getDelay();
         if (delay <= 0) {
-            if (typeof process?.nextTick === 'function') {
-                return new Promise((resolve) => {
-                    process.nextTick(resolve);
-                });
-            }
-
-            return pDelay();
+            return pImmediate();
         }
 
         return pDelay(delay);
