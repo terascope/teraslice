@@ -41,7 +41,7 @@
         "@turf/helpers": "^6.2.0",
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.4.0",
-        "awesome-phonenumber": "^2.57.0",
+        "awesome-phonenumber": "^2.58.0",
         "date-fns": "^2.23.0",
         "date-fns-tz": "^1.1.5",
         "datemath-parser": "^1.0.6",
