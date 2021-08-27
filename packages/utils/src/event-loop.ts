@@ -1,3 +1,4 @@
+import clamp from 'lodash/clamp';
 import { toHumanTime } from './dates';
 import { debugLogger } from './logger';
 import { Logger } from './logger-interface';
@@ -12,6 +13,8 @@ let _eventLoop: EventLoop|undefined;
  * long running synchronous code
 */
 export class EventLoop {
+    static DEFAULT_HEARTBEAT = 1000;
+
     /**
      * Adds a setTimeout if the event loop is blocked
      * and will the delay will get slower the longer the event loop
@@ -23,7 +26,7 @@ export class EventLoop {
         }
         if (!_eventLoop?.blocked) return;
 
-        const delay = Math.max(_eventLoop.checkedInDiff - _eventLoop.heartbeat, 500);
+        const delay = EventLoop.getDelay();
         if (delay <= 0) {
             if (typeof process?.nextTick === 'function') {
                 return new Promise((resolve) => {
@@ -35,6 +38,17 @@ export class EventLoop {
         }
 
         return pDelay(delay);
+    }
+
+    /**
+     * Get the delay need, ideally this returns 0.
+     *
+     * The arguments are provided here so we can add tests
+    */
+    static getDelay(_checkInDiff?: number, _heartbeat?: number): number {
+        const checkedInDiff = _checkInDiff ?? (_eventLoop?.checkedInDiff) ?? 0;
+        const heartbeat = _heartbeat ?? (_eventLoop?.heartbeat) ?? EventLoop.DEFAULT_HEARTBEAT;
+        return clamp(checkedInDiff - heartbeat, 0, 500);
     }
 
     /**
@@ -54,7 +68,7 @@ export class EventLoop {
 
     checkedInDiff: number;
 
-    private readonly heartbeat = 1000;
+    private readonly heartbeat = EventLoop.DEFAULT_HEARTBEAT;
 
     private checkedIn: number;
     private interval: NodeJS.Timeout;
