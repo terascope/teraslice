@@ -26,6 +26,8 @@ export async function generateTSConfig(
             skipLibCheck: true,
             experimentalDecorators: true,
             strict: true,
+            // FIXME we should enable this someday
+            useUnknownInCatchVariables: false,
             noFallthroughCasesInSwitch: true,
             preserveConstEnums: true,
             esModuleInterop: true,
