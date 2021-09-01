@@ -55,7 +55,7 @@ function _addReducer(acc: any, curr: any): bigint {
     if (isBigInt(curr)) return BigInt(acc) + curr;
     return acc + BigInt(curr);
 }
-function add(value: number|bigint, ...values: (number|bigint)[]): number|bigint {
+function add(value: number|bigint, values: (number|bigint)[]): number|bigint {
     return values.reduce(_addReducer, value);
 }
 
@@ -69,8 +69,8 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
         adjustsSelectedRow: false,
         push(value) {
             const res = getNumericValues(value);
-            const sum = add(0, ...res.values);
-            agg.value = add(agg.value, sum);
+            const sum = add(0, res.values);
+            agg.value = add(agg.value, [sum]);
         },
         flush() {
             if (agg.value == null) return { value: undefined };
@@ -96,8 +96,8 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
         push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
-                const sum = add(0, ...res.values);
-                agg.value = agg.value != null ? add(sum, agg.value) : sum;
+                const sum = add(0, res.values);
+                agg.value = agg.value != null ? add(sum, [agg.value]) : sum;
             }
             agg.total += res.values.length;
         },
@@ -107,7 +107,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
             const total = type === 'bigint' ? BigInt(agg.total) : agg.total;
 
             const avg = (agg.value as any) / (total as any);
-            const result = Number.isNaN(avg) ? { value: undefined } : { value: avg };
+            const result = { value: avg };
             agg = { total: 0 };
             return result;
         },
