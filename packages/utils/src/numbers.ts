@@ -349,11 +349,11 @@ function _validateNumberFieldType(input: unknown, type: FieldType): number {
 
     if (INT_SIZES[type]) {
         const { max, min } = INT_SIZES[type];
-        if (int > max) {
+        if (int >= max) {
             throw new TypeError(`Invalid byte, value of ${int} is greater than maximum size of ${max}`);
         }
 
-        if (int < min) {
+        if (int <= min) {
             throw new TypeError(`Invalid byte, value of ${int} is less than minimum size of ${min}`);
         }
     }
