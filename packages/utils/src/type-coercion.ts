@@ -73,6 +73,17 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
     }
 
     return function _coerceToNumberType(input: unknown): number {
+        /**
+         * We should keep these irrational numbers since they
+         * useful for certain operations, however they will
+         * be converted to null when converted to JavaScript
+        */
+        if (Number.isNaN(input)
+            || input === Number.POSITIVE_INFINITY
+            || input === Number.NEGATIVE_INFINITY) {
+            return input as number;
+        }
+
         const num = coerceFn(input);
 
         if (smallSize) {
