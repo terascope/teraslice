@@ -1,8 +1,7 @@
-import clamp from 'lodash/clamp';
 import { toHumanTime } from './dates';
 import { debugLogger } from './logger';
 import { Logger } from './logger-interface';
-import { pDelay, pImmediate } from './promises';
+import { pImmediate } from './promises';
 
 let _eventLoop: EventLoop|undefined;
 
@@ -25,24 +24,7 @@ export class EventLoop {
             EventLoop.init(debugLogger('event-loop'));
         }
         if (!_eventLoop?.blocked) return;
-
-        const delay = EventLoop.getDelay();
-        if (delay <= 0) {
-            return pImmediate();
-        }
-
-        return pDelay(delay);
-    }
-
-    /**
-     * Get the delay need, ideally this returns 0.
-     *
-     * The arguments are provided here so we can add tests
-    */
-    static getDelay(_checkInDiff?: number, _heartbeat?: number): number {
-        const checkedInDiff = _checkInDiff ?? (_eventLoop?.checkedInDiff) ?? 0;
-        const heartbeat = _heartbeat ?? (_eventLoop?.heartbeat) ?? EventLoop.DEFAULT_HEARTBEAT;
-        return clamp(checkedInDiff - heartbeat, 0, 500);
+        return pImmediate();
     }
 
     /**
