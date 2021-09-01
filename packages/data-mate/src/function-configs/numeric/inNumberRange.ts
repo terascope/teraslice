@@ -55,6 +55,26 @@ export const inNumberRangeConfig: FieldValidateConfig<InNumberRangeArg> = {
             field: 'testField',
             input: 10,
             output: 10
+        },
+        {
+            args: { min: 100, inclusive: true },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: Number.POSITIVE_INFINITY,
+            output: Number.POSITIVE_INFINITY
+        },
+        {
+            args: { min: 100, inclusive: true },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: Number.NEGATIVE_INFINITY,
+            output: null
         }
     ],
     create({ args }) {

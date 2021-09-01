@@ -837,4 +837,62 @@ describe('AggregationFrame', () => {
             ]);
         });
     });
+
+    describe('when avg includes irrational values', () => {
+        type Person2 = {
+            name: Maybe<string>;
+            gender: Maybe<'F'|'M'>;
+            age: Maybe<number>;
+            friends: Maybe<number>;
+        };
+        let dataFrame2: DataFrame<Person2>;
+
+        beforeAll(() => {
+            dataFrame2 = DataFrame.fromJSON<Person2>({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    gender: {
+                        type: FieldType.Keyword,
+                    },
+                    age: {
+                        type: FieldType.Short,
+                    },
+                    friends: {
+                        type: FieldType.Short,
+                    },
+                }
+            }, [
+                {
+                    name: 'Anne',
+                    age: Number.POSITIVE_INFINITY,
+                    friends: null,
+                    gender: 'F',
+                },
+                {
+                    name: 'Bill',
+                    age: Number.NaN,
+                    friends: null,
+                    gender: 'M',
+                }
+            ]);
+        });
+
+        it('should create the correct results', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .avg('age')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Anne',
+                    age: Number.NaN,
+                    gender: 'F',
+                }
+            ]);
+        });
+    });
 });

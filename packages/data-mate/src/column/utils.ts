@@ -141,17 +141,18 @@ export function validateAccepts(
 ): Error | undefined {
     if (!accepts?.length || !types.length) return;
 
-    for (const acceptType of accepts) {
-        if (acceptType === FieldType.Number && types.every((type) => numericTypes.has(type))) {
-            return;
+    function isAccepted(type: FieldType): boolean {
+        if (type === FieldType.Any) return true;
+        if (numericTypes.has(type) && accepts.includes(FieldType.Number)) {
+            return true;
         }
-        if (acceptType === FieldType.String && types.every((type) => stringTypes.has(type))) {
-            return;
+        if (stringTypes.has(type) && accepts.includes(FieldType.String)) {
+            return true;
         }
-        if (types.every((type) => type === acceptType || type === FieldType.Any)) {
-            return;
-        }
+        return accepts.includes(type);
     }
+
+    if (types.every(isAccepted)) return;
 
     return new Error(`Incompatible with field type ${joinList(types)}, must be ${joinList(accepts)}`);
 }

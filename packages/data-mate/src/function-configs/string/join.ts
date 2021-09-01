@@ -66,6 +66,29 @@ const examples: FunctionDefinitionExample<JoinArgs>[] = [
         input: 'a string',
         output: 'a string',
     },
+    {
+        args: { delimiter: ':' },
+        config: {
+            version: 1,
+            fields: {
+                testField: {
+                    type: FieldType.Tuple
+                },
+                'testField.0': {
+                    type: FieldType.String
+                },
+                'testField.1': {
+                    type: FieldType.Byte
+                },
+                'testField.2': {
+                    type: FieldType.Boolean
+                }
+            }
+        },
+        field: 'testField',
+        input: ['foo', 1, true],
+        output: 'foo:1:true',
+    },
 ];
 
 export const joinConfig: FieldTransformConfig<JoinArgs> = {
@@ -78,7 +101,7 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
     create({ args: { delimiter = '' } }) {
         return joinFn(delimiter);
     },
-    accepts: [FieldType.String],
+    accepts: [FieldType.String, FieldType.Number, FieldType.Boolean],
     argument_schema: {
         delimiter: {
             type: FieldType.String,
@@ -86,10 +109,10 @@ export const joinConfig: FieldTransformConfig<JoinArgs> = {
             description: 'The char to join the strings'
         }
     },
-    output_type({ field_config }) {
+    output_type() {
         return {
             field_config: {
-                ...field_config,
+                type: FieldType.String,
                 array: false,
             }
         };

@@ -114,7 +114,9 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
     }
 
     if (!isNumber(v) && !isBigInt(v)) {
-        throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+        if (!Number.isNaN(v)) {
+            throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+        }
     }
 
     const changesToBigInt = curr.type === 'number' && isBigInt(v);

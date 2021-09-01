@@ -31,6 +31,6 @@ export * from './queue';
 export * from './strings';
 export * from './ip';
 export * from './iterators';
-export * from './field-type';
+export * from './type-coercion';
 
 export { STATUS_CODES };
