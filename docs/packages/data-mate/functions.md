@@ -2062,6 +2062,88 @@ toGeoPoint()
 
 ## CATEGORY: JSON
 
+### `cast`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Converts the field to another type, this is also useful changing the metadata of field
+
+#### Arguments
+
+ - **type**: (required) `String` - The type of field, defaults to Any, you may need to specify the type for better execution optimization
+
+ - **array**:  `Boolean` - Indicates whether the field is an array
+
+ - **description**:  `Text` - Set the description for the field
+
+ - **locale**:  `String` - Specify the locale for the field (only compatible with some field types).  Must be a BCP 47 Language Tag
+
+ - **indexed**:  `Boolean` - Specifies whether the field is indexed in elasticsearch (Only type Object currently support this)
+
+ - **format**:  `String` - The format for the field. Currently only supported by Date fields
+
+ - **is_primary_date**:  `Boolean` - Used to denote naming of timeseries indices, and if any search/join queries off of this field should use a date searching algorithm
+
+ - **time_resolution**:  `String` - Indicates whether the data has second or millisecond resolutions used with the `is_primary_date`
+
+ - **child_config**:  `Object` - If parsing an object, you can specify the DataTypeFields of the key/values of the object. This is an object whose keys are the name of the fields, whose value is an object with all of the other properties listed above (ie type, array, locale, format but not child_config)
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+cast({ type: 'Integer' })
+```
+
+<small>Input:</small>
+
+```ts
+'21.223'
+```
+
+<small>Output:</small>
+
+```ts
+21
+```
+
+**# Example (2)**
+
+```ts
+cast({ type: 'Integer', array: true })
+```
+
+<small>Input:</small>
+
+```ts
+'21.223'
+```
+
+<small>Output:</small>
+
+```ts
+[ 21 ]
+```
+
+**# Example (3)**
+
+```ts
+cast({ type: 'Object', child_config: { foo: { type: 'Integer' } } })
+```
+
+<small>Input:</small>
+
+```ts
+{ foo: '21.23' }
+```
+
+<small>Output:</small>
+
+```ts
+{ foo: 21 }
+```
+
 ### `parseJSON`
 
 **Type:** `FIELD_TRANSFORM`
@@ -3708,7 +3790,43 @@ setTimezone({ timezone: 420 })
 **# Example (2)**
 
 ```ts
+setTimezone({ timezone: 'America/Phoenix' })
+```
+
+<small>Input:</small>
+
+```ts
+'2021-05-14T20:45:30.000Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2021-05-14T20:45:30.000-07:00'
+```
+
+**# Example (3)**
+
+```ts
 setTimezone({ timezone: 120 })
+```
+
+<small>Input:</small>
+
+```ts
+'2020-02-14T20:45:30.091Z'
+```
+
+<small>Output:</small>
+
+```ts
+'2020-02-14T20:45:30.091+02:00'
+```
+
+**# Example (4)**
+
+```ts
+setTimezone({ timezone: 'Europe/Paris' })
 ```
 
 <small>Input:</small>
@@ -3923,6 +4041,26 @@ subtractFromDate({ expr: '1hr', months: 10 })
 #### Accepts
 
 - `String`
+
+#### Examples
+
+**# Example (1)**
+
+```ts
+timezoneToOffset()
+```
+
+<small>Input:</small>
+
+```ts
+'America/Phoenix'
+```
+
+<small>Output:</small>
+
+```ts
+-420
+```
 
 ### `toDailyDate`
 
@@ -5322,13 +5460,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:52:32.840Z'
+'2021-09-01T18:25:04.510Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-10T22:52:32.840Z'
+'2021-09-01T18:25:04.510Z'
 ```
 
 **# Example (2)**
@@ -5374,7 +5512,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:52:32.841Z'
+'2021-09-01T18:25:04.511Z'
 ```
 
 <small>Output:</small>
@@ -5394,13 +5532,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-06-11T22:52:32.841Z'
+'2021-09-02T18:25:04.511Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-11T22:52:32.841Z'
+'2021-09-02T18:25:04.511Z'
 ```
 
 ### `isTuesday`
@@ -5700,7 +5838,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-10T22:52:32.846Z'
+'2021-09-01T18:25:04.513Z'
 ```
 
 <small>Output:</small>
@@ -5720,13 +5858,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-06-09T22:52:32.846Z'
+'2021-08-31T18:25:04.513Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-06-09T22:52:32.846Z'
+'2021-08-31T18:25:04.513Z'
 ```
 
 ## CATEGORY: Numeric
@@ -6698,6 +6836,42 @@ divideValues()
 
 ```ts
 2
+```
+
+**# Example (6)**
+
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
+[ 0, 0 ]
+```
+
+<small>Output:</small>
+
+```ts
+NaN
+```
+
+**# Example (7)**
+
+```ts
+divideValues()
+```
+
+<small>Input:</small>
+
+```ts
+[ 100, 0 ]
+```
+
+<small>Output:</small>
+
+```ts
+Infinity
 ```
 
 ### `exp`
@@ -8915,6 +9089,42 @@ inNumberRange({ min: 0, max: 100 })
 
 ```ts
 10
+```
+
+**# Example (5)**
+
+```ts
+inNumberRange({ min: 100, inclusive: true })
+```
+
+<small>Input:</small>
+
+```ts
+Infinity
+```
+
+<small>Output:</small>
+
+```ts
+Infinity
+```
+
+**# Example (6)**
+
+```ts
+inNumberRange({ min: 100, inclusive: true })
+```
+
+<small>Input:</small>
+
+```ts
+-Infinity
+```
+
+<small>Output:</small>
+
+```ts
+null
 ```
 
 ### `isEven`
@@ -12329,6 +12539,8 @@ extract({ start: '<', end: '>', global: true })
 #### Accepts
 
 - `String`
+- `Number`
+- `Boolean`
 
 #### Examples
 
@@ -12406,6 +12618,24 @@ join({ delimiter: ' ' })
 
 ```ts
 'a string'
+```
+
+**# Example (5)**
+
+```ts
+join({ delimiter: ':' })
+```
+
+<small>Input:</small>
+
+```ts
+[ 'foo', 1, true ]
+```
+
+<small>Output:</small>
+
+```ts
+'foo:1:true'
 ```
 
 ### `replaceLiteral`
