@@ -90,7 +90,7 @@ export const castConfig: FieldMetaTransform<CastArgs> = {
         },
         is_primary_date: {
             type: FieldType.Boolean,
-            description: 'Used to denote naming of timeseries indicies, and if any search/join queries off of this field should use a date searching algorithm'
+            description: 'Used to denote naming of timeseries indices, and if any search/join queries off of this field should use a date searching algorithm'
         },
         time_resolution: {
             type: FieldType.String,
