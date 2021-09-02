@@ -110,7 +110,10 @@ export default class IndexManager {
             await this.upsertTemplate(
                 {
                     ...body,
-                    index_patterns: [this.formatIndexName(config, true)],
+                    index_patterns: [this.formatIndexName(
+                        // only use wildcard for timeseries indices
+                        config, utils.isTimeSeriesIndex(config.index_schema)
+                    )],
                     version: schemaVersion,
                 },
                 logger
