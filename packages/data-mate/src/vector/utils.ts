@@ -181,6 +181,8 @@ export function getCommonFieldType(field: string, a: FieldType, b: FieldType): F
     if (isNumberLike(a) && isNumberLike(b)) return FieldType.Number;
 
     if (isStringLike(a) && isStringLike(b)) return FieldType.String;
+    if (a === FieldType.Geo && b === FieldType.GeoPoint) return FieldType.GeoPoint;
+    if (a === FieldType.GeoPoint && b === FieldType.Geo) return FieldType.GeoPoint;
 
     throw new TSError(`Field "${field}" has conflicting field types, ${a} incompatible with ${b}`, {
         statusCode: 400,
