@@ -68,7 +68,7 @@
         "@terascope/teraslice-op-test-harness": "^1.24.0",
         "archiver": "^5.3.0",
         "bufferstreams": "^3.0.0",
-        "chance": "^1.1.7",
+        "chance": "^1.1.8",
         "elasticsearch": "^15.4.1",
         "got": "^11.8.2",
         "jest-fixtures": "^0.6.0",
