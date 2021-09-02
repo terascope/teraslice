@@ -149,6 +149,45 @@ export function isIntLike(type: FieldType): boolean {
     return false;
 }
 
+export function isStringLike(type: FieldType): boolean {
+    if (type === FieldType.String) return true;
+    if (type === FieldType.Text) return true;
+    if (type === FieldType.Keyword) return true;
+    if (type === FieldType.KeywordCaseInsensitive) return true;
+    if (type === FieldType.KeywordPathAnalyzer) return true;
+    if (type === FieldType.KeywordTokens) return true;
+    if (type === FieldType.KeywordTokensCaseInsensitive) return true;
+    if (type === FieldType.Domain) return true;
+    if (type === FieldType.Hostname) return true;
+    return false;
+}
+
+/**
+ * Given two field types, return a common field type format.
+ * This will be flexible for string like and number like values.
+*/
+export function getCommonFieldType(field: string, a: FieldType, b: FieldType): FieldType {
+    if (a === b) return a;
+
+    if (a === FieldType.Any || b === FieldType.Any) return FieldType.Any;
+
+    // make sure we upgrade to long
+    if (a === FieldType.Long || isIntLike(b)) return FieldType.Long;
+    // make sure we upgrade to long
+    if (isIntLike(a) || b === FieldType.Long) return FieldType.Long;
+    if (isIntLike(a) && isIntLike(b)) return FieldType.Integer;
+    if (isFloatLike(a) && isFloatLike(b)) return FieldType.Float;
+    // fall back if there is mix-match between number types
+    if (isNumberLike(a) && isNumberLike(b)) return FieldType.Number;
+
+    if (isStringLike(a) && isStringLike(b)) return FieldType.String;
+
+    throw new TSError(`Field "${field}" has conflicting field types, ${a} incompatible with ${b}`, {
+        statusCode: 400,
+        context: { safe: true }
+    });
+}
+
 export function getCommonTupleType(
     tupleField: string, childConfig: DataTypeFields|undefined
 ): FieldType {
@@ -156,24 +195,19 @@ export function getCommonTupleType(
     for (const config of Object.values(childConfig ?? {})) {
         const type = config.type as FieldType;
 
-        if (!fieldType || type === fieldType) {
+        if (!fieldType) {
             fieldType = type;
-        } else if (isIntLike(fieldType) && isIntLike(type)) {
-            fieldType = FieldType.Integer;
-        } else if (isFloatLike(fieldType) && isFloatLike(type)) {
-            fieldType = FieldType.Float;
         } else {
-            throw new TSError(
-                `Field "${tupleField}" has conflicting field types, ${fieldType} incompatible with ${type}`,
-                { statusCode: 400, context: { safe: true } }
-            );
+            fieldType = getCommonFieldType(tupleField, fieldType, type);
         }
     }
+
     if (!fieldType) {
         throw new TSError(
             `Field "${tupleField}" has no child fields`,
             { statusCode: 400, context: { safe: true } }
         );
     }
+
     return fieldType;
 }
