@@ -114,6 +114,26 @@ export const setPrecisionConfig: FieldTransformConfig<SetPrecisionArgs> = {
             field: 'testField',
             input: { lat: 32.12399971230023, lon: -20.95522300035 },
             output: { lat: 32.12, lon: -20.95 }
+        },
+        {
+            args: { digits: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: Number.NaN,
+            output: Number.NaN
+        },
+        {
+            args: { digits: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Integer } }
+            },
+            field: 'testField',
+            input: Number.POSITIVE_INFINITY,
+            output: Number.POSITIVE_INFINITY
         }
     ],
     create({ args: { digits, truncate = false }, inputConfig }) {

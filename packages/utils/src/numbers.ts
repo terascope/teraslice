@@ -279,6 +279,12 @@ export function setPrecision(
     fractionDigits: number,
     truncate = false
 ): number {
+    if (Number.isNaN(input)
+            || input === Number.POSITIVE_INFINITY
+            || input === Number.NEGATIVE_INFINITY) {
+        return input as number;
+    }
+
     const num = toFloatOrThrow(input);
     if (!truncate) {
         return parseFloat(num.toFixed(fractionDigits));
