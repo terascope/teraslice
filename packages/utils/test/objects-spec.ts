@@ -182,8 +182,8 @@ describe('Objects', () => {
 
         it('should throw an error if key is not a number or string', () => {
             expect(() => {
-                lookup(['deep', 'bob', 'ray', 'value'])(true);
-            }).toThrowError('lookup key must be a String or a Number, received Boolean');
+                lookup(['deep', 'bob', 'ray', 'value'])(['foo']);
+            }).toThrowError('lookup key must be not be an object, received Boolean');
         });
     });
 });
