@@ -96,6 +96,10 @@ describe('k8sResource', () => {
                                 operator: In
                                 values:
                                   - teraslice
+                              - key: app.kubernetes.io/instance
+                                operator: In
+                                values:
+                                  - ts-dev1
                           topologyKey: kubernetes.io/hostname`)
             );
         });
@@ -442,6 +446,10 @@ describe('k8sResource', () => {
                             operator: In
                             values:
                               - teraslice
+                          - key: app.kubernetes.io/instance
+                            operator: In
+                            values:
+                              - ts-dev1
                       topologyKey: kubernetes.io/hostname`));
         });
 

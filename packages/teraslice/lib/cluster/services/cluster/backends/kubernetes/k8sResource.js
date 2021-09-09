@@ -144,6 +144,13 @@ class K8sResource {
                                     values: [
                                         'teraslice'
                                     ]
+                                },
+                                {
+                                    key: 'app.kubernetes.io/instance',
+                                    operator: 'In',
+                                    values: [
+                                        this.templateConfig.clusterNameLabel
+                                    ]
                                 }
                             ]
                         },
