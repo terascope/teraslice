@@ -96,6 +96,10 @@ describe('k8sResource', () => {
                                 operator: In
                                 values:
                                   - teraslice
+                              - key: app.kubernetes.io/instance
+                                operator: In
+                                values:
+                                  - ts-dev1
                           topologyKey: kubernetes.io/hostname`)
             );
         });
@@ -412,6 +416,41 @@ describe('k8sResource', () => {
                         operator: In
                         values:
                         - west`));
+        });
+
+        it('has valid resource object with correct affinities when execution has one target and kubernetes_worker_antiaffinity is set', () => {
+            execution.targets = [
+                { key: 'zone', value: 'west' }
+            ];
+            terasliceConfig.kubernetes_worker_antiaffinity = true;
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: zone
+                        operator: In
+                        values:
+                          - west
+              podAntiAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 1
+                    podAffinityTerm:
+                      labelSelector:
+                        matchExpressions:
+                          - key: app.kubernetes.io/name
+                            operator: In
+                            values:
+                              - teraslice
+                          - key: app.kubernetes.io/instance
+                            operator: In
+                            values:
+                              - ts-dev1
+                      topologyKey: kubernetes.io/hostname`));
         });
 
         it('has valid resource object with affinity when execution has one required target', () => {
