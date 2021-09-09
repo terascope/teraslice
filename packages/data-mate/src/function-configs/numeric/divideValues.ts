@@ -1,4 +1,4 @@
-import { isBigInt, isNumber, toFloatOrThrow } from '@terascope/utils';
+import { isBigInt, isNumber, toNumberOrThrow } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, FunctionDefinitionType,
@@ -11,8 +11,8 @@ function divideValuesReducer(
 ): number|null {
     const currValue = (Array.isArray(curr) ? divideValuesFn(curr) : curr);
     if (currValue == null) return acc;
-    if (acc == null) return toFloatOrThrow(currValue);
-    return acc / toFloatOrThrow(currValue);
+    if (acc == null) return toNumberOrThrow(currValue);
+    return acc / toNumberOrThrow(currValue);
 }
 
 function divideValuesFn(value: unknown): bigint|number|null {
@@ -91,7 +91,27 @@ export const divideValuesConfig: FieldTransformConfig = {
             field: 'testField',
             input: 2,
             output: 2
-        }
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number, array: true } }
+            },
+            field: 'testField',
+            input: [0, 0],
+            output: Number.NaN
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Number, array: true } }
+            },
+            field: 'testField',
+            input: [100, 0],
+            output: Number.POSITIVE_INFINITY
+        },
     ],
     create() {
         return divideValuesFn;

@@ -9,8 +9,9 @@ import { isIPRangeOrThrow, isIPOrThrow } from './ip';
 import { toEpochMSOrThrow } from './dates';
 import { toBooleanOrThrow } from './booleans';
 import {
-    isValidateNumberType, toBigIntOrThrow, toFloatOrThrow,
-    toNumberOrThrow, bigIntToJSON, toIntegerOrThrow
+    isValidateNumberType, toBigIntOrThrow,
+    toNumberOrThrow, toIntegerOrThrow,
+    toFloatOrThrow,
 } from './numbers';
 import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
 import { hasOwn } from './objects';
@@ -18,6 +19,7 @@ import { isArrayLike, castArray } from './arrays';
 import { getTypeOf, isPlainObject } from './deps';
 import { noop } from './functions';
 import { isNotNil } from './empty';
+import { isIterator } from './iterators';
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 
@@ -71,6 +73,17 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
     }
 
     return function _coerceToNumberType(input: unknown): number {
+        /**
+         * We should keep these irrational numbers since they
+         * useful for certain operations, however they will
+         * be converted to null when converted to JavaScript
+        */
+        if (Number.isNaN(input)
+            || input === Number.POSITIVE_INFINITY
+            || input === Number.NEGATIVE_INFINITY) {
+            return input as number;
+        }
+
         const num = coerceFn(input);
 
         if (smallSize) {
@@ -89,14 +102,14 @@ function coerceToGeoPoint(input: unknown): GeoPoint {
 function _mapToString(input: any): string {
     let hash = '';
 
-    if (isArrayLike(input)) {
+    if (isIterator(input)) {
         for (const value of input) {
-            hash += `,${getHashCodeFrom(value)}`;
+            hash += `,${_getHashCodeFrom(value)}`;
         }
     } else {
         for (const prop in input) {
             if (hasOwn(input, prop)) {
-                hash += `,${prop}:${getHashCodeFrom(input[prop])}`;
+                hash += `,${prop}:${_getHashCodeFrom(input[prop])}`;
             }
         }
     }
@@ -104,15 +117,33 @@ function _mapToString(input: any): string {
     return hash;
 }
 
+function _getHashCodeFrom(value: unknown): string {
+    if (value == null) return '';
+
+    const typeOf = typeof value;
+    return typeOf + (
+        typeOf === 'object'
+            ? _mapToString(value)
+            : value
+    );
+}
+
+/**
+ * If we have a hash that is a long value we want to ensure that
+ * the value doesn't explode the memory since we may be using
+ * that value as a key. So when a string exceeds this specified
+ * length we can reduce its length to 35 characters by using md5
+*/
+export const MAX_STRING_LENGTH_BEFORE_MD5 = 1024;
+
+/**
+ * Generate a unique hash code from a value, this is
+ * not a guarantee but it is close enough for doing
+ * groupBys and caching
+*/
 export function getHashCodeFrom(value: unknown): string {
-    if (value == null) return '~';
-    if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
-
-    const hash = typeof value === 'object'
-        ? _mapToString(value)
-        : primitiveToString(value);
-
-    if (hash.length > 35) return `;${md5(hash)}`;
+    const hash = _getHashCodeFrom(value);
+    if (hash.length > MAX_STRING_LENGTH_BEFORE_MD5) return `;${md5(hash)}`;
     return `:${hash}`;
 }
 

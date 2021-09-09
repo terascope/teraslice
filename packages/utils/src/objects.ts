@@ -5,7 +5,8 @@ import { DataEntity } from './entities';
 import { isArrayLike, isArray } from './arrays';
 import { isBuffer } from './buffers';
 import { isString, trim } from './strings';
-import { toNumber, isNumber } from './numbers';
+import { toNumber } from './numbers';
+import { isPrimitiveValue } from '.';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
@@ -211,8 +212,8 @@ export function lookup(input: unknown): (key: unknown) => any {
         if (key == null) return null;
 
         // This may be too restrictive at some point
-        if (!isString(key) && !isNumber(key)) {
-            throw Error(`lookup key must be a String or a Number, received ${getTypeOf(key)}`);
+        if (!isPrimitiveValue(key)) {
+            throw Error(`lookup key must be not be an object, received ${getTypeOf(key)}`);
         }
 
         if (isString(input)) {

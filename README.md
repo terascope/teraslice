@@ -25,9 +25,9 @@ This monorepo contains sub-packages for various Terascope projects.
 - Terafoundation - Multiprocess runtime for Node.js
     - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/terafoundation)
     - [Documentation](https://terascope.github.io/teraslice/docs/packages/terafoundation/overview)
-- TS Transforms - Declarative JSON data transformation framework
-    - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/ts-transforms)
-    - [Documentation](https://terascope.github.io/teraslice/docs/packages/ts-transforms/overview)
+- Data Mate - A Data Transformation library with DataFrames
+    - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/data-mate)
+    - [Documentation](https://terascope.github.io/teraslice/docs/packages/data-mate/overview)
 - xLucene - Extensible Lucene query syntax parser and executor
     - Source Code: ([Parser](https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser)) - ([Translator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator))
     - Documentation: ([Parser](https://terascope.github.io/teraslice/docs/packages/xlucene-parser/overview)) - ([Translator](https://terascope.github.io/teraslice/docs/packages/xlucene-translator/overview))

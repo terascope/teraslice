@@ -279,6 +279,12 @@ export function setPrecision(
     fractionDigits: number,
     truncate = false
 ): number {
+    if (Number.isNaN(input)
+            || input === Number.POSITIVE_INFINITY
+            || input === Number.NEGATIVE_INFINITY) {
+        return input as number;
+    }
+
     const num = toFloatOrThrow(input);
     if (!truncate) {
         return parseFloat(num.toFixed(fractionDigits));
@@ -349,11 +355,11 @@ function _validateNumberFieldType(input: unknown, type: FieldType): number {
 
     if (INT_SIZES[type]) {
         const { max, min } = INT_SIZES[type];
-        if (int > max) {
+        if (int >= max) {
             throw new TypeError(`Invalid byte, value of ${int} is greater than maximum size of ${max}`);
         }
 
-        if (int < min) {
+        if (int <= min) {
             throw new TypeError(`Invalid byte, value of ${int} is less than minimum size of ${min}`);
         }
     }

@@ -71,6 +71,16 @@ export const lookupConfig: FieldTransformConfig<LookupArgs> = {
             field: 'testField',
             input: 2,
             output: 'max'
+        },
+        {
+            args: { in: ['foo', 'bar', 'max'] },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Long } }
+            },
+            field: 'testField',
+            input: 2,
+            output: 'max'
         }
     ],
     create({ args }) {

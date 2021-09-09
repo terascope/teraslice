@@ -1,7 +1,7 @@
 import { toHumanTime } from './dates';
 import { debugLogger } from './logger';
 import { Logger } from './logger-interface';
-import { pDelay } from './promises';
+import { pImmediate } from './promises';
 
 let _eventLoop: EventLoop|undefined;
 
@@ -12,6 +12,8 @@ let _eventLoop: EventLoop|undefined;
  * long running synchronous code
 */
 export class EventLoop {
+    static DEFAULT_HEARTBEAT = 1000;
+
     /**
      * Adds a setTimeout if the event loop is blocked
      * and will the delay will get slower the longer the event loop
@@ -22,19 +24,7 @@ export class EventLoop {
             EventLoop.init(debugLogger('event-loop'));
         }
         if (!_eventLoop?.blocked) return;
-
-        const delay = Math.max(_eventLoop.checkedInDiff - _eventLoop.heartbeat, 500);
-        if (delay <= 0) {
-            if (typeof process?.nextTick === 'function') {
-                return new Promise((resolve) => {
-                    process.nextTick(resolve);
-                });
-            }
-
-            return pDelay();
-        }
-
-        return pDelay(delay);
+        return pImmediate();
     }
 
     /**
@@ -54,7 +44,7 @@ export class EventLoop {
 
     checkedInDiff: number;
 
-    private readonly heartbeat = 1000;
+    private readonly heartbeat = EventLoop.DEFAULT_HEARTBEAT;
 
     private checkedIn: number;
     private interval: NodeJS.Timeout;
