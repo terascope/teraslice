@@ -104,10 +104,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
 
     async createRecord(record: i.CreateRecordInput<T>): Promise<T> {
         const docInput = {
-            ...record,
-            _deleted: false,
             _created: ts.makeISODate(),
             _updated: ts.makeISODate(),
+            ...record,
+            _deleted: false,
         } as T;
 
         const id = uuid();
@@ -143,10 +143,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     ): Promise<void> {
         for (const record of records) {
             const docInput = {
-                ...record,
-                _deleted: false,
                 _created: ts.makeISODate(),
                 _updated: ts.makeISODate(),
+                ...record,
+                _deleted: false,
             } as T;
 
             const id = uuid();
