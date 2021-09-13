@@ -21,6 +21,13 @@ describe('Short V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings if unindexed', () => {
+        const esMapping = new Short(field, { ...typeConfig, indexed: false }).toESMapping();
+        const results = { mapping: { [field]: { type: 'short', index: false } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new Short(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Int`, customTypes: [] };

@@ -20,6 +20,13 @@ describe('IP V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings if unindexed', () => {
+        const esMapping = new IPType(field, { ...typeConfig, indexed: false }).toESMapping();
+        const results = { mapping: { [field]: { type: 'ip', index: false } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new IPType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String`, customTypes: [] };
