@@ -6,7 +6,13 @@ export default class Boundary extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
         return {
             mapping: {
-                [this.field]: {
+                [this.field]: this.config.indexed === false ? {
+                    properties: {
+                        lat: { type: 'float' as ESFieldType },
+                        lon: { type: 'float' as ESFieldType },
+                    },
+                    enabled: false
+                } : {
                     properties: {
                         lat: { type: 'float' as ESFieldType },
                         lon: { type: 'float' as ESFieldType },

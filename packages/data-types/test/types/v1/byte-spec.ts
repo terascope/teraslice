@@ -21,6 +21,13 @@ describe('Byte V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings if unindexed', () => {
+        const esMapping = new ByteType(field, { ...typeConfig, indexed: false }).toESMapping();
+        const results = { mapping: { [field]: { type: 'byte', index: false } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new ByteType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Int`, customTypes: [] };

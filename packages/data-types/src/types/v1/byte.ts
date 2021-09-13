@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Byte extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'byte' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'byte' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'byte' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

@@ -21,6 +21,13 @@ describe('Double V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings if unindexed', () => {
+        const esMapping = new DoubleType(field, { ...typeConfig, indexed: false }).toESMapping();
+        const results = { mapping: { [field]: { type: 'double', index: false } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new DoubleType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Float`, customTypes: [] };

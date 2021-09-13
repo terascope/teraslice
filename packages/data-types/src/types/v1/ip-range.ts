@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class IpRangeType extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'ip_range' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'ip_range' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'ip_range' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

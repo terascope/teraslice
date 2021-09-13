@@ -128,7 +128,7 @@ export interface DataTypeFieldConfig {
     /**
      * Specifies whether the field is index in elasticsearch
      *
-     * (Only type Object currently support this)
+     * (Not supported by some field types)
      * @default true
     */
     indexed?: boolean;

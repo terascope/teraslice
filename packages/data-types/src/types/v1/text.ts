@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Text extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'text' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'text' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'text' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

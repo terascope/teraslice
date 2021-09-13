@@ -6,7 +6,10 @@ export default class BooleanType extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
         return {
             mapping: {
-                [this.field]: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'boolean' as ESFieldType,
+                    index: false
+                } : {
                     type: 'boolean' as ESFieldType
                 }
             }

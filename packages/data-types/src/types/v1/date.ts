@@ -32,7 +32,8 @@ export default class DateType extends BaseType {
             mapping: {
                 [this.field]: withoutNil({
                     type: 'date' as ESFieldType,
-                    format
+                    format,
+                    index: this.config.indexed === false ? false : undefined
                 })
             }
         };
