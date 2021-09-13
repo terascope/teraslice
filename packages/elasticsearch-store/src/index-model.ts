@@ -102,7 +102,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async createRecord(record: i.CreateRecordInput<T>): Promise<T> {
+    async createRecord(record: i.CreateRecordInput<T>, overrideKey?: string): Promise<T> {
         const docInput = {
             _created: ts.makeISODate(),
             _updated: ts.makeISODate(),
@@ -110,7 +110,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             _deleted: false,
         } as T;
 
-        const id = uuid();
+        const id = overrideKey ?? uuid();
         docInput._key = id;
 
         const doc = this._sanitizeRecord(docInput);
