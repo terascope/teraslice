@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Long extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'long' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'long' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'long' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

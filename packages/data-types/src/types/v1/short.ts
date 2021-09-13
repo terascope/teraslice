@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Short extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'short' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'short' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'short' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

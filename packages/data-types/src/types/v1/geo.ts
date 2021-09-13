@@ -5,7 +5,14 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 // TODO: This type is deprecated, not sure how to properly indicate it.
 export default class GeoType extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'geo_point' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'geo_point' as ESFieldType,
+                    index: false
+                } : { type: 'geo_point' as ESFieldType }
+            }
+        };
     }
 
     toGraphQL({ isInput }: ToGraphQLOptions = {}): GraphQLType {

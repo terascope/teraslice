@@ -4,7 +4,16 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Integer extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'integer' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'integer' as ESFieldType,
+                    index: false
+                } : {
+                    type: 'integer' as ESFieldType
+                }
+            }
+        };
     }
 
     toGraphQL(): GraphQLType {

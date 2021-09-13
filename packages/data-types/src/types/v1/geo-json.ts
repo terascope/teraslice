@@ -4,6 +4,9 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class GeoJSON extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
+        if (this.config.indexed === false) {
+            throw new Error(`${this.constructor.name} is required to be indexed`);
+        }
         // we need to used deprecated quadtree and strategy because CONTAINS is
         // not yet supported in 6.X or 7.X as of now
         return {

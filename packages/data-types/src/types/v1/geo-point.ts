@@ -4,7 +4,14 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class GeoPointType extends BaseType {
     toESMapping(_version?: number): TypeESMapping {
-        return { mapping: { [this.field]: { type: 'geo_point' as ESFieldType } } };
+        return {
+            mapping: {
+                [this.field]: this.config.indexed === false ? {
+                    type: 'geo_point' as ESFieldType,
+                    index: false
+                } : { type: 'geo_point' as ESFieldType }
+            }
+        };
     }
 
     toGraphQL({ isInput }: ToGraphQLOptions = {}): GraphQLType {
