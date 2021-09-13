@@ -102,21 +102,29 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async createRecord(record: i.CreateRecordInput<T>, overrideKey?: string): Promise<T> {
-        const docInput = {
+    async createRecord(record: i.CreateRecordInput<T>, allowOverrides?: boolean): Promise<T> {
+        const doc = this._createRecord(record, allowOverrides);
+        await this._ensureUnique(doc);
+        return this.createById(doc._key, doc);
+    }
+
+    private _createRecord(record: i.CreateRecordInput<T>, allowOverrides?: boolean): T {
+        const docInput = allowOverrides ? {
             _created: ts.makeISODate(),
             _updated: ts.makeISODate(),
             ...record,
             _deleted: false,
+        } as T : {
+            ...record,
+            _created: ts.makeISODate(),
+            _updated: ts.makeISODate(),
+            _deleted: false,
         } as T;
 
-        const id = overrideKey ?? uuid();
+        const id = allowOverrides && docInput._key ? docInput._key : uuid();
         docInput._key = id;
 
-        const doc = this._sanitizeRecord(docInput);
-
-        await this._ensureUnique(doc);
-        return this.createById(id, doc);
+        return this._sanitizeRecord(docInput);
     }
 
     async updateRecord(id: string, record: i.UpdateRecordInput<T>): Promise<T> {
@@ -139,21 +147,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
      * Create a bulk records and put it them into bulk request queue
      */
     async bulkCreateRecords(
-        records: i.CreateRecordInput<T>[]
+        records: i.CreateRecordInput<T>[],
+        allowOverrides?: boolean
     ): Promise<void> {
         for (const record of records) {
-            const docInput = {
-                _created: ts.makeISODate(),
-                _updated: ts.makeISODate(),
-                ...record,
-                _deleted: false,
-            } as T;
-
-            const id = uuid();
-            docInput._key = id;
-
-            const doc = this._sanitizeRecord(docInput);
-            await this.bulk('index', doc, id);
+            const doc = this._createRecord(record, allowOverrides);
+            await this.bulk('index', doc, doc._key);
         }
     }
 
