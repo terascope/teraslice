@@ -1484,10 +1484,10 @@
     chalk "^4.1.0"
     rxjs "^6.4.0"
 
-"@types/yeoman-generator@*", "@types/yeoman-generator@^5.2.1":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-5.2.1.tgz#da0a88d36ad20f05afa59aa330f10d4936c2ed7c"
-  integrity sha512-3l6Jlc8oMRetDqkm1mFOx0KPKVlstWbeGqzETYABFORsJ+p9p2A+YVigUfYKSiptRM/iF/5TzAFvSNDwfwOVTQ==
+"@types/yeoman-generator@*", "@types/yeoman-generator@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.yarnpkg.com/@types/yeoman-generator/-/yeoman-generator-5.2.6.tgz#f3cfaf6c47887812904d53248a9da5c9100d2b60"
+  integrity sha512-zFt4Alji+JVX19ssf5+rd0EUBDqvEE1ObMjWdvj0Vo0SBBggQVrntArRNv/FfGlef+x2DRDRdJ44prdn0AjDMg==
   dependencies:
     "@types/debug" "*"
     "@types/ejs" "*"
@@ -3724,10 +3724,10 @@ es6-error@^4.1.1:
   resolved "https://registry.yarnpkg.com/es6-error/-/es6-error-4.1.1.tgz#9e3af407459deed47e9a91f9b885a84eb05c561d"
   integrity sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==
 
-esbuild@^0.12.20:
-  version "0.12.20"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.20.tgz#4d3c9d83c99a4031e027b42a4c398c23b6827cb0"
-  integrity sha512-u7+0qTo9Z64MD9PhooEngCmzyEYJ6ovFhPp8PLNh3UasR5Ihjv6HWVXqm8uHmasdQlpsAf0IsY4U0YVUfCpt4Q==
+esbuild@^0.12.28:
+  version "0.12.28"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.28.tgz#84da0d2a0d0dee181281545271e0d65cf6fab1ef"
+  integrity sha512-pZ0FrWZXlvQOATlp14lRSk1N9GkeJ3vLIwOcUoo3ICQn9WNR4rWoNi81pbn6sC1iYUy7QPqNzI3+AEzokwyVcA==
 
 escalade@^3.1.1:
   version "3.1.1"
