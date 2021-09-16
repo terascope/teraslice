@@ -1157,10 +1157,10 @@
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
 
-"@types/jexl@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@types/jexl/-/jexl-2.2.0.tgz#f7d9c631e78a6d4bad716c79360a6acb1f4e24dd"
-  integrity sha512-btcq6HoxgBeKEAWAgee45C9eO4F7ayWHi3pQK6NpEPYtfo8b4J13QkxcfWN4ck8QDTlnDRQJxMP4Ceb/4ncO7Q==
+"@types/jexl@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@types/jexl/-/jexl-2.3.0.tgz#f818f5ea12a5cf5954ca5261c946d720f2e52fd7"
+  integrity sha512-KfkvTtUqxl6UvdFB/RMPEQ8+X99+s3BTKR5SlTkpZ3bDiJiAAkBEg1b88+YAatiaxR3TAmQuyZOeW05eAyag+g==
 
 "@types/js-string-escape@^1.0.1":
   version "1.0.1"
