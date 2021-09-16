@@ -1,7 +1,7 @@
 import path from 'path';
 import semver from 'semver';
 import {
-    getFirstChar, uniq, trim, isCI
+    getFirstChar, uniq, trim, isCI, isString
 } from '@terascope/utils';
 import {
     getDocPath, updatePkgJSON, fixDepPkgName, listPackages, isMainPackage
@@ -104,10 +104,13 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     /**
      * verify an external dependency and return the correct version to use
     */
-    function getLatest(name: string, val: VersionVal): VersionVal|null {
+    function getLatest(name: string, val: VersionVal): VersionVal|string|null {
         const internal = internalVersions[name];
         const external = externalVersions[name];
         if (internal != null) {
+            if (rootInfo.terascope.version === 2) {
+                return 'workspace:*';
+            }
             return internal;
         }
 
@@ -142,7 +145,10 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
             const latest = getLatest(name, val);
             if (latest == null) continue;
 
-            const updateTo = `${latest.range}${latest.version}`;
+            const updateTo = isString(latest)
+                ? latest
+                : `${latest.range}${latest.version}`;
+
             if (version !== updateTo) {
                 const currentInfo = `${pkgInfo.folderName} ${name}@${version}`;
                 signale.warn(`updating (${key}) ${currentInfo} to ${updateTo}`);
