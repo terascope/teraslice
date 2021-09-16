@@ -128,11 +128,11 @@ function getSortedPackages(packages: i.PackageInfo[]): readonly string[] {
     }
 
     const sorted = toposort(used);
-    const result = noDependents.concat(
-        uniq(sorted.filter((name) => (
-            !noDependencies.includes(name) && !noDependents.includes(name)
-        ))),
-        noDependencies
+    const result = uniq(
+        noDependents.concat(
+            sorted,
+            noDependencies
+        )
     );
     return result;
 }

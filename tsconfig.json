@@ -59,7 +59,13 @@
             "path": "packages/xlucene-translator"
         },
         {
+            "path": "packages/elasticsearch-store"
+        },
+        {
             "path": "packages/job-components"
+        },
+        {
+            "path": "packages/scripts"
         },
         {
             "path": "packages/terafoundation"
@@ -69,15 +75,6 @@
         },
         {
             "path": "packages/teraslice-client-js"
-        },
-        {
-            "path": "packages/docker-compose-js"
-        },
-        {
-            "path": "packages/elasticsearch-store"
-        },
-        {
-            "path": "packages/scripts"
         },
         {
             "path": "packages/teraslice-cli"
