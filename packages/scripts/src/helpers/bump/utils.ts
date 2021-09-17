@@ -6,6 +6,7 @@ import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
+import { getRootInfo } from '../misc';
 
 export async function getPackagesToBump(
     packages: PackageInfo[],
@@ -132,17 +133,24 @@ export function bumpPackagesList(
     result: Record<string, BumpPkgInfo>,
     packages: PackageInfo[],
 ): void {
+    const rootInfo = getRootInfo();
     for (const [name, bumpInfo] of Object.entries(result)) {
         const pkgInfo = findPackageByName(packages, name);
         signale.info(`=> Updated ${name} to version ${bumpInfo.from} to ${bumpInfo.to}`);
 
         pkgInfo.version = bumpInfo.to;
+        if (rootInfo.terascope.version === 2) continue;
+
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
             const key = getDepKeyFromType(depBumpInfo.type);
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
-            depPkgInfo[key][name] = `^${bumpInfo.to}`;
+            if (depBumpInfo.type === BumpType.Peer) {
+                depPkgInfo[key][name] = `>=${bumpInfo.to}`;
+            } else {
+                depBumpInfo[key][name] = `^${bumpInfo.to}`;
+            }
         }
     }
 }

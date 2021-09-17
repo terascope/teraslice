@@ -39,7 +39,7 @@
         "@terascope/job-components": "^0.54.5"
     },
     "peerDependencies": {
-        "@terascope/job-components": "^0.54.5"
+        "@terascope/job-components": ">=0.54.5"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",

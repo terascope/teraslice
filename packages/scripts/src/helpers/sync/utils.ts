@@ -145,9 +145,20 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
             const latest = getLatest(name, val);
             if (latest == null) continue;
 
-            const updateTo = isString(latest)
-                ? latest
-                : `${latest.range}${latest.version}`;
+            let updateTo: string;
+            if (isString(latest)) {
+                updateTo = latest;
+            } else if (!latest.valid) {
+                if (key !== DepKey.Peer && latest.version.startsWith('>=')) {
+                    updateTo = `^${latest.version.replace('>=', '')}`;
+                } else {
+                    updateTo = latest.version;
+                }
+            } else if (key === DepKey.Peer) {
+                updateTo = `>=${latest.version}`;
+            } else {
+                updateTo = `${latest.range}${latest.version}`;
+            }
 
             if (version !== updateTo) {
                 const currentInfo = `${pkgInfo.folderName} ${name}@${version}`;
