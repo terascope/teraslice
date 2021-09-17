@@ -144,12 +144,13 @@ export function bumpPackagesList(
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
             const key = getDepKeyFromType(depBumpInfo.type);
+            if (!depPkgInfo[key]) continue;
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
             if (depBumpInfo.type === BumpType.Peer) {
                 depPkgInfo[key][name] = `>=${bumpInfo.to}`;
             } else {
-                depBumpInfo[key][name] = `^${bumpInfo.to}`;
+                depPkgInfo[key][name] = `^${bumpInfo.to}`;
             }
         }
     }
