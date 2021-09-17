@@ -65,7 +65,7 @@
         "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.24.0",
+        "@terascope/teraslice-op-test-harness": "^1.24.1-rc.0",
         "archiver": "^5.3.0",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.8",
