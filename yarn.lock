@@ -729,19 +729,17 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terascope/fetch-github-release@^0.7.7":
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.7.7.tgz#03da853c80b420b312880140600839b64fccc35b"
-  integrity sha512-v4BSVK36N1LZj015y3DpL6dh0AWaFcmBbFd4oTTbLNZkZurolJ9RMCBUB/FsR93T3EZnWehiSw9b3WcRtOF6lg==
+"@terascope/fetch-github-release@^0.7.8":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.7.8.tgz#2f175b9840db5f93c4679bd5d424dbf86da786d6"
+  integrity sha512-MXOExTcYshYL5njfIPv7iVEGRy3lH2yyEWaA+GkuHsVSY8l4oZ585YVSe+iSA1JDKWaqgGOFlpfWQqL5kdPbSw==
   dependencies:
     commander "^7.0.0"
-    core-js "^3.6.5"
     extract-zip "^2.0.1"
     gauge "^3.0.0"
     got "^11.4.0"
     multi-progress "^4.0.0"
     progress "^2.0.3"
-    regenerator-runtime "^0.13.5"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -8903,7 +8901,7 @@ redis@^3.1.2:
     redis-errors "^1.2.0"
     redis-parser "^3.0.0"
 
-regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.5:
+regenerator-runtime@^0.13.4:
   version "0.13.9"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz#8925742a98ffd90814988d7566ad30ca3b263b52"
   integrity sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
