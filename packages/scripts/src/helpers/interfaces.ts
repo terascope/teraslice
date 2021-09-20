@@ -73,6 +73,7 @@ export type RootPackageInfo = {
         type: 'monorepo';
         target: string;
         version?: 1|2;
+        compilerOptions?: Record<string, unknown>;
         tests: {
             suites: {
                 [suite: string]: Service[];

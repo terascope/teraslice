@@ -42,18 +42,30 @@ export async function generateTSConfig(
             isolatedModules: true,
             // https://www.typescriptlang.org/tsconfig#disableReferencedProjectLoad
             disableReferencedProjectLoad: true,
-            typeRoots: [
-                fs.existsSync(path.join(rootInfo.dir, './types'))
-                    ? './types'
-                    : undefined,
-                './node_modules/@types'
-            ].filter(isString),
-            paths: {
-                '*': ['*', './types/*']
-            }
+            ...(rootInfo.terascope.version !== 2 ? {
+                typeRoots: [
+                    fs.existsSync(path.join(rootInfo.dir, './types'))
+                        ? './types'
+                        : undefined,
+                    fs.existsSync('./node_modules/@types')
+                        ? './node_modules/@types'
+                        : undefined
+                ].filter(isString),
+                paths: {
+                    '*': ['*', './types/*']
+                }
+            } : {}),
+            ...rootInfo.terascope.compilerOptions
         },
         include: [],
-        exclude: ['**/node_modules', '**/.*/'],
+        exclude: [
+            fs.existsSync('./node_modules')
+                ? '**/node_modules'
+                : undefined,
+            '**/.*/',
+            rootInfo.terascope.version === 2 ? '.yarn/releases/*' : undefined,
+            '**/build/**/*'
+        ].filter(isString),
         // these project references should be ordered by dependents first
         references
     };

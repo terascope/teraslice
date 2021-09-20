@@ -14,6 +14,7 @@ module.exports = {
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
     }],
+    'import/named': 'off',
     'no-underscore-dangle': 'off',
     'no-param-reassign': ['error', { props: false }],
     'no-use-before-define': ['error', { functions: false }],
