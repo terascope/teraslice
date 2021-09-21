@@ -104,19 +104,17 @@ export function coerceToGeoPoint(input: unknown): GeoPoint {
 
 /**
  * Convert value to a GeoBoundary data type, a GeoBoundary
- * is one or more GeoPoint
+ * is two GeoPoints, one representing the top left, the other representing
+ * the bottom right
 */
 export function coerceToGeoBoundary(input: unknown): GeoBoundary {
-    const points = Array.from(
-        Array.isArray(input)
-            ? input
-            : [input],
-        coerceToGeoPoint
-    );
-    if (points.length === 0) {
-        throw new TypeError('Geo Boundary requires at least one Geo Point, got none');
+    if (!Array.isArray(input)) {
+        throw new TypeError(`Geo Boundary requires an array, got ${input} (${getTypeOf(input)})`);
     }
-    return points as unknown as GeoBoundary;
+    if (input.length !== 2) {
+        throw new TypeError(`Geo Boundary requires two Geo Points, got ${input.length}`);
+    }
+    return [coerceToGeoPoint(input[0]), coerceToGeoPoint(input[1])];
 }
 
 function _mapToString(input: any): string {

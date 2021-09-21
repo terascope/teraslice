@@ -66,9 +66,10 @@ export interface GeoPoint {
 }
 
 /**
- * A geo boundary is a box of geo points requiring at least one geo point
+ * A geo boundary is a box of geo points requiring at two geo points,
+ * one point is the top left, the other is the bottom right
 */
-export type GeoBoundary = readonly [GeoPoint, ...GeoPoint[]];
+export type GeoBoundary = readonly [topLeft: GeoPoint, bottomRight: GeoPoint];
 
 export enum GeoShapeRelation {
     Intersects = 'intersects',

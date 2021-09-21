@@ -152,11 +152,10 @@ describe('Vector', () => {
         ],
         [
             FieldType.Boundary,
-            [[[90, 60], ['90.123', '60.456']], { lat: '89.002', lon: '20.034990' }, null, undefined],
+            [[[90, 60], ['90.123', '60.456']], null, undefined],
             undefined,
             [
                 [{ lat: 60, lon: 90 }, { lat: 60.456, lon: 90.123 }],
-                [{ lat: 89.002, lon: 20.034990 }],
                 null,
                 null
             ],

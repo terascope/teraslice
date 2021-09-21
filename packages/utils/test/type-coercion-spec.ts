@@ -58,9 +58,12 @@ describe('type-coercion', () => {
 
     describe('coerceToGeoBoundary', () => {
         const validCases = [
-            [{ lat: 12, lon: 13 }, [{ lat: 12, lon: 13 }]],
             [
                 [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }],
+                [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }]
+            ],
+            [
+                ['12,13', '13,14'],
                 [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }]
             ],
         ];
@@ -69,7 +72,10 @@ describe('type-coercion', () => {
             expect(coerceToGeoBoundary(input)).toStrictEqual(output);
         });
 
-        const inValidCases = [
+        const inValidCases: (unknown[])[] = [
+            [{ lat: 12, lon: 13 }],
+            [[{ lat: 12, lon: 13 }]],
+            [[{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }, { lat: 14, lon: 15 }]],
             [{ foo: 'bar' }],
         ];
 
