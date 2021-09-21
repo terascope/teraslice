@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import LongType from '../../../src/types/v1/long';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Long V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Long' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Long };
 
     it('can requires a field and proper configs', () => {
         const type = new LongType(field, typeConfig);

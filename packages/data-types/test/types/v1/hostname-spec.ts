@@ -1,10 +1,9 @@
-import { ESFieldType } from '@terascope/types';
+import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Hostname from '../../../src/types/v1/hostname';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Hostname V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Hostname' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Hostname };
 
     it('can requires a field and proper configs', () => {
         const type = new Hostname(field, typeConfig);

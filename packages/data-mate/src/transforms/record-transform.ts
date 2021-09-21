@@ -1,4 +1,4 @@
-import { AvailableType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 import * as ts from '@terascope/utils';
 import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString, isArray } from '../validations/field-validator';
@@ -8,56 +8,56 @@ export const repository: Repository = {
         fn: renameField,
         config: {
             from: {
-                type: 'String'
+                type: FieldType.String
             },
             to: {
-                type: 'String'
+                type: FieldType.String
             }
         },
         primary_input_type: InputType.Object,
-        output_type: 'Object' as AvailableType,
+        output_type: FieldType.Object,
     },
     setField: {
         fn: setField,
         config: {
             field: {
-                type: 'String'
+                type: FieldType.String
             },
             value: {
-                type: 'Any'
+                type: FieldType.Any
             }
         },
         primary_input_type: InputType.Object,
-        output_type: 'Object' as AvailableType,
+        output_type: FieldType.Object,
     },
     dropFields: {
         fn: dropFields,
         config: {
             fields: {
-                type: 'String',
+                type: FieldType.String,
                 array: true
             }
         },
         primary_input_type: InputType.Object,
-        output_type: 'Object' as AvailableType,
+        output_type: FieldType.Object,
     },
     copyField: {
         fn: copyField,
         config: {
             from: {
-                type: 'String'
+                type: FieldType.String
             },
             to: {
-                type: 'String'
+                type: FieldType.String
             }
         },
         primary_input_type: InputType.Object,
-        output_type: 'Object' as AvailableType
+        output_type: FieldType.Object
     },
     dedupe: {
         fn: dedupe,
         config: {},
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.Array
     },
 };

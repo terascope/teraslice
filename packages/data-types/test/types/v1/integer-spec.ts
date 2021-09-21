@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Integer from '../../../src/types/v1/integer';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Integer V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Integer' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Integer };
 
     it('can requires a field and proper configs', () => {
         const type = new Integer(field, typeConfig);

@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import GeoType from '../../../src/types/v1/geo';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
-describe('Geo V1', () => {
+describe('Geo V1 (deprecated)', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Geo' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Geo };
 
     it('can requires a field and proper configs', () => {
         const type = new GeoType(field, typeConfig);

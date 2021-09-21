@@ -1,6 +1,6 @@
 import jexlCore from 'jexl';
 import * as ts from '@terascope/utils';
-import { AvailableType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 import { FieldTransform } from '../transforms';
 import { FieldValidator, RecordValidator } from '../validations';
 import {
@@ -66,13 +66,13 @@ export { jexl };
 export const extractConfig: RepoConfig = {
     fn: extract,
     config: {
-        regex: { type: 'String' },
-        isMultiValue: { type: 'Boolean' },
-        jexlExp: { type: 'String' },
-        start: { type: 'String' },
-        end: { type: 'String' }
+        regex: { type: FieldType.String },
+        isMultiValue: { type: FieldType.Boolean },
+        jexlExp: { type: FieldType.String },
+        start: { type: FieldType.String },
+        end: { type: FieldType.String }
     },
-    output_type: 'Any' as AvailableType,
+    output_type: FieldType.Any,
     primary_input_type: InputType.String
 };
 
@@ -170,10 +170,10 @@ export function extract(
 export const transformRecordConfig: RepoConfig = {
     fn: transformRecord,
     config: {
-        jexlExp: { type: 'String' },
-        field: { type: 'String' },
+        jexlExp: { type: FieldType.String },
+        field: { type: FieldType.String },
     },
-    output_type: 'Object' as AvailableType,
+    output_type: FieldType.Object,
     primary_input_type: InputType.Object
 };
 
