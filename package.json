@@ -42,7 +42,7 @@
         "@types/convict": "^5.2.2",
         "@types/elasticsearch": "^5.0.37",
         "@types/fs-extra": "^9.0.9",
-        "@types/jest": "^27.0.1",
+        "@types/jest": "^27.0.2",
         "@types/lodash": "^4.14.168",
         "@types/node": "^16.9.0",
         "@types/uuid": "^8.3.1",
