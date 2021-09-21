@@ -2,7 +2,6 @@ import { TypedArray } from '@terascope/types';
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
 import { get } from './deps';
 import { isBuffer } from './buffers';
-import { isIterator } from './iterators';
 
 /** A native implementation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -22,7 +21,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 export function castArray<T>(input: T|undefined|null|T[]|(readonly T[])): T[] {
     if (input == null) return [];
     if (isArrayLike(input)) return input;
-    if (isIterator(input)) return [...input];
+    if (input instanceof Set) return [...input];
     return [input as T];
 }
 
