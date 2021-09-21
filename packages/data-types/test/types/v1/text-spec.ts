@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Text from '../../../src/types/v1/text';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Text V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Text' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Text };
 
     it('can requires a field and proper configs', () => {
         const type = new Text(field, typeConfig);

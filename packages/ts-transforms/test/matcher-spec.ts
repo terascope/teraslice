@@ -1,3 +1,4 @@
+import 'jest-extended';
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';

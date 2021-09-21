@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import DoubleType from '../../../src/types/v1/double';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Double V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Double' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Double };
 
     it('can requires a field and proper configs', () => {
         const type = new DoubleType(field, typeConfig);

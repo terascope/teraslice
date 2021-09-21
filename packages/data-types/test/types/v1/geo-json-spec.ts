@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import GeoJSONType from '../../../src/types/v1/geo-json';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
-describe('GeoPoint V1', () => {
+describe('GeoJSON V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'GeoPoint' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.GeoJSON };
 
     it('can requires a field and proper configs', () => {
         const type = new GeoJSONType(field, typeConfig);

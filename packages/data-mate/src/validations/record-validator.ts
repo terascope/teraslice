@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
+import { FieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator';
 import { DocumentMatcher } from '../document-matcher';
 import { Repository, RecordInput, InputType } from '../interfaces';
@@ -10,7 +10,7 @@ export const repository: Repository = {
         fn: required,
         config: {
             fields: {
-                type: 'String',
+                type: FieldType.String,
                 array: true
             }
         },
@@ -20,13 +20,13 @@ export const repository: Repository = {
         fn: select,
         config: {
             query: {
-                type: 'String',
+                type: FieldType.String,
             },
             type_config: {
-                type: 'Object'
+                type: FieldType.Object
             },
             variables: {
-                type: 'Object'
+                type: FieldType.Object
             }
         },
         primary_input_type: InputType.Object,
@@ -35,15 +35,15 @@ export const repository: Repository = {
         fn: reject,
         config: {
             query: {
-                type: 'String',
+                type: FieldType.String,
             },
             type_config: {
                 // Doing this for JSON type => which is ANY type
-                type: 'Object'
+                type: FieldType.Object
             },
             variables: {
                 // Doing this for JSON type => which is ANY type
-                type: 'Object'
+                type: FieldType.Object
             }
         },
         primary_input_type: InputType.Object,

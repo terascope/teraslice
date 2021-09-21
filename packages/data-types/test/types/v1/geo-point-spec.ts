@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import GeoPointType from '../../../src/types/v1/geo-point';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('GeoPoint V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'GeoPoint' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.GeoPoint };
 
     it('can requires a field and proper configs', () => {
         const type = new GeoPointType(field, typeConfig);

@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Short from '../../../src/types/v1/short';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Short V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Short' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Short };
 
     it('can requires a field and proper configs', () => {
         const type = new Short(field, typeConfig);

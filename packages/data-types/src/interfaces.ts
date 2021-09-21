@@ -4,6 +4,7 @@ import {
     DataTypeVersion, dataTypeVersions,
     DataTypeFields, DataTypeConfig,
     DeprecatedFieldType,
+    FieldType,
 } from '@terascope/types';
 
 import BaseType from './types/base-type';
@@ -64,13 +65,11 @@ export const AvailableVersions = dataTypeVersions;
 */
 export type FieldTypeConfig = DataTypeFieldConfig;
 
-type ActualType = {
-    [key in AvailableType]: {
-        new (field: string, config: FieldTypeConfig): BaseType;
-    }
-};
+type ActualType = Record<FieldType, {
+    new (field: string, config: DataTypeFieldConfig): BaseType;
+}>;
 
-export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
+export type DataTypeMapping = { [key in DataTypeVersion]: ActualType };
 
 /**
  * @deprecated use `DataTypeFields` from `@terascope/types`

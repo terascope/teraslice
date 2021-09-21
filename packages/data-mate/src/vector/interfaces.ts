@@ -17,6 +17,7 @@ export enum VectorType {
     Float = 'Float',
     BigInt = 'BigInt',
     Boolean = 'Boolean',
+    GeoBoundary = 'GeoBoundary',
     GeoPoint = 'GeoPoint',
     GeoJSON = 'GeoJSON',
     IP = 'IP',

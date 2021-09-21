@@ -3,6 +3,7 @@ export * from './BigIntBuilder';
 export * from './BooleanBuilder';
 export * from './DateBuilder';
 export * from './FloatBuilder';
+export * from './GeoBoundaryBuilder';
 export * from './GeoJSONBuilder';
 export * from './GeoPointBuilder';
 export * from './IntBuilder';

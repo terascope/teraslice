@@ -22,7 +22,7 @@ export default class Boundary extends BaseType {
         };
     }
 
-    toGraphQL({ isInput }: ToGraphQLOptions = {}) :GraphQLType {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}): GraphQLType {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `

@@ -1,6 +1,7 @@
 import 'jest-extended';
+import { DataTypeConfig, FieldType } from '@terascope/types';
 import {
-    DataType, DataTypeConfig, LATEST_VERSION, formatSchema
+    DataType, LATEST_VERSION, formatSchema
 } from '../src';
 
 describe('DataType (graphql)', () => {
@@ -9,12 +10,12 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text', description: '## hello \n\n# test' },
-                    location: { type: 'GeoPoint', description: 'location test' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP', description: 'ip test' },
-                    example_obj: { type: 'Object', description: 'example obj test' },
-                    someNum: { type: 'Long', description: 'some number test' },
+                    hello: { type: FieldType.Text, description: '## hello \n\n# test' },
+                    location: { type: FieldType.GeoPoint, description: 'location test' },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP, description: 'ip test' },
+                    example_obj: { type: FieldType.Object, description: 'example obj test' },
+                    someNum: { type: FieldType.Long, description: 'some number test' },
                 },
             };
 
@@ -56,10 +57,10 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    'example.foo': { type: 'Keyword' },
-                    'example.bar': { type: 'Keyword' },
-                    'example.a': { type: 'Keyword' },
-                    example: { type: 'Object' },
+                    'example.foo': { type: FieldType.Keyword },
+                    'example.bar': { type: FieldType.Keyword },
+                    'example.a': { type: FieldType.Keyword },
+                    example: { type: FieldType.Object },
                 },
             };
 
@@ -95,11 +96,11 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
@@ -126,11 +127,11 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
@@ -145,21 +146,21 @@ describe('DataType (graphql)', () => {
             const typeConfig1: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
             const typeConfig2: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    otherLocation: { type: 'Boundary', array: true },
-                    bool: { type: 'Boolean' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    otherLocation: { type: FieldType.Boundary, array: true },
+                    bool: { type: FieldType.Boolean },
                 },
             };
 
@@ -204,23 +205,23 @@ describe('DataType (graphql)', () => {
             const typeConfig1: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
             const typeConfig2: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    otherLocation: { type: 'Boundary', array: true },
-                    foo: { type: 'Object' },
-                    'foo.bar': { type: 'Keyword' },
-                    bool: { type: 'Boolean' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    otherLocation: { type: FieldType.Boundary, array: true },
+                    foo: { type: FieldType.Object },
+                    'foo.bar': { type: FieldType.Keyword },
+                    bool: { type: FieldType.Boolean },
                 },
             };
 
@@ -307,11 +308,11 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    _created: { type: 'Date' },
-                    _updated: { type: 'Date' },
-                    _key: { type: 'Keyword' },
-                    name: { type: 'KeywordCaseInsensitive' },
-                    description: { type: 'Text' },
+                    _created: { type: FieldType.Date },
+                    _updated: { type: FieldType.Date },
+                    _key: { type: FieldType.Keyword },
+                    name: { type: FieldType.KeywordCaseInsensitive },
+                    description: { type: FieldType.Text },
                 },
             };
 
@@ -344,8 +345,8 @@ describe('DataType (graphql)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    test_obj: { type: 'Object' },
-                    test_geo: { type: 'GeoJSON' },
+                    test_obj: { type: FieldType.Object },
+                    test_geo: { type: FieldType.GeoJSON },
                 },
             };
 
@@ -371,22 +372,22 @@ describe('DataType (graphql)', () => {
             const typeConfig1: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Keyword' },
+                    hello: { type: FieldType.Keyword },
                 },
             };
 
             const typeConfig2: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
+                    hello: { type: FieldType.Text },
                 },
             };
 
             const typeConfig3: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Keyword' },
-                    hi: { type: 'Keyword' },
+                    hello: { type: FieldType.Keyword },
+                    hi: { type: FieldType.Keyword },
                 },
             };
 
@@ -405,7 +406,7 @@ describe('DataType (graphql)', () => {
             const typeConfig1: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Keyword' },
+                    hello: { type: FieldType.Keyword },
                 },
             };
 
@@ -422,28 +423,28 @@ describe('DataType (graphql)', () => {
             const infoTypeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    id: { type: 'Text' },
+                    id: { type: FieldType.Text },
                 },
             };
 
             const childTypeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    long_number: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    long_number: { type: FieldType.Long },
                 },
             };
 
             const parentTypeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    location: { type: 'GeoPoint' },
-                    other_location: { type: 'GeoPoint' },
-                    obj: { type: 'Object' },
-                    some_date: { type: 'Date' },
+                    location: { type: FieldType.GeoPoint },
+                    other_location: { type: FieldType.GeoPoint },
+                    obj: { type: FieldType.Object },
+                    some_date: { type: FieldType.Date },
                 },
             };
             const types = [

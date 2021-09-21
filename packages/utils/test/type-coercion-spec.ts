@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { FieldType } from '@terascope/types';
 import {
+    coerceToGeoBoundary,
     coerceToNumberType
 } from '../src/type-coercion';
 
@@ -52,6 +53,34 @@ describe('type-coercion', () => {
             it(`should fail to convert ${input}`, () => {
                 expect(() => coerceToNumberType(type)(input)).toThrowError();
             });
+        });
+    });
+
+    describe('coerceToGeoBoundary', () => {
+        const validCases = [
+            [
+                [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }],
+                [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }]
+            ],
+            [
+                ['12,13', '13,14'],
+                [{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }]
+            ],
+        ];
+
+        test.each(validCases)('should process the valid input of %p', (input, output) => {
+            expect(coerceToGeoBoundary(input)).toStrictEqual(output);
+        });
+
+        const inValidCases: (unknown[])[] = [
+            [{ lat: 12, lon: 13 }],
+            [[{ lat: 12, lon: 13 }]],
+            [[{ lat: 12, lon: 13 }, { lat: 13, lon: 14 }, { lat: 14, lon: 15 }]],
+            [{ foo: 'bar' }],
+        ];
+
+        test.each(inValidCases)('should fail to process the invalid input of %p', (input) => {
+            expect(() => coerceToGeoBoundary(input)).toThrowError(TypeError);
         });
     });
 });

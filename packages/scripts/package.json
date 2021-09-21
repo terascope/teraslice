@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "0.44.0-rc.3",
+    "version": "0.43.7",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -31,7 +31,7 @@
         "typescript": "~4.4.3"
     },
     "dependencies": {
-        "@terascope/utils": "^0.42.5",
+        "@terascope/utils": "^0.42.6",
         "codecov": "^3.8.3",
         "execa": "^5.1.0",
         "fs-extra": "^10.0.0",
@@ -55,7 +55,7 @@
     },
     "devDependencies": {
         "@types/ip": "^1.1.0",
-        "@types/lodash": "^4.14.168",
+        "@types/lodash": "^4.14.173",
         "@types/micromatch": "^4.0.0",
         "@types/ms": "^0.7.30",
         "@types/semver": "^7.3.5",

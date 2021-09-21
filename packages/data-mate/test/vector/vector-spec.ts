@@ -151,6 +151,16 @@ describe('Vector', () => {
             ],
         ],
         [
+            FieldType.Boundary,
+            [[[90, 60], ['90.123', '60.456']], null, undefined],
+            undefined,
+            [
+                [{ lat: 60, lon: 90 }, { lat: 60.456, lon: 90.123 }],
+                null,
+                null
+            ],
+        ],
+        [
             FieldType.GeoJSON,
             [
                 {

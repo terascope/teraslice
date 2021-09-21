@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import AnyType from '../../../src/types/v1/any';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Any V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Any' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Any };
 
     it('can requires a field and proper configs', () => {
         const type = new AnyType(field, typeConfig);

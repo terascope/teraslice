@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import IpRangeType from '../../../src/types/v1/ip-range';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('IPRange V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'IPRange' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.IPRange };
 
     it('can requires a field and proper configs', () => {
         const type = new IpRangeType(field, typeConfig);

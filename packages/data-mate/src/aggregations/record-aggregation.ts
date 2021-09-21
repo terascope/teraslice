@@ -1,19 +1,19 @@
 import * as ts from '@terascope/utils';
-import { AvailableType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 import { BatchConfig, ValidatedBatchConfig } from './interfaces';
 import { Repository, InputType, ArgSchema } from '../interfaces';
 import { isArray } from '../validations/field-validator';
 
 const batchConfigSchema: ArgSchema = {
     keys: {
-        type: 'String',
+        type: FieldType.String,
         array: true
     },
     source: {
-        type: 'String',
+        type: FieldType.String,
     },
     target: {
-        type: 'String',
+        type: FieldType.String,
     }
 };
 
@@ -21,37 +21,37 @@ export const repository: Repository = {
     unique: {
         fn: unique,
         config: batchConfigSchema,
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.Array
     },
     count: {
         fn: count,
         config: batchConfigSchema,
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     sum: {
         fn: sum,
         config: batchConfigSchema,
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     avg: {
         fn: avg,
         config: batchConfigSchema,
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     min: {
         fn: min,
         config: batchConfigSchema,
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     max: {
         fn: max,
         config: batchConfigSchema,
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     }
 };

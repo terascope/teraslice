@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { AvailableType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import { format as dateFormat, parse } from 'date-fns';
@@ -17,288 +17,288 @@ export const repository: Repository = {
     toString: {
         fn: toString,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toBoolean: {
         fn: toBoolean,
         config: {},
-        output_type: 'Boolean' as AvailableType,
+        output_type: FieldType.Boolean,
         primary_input_type: InputType.Any
     },
     toUpperCase: {
         fn: toUpperCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toLowerCase: {
         fn: toLowerCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     trim: {
         fn: trim,
         config: {
-            char: { type: 'String' }
+            char: { type: FieldType.String }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     truncate: {
         fn: truncate,
         config: {
-            size: { type: 'Number' }
+            size: { type: FieldType.Number }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toISDN: {
         fn: toISDN,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toNumber: {
         fn: toNumber,
         config: {
-            booleanLike: { type: 'Boolean' }
+            booleanLike: { type: FieldType.Boolean }
         },
-        output_type: 'Number' as AvailableType,
+        output_type: FieldType.Number,
         primary_input_type: InputType.String
     },
     decodeBase64: {
         fn: decodeBase64,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeBase64: {
         fn: encodeBase64,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     decodeURL: {
         fn: decodeURL,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeURL: {
         fn: encodeURL,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     decodeHex: {
         fn: decodeHex,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeHex: {
         fn: encodeHex,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeMD5: {
         fn: encodeMD5,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeSHA: {
         fn: encodeSHA,
         config: {
-            hash: { type: 'String' },
-            digest: { type: 'String' }
+            hash: { type: FieldType.String },
+            digest: { type: FieldType.String }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     encodeSHA1: {
         fn: encodeSHA1,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     parseJSON: {
         fn: parseJSON,
         config: {},
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.String
     },
     toJSON: {
         fn: toJSON,
         config: {
-            pretty: { type: 'Boolean' }
+            pretty: { type: FieldType.Boolean }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.Any
     },
     toGeoPoint: {
         fn: toGeoPoint,
         config: {},
-        output_type: 'GeoPoint' as AvailableType,
+        output_type: FieldType.GeoPoint,
         primary_input_type: InputType.String
     },
     // this will be overridden
     extract: {
         fn: extract,
         config: {
-            regex: { type: 'String' },
-            isMultiValue: { type: 'Boolean' },
-            jexlExp: { type: 'String' },
-            start: { type: 'String' },
-            end: { type: 'String' }
+            regex: { type: FieldType.String },
+            isMultiValue: { type: FieldType.Boolean },
+            jexlExp: { type: FieldType.String },
+            start: { type: FieldType.String },
+            end: { type: FieldType.String }
         },
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.String
     },
     replaceRegex: {
         fn: replaceRegex,
         config: {
-            regex: { type: 'String' },
-            replace: { type: 'String' },
-            global: { type: 'String' },
-            ignore_case: { type: 'Boolean' }
+            regex: { type: FieldType.String },
+            replace: { type: FieldType.String },
+            global: { type: FieldType.String },
+            ignore_case: { type: FieldType.Boolean }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     replaceLiteral: {
         fn: replaceLiteral,
         config: {
             search: {
-                type: 'String'
+                type: FieldType.String
             },
             replace: {
-                type: 'String'
+                type: FieldType.String
             }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toUnixTime: {
         fn: toUnixTime,
         config: {},
-        output_type: 'Number' as AvailableType,
+        output_type: FieldType.Number,
         primary_input_type: InputType.String
     },
     toISO8601: {
         fn: toISO8601,
         config: {
             resolution: {
-                type: 'String',
+                type: FieldType.String,
                 description: 'may be set to seconds | milliseconds'
             }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     formatDate: {
         fn: formatDate,
         config: {
-            format: { type: 'String' },
-            resolution: { type: 'String', description: 'may be set to seconds | milliseconds' },
+            format: { type: FieldType.String },
+            resolution: { type: FieldType.String, description: 'may be set to seconds | milliseconds' },
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     parseDate: {
         fn: parseDate,
         config: {
-            format: { type: 'String' },
+            format: { type: FieldType.String },
         },
-        output_type: 'Date' as AvailableType,
+        output_type: FieldType.Date,
         primary_input_type: InputType.String
     },
     trimStart: {
         fn: trimStart,
         config: {
-            char: { type: 'String' }
+            char: { type: FieldType.String }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     trimEnd: {
         fn: trimEnd,
         config: {
-            char: { type: 'String' }
+            char: { type: FieldType.String }
         },
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toCamelCase: {
         fn: toCamelCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toKebabCase: {
         fn: toKebabCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toPascalCase: {
         fn: toPascalCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toSnakeCase: {
         fn: toSnakeCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     toTitleCase: {
         fn: toTitleCase,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     },
     setField: {
         fn: setField,
         config: {
             value: {
-                type: 'Any'
+                type: FieldType.Any
             }
         },
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.String
     },
     setDefault: {
         fn: setDefault,
         config: {
             value: {
-                type: 'Any'
+                type: FieldType.Any
             }
         },
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.String
     },
     map: {
         fn: map,
         config: {
             fn: {
-                type: 'String'
+                type: FieldType.String
             },
             options: {
-                type: 'Object'
+                type: FieldType.Object
             }
         },
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.Array
     },
     splitString: {
         fn: splitString,
         config: {},
-        output_type: 'String' as AvailableType,
+        output_type: FieldType.String,
         primary_input_type: InputType.String
     }
 };
