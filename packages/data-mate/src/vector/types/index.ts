@@ -3,6 +3,7 @@ export * from './BigIntVector';
 export * from './BooleanVector';
 export * from './DateVector';
 export * from './FloatVector';
+export * from './GeoBoundaryVector';
 export * from './GeoJSONVector';
 export * from './GeoPointVector';
 export * from './IntVector';

@@ -9,7 +9,8 @@ import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
-    ObjectVector, StringVector, IPVector, IPRangeVector, TupleVector,
+    ObjectVector, StringVector, IPVector, IPRangeVector,
+    TupleVector, GeoBoundaryVector,
 } from './types';
 import { Vector, VectorOptions } from './Vector';
 import { DataBuckets } from './interfaces';
@@ -67,6 +68,8 @@ function _newVectorForType(
             return new IntVector(data, options);
         case FieldType.Long:
             return new BigIntVector(data, options);
+        case FieldType.Boundary:
+            return new GeoBoundaryVector(data, options);
         case FieldType.Geo:
         case FieldType.GeoPoint:
             return new GeoPointVector(data, options);

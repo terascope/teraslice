@@ -65,6 +65,11 @@ export interface GeoPoint {
     readonly lon: number;
 }
 
+/**
+ * A geo boundary is a box of geo points requiring at least one geo point
+*/
+export type GeoBoundary = readonly [GeoPoint, ...GeoPoint[]];
+
 export enum GeoShapeRelation {
     Intersects = 'intersects',
     Disjoint = 'disjoint',

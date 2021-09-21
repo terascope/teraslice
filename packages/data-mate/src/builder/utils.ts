@@ -7,8 +7,8 @@ import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
-    DateBuilder, FloatBuilder,
-    GeoJSONBuilder, GeoPointBuilder, IntBuilder,
+    DateBuilder, IntBuilder, FloatBuilder,
+    GeoBoundaryBuilder, GeoJSONBuilder, GeoPointBuilder,
     IPBuilder, IPRangeBuilder,
     ObjectBuilder, StringBuilder, TupleBuilder
 } from './types';
@@ -90,6 +90,8 @@ function _newBuilderForType(
             return new IntBuilder(data, options);
         case FieldType.Long:
             return new BigIntBuilder(data, options);
+        case FieldType.Boundary:
+            return new GeoBoundaryBuilder(data, options);
         case FieldType.Geo:
         case FieldType.GeoPoint:
             return new GeoPointBuilder(data, options);

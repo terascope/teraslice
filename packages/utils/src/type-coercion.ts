@@ -1,7 +1,7 @@
 import {
     DataTypeFieldConfig, FieldType,
     DataTypeFields, ReadonlyDataTypeFields,
-    GeoPoint
+    GeoPoint, GeoBoundary
 } from '@terascope/types';
 import { createHash } from 'crypto';
 import { primitiveToString, toString } from './strings';
@@ -95,8 +95,28 @@ export function coerceToNumberType(type: FieldType): (input: unknown) => number 
     };
 }
 
-function coerceToGeoPoint(input: unknown): GeoPoint {
+/**
+ * Convert value to a GeoPoint data type
+*/
+export function coerceToGeoPoint(input: unknown): GeoPoint {
     return parseGeoPoint(input, true);
+}
+
+/**
+ * Convert value to a GeoBoundary data type, a GeoBoundary
+ * is one or more GeoPoint
+*/
+export function coerceToGeoBoundary(input: unknown): GeoBoundary {
+    const points = Array.from(
+        Array.isArray(input)
+            ? input
+            : [input],
+        coerceToGeoPoint
+    );
+    if (points.length === 0) {
+        throw new TypeError('Geo Boundary requires at least one Geo Point, got none');
+    }
+    return points as unknown as GeoBoundary;
 }
 
 function _mapToString(input: any): string {
@@ -286,8 +306,9 @@ function getTransformerForFieldType<T = unknown>(
             ) as CoerceFN<any>;
         case FieldType.Geo:
         case FieldType.GeoPoint:
-        case FieldType.Boundary:
             return callIfNotNil(coerceToGeoPoint) as CoerceFN<any>;
+        case FieldType.Boundary:
+            return callIfNotNil(coerceToGeoBoundary) as CoerceFN<any>;
         case FieldType.GeoJSON:
             return callIfNotNil(toGeoJSONOrThrow) as CoerceFN<any>;
         case FieldType.Object:
