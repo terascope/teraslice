@@ -65,7 +65,7 @@
     "devDependencies": {
         "@types/debug": "^4.1.6",
         "@types/js-string-escape": "^1.0.1",
-        "@types/lodash": "^4.14.168",
+        "@types/lodash": "^4.14.173",
         "benchmark": "^2.1.4"
     },
     "engines": {
