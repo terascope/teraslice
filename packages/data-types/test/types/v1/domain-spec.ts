@@ -1,10 +1,9 @@
-import { ESFieldType } from '@terascope/types';
+import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Domain from '../../../src/types/v1/domain';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Domain V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Domain' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Domain };
 
     it('can requires a field and proper configs', () => {
         const type = new Domain(field, typeConfig);

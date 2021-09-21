@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { GeoShape, GeoShapeType } from '@terascope/types';
+import { FieldType, GeoShape, GeoShapeType } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
@@ -27,18 +27,18 @@ describe('IndexSearchCompatability', () => {
     const dataType = makeRecordDataType({
         name: 'SearchCompatability',
         fields: {
-            id: { type: 'Keyword' },
-            foo: { type: 'Keyword' },
-            group: { type: 'Keyword' },
-            field_one: { type: 'Integer' },
-            field_two: { type: 'Integer' },
-            word: { type: 'KeywordTokens' },
-            updated: { type: 'Date' },
-            created: { type: 'Date' },
-            location_one: { type: 'GeoPoint' },
-            location_two: { type: 'GeoPoint' },
-            shape_one: { type: 'GeoJSON' },
-            shape_two: { type: 'GeoJSON' },
+            id: { type: FieldType.Keyword },
+            foo: { type: FieldType.Keyword },
+            group: { type: FieldType.Keyword },
+            field_one: { type: FieldType.Integer },
+            field_two: { type: FieldType.Integer },
+            word: { type: FieldType.KeywordTokens },
+            updated: { type: FieldType.Date },
+            created: { type: FieldType.Date },
+            location_one: { type: FieldType.GeoPoint },
+            location_two: { type: FieldType.GeoPoint },
+            shape_one: { type: FieldType.GeoJSON },
+            shape_two: { type: FieldType.GeoJSON },
         }
     });
 

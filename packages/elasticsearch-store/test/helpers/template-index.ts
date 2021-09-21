@@ -1,4 +1,5 @@
 import { Overwrite } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
 import { DataType } from '@terascope/data-types';
 
 export interface TemplateRecord {
@@ -20,11 +21,11 @@ TemplateRecord,
 
 export const dataType = new DataType({
     fields: {
-        some_id: { type: 'Keyword' },
-        search_keyword: { type: 'Keyword' },
-        random_number: { type: 'Integer' },
-        _created: { type: 'Keyword' },
-        _updated: { type: 'Keyword' },
+        some_id: { type: FieldType.Keyword },
+        search_keyword: { type: FieldType.Keyword },
+        random_number: { type: FieldType.Integer },
+        _created: { type: FieldType.Keyword },
+        _updated: { type: FieldType.Keyword },
     }
 });
 

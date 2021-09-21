@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-translator';
+import { FieldType } from '@terascope/types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
@@ -19,11 +20,11 @@ describe('IndexModel', () => {
         name: 'ExampleModel',
         fields: {
             name: {
-                type: 'KeywordCaseInsensitive',
+                type: FieldType.KeywordCaseInsensitive,
                 use_fields_hack: true
             },
-            type: { type: 'Keyword' },
-            config: { type: 'Object', indexed: false },
+            type: { type: FieldType.Keyword },
+            config: { type: FieldType.Object, indexed: false },
         }
     });
 

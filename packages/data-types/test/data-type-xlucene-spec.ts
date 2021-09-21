@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { xLuceneTypeConfig, xLuceneFieldType } from '@terascope/types';
+import { xLuceneTypeConfig, xLuceneFieldType, FieldType } from '@terascope/types';
 import {
     DataType, DataTypeConfig, LATEST_VERSION
 } from '../src';
@@ -10,11 +10,11 @@ describe('DataType (xlucene)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
@@ -37,15 +37,15 @@ describe('DataType (xlucene)', () => {
             expect(new DataType({
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Object' },
-                    'hello.there': { type: 'Text' },
+                    hello: { type: FieldType.Object },
+                    'hello.there': { type: FieldType.Text },
                 },
             }).toXlucene()).toEqual(expected);
 
             expect(new DataType({
                 version: LATEST_VERSION,
                 fields: {
-                    'hello.there': { type: 'Text' },
+                    'hello.there': { type: FieldType.Text },
                 },
             }).toXlucene()).toEqual(expected);
         });

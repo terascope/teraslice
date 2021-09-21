@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { AvailableType } from '@terascope/data-types';
+import { FieldType } from '@terascope/types';
 import { Repository, InputType } from '../interfaces';
 import { isArray } from '../validations/field-validator';
 
@@ -7,37 +7,37 @@ export const repository: Repository = {
     uniqueField: {
         fn: uniqueField,
         config: {},
-        output_type: 'Any' as AvailableType,
+        output_type: FieldType.Any,
         primary_input_type: InputType.Array
     },
     countField: {
         fn: countField,
         config: {},
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     sumField: {
         fn: sumField,
         config: {},
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     avgField: {
         fn: avgField,
         config: {},
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     minField: {
         fn: minField,
         config: {},
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     },
     maxField: {
         fn: maxField,
         config: {},
-        output_type: 'Integer' as AvailableType,
+        output_type: FieldType.Integer,
         primary_input_type: InputType.Array
     }
 };

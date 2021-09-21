@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
 import ByteType from '../../../src/types/v1/byte';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Byte V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Byte' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Byte };
 
     it('can requires a field and proper configs', () => {
         const type = new ByteType(field, typeConfig);

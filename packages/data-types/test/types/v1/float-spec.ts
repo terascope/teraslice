@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import FloatType from '../../../src/types/v1/float';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Float V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Float' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Float };
 
     it('can requires a field and proper configs', () => {
         const type = new FloatType(field, typeConfig);

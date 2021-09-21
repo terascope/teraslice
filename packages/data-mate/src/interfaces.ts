@@ -1,4 +1,4 @@
-import { FieldTypeConfig, AvailableType } from '@terascope/data-types';
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import { AnyObject } from '@terascope/utils';
 
 export type ArgSchema = Config & { description?: string };
@@ -15,7 +15,7 @@ export enum InputType {
 export interface RepoConfig {
     fn: any;
     config: ArgSchema;
-    output_type?: AvailableType;
+    output_type?: FieldType;
     primary_input_type: InputType;
 }
 
@@ -24,7 +24,7 @@ export interface Repository {
 }
 
 interface Config {
-    [key: string]: FieldTypeConfig;
+    [key: string]: DataTypeFieldConfig;
 }
 
 export type RecordInput = AnyObject | AnyObject[];

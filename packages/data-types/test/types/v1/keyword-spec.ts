@@ -1,9 +1,9 @@
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import Keyword from '../../../src/types/v1/keyword';
-import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Keyword V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Keyword' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Keyword };
 
     it('can requires a field and proper configs', () => {
         const type = new Keyword(field, typeConfig);

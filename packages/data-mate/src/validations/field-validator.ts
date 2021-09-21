@@ -6,7 +6,7 @@ import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { GeoShapePoint, MACDelimiter } from '@terascope/types';
+import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -40,7 +40,7 @@ export const repository: i.Repository = {
     isMACAddress: {
         fn: isMACAddress,
         config: {
-            delimiter: { type: 'String', array: true }
+            delimiter: { type: FieldType.String, array: true }
         },
         primary_input_type: i.InputType.String
     },
@@ -49,9 +49,9 @@ export const repository: i.Repository = {
     inNumberRange: {
         fn: inNumberRange,
         config: {
-            min: { type: 'Number' },
-            max: { type: 'Number' },
-            inclusive: { type: 'Boolean' }
+            min: { type: FieldType.Number },
+            max: { type: FieldType.Number },
+            inclusive: { type: FieldType.Boolean }
         },
         primary_input_type: i.InputType.Number
     },
@@ -61,26 +61,26 @@ export const repository: i.Repository = {
     contains: {
         fn: contains,
         config: {
-            value: { type: 'String' }
+            value: { type: FieldType.String }
         },
         primary_input_type: i.InputType.Array
     },
     equals: {
         fn: equals,
-        config: { value: { type: 'String' } },
+        config: { value: { type: FieldType.String } },
         primary_input_type: i.InputType.Any
     },
     isAlpha: {
         fn: isAlpha,
         config: {
-            locale: { type: 'String' }
+            locale: { type: FieldType.String }
         },
         primary_input_type: i.InputType.String
     },
     isAlphanumeric: {
         fn: isAlphanumeric,
         config: {
-            locale: { type: 'String' }
+            locale: { type: FieldType.String }
         },
         primary_input_type: i.InputType.String
     },
@@ -89,23 +89,23 @@ export const repository: i.Repository = {
     isEmpty: {
         fn: isEmpty,
         config: {
-            ignoreWhitespace: { type: 'Boolean' }
+            ignoreWhitespace: { type: FieldType.Boolean }
         },
         primary_input_type: i.InputType.Any
     },
     isFQDN: {
         fn: isFQDN,
         config: {
-            requireTld: { type: 'Boolean' },
-            allowUnderscores: { type: 'Boolean' },
-            allowTrailingDot: { type: 'Boolean' },
+            requireTld: { type: FieldType.Boolean },
+            allowUnderscores: { type: FieldType.Boolean },
+            allowTrailingDot: { type: FieldType.Boolean },
         },
         primary_input_type: i.InputType.String
     },
     isHash: {
         fn: isHash,
         config: {
-            algo: { type: 'String' }
+            algo: { type: FieldType.String }
         },
         primary_input_type: i.InputType.String
     },
@@ -114,8 +114,8 @@ export const repository: i.Repository = {
     isISSN: {
         fn: isISSN,
         config: {
-            caseSensitive: { type: 'Boolean' },
-            requireHyphen: { type: 'Boolean' }
+            caseSensitive: { type: FieldType.Boolean },
+            requireHyphen: { type: FieldType.Boolean }
         },
         primary_input_type: i.InputType.String
     },
@@ -124,9 +124,9 @@ export const repository: i.Repository = {
     isLength: {
         fn: isLength,
         config: {
-            size: { type: 'Number' },
-            min: { type: 'Number' },
-            max: { type: 'Number' },
+            size: { type: FieldType.Number },
+            min: { type: FieldType.Number },
+            max: { type: FieldType.Number },
         },
         primary_input_type: i.InputType.String
     },
@@ -134,7 +134,7 @@ export const repository: i.Repository = {
     isPostalCode: {
         fn: isPostalCode,
         config: {
-            locale: { type: 'String' }
+            locale: { type: FieldType.String }
         },
         primary_input_type: i.InputType.String
     },
@@ -143,9 +143,9 @@ export const repository: i.Repository = {
     inIPRange: {
         fn: inIPRange,
         config: {
-            min: { type: 'String' },
-            max: { type: 'String' },
-            cidr: { type: 'String' }
+            min: { type: FieldType.String },
+            max: { type: FieldType.String },
+            cidr: { type: FieldType.String }
         },
         primary_input_type: i.InputType.String
     },
@@ -156,16 +156,16 @@ export const repository: i.Repository = {
     some: {
         fn: some,
         config: {
-            fn: { type: 'String' },
-            options: { type: 'Object' }
+            fn: { type: FieldType.String },
+            options: { type: FieldType.Object }
         },
         primary_input_type: i.InputType.Array
     },
     every: {
         fn: every,
         config: {
-            fn: { type: 'String' },
-            options: { type: 'Object' }
+            fn: { type: FieldType.String },
+            options: { type: FieldType.Object }
         },
         primary_input_type: i.InputType.Array
     },
