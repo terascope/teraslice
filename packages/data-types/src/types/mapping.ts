@@ -1,5 +1,4 @@
 import { DataTypeMapping } from '../interfaces';
-
 import BooleanV1 from './v1/boolean';
 import DateV1 from './v1/date';
 import GeoV1 from './v1/geo';
@@ -56,6 +55,9 @@ export const mapping: DataTypeMapping = {
         Object: ObjectV1,
         String: StringV1,
         Number: NumberV1,
+        // we should set this to AnyV1 because it shouldn't
+        // ever get here
+        Tuple: AnyV1,
         Any: AnyV1
     },
 };
