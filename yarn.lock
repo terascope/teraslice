@@ -10382,10 +10382,10 @@ ts-jest@^27.0.5:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-pegjs@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.0.tgz#9cae28bec684fb240c1aa8078cca03c22e82f05d"
-  integrity sha512-TPb9NeyTh6uPmNYFzUJWikkWPjWw/gqAX7Rpnjl6tlDEyLxjExHWUhilVeqBYplZBWR2m6hJhgjR43JeTwL2Gw==
+ts-pegjs@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.1.tgz#9b2ef035a9411845eae575a18054824825f726a5"
+  integrity sha512-fvT1oBQKMO3+9MJSUELTIuwkMs0IXJ2iEUCIw6yIriz7agh+OAwAL5Q9y3WiqzxwNF+M+xuK676UVRZxBcaOmQ==
   dependencies:
     peggy "^1.2.0"
 
