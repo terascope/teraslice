@@ -29,10 +29,10 @@ class Jexl extends jexlCore.Jexl {
 
 const jexl = new Jexl();
 
-function bridgeToJexl(fn: any) {
+const bridgeToJexl = (fn: any) => {
     // @ts-expect-error
     const jexlInstance = this ? this.jexl : undefined;
-    return function _bridgeToJexl(value: any, _context: ts.AnyObject | undefined, _config: any) {
+    return (value: any, _context: ts.AnyObject | undefined, _config: any) => {
         let config;
         let context;
 
@@ -46,7 +46,7 @@ function bridgeToJexl(fn: any) {
 
         return fn(value, context, config as any);
     };
-}
+};
 
 function setup(operationClass: any) {
     for (const config of Object.values(operationClass.repository as Repository)) {

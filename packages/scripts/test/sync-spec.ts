@@ -84,8 +84,8 @@ describe('Sync Helpers', () => {
                         'star-1': '*',
                     },
                     peerDependencies: {
-                        'ex-2': '^2.0.0',
-                        'ex-3': '~5.5.5-beta.3',
+                        'ex-2': '>=2.0.0',
+                        'ex-3': '>=5.5.5-beta.3',
                     },
                 });
             });
