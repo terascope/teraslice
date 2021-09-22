@@ -10,9 +10,14 @@ import { Hook } from '../interfaces';
 export async function syncAll(options: SyncOptions): Promise<void> {
     await utils.verifyCommitted(options);
 
+    let pkgInfos = listPackages();
+    if (options.tsconfigOnly) {
+        await generateTSConfig(pkgInfos, !options.quiet);
+        return;
+    }
+
     const files: string[] = [];
 
-    let pkgInfos = listPackages();
     const rootInfo = getRootInfo();
 
     utils.syncVersions(pkgInfos, rootInfo);

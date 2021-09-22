@@ -34,7 +34,8 @@
     "include": [],
     "exclude": [
         "**/node_modules",
-        "**/.*/"
+        "**/.*/",
+        "**/build/**/*"
     ],
     "references": [
         {
@@ -50,6 +51,18 @@
             "path": "packages/data-types"
         },
         {
+            "path": "packages/xlucene-parser"
+        },
+        {
+            "path": "packages/data-mate"
+        },
+        {
+            "path": "packages/xlucene-translator"
+        },
+        {
+            "path": "packages/elasticsearch-store"
+        },
+        {
             "path": "packages/job-components"
         },
         {
@@ -62,34 +75,22 @@
             "path": "packages/teraslice-messaging"
         },
         {
-            "path": "packages/xlucene-parser"
-        },
-        {
-            "path": "packages/xpressions"
-        },
-        {
-            "path": "packages/data-mate"
-        },
-        {
             "path": "packages/teraslice-client-js"
         },
         {
-            "path": "packages/teraslice-state-storage"
-        },
-        {
-            "path": "packages/xlucene-translator"
-        },
-        {
-            "path": "packages/elasticsearch-store"
-        },
-        {
             "path": "packages/teraslice-cli"
+        },
+        {
+            "path": "packages/teraslice-state-storage"
         },
         {
             "path": "packages/teraslice-test-harness"
         },
         {
             "path": "packages/ts-transforms"
+        },
+        {
+            "path": "packages/xpressions"
         }
     ]
 }

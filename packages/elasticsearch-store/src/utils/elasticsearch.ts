@@ -1,4 +1,4 @@
-import { Client } from 'elasticsearch';
+import type { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import type { ESFieldType, ESTypeMapping } from '@terascope/types';
 import { getErrorType } from './errors';

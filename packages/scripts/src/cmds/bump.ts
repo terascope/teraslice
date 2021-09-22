@@ -5,6 +5,7 @@ import { coercePkgArg } from '../helpers/args';
 import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
+import { getRootInfo } from '../helpers/misc';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -72,7 +73,8 @@ const cmd: CommandModule = {
     },
     async handler(argv) {
         const release = getRelease(argv);
-        await syncAll({ verify: true });
+        const rootInfo = getRootInfo();
+        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
             preId: argv['prerelease-id'] as string | undefined,

@@ -1,5 +1,5 @@
 import Ajv from 'ajv';
-import * as es from 'elasticsearch';
+import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
 import { throwValidationError, getErrorMessages } from './errors';

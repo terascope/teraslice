@@ -1,4 +1,4 @@
-import * as es from 'elasticsearch';
+import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';

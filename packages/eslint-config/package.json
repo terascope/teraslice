@@ -1,7 +1,7 @@
 {
     "name": "@terascope/eslint-config",
     "displayName": "Terascope ESLint Config",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "A shared eslint config based on eslint-config-airbnb",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/eslint-config#readme",
     "bugs": {
@@ -29,7 +29,7 @@
     },
     "devDependencies": {},
     "peerDependencies": {
-        "eslint": "^7.32.0"
+        "eslint": ">=7.32.0"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",

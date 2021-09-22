@@ -55,6 +55,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             root: isRoot,
             type: 'monorepo',
             target: 'es2019',
+            version: 1,
             tests: {
                 suites: {}
             },

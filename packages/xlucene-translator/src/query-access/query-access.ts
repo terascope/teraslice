@@ -1,4 +1,4 @@
-import * as es from 'elasticsearch';
+import type { SearchParams } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import {
@@ -182,7 +182,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         query: string,
         opts: i.RestrictSearchQueryOptions = {},
         _overrideParsedQuery?: p.Node
-    ): Promise<es.SearchParams> {
+    ): Promise<SearchParams> {
         const {
             params: _params = {},
             elasticsearch_version: esVersion = 6,
@@ -221,7 +221,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const excludesKey: any = esVersion >= 7 ? '_sourceExcludes' : '_sourceExclude';
         const includesKey: any = esVersion >= 7 ? '_sourceIncludes' : '_sourceInclude';
 
-        const searchParams: es.SearchParams = {
+        const searchParams: SearchParams = {
             ...params,
             body: { ...params.body, ...translated },
             [excludesKey]: excludes,

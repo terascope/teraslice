@@ -1,4 +1,4 @@
-import * as es from 'elasticsearch';
+import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';

@@ -459,6 +459,28 @@ export function mapToArgs(input: ArgsMap): string[] {
     return args.filter((str) => str != null && str !== '');
 }
 
+/**
+ * Yarn publish for version 2
+*/
+export async function yarnPublishV2(
+    pkgInfo: PackageInfo,
+    tag = 'latest',
+): Promise<void> {
+    await fork({
+        cmd: 'yarn',
+        args: [
+            'npm',
+            'publish',
+            '--tag',
+            tag
+        ],
+        cwd: pkgInfo.dir,
+        env: {
+            NODE_ENV: 'production'
+        }
+    });
+}
+
 export async function yarnPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',

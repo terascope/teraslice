@@ -6,8 +6,8 @@ import globby from 'globby';
 import {
     uniq, fastCloneDeep, get, trim
 } from '@terascope/utils';
-// @ts-expect-error (Missing types)
-import QueryGraph from '@lerna/query-graph';
+import toposort from 'toposort';
+import MultiMap from 'mnemonist/multi-map';
 import packageJson from 'package-json';
 import sortPackageJson from 'sort-package-json';
 import * as misc from './misc';
@@ -74,13 +74,67 @@ export function listPackages(
     const workspacePaths = _resolveWorkspaces(workspaces, misc.getRootDir());
     const packages = workspacePaths
         .map(_loadPackage)
-        .filter((pkg) => pkg?.name);
+        .filter((pkg): pkg is i.PackageInfo => pkg?.name != null);
 
-    _packages = QueryGraph.toposort(packages, {
-        graphType: 'allDependencies',
-        rejectCycles: true,
-    });
+    const sortedNames = getSortedPackages(packages);
+    _packages = sortedNames.map((name) => (
+        packages.find((pkg) => pkg.name === name)!
+    ));
     return _packages;
+}
+
+/**
+ * Sort the packages by dependencies
+*/
+function getSortedPackages(packages: i.PackageInfo[]): readonly string[] {
+    const used: [string, string|undefined][] = [];
+    const noDependencies: string[] = [];
+    const noDependents: string[] = [];
+    const names = new Set(packages.map((pkg) => pkg.name));
+    const deps = new MultiMap<string, string>(Set);
+
+    for (const pkg of packages) {
+        const allDeps = {
+            ...pkg.dependencies,
+            ...pkg.devDependencies,
+            ...pkg.peerDependencies,
+        };
+        for (const name of Object.keys(allDeps)) {
+            if (names.has(name)) {
+                deps.set(name, pkg.name);
+                used.push([name, pkg.name]);
+            }
+        }
+    }
+
+    for (const name of names) {
+        if (!deps.get(name)?.size) {
+            noDependencies.push(name);
+        }
+        let hasDependent = false;
+        if (deps.has(name)) {
+            hasDependent = true;
+        } else {
+            for (const [otherName, otherDepSet] of deps.associations()) {
+                if (otherName !== name && otherDepSet.has(name)) {
+                    // something is dependant on it
+                    hasDependent = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasDependent) noDependents.push(name);
+    }
+
+    const sorted = toposort(used);
+    const result = uniq(
+        noDependents.concat(
+            sorted,
+            noDependencies
+        )
+    );
+    return result;
 }
 
 export function getWorkspaceNames(): string[] {

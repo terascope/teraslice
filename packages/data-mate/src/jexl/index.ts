@@ -29,14 +29,14 @@ class Jexl extends jexlCore.Jexl {
 
 const jexl = new Jexl();
 
-const bridge = (fn: any) => {
+const bridgeToJexl = (fn: any) => {
     // @ts-expect-error
-    const jexlInstance = this.jexl;
+    const jexlInstance = this ? this.jexl : undefined;
     return (value: any, _context: ts.AnyObject | undefined, _config: any) => {
         let config;
         let context;
 
-        if (ts.isNil(config)) {
+        if (ts.isNil(config) && jexlInstance) {
             context = jexlInstance._context;
             config = _context;
         } else {
@@ -50,7 +50,7 @@ const bridge = (fn: any) => {
 
 function setup(operationClass: any) {
     for (const config of Object.values(operationClass.repository as Repository)) {
-        jexl.addTransform(config.fn.name, bridge(config.fn));
+        jexl.addTransform(config.fn.name, bridgeToJexl(config.fn));
     }
 }
 
@@ -58,8 +58,8 @@ setup(FieldTransform);
 setup(FieldValidator);
 setup(RecordValidator);
 
-jexl.addTransform(extract.name, bridge(extract));
-jexl.addTransform(transformRecord.name, bridge(transformRecord));
+jexl.addTransform(extract.name, bridgeToJexl(extract));
+jexl.addTransform(transformRecord.name, bridgeToJexl(transformRecord));
 
 export { jexl };
 
