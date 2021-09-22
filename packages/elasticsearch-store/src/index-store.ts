@@ -1,4 +1,4 @@
-import * as es from 'elasticsearch';
+import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';

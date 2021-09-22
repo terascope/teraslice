@@ -1,5 +1,5 @@
-import { SearchParams } from 'elasticsearch';
-import { AnyObject } from '@terascope/utils';
+import type { SearchParams } from 'elasticsearch';
+import type { AnyObject } from '@terascope/utils';
 import {
     SortOrder,
     ElasticsearchDSLOptions,
