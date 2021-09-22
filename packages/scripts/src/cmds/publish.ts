@@ -4,6 +4,7 @@ import { GlobalCMDOptions } from '../helpers/interfaces';
 import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
+import { getRootInfo } from '../helpers/misc';
 
 interface Options {
     type: PublishType;
@@ -52,7 +53,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .requiresArg('action');
     },
     async handler(argv) {
-        await syncAll({ verify: true });
+        const rootInfo = getRootInfo();
+        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
         return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
