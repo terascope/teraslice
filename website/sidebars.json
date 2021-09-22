@@ -66,8 +66,8 @@
                 "label": "data-mate",
                 "ids": [
                     "packages/data-mate/overview",
-                    "packages/data-mate/data-frame",
                     "packages/data-mate/functions",
+                    "packages/data-mate/data-frame",
                     "packages/data-mate/api/overview"
                 ]
             },
@@ -195,6 +195,14 @@
                 "ids": [
                     "packages/teraslice-state-storage/overview",
                     "packages/teraslice-state-storage/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "xpressions",
+                "ids": [
+                    "packages/xpressions/overview",
+                    "packages/xpressions/api/overview"
                 ]
             }
         ],
