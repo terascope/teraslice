@@ -154,7 +154,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
                 } else {
                     updateTo = latest.version;
                 }
-            } else if (key === DepKey.Peer) {
+            } else if (key === DepKey.Peer && internalVersions[name] != null) {
                 updateTo = `>=${latest.version}`;
             } else {
                 updateTo = `${latest.range}${latest.version}`;
