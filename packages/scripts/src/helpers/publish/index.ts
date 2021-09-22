@@ -15,7 +15,8 @@ import {
     yarnRun,
     remoteDockerImageExists,
     dockerBuild,
-    dockerPush
+    dockerPush,
+    yarnPublishV2
 } from '../scripts';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc';
 import signale from '../signale';
@@ -72,9 +73,13 @@ async function npmPublish(
         return pkgInfo.name;
     }
 
-    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    await yarnPublish(pkgInfo, tag, registry);
-
+    const rootInfo = getRootInfo();
+    if (rootInfo.terascope.version === 2) {
+        await yarnPublishV2(pkgInfo, tag);
+    } else {
+        const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+        await yarnPublish(pkgInfo, tag, registry);
+    }
     return pkgInfo.name;
 }
 

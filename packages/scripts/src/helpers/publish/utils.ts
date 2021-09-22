@@ -21,12 +21,12 @@ export async function shouldNPMPublish(
     const remote = await getRemotePackageVersion(pkgInfo);
     const local = pkgInfo.version;
     const isMain = isMainPackage(pkgInfo) || pkgInfo.terascope?.linkToMain;
-    const isPrelease = getPublishTag(local) === 'prerelease';
+    const isPrerelease = getPublishTag(local) === 'prerelease';
     const options: semver.Options = { includePrerelease: true };
 
     if (semver.eq(local, remote, options)) return false;
 
-    if (isPrelease || publishOutdatedPackages || semver.gt(local, remote, options)) {
+    if (isPrerelease || publishOutdatedPackages || semver.gt(local, remote, options)) {
         if (type === PublishType.Tag) {
             if (isMain) {
                 signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
@@ -38,12 +38,12 @@ export async function shouldNPMPublish(
         }
 
         if (type === PublishType.Prerelease) {
-            if (isMain && !isPrelease) {
+            if (isMain && !isPrerelease) {
                 signale.info('* skipping main package until tag release');
                 return true;
             }
 
-            if (isPrelease) {
+            if (isPrerelease) {
                 signale.info(`* publishing prerelease of package ${pkgInfo.name}@${remote}->${local}`);
                 return true;
             }
