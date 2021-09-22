@@ -1056,10 +1056,10 @@
   resolved "https://registry.yarnpkg.com/@types/expect/-/expect-1.20.4.tgz#8288e51737bf7e3ab5d7c77bfa695883745264e5"
   integrity sha512-Q5Vn3yjTDyCMV50TB6VRIbQNxSE4OmZR86VSbGaNpfUolm0iePBB4KdEEHmxoY5sT2+2DIvXW0rvMDP2nHZ4Mg==
 
-"@types/fs-extra@^9.0.9":
-  version "9.0.12"
-  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.12.tgz#9b8f27973df8a7a3920e8461517ebf8a7d4fdfaf"
-  integrity sha512-I+bsBr67CurCGnSenZZ7v94gd3tc3+Aj2taxMT4yu4ABLuOgOjeFxX3dokG24ztSRg5tnT00sL8BszO7gSMoIw==
+"@types/fs-extra@^9.0.13":
+  version "9.0.13"
+  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.13.tgz#7594fbae04fe7f1918ce8b3d213f74ff44ac1f45"
+  integrity sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==
   dependencies:
     "@types/node" "*"
 
@@ -10382,10 +10382,10 @@ ts-jest@^27.0.5:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-pegjs@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.0.tgz#9cae28bec684fb240c1aa8078cca03c22e82f05d"
-  integrity sha512-TPb9NeyTh6uPmNYFzUJWikkWPjWw/gqAX7Rpnjl6tlDEyLxjExHWUhilVeqBYplZBWR2m6hJhgjR43JeTwL2Gw==
+ts-pegjs@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.1.tgz#9b2ef035a9411845eae575a18054824825f726a5"
+  integrity sha512-fvT1oBQKMO3+9MJSUELTIuwkMs0IXJ2iEUCIw6yIriz7agh+OAwAL5Q9y3WiqzxwNF+M+xuK676UVRZxBcaOmQ==
   dependencies:
     peggy "^1.2.0"
 
