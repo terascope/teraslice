@@ -39,7 +39,7 @@
         "@turf/random": "^6.4.0",
         "@types/netmask": "^1.0.30",
         "peggy": "~1.2.0",
-        "ts-pegjs": "^1.2.0"
+        "ts-pegjs": "^1.2.1"
     },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
