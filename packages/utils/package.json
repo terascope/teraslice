@@ -43,7 +43,7 @@
         "@turf/line-to-polygon": "^6.4.0",
         "@types/lodash": "^4.14.173",
         "@types/validator": "^13.6.3",
-        "awesome-phonenumber": "^2.60.0",
+        "awesome-phonenumber": "^2.62.0",
         "date-fns": "^2.24.0",
         "date-fns-tz": "^1.1.5",
         "datemath-parser": "^1.0.6",
@@ -59,7 +59,7 @@
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
-        "mnemonist": "^0.38.3",
+        "mnemonist": "^0.38.4",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
         "validator": "^13.6.0"
