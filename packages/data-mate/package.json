@@ -33,7 +33,7 @@
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.42.7",
         "@types/validator": "^13.6.3",
-        "awesome-phonenumber": "^2.60.0",
+        "awesome-phonenumber": "^2.62.0",
         "date-fns": "^2.24.0",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.3",
