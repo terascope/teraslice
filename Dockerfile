@@ -9,24 +9,20 @@ COPY .yarnclean.ci /app/source/.yarnclean
 COPY .yarn /app/source/.yarn
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
-
-RUN yarn --prod=false --silent --ignore-optional --frozen-lockfile \
-    && yarn cache clean
-
 COPY types /app/source/types
 
-RUN yarn build
+RUN yarn --prod=false --frozen-lockfile \
+    && yarn build \
+    && yarn \
+      --prod=true \
+      --silent \
+      --frozen-lockfile \
+      --skip-integrity-check \
+      --ignore-scripts \
+    && yarn cache clean
+
 
 COPY service.js /app/source/
-
-# Create a smaller build
-RUN yarn \
-    --prod=true \
-    --silent \
-    --frozen-lockfile \
-    --skip-integrity-check \
-    --ignore-scripts \
-    && yarn cache clean
 
 # verify node-rdkafka is installed right
 RUN node -e "require('node-rdkafka')"
