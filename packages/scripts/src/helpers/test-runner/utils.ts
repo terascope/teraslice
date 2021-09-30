@@ -34,10 +34,8 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.bail = '';
     }
 
-    if (options.debug) {
-        if (options.trace) {
-            args.detectOpenHandles = '';
-        }
+    if (options.debug || options.trace) {
+        args.detectOpenHandles = options.trace ? 'true' : 'false';
         args.coverage = 'false';
         args.runInBand = '';
     } else {
