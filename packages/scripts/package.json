@@ -65,6 +65,11 @@
     "peerDependencies": {
         "typescript": "~4.4.3"
     },
+    "peerDependenciesMeta": {
+        "typescript": {
+            "optional": true
+        }
+    },
     "engines": {
         "node": "^12.20.0 || >=14.17.0",
         "yarn": ">=1.16.0"
