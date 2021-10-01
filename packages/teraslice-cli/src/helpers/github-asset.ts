@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import { TSError } from '@terascope/utils';
-import downloadRelease from '@terascope/fetch-github-release';
+import { downloadRelease } from '@terascope/fetch-github-release';
 import { GithubAssetConfig } from '../interfaces';
 
 export default class GithubAsset {

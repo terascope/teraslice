@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import decompress from 'decompress';
 import { TSError } from '@terascope/utils';
-import downloadRelease from '@terascope/fetch-github-release';
+import { downloadRelease } from '@terascope/fetch-github-release';
 import * as I from './interfaces';
 
 export class DownloadExternalAsset {

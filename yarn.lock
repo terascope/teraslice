@@ -740,19 +740,17 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terascope/fetch-github-release@^0.7.9":
-  version "0.7.9"
-  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.7.9.tgz#2f745185e371aecd903aa36ea6ebd0447ca4686d"
-  integrity sha512-Yxuo7gvh9GqPq8/s9xmk4V2dKZC5SULuAXeIyYLVfm2eoSOxTqVWgfgW9WK4mxGfwb0+uyufp4m2HcuW9Qm4IA==
+"@terascope/fetch-github-release@^0.8.7":
+  version "0.8.7"
+  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.8.7.tgz#fd8aba265c06704d51a6ab70fd2c656c80f04156"
+  integrity sha512-m6vpKCUlBYhxlx6BXQoOi0hg/FFZ5Bo/De+MjhDuoFLhR8pMzJxS0Nge8bSIXc1G8Jqmw4g4mkoZOqEb9TmMbQ==
   dependencies:
-    commander "^7.0.0"
-    core-js "^3.6.5"
     extract-zip "^2.0.1"
     gauge "^3.0.0"
     got "^11.4.0"
     multi-progress "^4.0.0"
     progress "^2.0.3"
-    regenerator-runtime "^0.13.5"
+    yargs "^17.2.1"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -2870,11 +2868,6 @@ commander@2, commander@^2.8.1:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
-
-commander@^7.0.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
-  integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
 
 commondir@^1.0.1:
   version "1.0.1"
@@ -9094,7 +9087,7 @@ redis@^3.1.2:
     redis-errors "^1.2.0"
     redis-parser "^3.0.0"
 
-regenerator-runtime@^0.13.4, regenerator-runtime@^0.13.5:
+regenerator-runtime@^0.13.4:
   version "0.13.9"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz#8925742a98ffd90814988d7566ad30ca3b263b52"
   integrity sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
@@ -11354,6 +11347,19 @@ yargs@^17.1.1, yargs@^17.2.0:
   version "17.2.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.2.0.tgz#ec529632b2cb9044f3927f4b45f9cc4ae2535653"
   integrity sha512-UPeZv4h9Xv510ibpt5rdsUNzgD78nMa1rhxxCgvkKiq06hlKCEHJLiJ6Ub8zDg/wR6hedEI6ovnd2vCvJ4nusA==
+  dependencies:
+    cliui "^7.0.2"
+    escalade "^3.1.1"
+    get-caller-file "^2.0.5"
+    require-directory "^2.1.1"
+    string-width "^4.2.0"
+    y18n "^5.0.5"
+    yargs-parser "^20.2.2"
+
+yargs@^17.2.1:
+  version "17.2.1"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.2.1.tgz#e2c95b9796a0e1f7f3bf4427863b42e0418191ea"
+  integrity sha512-XfR8du6ua4K6uLGm5S6fA+FIJom/MdJcFNVY8geLlp2v8GYbOXD4EB1tPNZsRn4vBzKGMgb5DRZMeWuFc2GO8Q==
   dependencies:
     cliui "^7.0.2"
     escalade "^3.1.1"

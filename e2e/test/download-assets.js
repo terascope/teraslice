@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const semver = require('semver');
-const downloadRelease = require('@terascope/fetch-github-release');
+const { downloadRelease } = require('@terascope/fetch-github-release');
 const signale = require('./signale');
 
 /**
