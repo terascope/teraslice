@@ -205,18 +205,38 @@ export type PWhileOptions = {
 
     /** enable jitter to stagger requests */
     enabledJitter?: boolean;
+
+    /** the minimum the jitter wait time will be (in milliseconds),
+     * defaults to 100ms */
+    minJitter?: number
+
+    /** the maximum the jitter wait time will be (in milliseconds),
+     * defaults to 3x the minJitter setting, but less than timeoutMs
+     *  */
+    maxJitter?: number
 };
 
 /**
  * Run a function until it returns true or throws an error
  */
 export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promise<void> {
-    const timeoutMs = options.timeoutMs != null ? options.timeoutMs : -1;
-    const minJitter = timeoutMs > 100 ? timeoutMs : 100;
-    const name = options.name || 'Request';
-    const startTime = Date.now();
+    const {
+        timeoutMs = -1,
+        name = 'Request',
+        enabledJitter = false,
+        minJitter = 100,
+    } = options;
 
+    let maxJitter = options.maxJitter ?? minJitter * 3;
+
+    // make sure maxJitter is less than timeoutMs;
+    if (timeoutMs > 2 && maxJitter > timeoutMs) {
+        maxJitter = timeoutMs - 1;
+    }
+
+    const startTime = Date.now();
     const checkTimeout = trackTimeout(timeoutMs);
+
     let running = false;
     let interval: any;
 
@@ -242,8 +262,8 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
                     return;
                 }
 
-                if (options.enabledJitter) {
-                    const delay = getBackoffDelay(minJitter, 3, timeoutMs / 2, minJitter);
+                if (enabledJitter) {
+                    const delay = getBackoffDelay(minJitter, 3, maxJitter, minJitter);
                     await pDelay(delay);
                 }
 

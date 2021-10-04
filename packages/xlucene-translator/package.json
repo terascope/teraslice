@@ -1,7 +1,7 @@
 {
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
-    "version": "0.24.7",
+    "version": "0.24.8",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {
@@ -29,9 +29,9 @@
     },
     "dependencies": {
         "@terascope/types": "^0.10.2",
-        "@terascope/utils": "^0.42.7",
+        "@terascope/utils": "^0.42.8",
         "@types/elasticsearch": "^5.0.37",
-        "xlucene-parser": "^0.40.7"
+        "xlucene-parser": "^0.40.8"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"

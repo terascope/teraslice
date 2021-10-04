@@ -168,6 +168,7 @@ describe('Utils', () => {
         const defaultOptions: PWhileOptions = {
             timeoutMs: 200,
             enabledJitter: true,
+            minJitter: 50
         };
 
         it('should run until it returns true on first attempt', async () => {
