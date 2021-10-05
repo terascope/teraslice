@@ -1,25 +1,49 @@
 import 'jest-extended';
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeConfig, FieldType, GeoShape, GeoShapeType
+    DataTypeConfig, FieldType, GeoShape, GeoShapeType, Maybe
 } from '@terascope/types';
 import { DataFrame } from '../src';
 
-describe('DataFrame', () => {
-    type Person = { name: string; age?: number; friends?: string[] }
+describe('DataFrame->search', () => {
+    type Person = {
+        name: Maybe<string>;
+        age?: Maybe<number>;
+        alive: Maybe<boolean>;
+        friends?: Maybe<Maybe<string>[]>
+    }
     let peopleDataFrame: DataFrame<Person>;
 
-    type DeepObj = {
-        _key?: string;
-        config?: {
-            id?: string;
-            name?: string;
-            owner?: {
-                id?: string;
-                name?: string;
+    const peopleDTConfig: DataTypeConfig = {
+        version: LATEST_VERSION,
+        fields: {
+            name: {
+                type: FieldType.Keyword,
+            },
+            age: {
+                type: FieldType.Short,
+            },
+            alive: {
+                type: FieldType.Boolean,
+            },
+            friends: {
+                type: FieldType.Keyword,
+                array: true,
             }
-        };
-        states?: { id?: string; name?: string }[];
+        }
+    };
+
+    type DeepObj = {
+        _key?: Maybe<string>;
+        config?: Maybe<{
+            id?: Maybe<string>;
+            name?: Maybe<string>;
+            owner?: Maybe<{
+                id?: Maybe<string>;
+                name?: Maybe<string>;
+            }>
+        }>;
+        states?: Maybe<Maybe<{ id?: Maybe<string>; name?: Maybe<string> }>[]>;
     }
 
     const deepObjectDTConfig: DataTypeConfig = {
@@ -59,27 +83,12 @@ describe('DataFrame', () => {
     };
     let deepObjDataFrame: DataFrame<DeepObj>;
 
-    const peopleDTConfig: DataTypeConfig = {
-        version: LATEST_VERSION,
-        fields: {
-            name: {
-                type: FieldType.Keyword,
-            },
-            age: {
-                type: FieldType.Short,
-            },
-            friends: {
-                type: FieldType.Keyword,
-                array: true,
-            }
-        }
-    };
     type Special = {
-        ip?: string;
-        long?: bigint|number;
-        date?: string;
-        location?: string;
-        geometry?: GeoShape;
+        ip?: Maybe<string>;
+        long?: Maybe<bigint|number>;
+        date?: Maybe<string>;
+        location?: Maybe<string>;
+        geometry?: Maybe<GeoShape>;
     };
 
     const specialDTConfig: DataTypeConfig = {
@@ -107,27 +116,32 @@ describe('DataFrame', () => {
             {
                 name: 'Jill',
                 age: 39,
-                friends: ['Frank'] // sucks for Billy
+                alive: true,
+                friends: ['Frank', 'Jane'] // sucks for Billy
             },
             {
                 name: 'Billy',
                 age: 47,
+                alive: true,
                 friends: ['Jill']
             },
             {
                 name: 'Frank',
                 age: 20,
+                alive: true,
                 friends: ['Jill']
             },
             {
                 name: 'Jane',
-                age: null as any,
+                age: null,
+                alive: false,
                 friends: ['Jill']
             },
             {
                 name: 'Nancy',
                 age: 10,
-                friends: null as any
+                alive: true,
+                friends: null
             },
         ]);
         deepObjDataFrame = createDeepObjectDataFrame([{
@@ -197,7 +211,8 @@ describe('DataFrame', () => {
             {
                 name: 'Jill',
                 age: 39,
-                friends: ['Frank'],
+                alive: true,
+                friends: ['Frank', 'Jane'],
             }
         ]);
         expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
@@ -210,9 +225,118 @@ describe('DataFrame', () => {
             {
                 name: 'Jill',
                 age: 39,
-                friends: ['Frank'],
+                alive: true,
+                friends: ['Frank', 'Jane'],
             }
         ]);
+    });
+
+    it('should find a value in the friends list using a * wildcard', () => {
+        const resultFrame = peopleDataFrame.search('friends:J*').select('name', 'friends');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                friends: ['Frank', 'Jane']
+            },
+            {
+                name: 'Billy',
+                friends: ['Jill']
+            },
+            {
+                name: 'Frank',
+                friends: ['Jill']
+            },
+            {
+                name: 'Jane',
+                friends: ['Jill']
+            },
+        ]);
+    });
+
+    it('should find a value in the friends list using a ? wildcard', () => {
+        const resultFrame = peopleDataFrame.search('friends:J?ll').select('name', 'friends');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Billy',
+                friends: ['Jill']
+            },
+            {
+                name: 'Frank',
+                friends: ['Jill']
+            },
+            {
+                name: 'Jane',
+                friends: ['Jill']
+            },
+        ]);
+    });
+
+    it('should be able find all the people that are alive', () => {
+        const resultFrame = peopleDataFrame.search('alive:true').select('name', 'alive');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                alive: true,
+            },
+            {
+                name: 'Billy',
+                alive: true,
+            },
+            {
+                name: 'Frank',
+                alive: true,
+            },
+            {
+                name: 'Nancy',
+                alive: true,
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able find all the people that are NOT alive', () => {
+        const resultFrame = peopleDataFrame.search('alive:false').select('name', 'alive');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jane',
+                alive: false,
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able find all the people that are alive and their name ends with y', () => {
+        const resultFrame = peopleDataFrame.search('alive:true AND name:*y').select('name', 'alive');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Billy',
+                alive: true,
+            },
+            {
+                name: 'Nancy',
+                alive: true,
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able find all the people with their name ends with y using regex', () => {
+        const resultFrame = peopleDataFrame.search('name:/.*y$/').select('name');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Billy',
+            },
+            {
+                name: 'Nancy',
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
     });
 
     it('should return nothing if the value cannot be found', () => {
@@ -301,6 +425,17 @@ describe('DataFrame', () => {
 
         expect(resultFrame.toJSON()).toEqual([
             { date: '2000-01-04T00:00:00.000Z' },
+        ]);
+    });
+
+    it('should be able to match using a date values >= range', () => {
+        const resultFrame = specialDataFrame
+            .search('date:>="2000-01-04T00:00:00.000Z"')
+            .select('date');
+
+        expect(resultFrame.toJSON()).toEqual([
+            { date: '2000-01-04T00:00:00.000Z' },
+            { date: '2002-01-02T00:00:00.000Z' },
         ]);
     });
 
