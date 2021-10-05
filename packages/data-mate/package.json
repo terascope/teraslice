@@ -34,7 +34,7 @@
         "@terascope/utils": "^0.42.8",
         "@types/validator": "^13.6.3",
         "awesome-phonenumber": "^2.62.1",
-        "date-fns": "^2.24.0",
+        "date-fns": "^2.25.0",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.3",
         "ipaddr.js": "^2.0.1",
