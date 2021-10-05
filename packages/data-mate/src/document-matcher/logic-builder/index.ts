@@ -7,7 +7,6 @@ import {
 } from './string';
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
-import { isBooleanMatch } from './boolean';
 
 export default function buildLogicFn(
     parser: p.Parser,
@@ -191,9 +190,6 @@ function typeFunctions(
         if (p.isRange(node)) {
             throw new Error('Unexpected range query on field type boolean');
         }
-
-        const value = p.getFieldValue(node.value, variables);
-        return isBooleanMatch(value);
     }
 
     return defaultCb;
