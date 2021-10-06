@@ -601,8 +601,16 @@ export class AggregationFrame<
             if (agg != null) {
                 builder.append(agg.flush().value);
             } else {
-                const col = this.getColumnOrThrow(field);
-                builders.get(field)!.append(col.vector.get(startIndex));
+                const value = this.getColumnOrThrow(field).vector.get(startIndex);
+                const writeIndex = builder.currentIndex++;
+                if (value != null) {
+                    // doing this is faster than append
+                    // because we KNOW it is already in a valid format
+                    builder.data.set(
+                        writeIndex,
+                        value
+                    );
+                }
             }
         }
     }
@@ -633,8 +641,14 @@ export class AggregationFrame<
         }
 
         for (const field of remainingFields) {
-            const col = this.getColumnOrThrow(field);
-            builders.get(field)!.append(col.vector.get(useIndex));
+            const builder = builders.get(field)!;
+            const value = this.getColumnOrThrow(field).vector.get(useIndex);
+            const writeIndex = builder.currentIndex++;
+            if (value != null) {
+                // doing this is faster than append
+                // because we KNOW it is already in a valid format
+                builder.data.set(writeIndex, value);
+            }
         }
     }
 

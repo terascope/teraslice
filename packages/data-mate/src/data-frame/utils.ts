@@ -53,7 +53,7 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
         const col = columns.find(((c) => c.name === field));
         if (col) {
             for (const [i, v] of col.vector.values()) {
-                builder.set(i + offset, v);
+                builder.data.set(i + offset, v);
             }
         }
     }

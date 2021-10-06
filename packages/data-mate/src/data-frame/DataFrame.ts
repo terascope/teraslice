@@ -504,11 +504,17 @@ export class DataFrame<
     filterDataFrameRows(fn: FilterByRowsFn<T>): DataFrame<T> {
         const builders = getBuildersForConfig(this.config, this.size);
         let returning = 0;
-        for (const index of timesIter(this.size)) {
-            if (fn(this, index)) {
+        for (const i of timesIter(this.size)) {
+            if (fn(this, i)) {
                 returning++;
                 for (const [name, builder] of builders) {
-                    builder.append(this.getColumnOrThrow(name).vector.get(index));
+                    const value = this.getColumnOrThrow(name).vector.get(i);
+                    const writeIndex = builder.currentIndex++;
+                    if (value != null) {
+                        // doing this is faster than append
+                        // because we KNOW it is already in a valid format
+                        builder.data.set(writeIndex, value);
+                    }
                 }
             }
         }
@@ -534,7 +540,13 @@ export class DataFrame<
                 returning--;
             } else {
                 for (const [name, builder] of builders) {
-                    builder.append(this.getColumnOrThrow(name).vector.get(i));
+                    const value = this.getColumnOrThrow(name).vector.get(i);
+                    const writeIndex = builder.currentIndex++;
+                    if (value != null) {
+                        // doing this is faster than append
+                        // because we KNOW it is already in a valid format
+                        builder.data.set(writeIndex, value);
+                    }
                 }
             }
         }

@@ -50,6 +50,7 @@ export function buildMatcherForNode(
         if (p.isExists(node)) {
             return matchFieldValue(field, isNotNil);
         }
+
         if (p.isTermType(node)) {
             const value = getComparisonValue(node, variables);
 
@@ -123,6 +124,7 @@ function makeGetValueFn(field: string): (
                 value = (value as any)[part];
             } else {
                 value = null;
+                break;
             }
         }
         return value;
