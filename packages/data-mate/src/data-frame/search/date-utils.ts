@@ -2,7 +2,7 @@ import isWithinInterval from 'date-fns/isWithinInterval';
 import isEqual from 'date-fns/isEqual';
 import subMilliseconds from 'date-fns/subMilliseconds';
 import addMilliseconds from 'date-fns/addMilliseconds';
-import { getValidDate } from '@terascope/utils';
+import { getTypeOf, getValidDate } from '@terascope/utils';
 import {
     isInfiniteMax, isInfiniteMin, ParsedRange
 } from 'xlucene-parser';
@@ -72,7 +72,9 @@ function convertDate(val: unknown, inclusive: number, throwErr: boolean): Date|u
     const result = getValidDate(val as any);
     if (result) return handleInclusive(result, inclusive);
 
-    if (throwErr) throw new Error(`Invalid date format ${val}`);
+    if (throwErr) {
+        throw new TypeError(`Expected valid date, got ${val} (${getTypeOf(val)})`);
+    }
     return undefined;
 }
 

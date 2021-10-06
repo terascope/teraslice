@@ -3,9 +3,9 @@ import {
     wildCardToRegex,
     matchWildcard,
     match,
+    isString,
     getTypeOf
 } from '@terascope/utils';
-import { isString } from 'lodash';
 import { MatchValueFn } from './interfaces';
 
 export function regexp(regexStr: unknown): MatchValueFn {
@@ -14,6 +14,7 @@ export function regexp(regexStr: unknown): MatchValueFn {
     }
     const validRegexStr = `^${regexStr}$`;
     return function regexpTerm(str) {
+        if (str == null) return false;
         if (!isString(str)) {
             throw new TypeError(`Expected string for regexp match, got ${str} (${getTypeOf(str)})`);
         }
@@ -26,6 +27,7 @@ export function wildcard(wildcardStr: unknown): MatchValueFn {
         throw new TypeError(`Expected input string for wildcard match, got ${wildcardStr} (${getTypeOf(wildcardStr)})`);
     }
     return function wildcardTerm(str) {
+        if (str == null) return false;
         if (!isString(str)) {
             throw new TypeError(`Expected string for wildcard match, got ${str} (${getTypeOf(str)})`);
         }

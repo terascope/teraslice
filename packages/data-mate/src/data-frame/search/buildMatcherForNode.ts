@@ -2,7 +2,7 @@ import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascop
 import {
     and, isEqual, isNotNil, isWildCardString, not, or,
     isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP
+    isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
 } from '@terascope/utils';
 import { inspect } from 'util';
 import * as p from 'xlucene-parser';
@@ -104,6 +104,10 @@ function matchFieldValue(field: string|undefined, cb: MatchValueFn): MatchRowFn 
     };
 }
 
+/**
+ * This will create a function that gets a field value
+ * and possible a nested field value
+*/
 function makeGetValueFn(field: string): (
     dataFrame: DataFrame<Record<string, unknown>>, rowIndex: number
 ) => unknown {
@@ -115,6 +119,7 @@ function makeGetValueFn(field: string): (
                 value = dataFrame.getColumnOrThrow(part).vector.get(rowIndex, true);
                 isBase = false;
             } else if (part in Object(value)) {
+                // this will properly deal with arrays too (like example.0)
                 value = (value as any)[part];
             } else {
                 throw new Error(`Unknown nested field ${field}`);
@@ -161,14 +166,15 @@ function typeFunctions(
     return defaultCb;
 }
 
-function makeIsValue(value: any) {
-    return function isValue(data: any) {
+function makeIsValue(value: unknown) {
+    return function isValue(data: unknown) {
         if (typeof value === 'bigint' && typeof data === 'number') {
-            return value === BigInt(data);
+            return value === toBigIntOrThrow(data);
         }
         if (typeof value === 'number' && typeof data === 'bigint') {
-            return BigInt(value) === data;
+            return toBigIntOrThrow(value) === data;
         }
+        if (data == null && value == null) return true;
         return isEqual(data, value);
     };
 }
