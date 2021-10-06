@@ -11,7 +11,8 @@ import {
     getTypeOf, isFunction,
     isPlainObject, trimFP,
     isInteger, joinList,
-    getHashCodeFrom
+    getHashCodeFrom,
+    timesIter
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -423,7 +424,7 @@ export class DataFrame<
         _overrideParsedQuery?: xLuceneNode,
     ): DataFrame<T> {
         const matcher = buildSearchMatcherForQuery(this, query, variables, _overrideParsedQuery);
-        return this.filterBy(matcher);
+        return this.filterDataFrameRows(matcher);
     }
 
     /**
@@ -494,6 +495,32 @@ export class DataFrame<
         return this.fork(
             distributeRowsToColumns(this.config, records)
         );
+    }
+
+    /**
+     * This allows you to filter each row more efficiently by
+     * since the rows aren't pulled from the data frame unless they match.
+     *
+     * This was designed to be used in @see DataFrame.search
+    */
+    filterDataFrameRows(fn: FilterByRowsFn<T>): DataFrame<T> {
+        const builders = getBuildersForConfig(this.config, this.size);
+        let returning = 0;
+        for (const index of timesIter(this.size)) {
+            if (fn(this, index)) {
+                for (const [name, builder] of builders) {
+                    returning++;
+                    builder.append(this.getColumnOrThrow(name).vector.get(index));
+                }
+            }
+        }
+
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+            // @ts-expect-error data is readonly
+            builder.data = builder.data
+                .resize(returning);
+            return this.getColumnOrThrow(name).fork(builder.toVector());
+        }));
     }
 
     /**
@@ -1028,3 +1055,6 @@ export type FilterByFields<T> = Partial<{
 }>;
 
 export type FilterByFn<T> = (row: T, index: number) => boolean;
+export type FilterByRowsFn<T extends Record<string, any>> = (
+    row: DataFrame<T>, index: number
+) => boolean;

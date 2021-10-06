@@ -1,6 +1,6 @@
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
-import { isWildCardString, get } from '@terascope/utils';
+import { isWildCardString, get, isEqual } from '@terascope/utils';
 import { compareTermDates, dateRange } from './dates';
 import {
     regexp, wildcard, findWildcardField
@@ -203,7 +203,7 @@ function makeIsValue(value: any) {
         if (typeof value === 'number' && typeof data === 'bigint') {
             return BigInt(value) === data;
         }
-        return data === value;
+        return isEqual(data, value);
     };
 }
 
