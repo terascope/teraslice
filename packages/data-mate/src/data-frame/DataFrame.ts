@@ -666,10 +666,10 @@ export class DataFrame<
     */
     private _forkWithBuilders(builders: Iterable<[
         name: keyof T, builder: Builder<any>
-    ]>, limit = this.size): DataFrame<T> {
+    ]>, limit?: number): DataFrame<T> {
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => (
             this.getColumnOrThrow(name).fork(
-                builder.resize(limit).toVector()
+                limit != null ? builder.resize(limit).toVector() : builder.toVector()
             )
         )));
     }
