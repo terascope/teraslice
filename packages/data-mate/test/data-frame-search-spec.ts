@@ -309,6 +309,18 @@ describe('DataFrame->search', () => {
         expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
     });
 
+    it('should be able find all the people that are NOT alive using NOT alive:true', () => {
+        const resultFrame = peopleDataFrame.search('NOT alive:true').select('name', 'alive');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jane',
+                alive: false,
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
     it('should be able find all the people that are alive and their name ends with y', () => {
         const resultFrame = peopleDataFrame.search('alive:true AND name:*y').select('name', 'alive');
 
@@ -368,13 +380,12 @@ describe('DataFrame->search', () => {
 
     it('should be able to match using a complicated conjunction', () => {
         const resultFrame = peopleDataFrame
-            .search('age:>30 OR (name:Nancy AND age:<30)')
+            .search('age:>30 OR (name:Nancy AND age:<30) AND NOT age:(10 OR 11)')
             .select('name', 'age');
 
         expect(resultFrame.toJSON()).toEqual([
             { name: 'Jill', age: 39 },
             { name: 'Billy', age: 47 },
-            { name: 'Nancy', age: 10 }
         ]);
     });
 
