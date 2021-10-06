@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { isGreaterThanOrEqualFP } from '@terascope/utils';
+import { isGreaterThanOrEqualToFP } from '@terascope/utils';
 import {
     FieldValidateConfig,
     ProcessMode,
@@ -60,7 +60,7 @@ export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqua
         }
     ],
     create({ args: { value } }) {
-        return isGreaterThanOrEqualFP(value);
+        return isGreaterThanOrEqualToFP(value);
     },
     accepts: [
         FieldType.Number,

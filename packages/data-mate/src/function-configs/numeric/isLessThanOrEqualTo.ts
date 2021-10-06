@@ -1,4 +1,5 @@
 import { FieldType } from '@terascope/types';
+import { isLessThanOrEqualToFP } from '@terascope/utils';
 import {
     FieldValidateConfig,
     ProcessMode,
@@ -59,7 +60,7 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
         }
     ],
     create({ args: { value } }) {
-        return isLessThan(value);
+        return isLessThanOrEqualToFP(value);
     },
     accepts: [
         FieldType.Number,
@@ -71,9 +72,3 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
     },
     required_arguments: ['value']
 };
-
-function isLessThan(value: number) {
-    return function _isLessThan(input: unknown): boolean {
-        return (input as number) <= value;
-    };
-}
