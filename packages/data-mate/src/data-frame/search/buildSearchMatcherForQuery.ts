@@ -1,9 +1,9 @@
 import { DataType } from '@terascope/data-types';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
-import type { BooleanCB } from '../document-matcher/interfaces';
-import buildLogicFn from '../document-matcher/logic-builder';
-import type { DataFrame } from './DataFrame';
+import type { BooleanCB } from '../../document-matcher/interfaces';
+import buildLogicFn from '../../document-matcher/logic-builder';
+import type { DataFrame } from '../DataFrame';
 
 export function buildSearchMatcherForQuery(
     frame: DataFrame<any>,

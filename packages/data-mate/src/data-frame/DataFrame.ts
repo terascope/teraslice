@@ -34,7 +34,7 @@ import {
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
-import { buildSearchMatcherForQuery } from './search-utils';
+import { buildSearchMatcherForQuery } from './search';
 import { DataFrameHeaderConfig } from './interfaces';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 

@@ -1,2 +1,2 @@
 export * from './DataFrame';
-export * from './search-utils';
+export * from './search';
