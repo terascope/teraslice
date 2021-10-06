@@ -93,13 +93,12 @@ function matchFieldValue(field: string|undefined, cb: MatchValueFn): MatchRowFn 
     }
 
     const getValue = makeGetValueFn(field);
-    const getAnyData = or(cb);
 
-    return function _logicNode(dataFrame, rowIndex) {
+    return function _matchFieldValue(dataFrame, rowIndex) {
         const data = getValue(dataFrame, rowIndex);
 
         if (Array.isArray(data)) {
-            return getAnyData(data);
+            return data.some(cb);
         }
         return cb(data);
     };
