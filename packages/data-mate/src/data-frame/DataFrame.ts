@@ -399,9 +399,7 @@ export class DataFrame<
             }
         }
 
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
-        ));
+        return this._forkWithBuilders(builders);
     }
 
     /**
@@ -508,19 +506,14 @@ export class DataFrame<
         let returning = 0;
         for (const index of timesIter(this.size)) {
             if (fn(this, index)) {
+                returning++;
                 for (const [name, builder] of builders) {
-                    returning++;
                     builder.append(this.getColumnOrThrow(name).vector.get(index));
                 }
             }
         }
 
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data
-                .resize(returning);
-            return this.getColumnOrThrow(name).fork(builder.toVector());
-        }));
+        return this._forkWithBuilders(builders, returning);
     }
 
     /**
@@ -548,12 +541,7 @@ export class DataFrame<
 
         if (returning === this.size) return this;
 
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data
-                .resize(returning);
-            return this.getColumnOrThrow(name).fork(builder.toVector());
-        }));
+        return this._forkWithBuilders(builders, returning);
     }
 
     /**
@@ -658,12 +646,20 @@ export class DataFrame<
             }
         }
 
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data
-                .resize(buckets.size);
-            return this.getColumnOrThrow(name).fork(builder.toVector());
-        }));
+        return this._forkWithBuilders(builders, buckets.size);
+    }
+
+    /**
+     * Create a new data frame from the builders
+    */
+    private _forkWithBuilders(builders: Iterable<[
+        name: keyof T, builder: Builder<any>
+    ]>, limit = this.size): DataFrame<T> {
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumnOrThrow(name).fork(
+                builder.resize(limit).toVector()
+            )
+        )));
     }
 
     /**
@@ -733,21 +729,17 @@ export class DataFrame<
             columnsToBuilderEntries(this.columns, len + this.size)
         );
 
-        const finish = ([name, builder]: [keyof T, Builder<any>]): Column<T[keyof T], keyof T> => (
-            this.getColumnOrThrow(name).fork(builder.toVector())
-        );
-
         if (isColumns) {
-            return this.fork(
+            return this._forkWithBuilders(
                 concatColumnsToColumns(
                     builders,
                     arg as Column<any, keyof T>[],
                     this.size,
-                ).map(finish)
+                )
             );
         }
-        return this.fork(
-            buildRecords<T>(builders, arg as T[]).map(finish)
+        return this._forkWithBuilders(
+            buildRecords<T>(builders, arg as T[])
         );
     }
 
