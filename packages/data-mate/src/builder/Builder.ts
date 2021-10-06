@@ -1,7 +1,7 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
 import { TSError, toString, getTypeOf } from '@terascope/utils';
 import {
-    freezeObject, isSameFieldConfig, ReadableData, WritableData
+    freezeObject, ReadableData, WritableData
 } from '../core';
 import {
     ListVector, Vector, VectorType
@@ -231,13 +231,8 @@ export function copyVectorToBuilder<T, R>(
     vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
 ): Vector<R> {
-    const isSame = isSameFieldConfig(vector.config, builder.config);
     for (const [i, v] of vector.values()) {
-        if (isSame) {
-            if (v != null) builder.data.set(i, v as any);
-        } else {
-            builder.set(i, v);
-        }
+        builder.set(i, v);
     }
     return builder.toVector();
 }
