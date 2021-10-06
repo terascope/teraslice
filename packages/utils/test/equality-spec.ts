@@ -1,6 +1,10 @@
 import 'jest-extended';
 import {
-    isDeepEqual
+    isDeepEqual,
+    isGreaterThan, isGreaterThanFP,
+    isLessThan, isLessThanFP,
+    isGreaterThanOrEqualTo, isGreaterThanOrEqualToFP,
+    isLessThanOrEqualTo, isLessThanOrEqualToFP
 } from '../src/equality';
 import { DataEntity } from '../src';
 
@@ -68,6 +72,118 @@ describe('Equality', () => {
                 expect(isDeepEqual(['hello'], ['hello'])).toBeTrue();
                 expect(isDeepEqual([{ some: 'obj' }], [{ some: 'obj' }])).toBeTrue();
             });
+        });
+    });
+
+    describe('isGreaterThanOrEqualTo', () => {
+        test.each([
+            [2, 1],
+            [2, 2],
+            [2, '2'],
+            ['c', 'b'],
+            [BigInt(10), 9],
+            [10, BigInt(9)],
+            [-100, -120],
+        ])('should consider %p greater than or equal to %p', (value, other) => {
+            expect(isGreaterThanOrEqualTo(value, other)).toBeTrue();
+            expect(isGreaterThanOrEqualToFP(other)(value)).toBeTrue();
+        });
+
+        test.each([
+            [1, 2],
+            ['1', 2],
+            ['a', 'b'],
+            [{ foo: true }, { foo: true }],
+            [{ foo: true }, undefined],
+            [undefined, { foo: true }],
+            [null, -1],
+        ])('should NOT consider %p greater than or equal to %p', (value, other) => {
+            expect(isGreaterThanOrEqualTo(value, other)).toBeFalse();
+            expect(isGreaterThanOrEqualToFP(other)(value)).toBeFalse();
+        });
+    });
+
+    describe('isGreaterThan', () => {
+        test.each([
+            [2, 1],
+            ['c', 'b'],
+            [BigInt(10), 9],
+            [10, BigInt(9)],
+            [-100, -120],
+        ])('should consider %p greater than %p', (value, other) => {
+            expect(isGreaterThan(value, other)).toBeTrue();
+            expect(isGreaterThanFP(other)(value)).toBeTrue();
+        });
+
+        test.each([
+            [1, 2],
+            [2, 2],
+            [2, '2'],
+            ['1', 2],
+            ['a', 'b'],
+            [{ foo: true }, { foo: true }],
+            [{ foo: true }, undefined],
+            [undefined, { foo: true }],
+            [null, -1],
+        ])('should NOT consider %p greater than %p', (value, other) => {
+            expect(isGreaterThan(value, other)).toBeFalse();
+            expect(isGreaterThanFP(other)(value)).toBeFalse();
+        });
+    });
+
+    describe('isLessThanOrEqualTo', () => {
+        test.each([
+            [1, 2],
+            [2, 2],
+            [2, '2'],
+            ['b', 'c'],
+            [BigInt(9), 10],
+            [9, BigInt(10)],
+            [-120, -100],
+        ])('should consider %p less than or equal to %p', (value, other) => {
+            expect(isLessThanOrEqualTo(value, other)).toBeTrue();
+            expect(isLessThanOrEqualToFP(other)(value)).toBeTrue();
+        });
+
+        test.each([
+            [2, 1],
+            ['2', 1],
+            ['b', 'a'],
+            [{ foo: true }, { foo: true }],
+            [{ foo: true }, undefined],
+            [undefined, { foo: true }],
+            [null, -1],
+        ])('should NOT consider %p less than or equal to %p', (value, other) => {
+            expect(isLessThanOrEqualTo(value, other)).toBeFalse();
+            expect(isLessThanOrEqualToFP(other)(value)).toBeFalse();
+        });
+    });
+
+    describe('isLessThan', () => {
+        test.each([
+            [1, 2],
+            ['b', 'c'],
+            [BigInt(9), 10],
+            [9, BigInt(10)],
+            [-120, -100],
+        ])('should consider %p less than %p', (value, other) => {
+            expect(isLessThan(value, other)).toBeTrue();
+            expect(isLessThanFP(other)(value)).toBeTrue();
+        });
+
+        test.each([
+            [2, 1],
+            [2, 2],
+            [2, '2'],
+            ['2', 1],
+            ['b', 'a'],
+            [{ foo: true }, { foo: true }],
+            [{ foo: true }, undefined],
+            [undefined, { foo: true }],
+            [null, -1],
+        ])('should NOT consider %p less than %p', (value, other) => {
+            expect(isLessThan(value, other)).toBeFalse();
+            expect(isLessThanFP(other)(value)).toBeFalse();
         });
     });
 });
