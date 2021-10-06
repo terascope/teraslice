@@ -122,7 +122,7 @@ function makeGetValueFn(field: string): (
                 // this will properly deal with arrays too (like example.0)
                 value = (value as any)[part];
             } else {
-                throw new Error(`Unknown nested field ${field}`);
+                value = null;
             }
         }
         return value;
