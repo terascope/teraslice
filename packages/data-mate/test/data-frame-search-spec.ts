@@ -218,8 +218,8 @@ describe('DataFrame->search', () => {
         expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
     });
 
-    it('should find a value in the friends list', () => {
-        const resultFrame = peopleDataFrame.search('friends:Frank');
+    it('should be able find all the people by name with a field wildcard', () => {
+        const resultFrame = peopleDataFrame.search('n?me:Jill');
 
         expect(resultFrame.toJSON()).toEqual([
             {
@@ -228,6 +228,52 @@ describe('DataFrame->search', () => {
                 alive: true,
                 friends: ['Frank', 'Jane'],
             }
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able search all of the fields', () => {
+        const resultFrame = peopleDataFrame.search('Frank');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                age: 39,
+                alive: true,
+                friends: ['Frank', 'Jane'],
+            },
+            {
+                name: 'Frank',
+                age: 20,
+                alive: true,
+                friends: ['Jill']
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able find all the nested fields', () => {
+        const resultFrame = deepObjDataFrame.search('config.*:"config-2"').select('_key');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                _key: 'id-1',
+            }
+        ]);
+        expect(resultFrame.id).not.toEqual(deepObjDataFrame.id);
+    });
+
+    it('should find a value in the friends list', () => {
+        const resultFrame = peopleDataFrame.search('friends:Frank');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                age: 39,
+                alive: true,
+                friends: ['Frank', 'Jane']
+            },
+
         ]);
     });
 

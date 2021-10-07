@@ -501,11 +501,11 @@ export class DataFrame<
      *
      * This was designed to be used in @see DataFrame.search
     */
-    filterDataFrameRows(fn: FilterByRowsFn<T>): DataFrame<T> {
+    filterDataFrameRows(fn: FilterByRowsFn): DataFrame<T> {
         const builders = getBuildersForConfig(this.config, this.size);
         let returning = 0;
         for (const i of timesIter(this.size)) {
-            if (fn(this, i)) {
+            if (fn(i)) {
                 returning++;
                 for (const [name, builder] of builders) {
                     const value = this.getColumnOrThrow(name).vector.get(i);
@@ -1059,6 +1059,6 @@ export type FilterByFields<T> = Partial<{
 }>;
 
 export type FilterByFn<T> = (row: T, index: number) => boolean;
-export type FilterByRowsFn<T extends Record<string, any>> = (
-    row: DataFrame<T>, index: number
+export type FilterByRowsFn = (
+    index: number
 ) => boolean;

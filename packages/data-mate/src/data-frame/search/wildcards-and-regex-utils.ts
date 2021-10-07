@@ -1,11 +1,11 @@
 import {
-    isPlainObject,
     wildCardToRegex,
     matchWildcard,
     match,
     isString,
     getTypeOf
 } from '@terascope/utils';
+import { GroupedFields } from '@terascope/data-types';
 import { MatchValueFn } from './interfaces';
 
 export function regexp(regexStr: unknown): MatchValueFn {
@@ -35,31 +35,31 @@ export function wildcard(wildcardStr: unknown): MatchValueFn {
     };
 }
 
-export function findWildcardField(field: string, cb: MatchValueFn): MatchValueFn {
-    return function _findWildcardField(value): boolean {
-        const resultsArray = recurseDownObject(field, value as any);
-        if (resultsArray.length === 0) return false;
-        return resultsArray.some(cb);
-    };
+/**
+ * Match the fields name
+ * city.*   city.deeper.*   city.*.*
+*/
+export function findWildcardFields(wildCardField: string, groupedFields: GroupedFields): string[] {
+    const fieldSequence = wildCardField.split('.').map(wildCardToRegex);
+    return recurse(fieldSequence, groupedFields);
 }
 
-// city.*   city.deeper.*   city.*.*
-function recurseDownObject(field: string, object: Record<string, any>): Record<string, any>[] {
-    const fieldSequence = field.split('.').map(wildCardToRegex);
-    return recurse(fieldSequence, object);
-}
-
-function recurse(arr: RegExp[], obj: Record<string, any>): any[] {
+function recurse(arr: RegExp[], groupedFields: GroupedFields): string[] {
     if (arr.length === 0) return [];
     const regExpr = arr.shift()!;
 
     const results: any[] = [];
-    for (const [key, value] of Object.entries(obj)) {
-        if (regExpr.exec(key)) {
+    for (const field of Object.keys(groupedFields)) {
+        if (regExpr.exec(field)) {
             if (arr.length === 0) {
-                results.push(value);
-            } else if (isPlainObject(value)) {
-                results.push(...recurse(arr.slice(), value));
+                results.push(field);
+            } else if (groupedFields[field].length) {
+                const nestedGroupedFields = {};
+                for (const nestedField of groupedFields[field]) {
+                    const [base, ...parts] = nestedField.split('.');
+                    nestedGroupedFields[base] = parts;
+                }
+                results.push(...recurse(arr.slice(), nestedGroupedFields));
             }
         }
     }

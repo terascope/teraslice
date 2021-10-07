@@ -4,13 +4,14 @@ import {
     isGreaterThanFP, isGreaterThanOrEqualToFP,
     isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
 } from '@terascope/utils';
+import { getGroupedFields } from '@terascope/data-types';
 import { inspect } from 'util';
 import * as p from 'xlucene-parser';
 import type { DataFrame } from '../DataFrame';
 import { compareTermDates, dateRange } from './date-utils';
 import { MatchRowFn, MatchValueFn } from './interfaces';
 import { ipRange, ipTerm } from './ip-utils';
-import { findWildcardField, regexp, wildcard } from './wildcards-and-regex-utils';
+import { findWildcardFields, regexp, wildcard } from './wildcards-and-regex-utils';
 
 /**
  * This builds a matcher for particular node,
@@ -18,6 +19,7 @@ import { findWildcardField, regexp, wildcard } from './wildcards-and-regex-utils
  * that will conditionally call each function
 */
 export function buildMatcherForNode(
+    dataFrame: DataFrame<any>,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
 ) {
@@ -27,45 +29,45 @@ export function buildMatcherForNode(
         }
 
         if (p.isNegation(node)) {
-            return not(buildMatcherForNode(typeConfig, variables)(node.node));
+            return not(buildMatcherForNode(dataFrame, typeConfig, variables)(node.node));
         }
 
         if (p.isGroupLike(node)) {
-            return makeGroupFn(typeConfig, variables)(node);
+            return makeGroupFn(dataFrame, typeConfig, variables)(node);
         }
 
         const field = p.getField(node);
 
         if (p.isRange(node)) {
-            return matchFieldValue(field, typeFunctions(
+            return matchFieldValue(dataFrame, field, typeFunctions(
                 node, typeConfig, variables, makeRangeFn(node, variables)
             ));
         }
 
         if (p.isFunctionNode(node)) {
             const instance = p.initFunction({ node, variables, type_config: typeConfig });
-            return matchFieldValue(field, instance.match);
+            return matchFieldValue(dataFrame, field, instance.match);
         }
 
         if (p.isExists(node)) {
-            return matchFieldValue(field, isNotNil);
+            return matchFieldValue(dataFrame, field, isNotNil);
         }
 
         if (p.isTermType(node)) {
             const value = getComparisonValue(node, variables);
 
             if (p.isTerm(node)) {
-                return matchFieldValue(field, typeFunctions(
+                return matchFieldValue(dataFrame, field, typeFunctions(
                     node, typeConfig, variables, makeIsValue(value)
                 ));
             }
 
             if (p.isRegexp(node)) {
-                return matchFieldValue(field, regexp(value));
+                return matchFieldValue(dataFrame, field, regexp(value));
             }
 
             if (p.isWildcard(node)) {
-                return matchFieldValue(field, wildcard(value));
+                return matchFieldValue(dataFrame, field, wildcard(value));
             }
         }
 
@@ -86,17 +88,26 @@ function getComparisonValue(
     throw new Error(`Unsupported value in node: ${inspect(node)}`);
 }
 
-function matchFieldValue(field: string|undefined, cb: MatchValueFn): MatchRowFn {
-    if (!field) throw new Error('Searching all fields is not allowed at the moment');
-
-    if (isWildCardString(field)) {
-        return findWildcardField(field, cb);
+function matchFieldValue(
+    dataFrame: DataFrame<any>,
+    field: string|undefined,
+    cb: MatchValueFn
+): MatchRowFn {
+    const fields: string[] = [];
+    if (!field) {
+        fields.push(...Object.keys(dataFrame.config.fields));
+    } else if (isWildCardString(field)) {
+        fields.push(...findWildcardFields(field, getGroupedFields(dataFrame.config.fields)));
+    } else {
+        fields.push(field);
     }
 
-    const getValue = makeGetValueFn(field);
+    if (!fields.length) return isFalse;
 
-    return function _matchFieldValue(dataFrame, rowIndex) {
-        const data = getValue(dataFrame, rowIndex);
+    const getValue = makeGetValueFn(dataFrame, fields);
+
+    return function _matchFieldValue(rowIndex) {
+        const data = getValue(rowIndex);
 
         if (Array.isArray(data)) {
             return data.some(cb);
@@ -109,10 +120,11 @@ function matchFieldValue(field: string|undefined, cb: MatchValueFn): MatchRowFn 
  * This will create a function that gets a field value
  * and possible a nested field value
 */
-function makeGetValueFn(field: string): (
-    dataFrame: DataFrame<Record<string, unknown>>, rowIndex: number
-) => unknown {
-    return function getValue(dataFrame, rowIndex) {
+function makeGetValueFn(
+    dataFrame: DataFrame<Record<string, unknown>>,
+    fields: string[]
+): (rowIndex: number) => unknown {
+    function getSingleValue(field: string, rowIndex: number) {
         let isBase = true;
         let value: unknown;
         for (const part of field.split('.')) {
@@ -128,6 +140,10 @@ function makeGetValueFn(field: string): (
             }
         }
         return value;
+    }
+    return function getValue(rowIndex) {
+        if (fields.length === 1) return getSingleValue(fields[0], rowIndex);
+        return fields.flatMap((f) => getSingleValue(f, rowIndex));
     };
 }
 
@@ -182,20 +198,22 @@ function makeIsValue(value: unknown) {
 }
 
 function makeGroupFn(
+    dataFrame: DataFrame<any>,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
 ) {
-    const _makeConjunctionFn = makeConjunctionFn(typeConfig, variables);
+    const _makeConjunctionFn = makeConjunctionFn(dataFrame, typeConfig, variables);
     return function _makeGroupFn(node: p.GroupLikeNode) {
         return or(...node.flow.map(_makeConjunctionFn));
     };
 }
 
 function makeConjunctionFn(
+    dataFrame: DataFrame<any>,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
 ) {
-    const _buildMatcherForNode = buildMatcherForNode(typeConfig, variables);
+    const _buildMatcherForNode = buildMatcherForNode(dataFrame, typeConfig, variables);
     return function _makeConjunctionFn(conjunction: p.Conjunction) {
         return and(...conjunction.nodes.map(_buildMatcherForNode));
     };

@@ -5,21 +5,21 @@ import type { DataFrame } from '../DataFrame';
 import { buildMatcherForNode } from './buildMatcherForNode';
 
 export function buildSearchMatcherForQuery(
-    frame: DataFrame<any>,
+    dataFrame: DataFrame<any>,
     query: string,
     variables?: xLuceneVariables,
     _overrideParsedQuery?: p.Node
-): (frame: DataFrame<any>, rowIndex: number) => boolean {
+): (rowIndex: number) => boolean {
     let parser = new p.Parser(
         query,
-        { type_config: frameToXluceneConfig(frame) },
+        { type_config: frameToXluceneConfig(dataFrame) },
         _overrideParsedQuery
     );
 
     if (variables) {
         parser = parser.resolveVariables(variables);
     }
-    return buildMatcherForNode(parser.typeConfig, variables ?? {})(
+    return buildMatcherForNode(dataFrame, parser.typeConfig, variables ?? {})(
         parser.ast
     );
 }
