@@ -201,7 +201,7 @@ async function stopService(service: Service) {
     const startTime = Date.now();
     signale.pending(`stopping service ${service}`);
     await dockerStop(name);
-    signale.success(`stopped service ${service}, took ${ms(Date.now() - startTime)}`);
+    signale.success(`stopped service ${service}, took ${ts.toHumanTime(Date.now() - startTime)}`);
 }
 
 async function checkElasticsearch(options: TestOptions, startTime: number): Promise<void> {
@@ -244,7 +244,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                const took = ms(Date.now() - startTime);
+                const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
@@ -297,7 +297,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             if (statusCode === 200) {
-                const took = ms(Date.now() - startTime);
+                const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`MinIO is running at ${host}, took ${took}`);
                 return true;
             }
@@ -347,7 +347,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             }
 
             if (statusCode === 200) {
-                const took = ms(Date.now() - startTime);
+                const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`RabbitMQ is running at ${managementEndpoint}, took ${took}`);
                 return true;
             }
@@ -363,7 +363,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
 }
 
 async function checkKafka(options: TestOptions, startTime: number) {
-    const took = ms(Date.now() - startTime);
+    const took = ts.toHumanTime(Date.now() - startTime);
     signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 

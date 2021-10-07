@@ -1,6 +1,5 @@
-import ms from 'ms';
 import semver from 'semver';
-import { TSError } from '@terascope/utils';
+import { TSError, toHumanTime } from '@terascope/utils';
 import {
     getCommitHash,
     dockerBuild,
@@ -100,6 +99,6 @@ export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<stri
         });
     }
 
-    signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
+    signale.success(`built docker image ${devImage}, took ${toHumanTime(Date.now() - startTime)}`);
     return devImage;
 }

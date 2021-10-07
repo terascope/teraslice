@@ -1,5 +1,5 @@
 import { debugLogger } from './logger';
-import { toHumanTime, trackTimeout } from './dates';
+import { toHumanTime } from './dates';
 import {
     isRetryableError,
     TSError,
@@ -227,15 +227,14 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
         minJitter = 100,
     } = options;
 
-    let maxJitter = options.maxJitter ?? minJitter * 3;
+    const maxJitter = options.maxJitter ?? minJitter * 3;
 
-    // make sure maxJitter is less than timeoutMs;
-    if (timeoutMs > 2 && maxJitter > timeoutMs) {
-        maxJitter = timeoutMs - 1;
+    if (timeoutMs <= 2 && options.enabledJitter) {
+        throw new Error('Jitter cannot be enabled whe timeout is <=2');
     }
 
     const startTime = Date.now();
-    const checkTimeout = trackTimeout(timeoutMs);
+    const endTime = timeoutMs > 0 ? startTime + timeoutMs : Number.POSITIVE_INFINITY;
 
     let running = false;
     let interval: any;
@@ -245,10 +244,10 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
             if (running) return;
             running = true;
 
-            const timeout = checkTimeout();
-            if (timeout !== false) {
+            const remaining = endTime - Date.now();
+            if (remaining <= 0) {
                 reject(
-                    new TSError(`${name} timeout after ${toHumanTime(timeout)}`, {
+                    new TSError(`${name} timeout after ${toHumanTime(timeoutMs)}`, {
                         statusCode: 503,
                     })
                 );
@@ -256,26 +255,26 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
             }
 
             try {
+                if (enabledJitter) {
+                    const jitterDelay = getBackoffDelay(
+                        minJitter, 3, maxJitter, minJitter
+                    );
+                    // ensure we don't exceed the remaing time
+                    const delay = Math.min(jitterDelay, remaining - 2);
+                    if (delay > 2) {
+                        await pDelay(delay);
+                    }
+                }
+
                 const result = await fn();
                 if (result) {
                     resolve();
                     return;
                 }
 
-                if (enabledJitter) {
-                    const delay = getBackoffDelay(minJitter, 3, maxJitter, minJitter);
-                    await pDelay(delay);
-                }
-
                 running = false;
             } catch (err) {
-                reject(
-                    new TSError(err, {
-                        context: {
-                            elapsed: Date.now() - startTime,
-                        },
-                    })
-                );
+                reject(err);
             }
         }, 1);
     });

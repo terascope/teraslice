@@ -371,17 +371,17 @@ export function toHumanTime(ms: number): string {
     const ONE_DAY = ONE_HOUR * 24;
     const minOver = 1.5;
     if (ms > ONE_DAY * minOver && ms < ONE_DAY * 7) {
-        return `~${Math.round((ms * 100) / ONE_DAY) / 100}day`;
+        return `${Math.round((ms * 100) / ONE_DAY) / 100}day`;
     }
-    if (ms > ONE_HOUR * minOver) return `~${Math.round((ms * 100) / ONE_HOUR) / 100}hr`;
-    if (ms > ONE_MIN * minOver) return `~${Math.round((ms * 100) / ONE_MIN) / 100}min`;
+    if (ms > ONE_HOUR * minOver) return `${Math.round((ms * 100) / ONE_HOUR) / 100}hr`;
+    if (ms > ONE_MIN * minOver) return `${Math.round((ms * 100) / ONE_MIN) / 100}min`;
     if (ms > ONE_SEC * minOver) {
-        return `~${Math.round((ms * 100) / ONE_SEC) / 100}sec`;
+        return `${Math.round((ms * 100) / ONE_SEC) / 100}sec`;
     }
     if (ms < ONE_SEC * minOver) {
         return `${Math.round(ms)}ms`;
     }
-    return `~${Math.round((ms * 100) / ONE_DAY) / 100}day`;
+    return `${Math.round((ms * 100) / ONE_DAY) / 100}day`;
 }
 
 export function parseCustomDateFormat(
