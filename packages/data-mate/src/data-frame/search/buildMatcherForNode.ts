@@ -4,7 +4,6 @@ import {
     isGreaterThanFP, isGreaterThanOrEqualToFP,
     isLessThanOrEqualToFP, isLessThanFP, toBigIntOrThrow
 } from '@terascope/utils';
-import { getGroupedFields } from '@terascope/data-types';
 import { inspect } from 'util';
 import * as p from 'xlucene-parser';
 import type { DataFrame } from '../DataFrame';
@@ -97,7 +96,7 @@ function matchFieldValue(
     if (!field) {
         fields.push(...Object.keys(dataFrame.config.fields));
     } else if (isWildCardString(field)) {
-        fields.push(...findWildcardFields(field, getGroupedFields(dataFrame.config.fields)));
+        fields.push(...findWildcardFields(field, Object.keys(dataFrame.config.fields)));
     } else {
         fields.push(field);
     }

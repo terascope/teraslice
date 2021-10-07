@@ -257,6 +257,17 @@ describe('DataFrame->search', () => {
 
         expect(resultFrame.toJSON()).toEqual([
             {
+                _key: 'id-2',
+            }
+        ]);
+        expect(resultFrame.id).not.toEqual(deepObjDataFrame.id);
+    });
+
+    it('should be able find all the deeply nested fields', () => {
+        const resultFrame = deepObjDataFrame.search('config.owner.*:"config-owner-1"').select('_key');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
                 _key: 'id-1',
             }
         ]);

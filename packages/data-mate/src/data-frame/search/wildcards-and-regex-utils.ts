@@ -5,7 +5,6 @@ import {
     isString,
     getTypeOf
 } from '@terascope/utils';
-import { GroupedFields } from '@terascope/data-types';
 import { MatchValueFn } from './interfaces';
 
 export function regexp(regexStr: unknown): MatchValueFn {
@@ -39,29 +38,7 @@ export function wildcard(wildcardStr: unknown): MatchValueFn {
  * Match the fields name
  * city.*   city.deeper.*   city.*.*
 */
-export function findWildcardFields(wildCardField: string, groupedFields: GroupedFields): string[] {
-    const fieldSequence = wildCardField.split('.').map(wildCardToRegex);
-    return recurse(fieldSequence, groupedFields);
-}
-
-function recurse(arr: RegExp[], groupedFields: GroupedFields): string[] {
-    if (arr.length === 0) return [];
-    const regExpr = arr.shift()!;
-
-    const results: any[] = [];
-    for (const field of Object.keys(groupedFields)) {
-        if (regExpr.exec(field)) {
-            if (arr.length === 0) {
-                results.push(field);
-            } else if (groupedFields[field].length) {
-                const nestedGroupedFields = {};
-                for (const nestedField of groupedFields[field]) {
-                    const [base, ...parts] = nestedField.split('.');
-                    nestedGroupedFields[base] = parts;
-                }
-                results.push(...recurse(arr.slice(), nestedGroupedFields));
-            }
-        }
-    }
-    return results;
+export function findWildcardFields(wildCardField: string, fields: string[]): string[] {
+    const regExpr = wildCardToRegex(wildCardField);
+    return fields.filter((f) => regExpr.test(f));
 }
