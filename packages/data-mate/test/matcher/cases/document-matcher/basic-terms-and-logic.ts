@@ -42,14 +42,14 @@ export default [
         { bool: xLuceneFieldType.String }
     ],
     [
-        'can match quoted boolean false',
+        'can match non-quoted boolean false',
         'bool:"false"',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [true, false, false, false, false, false],
         { bool: xLuceneFieldType.Boolean }
     ],
     [
-        'can match quoted boolean true',
+        'can match non-quoted boolean true',
         'bool:"true"',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [false, true, false, false, false, false],

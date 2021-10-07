@@ -77,7 +77,11 @@ export class WritableData<T> {
      * Resize the number of values
     */
     resize(size: number): WritableData<T> {
+        if (size < 0) {
+            throw new RangeError(`Invalid resize value of ${size}, must be greater than or equal to 0`);
+        }
         if (size === this.size) return this;
+
         return WritableData.make(
             size,
             this._values.get.bind(this._values)

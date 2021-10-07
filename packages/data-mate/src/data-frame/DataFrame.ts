@@ -11,7 +11,8 @@ import {
     getTypeOf, isFunction,
     isPlainObject, trimFP,
     isInteger, joinList,
-    getHashCodeFrom
+    getHashCodeFrom,
+    timesIter
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -34,7 +35,7 @@ import {
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
-import { buildSearchMatcherForQuery } from './search-utils';
+import { buildSearchMatcherForQuery } from './search';
 import { DataFrameHeaderConfig } from './interfaces';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
@@ -398,9 +399,7 @@ export class DataFrame<
             }
         }
 
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
-        ));
+        return this._forkWithBuilders(builders);
     }
 
     /**
@@ -423,7 +422,7 @@ export class DataFrame<
         _overrideParsedQuery?: xLuceneNode,
     ): DataFrame<T> {
         const matcher = buildSearchMatcherForQuery(this, query, variables, _overrideParsedQuery);
-        return this.filterBy(matcher);
+        return this.filterDataFrameRows(matcher);
     }
 
     /**
@@ -497,6 +496,33 @@ export class DataFrame<
     }
 
     /**
+     * This allows you to filter each row more efficiently by
+     * since the rows aren't pulled from the data frame unless they match.
+     *
+     * This was designed to be used in @see DataFrame.search
+    */
+    filterDataFrameRows(fn: FilterByRowsFn): DataFrame<T> {
+        const builders = getBuildersForConfig(this.config, this.size);
+        let returning = 0;
+        for (const i of timesIter(this.size)) {
+            if (fn(i)) {
+                returning++;
+                for (const [name, builder] of builders) {
+                    const value = this.getColumnOrThrow(name).vector.get(i);
+                    const writeIndex = builder.currentIndex++;
+                    if (value != null) {
+                        // doing this is faster than append
+                        // because we KNOW it is already in a valid format
+                        builder.data.set(writeIndex, value);
+                    }
+                }
+            }
+        }
+
+        return this._forkWithBuilders(builders, returning);
+    }
+
+    /**
      * Remove the empty rows from the data frame,
      * this is optimization that won't require moving
      * around as much memory
@@ -514,19 +540,20 @@ export class DataFrame<
                 returning--;
             } else {
                 for (const [name, builder] of builders) {
-                    builder.append(this.getColumnOrThrow(name).vector.get(i));
+                    const value = this.getColumnOrThrow(name).vector.get(i);
+                    const writeIndex = builder.currentIndex++;
+                    if (value != null) {
+                        // doing this is faster than append
+                        // because we KNOW it is already in a valid format
+                        builder.data.set(writeIndex, value);
+                    }
                 }
             }
         }
 
         if (returning === this.size) return this;
 
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data
-                .resize(returning);
-            return this.getColumnOrThrow(name).fork(builder.toVector());
-        }));
+        return this._forkWithBuilders(builders, returning);
     }
 
     /**
@@ -631,12 +658,20 @@ export class DataFrame<
             }
         }
 
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data
-                .resize(buckets.size);
-            return this.getColumnOrThrow(name).fork(builder.toVector());
-        }));
+        return this._forkWithBuilders(builders, buckets.size);
+    }
+
+    /**
+     * Create a new data frame from the builders
+    */
+    private _forkWithBuilders(builders: Iterable<[
+        name: keyof T, builder: Builder<any>
+    ]>, limit?: number): DataFrame<T> {
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumnOrThrow(name).fork(
+                limit != null ? builder.resize(limit).toVector() : builder.toVector()
+            )
+        )));
     }
 
     /**
@@ -706,21 +741,17 @@ export class DataFrame<
             columnsToBuilderEntries(this.columns, len + this.size)
         );
 
-        const finish = ([name, builder]: [keyof T, Builder<any>]): Column<T[keyof T], keyof T> => (
-            this.getColumnOrThrow(name).fork(builder.toVector())
-        );
-
         if (isColumns) {
-            return this.fork(
+            return this._forkWithBuilders(
                 concatColumnsToColumns(
                     builders,
                     arg as Column<any, keyof T>[],
                     this.size,
-                ).map(finish)
+                )
             );
         }
-        return this.fork(
-            buildRecords<T>(builders, arg as T[]).map(finish)
+        return this._forkWithBuilders(
+            buildRecords<T>(builders, arg as T[])
         );
     }
 
@@ -1028,3 +1059,6 @@ export type FilterByFields<T> = Partial<{
 }>;
 
 export type FilterByFn<T> = (row: T, index: number) => boolean;
+export type FilterByRowsFn = (
+    index: number
+) => boolean;

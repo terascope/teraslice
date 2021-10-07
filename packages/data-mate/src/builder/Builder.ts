@@ -139,7 +139,7 @@ export abstract class Builder<T = unknown> {
     /**
      * Set value by index
     */
-    set(index: number, value: unknown): Builder<T> {
+    set(index: number, value: unknown): this {
         this.data.set(index, this.valueFrom(value, index));
         return this;
     }
@@ -147,7 +147,7 @@ export abstract class Builder<T = unknown> {
     /**
      * Set a single unique value on multiple indices
     */
-    mset(value: unknown, indices: Iterable<number>): Builder<T> {
+    mset(value: unknown, indices: Iterable<number>): this {
         const val = this.valueFrom(value, indices);
         for (const index of indices) {
             this.data.set(index, val);
@@ -158,8 +158,19 @@ export abstract class Builder<T = unknown> {
     /**
      * Append a value to the end
     */
-    append(value: unknown): Builder<T> {
+    append(value: unknown): this {
         return this.set(this.currentIndex++, value);
+    }
+
+    /**
+     * Resize the amount of records stored in in the
+     * writable data structure
+    */
+    resize(size: number): this {
+        const data = this.data.resize(size);
+        // @ts-expect-error (since this is read only)
+        this.data = data;
+        return this;
     }
 
     /**

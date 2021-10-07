@@ -1,6 +1,5 @@
-import ms from 'ms';
 import {
-    get, concat, pMap, isString
+    get, concat, pMap, isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
@@ -134,7 +133,7 @@ async function publishToDocker(options: PublishOptions) {
             imagesToPush.push(imageToBuild);
         }
 
-        signale.success(`built docker image ${imageToBuild}, took ${ms(Date.now() - startTime)}`);
+        signale.success(`built docker image ${imageToBuild}, took ${toHumanTime(Date.now() - startTime)}`);
     }
 
     if (err) {

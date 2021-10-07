@@ -1,4 +1,5 @@
 import { FieldType } from '@terascope/types';
+import { isGreaterThanOrEqualToFP } from '@terascope/utils';
 import {
     FieldValidateConfig,
     ProcessMode,
@@ -6,16 +7,16 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export interface LessThanOrEqualToArgs {
+export interface GreaterThanOrEqualToArgs {
     readonly value: number;
 }
 
-export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArgs> = {
-    name: 'isLessThanOrEqualTo',
+export const isGreaterThanOrEqualToConfig: FieldValidateConfig<GreaterThanOrEqualToArgs> = {
+    name: 'isGreaterThanOrEqualTo',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.NUMERIC,
-    description: 'Returns the input if it is a number less than or equal to the args value',
+    description: 'Returns the input if it is greater than or equal to the args value',
     examples: [
         {
             args: { value: 100 },
@@ -24,7 +25,7 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
                 fields: { testField: { type: FieldType.Byte } }
             },
             field: 'testField',
-            input: 110,
+            input: 10,
             output: null
         },
         {
@@ -44,8 +45,8 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
                 fields: { testField: { type: FieldType.Short } }
             },
             field: 'testField',
-            input: 100,
-            output: 100
+            input: 120,
+            output: 120
         },
         {
             args: { value: 150 },
@@ -54,12 +55,12 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
                 fields: { testField: { type: FieldType.Long } }
             },
             field: 'testField',
-            input: 149,
-            output: 149
+            input: 151,
+            output: 151
         }
     ],
     create({ args: { value } }) {
-        return isLessThan(value);
+        return isGreaterThanOrEqualToFP(value);
     },
     accepts: [
         FieldType.Number,
@@ -71,9 +72,3 @@ export const isLessThanOrEqualToConfig: FieldValidateConfig<LessThanOrEqualToArg
     },
     required_arguments: ['value']
 };
-
-function isLessThan(value: number) {
-    return function _isLessThan(input: unknown): boolean {
-        return (input as number) <= value;
-    };
-}
