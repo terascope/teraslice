@@ -40,7 +40,7 @@
         "@terascope/utils": "^0.43.0",
         "chalk": "^4.1.2",
         "cli-table3": "^0.6.0",
-        "easy-table": "^1.1.1",
+        "easy-table": "^1.2.0",
         "esbuild": "^0.13.2",
         "execa": "^5.1.0",
         "fs-extra": "^10.0.0",
