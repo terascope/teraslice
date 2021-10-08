@@ -1,4 +1,5 @@
 import { DataTypeConfig } from '@terascope/types';
+import { SimpleFieldMatchTuple } from '../vector';
 
 /**
  * The serialized format version
@@ -38,3 +39,5 @@ export interface DataFrameHeaderConfig {
     */
     readonly config: DataTypeConfig;
 }
+
+export type SimpleMatchCriteria = ReadonlyMap<string, SimpleFieldMatchTuple[]>;

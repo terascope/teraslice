@@ -271,7 +271,6 @@ export class Column<T = unknown, N extends NameType = string> {
     /**
      * return an empty column with the same size and metadata as the previous one
     */
-
     clearAll(): Column<T, N> {
         return this.fork(
             this.vector.fork(

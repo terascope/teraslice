@@ -108,3 +108,13 @@ export interface SerializeOptions {
     */
     skipDuplicateObjects?: boolean;
 }
+
+export enum SimpleMatchType {
+    gte = 'gte',
+    gt = 'gt',
+    eq = 'eq',
+    lt = 'lt',
+    lte = 'lte'
+}
+
+export type SimpleFieldMatchTuple = readonly [type: SimpleMatchType, value: unknown];
