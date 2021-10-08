@@ -61,7 +61,7 @@
     },
     "devDependencies": {
         "@types/decompress": "^4.2.4",
-        "@types/easy-table": "^0.0.33",
+        "@types/easy-table": "^1.2.0",
         "@types/js-yaml": "^4.0.3",
         "@types/prompts": "^2.0.13",
         "@types/signale": "^1.4.2",

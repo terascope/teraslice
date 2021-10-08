@@ -1028,10 +1028,12 @@
   resolved "https://registry.yarnpkg.com/@types/diff/-/diff-5.0.1.tgz#9c9b9a331d4e41ccccff553f5d7ef964c6cf4042"
   integrity sha512-XIpxU6Qdvp1ZE6Kr3yrkv1qgUab0fyf4mHYvW8N3Bx3PCsbN6or1q9/q72cv5jIFWolaGH08U9XyYoLLIykyKQ==
 
-"@types/easy-table@^0.0.33":
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/@types/easy-table/-/easy-table-0.0.33.tgz#b1f7ec29014ec24906b4f28d8368e2e99b399313"
-  integrity sha512-/vvqcJPmZUfQwCgemL0/34G7bIQnCuvgls379ygRlcC1FqNqk3n+VZ15dAO51yl6JNDoWd8vsk+kT8zfZ1VZSw==
+"@types/easy-table@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/easy-table/-/easy-table-1.2.0.tgz#d7153551a2c3f6571dddff974b05aa2fb1a4a948"
+  integrity sha512-gVQkR2G/q6UK3wQT+waY9tCrbFauzMoBfJpMxHSuemHLQ8HpHdUIQ9YyRwYMfNX4CfoAoj/eJATyECGkFr65Pg==
+  dependencies:
+    easy-table "*"
 
 "@types/ejs@*":
   version "3.1.0"
@@ -3509,7 +3511,7 @@ duplexer3@^0.1.4:
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-easy-table@^1.2.0:
+easy-table@*, easy-table@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/easy-table/-/easy-table-1.2.0.tgz#ba9225d7138fee307bfd4f0b5bc3c04bdc7c54eb"
   integrity sha512-OFzVOv03YpvtcWGe5AayU5G2hgybsg3iqA6drU8UaoZyB9jLGMTrz9+asnLp/E+6qPh88yEI1gvyZFZ41dmgww==
