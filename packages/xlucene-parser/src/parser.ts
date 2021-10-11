@@ -66,7 +66,8 @@ export class Parser {
                 cb(node);
             }
 
-            if (!skipFunctionParams && utils.isFunctionNode(node)) {
+            if (utils.isFunctionNode(node)) {
+                if (skipFunctionParams) return;
                 for (const param of node.params) {
                     walkNode(param);
                 }

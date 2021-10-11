@@ -117,4 +117,8 @@ export enum SimpleMatchType {
     lte = 'lte'
 }
 
-export type SimpleFieldMatchTuple = readonly [type: SimpleMatchType, value: unknown];
+export type SimpleValueMatchTuple = readonly [type: SimpleMatchType, value: unknown];
+
+export function isFieldTuple(input: unknown): input is SimpleValueMatchTuple {
+    return Array.isArray(input) && input.length === 2;
+}

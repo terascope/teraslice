@@ -14,7 +14,7 @@ import {
     getHashCodeFrom,
     timesIter
 } from '@terascope/utils';
-import BitSet from 'mnemonist/bit-set';
+// import BitSet from 'mnemonist/bit-set';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
 } from '../column';
@@ -37,7 +37,8 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search';
-import { DataFrameHeaderConfig, SimpleMatchCriteria } from './interfaces';
+import { DataFrameHeaderConfig } from './interfaces';
+import { SimpleMatchCriteria } from './SimpleMatchCriteria';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
 /**
@@ -466,18 +467,30 @@ export class DataFrame<
         if (isFunction(filters)) {
             return this._filterByFn(filters, json ?? false);
         }
-        if (filters instanceof Map) {
+        if (filters instanceof SimpleMatchCriteria) {
             return this._filterBySimpleMatch(filters);
         }
         return this._filterByFields(filters as FilterByFields<T>, json ?? false);
     }
 
-    private _filterBySimpleMatch(filters: SimpleMatchCriteria): DataFrame<T> {
-        const indices = new BitSet(this.size);
-        const callback = indices.set.bind(indices);
-        for (const [field, tuples] of filters) {
-            this.getColumnOrThrow(field).vector.match(tuples, callback);
-        }
+    private _filterBySimpleMatch(_input: SimpleMatchCriteria): DataFrame<T> {
+        // const indices = new BitSet(this.size);
+        // const callback = indices.set.bind(indices);
+        // const processSimpleMatch = (simpleMatch: SimpleMatchCriteria): void => {
+        //     if (simpleMatch.operator === SimpleMatchOperator.NONE) {
+        //         const fieldMatch = simpleMatch.criteria as SimpleFieldMatch;
+        //         if (fieldMatch.field) {
+        //             this.getColumnOrThrow(simpleMatch.field).vector.match(
+        //                 fieldMatch.tuples, callback
+        //             );
+        //         } else {
+
+        //         }
+
+        //         return;
+        //     }
+        // };
+        // processSimpleMatch(input);
         return this;
     }
 

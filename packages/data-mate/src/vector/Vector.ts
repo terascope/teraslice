@@ -10,7 +10,7 @@ import {
 } from '@terascope/utils';
 import {
     SimpleMatchType,
-    DataBuckets, SerializeOptions, SimpleFieldMatchTuple, VectorType
+    DataBuckets, SerializeOptions, SimpleValueMatchTuple, VectorType
 } from './interfaces';
 import {
     ReadableData, freezeArray, WritableData
@@ -291,11 +291,11 @@ export abstract class Vector<T = unknown> {
      * whether it matches or not
     */
     match(
-        tuples: (SimpleFieldMatchTuple[])|(readonly SimpleFieldMatchTuple[]),
+        tuples: (SimpleValueMatchTuple[])|(readonly SimpleValueMatchTuple[]),
         callback: (index: number, value: boolean) => void
     ): void {
         const isMatch = (index: number) => {
-            const _isMatch = ([type, value]: SimpleFieldMatchTuple) => {
+            const _isMatch = ([type, value]: SimpleValueMatchTuple) => {
                 if (type === SimpleMatchType.eq) {
                     return isEqual(value, this.get(index));
                 }
