@@ -40,4 +40,4 @@ export interface DataFrameHeaderConfig {
     readonly config: DataTypeConfig;
 }
 
-export type SimpleMatchCriteria = ReadonlyMap<string, SimpleFieldMatchTuple[]>;
+export type SimpleMatchCriteria = ReadonlyMap<string, readonly SimpleFieldMatchTuple[]>;

@@ -14,6 +14,7 @@ import {
     getHashCodeFrom,
     timesIter
 } from '@terascope/utils';
+import BitSet from 'mnemonist/bit-set';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
 } from '../column';
@@ -36,7 +37,7 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search';
-import { DataFrameHeaderConfig } from './interfaces';
+import { DataFrameHeaderConfig, SimpleMatchCriteria } from './interfaces';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
 /**
@@ -458,11 +459,26 @@ export class DataFrame<
      *         }
      *     });
     */
-    filterBy(filters: FilterByFields<T>|FilterByFn<T>, json?: boolean): DataFrame<T> {
+    filterBy(
+        filters: FilterByFields<T>|FilterByFn<T>|SimpleMatchCriteria,
+        json?: boolean
+    ): DataFrame<T> {
         if (isFunction(filters)) {
             return this._filterByFn(filters, json ?? false);
         }
-        return this._filterByFields(filters, json ?? false);
+        if (filters instanceof Map) {
+            return this._filterBySimpleMatch(filters);
+        }
+        return this._filterByFields(filters as FilterByFields<T>, json ?? false);
+    }
+
+    private _filterBySimpleMatch(filters: SimpleMatchCriteria): DataFrame<T> {
+        const indices = new BitSet(this.size);
+        const callback = indices.set.bind(indices);
+        for (const [field, tuples] of filters) {
+            this.getColumnOrThrow(field).vector.match(tuples, callback);
+        }
+        return this;
     }
 
     private _filterByFields(filters: FilterByFields<T>, json: boolean): DataFrame<T> {
@@ -1055,7 +1071,7 @@ export interface DataFrameOptions {
 }
 
 export type FilterByFields<T> = Partial<{
-    [P in keyof T]: (value: Maybe<T[P]>) => boolean
+    [P in keyof T]: ((value: Maybe<T[P]>) => boolean)
 }>;
 
 export type FilterByFn<T> = (row: T, index: number) => boolean;

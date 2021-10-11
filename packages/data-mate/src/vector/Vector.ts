@@ -4,14 +4,17 @@ import {
     ReadonlyDataTypeFields,
 } from '@terascope/types';
 import {
-    isPrimitiveValue, getHashCodeFrom,
+    isPrimitiveValue, getHashCodeFrom, isEqual,
+    isGreaterThan, isGreaterThanOrEqualTo,
+    isLessThan, isLessThanOrEqualTo
 } from '@terascope/utils';
+import {
+    SimpleMatchType,
+    DataBuckets, SerializeOptions, SimpleFieldMatchTuple, VectorType
+} from './interfaces';
 import {
     ReadableData, freezeArray, WritableData
 } from '../core';
-import {
-    DataBuckets, SerializeOptions, VectorType
-} from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -280,6 +283,43 @@ export abstract class Vector<T = unknown> {
         const found = this.findDataWithIndex(index);
         if (!found) return false;
         return found[0].has(found[1]);
+    }
+
+    /**
+     * Using the simple field matching patterns,
+     * this will call the callback for each row indicating
+     * whether it matches or not
+    */
+    match(
+        tuples: (SimpleFieldMatchTuple[])|(readonly SimpleFieldMatchTuple[]),
+        callback: (index: number, value: boolean) => void
+    ): void {
+        const isMatch = (index: number) => {
+            const _isMatch = ([type, value]: SimpleFieldMatchTuple) => {
+                if (type === SimpleMatchType.eq) {
+                    return isEqual(value, this.get(index));
+                }
+                if (type === SimpleMatchType.gte) {
+                    return isGreaterThanOrEqualTo(value, this.get(index));
+                }
+                if (type === SimpleMatchType.gt) {
+                    return isGreaterThan(value, this.get(index));
+                }
+                if (type === SimpleMatchType.lt) {
+                    return isLessThan(value, this.get(index));
+                }
+                if (type === SimpleMatchType.lte) {
+                    return isLessThanOrEqualTo(value, this.get(index));
+                }
+                throw new Error(`Unknown match type "${type}"`);
+            };
+
+            return _isMatch;
+        };
+
+        for (let index = 0; index < this.size; index++) {
+            callback(index, tuples.some(isMatch(index)));
+        }
     }
 
     /**
