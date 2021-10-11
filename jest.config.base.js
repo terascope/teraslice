@@ -85,12 +85,14 @@ module.exports = (projectDir) => {
 
     if (isTypescript) {
         config.globals['ts-jest'] = {
+            isolatedModules: true,
             tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
             pretty: true
         };
     } else {
         config.globals['ts-jest'] = {
+            isolatedModules: true,
             diagnostics: true,
             pretty: true
         };
