@@ -252,6 +252,47 @@ describe('DataFrame->search', () => {
         expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
     });
 
+    it('should be able search all of the fields and stop at match 0', () => {
+        const resultFrame = peopleDataFrame.search('Frank', undefined, undefined, 0);
+
+        expect(resultFrame.toJSON()).toEqual([]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able search all of the fields and stop at match 1', () => {
+        const resultFrame = peopleDataFrame.search('Frank', undefined, undefined, 1);
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                age: 39,
+                alive: true,
+                friends: ['Frank', 'Jane'],
+            }
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
+    it('should be able search all of the fields and stop at match 2', () => {
+        const resultFrame = peopleDataFrame.search('Frank', undefined, undefined, 2);
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jill',
+                age: 39,
+                alive: true,
+                friends: ['Frank', 'Jane'],
+            },
+            {
+                name: 'Frank',
+                age: 20,
+                alive: true,
+                friends: ['Jill']
+            },
+        ]);
+        expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+    });
+
     it('should be able find all the nested fields', () => {
         const resultFrame = deepObjDataFrame.search('config.*:"config-2"').select('_key');
 

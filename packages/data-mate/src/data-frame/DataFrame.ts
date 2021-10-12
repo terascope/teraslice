@@ -12,7 +12,6 @@ import {
     isPlainObject, trimFP,
     isInteger, joinList,
     getHashCodeFrom,
-    timesIter
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
@@ -419,10 +418,11 @@ export class DataFrame<
     search(
         query: string,
         variables?: xLuceneVariables,
-        _overrideParsedQuery?: xLuceneNode,
+        overrideParsedQuery?: xLuceneNode,
+        stopAtMatch?: number
     ): DataFrame<T> {
-        const matcher = buildSearchMatcherForQuery(this, query, variables, _overrideParsedQuery);
-        return this.filterDataFrameRows(matcher);
+        const matcher = buildSearchMatcherForQuery(this, query, variables, overrideParsedQuery);
+        return this.filterDataFrameRows(matcher, stopAtMatch);
     }
 
     /**
@@ -501,10 +501,17 @@ export class DataFrame<
      *
      * This was designed to be used in @see DataFrame.search
     */
-    filterDataFrameRows(fn: FilterByRowsFn): DataFrame<T> {
+    filterDataFrameRows(fn: FilterByRowsFn, stopAtMatch?: number): DataFrame<T> {
+        if (stopAtMatch != null && (stopAtMatch < 0 || stopAtMatch > this.size)) {
+            throw new RangeError(`Expected stopAtMatch param to be between 0 and ${this.size}, got ${stopAtMatch}`);
+        }
+
         const builders = getBuildersForConfig(this.config, this.size);
         let returning = 0;
-        for (const i of timesIter(this.size)) {
+        for (let i = 0; i < this.size; i++) {
+            if (stopAtMatch != null && returning >= stopAtMatch) {
+                break;
+            }
             if (fn(i)) {
                 returning++;
                 for (const [name, builder] of builders) {
