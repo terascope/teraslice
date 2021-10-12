@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RedBlackTree when adding 10 items and some values are null should have written a tree of nodes 1`] = `
+Object {
+  "color": "RED",
+  "key": 5,
+  "left": Object {
+    "color": "RED",
+    "key": 2,
+    "left": undefined,
+    "right": Object {
+      "color": "BLACK",
+      "key": 3,
+      "left": undefined,
+      "right": undefined,
+      "value": "hi",
+    },
+    "value": "hi",
+  },
+  "right": Object {
+    "color": "BLACK",
+    "key": 18,
+    "left": Object {
+      "color": "BLACK",
+      "key": 10,
+      "left": undefined,
+      "right": undefined,
+      "value": null,
+    },
+    "right": Object {
+      "color": "RED",
+      "key": 200,
+      "left": Object {
+        "color": "RED",
+        "key": 60,
+        "left": Object {
+          "color": "BLACK",
+          "key": 30,
+          "left": undefined,
+          "right": Object {
+            "color": "BLACK",
+            "key": 33,
+            "left": undefined,
+            "right": undefined,
+            "value": null,
+          },
+          "value": null,
+        },
+        "right": Object {
+          "color": "BLACK",
+          "key": 90,
+          "left": undefined,
+          "right": undefined,
+          "value": "sup",
+        },
+        "value": "aloha",
+      },
+      "right": undefined,
+      "value": null,
+    },
+    "value": "howdy",
+  },
+  "value": "hello",
+}
+`;
+
+exports[`RedBlackTree when adding 10 items should have written a tree of nodes 1`] = `
+Object {
+  "color": "RED",
+  "key": 5,
+  "left": Object {
+    "color": "RED",
+    "key": 2,
+    "left": undefined,
+    "right": Object {
+      "color": "BLACK",
+      "key": 3,
+      "left": undefined,
+      "right": undefined,
+      "value": "hi",
+    },
+    "value": "hi",
+  },
+  "right": Object {
+    "color": "RED",
+    "key": 18,
+    "left": Object {
+      "color": "BLACK",
+      "key": 10,
+      "left": undefined,
+      "right": undefined,
+      "value": "howdy there",
+    },
+    "right": Object {
+      "color": "RED",
+      "key": 200,
+      "left": Object {
+        "color": "RED",
+        "key": 60,
+        "left": Object {
+          "color": "RED",
+          "key": 30,
+          "left": undefined,
+          "right": Object {
+            "color": "BLACK",
+            "key": 33,
+            "left": undefined,
+            "right": undefined,
+            "value": "oh hey",
+          },
+          "value": "hello person",
+        },
+        "right": Object {
+          "color": "BLACK",
+          "key": 90,
+          "left": undefined,
+          "right": undefined,
+          "value": "sup",
+        },
+        "value": "aloha",
+      },
+      "right": undefined,
+      "value": "hello friend",
+    },
+    "value": "howdy",
+  },
+  "value": "hello",
+}
+`;
+
+exports[`RedBlackTree when adding one item should have written the root node 1`] = `
+Object {
+  "color": "BLACK",
+  "key": 2,
+  "left": undefined,
+  "right": undefined,
+  "value": "hi",
+}
+`;
+
+exports[`RedBlackTree when adding three items should have written a tree of nodes 1`] = `
+Object {
+  "color": "RED",
+  "key": 2,
+  "left": undefined,
+  "right": Object {
+    "color": "RED",
+    "key": 3,
+    "left": undefined,
+    "right": Object {
+      "color": "BLACK",
+      "key": 10,
+      "left": undefined,
+      "right": undefined,
+      "value": "howdy",
+    },
+    "value": "hello",
+  },
+  "value": "hi",
+}
+`;

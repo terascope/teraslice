@@ -29,6 +29,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@sindresorhus/fnv1a": "^2.0.1",
         "@terascope/data-types": "^0.33.0",
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.43.0",
