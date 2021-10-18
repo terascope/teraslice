@@ -13,6 +13,7 @@ import {
     isInteger, joinList,
     getHashCodeFrom,
 } from '@terascope/utils';
+// import BitSet from 'mnemonist/bit-set';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
 } from '../column';
@@ -36,6 +37,7 @@ import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search';
 import { DataFrameHeaderConfig } from './interfaces';
+import { SimpleMatchCriteria } from './SimpleMatchCriteria';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
 /**
@@ -458,11 +460,38 @@ export class DataFrame<
      *         }
      *     });
     */
-    filterBy(filters: FilterByFields<T>|FilterByFn<T>, json?: boolean): DataFrame<T> {
+    filterBy(
+        filters: FilterByFields<T>|FilterByFn<T>|SimpleMatchCriteria,
+        json?: boolean
+    ): DataFrame<T> {
         if (isFunction(filters)) {
             return this._filterByFn(filters, json ?? false);
         }
-        return this._filterByFields(filters, json ?? false);
+        if (filters instanceof SimpleMatchCriteria) {
+            return this._filterBySimpleMatch(filters);
+        }
+        return this._filterByFields(filters as FilterByFields<T>, json ?? false);
+    }
+
+    private _filterBySimpleMatch(_input: SimpleMatchCriteria): DataFrame<T> {
+        // const indices = new BitSet(this.size);
+        // const callback = indices.set.bind(indices);
+        // const processSimpleMatch = (simpleMatch: SimpleMatchCriteria): void => {
+        //     if (simpleMatch.operator === SimpleMatchOperator.NONE) {
+        //         const fieldMatch = simpleMatch.criteria as SimpleFieldMatch;
+        //         if (fieldMatch.field) {
+        //             this.getColumnOrThrow(simpleMatch.field).vector.match(
+        //                 fieldMatch.tuples, callback
+        //             );
+        //         } else {
+
+        //         }
+
+        //         return;
+        //     }
+        // };
+        // processSimpleMatch(input);
+        return this;
     }
 
     private _filterByFields(filters: FilterByFields<T>, json: boolean): DataFrame<T> {
@@ -1062,7 +1091,7 @@ export interface DataFrameOptions {
 }
 
 export type FilterByFields<T> = Partial<{
-    [P in keyof T]: (value: Maybe<T[P]>) => boolean
+    [P in keyof T]: ((value: Maybe<T[P]>) => boolean)
 }>;
 
 export type FilterByFn<T> = (row: T, index: number) => boolean;

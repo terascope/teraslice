@@ -108,3 +108,17 @@ export interface SerializeOptions {
     */
     skipDuplicateObjects?: boolean;
 }
+
+export enum SimpleMatchType {
+    gte = 'gte',
+    gt = 'gt',
+    eq = 'eq',
+    lt = 'lt',
+    lte = 'lte'
+}
+
+export type SimpleValueMatchTuple = readonly [type: SimpleMatchType, value: unknown];
+
+export function isFieldTuple(input: unknown): input is SimpleValueMatchTuple {
+    return Array.isArray(input) && input.length === 2;
+}
