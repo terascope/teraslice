@@ -524,4 +524,21 @@ describe('Vector', () => {
             }).toThrow();
         });
     });
+
+    it('should be able to return the whole Vector when slicing', () => {
+        const writable1 = new WritableData(1);
+        writable1.set(0, 'hi');
+
+        const writable2 = new WritableData(1);
+        writable2.set(0, 'hello');
+
+        const vector = Vector.make([new ReadableData(writable1), new ReadableData(writable2)], {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        expect(vector.slice(0, 2).size).toBe(2);
+    });
 });
