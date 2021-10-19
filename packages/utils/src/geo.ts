@@ -478,7 +478,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
     const { polygons: queryPolygons, holes: queryHoles } = _featureToPolygonAndHoles(queryFeature);
     const hasQueryHoles = queryHoles.length > 0;
 
-    return (input: unknown) => {
+    return function _geoWithinFP(input) {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
 
@@ -488,12 +488,12 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
         if (isGeoShapePoint(inputGeoEntity)) {
             if (hasQueryHoles) {
                 const withinQueryHole = queryHoles.some(
-                    (polygon) => intersect(inputFeature, polygon)
+                    intersect.bind(intersect, inputFeature)
                 );
                 if (withinQueryHole) return false;
             }
 
-            return queryPolygons.some((polygon) => within(inputFeature, polygon));
+            return queryPolygons.some(within.bind(within, inputFeature));
         }
 
         const {
@@ -509,7 +509,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
 
                     if (bool && inputHoles.length) {
                         // if they are equal, then don't immediately falsify
-                        const inner = !inputHoles.some((iPolyHole) => equal(iPolyHole, qHole));
+                        const inner = !inputHoles.some(equal.bind(equal, qHole));
                         return inner;
                     }
                     return bool;
@@ -520,7 +520,7 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
         }
 
         return inputPolygons.every(
-            (iPoly) => queryPolygons.some((qPoly) => within(iPoly, qPoly))
+            (iPoly) => queryPolygons.some(within.bind(within, iPoly))
         );
     };
 }
@@ -536,7 +536,7 @@ export function geoIntersectsFP(queryGeoEntity: GeoInput): (input: unknown) => b
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    return (input: unknown): boolean => {
+    return function _geoIntersectsFP(input: unknown) {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
 
@@ -551,7 +551,7 @@ export function geoDisjointFP(queryGeoEntity: GeoInput): (input: unknown) => boo
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    return (input: unknown): boolean => {
+    return function _geoDisjointFP(input: unknown) {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
 
