@@ -110,7 +110,7 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ) {
         this.type = type;
-        this.data = Object.isFrozen(data) ? data : Object.freeze(data.filter((d) => d.size > 0));
+        this.data = Object.isFrozen(data) ? data : Object.freeze(data.filter(isNotEmptyDataBucket));
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
@@ -237,7 +237,7 @@ export abstract class Vector<T = unknown> {
     */
     append(data: (ReadableData<T>[])|(readonly ReadableData<T>[])|ReadableData<T>): Vector<T> {
         if (Array.isArray(data)) {
-            const add = data.filter((d) => d.size > 0);
+            const add = data.filter(isNotEmptyDataBucket);
             if (!add.length) return this;
             // Make sure to freeze here so freezeArray doesn't slice the data buckets
             return this.fork(Object.freeze(this.data.concat(add)));
@@ -254,9 +254,11 @@ export abstract class Vector<T = unknown> {
     *  Add ReadableData to a beginning of the data buckets
     */
     prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
-        const preData = (Array.isArray(data)
-            ? data
-            : [data as ReadableData<T>]).filter((d) => d.size > 0);
+        const preData = (
+            Array.isArray(data)
+                ? data
+                : [data as ReadableData<T>]
+        ).filter(isNotEmptyDataBucket);
 
         if (preData.length === 0) return this;
 
@@ -476,6 +478,10 @@ export abstract class Vector<T = unknown> {
             (index) => this.get(index) as Maybe<T>
         );
     }
+}
+
+function isNotEmptyDataBucket<T>(data: ReadableData<T>): boolean {
+    return data.size > 0;
 }
 
 /**
