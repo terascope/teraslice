@@ -380,23 +380,36 @@ export abstract class Vector<T = unknown> {
             throw new RangeError(`Ending offset of ${end} is out-of-bounds`);
         }
 
+        const returnSize = endIndex - startIndex;
+        let bucketIndex = 0;
+        let totalProcessed = 0;
+        let offset = 0;
+        let hasStarted = false;
+
         const buckets: ReadableData<T>[] = [];
 
-        let offset = 0;
-        for (const data of this.data) {
-            const startIndexOfChunk = startIndex - offset;
-            if (startIndexOfChunk >= 0 && startIndexOfChunk < data.size) {
-                const endIndexOfChunk = endIndex - offset;
-                const isEnd = endIndexOfChunk <= data.size;
+        while (totalProcessed < returnSize) {
+            const bucket = this.data[bucketIndex];
+            if (bucket == null) break;
 
-                buckets.push(new ReadableData(data.slice(
-                    startIndexOfChunk,
-                    isEnd ? endIndexOfChunk : data.size
-                )));
+            const startIndexInBucket = hasStarted ? 0 : startIndex - offset;
+            const endIndexInBucket = Math.min(
+                endIndex - offset, bucket.size
+            );
+            const totalFromBucket = endIndexInBucket - startIndexInBucket;
 
-                if (isEnd) break;
+            if (startIndexInBucket >= 0 && totalFromBucket > 0) {
+                const slicedBucket = new ReadableData(bucket.slice(
+                    startIndexInBucket,
+                    endIndexInBucket
+                ));
+                buckets.push(slicedBucket);
+                hasStarted = true;
+                totalProcessed += slicedBucket.size;
             }
-            offset += data.size;
+
+            offset += bucket.size;
+            bucketIndex++;
         }
 
         return this.fork(buckets);

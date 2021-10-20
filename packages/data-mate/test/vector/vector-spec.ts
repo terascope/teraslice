@@ -164,42 +164,6 @@ describe('Vector', () => {
             FieldType.GeoJSON,
             [
                 {
-                    type: GeoShapeType.MultiPolygon,
-                    coordinates: [
-                        [
-                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        ],
-                        [
-                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
-                        ]
-                    ]
-                } as GeoShapeMultiPolygon,
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                    ]
-                } as GeoShapePolygon,
-                {
-                    type: GeoShapeType.Polygon,
-                    coordinates: [
-                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
-                    ]
-                } as GeoShapePolygon,
-                {
-                    type: GeoShapeType.Point,
-                    coordinates: [12, 12]
-                } as GeoShapePoint,
-                null,
-                undefined
-            ],
-            undefined,
-        ],
-        [
-            FieldType.GeoJSON,
-            [
-                {
                     type: ESGeoShapeType.MultiPolygon,
                     coordinates: [
                         [
@@ -485,15 +449,15 @@ describe('Vector', () => {
                     expect(appended2.slice(-1).size).toBe(1);
                 });
 
-                it('should be able to slice the first half', () => {
+                it('should be able to slice the first part', () => {
                     expect(appended2.slice(appended.size).size).toBe(vector.size);
                 });
 
-                it('should be able to slice the second half', () => {
-                    expect(appended2.slice(0, appended.size).size).toBe(vector.size);
+                it('should be able to slice the second part', () => {
+                    expect(appended2.slice(0, appended.size).size).toBe(appended.size);
                 });
 
-                it('should be able to slice the third half', () => {
+                it('should be able to slice the third part', () => {
                     expect(appended2.slice(appended.size, appended2.size).size).toBe(vector.size);
                 });
             });
@@ -525,20 +489,55 @@ describe('Vector', () => {
         });
     });
 
-    it('should be able to return the whole Vector when slicing', () => {
+    it('should be able to return 2 data buckets (with a an start index of 0) when slicing', () => {
         const writable1 = new WritableData(1);
         writable1.set(0, 'hi');
 
         const writable2 = new WritableData(1);
         writable2.set(0, 'hello');
 
-        const vector = Vector.make([new ReadableData(writable1), new ReadableData(writable2)], {
+        const vector = Vector.make([
+            new ReadableData(writable1),
+            new ReadableData(writable2)
+        ], {
             config: {
                 type: FieldType.String,
             },
             name: 'test'
         });
 
-        expect(vector.slice(0, 2).size).toBe(2);
+        expect(vector.slice().toJSON()).toEqual([
+            'hi',
+            'hello'
+        ]);
+    });
+
+    it('should be able to return 2 data buckets (with a an start index of 1) when slicing', () => {
+        const writable1 = new WritableData(1);
+        writable1.set(0, 'hi');
+
+        const writable2 = new WritableData(2);
+        writable2.set(0, 'hello');
+        writable2.set(1, 'howdy');
+
+        const writable3 = new WritableData(1);
+        writable3.set(0, 'hey');
+
+        const vector = Vector.make([
+            new ReadableData(writable1),
+            new ReadableData(writable2),
+            new ReadableData(writable3)
+        ], {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        expect(vector.slice(1).toJSON()).toEqual([
+            'hello',
+            'howdy',
+            'hey'
+        ]);
     });
 });
