@@ -7,7 +7,7 @@ import {
     isPrimitiveValue, getHashCodeFrom,
 } from '@terascope/utils';
 import {
-    ReadableData, freezeArray, WritableData
+    ReadableData, WritableData
 } from '../core';
 import {
     DataBuckets, SerializeOptions, VectorType
@@ -110,7 +110,7 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ) {
         this.type = type;
-        this.data = freezeArray(data);
+        this.data = Object.isFrozen(data) ? data : Object.freeze(data.filter((d) => d.size > 0));
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
@@ -235,22 +235,31 @@ export abstract class Vector<T = unknown> {
     /**
      * Add ReadableData to a end of the data buckets
     */
-    append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
+    append(data: (ReadableData<T>[])|(readonly ReadableData<T>[])|ReadableData<T>): Vector<T> {
+        if (Array.isArray(data)) {
+            const add = data.filter((d) => d.size > 0);
+            if (!add.length) return this;
+            // Make sure to freeze here so freezeArray doesn't slice the data buckets
+            return this.fork(Object.freeze(this.data.concat(add)));
+        }
+
+        const _singleData = data as ReadableData<T>;
+        if (_singleData.size === 0) return this;
+
         // Make sure to freeze here so freezeArray doesn't slice the data buckets
-        return this.fork(Object.freeze(this.data.concat(
-            Array.isArray(data)
-                ? data
-                : [data as ReadableData<T>]
-        )));
+        return this.fork(Object.freeze(this.data.concat([data as ReadableData<T>])));
     }
 
     /**
     *  Add ReadableData to a beginning of the data buckets
     */
     prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
-        const preData = Array.isArray(data)
+        const preData = (Array.isArray(data)
             ? data
-            : [data as ReadableData<T>];
+            : [data as ReadableData<T>]).filter((d) => d.size > 0);
+
+        if (preData.length === 0) return this;
+
         // Make sure to freeze here so freezeArray doesn't slice the data buckets
         return this.fork(Object.freeze(preData.concat(this.data)));
     }
