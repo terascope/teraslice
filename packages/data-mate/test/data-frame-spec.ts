@@ -896,6 +896,16 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->slice', () => {
+            it('should be able select one row', () => {
+                const resultFrame = peopleDataFrame.select('name').slice(0, 1);
+                expect(resultFrame.toJSON()).toEqual([{
+                    name: 'Jill'
+                }]);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
+
         describe('->concat', () => {
             it('should return the same data frame if the given an empty array', () => {
                 const resultFrame = peopleDataFrame.concat([]);

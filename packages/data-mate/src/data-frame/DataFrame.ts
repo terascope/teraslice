@@ -987,6 +987,8 @@ export class DataFrame<
 
     /**
      * Returns a DataFrame with a limited number of rows
+     *
+     * A negative value will select from the ending indices
     */
     limit(num: number): DataFrame<T> {
         let start: number|undefined;
@@ -999,6 +1001,16 @@ export class DataFrame<
         if (start == null && end != null && end > this.size) {
             return this;
         }
+        return this.slice(start, end);
+    }
+
+    /**
+     * Returns a DataFrame with a a specific set of rows
+    */
+    slice(start?: number, end?: number): DataFrame<T> {
+        if (start == null && end == null) return this.fork(this.columns);
+        if (start === 0 && end === this.size) return this.fork(this.columns);
+
         return this.fork(this.columns.map(
             (col) => col.fork(col.vector.slice(start, end))
         ));

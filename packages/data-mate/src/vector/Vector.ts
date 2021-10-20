@@ -372,12 +372,12 @@ export abstract class Vector<T = unknown> {
     slice(start = 0, end = this.size): Vector<T> {
         const startIndex = start < 0 ? this.size + start : start;
         if (startIndex < 0 || startIndex > this.size) {
-            throw new RangeError(`Starting offset of ${start} is out-of-bounds`);
+            throw new RangeError(`Starting offset of ${start} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
 
         const endIndex = end < 0 ? this.size + end : end;
         if (endIndex < 0 || endIndex > this.size) {
-            throw new RangeError(`Ending offset of ${end} is out-of-bounds`);
+            throw new RangeError(`Ending offset of ${end} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
 
         const returnSize = endIndex - startIndex;
