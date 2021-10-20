@@ -7,7 +7,7 @@ import {
     isPrimitiveValue, getHashCodeFrom,
 } from '@terascope/utils';
 import {
-    ReadableData, freezeArray, WritableData
+    ReadableData, WritableData
 } from '../core';
 import {
     DataBuckets, SerializeOptions, VectorType
@@ -110,7 +110,7 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ) {
         this.type = type;
-        this.data = freezeArray(data);
+        this.data = Object.isFrozen(data) ? data : Object.freeze(data.filter(isNotEmptyDataBucket));
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
@@ -235,22 +235,33 @@ export abstract class Vector<T = unknown> {
     /**
      * Add ReadableData to a end of the data buckets
     */
-    append(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
+    append(data: (ReadableData<T>[])|(readonly ReadableData<T>[])|ReadableData<T>): Vector<T> {
+        if (Array.isArray(data)) {
+            const add = data.filter(isNotEmptyDataBucket);
+            if (!add.length) return this;
+            // Make sure to freeze here so freezeArray doesn't slice the data buckets
+            return this.fork(Object.freeze(this.data.concat(add)));
+        }
+
+        const _singleData = data as ReadableData<T>;
+        if (_singleData.size === 0) return this;
+
         // Make sure to freeze here so freezeArray doesn't slice the data buckets
-        return this.fork(Object.freeze(this.data.concat(
-            Array.isArray(data)
-                ? data
-                : [data as ReadableData<T>]
-        )));
+        return this.fork(Object.freeze(this.data.concat([data as ReadableData<T>])));
     }
 
     /**
     *  Add ReadableData to a beginning of the data buckets
     */
     prepend(data: ReadableData<T>[]|readonly ReadableData<T>[]|ReadableData<T>): Vector<T> {
-        const preData = Array.isArray(data)
-            ? data
-            : [data as ReadableData<T>];
+        const preData = (
+            Array.isArray(data)
+                ? data
+                : [data as ReadableData<T>]
+        ).filter(isNotEmptyDataBucket);
+
+        if (preData.length === 0) return this;
+
         // Make sure to freeze here so freezeArray doesn't slice the data buckets
         return this.fork(Object.freeze(preData.concat(this.data)));
     }
@@ -363,31 +374,44 @@ export abstract class Vector<T = unknown> {
     slice(start = 0, end = this.size): Vector<T> {
         const startIndex = start < 0 ? this.size + start : start;
         if (startIndex < 0 || startIndex > this.size) {
-            throw new RangeError(`Starting offset of ${start} is out-of-bounds`);
+            throw new RangeError(`Starting offset of ${start} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
 
         const endIndex = end < 0 ? this.size + end : end;
         if (endIndex < 0 || endIndex > this.size) {
-            throw new RangeError(`Ending offset of ${end} is out-of-bounds`);
+            throw new RangeError(`Ending offset of ${end} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
+
+        const returnSize = endIndex - startIndex;
+        let bucketIndex = 0;
+        let totalProcessed = 0;
+        let offset = 0;
+        let hasStarted = false;
 
         const buckets: ReadableData<T>[] = [];
 
-        let offset = 0;
-        for (const data of this.data) {
-            const startIndexOfChunk = startIndex - offset;
-            if (startIndexOfChunk >= 0 && startIndexOfChunk < data.size) {
-                const endIndexOfChunk = endIndex - offset;
-                const isEnd = endIndexOfChunk <= data.size;
+        while (totalProcessed < returnSize) {
+            const bucket = this.data[bucketIndex];
+            if (bucket == null) break;
 
-                buckets.push(new ReadableData(data.slice(
-                    startIndexOfChunk,
-                    isEnd ? endIndexOfChunk : data.size
-                )));
+            const startIndexInBucket = hasStarted ? 0 : startIndex - offset;
+            const endIndexInBucket = Math.min(
+                endIndex - offset, bucket.size
+            );
+            const totalFromBucket = endIndexInBucket - startIndexInBucket;
 
-                if (isEnd) break;
+            if (startIndexInBucket >= 0 && totalFromBucket > 0) {
+                const slicedBucket = new ReadableData(bucket.slice(
+                    startIndexInBucket,
+                    endIndexInBucket
+                ));
+                buckets.push(slicedBucket);
+                hasStarted = true;
+                totalProcessed += slicedBucket.size;
             }
-            offset += data.size;
+
+            offset += bucket.size;
+            bucketIndex++;
         }
 
         return this.fork(buckets);
@@ -454,6 +478,10 @@ export abstract class Vector<T = unknown> {
             (index) => this.get(index) as Maybe<T>
         );
     }
+}
+
+function isNotEmptyDataBucket<T>(data: ReadableData<T>): boolean {
+    return data.size > 0;
 }
 
 /**

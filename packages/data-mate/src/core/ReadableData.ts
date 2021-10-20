@@ -94,12 +94,12 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
 
         const startIndex = start < 0 ? this.size + start : start;
         if (startIndex < 0 || startIndex > this.size) {
-            throw new RangeError(`Starting offset of ${start} is out-of-bounds`);
+            throw new RangeError(`Starting offset of ${start} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
 
         const endIndex = end < 0 ? this.size + end : end;
         if (endIndex < 0 || endIndex > this.size) {
-            throw new RangeError(`Ending offset of ${end} is out-of-bounds`);
+            throw new RangeError(`Ending offset of ${end} is out-of-bounds, must be >=0 OR <=${this.size}`);
         }
 
         const data = new WritableData<T>(endIndex - startIndex);
