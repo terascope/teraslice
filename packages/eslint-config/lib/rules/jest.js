@@ -11,7 +11,7 @@ module.exports = {
     'jest/prefer-to-contain': 'warn',
     'jest/prefer-todo': 'warn',
     'jest/require-top-level-describe': 'warn',
-    'jest/valid-describe': 'error',
+    'jest/valid-describe-callback': 'error',
     'jest/valid-expect-in-promise': 'error',
     'jest/valid-expect': 'error',
     'jest/valid-title': 'error',

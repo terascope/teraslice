@@ -43,7 +43,7 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        setupFilesAfterEnv: ['jest-extended'],
+        setupFilesAfterEnv: ['jest-extended/all'],
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
             '<rootDir>/assets',

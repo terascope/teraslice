@@ -24,8 +24,8 @@ export const toNumberConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Float } }
             },
             field: 'testField',
-            input: '13890472347692343249760902374089',
-            output: 13890472347692343249760902374089
+            input: String(Number.MAX_SAFE_INTEGER),
+            output: Number.MAX_SAFE_INTEGER
         },
         {
             args: { },

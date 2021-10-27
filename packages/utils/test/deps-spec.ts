@@ -9,16 +9,16 @@ import {
 
 describe('Dependency Utils', () => {
     class TestObj {
-        hi = true
+        hi = true;
         has() {}
     }
 
     class TestEntity extends DataEntity {
-        test = true
+        test = true;
     }
 
     class ClassWithValidation {
-        value: number
+        value: number;
         constructor(value: number) {
             if (typeof value !== 'number') {
                 throw new Error('Expected number');
