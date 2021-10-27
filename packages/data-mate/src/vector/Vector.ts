@@ -126,7 +126,7 @@ export abstract class Vector<T = unknown> {
         const buckets: ReadableData<T>[] = [];
 
         for (const bucket of data) {
-            if (isNotEmptyDataBucket(bucket)) {
+            if (bucket.size) {
                 if (consistentSize == null) {
                     consistentSize = bucket.size;
                 } else if (consistentSize !== bucket.size) {
@@ -269,7 +269,7 @@ export abstract class Vector<T = unknown> {
         if (Array.isArray(data)) {
             if (!data.length) return this;
             // Make sure to freeze here so freezeArray doesn't slice the data buckets
-            return this.fork(Object.freeze(this.data.concat(data)));
+            return this.fork(this.data.concat(data));
         }
 
         const _singleData = data as ReadableData<T>;
@@ -332,18 +332,7 @@ export abstract class Vector<T = unknown> {
             return [this.data[0], index];
         }
         if (this._consistentSize !== -1) {
-            const bucketIndex = Math.floor(index / this._consistentSize);
-            const bucket = this.data[bucketIndex];
-
-            if (bucket == null) {
-                throw new Error(`Unable to find bucket for ${inspect({
-                    consistentSize: this._consistentSize,
-                    bucketIndex,
-                    index
-                })}`);
-            }
-
-            return [bucket, index % this._consistentSize];
+            return this._findConsistentDataIndex(index);
         }
 
         // if it on the second half of the data set then use the reverse index way
@@ -351,6 +340,28 @@ export abstract class Vector<T = unknown> {
             return this._reverseFindDataWithIndex(index);
         }
         return this._forwardFindDataWithIndex(index);
+    }
+
+    /**
+     * When data buckets all of have the same size we
+     * can use an O(1) optimization to find the correct
+     * bucket. This helps when there are 1000s of buckets
+    */
+    private _findConsistentDataIndex(
+        index: number
+    ): [data:ReadableData<T>, actualIndex: number]|undefined {
+        const bucketIndex = Math.floor(index / this._consistentSize);
+        const bucket = this.data[bucketIndex];
+
+        if (bucket == null) {
+            throw new Error(`Unable to find bucket for ${inspect({
+                consistentSize: this._consistentSize,
+                bucketIndex,
+                index
+            })}`);
+        }
+
+        return [bucket, index % this._consistentSize];
     }
 
     /**
@@ -519,10 +530,6 @@ export abstract class Vector<T = unknown> {
             (index) => this.get(index) as Maybe<T>
         );
     }
-}
-
-function isNotEmptyDataBucket<T>(data: ReadableData<T>): boolean {
-    return data.size > 0;
 }
 
 /**
