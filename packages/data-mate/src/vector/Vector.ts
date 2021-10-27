@@ -6,6 +6,7 @@ import {
 import {
     isPrimitiveValue, getHashCodeFrom,
 } from '@terascope/utils';
+import { inspect } from 'util';
 import {
     ReadableData, WritableData
 } from '../core';
@@ -101,6 +102,14 @@ export abstract class Vector<T = unknown> {
     */
     readonly size: number;
 
+    /**
+     * Sometimes when appending data buckets the size
+     * is consistent, when that happens we can be
+     * much smarter about find the data bucket for a
+     * given row, which speeds up some operations
+    */
+    private _consistentSize = -1;
+
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -110,11 +119,32 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ) {
         this.type = type;
-        this.data = Object.isFrozen(data) ? data : Object.freeze(data.filter(isNotEmptyDataBucket));
+        this.size = 0;
+
+        let consistentSize: number|undefined;
+
+        const buckets: ReadableData<T>[] = [];
+
+        for (const bucket of data) {
+            if (isNotEmptyDataBucket(bucket)) {
+                if (consistentSize == null) {
+                    consistentSize = bucket.size;
+                } else if (consistentSize !== bucket.size) {
+                    consistentSize = -1;
+                }
+                this.size += bucket.size;
+                buckets.push(bucket);
+            }
+        }
+
+        if (consistentSize != null) {
+            this._consistentSize = consistentSize;
+        }
+
+        this.data = Object.freeze(buckets);
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
-        this.size = this.data.reduce((acc, d) => acc + d.size, 0);
     }
 
     /**
@@ -237,17 +267,15 @@ export abstract class Vector<T = unknown> {
     */
     append(data: (ReadableData<T>[])|(readonly ReadableData<T>[])|ReadableData<T>): Vector<T> {
         if (Array.isArray(data)) {
-            const add = data.filter(isNotEmptyDataBucket);
-            if (!add.length) return this;
+            if (!data.length) return this;
             // Make sure to freeze here so freezeArray doesn't slice the data buckets
-            return this.fork(Object.freeze(this.data.concat(add)));
+            return this.fork(Object.freeze(this.data.concat(data)));
         }
 
         const _singleData = data as ReadableData<T>;
         if (_singleData.size === 0) return this;
 
-        // Make sure to freeze here so freezeArray doesn't slice the data buckets
-        return this.fork(Object.freeze(this.data.concat([data as ReadableData<T>])));
+        return this.fork(this.data.concat([data as ReadableData<T>]));
     }
 
     /**
@@ -258,12 +286,11 @@ export abstract class Vector<T = unknown> {
             Array.isArray(data)
                 ? data
                 : [data as ReadableData<T>]
-        ).filter(isNotEmptyDataBucket);
+        );
 
         if (preData.length === 0) return this;
 
-        // Make sure to freeze here so freezeArray doesn't slice the data buckets
-        return this.fork(Object.freeze(preData.concat(this.data)));
+        return this.fork(preData.concat(this.data));
     }
 
     /**
@@ -299,10 +326,24 @@ export abstract class Vector<T = unknown> {
      * @returns the data found and the index of the relative index of value
     */
     findDataWithIndex(index: number): [data:ReadableData<T>, actualIndex: number]|undefined {
-        if (this.data.length === 0) return;
+        if (index < 0 || this.data.length === 0) return;
         if (this.data.length === 1) {
             if (index + 1 > this.size) return;
             return [this.data[0], index];
+        }
+        if (this._consistentSize !== -1) {
+            const bucketIndex = Math.floor(index / this._consistentSize);
+            const bucket = this.data[bucketIndex];
+
+            if (bucket == null) {
+                throw new Error(`Unable to find bucket for ${inspect({
+                    consistentSize: this._consistentSize,
+                    bucketIndex,
+                    index
+                })}`);
+            }
+
+            return [bucket, index % this._consistentSize];
         }
 
         // if it on the second half of the data set then use the reverse index way

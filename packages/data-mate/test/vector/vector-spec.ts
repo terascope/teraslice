@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
+import {
+    toString, bigIntToJSON, isNotNil, times
+} from '@terascope/utils';
 import {
     DataTypeFields,
     ESGeoShapeMultiPolygon,
@@ -539,5 +541,100 @@ describe('Vector', () => {
             'howdy',
             'hey'
         ]);
+    });
+
+    it('should be able to find the correct data bucket index with consistent sizing of 1', () => {
+        const vector = Vector.make(times(10, () => (
+            new ReadableData(new WritableData(1).set(0, 'hi'))
+        )), {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        const result = vector.findDataWithIndex(5);
+        if (result != null) {
+            expect(result[0]).toBe(vector.data[5]);
+            expect(result[1]).toBe(0);
+        } else {
+            expect(result).not.toBeNil();
+        }
+    });
+
+    it('should be able to find the correct data bucket index (5) with consistent sizing of 2', () => {
+        const vector = Vector.make(times(10, () => (
+            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+        )), {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        const result = vector.findDataWithIndex(5);
+        if (result != null) {
+            expect(result[0]).toBe(vector.data[2]);
+            expect(result[1]).toBe(1);
+        } else {
+            expect(result).not.toBeNil();
+        }
+    });
+
+    it('should be able to find the correct data bucket index (4) with consistent sizing of 2', () => {
+        const vector = Vector.make(times(10, () => (
+            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+        )), {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        const result = vector.findDataWithIndex(4);
+        if (result != null) {
+            expect(result[0]).toBe(vector.data[2]);
+            expect(result[1]).toBe(0);
+        } else {
+            expect(result).not.toBeNil();
+        }
+    });
+
+    it('should be able to find the correct data bucket index (10) with consistent sizing of 2', () => {
+        const vector = Vector.make(times(10, () => (
+            new ReadableData(new WritableData(2).set(0, 'hi').set(1, 'hello'))
+        )), {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        const result = vector.findDataWithIndex(10);
+        if (result != null) {
+            expect(result[0]).toBe(vector.data[5]);
+            expect(result[1]).toBe(0);
+        } else {
+            expect(result).not.toBeNil();
+        }
+    });
+
+    it('should be able to find the correct data bucket index (9) with consistent sizing of 3', () => {
+        const vector = Vector.make(times(10, () => (
+            new ReadableData(new WritableData(3).set(0, 'hi').set(1, 'hello').set(2, 'howdy'))
+        )), {
+            config: {
+                type: FieldType.String,
+            },
+            name: 'test'
+        });
+
+        const result = vector.findDataWithIndex(9);
+        if (result != null) {
+            expect(result[0]).toBe(vector.data[3]);
+            expect(result[1]).toBe(0);
+        } else {
+            expect(result).not.toBeNil();
+        }
     });
 });
