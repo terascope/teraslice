@@ -48,7 +48,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             url: '',
         },
         engines: {
-            node: '^12.20.0 || >=14.17.0',
+            node: '^12.22.0 || >=14.17.0',
             yarn: '>=1.16.0'
         },
         terascope: {
