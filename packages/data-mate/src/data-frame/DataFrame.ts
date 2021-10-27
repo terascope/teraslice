@@ -1,4 +1,3 @@
-import difference from 'lodash/difference';
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType,
@@ -29,7 +28,6 @@ import { Builder, getBuildersForConfig } from '../builder';
 import {
     FieldArg, flattenStringArg,
     freezeArray, getFieldsFromArg,
-    ReadableData,
     WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
@@ -792,56 +790,20 @@ export class DataFrame<
 
         let currIndex = this.size;
         const columns = this.columns.slice();
-        const fields = this.fields.slice();
-
-        function addMissing(frame: DataFrame<T>) {
-            const missing = difference(fields, frame.fields);
-            for (const field of missing) {
-                const colIndex = columns.findIndex((c) => c.name === field)!;
-                const existingColumn = columns[colIndex];
-                // ensure that we create a vector with correct
-                // starting length
-                const vector = existingColumn.vector.append(
-                    [new ReadableData(new WritableData(currIndex))]
-                );
-                columns[colIndex] = existingColumn.fork(vector);
-            }
-        }
-
-        /**
-         * @returns the column index
-        */
-        function appendNewColumn(column: Column<any, keyof T>): number {
-            // ensure that we create a vector with correct
-            // starting length
-            const backfillVector = column.vector.fork(
-                [new ReadableData(new WritableData(currIndex))]
-            );
-            const newColumn = column.fork(backfillVector);
-            fields.push(newColumn.name);
-            // subtract one from the new length
-            return (columns.push(newColumn) - 1);
-        }
 
         for (const frame of frames) {
             const remaining = size - currIndex;
             // no need to process more frames
             if (remaining <= 0) break;
 
-            addMissing(frame);
-
             for (const column of frame.columns) {
-                let colIndex = columns.findIndex((c) => c.name === column.name);
-                if (colIndex === -1) {
-                    colIndex = appendNewColumn(column);
-                }
-
                 let { vector } = column;
                 if (remaining < vector.size) {
                     vector = vector.slice(0, remaining);
                 }
 
-                const existingColumn = columns[colIndex];
+                const existingColumn = this.getColumnOrThrow(column.name);
+                const colIndex = frame.getColumnIndex(column.name);
                 columns[colIndex] = existingColumn.fork(
                     existingColumn.vector.append(vector.data)
                 );
@@ -918,8 +880,18 @@ export class DataFrame<
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        const index = this.getColumnIndex(field);
+        return this.getColumnAt<P>(index);
+    }
+
+    /**
+     * This returns -1 if not found. The column index will
+     * be cached. In the case with duplicate named columned,
+     * the first one found wins
+    */
+    getColumnIndex(field: keyof T): number {
         if (this._fieldToColumnIndexCache?.has(field)) {
-            return this.getColumnAt<P>(this._fieldToColumnIndexCache.get(field)!);
+            return this._fieldToColumnIndexCache.get(field)!;
         }
 
         const index = this.columns.findIndex((col) => col.name === field);
@@ -928,7 +900,7 @@ export class DataFrame<
         } else {
             this._fieldToColumnIndexCache.set(field, index);
         }
-        return this.getColumnAt<P>(index);
+        return index;
     }
 
     /**
