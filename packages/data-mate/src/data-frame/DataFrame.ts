@@ -396,7 +396,7 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders);
+        return this.forkWithBuilders(builders);
     }
 
     /**
@@ -524,7 +524,7 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders, returning);
+        return this.forkWithBuilders(builders, returning);
     }
 
     /**
@@ -558,7 +558,7 @@ export class DataFrame<
 
         if (returning === this.size) return this;
 
-        return this._forkWithBuilders(builders, returning);
+        return this.forkWithBuilders(builders, returning);
     }
 
     /**
@@ -663,13 +663,13 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders, buckets.size);
+        return this.forkWithBuilders(builders, buckets.size);
     }
 
     /**
      * Create a new data frame from the builders
     */
-    private _forkWithBuilders(builders: Iterable<[
+    forkWithBuilders(builders: Iterable<[
         name: keyof T, builder: Builder<any>
     ]>, limit?: number): DataFrame<T> {
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => (
@@ -747,7 +747,7 @@ export class DataFrame<
         );
 
         if (isColumns) {
-            return this._forkWithBuilders(
+            return this.forkWithBuilders(
                 concatColumnsToColumns(
                     builders,
                     arg as Column<any, keyof T>[],
@@ -755,7 +755,7 @@ export class DataFrame<
                 )
             );
         }
-        return this._forkWithBuilders(
+        return this.forkWithBuilders(
             buildRecords<T>(builders, arg as T[])
         );
     }
