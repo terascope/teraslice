@@ -8,7 +8,7 @@ import { isDataEntity } from './entities/utils';
  * For deep equality use isDeepEqual
 */
 export function isEqual<T>(target: T, input: unknown): input is T;
-export function isEqual<T extends unknown>(target: T, input: unknown): boolean;
+export function isEqual<T>(target: T, input: unknown): boolean;
 export function isEqual<T>(target: T, input: unknown): input is T {
     return input === target || (Number.isNaN(target) && Number.isNaN(input));
 }
@@ -17,7 +17,7 @@ export function isEqual<T>(target: T, input: unknown): input is T {
  * A functional version of isEqual
 */
 export function isEqualFP<T>(target: T): (input: unknown) => input is T;
-export function isEqualFP<T extends unknown>(target: T): (input: unknown) => boolean;
+export function isEqualFP<T>(target: T): (input: unknown) => boolean;
 export function isEqualFP<T>(target: T): (input: T) => input is T {
     return isEqual.bind(isEqual, target) as (input: T) => input is T;
 }
@@ -43,7 +43,7 @@ export function isEqualFP<T>(target: T): (input: T) => input is T {
         isDeepEqual(true, 'true') === false;
 */
 export function isDeepEqual<T>(target: T, input: unknown): input is T;
-export function isDeepEqual<T extends unknown>(target: T, input: unknown): boolean;
+export function isDeepEqual<T>(target: T, input: unknown): boolean;
 export function isDeepEqual<T>(target: T, input: unknown): target is T {
     return _isEqualWith(input, target, _isEqualCustomizer);
 }
@@ -67,7 +67,7 @@ function _isEqualCustomizer(objValue: unknown, otherObject: unknown): boolean|un
  * A functional version of isDeepEqual
 */
 export function isDeepEqualFP<T>(target: T): (input: unknown) => input is T;
-export function isDeepEqualFP<T extends unknown>(target: T): (input: unknown) => boolean;
+export function isDeepEqualFP<T>(target: T): (input: unknown) => boolean;
 export function isDeepEqualFP<T>(target: unknown): (input: T) => input is T {
     return isDeepEqual.bind(isDeepEqual, target) as (input: T) => input is T;
 }
