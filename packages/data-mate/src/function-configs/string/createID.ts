@@ -23,7 +23,7 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.FULL_VALUES,
     category: FunctionDefinitionCategory.STRING,
-    description: 'Returns a encoded string that from one or more string. You can optionally override the default hash encoding of "md5"',
+    description: 'Returns a hash encoded string from one or more values. You can optionally override the default hash encoding of "md5"',
     examples: [
         {
             args: {},
@@ -85,6 +85,27 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
             input: ['foo2', 'bar2'],
             test_only: true,
             output: 'a6fa48b01386292677e78e02d1be0104',
+        },
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: {
+                    testField: {
+                        type: FieldType.Tuple,
+                    },
+                    'testField.0': {
+                        type: FieldType.String,
+                    },
+                    'testField.1': {
+                        type: FieldType.Number,
+                    }
+                }
+            },
+            field: 'testField',
+            input: ['foo1', 1],
+            test_only: true,
+            output: '0cab903e4f6c48b6bc500a45ee161a37',
         }
     ],
     create({ args: { hash = hashDefault, digest = digestDefault } }) {
@@ -92,7 +113,7 @@ export const createIDConfig: FieldTransformConfig<CreateIDArgs> = {
         return function _createID(value) {
             if (value == null) return;
             if (Array.isArray(value)) {
-                return encode(value.map(toString).join(''));
+                return encode(value.flat().map(toString).join(''));
             }
             return encode(toString(value));
         };

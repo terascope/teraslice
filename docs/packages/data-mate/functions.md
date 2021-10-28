@@ -5460,13 +5460,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T21:03:29.450Z'
+'2021-10-28T22:06:00.484Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-28T21:03:29.450Z'
+'2021-10-28T22:06:00.484Z'
 ```
 
 **# Example (2)**
@@ -5512,7 +5512,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T21:03:29.451Z'
+'2021-10-28T22:06:00.485Z'
 ```
 
 <small>Output:</small>
@@ -5532,13 +5532,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-10-29T21:03:29.451Z'
+'2021-10-29T22:06:00.485Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-29T21:03:29.451Z'
+'2021-10-29T22:06:00.485Z'
 ```
 
 ### `isTuesday`
@@ -5838,7 +5838,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-10-28T21:03:29.456Z'
+'2021-10-28T22:06:00.488Z'
 ```
 
 <small>Output:</small>
@@ -5858,13 +5858,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-10-27T21:03:29.456Z'
+'2021-10-27T22:06:00.488Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-10-27T21:03:29.456Z'
+'2021-10-27T22:06:00.488Z'
 ```
 
 ## CATEGORY: Numeric
@@ -12024,7 +12024,7 @@ null
 
 **Type:** `FIELD_TRANSFORM`
 
-> Returns a encoded string that from one or more string. You can optionally override the default hash encoding of "md5"
+> Returns a hash encoded string from one or more values. You can optionally override the default hash encoding of "md5"
 
 #### Arguments
 
