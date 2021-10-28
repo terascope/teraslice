@@ -59,7 +59,7 @@
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
-        "mnemonist": "^0.38.4",
+        "mnemonist": "^0.38.5",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
         "validator": "^13.6.0"
