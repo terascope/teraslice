@@ -1,4 +1,3 @@
-import difference from 'lodash/difference';
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType,
@@ -29,7 +28,6 @@ import { Builder, getBuildersForConfig } from '../builder';
 import {
     FieldArg, flattenStringArg,
     freezeArray, getFieldsFromArg,
-    ReadableData,
     WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
@@ -398,7 +396,7 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders);
+        return this.forkWithBuilders(builders);
     }
 
     /**
@@ -526,7 +524,7 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders, returning);
+        return this.forkWithBuilders(builders, returning);
     }
 
     /**
@@ -560,7 +558,7 @@ export class DataFrame<
 
         if (returning === this.size) return this;
 
-        return this._forkWithBuilders(builders, returning);
+        return this.forkWithBuilders(builders, returning);
     }
 
     /**
@@ -665,13 +663,13 @@ export class DataFrame<
             }
         }
 
-        return this._forkWithBuilders(builders, buckets.size);
+        return this.forkWithBuilders(builders, buckets.size);
     }
 
     /**
      * Create a new data frame from the builders
     */
-    private _forkWithBuilders(builders: Iterable<[
+    forkWithBuilders(builders: Iterable<[
         name: keyof T, builder: Builder<any>
     ]>, limit?: number): DataFrame<T> {
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => (
@@ -749,7 +747,7 @@ export class DataFrame<
         );
 
         if (isColumns) {
-            return this._forkWithBuilders(
+            return this.forkWithBuilders(
                 concatColumnsToColumns(
                     builders,
                     arg as Column<any, keyof T>[],
@@ -757,7 +755,7 @@ export class DataFrame<
                 )
             );
         }
-        return this._forkWithBuilders(
+        return this.forkWithBuilders(
             buildRecords<T>(builders, arg as T[])
         );
     }
@@ -770,7 +768,7 @@ export class DataFrame<
      * This is more efficient than using DataFrame.concat but comes with less
      * data type checking and may less safe so use with caution
     */
-    appendAll(frames: Iterable<DataFrame<T>>, limit?: number): DataFrame<T> {
+    appendAll(frames: DataFrame<T>[]|(readonly DataFrame<T>[]), limit?: number): DataFrame<T> {
         let { size } = this;
 
         for (const frame of frames) {
@@ -791,59 +789,36 @@ export class DataFrame<
         }
 
         let currIndex = this.size;
-        const columns = this.columns.slice();
-        const fields = this.fields.slice();
 
-        function addMissing(frame: DataFrame<T>) {
-            const missing = difference(fields, frame.fields);
-            for (const field of missing) {
-                const colIndex = columns.findIndex((c) => c.name === field)!;
-                const existingColumn = columns[colIndex];
-                // ensure that we create a vector with correct
-                // starting length
-                const vector = existingColumn.vector.append(
-                    [new ReadableData(new WritableData(currIndex))]
-                );
-                columns[colIndex] = existingColumn.fork(vector);
-            }
-        }
-
+        const indexLookup = new Map<keyof T, number>();
         /**
-         * @returns the column index
+         * This creates a new copy of the columns because it
+         * is mutated below, it also populates a name to index lookup
+         * without having to iterator over the columns again.
         */
-        function appendNewColumn(column: Column<any, keyof T>): number {
-            // ensure that we create a vector with correct
-            // starting length
-            const backfillVector = column.vector.fork(
-                [new ReadableData(new WritableData(currIndex))]
-            );
-            const newColumn = column.fork(backfillVector);
-            fields.push(newColumn.name);
-            // subtract one from the new length
-            return (columns.push(newColumn) - 1);
-        }
+        const columns = Array.from(this.columns, (col, index) => {
+            indexLookup.set(col.name, index);
+            return col;
+        });
 
         for (const frame of frames) {
             const remaining = size - currIndex;
             // no need to process more frames
             if (remaining <= 0) break;
 
-            addMissing(frame);
-
             for (const column of frame.columns) {
-                let colIndex = columns.findIndex((c) => c.name === column.name);
-                if (colIndex === -1) {
-                    colIndex = appendNewColumn(column);
-                }
-
                 let { vector } = column;
                 if (remaining < vector.size) {
                     vector = vector.slice(0, remaining);
                 }
 
-                const existingColumn = columns[colIndex];
-                columns[colIndex] = existingColumn.fork(
-                    existingColumn.vector.append(vector.data)
+                const colIndex = indexLookup.get(column.name);
+                if (colIndex == null) {
+                    throw new Error(`Unknown column ${column.name} in DataFrame`);
+                }
+
+                columns[colIndex] = columns[colIndex].fork(
+                    columns[colIndex].vector.append(vector.data)
                 );
             }
 
@@ -918,8 +893,18 @@ export class DataFrame<
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        const index = this.getColumnIndex(field);
+        return this.getColumnAt<P>(index);
+    }
+
+    /**
+     * This returns -1 if not found. The column index will
+     * be cached. In the case with duplicate named columned,
+     * the first one found wins
+    */
+    getColumnIndex(field: keyof T): number {
         if (this._fieldToColumnIndexCache?.has(field)) {
-            return this.getColumnAt<P>(this._fieldToColumnIndexCache.get(field)!);
+            return this._fieldToColumnIndexCache.get(field)!;
         }
 
         const index = this.columns.findIndex((col) => col.name === field);
@@ -928,7 +913,7 @@ export class DataFrame<
         } else {
             this._fieldToColumnIndexCache.set(field, index);
         }
-        return this.getColumnAt<P>(index);
+        return index;
     }
 
     /**
