@@ -1,4 +1,5 @@
 import { containsConfig, ContainsArgs } from './contains';
+import { createIDConfig, CreateIDArgs } from './createID';
 import { decodeBase64Config } from './decodeBase64';
 import { decodeHexConfig } from './decodeHex';
 import { decodeURLConfig } from './decodeURL';
@@ -50,6 +51,7 @@ import { truncateConfig, TruncateConfig } from './truncate';
 
 export const stringRepository = {
     contains: containsConfig,
+    createID: createIDConfig,
     decodeBase64: decodeBase64Config,
     decodeHex: decodeHexConfig,
     decodeURL: decodeURLConfig,
@@ -102,6 +104,7 @@ export const stringRepository = {
 
 export type {
     ContainsArgs,
+    CreateIDArgs,
     EncodeArgs,
     EncodeSHAArgs,
     EncodeSHA1Args,
