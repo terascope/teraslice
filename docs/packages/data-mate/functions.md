@@ -5460,13 +5460,13 @@ isToday()
 <small>Input:</small>
 
 ```ts
-'2021-09-01T18:25:04.510Z'
+'2021-10-28T22:06:00.484Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-09-01T18:25:04.510Z'
+'2021-10-28T22:06:00.484Z'
 ```
 
 **# Example (2)**
@@ -5512,7 +5512,7 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-09-01T18:25:04.511Z'
+'2021-10-28T22:06:00.485Z'
 ```
 
 <small>Output:</small>
@@ -5532,13 +5532,13 @@ isTomorrow()
 <small>Input:</small>
 
 ```ts
-'2021-09-02T18:25:04.511Z'
+'2021-10-29T22:06:00.485Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-09-02T18:25:04.511Z'
+'2021-10-29T22:06:00.485Z'
 ```
 
 ### `isTuesday`
@@ -5838,7 +5838,7 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-09-01T18:25:04.513Z'
+'2021-10-28T22:06:00.488Z'
 ```
 
 <small>Output:</small>
@@ -5858,13 +5858,13 @@ isYesterday()
 <small>Input:</small>
 
 ```ts
-'2021-08-31T18:25:04.513Z'
+'2021-10-27T22:06:00.488Z'
 ```
 
 <small>Output:</small>
 
 ```ts
-'2021-08-31T18:25:04.513Z'
+'2021-10-27T22:06:00.488Z'
 ```
 
 ## CATEGORY: Numeric
@@ -8250,6 +8250,42 @@ setPrecision({ digits: 2, truncate: true })
 { lat: 32.12, lon: -20.95 }
 ```
 
+**# Example (10)**
+
+```ts
+setPrecision({ digits: 2 })
+```
+
+<small>Input:</small>
+
+```ts
+NaN
+```
+
+<small>Output:</small>
+
+```ts
+NaN
+```
+
+**# Example (11)**
+
+```ts
+setPrecision({ digits: 2 })
+```
+
+<small>Input:</small>
+
+```ts
+Infinity
+```
+
+<small>Output:</small>
+
+```ts
+Infinity
+```
+
 ### `sign`
 
 **Type:** `FIELD_TRANSFORM`
@@ -8900,13 +8936,13 @@ toNumber()
 <small>Input:</small>
 
 ```ts
-'13890472347692343249760902374089'
+'9007199254740991'
 ```
 
 <small>Output:</small>
 
 ```ts
-1.3890472347692343e+31
+9007199254740991
 ```
 
 **# Example (2)**
@@ -9859,6 +9895,24 @@ lookup({
 ```
 
 **# Example (5)**
+
+```ts
+lookup({ in: [ 'foo', 'bar', 'max' ] })
+```
+
+<small>Input:</small>
+
+```ts
+2
+```
+
+<small>Output:</small>
+
+```ts
+'max'
+```
+
+**# Example (6)**
 
 ```ts
 lookup({ in: [ 'foo', 'bar', 'max' ] })
@@ -11964,6 +12018,76 @@ startsWith({ value: 't' })
 
 ```ts
 null
+```
+
+### `createID`
+
+**Type:** `FIELD_TRANSFORM`
+
+> Returns a hash encoded string from one or more values. You can optionally override the default hash encoding of "md5"
+
+#### Arguments
+
+ - **hash**:  `String` - Which hashing algorithm to use, defaults to sha256
+
+ - **digest**:  `String` - Which hash digest to use, may be set to either "base64" or "hex", defaults to "hex"
+
+#### Examples
+
+Hashing algorithm defaults to md5
+
+**# Example (1)**
+
+```ts
+createID()
+```
+
+<small>Input:</small>
+
+```ts
+'foo'
+```
+
+<small>Output:</small>
+
+```ts
+'acbd18db4cc2f85cedef654fccc4a4d8'
+```
+
+**# Example (2)**
+
+```ts
+createID()
+```
+
+<small>Input:</small>
+
+```ts
+[ 'foo1', 'bar1' ]
+```
+
+<small>Output:</small>
+
+```ts
+'ad3ffa6c042cdee09c226a0544215f6f'
+```
+
+**# Example (3)**
+
+```ts
+createID({ hash: 'sha256' })
+```
+
+<small>Input:</small>
+
+```ts
+[ 'foo1', 'bar1' ]
+```
+
+<small>Output:</small>
+
+```ts
+'62910cf6a9d2b270a7f51cc7fc30efe274c0cdf2c04f18ac0757843b1c4dade2'
 ```
 
 ### `decodeBase64`
