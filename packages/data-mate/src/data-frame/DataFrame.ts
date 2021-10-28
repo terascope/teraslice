@@ -768,7 +768,7 @@ export class DataFrame<
      * This is more efficient than using DataFrame.concat but comes with less
      * data type checking and may less safe so use with caution
     */
-    appendAll(frames: Iterable<DataFrame<T>>, limit?: number): DataFrame<T> {
+    appendAll(frames: DataFrame<T>[]|(readonly DataFrame<T>[]), limit?: number): DataFrame<T> {
         let { size } = this;
 
         for (const frame of frames) {
@@ -789,7 +789,17 @@ export class DataFrame<
         }
 
         let currIndex = this.size;
-        const columns = this.columns.slice();
+
+        const indexLookup = new Map<keyof T, number>();
+        /**
+         * This creates a new copy of the columns because it
+         * is mutated below, it also populates a name to index lookup
+         * without having to iterator over the columns again.
+        */
+        const columns = Array.from(this.columns, (col, index) => {
+            indexLookup.set(col.name, index);
+            return col;
+        });
 
         for (const frame of frames) {
             const remaining = size - currIndex;
@@ -802,10 +812,13 @@ export class DataFrame<
                     vector = vector.slice(0, remaining);
                 }
 
-                const existingColumn = this.getColumnOrThrow(column.name);
-                const colIndex = frame.getColumnIndex(column.name);
-                columns[colIndex] = existingColumn.fork(
-                    existingColumn.vector.append(vector.data)
+                const colIndex = indexLookup.get(column.name);
+                if (colIndex == null) {
+                    throw new Error(`Unknown column ${column.name} in DataFrame`);
+                }
+
+                columns[colIndex] = columns[colIndex].fork(
+                    columns[colIndex].vector.append(vector.data)
                 );
             }
 

@@ -1335,38 +1335,21 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
-            it('should be able to append another frame with varying fields', () => {
-                const resultFrame = peopleDataFrame.appendAll([
-                    peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>
-                ]) as unknown as DataFrame<Person & { old_friends: string[]|undefined }>;
-
-                expect(resultFrame.toJSON()).toEqual(
-                    peopleDataFrame.toJSON().concat(
-                        peopleDataFrame.toJSON().map((record) => {
-                            const { friends, ...rest } = record;
-                            return { old_friends: friends, ...rest };
-                        })
-                    )
-                );
-                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
-                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            it('should NOT throw the when fields vary', () => {
+                expect(() => {
+                    peopleDataFrame.appendAll([
+                        peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>
+                    ]);
+                }).toThrow('Unknown column old_friends in DataFrame');
             });
 
             it('should be able to append another frame with missing certain fields', () => {
-                type ComboPerson = Person & { old_friends: string[]|undefined };
                 const inputFrame = peopleDataFrame.rename('friends', 'old_friends') as DataFrame<any>;
-                const resultFrame = inputFrame.appendAll([
-                    peopleDataFrame
-                ]) as unknown as DataFrame<ComboPerson>;
-
-                expect(resultFrame.toJSON()).toEqual(
-                    peopleDataFrame.toJSON().map((record) => {
-                        const { friends, ...rest } = record;
-                        return { old_friends: friends, ...rest };
-                    }).concat(peopleDataFrame.toJSON() as unknown as ComboPerson[])
-                );
-                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
-                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+                expect(() => {
+                    inputFrame.appendAll([
+                        peopleDataFrame
+                    ]);
+                }).toThrow('Unknown column friends in DataFrame');
             });
         });
 
