@@ -34,14 +34,32 @@ try {
     supportsNextTick = false;
 }
 
+let supportsQueueMicroTask = false;
+try {
+    if (typeof globalThis.queueMicrotask === 'function') {
+        supportsQueueMicroTask = true;
+    }
+} catch (err) {
+    supportsQueueMicroTask = false;
+}
+
 /** promisified process.nextTick,setImmediate or setTimeout depending on your environment */
 export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
-        if (supportsNextTick) {
+        if (supportsQueueMicroTask) {
+            if (typeof arg !== 'undefined') {
+                queueMicrotask(resolve.bind(resolve, arg));
+            } else {
+                queueMicrotask(resolve as () => T);
+            }
+        } else if (supportsNextTick) {
             process.nextTick(resolve, arg);
         } else if (supportsSetImmediate) {
-            if (arg != null) setImmediate(resolve, arg);
-            else setImmediate(resolve as () => void);
+            if (typeof arg !== 'undefined') {
+                setImmediate(resolve, arg);
+            } else {
+                setImmediate(resolve as () => void);
+            }
         } else {
             setTimeout(resolve, 0, arg);
         }
