@@ -1315,10 +1315,10 @@
   resolved "https://registry.yarnpkg.com/@types/valid-url/-/valid-url-1.0.3.tgz#a124389fb953559c7f889795a98620e91adb3687"
   integrity sha512-+33x29mg+ecU88ODdWpqaie2upIuRkhujVLA7TuJjM823cNMbeggfI6NhxewaRaRF8dy+g33e4uIg/m5Mb3xDQ==
 
-"@types/validator@^13.6.4":
-  version "13.6.5"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.6.5.tgz#e9f5b23ebc51100db7ac38f7e950746f8f580c8b"
-  integrity sha512-ilpDKpjjq/w/IyyTuQ38mABdaEzTzTugPyU7DlMCMKd8MMYngnPKhA2TgdO1MfEDED9KVV7uSOL1fDkgwJp/wg==
+"@types/validator@^13.6.6":
+  version "13.6.6"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.6.6.tgz#6e6e2d086148db5ae14851614971b715670cbd52"
+  integrity sha512-+qogUELb4gMhrMjSh/seKmGVvN+uQLfyqJAqYRWqVHsvBsUO2xDBCL8CJ/ZSukbd8vXaoYbpIssAmfLEzzBHEw==
 
 "@types/vinyl@*":
   version "2.0.6"
