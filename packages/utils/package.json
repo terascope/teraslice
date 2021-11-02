@@ -62,7 +62,7 @@
         "mnemonist": "^0.38.5",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
-        "validator": "^13.6.0"
+        "validator": "^13.7.0"
     },
     "devDependencies": {
         "@types/debug": "^4.1.6",
