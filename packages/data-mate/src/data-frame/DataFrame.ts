@@ -31,7 +31,7 @@ import {
     WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
-import { SerializeOptions, Vector } from '../vector';
+import { SerializeOptions, Vector, VectorType } from '../vector';
 import { buildSearchMatcherForQuery } from './search';
 import { DataFrameHeaderConfig } from './interfaces';
 import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
@@ -187,18 +187,26 @@ export class DataFrame<
     /**
      * Iterate over each row, this returns the JSON compatible values.
     */
-    * [Symbol.iterator](): IterableIterator<T> {
+    * [Symbol.iterator](): IterableIterator<DataEntity<T>> {
         yield* this.rows(true);
     }
 
     /**
      * Iterate over each index and row, this returns the internal stored values.
     */
+    entries(
+        json: true, options?: SerializeOptions
+    ): IterableIterator<[index: number, row: DataEntity<T>]>
+    entries(
+        json?: false|undefined, options?: SerializeOptions
+    ): IterableIterator<[index: number, row: T]>
     * entries(
         json?: boolean, options?: SerializeOptions
-    ): IterableIterator<[index: number, row: T]> {
+    ): IterableIterator<[index: number, row: T|DataEntity<T>]> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json, options);
+            // cast the type of json to true since typescript
+            // can't detect what the return type should be here
+            const row = this.getRow(i, json as true, options);
             if (row) yield [i, row];
         }
     }
@@ -206,14 +214,20 @@ export class DataFrame<
     /**
      * Iterate each row
     */
-    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T> {
+    rows(json: true, options?: SerializeOptions): IterableIterator<DataEntity<T>>;
+    rows(json?: false|undefined, options?: SerializeOptions): IterableIterator<T>;
+    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T|DataEntity<T>> {
         if (options?.skipDuplicateObjects) {
-            yield* this.rowsWithoutDuplicates(json, options);
+            // cast the type of json to true since typescript
+            // can't detect what the return type should be here
+            yield* this.rowsWithoutDuplicates(json as true, options);
             return;
         }
 
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json, options);
+            // cast the type of json to true since typescript
+            // can't detect what the return type should be here
+            const row = this.getRow(i, json as true, options);
             if (row) yield row;
         }
     }
@@ -224,12 +238,20 @@ export class DataFrame<
      * the call toJSONCompatibleValue after each generating the hash
      * to be consistent with hash
     */
-    private* rowsWithoutDuplicates(
+    rowsWithoutDuplicates(
+        json: true, options?: SerializeOptions
+    ): IterableIterator<T|DataEntity<T>>;
+    rowsWithoutDuplicates(
+        json?: false|undefined, options?: SerializeOptions
+    ): IterableIterator<T>;
+    * rowsWithoutDuplicates(
         json?: boolean, options?: SerializeOptions
-    ): IterableIterator<T> {
+    ): IterableIterator<T|DataEntity<T>> {
         const hashes = new Set<string>();
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json, options);
+            // cast the type of json to true since typescript
+            // can't detect what the return type should be here
+            const row = this.getRow(i, json as true, options);
             if (row) {
                 const hash = getHashCodeFrom(row);
                 if (!hashes.has(hash)) {
@@ -480,9 +502,14 @@ export class DataFrame<
         ));
     }
 
+    /**
+     * This is pretty in-efficent since it has to iterate over
+     * all the records + fields once and then again for every
+     * match
+    */
     private _filterByFn(fn: FilterByFn<T>, json: boolean): DataFrame<T> {
         const records: T[] = [];
-        for (const [index, row] of this.entries(json)) {
+        for (const [index, row] of this.entries(json as false)) {
             if (fn(row, index)) records.push(row);
         }
 
@@ -941,10 +968,62 @@ export class DataFrame<
     */
     getRow(
         index: number,
-        json = false,
+        json?: true,
         options?: SerializeOptions,
-    ): T|undefined {
+    ): DataEntity<T>|undefined
+    getRow(
+        index: number,
+        json?: false|undefined,
+        options?: SerializeOptions,
+    ): T|undefined
+    getRow(
+        index: number,
+        json?: true|false,
+        options?: SerializeOptions,
+    ): T|DataEntity<T>|undefined {
         if (index > (this.size - 1)) return;
+        if (json == null || json === false) return this._getRawRow(index);
+
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
+        const row = new DataEntity<Partial<T>>({});
+
+        let numKeys = 0;
+        for (const col of this.columns) {
+            const field = col.name as string;
+            const val = col.vector.get(
+                index, json, options
+            ) as Maybe<T[keyof T]>;
+
+            if (val != null) {
+                numKeys++;
+                row[field] = val;
+
+                if (col.name === '_key') {
+                    // there is validation in setKey so we don't have to double validate
+                    row.setKey(val as any);
+                } else if (col.vector.type === VectorType.Date && col.config.is_primary_date) {
+                    // this should be iso string
+                    row.setEventTime(val as string);
+                }
+            } else if (nilValue === null) {
+                row[field] = nilValue;
+            }
+        }
+
+        if (options?.skipEmptyObjects && !numKeys) {
+            return nilValue;
+        }
+
+        return row as unknown as T;
+    }
+
+    /**
+     * This is used json is false, we do this because this slightly faster
+     * and it easier since we don't have to switch being DataEntities and
+     * plain objects
+    */
+    private _getRawRow(index: number, options?: SerializeOptions) {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
         const row: Partial<T> = Object.create(null);
@@ -952,7 +1031,7 @@ export class DataFrame<
         for (const col of this.columns) {
             const field = col.name as keyof T;
             const val = col.vector.get(
-                index, json, options
+                index, false, options
             ) as Maybe<T[keyof T]>;
 
             if (val != null) {
@@ -1004,7 +1083,7 @@ export class DataFrame<
     /**
      * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
-    toJSON(options?: SerializeOptions): T[] {
+    toJSON(options?: SerializeOptions): DataEntity<T>[] {
         return Array.from(this.rows(true, options));
     }
 
