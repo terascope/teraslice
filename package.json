@@ -40,7 +40,7 @@
     "devDependencies": {
         "@types/bluebird": "^3.5.32",
         "@types/convict": "^5.2.2",
-        "@types/elasticsearch": "^5.0.39",
+        "@types/elasticsearch": "^5.0.40",
         "@types/fs-extra": "^9.0.9",
         "@types/jest": "^27.0.2",
         "@types/lodash": "^4.14.173",
