@@ -82,7 +82,7 @@ export default class Display {
     parseResponse(
         header: any[],
         response: Record<string, any>,
-        active = false,
+        active?: boolean,
         id?: string
     ): any[] {
         const rows: any[] = [];
@@ -138,8 +138,8 @@ export default class Display {
         header: any,
         items: any[],
         type: string,
-        active = false,
-        parse = false,
+        active?: boolean,
+        parse?: boolean,
         id?: string
     ): Promise<void> {
         let rows;

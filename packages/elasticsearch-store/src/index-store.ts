@@ -148,11 +148,11 @@ export default class IndexStore<T extends ts.AnyObject> {
 
     /** Count records by a given Lucene Query */
     async count(
-        query = '',
+        query?: string,
         options?: RestrictOptions,
         queryAccess?: QueryAccess<T>
     ): Promise<number> {
-        const p = this._translateQuery(query, options, queryAccess) as es.CountParams;
+        const p = this._translateQuery(query ?? '', options, queryAccess) as es.CountParams;
         return this.countRequest(p);
     }
 
@@ -357,7 +357,8 @@ export default class IndexStore<T extends ts.AnyObject> {
         const p = this.getDefaultParams<es.UpdateDocumentParams>(
             this.writeIndex,
             defaults,
-            params, { id, body: _body }
+            params,
+            { id, body: _body }
         );
 
         await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
@@ -553,32 +554,32 @@ export default class IndexStore<T extends ts.AnyObject> {
 
     /** Search with a given Lucene Query */
     async search(
-        q = '',
-        options: i.FindOptions<T> = {},
+        q?: string,
+        options?: i.FindOptions<T>,
         queryAccess?: QueryAccess<T>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
         const params: Partial<es.SearchParams> = {
-            size: options.size,
-            sort: options.sort,
-            from: options.from,
-            _sourceExclude: options.excludes as string[],
-            _sourceInclude: options.includes as string[],
+            size: options?.size,
+            sort: options?.sort,
+            from: options?.from,
+            _sourceExclude: options?.excludes as string[],
+            _sourceInclude: options?.includes as string[],
         };
 
         let searchParams: Partial<es.SearchParams>;
         const _queryAccess = (queryAccess || this._defaultQueryAccess);
         if (_queryAccess) {
-            searchParams = await _queryAccess.restrictSearchQuery(q, {
+            searchParams = await _queryAccess.restrictSearchQuery(q ?? '', {
                 params,
                 elasticsearch_version: utils.getESVersion(this.client),
-                variables: options.variables
+                variables: options?.variables
             });
         } else {
             searchParams = Object.assign(
                 {},
                 params,
-                this._translateQuery(q, { variables: options.variables })
+                this._translateQuery(q ?? '', { variables: options?.variables })
             );
         }
 

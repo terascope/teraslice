@@ -74,12 +74,12 @@ export const formats: Format[] = [
             }
 
             // NOTE: the \\\\ is necessary to match a single \ in this case
-            const badChar = new RegExp('[#*?"<>|/\\\\]');
+            const badChar = /[#*?"<>|/\\\\]/;
             if (badChar.test(val)) {
                 throw new Error(`value: ${val} should not contain any invalid characters: #*?"<>|/\\`);
             }
 
-            const upperRE = new RegExp('[A-Z]');
+            const upperRE = /[A-Z]/;
             if (upperRE.test(val)) {
                 throw new Error(`value: ${val} should be lower case`);
             }

@@ -209,7 +209,8 @@ export default class ESCachedStateStorage {
     private _concurrentEsMget(keyArray: string[]): Promise<DataEntity[][]> {
         return pMap(
             chunk(keyArray, this.chunkSize),
-            (chunked) => this._esMGet(chunked), { concurrency: this.concurrency }
+            (chunked) => this._esMGet(chunked),
+            { concurrency: this.concurrency }
         );
     }
 

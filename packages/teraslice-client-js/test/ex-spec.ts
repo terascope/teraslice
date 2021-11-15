@@ -531,7 +531,8 @@ describe('Teraslice Ex', () => {
                 const results = await ex.waitForStatus(
                     ExecutionStatus.running,
                     1000,
-                    0, searchOptions
+                    0,
+                    searchOptions
                 );
                 expect(results).toEqual(ExecutionStatus.running);
             });

@@ -26,17 +26,17 @@ export class Column<T = unknown, N extends NameType = string> {
     static fromJSON<R, F extends NameType = string>(
         name: F,
         config: Readonly<DataTypeFieldConfig>,
-        values: Maybe<R>[]|readonly Maybe<R>[] = [],
+        values?: Maybe<R>[]|readonly Maybe<R>[],
         version?: DataTypeVersion,
         childConfig?: DataTypeFields|ReadonlyDataTypeFields
     ): Column<R, F> {
-        const builder = Builder.make<R>(new WritableData(values.length), {
+        const builder = Builder.make<R>(new WritableData(values?.length ?? 0), {
             childConfig,
             config,
             name: name as string,
         });
 
-        values.forEach((val) => builder.append(val));
+        values?.forEach((val) => builder.append(val));
 
         return new Column<any, F>(builder.toVector(), {
             name, version

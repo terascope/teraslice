@@ -51,10 +51,10 @@ export class DataFrame<
         R extends Record<string, unknown> = Record<string, any>,
     >(
         config: DataTypeConfig|ReadonlyDataTypeConfig,
-        records: R[] = [],
+        records?: R[],
         options?: DataFrameOptions
     ): DataFrame<R> {
-        const columns = distributeRowsToColumns(config, records);
+        const columns = distributeRowsToColumns(config, records ?? []);
         return new DataFrame(columns, options);
     }
 

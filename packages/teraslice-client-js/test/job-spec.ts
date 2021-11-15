@@ -674,7 +674,8 @@ describe('Teraslice Job', () => {
                 const results = await job.waitForStatus(
                     ExecutionStatus.running,
                     1000,
-                    0, searchOptions
+                    0,
+                    searchOptions
                 );
                 expect(results).toEqual(ExecutionStatus.running);
             });

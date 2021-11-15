@@ -26,7 +26,7 @@ const DOCUMENT_EXISTS = 409;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
-module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
+module.exports = function elasticsearchApi(client, logger, _opConfig) {
     const config = _opConfig || {};
     if (!client) {
         throw new Error('Elasticsearch API requires client');
@@ -211,7 +211,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function version() {
-        const wildCardRegex = RegExp(/\*/g);
+        const wildCardRegex = /\*/g;
         const isWildCardRegexSearch = config.index.match(wildCardRegex);
         // We cannot reliable search index queries with wildcards
         // for existence or max_result_window, it could be

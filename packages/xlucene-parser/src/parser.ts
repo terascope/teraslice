@@ -22,12 +22,12 @@ export class Parser {
 
     constructor(
         query: string,
-        options: i.ParserOptions = {},
+        options?: i.ParserOptions,
         _overrideNode?: i.Node
     ) {
         this.query = trim(query || '');
 
-        this.typeConfig = { ...options.type_config };
+        this.typeConfig = { ...options?.type_config };
         if (_overrideNode) {
             this.ast = _overrideNode;
             return;

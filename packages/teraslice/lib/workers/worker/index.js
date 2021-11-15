@@ -192,7 +192,7 @@ class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(block = true, event, shutdownError) {
+    async shutdown(block, event, shutdownError) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;
@@ -202,11 +202,11 @@ class Worker {
                 'worker',
                 `shutdown was called for ${exId}`,
                 'but it was already shutting down',
-                block ? ', will block until done' : ''
+                block !== false ? ', will block until done' : ''
             ];
             this.logger.debug(msgs.join(' '));
 
-            if (block) {
+            if (block !== false) {
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
             return;

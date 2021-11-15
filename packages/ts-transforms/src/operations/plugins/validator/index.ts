@@ -25,6 +25,7 @@ function setup(method: string) {
         static cardinality: InputOutputCardinality = 'one-to-one';
 
         constructor(config: PostProcessConfig) {
+            // eslint-disable-next-line no-constructor-return
             return new Validator(config, method);
         }
     };

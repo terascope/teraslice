@@ -8,10 +8,10 @@ const Request = require('kubernetes-client/backends/request');
 const { getRetryConfig } = require('./utils');
 
 class K8s {
-    constructor(logger, clientConfig, defaultNamespace = 'default',
+    constructor(logger, clientConfig, defaultNamespace,
         apiPollDelay, shutdownTimeout) {
         this.apiPollDelay = apiPollDelay;
-        this.defaultNamespace = defaultNamespace;
+        this.defaultNamespace = defaultNamespace || 'default';
         this.logger = logger;
         this.shutdownTimeout = shutdownTimeout; // this is in milliseconds
 

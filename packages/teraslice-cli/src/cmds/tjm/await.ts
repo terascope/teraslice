@@ -1,3 +1,4 @@
+/* eslint-disable import/no-import-module-exports */
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
 import YargsOptions from '../../helpers/yargs-options';

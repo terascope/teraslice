@@ -17,7 +17,7 @@ export class Compose {
 
     runCmd(
         command: string,
-        options: RunOptions = {},
+        options?: RunOptions,
         services?: Services,
         ...extraParams: Arg[]
     ): Promise<string> {
@@ -28,7 +28,7 @@ export class Compose {
             let args = ['-f', this.composeFile, command];
 
             // parse the options and append the -- or - if missing
-            Object.keys(options).forEach((option) => {
+            Object.entries(options ?? {}).forEach(([option, value]) => {
                 if (option.length <= 2) {
                     if (option.indexOf('-') === 0) {
                         args.push(option);
@@ -37,7 +37,7 @@ export class Compose {
                     }
 
                     // not all options have attached values.
-                    if (options[option]) args.push(`${options[option]}`);
+                    if (value != null && value !== '') args.push(`${value}`);
                     return;
                 }
 
@@ -46,7 +46,7 @@ export class Compose {
                     param = option;
                 }
 
-                if (options[option]) param += `=${options[option]}`;
+                if (value != null && value !== '') param += `=${value}`;
                 args.push(param);
             });
 
@@ -90,7 +90,7 @@ export class Compose {
         });
     }
 
-    up(options: RunOptions = {}, services?: string[]|string): Promise<string> {
+    up(options: RunOptions, services?: string[]|string): Promise<string> {
         options.d = '';
         return this.runCmd('up', options, services);
     }

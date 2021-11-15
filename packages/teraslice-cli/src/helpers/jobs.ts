@@ -181,7 +181,8 @@ export default class Jobs {
                     await this.status(false, false);
                     waitCount += 1;
                     allAddedWorkersStarted = await this.checkWorkerCount(this.jobsListInitial,
-                        this.jobsListChecked, true);
+                        this.jobsListChecked,
+                        true);
                 }
             }
 
