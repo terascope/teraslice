@@ -60,18 +60,20 @@ async function stateStorage(context) {
     async function createSlices(exId, slices) {
         await waitForClient();
 
-        const bulkRequest = [];
-        for (const slice of slices) {
+        const bulkRequest = slices.map((slice) => {
             const { record, index } = _createSliceRecord(exId, slice, SliceState.pending);
-            bulkRequest.push({
-                index: {
-                    _index: index,
-                    _type: recordType,
-                    _id: record.slice_id,
+            return {
+                action: {
+                    index: {
+                        _index: index,
+                        _type: recordType,
+                        _id: record.slice_id,
+                    },
                 },
-            }, record);
-        }
-        return backend.bulkSend(bulkRequest);
+                data: record
+            };
+        });
+        return backend.bulkSendImproved(bulkRequest);
     }
 
     function _createSliceRecord(exId, slice, state, error) {

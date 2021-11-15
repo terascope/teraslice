@@ -322,14 +322,14 @@ module.exports = function elasticsearchStorage(backendConfig) {
 
         const type = _type || 'index';
 
-        const indexRequest = {
+        const action = {
             [type]: {
                 _index: indexArg,
                 _type: recordType,
             }
         };
 
-        bulkQueue.push(indexRequest, record);
+        bulkQueue.push({ action, data: type === 'delete' ? undefined : record });
 
         // We only flush once enough records have accumulated for it to make sense.
         if (bulkQueue.length >= bulkSize) {
@@ -377,7 +377,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
     async function bulkSend(bulkRequest) {
         const recordCount = (bulkRequest.length / 2);
 
-        await pRetry(async () => elasticsearch.bulkSend(bulkRequest), {
+        await pRetry(async () => elasticsearch.bulkSendImproved(bulkRequest), {
             reason: `Failure to bulk create "${recordType}"`,
             logError: logger.warn,
             delay: isTest ? 100 : 1000,

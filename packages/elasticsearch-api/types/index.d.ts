@@ -28,7 +28,18 @@ declare namespace elasticsearchAPI {
         remove: (query: es.DeleteDocumentParams) => Promise<es.DeleteDocumentResponse>;
         version: () => Promise<boolean>;
         putTemplate: (template: any, name: string) => Promise<any>;
-        bulkSend: (data: any[]) => Promise<any>;
+        /**
+         * Bulk send actions to the server
+         *
+         * @deprecated use bulkSendImproved instead
+        */
+        bulkSend: (data: Record<string, any>[]) => Promise<any>;
+        /**
+         * The new and improved bulk send with proper retry support
+         *
+         * @returns the number of affected rows
+        */
+        bulkSendImproved: (data: BulkRecord[]) => Promise<number>;
         nodeInfo: (query: any) => Promise<any>;
         nodeStats: (query: any) => Promise<any>;
         buildQuery: (opConfig: Config, msg: any) => es.SearchParams;
@@ -40,5 +51,33 @@ declare namespace elasticsearchAPI {
         verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;
         getESVersion: () => number;
+    }
+
+    /**
+     * This is used for improved bulk sending function
+    */
+    export interface BulkRecord {
+        action: AnyBulkAction;
+        data?: UpdateConfig | DataEntity;
+    }
+
+    /**
+     * This is used for improved bulk sending function
+    */
+    export interface AnyBulkAction  {
+        update?: Partial<BulkActionMetadata>;
+        index?: Partial<BulkActionMetadata>;
+        create?: Partial<BulkActionMetadata>;
+        delete?: Partial<BulkActionMetadata>;
+    }
+
+    /**
+     * This is used for improved bulk sending function
+    */
+    export interface BulkActionMetadata {
+        _index: string;
+        _type: string;
+        _id: string | number;
+        retry_on_conflict?: number;
     }
 }
