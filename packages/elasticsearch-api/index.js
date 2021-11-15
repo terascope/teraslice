@@ -99,7 +99,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
             function _runRequest() {
                 clientBase[endpoint](query)
-                    .then((result) => resolve(result))
+                    .then(resolve)
                     .catch(errHandler);
             }
 
@@ -374,22 +374,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             throw new Error(`Expected bulkSend to receive an array, got ${data} (${getTypeOf(data)})`);
         }
 
-        return new Promise((resolve, reject) => {
-            _bulkSend(data)
-                .then(resolve)
-                .catch((err) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    reject(new TSError(err, {
-                        reason: 'bulk sender error',
-                        context: {
-                            connection,
-                        },
-                    }));
-                });
-        });
+        return Promise.resolve(_bulkSend(data));
     }
 
     function _warn(warnLogger, msg) {
@@ -771,7 +756,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 let timeoutMs = delay - elapsed;
                 if (timeoutMs < 1) timeoutMs = 1;
 
-                setTimeout(resolve, timeoutMs);
+                setTimeout(resolve, timeoutMs, delay);
             }, reject);
         });
     }
