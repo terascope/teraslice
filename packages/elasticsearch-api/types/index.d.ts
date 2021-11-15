@@ -29,17 +29,11 @@ declare namespace elasticsearchAPI {
         version: () => Promise<boolean>;
         putTemplate: (template: any, name: string) => Promise<any>;
         /**
-         * Bulk send actions to the server
-         *
-         * @deprecated use bulkSendImproved instead
-        */
-        bulkSend: (data: Record<string, any>[]) => Promise<any>;
-        /**
          * The new and improved bulk send with proper retry support
          *
          * @returns the number of affected rows
         */
-        bulkSendImproved: (data: BulkRecord[]) => Promise<number>;
+        bulkSend: (data: BulkRecord[]) => Promise<number>;
         nodeInfo: (query: any) => Promise<any>;
         nodeStats: (query: any) => Promise<any>;
         buildQuery: (opConfig: Config, msg: any) => es.SearchParams;

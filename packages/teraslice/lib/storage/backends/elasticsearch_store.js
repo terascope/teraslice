@@ -377,7 +377,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
     async function bulkSend(bulkRequest) {
         const recordCount = (bulkRequest.length / 2);
 
-        await pRetry(async () => elasticsearch.bulkSendImproved(bulkRequest), {
+        await pRetry(async () => elasticsearch.bulkSend(bulkRequest), {
             reason: `Failure to bulk create "${recordType}"`,
             logError: logger.warn,
             delay: isTest ? 100 : 1000,

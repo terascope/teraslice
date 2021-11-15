@@ -73,7 +73,7 @@ async function stateStorage(context) {
                 data: record
             };
         });
-        return backend.bulkSendImproved(bulkRequest);
+        return backend.bulkSend(bulkRequest);
     }
 
     function _createSliceRecord(exId, slice, state, error) {

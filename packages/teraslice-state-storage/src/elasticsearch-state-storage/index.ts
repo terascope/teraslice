@@ -248,7 +248,7 @@ export default class ESCachedStateStorage {
 
         await pMap(chunked, (chunkedData) => {
             const bulkRequest = this._esBulkUpdatePrep(chunkedData);
-            return this.es.bulkSendImproved(bulkRequest);
+            return this.es.bulkSend(bulkRequest);
         }, {
             concurrency: this.concurrency
         });

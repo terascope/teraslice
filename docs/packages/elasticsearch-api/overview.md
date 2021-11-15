@@ -240,24 +240,7 @@ const name = 'logs_template';
 elasticsearch.putTemplate(template, name)
 ```
 
-### bulkSend [DEPRECATED]
-
-Uses the client bulk functionality with exponential back-off retries. Use bulkSendImproved instead
-
-Query requires:
-
-- data  (formatted to work with elasticsearch bulk queries)
-
-```js
-const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-elasticsearch.bulkSend(data)
-  .then(function(){
-      //all done sending data
-   });
-```
-
-
-### bulkSendImproved
+### bulkSend
 
 Uses the client bulk functionality with exponential back-off retries
 
@@ -267,7 +250,7 @@ Query requires:
 
 ```js
 const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-elasticsearch.bulkSendImproved([
+elasticsearch.bulkSend([
      {
         action: {
             index: { _index: 'some_index', _type: 'events', _id: 1 }

@@ -260,93 +260,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         );
     }
 
-    function _filterResponse(data, results) {
-        const retry = [];
-        const { items } = results;
-        let nonRetriableError = false;
-        let reason = '';
-        for (let i = 0; i < items.length; i += 1) {
-            // key could either be create or delete etc, just want the actual data at the value spot
-            const item = Object.values(items[i])[0];
-            if (item.error) {
-                // On a create request if a document exists it's not an error.
-                // are there cases where this is incorrect?
-                if (item.status === DOCUMENT_EXISTS) {
-                    continue;
-                }
-
-                if (item.error.type === 'es_rejected_execution_exception') {
-                    if (i === 0) {
-                        retry.push(data[0], data[1]);
-                    } else {
-                        retry.push(data[i * 2], data[i * 2 + 1]);
-                    }
-                } else if (
-                    item.error.type !== 'document_already_exists_exception'
-                    && item.error.type !== 'document_missing_exception'
-                ) {
-                    nonRetriableError = true;
-                    reason = `${item.error.type}--${item.error.reason}`;
-                    break;
-                }
-            }
-        }
-
-        if (nonRetriableError) {
-            return { data: [], error: true, reason };
-        }
-
-        return { data: retry, error: false };
-    }
-
-    function bulkSend(data) {
-        return new Promise((resolve, reject) => {
-            const retry = _retryFn(_sendData, data, reject);
-
-            function _sendData(formattedData) {
-                return _clientRequest('bulk', { body: formattedData })
-                    .then((results) => {
-                        if (results.errors) {
-                            const response = _filterResponse(formattedData, results);
-
-                            if (response.error) {
-                                reject(new TSError(response.reason, {
-                                    retryable: false
-                                }));
-                            } else if (response.data.length === 0) {
-                                // may get doc already created error, if so just return
-                                resolve(results);
-                            } else {
-                                warning();
-                                retry(response.data);
-                            }
-                        } else {
-                            resolve(results);
-                        }
-                    })
-                    .catch((err) => {
-                        const error = new TSError(err, {
-                            reason: 'bulk sender error',
-                            context: {
-                                connection,
-                            },
-                        });
-
-                        reject(error);
-                    });
-            }
-
-            _sendData(_adjustTypeForEs7(data));
-        });
-    }
-
     /**
      * When the bulk request has errors this will find the actions
      * records to retry.
      *
      * @returns {{ retry: Record<string, any>[], error: boolean, reason?: string }}
     */
-    function _filterResponseImproved(actionRecords, result) {
+    function _filterRetryRecords(actionRecords, result) {
         const retry = [];
         const { items } = result;
 
@@ -422,7 +342,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         const result = await _clientRequest('bulk', { body });
         if (result.errors) {
-            const { retry, error, reason } = _filterResponseImproved(actionRecords, result);
+            const { retry, error, reason } = _filterRetryRecords(actionRecords, result);
 
             if (error) {
                 throw new TSError(reason, {
@@ -449,9 +369,9 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      *
      * @returns {Promise<number>} the number of affected rows
     */
-    function bulkSendImproved(data) {
+    function bulkSend(data) {
         if (!Array.isArray(data)) {
-            throw new Error(`Expected bulkSendImproved to receive an array, got ${data} (${getTypeOf(data)})`);
+            throw new Error(`Expected bulkSend to receive an array, got ${data} (${getTypeOf(data)})`);
         }
 
         return new Promise((resolve, reject) => {
@@ -1266,7 +1186,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         version,
         putTemplate,
         bulkSend,
-        bulkSendImproved,
         nodeInfo,
         nodeStats,
         buildQuery,
