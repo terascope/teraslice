@@ -50,7 +50,7 @@ module.exports = async function analyticsService(context) {
                 time: stats.time[index],
                 memory: stats.memory[index],
             },
-            null,
+            'index',
             esIndex
         ));
 
