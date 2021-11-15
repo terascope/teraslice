@@ -22,7 +22,7 @@
         "bluebird": "^3.7.2"
     },
     "devDependencies": {
-        "@types/elasticsearch": "^5.0.39"
+        "@types/elasticsearch": "^5.0.40"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
