@@ -191,13 +191,17 @@ describe('elasticsearch-api', () => {
         const response = { took: 22, errors: false, items: results };
         if (bulkError) {
             response.errors = true;
-            response.items = results.body.map((obj, index) => {
-                Object.entries(obj).forEach(([key, value]) => {
-                    obj[key] = Object.assign(value, {
+            response.items = results.body.flatMap((obj, index) => {
+                if (!obj.index && !obj.update && !obj.create && !obj.delete) {
+                    // ignore the non-metadata objects
+                    return [];
+                }
+                Object.values(obj).forEach((value) => {
+                    Object.assign(value, {
                         error: { type: bulkError[index] || 'someType', reason: 'someReason' }
                     });
                 });
-                return obj;
+                return [obj];
             });
         }
         return response;
@@ -323,45 +327,25 @@ describe('elasticsearch-api', () => {
         expect(() => {
             api = esApi(client, logger);
         }).not.toThrow();
-        expect(api).toBeDefined();
         expect(typeof api).toEqual('object');
-        expect(api.search).toBeDefined();
         expect(typeof api.search).toEqual('function');
-        expect(api.count).toBeDefined();
         expect(typeof api.count).toEqual('function');
-        expect(api.get).toBeDefined();
         expect(typeof api.get).toEqual('function');
-        expect(api.index).toBeDefined();
         expect(typeof api.index).toEqual('function');
-        expect(api.indexWithId).toBeDefined();
         expect(typeof api.indexWithId).toEqual('function');
-        expect(api.create).toBeDefined();
         expect(typeof api.create).toEqual('function');
-        expect(api.update).toBeDefined();
         expect(typeof api.update).toEqual('function');
-        expect(api.remove).toBeDefined();
         expect(typeof api.remove).toEqual('function');
-        expect(api.version).toBeDefined();
         expect(typeof api.version).toEqual('function');
-        expect(api.putTemplate).toBeDefined();
         expect(typeof api.putTemplate).toEqual('function');
-        expect(api.bulkSend).toBeDefined();
         expect(typeof api.bulkSend).toEqual('function');
-        expect(api.nodeInfo).toBeDefined();
         expect(typeof api.nodeInfo).toEqual('function');
-        expect(api.nodeStats).toBeDefined();
         expect(typeof api.nodeStats).toEqual('function');
-        expect(api.buildQuery).toBeDefined();
         expect(typeof api.buildQuery).toEqual('function');
-        expect(api.indexExists).toBeDefined();
         expect(typeof api.indexExists).toEqual('function');
-        expect(api.indexCreate).toBeDefined();
         expect(typeof api.indexCreate).toEqual('function');
-        expect(api.indexRefresh).toBeDefined();
         expect(typeof api.indexRefresh).toEqual('function');
-        expect(api.indexRecovery).toBeDefined();
         expect(typeof api.indexRecovery).toEqual('function');
-        expect(api.indexSetup).toBeDefined();
         expect(typeof api.indexSetup).toEqual('function');
     });
 
@@ -717,30 +701,48 @@ describe('elasticsearch-api', () => {
 
     it('can call bulkSend', async () => {
         const api = esApi(client, logger);
-        const myBulkData = [
-            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
-            { title: 'foo' },
-            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
-        ];
 
-        const results = await api.bulkSend(myBulkData);
-        return expect(results).toBeTruthy();
+        const result = await api.bulkSend([
+            {
+                action: {
+                    index: { _index: 'some_index', _type: 'events', _id: 1 }
+                },
+                data: { title: 'foo' }
+            },
+            {
+                action: {
+                    delete: { _index: 'some_index', _type: 'events', _id: 5 }
+                }
+            }
+        ]);
+        expect(bulkData).toEqual({
+            body: [
+                { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+                { title: 'foo' },
+                { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
+            ]
+        });
+        return expect(result).toBe(2);
     });
 
-    it('can remove type from bulk send', async () => {
+    it('can remove type from bulkSend', async () => {
         const es7client = cloneDeep(client);
 
         es7client.transport._config = { apiVersion: '7.0' };
 
         const api = esApi(es7client, logger);
 
-        const myBulkData = [
-            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
-            { title: 'foo' },
-            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
-        ];
-
-        await api.bulkSend(myBulkData);
+        await api.bulkSend([{
+            action: {
+                index: { _index: 'some_index', _type: 'events', _id: 1 }
+            },
+            data: { title: 'foo' }
+        },
+        {
+            action: {
+                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+            }
+        }]);
         expect(bulkData).toEqual({
             body: [
                 { index: { _index: 'some_index', _id: 1 } },
@@ -750,20 +752,24 @@ describe('elasticsearch-api', () => {
         });
     });
 
-    it('will not remove _type from record in a bulk send', async () => {
+    it('will not remove _type from record in a bulkSend', async () => {
         const es7client = cloneDeep(client);
 
         es7client.transport._config = { apiVersion: '7.0' };
 
         const api = esApi(es7client, logger);
 
-        const myBulkData = [
-            { delete: { _index: 'some_index', _type: 'events', _id: 5 } },
-            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
-            { title: 'foo', _type: 'doc', name: 'joe' }
-        ];
-
-        await api.bulkSend(myBulkData);
+        await api.bulkSend([{
+            action: {
+                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+            },
+        },
+        {
+            action: {
+                index: { _index: 'some_index', _type: 'events', _id: 1 }
+            },
+            data: { title: 'foo', _type: 'doc', name: 'joe' }
+        }]);
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
@@ -773,20 +779,25 @@ describe('elasticsearch-api', () => {
         });
     });
 
-    it('will not err if no _type in es7 bulk request metadata', async () => {
+    it('will not err if no _type in es7 bulkSend request metadata', async () => {
         const es7client = cloneDeep(client);
 
         es7client.transport._config = { apiVersion: '7.0' };
 
         const api = esApi(es7client, logger);
 
-        const myBulkData = [
-            { delete: { _index: 'some_index', _id: 5 } },
-            { index: { _index: 'some_index', _id: 1 } },
-            { title: 'foo', _type: 'doc', name: 'joe' }
-        ];
+        await api.bulkSend([{
+            action: {
+                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+            },
+        },
+        {
+            action: {
+                index: { _index: 'some_index', _type: 'events', _id: 1 }
+            },
+            data: { title: 'foo', _type: 'doc', name: 'joe' }
+        }]);
 
-        await api.bulkSend(myBulkData);
         expect(bulkData).toEqual({
             body: [
                 { delete: { _index: 'some_index', _id: 5 } },
@@ -798,11 +809,17 @@ describe('elasticsearch-api', () => {
 
     it('can call bulkSend with errors', async () => {
         const api = esApi(client, logger);
-        const myBulkData = [
-            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
-            { title: 'foo' },
-            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
-        ];
+        const myBulkData = [{
+            action: {
+                index: { _index: 'some_index', _type: 'events', _id: 1 }
+            },
+            data: { title: 'foo' }
+        },
+        {
+            action: {
+                delete: { _index: 'some_index', _type: 'events', _id: 5 }
+            }
+        }];
 
         bulkError = [
             'es_rejected_execution_exception',

@@ -250,8 +250,20 @@ Query requires:
 
 ```js
 const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-elasticsearch.bulkSend(data)
-  .then(function(){
+elasticsearch.bulkSend([
+     {
+        action: {
+            index: { _index: 'some_index', _type: 'events', _id: 1 }
+        },
+        data: { title: 'foo' }
+    },
+    {
+        action: {
+            delete: { _index: 'some_index', _type: 'events', _id: 5 }
+        }
+    }
+])
+  .then(() => {
       //all done sending data
    });
 ```

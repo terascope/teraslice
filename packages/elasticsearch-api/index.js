@@ -19,7 +19,8 @@ const {
     random,
     cloneDeep,
     DataEntity,
-    isDeepEqual
+    isDeepEqual,
+    getTypeOf
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -98,7 +99,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
             function _runRequest() {
                 clientBase[endpoint](query)
-                    .then((result) => resolve(result))
+                    .then(resolve)
                     .catch(errHandler);
             }
 
@@ -259,12 +260,20 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         );
     }
 
-    function _filterResponse(data, results) {
+    /**
+     * When the bulk request has errors this will find the actions
+     * records to retry.
+     *
+     * @returns {{ retry: Record<string, any>[], error: boolean, reason?: string }}
+    */
+    function _filterRetryRecords(actionRecords, result) {
         const retry = [];
-        const { items } = results;
+        const { items } = result;
+
         let nonRetriableError = false;
         let reason = '';
-        for (let i = 0; i < items.length; i += 1) {
+
+        for (let i = 0; i < items.length; i++) {
             // key could either be create or delete etc, just want the actual data at the value spot
             const item = Object.values(items[i])[0];
             if (item.error) {
@@ -275,11 +284,14 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 }
 
                 if (item.error.type === 'es_rejected_execution_exception') {
-                    if (i === 0) {
-                        retry.push(data[0], data[1]);
-                    } else {
-                        retry.push(data[i * 2], data[i * 2 + 1]);
+                    if (actionRecords[i] == null) {
+                        // this error should not happen in production,
+                        // only in tests where the bulk function is mocked
+                        throw new Error(`Invalid item index (${i}), not found in bulk send records (length: ${actionRecords.length})`);
                     }
+                    // the index in the item list will match the index in the
+                    // input records
+                    retry.push(actionRecords[i]);
                 } else if (
                     item.error.type !== 'document_already_exists_exception'
                     && item.error.type !== 'document_missing_exception'
@@ -292,51 +304,77 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         if (nonRetriableError) {
-            return { data: [], error: true, reason };
+            return { retry: [], error: true, reason };
         }
 
-        return { data: retry, error: false };
+        return { retry, error: false };
     }
 
-    function bulkSend(data) {
-        return new Promise((resolve, reject) => {
-            const retry = _retryFn(_sendData, data, reject);
+    function getFirstKey(obj) {
+        return Object.keys(obj)[0];
+    }
 
-            function _sendData(formattedData) {
-                return _clientRequest('bulk', { body: formattedData })
-                    .then((results) => {
-                        if (results.errors) {
-                            const response = _filterResponse(formattedData, results);
-
-                            if (response.error) {
-                                reject(new TSError(response.reason, {
-                                    retryable: false
-                                }));
-                            } else if (response.data.length === 0) {
-                                // may get doc already created error, if so just return
-                                resolve(results);
-                            } else {
-                                warning();
-                                retry(response.data);
-                            }
-                        } else {
-                            resolve(results);
-                        }
-                    })
-                    .catch((err) => {
-                        const error = new TSError(err, {
-                            reason: 'bulk sender error',
-                            context: {
-                                connection,
-                            },
-                        });
-
-                        reject(error);
-                    });
+    /**
+     * @param data {Array<{ action: data }>}
+     * @returns {Promise<number>}
+    */
+    async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
+        const body = actionRecords.flatMap(({ action, data }) => {
+            if (action == null) {
+                throw new Error('Bulk send record is missing the action property');
+            }
+            if (getESVersion() >= 7) {
+                const actionKey = getFirstKey(action);
+                const { _type, ...withoutTypeAction } = action[actionKey];
+                // if data is specified return both
+                return data ? [{
+                    ...action,
+                    [actionKey]: withoutTypeAction
+                }, data] : [{
+                    ...action,
+                    [actionKey]: withoutTypeAction
+                }];
             }
 
-            _sendData(_adjustTypeForEs7(data));
+            // if data is specified return both
+            return data ? [action, data] : [action];
         });
+
+        const result = await _clientRequest('bulk', { body });
+        if (result.errors) {
+            const { retry, error, reason } = _filterRetryRecords(actionRecords, result);
+
+            if (error) {
+                throw new TSError(reason, {
+                    retryable: false
+                });
+            }
+
+            if (retry.length === 0) {
+                return previousCount;
+            }
+
+            warning();
+
+            const nextRetryDelay = await _awaitRetry(previousRetryDelay);
+            const diff = actionRecords.length - retry.length;
+            return _bulkSend(retry, previousCount + diff, nextRetryDelay);
+        }
+
+        return actionRecords.length;
+    }
+
+    /**
+     * The new and improved bulk send with proper retry support
+     *
+     * @returns {Promise<number>} the number of affected rows
+    */
+    function bulkSend(data) {
+        if (!Array.isArray(data)) {
+            throw new Error(`Expected bulkSend to receive an array, got ${data} (${getTypeOf(data)})`);
+        }
+
+        return Promise.resolve(_bulkSend(data));
     }
 
     function _warn(warnLogger, msg) {
@@ -622,6 +660,8 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function _removeTypeFromBulkRequest(query) {
+        if (getESVersion() < 7) return query;
+
         return query.map((queryItem) => {
             if (isSimpleObject(queryItem)) {
                 // get the metadata and ignore the record
@@ -696,17 +736,29 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return (_data) => {
             const args = _data || data;
 
+            _awaitRetry(delay)
+                .then((newDelay) => {
+                    delay = newDelay;
+                    fn(args);
+                })
+                .catch(reject);
+        };
+    }
+
+    /**
+     * @returns {Promise<number>} the delayed time
+    */
+    async function _awaitRetry(previousDelay = 0) {
+        return new Promise((resolve, reject) => {
             waitForClient((elapsed) => {
-                delay = getBackoffDelay(delay, 2, retryLimit, retryStart);
+                const delay = getBackoffDelay(previousDelay, 2, retryLimit, retryStart);
 
                 let timeoutMs = delay - elapsed;
                 if (timeoutMs < 1) timeoutMs = 1;
 
-                setTimeout(() => {
-                    fn(args);
-                }, timeoutMs);
+                setTimeout(resolve, timeoutMs, delay);
             }, reject);
-        };
+        });
     }
 
     function _errorHandler(fn, data, reject, fnName = '->unknown()') {

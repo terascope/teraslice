@@ -5,7 +5,7 @@ import {
     chunk,
     pMap
 } from '@terascope/utils';
-import esApi, { Client } from '@terascope/elasticsearch-api';
+import esApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
 
@@ -230,20 +230,17 @@ export default class ESCachedStateStorage {
         return this.es.mget(request);
     }
 
-    private _esBulkUpdatePrep(dataArray: DataEntity[]) {
-        const bulkRequest: ESBulkQuery[] = [];
-
-        for (const doc of dataArray) {
-            bulkRequest.push({
+    private _esBulkUpdatePrep(dataArray: DataEntity[]): BulkRecord[] {
+        return dataArray.map((doc) => ({
+            action: {
                 index: {
                     _index: this.index,
                     _type: this.type,
                     _id: this.getIdentifier(doc, '_key'),
                 },
-            }, doc);
-        }
-
-        return bulkRequest;
+            },
+            data: doc
+        }));
     }
 
     private async _esBulkUpdate(docArray: DataEntity[]): Promise<void> {
