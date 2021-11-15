@@ -23,7 +23,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.25.0",
+        "@terascope/elasticsearch-api": "^3.0.0",
         "@terascope/utils": "^0.43.3"
     },
     "engines": {
