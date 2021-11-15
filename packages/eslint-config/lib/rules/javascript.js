@@ -57,6 +57,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'no-empty-function': 'off',
     'prefer-object-spread': 'off',
+    'function-paren-newline': 'off',
     'lines-between-class-members': [
         'error',
         'always',

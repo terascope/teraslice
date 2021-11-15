@@ -6,10 +6,10 @@ export function newMsgId(): Promise<string> {
     return nanoid(10);
 }
 
-export function formatURL(hostname = os.hostname(), port: number): string {
+export function formatURL(hostname: string, port: number): string {
     let formatOptions;
     try {
-        const parsed = new url.URL(hostname);
+        const parsed = new url.URL(hostname ?? os.hostname());
         formatOptions = Object.assign(parsed, {
             port,
         });
@@ -17,7 +17,7 @@ export function formatURL(hostname = os.hostname(), port: number): string {
         formatOptions = {
             protocol: 'http:',
             slashes: true,
-            hostname,
+            hostname: hostname ?? os.hostname(),
             port,
         };
     }

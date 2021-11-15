@@ -180,16 +180,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      */
     async restrictSearchQuery(
         query: string,
-        opts: i.RestrictSearchQueryOptions = {},
+        opts?: i.RestrictSearchQueryOptions,
         _overrideParsedQuery?: p.Node
     ): Promise<SearchParams> {
         const {
             params: _params = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
-        } = opts;
+        } = opts ?? {};
 
-        const variables = Object.assign({}, this.variables, opts.variables);
+        const variables = Object.assign({}, this.variables, opts?.variables ?? {});
 
         if (_params._source) {
             throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/eslint-config",
     "displayName": "Terascope ESLint Config",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "A shared eslint config based on eslint-config-airbnb",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/eslint-config#readme",
     "bugs": {
@@ -19,17 +19,17 @@
     "dependencies": {
         "@typescript-eslint/eslint-plugin": "^5.3.1",
         "@typescript-eslint/parser": "^5.3.1",
-        "eslint-config-airbnb": "^18.2.1",
-        "eslint-config-airbnb-base": "^14.2.0",
+        "eslint-config-airbnb": "^19.0.0",
+        "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "~2.25.3",
         "eslint-plugin-jest": "^25.2.4",
-        "eslint-plugin-jsx-a11y": "^6.4.1",
+        "eslint-plugin-jsx-a11y": "^6.5.1",
         "eslint-plugin-react": "^7.27.0",
-        "eslint-plugin-react-hooks": "^4.2.0"
+        "eslint-plugin-react-hooks": "^4.3.0"
     },
     "devDependencies": {},
     "peerDependencies": {
-        "eslint": ">=8.1.0"
+        "eslint": ">=8.2.0"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",

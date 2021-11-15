@@ -42,11 +42,10 @@ export default class extends Generator {
 
     default(): void {
         // copy over root files
-        this.fs.copyTpl(this.templatePath('package.json'), this.destinationPath('package.json'),
-            {
-                name: this.answers.name,
-                description: this.answers.description
-            });
+        this.fs.copyTpl(this.templatePath('package.json'), this.destinationPath('package.json'), {
+            name: this.answers.name,
+            description: this.answers.description
+        });
 
         this.fs.copyTpl(this.templatePath('eslintrc.json'), this.destinationPath('.eslintrc'), {});
         this.fs.copyTpl(this.templatePath('README.md'), this.destinationPath('README.md'), {

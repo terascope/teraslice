@@ -102,7 +102,7 @@ export class DataEntity<
      */
     static fromBuffer<T = Record<string, any>, M = Record<string, any>>(
         input: Buffer|string,
-        opConfig: i.EncodingConfig = {},
+        opConfig?: i.EncodingConfig,
         metadata?: M
     ): DataEntity<T, M> {
         const { _encoding = i.DataEncoding.JSON } = opConfig || {};

@@ -11,14 +11,17 @@ import { BigMap } from './big-map';
 * */
 export class FlexibleArray {
     constructor() {
+        // eslint-disable-next-line no-constructor-return
         return [];
     }
 }
 
 export class BigLRUMap<V> extends LRUMap<string|number, V> {
-    constructor(mapSize: number,
+    constructor(
+        mapSize: number,
         keyArray: FlexibleArray|TypedArray = FlexibleArray,
-        valueArray: FlexibleArray|TypedArray = FlexibleArray) {
+        valueArray: FlexibleArray|TypedArray = FlexibleArray
+    ) {
         super(keyArray as any, valueArray as any, mapSize);
         // @ts-expect-error
         this.items = new BigMap();

@@ -51,7 +51,7 @@ export function parse(input: string): Nodes {
  * @returns return the parsed expression
 */
 export function parseExpression(
-    input: string, startPosition = 0, isInTemplate?: boolean
+    input: string, startPosition = 0, isInTemplate = false
 ): ExpressionNode {
     let expression = '';
     let terminated = false;

@@ -72,7 +72,7 @@
         "@types/yeoman-generator": "^5.2.1",
         "decompress": "^4.2.1",
         "jest-fixtures": "^0.6.0",
-        "nock": "^13.2.0",
+        "nock": "^13.2.1",
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.7.0"
     },

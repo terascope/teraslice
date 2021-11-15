@@ -417,7 +417,7 @@ export function toSafeString(input: string): string {
 
     const whitespaceChar = s.includes('_') ? '_' : '-';
     s = s.replace(/\s/g, whitespaceChar);
-    const reg = new RegExp('[.+#*?"<>|/\\\\]', 'g');
+    const reg = /[.+#*?"<>|/\\\\]/g;
     s = s.replace(reg, '');
 
     return s;

@@ -24,6 +24,7 @@ describe('Regex Utils', () => {
             ['/d.*ta/', 'data', 'data'],
             [/d.*ta/, 'other', null],
             ['/d.*ta/', 'other', null],
+            // eslint-disable-next-line prefer-regex-literals
             [new RegExp('d.*ta'), 'other', null],
         ])('should match regex %p to %o', (input: RegExp|string, value: string, expected: any) => {
             expect(match(input, value)).toEqual(expected);
@@ -33,6 +34,7 @@ describe('Regex Utils', () => {
     describe('matchAll', () => {
         test.each([
             ['/<(.*?)>/', '<tag1> something <tag2>', ['tag1', 'tag2']],
+            // eslint-disable-next-line prefer-regex-literals
             [new RegExp('<(.*?)>'), '<tag1> something <tag2>', ['tag1', 'tag2']],
             ['/<(.*?)>/gmi', '<tag1> something <tag2>', ['tag1', 'tag2']],
             [/<(.*?)>/gmi, '<tag1> something <tag2>', ['tag1', 'tag2']],

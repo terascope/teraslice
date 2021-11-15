@@ -60,7 +60,7 @@ export default class Client {
     private async _makeRequest<T = any>(
         method: 'get'|'post'|'put'|'delete',
         endpoint: string,
-        searchOptions: RequestOptions|SearchOptions = {},
+        searchOptions?: RequestOptions|SearchOptions,
         data?: any
     ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
@@ -72,7 +72,7 @@ export default class Client {
 
         let options: RequestOptions;
         if (data != null && method.toLowerCase() !== 'get') {
-            options = getRequestOptionsWithData(data, searchOptions);
+            options = getRequestOptionsWithData(data, searchOptions ?? {});
         } else {
             options = { ...searchOptions };
         }

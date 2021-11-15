@@ -161,13 +161,13 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    async function indexWithId(recordId, record, indexArg = indexName, timeout) {
+    async function indexWithId(recordId, record, indexArg, timeout) {
         validateIdAndRecord(recordId, record);
 
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
 
         const query = {
-            index: indexArg,
+            index: indexArg || indexName,
             type: recordType,
             id: recordId,
             body: record,

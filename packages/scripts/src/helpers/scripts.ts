@@ -117,7 +117,7 @@ export async function setup(): Promise<void> {
 
 export async function yarnRun(
     script: string,
-    args: string[] = [],
+    args?: string[],
     cwd?: string,
     env?: Record<string, string>,
     log?: boolean
@@ -127,7 +127,7 @@ export async function yarnRun(
     const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
     if (!hasScript) return;
 
-    const _args = ['run', script, ...args];
+    const _args = ['run', script, ...(args ?? [])];
     if (log) {
         signale.info(`running yarn ${_args.join(' ')}...`);
     }
@@ -233,7 +233,9 @@ export type DockerRunOptions = {
     mount?: string
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag = 'latest', ignoreMount: boolean, debug?: boolean): Promise<() => void> {
+export async function dockerRun(
+    opt: DockerRunOptions, tag?: string, ignoreMount?: boolean, debug?: boolean
+): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
@@ -276,7 +278,7 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', ignoreMou
     }
 
     args.push('--name', opt.name);
-    args.push(`${opt.image}:${tag}`);
+    args.push(`${opt.image}:${tag ?? 'latest'}`);
 
     if (opt.args) {
         args.push(...opt.args);
@@ -363,13 +365,13 @@ export async function dockerContainerReady(name: string, upFor: number): Promise
 
 export async function dockerBuild(
     tag: string,
-    cacheFrom: string[] = [],
+    cacheFrom?: string[],
     target?: string,
     buildArg?: string
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
 
-    cacheFrom.forEach((image) => {
+    cacheFrom?.forEach((image) => {
         cacheFromArgs.push('--cache-from', image);
     });
 
