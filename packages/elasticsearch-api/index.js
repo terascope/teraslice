@@ -20,8 +20,10 @@ const {
     cloneDeep,
     DataEntity,
     isDeepEqual,
-    getTypeOf
+    getTypeOf,
+    isProd
 } = require('@terascope/utils');
+const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
 
@@ -264,7 +266,12 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * When the bulk request has errors this will find the actions
      * records to retry.
      *
-     * @returns {{ retry: Record<string, any>[], error: boolean, reason?: string }}
+     * @returns {{
+     *    retry: Record<string, any>[],
+     *    successful: number,
+     *    error: boolean,
+     *    reason?: string
+     * }}
     */
     function _filterRetryRecords(actionRecords, result) {
         const retry = [];
@@ -272,6 +279,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         let nonRetriableError = false;
         let reason = '';
+        let successful = 0;
 
         for (let i = 0; i < items.length; i++) {
             // key could either be create or delete etc, just want the actual data at the value spot
@@ -300,14 +308,18 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
                     break;
                 }
+            } else if (item.status == null || item.status < 400) {
+                successful++;
             }
         }
 
         if (nonRetriableError) {
-            return { retry: [], error: true, reason };
+            return {
+                retry: [], successful, error: true, reason
+            };
         }
 
-        return { retry, error: false };
+        return { retry, successful, error: false };
     }
 
     function getFirstKey(obj) {
@@ -319,49 +331,59 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * @returns {Promise<number>}
     */
     async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
-        const body = actionRecords.flatMap(({ action, data }) => {
-            if (action == null) {
-                throw new Error('Bulk send record is missing the action property');
+        const body = actionRecords.flatMap((record, index) => {
+            if (record.action == null) {
+                let dbg = '';
+                if (!isProd) {
+                    dbg = `, dbg: ${inspect({ record, index })}`;
+                }
+                throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
+
             if (getESVersion() >= 7) {
-                const actionKey = getFirstKey(action);
-                const { _type, ...withoutTypeAction } = action[actionKey];
+                const actionKey = getFirstKey(record.action);
+                const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
-                return data ? [{
-                    ...action,
+                return record.data ? [{
+                    ...record.action,
                     [actionKey]: withoutTypeAction
-                }, data] : [{
-                    ...action,
+                }, record.data] : [{
+                    ...record.action,
                     [actionKey]: withoutTypeAction
                 }];
             }
 
             // if data is specified return both
-            return data ? [action, data] : [action];
+            return record.data ? [record.action, record.data] : [record.action];
         });
 
         const result = await _clientRequest('bulk', { body });
-        if (result.errors) {
-            const { retry, error, reason } = _filterRetryRecords(actionRecords, result);
 
-            if (error) {
-                throw new TSError(reason, {
-                    retryable: false
-                });
-            }
-
-            if (retry.length === 0) {
-                return previousCount;
-            }
-
-            warning();
-
-            const nextRetryDelay = await _awaitRetry(previousRetryDelay);
-            const diff = actionRecords.length - retry.length;
-            return _bulkSend(retry, previousCount + diff, nextRetryDelay);
+        if (!result.errors) {
+            return result.items.reduce((c, item) => {
+                const [value] = Object.values(item);
+                // ignore non-successful status codes
+                if (value.status != null && value.status >= 400) return c;
+                return c + 1;
+            }, 0);
         }
 
-        return actionRecords.length;
+        const {
+            retry, successful, error, reason
+        } = _filterRetryRecords(actionRecords, result);
+
+        if (error) {
+            throw new Error(`bulk send error: ${reason}`);
+        }
+
+        if (retry.length === 0) {
+            return previousCount + successful;
+        }
+
+        warning();
+
+        const nextRetryDelay = await _awaitRetry(previousRetryDelay);
+        return _bulkSend(retry, previousCount + successful, nextRetryDelay);
     }
 
     /**

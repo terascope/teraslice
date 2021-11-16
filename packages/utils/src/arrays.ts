@@ -18,7 +18,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 }
 
 /** A simplified implementation of lodash castArray */
-export function castArray<T>(input: T|undefined|null|T[]|(readonly T[])): T[] {
+export function castArray<T>(input: T|undefined|null|(T[])|(readonly T[])): T[] {
     if (input == null) return [];
     if (isArrayLike(input)) return input;
     if (input instanceof Set) return [...input];
@@ -29,10 +29,10 @@ export function castArray<T>(input: T|undefined|null|T[]|(readonly T[])): T[] {
  * Concat and unique the items in the array
  * Any non-array value will be converted to an array
 */
-export function concat<T>(arr: T| T[], arr1?: T|T[]): readonly T[];
+export function concat<T>(arr: T|(T[]), arr1?: T|(T[])): readonly T[];
 export function concat<T>(arr: readonly T[], arr1?: readonly T[]): readonly T[];
-export function concat<T>(arr: readonly T[], arr1?: T|T[]): readonly T[];
-export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
+export function concat<T>(arr: readonly T[], arr1?: T|(T[])): readonly T[];
+export function concat<T>(arr: T|(T[]), arr1?: T|(T[])): T[] {
     return uniq(
         castArray(arr)
             .concat(arr1 ? castArray(arr1) : []),
@@ -126,21 +126,45 @@ export function* timesIter<T>(n: number, fn?: (index: number) => T): Iterable<nu
 }
 
 /** Chunk an array into specific sizes */
-export function chunk<T>(dataArray: T[]|Set<T>|readonly T[], size: number): T[][] {
-    if (size < 1) return isArrayLike(dataArray) ? [dataArray] : [[...dataArray]];
-    const results: T[][] = [];
-    let chunked: T[] = [];
+export function chunk<T>(dataArray: Iterable<T>, size: number): T[][] {
+    return Array.from(chunkIter(dataArray, size));
+}
+
+/** Chunk an array into specific size, by using an iterator */
+export function* chunkIter<T>(dataArray: Iterable<T>, size: number): Iterable<T[]> {
+    if (size < 1) {
+        throw new RangeError(`Expected chunk size to be >0, got ${size}`);
+    }
+    if (isArrayLike(dataArray)) {
+        yield* _chunkArrayIterator(dataArray, size);
+        return;
+    }
+
+    let batch: T[] = [];
 
     for (const data of dataArray) {
-        chunked.push(data);
-        if (chunked.length === size) {
-            results.push(chunked);
-            chunked = [];
+        batch.push(data);
+        if (batch.length === size) {
+            yield batch;
+            batch = [];
         }
     }
 
-    if (chunked.length > 0) results.push(chunked);
-    return results;
+    if (batch.length) {
+        yield batch;
+    }
+}
+
+/**
+ * This is an optimization for array like chunking
+*/
+function* _chunkArrayIterator<T>(arr: T[], size: number): Iterable<T[]> {
+    for (let x = 0; x < Math.ceil(arr.length / size); x++) {
+        const start = x * size;
+        const end = start + size;
+
+        yield arr.slice(start, end);
+    }
 }
 
 /** Safely check if an array, object, map, set has a key */
@@ -159,7 +183,7 @@ export function includes(input: unknown, key: string): boolean {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T | T[]|(readonly T[])): T|undefined {
+export function getFirst<T>(input: T|(T[])|(readonly T[])): T|undefined {
     return castArray(input)[0];
 }
 
@@ -167,7 +191,7 @@ export function getFirst<T>(input: T | T[]|(readonly T[])): T|undefined {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getLast<T>(input: T | T[]|(readonly T[])): T|undefined {
+export function getLast<T>(input: T|(T[])|(readonly T[])): T|undefined {
     return castArray(input).slice(-1)[0];
 }
 

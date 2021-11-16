@@ -610,6 +610,35 @@ class TestClient {
 
     async bulk(request: BulkRequest) {
         this._bulkRequest = request.body;
-        return request;
+        let i = -1;
+        return {
+            errors: false,
+            items: request.body.flatMap((obj: Record<string, any>) => {
+                if (!obj.index && !obj.update && !obj.create && !obj.delete) {
+                    // ignore the non-metadata objects
+                    return [];
+                }
+
+                i++;
+                const [key, value] = Object.entries(obj)[0];
+                return [{
+                    [key]: {
+                        _index: value._index,
+                        _type: value._type,
+                        _id: String(i),
+                        _version: 1,
+                        result: `${key}d`,
+                        _shards: {
+                            total: 2,
+                            successful: 1,
+                            failed: 0
+                        },
+                        status: 200,
+                        _seq_no: 2,
+                        _primary_term: 3
+                    }
+                }];
+            })
+        };
     }
 }
