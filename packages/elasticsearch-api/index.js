@@ -20,8 +20,10 @@ const {
     cloneDeep,
     DataEntity,
     isDeepEqual,
-    getTypeOf
+    getTypeOf,
+    isProd
 } = require('@terascope/utils');
+const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
 
@@ -306,7 +308,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
                     break;
                 }
-            } else if (item.status !== 404) {
+            } else if (item.status == null || item.status < 400) {
                 successful++;
             }
         }
@@ -329,56 +331,59 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * @returns {Promise<number>}
     */
     async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
-        const body = actionRecords.flatMap(({ action, data }) => {
-            if (action == null) {
-                throw new Error('Bulk send record is missing the action property');
+        const body = actionRecords.flatMap((record, index) => {
+            if (record.action == null) {
+                let dbg = '';
+                if (!isProd) {
+                    dbg = `, dbg: ${inspect({ record, index })}`;
+                }
+                throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
+
             if (getESVersion() >= 7) {
-                const actionKey = getFirstKey(action);
-                const { _type, ...withoutTypeAction } = action[actionKey];
+                const actionKey = getFirstKey(record.action);
+                const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
-                return data ? [{
-                    ...action,
+                return record.data ? [{
+                    ...record.action,
                     [actionKey]: withoutTypeAction
-                }, data] : [{
-                    ...action,
+                }, record.data] : [{
+                    ...record.action,
                     [actionKey]: withoutTypeAction
                 }];
             }
 
             // if data is specified return both
-            return data ? [action, data] : [action];
+            return record.data ? [record.action, record.data] : [record.action];
         });
 
         const result = await _clientRequest('bulk', { body });
 
-        if (result.errors) {
-            const {
-                retry, successful, error, reason
-            } = _filterRetryRecords(actionRecords, result);
-
-            if (error) {
-                throw new TSError(reason, {
-                    retryable: false
-                });
-            }
-
-            if (retry.length === 0) {
-                return previousCount;
-            }
-
-            warning();
-
-            const nextRetryDelay = await _awaitRetry(previousRetryDelay);
-            const diff = successful - retry.length;
-            return _bulkSend(retry, previousCount + diff, nextRetryDelay);
+        if (!result.errors) {
+            return result.items.reduce((c, item) => {
+                const [value] = Object.values(item);
+                // ignore non-successful status codes
+                if (value.status != null && value.status >= 400) return c;
+                return c + 1;
+            }, 0);
         }
 
-        return result.items.reduce((c, item) => {
-            // ignore 404 and items with errors (even though that shouldn't really happen)
-            if (item.error || item.status === 404) return c;
-            return c + 1;
-        }, 0);
+        const {
+            retry, successful, error, reason
+        } = _filterRetryRecords(actionRecords, result);
+
+        if (error) {
+            throw new Error(`bulk send error: ${reason}`);
+        }
+
+        if (retry.length === 0) {
+            return previousCount + successful;
+        }
+
+        warning();
+
+        const nextRetryDelay = await _awaitRetry(previousRetryDelay);
+        return _bulkSend(retry, previousCount + successful, nextRetryDelay);
     }
 
     /**

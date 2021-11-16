@@ -1,7 +1,9 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { debugLogger, cloneDeep, DataEntity } = require('@terascope/utils');
+const {
+    debugLogger, cloneDeep, DataEntity, isEmpty
+} = require('@terascope/utils');
 const esApi = require('..');
 
 describe('elasticsearch-api', () => {
@@ -189,19 +191,63 @@ describe('elasticsearch-api', () => {
 
     function createBulkResponse(results) {
         const response = { took: 22, errors: false, items: results };
-        if (bulkError) {
+        if (!isEmpty(bulkError)) {
             response.errors = true;
-            response.items = results.body.flatMap((obj, index) => {
+            let i = -1;
+            response.items = results.body.flatMap((obj) => {
                 if (!obj.index && !obj.update && !obj.create && !obj.delete) {
                     // ignore the non-metadata objects
                     return [];
                 }
-                Object.values(obj).forEach((value) => {
-                    Object.assign(value, {
-                        error: { type: bulkError[index] || 'someType', reason: 'someReason' }
-                    });
-                });
-                return [obj];
+                i++;
+                const [key, value] = Object.entries(obj)[0];
+                return [{
+                    [key]: {
+                        _index: value._index,
+                        _type: value._type,
+                        _id: String(i),
+                        _version: 1,
+                        result: `${key}d`,
+                        error: { type: bulkError[i] || 'someType', reason: 'someReason' },
+                        _shards: {
+                            total: 2,
+                            successful: 1,
+                            failed: 0
+                        },
+                        status: 400,
+                        _seq_no: 2,
+                        _primary_term: 3
+                    }
+                }];
+            });
+        } else {
+            response.errors = false;
+            let i = -1;
+            response.items = results.body.flatMap((obj) => {
+                if (!obj.index && !obj.update && !obj.create && !obj.delete) {
+                    // ignore the non-metadata objects
+                    return [];
+                }
+
+                i++;
+                const [key, value] = Object.entries(obj)[0];
+                return [{
+                    [key]: {
+                        _index: value._index,
+                        _type: value._type,
+                        _id: String(i),
+                        _version: 1,
+                        result: `${key}d`,
+                        _shards: {
+                            total: 2,
+                            successful: 1,
+                            failed: 0
+                        },
+                        status: 200,
+                        _seq_no: 2,
+                        _primary_term: 3
+                    }
+                }];
             });
         }
         return response;
@@ -824,27 +870,20 @@ describe('elasticsearch-api', () => {
         bulkError = [
             'es_rejected_execution_exception',
             'es_rejected_execution_exception',
-            'es_rejected_execution_exception'
         ];
 
-        const [results] = await Promise.all([
-            api.bulkSend(myBulkData),
-            waitFor(20, () => {
-                bulkError = false;
-            })
-        ]);
+        waitFor(20, () => {
+            bulkError = false;
+        });
+        const result = await api.bulkSend(myBulkData);
 
-        expect(results).toBeTruthy();
-        bulkError = ['some_thing_else', 'some_thing_else', 'some_thing_else'];
+        expect(result).toBe(2);
 
-        return expect(
-            Promise.all([
-                api.bulkSend(myBulkData),
-                waitFor(20, () => {
-                    bulkError = false;
-                })
-            ])
-        ).rejects.toThrow(/some_thing_else--someReason/);
+        bulkError = ['some_thing_else', 'some_thing_else'];
+
+        await expect(
+            api.bulkSend(myBulkData)
+        ).rejects.toThrow('bulk send error: some_thing_else--someReason');
     });
 
     it('can call buildQuery for geo queries', () => {
