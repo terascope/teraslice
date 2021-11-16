@@ -42,7 +42,7 @@
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.4.0",
         "@types/lodash": "^4.14.173",
-        "@types/validator": "^13.6.6",
+        "@types/validator": "^13.7.0",
         "awesome-phonenumber": "^2.64.0",
         "date-fns": "^2.25.0",
         "date-fns-tz": "^1.1.5",
