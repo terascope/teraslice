@@ -264,7 +264,12 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * When the bulk request has errors this will find the actions
      * records to retry.
      *
-     * @returns {{ retry: Record<string, any>[], error: boolean, reason?: string }}
+     * @returns {{
+     *    retry: Record<string, any>[],
+     *    successful: number,
+     *    error: boolean,
+     *    reason?: string
+     * }}
     */
     function _filterRetryRecords(actionRecords, result) {
         const retry = [];
@@ -272,6 +277,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         let nonRetriableError = false;
         let reason = '';
+        let successful = 0;
 
         for (let i = 0; i < items.length; i++) {
             // key could either be create or delete etc, just want the actual data at the value spot
@@ -300,14 +306,18 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
                     break;
                 }
+            } else if (item.status !== 404) {
+                successful++;
             }
         }
 
         if (nonRetriableError) {
-            return { retry: [], error: true, reason };
+            return {
+                retry: [], successful, error: true, reason
+            };
         }
 
-        return { retry, error: false };
+        return { retry, successful, error: false };
     }
 
     function getFirstKey(obj) {
@@ -341,8 +351,11 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         });
 
         const result = await _clientRequest('bulk', { body });
+
         if (result.errors) {
-            const { retry, error, reason } = _filterRetryRecords(actionRecords, result);
+            const {
+                retry, successful, error, reason
+            } = _filterRetryRecords(actionRecords, result);
 
             if (error) {
                 throw new TSError(reason, {
@@ -357,11 +370,15 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             warning();
 
             const nextRetryDelay = await _awaitRetry(previousRetryDelay);
-            const diff = actionRecords.length - retry.length;
+            const diff = successful - retry.length;
             return _bulkSend(retry, previousCount + diff, nextRetryDelay);
         }
 
-        return actionRecords.length;
+        return result.items.reduce((c, item) => {
+            // ignore 404 and items with errors (even though that shouldn't really happen)
+            if (item.error || item.status === 404) return c;
+            return c + 1;
+        }, 0);
     }
 
     /**
