@@ -42,7 +42,7 @@
         "yargs": "^17.2.0"
     },
     "devDependencies": {
-        "@types/bunyan": "^1.8.6",
+        "@types/bunyan": "^1.8.8",
         "@types/elasticsearch": "^5.0.40",
         "@types/js-yaml": "^4.0.3",
         "@types/mongoose": "^5.10.3",
