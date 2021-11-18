@@ -8,7 +8,9 @@ import {
 } from './helpers/simple-index';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
-import { IndexStore, IndexConfig } from '../src';
+import {
+    IndexStore, IndexConfig, OnBulkConflictFn, UpsertWithScript
+} from '../src';
 
 describe('IndexStore', () => {
     const client = makeClient();
@@ -557,12 +559,12 @@ describe('IndexStore', () => {
             it('should be able to bulk update the records', async () => {
                 for (const record of records) {
                     await indexStore.bulk(
-                        'index',
-                        Object.assign(record, {
+                        'update',
+                        {
                             test_object: {
                                 example: 'updated',
                             },
-                        }),
+                        },
                         record.test_id
                     );
                 }
@@ -580,6 +582,56 @@ describe('IndexStore', () => {
                 expect(results[0]).toHaveProperty('test_object', {
                     example: 'updated',
                 });
+            });
+
+            it('should be able to bulk upsert the records', async () => {
+                const onConflict: OnBulkConflictFn<SimpleRecord> = (existingItem) => {
+                    const { params } = (existingItem.data as UpsertWithScript<SimpleRecord>).script;
+                    if (typeof params.inc !== 'number') {
+                        throw new Error(`Expected params.inc to a number got ${typeof params.inc}`);
+                    }
+                    params.inc += 1;
+                    return existingItem;
+                };
+
+                for (const record of records) {
+                    for (let i = 0; i < 10; i++) {
+                        await indexStore.bulk(
+                            'upsert-with-script',
+                            {
+                                script: {
+                                    source: 'ctx._source["test_object"]["example"] = params.value;ctx._source["test_number"] += params.inc',
+                                    lang: 'painless',
+                                    params: {
+                                        value: 'updated-with-script',
+                                        inc: 1
+                                    }
+                                },
+                                upsert: {
+                                    test_boolean: true
+                                }
+                            },
+                            record.test_id,
+                            3,
+                            onConflict
+                        );
+                    }
+                }
+
+                await indexStore.flush(true);
+                await indexStore.refresh();
+
+                const {
+                    results
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
+                    sort: 'test_id',
+                    size: records.length + 1,
+                });
+
+                expect(results[0]).toHaveProperty('test_object', {
+                    example: 'updated-with-script',
+                });
+                expect(results[0]).toHaveProperty('test_number', 30);
             });
 
             it('should be able to bulk delete the records', async () => {

@@ -8,7 +8,7 @@ const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 /**
  * Manage Elasticsearch Indices
  */
-export default class IndexManager {
+export class IndexManager {
     readonly client: es.Client;
     readonly esVersion: number;
     enableIndexMutations: boolean;

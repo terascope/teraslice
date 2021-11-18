@@ -1,7 +1,11 @@
 import type { Client, NodesInfoParams, NodesStatsParams } from 'elasticsearch';
 
-/** Get Cluster Metadata and Stats */
-export default class Cluster {
+/**
+ * Get Cluster Metadata and Stats
+ *
+ * @todo this is not complete
+*/
+export class Cluster {
     readonly client: Client;
 
     constructor(client: Client) {
