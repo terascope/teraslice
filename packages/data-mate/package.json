@@ -50,7 +50,7 @@
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.2",
-        "@types/uuid": "^8.3.1",
+        "@types/uuid": "^8.3.3",
         "benchmark": "^2.1.4",
         "chance": "^1.1.8",
         "lodash": "^4.17.21"
