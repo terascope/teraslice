@@ -286,18 +286,57 @@ class K8sResource {
 
         const container = this.resource.spec.template.spec.containers[0];
 
-        if (cpu !== -1) {
-            _.set(container, 'resources.requests.cpu', cpu);
-            _.set(container, 'resources.limits.cpu', cpu);
-        }
+        this._setResourcesCPU(container, cpu);
+        const maxMemory = this._setResourcesMemory(container, memory, envVars);
+        // this._setResourcesByName(container, 'cpu', cpu);
+        // this._setResourcesByName(container, 'memory', memory);
 
-        if (memory !== -1) {
-            _.set(container, 'resources.requests.memory', memory);
-            _.set(container, 'resources.limits.memory', memory);
-        }
-
-        setMaxOldSpaceViaEnv(container.env, envVars, memory);
+        // NOTE: This sucks, this manages the memory env var but it ALSO is
+        // responsible for doing the config and execution env var merge, which
+        // should NOT be in this function
+        setMaxOldSpaceViaEnv(container.env, envVars, maxMemory);
     }
+
+    _setResourcesCPU(container, cpu) {
+        if (cpu !== -1) {
+            if (typeof cpu === 'number') {
+                _.set(container, 'resources.requests.cpu', cpu);
+                _.set(container, 'resources.limits.cpu', cpu);
+            } else if (typeof cpu === 'object') {
+                _.set(container, 'resources.requests.cpu', cpu.requests);
+                _.set(container, 'resources.limits.cpu', cpu.limits);
+            }
+        }
+    }
+
+    _setResourcesMemory(container, memory) {
+        let maxMemory;
+        if (memory !== -1) {
+            if (typeof memory === 'number') {
+                _.set(container, 'resources.requests.memory', memory);
+                _.set(container, 'resources.limits.memory', memory);
+                maxMemory = memory;
+            } else if (typeof memory === 'object') {
+                _.set(container, 'resources.requests.memory', memory.requests);
+                _.set(container, 'resources.limits.memory', memory.limits);
+                maxMemory = memory.limits;
+            }
+        }
+        return maxMemory;
+    }
+
+    // _setResourcesByName(container, resourceName, resourceValue) {
+    //     if (resourceValue !== -1) {
+    //         console.log(`XXX: ${JSON.stringify(container.resources)}`);
+    //         if (typeof resourceValue === 'number') {
+    //             _.set(container, `resources.requests.${resourceName}`, resourceValue);
+    //             _.set(container, `resources.limits.${resourceName}`, resourceValue);
+    //         } else if (typeof memory === 'object') {
+    //             _.set(container, `resources.requests.${resourceName}`, resourceValue.requests);
+    //             _.set(container, `resources.limits.${resourceName}`, resourceValue.limits);
+    //         }
+    //     }
+    // }
 
     _setTargets() {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {

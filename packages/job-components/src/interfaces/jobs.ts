@@ -100,21 +100,26 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     targets?: Targets[];
     /** This will only be available in the context of k8s */
-    cpu?: number;
+    cpu?: (number|K8sResourceRequestLimit);
     /** This will only be available in the context of k8s */
-    cpu_execution_controller?: number;
+    cpu_execution_controller?: (number|K8sResourceRequestLimit);
     /** This will only be available in the context of k8s */
     ephemeral_storage?: boolean;
     /** This will only be available in the context of k8s */
     external_ports?: (number|ExternalPort)[];
     /** This will only be available in the context of k8s */
-    memory?: number;
+    memory?: (number|K8sResourceRequestLimit);
     /** This will only be available in the context of k8s */
-    memory_execution_controller?: number;
+    memory_execution_controller?: (number|K8sResourceRequestLimit);
     /** This will only be available in the context of k8s */
     volumes?: Volume[];
     /** This will only be available in the context of k8s */
     kubernetes_image?: string;
+}
+
+export interface K8sResourceRequestLimit {
+    request: number;
+    limit: number;
 }
 
 export interface Targets {
