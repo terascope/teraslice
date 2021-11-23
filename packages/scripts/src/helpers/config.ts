@@ -54,6 +54,12 @@ export const RABBITMQ_MANAGEMENT = `http://${RABBITMQ_HOSTNAME}:${RABBITMQ_MANAG
 export const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
 export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'guest';
 
+/**
+ * When set this will skip git commands. This is useful for Dockerfile when git is not
+ * available or does not work
+*/
+export const SKIP_GIT_COMMANDS = toBoolean(process.env.SKIP_GIT_COMMANDS ?? false);
+
 // make sure the string doesn't contain unwanted characters
 export const DEV_TAG = toSafeString((
     process.env.DEV_TAG

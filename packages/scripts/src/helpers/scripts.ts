@@ -414,10 +414,14 @@ export async function pgrep(name: string): Promise<string> {
 export async function getCommitHash(): Promise<string> {
     if (process.env.GIT_COMMIT_HASH) return process.env.GIT_COMMIT_HASH;
 
+    if (config.SKIP_GIT_COMMANDS) {
+        throw new Error('Unable to determine git commit hash when env.SKIP_GIT_COMMANDS is set, set env.GIT_COMMIT_HASH to fix this');
+    }
     return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
 export async function gitDiff(files: string[] = []): Promise<void> {
+    if (config.SKIP_GIT_COMMANDS) return;
     try {
         await fork({ cmd: 'git', args: ['diff', ...files] });
     } catch (e) {
@@ -427,6 +431,8 @@ export async function gitDiff(files: string[] = []): Promise<void> {
 }
 
 export async function getChangedFiles(...files: string[]): Promise<string[]> {
+    if (config.SKIP_GIT_COMMANDS) return [];
+
     try {
         const result = await exec({
             cmd: 'git', args: ['diff', '--name-only', ...files]
