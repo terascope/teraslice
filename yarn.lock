@@ -4659,10 +4659,10 @@ gensync@^1.0.0-beta.2:
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==
 
-geo-tz@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/geo-tz/-/geo-tz-6.0.1.tgz#8049b590395c1340cb96676e3a0b14588d2834fd"
-  integrity sha512-eJCWV973A/FB9zr4eSh71BFRHXaWJX3VOw8cAMun8o5H8jrOUMWCtORfXU784e1R84re1uHqdGhCvINWBj/USw==
+geo-tz@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/geo-tz/-/geo-tz-6.0.2.tgz#6827c66542840f5e10899d04c6c142f034746861"
+  integrity sha512-PP2AqawPehKkqaUkvjz9PIutQien6GgEwzCviJZxjZb5pkkouGx5gpw51bvnoU//BYGj1xsULI5I2h4KgIIY8g==
   dependencies:
     "@turf/boolean-point-in-polygon" "^6.0.1"
     "@turf/helpers" "^6.1.4"
