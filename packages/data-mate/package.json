@@ -42,7 +42,7 @@
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
         "lodash": "^4.17.21",
-        "mnemonist": "^0.38.5",
+        "mnemonist": "^0.39.0",
         "uuid": "^8.3.2",
         "valid-url": "^1.0.9",
         "validator": "^13.7.0",
