@@ -7377,12 +7377,12 @@ mkdirp@^1.0.0, mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mnemonist@^0.38.5:
-  version "0.38.5"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.38.5.tgz#4adc7f4200491237fe0fa689ac0b86539685cade"
-  integrity sha512-bZTFT5rrPKtPJxj8KSV0WkPyNxl72vQepqqVUAW2ARUpUSF2qXMB6jZj7hW5/k7C1rtpzqbD/IIbJwLXUjCHeg==
+mnemonist@^0.39.0:
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.39.0.tgz#4c83dd22e8d9d05dfb721ff66a905fec4c460041"
+  integrity sha512-7v08Ldk1lnlywnIShqfKYN7EW4WKLUnkoWApdmR47N1xA2xmEtWERfEvyRCepbuFCETG5OnfaGQpp/p4Bus6ZQ==
   dependencies:
-    obliterator "^2.0.0"
+    obliterator "^2.0.1"
 
 moment@2.22.2:
   version "2.22.2"
@@ -7944,10 +7944,10 @@ object.values@^1.1.5:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-obliterator@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/obliterator/-/obliterator-2.0.0.tgz#fdff649d1131a1a90b51cc97c865b5560dcb3dfa"
-  integrity sha512-DJaXYKqe9Rs7c2+Xu08Knkt8P60rTeByyy7IWoXLqyc6ln9ph9NAo6ZbiylDpAshsygzBr81pZL5q6/dqi0RtQ==
+obliterator@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/obliterator/-/obliterator-2.0.1.tgz#fbdd873bf39fc4f365a53b1fc86617a22526987c"
+  integrity sha512-XnkiCrrBcIZQitJPAI36mrrpEUvatbte8hLcTcQwKA1v9NkCKasSi+UAguLsLDs/out7MoRzAlmz7VXvY6ph6w==
 
 oidc-token-hash@^5.0.0:
   version "5.0.1"
