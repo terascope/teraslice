@@ -49,7 +49,7 @@
         "signale": "^1.4.0",
         "sort-package-json": "~1.53.1",
         "toposort": "^2.0.2",
-        "typedoc": "~0.21.9",
+        "typedoc": "~0.22.10",
         "typedoc-plugin-markdown": "~3.10.3",
         "yargs": "^17.2.0"
     },
