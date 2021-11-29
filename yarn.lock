@@ -743,7 +743,7 @@
     "@turf/helpers" "^6.5.0"
     "@turf/meta" "^6.5.0"
 
-"@turf/boolean-point-in-polygon@^6.0.1", "@turf/boolean-point-in-polygon@^6.4.0", "@turf/boolean-point-in-polygon@^6.5.0":
+"@turf/boolean-point-in-polygon@^6.4.0", "@turf/boolean-point-in-polygon@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@turf/boolean-point-in-polygon/-/boolean-point-in-polygon-6.5.0.tgz#6d2e9c89de4cd2e4365004c1e51490b7795a63cf"
   integrity sha512-DtSuVFB26SI+hj0SjrvXowGTUCHlgevPAIsukssW6BG5MlNSBQAo70wpICBNJL6RjukXg8d2eXaAWuD/CqL00A==
@@ -801,7 +801,7 @@
     "@turf/helpers" "^6.5.0"
     "@turf/invariant" "^6.5.0"
 
-"@turf/helpers@6.x", "@turf/helpers@^6.1.4", "@turf/helpers@^6.2.0", "@turf/helpers@^6.5.0":
+"@turf/helpers@6.x", "@turf/helpers@^6.2.0", "@turf/helpers@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@turf/helpers/-/helpers-6.5.0.tgz#f79af094bd6b8ce7ed2bd3e089a8493ee6cae82e"
   integrity sha512-VbI1dV5bLFzohYYdgqwikdMVpe7pJ9X3E+dlr425wa2/sMJqYDhTO++ec38/pcPvPE6oD9WEEeU3Xu3gza+VPw==
@@ -4659,13 +4659,13 @@ gensync@^1.0.0-beta.2:
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==
 
-geo-tz@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/geo-tz/-/geo-tz-6.0.2.tgz#6827c66542840f5e10899d04c6c142f034746861"
-  integrity sha512-PP2AqawPehKkqaUkvjz9PIutQien6GgEwzCviJZxjZb5pkkouGx5gpw51bvnoU//BYGj1xsULI5I2h4KgIIY8g==
+geo-tz@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/geo-tz/-/geo-tz-7.0.1.tgz#16665dd3bde358d875dacc59231cbd3b4e0e0793"
+  integrity sha512-nv6iVPE8WLE6I+KNNHTN7HTo18F5ZJfcdSHhXaPF2OH/z5CDzeSxcht1dUFj+pvzmb69kIv2Hni/+JdhcM3X3Q==
   dependencies:
-    "@turf/boolean-point-in-polygon" "^6.0.1"
-    "@turf/helpers" "^6.1.4"
+    "@turf/boolean-point-in-polygon" "^6.5.0"
+    "@turf/helpers" "^6.5.0"
     geobuf "^3.0.2"
     pbf "^3.2.1"
 

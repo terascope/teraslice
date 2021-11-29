@@ -37,8 +37,7 @@ import {
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
-// @ts-expect-error
-import geoToTimezone from 'geo-tz';
+import { find as geoToTimezone } from 'geo-tz';
 import { isArrayLike } from './arrays';
 import { isPlainObject, geoHash, getTypeOf } from './deps';
 import { trim, toString } from './strings';
