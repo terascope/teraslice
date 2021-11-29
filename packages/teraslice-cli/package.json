@@ -55,7 +55,7 @@
         "tmp": "^0.2.0",
         "tty-table": "^4.1.5",
         "yargs": "^17.2.0",
-        "yeoman-environment": "^2.10.3",
+        "yeoman-environment": "^3.8.1",
         "yeoman-generator": "^4.13.0",
         "yo": "^3.1.1"
     },
