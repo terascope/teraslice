@@ -48,7 +48,7 @@
         "date-fns-tz": "^1.1.5",
         "datemath-parser": "^1.0.6",
         "debug": "^4.3.2",
-        "geo-tz": "^6.0.2",
+        "geo-tz": "^7.0.1",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.4",
         "ipaddr.js": "^2.0.1",
