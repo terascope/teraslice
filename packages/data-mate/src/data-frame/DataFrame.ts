@@ -790,7 +790,9 @@ export class DataFrame<
     }
 
     /**
-     * Append one to the end of this DataFrame.
+     * Append one to the end of this DataFrame. This is does less than
+     * appendAll so it is faster.
+     *
      * Useful for incremental building an DataFrame since the cost of
      * this is relatively low.
      *
