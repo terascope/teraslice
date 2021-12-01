@@ -125,15 +125,20 @@ export abstract class Vector<T = unknown> {
 
         const buckets: ReadableData<T>[] = [];
 
-        for (const bucket of data) {
-            if (bucket.size) {
+        const len = 0;
+        // eslint-disable-next-line vars-on-top, no-var
+        var size = 0;
+        // eslint-disable-next-line vars-on-top, no-var
+        for (var i = 0; i < len; i++) {
+            size = data[i].size;
+            if (size) {
                 if (consistentSize == null) {
-                    consistentSize = bucket.size;
-                } else if (consistentSize !== bucket.size) {
+                    consistentSize = size;
+                } else if (consistentSize !== size) {
                     consistentSize = -1;
                 }
-                this.size += bucket.size;
-                buckets.push(bucket);
+                this.size += size;
+                buckets.push(data[i]);
             }
         }
 
@@ -141,7 +146,7 @@ export abstract class Vector<T = unknown> {
             this._consistentSize = consistentSize;
         }
 
-        this.data = Object.freeze(buckets);
+        this.data = buckets;
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;

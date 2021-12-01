@@ -9,7 +9,6 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    isInteger, joinList,
     getHashCodeFrom,
 } from '@terascope/utils';
 import {
@@ -26,9 +25,7 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    FieldArg, flattenStringArg,
-    freezeArray, getFieldsFromArg,
-    WritableData,
+    FieldArg, flattenStringArg, getFieldsFromArg, WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector, VectorType } from '../vector';
@@ -168,20 +165,25 @@ export class DataFrame<
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
 
-        this.columns = freezeArray(columns);
-        this.fields = Object.freeze(this.columns.map((col) => col.name));
+        const cols: Column<any, keyof T>[] = [];
+        const fields: (keyof T)[] = [];
+        let lastLength: number|undefined;
+        const len = columns.length;
 
-        const lengths = this.columns.map((col) => col.size);
-        if (new Set(lengths).size > 1) {
-            throw new Error(
-                `All columns in a DataFrame must have the same length, got ${joinList(lengths)}`
-            );
+        for (let i = 0; i < len; i++) {
+            if (lastLength == null) lastLength = columns[i].size;
+            if (columns[i].size !== lastLength) {
+                throw new Error(
+                    `All columns in a DataFrame must have the same length of ${lastLength}, column (index: ${i}, name: ${columns[i].name}) length ${columns[i].size}`
+                );
+            }
+            fields.push(columns[i].name);
+            cols.push(columns[i]);
         }
-        this.size = lengths[0] ?? 0;
 
-        if (!isInteger(this.size)) {
-            throw new Error(`Invalid size given to DataFrame, got ${this.size} (${getTypeOf(this.size)})`);
-        }
+        this.size = lastLength ?? 0;
+        this.columns = cols;
+        this.fields = fields;
     }
 
     /**
