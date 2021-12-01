@@ -790,6 +790,26 @@ export class DataFrame<
     }
 
     /**
+     * Append one to the end of this DataFrame.
+     * Useful for incremental building an DataFrame since the cost of
+     * this is relatively low.
+     *
+     * This is more efficient than using DataFrame.concat but comes with less
+     * data type checking and may less safe so use with caution
+    */
+    appendOne(frame: DataFrame<T>): DataFrame<T> {
+        if (frame.size === 0) return this;
+        if (this.size === 0) return frame;
+
+        function appendToColumn(col: Column<any, keyof T>) {
+            return col.fork(col.vector.append(
+                frame.getColumnOrThrow(col.name).vector.data
+            ));
+        }
+        return this.fork(this.columns.map(appendToColumn));
+    }
+
+    /**
      * Append one or more data frames to the end of this DataFrame.
      * Useful for incremental building an DataFrame since the cost of
      * this is relatively low.

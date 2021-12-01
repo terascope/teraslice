@@ -1353,6 +1353,27 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->appendOne', () => {
+            it('should be able to append to an empty frame', () => {
+                const empty = DataFrame.empty<Person>(peopleDTConfig);
+                const resultFrame = empty.appendOne(peopleDataFrame);
+
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+            });
+
+            it('should be able to append itself once', () => {
+                const resultFrame = peopleDataFrame.appendOne(peopleDataFrame);
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data)
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
+
         describe('->filterBy', () => {
             it('should be able to filter by a single column', () => {
                 const resultFrame = peopleDataFrame.filterBy({
