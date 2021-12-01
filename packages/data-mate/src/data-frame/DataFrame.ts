@@ -167,21 +167,23 @@ export class DataFrame<
 
         const cols: Column<any, keyof T>[] = [];
         const fields: (keyof T)[] = [];
-        let lastLength: number|undefined;
+        let size: number|undefined;
         const len = columns.length;
 
         for (let i = 0; i < len; i++) {
-            if (lastLength == null) lastLength = columns[i].size;
-            if (columns[i].size !== lastLength) {
+            if (size == null) {
+                size = columns[i].size;
+            } else if (columns[i].size !== size) {
                 throw new Error(
-                    `All columns in a DataFrame must have the same length of ${lastLength}, column (index: ${i}, name: ${columns[i].name}) length ${columns[i].size}`
+                    `All columns in a DataFrame must have the same length of ${size}, column (index: ${i}, name: ${columns[i].name}) got length of ${columns[i].size}`
                 );
             }
+
             fields.push(columns[i].name);
             cols.push(columns[i]);
         }
 
-        this.size = lastLength ?? 0;
+        this.size = size ?? 0;
         this.columns = cols;
         this.fields = fields;
     }

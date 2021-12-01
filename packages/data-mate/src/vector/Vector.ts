@@ -125,11 +125,9 @@ export abstract class Vector<T = unknown> {
 
         const buckets: ReadableData<T>[] = [];
 
-        const len = 0;
-        // eslint-disable-next-line vars-on-top, no-var
-        var size = 0;
-        // eslint-disable-next-line vars-on-top, no-var
-        for (var i = 0; i < len; i++) {
+        const len = data.length;
+        let size = 0;
+        for (let i = 0; i < len; i++) {
             size = data[i].size;
             if (size) {
                 if (consistentSize == null) {
