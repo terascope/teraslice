@@ -32,7 +32,7 @@ describe('DataFrame', () => {
                 Column.fromJSON('count', { type: FieldType.Integer }, [1]),
                 Column.fromJSON('sum', { type: FieldType.Integer }, [5, 6]),
             ]);
-        }).toThrowError('All columns in a DataFrame must have the same length, got 1 and 2');
+        }).toThrowError('All columns in a DataFrame must have the same length of 1, column (index: 1, name: sum) got length of 2');
     });
 
     it('should be able to rename a data fame', () => {
@@ -275,20 +275,6 @@ describe('DataFrame', () => {
                 },
             }
         });
-    });
-
-    it('should be immutable', () => {
-        const dataFrame = DataFrame.fromJSON({
-            version: LATEST_VERSION,
-            fields: {
-                name: { type: FieldType.Keyword }
-            }
-        }, [{ name: 'Billy' }]);
-
-        expect(() => {
-            // @ts-expect-error
-            dataFrame.columns[0] = 'hi';
-        }).toThrow();
     });
 
     describe('when manipulating a DataFrame', () => {
@@ -1350,6 +1336,36 @@ describe('DataFrame', () => {
                         peopleDataFrame
                     ]);
                 }).toThrow('Unknown column friends in DataFrame');
+            });
+        });
+
+        describe('->appendOne', () => {
+            it('should be able to append to an empty frame', () => {
+                const empty = DataFrame.empty<Person>(peopleDTConfig);
+                const resultFrame = empty.appendOne(peopleDataFrame);
+
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+            });
+
+            it('should be able to append an empty frame', () => {
+                const empty = DataFrame.empty<Person>(peopleDTConfig);
+                const resultFrame = peopleDataFrame.appendOne(empty);
+
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+            });
+
+            it('should be able to append itself once', () => {
+                const resultFrame = peopleDataFrame.appendOne(peopleDataFrame);
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data)
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 

@@ -9,7 +9,6 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    isInteger, joinList,
     getHashCodeFrom,
 } from '@terascope/utils';
 import {
@@ -26,9 +25,7 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    FieldArg, flattenStringArg,
-    freezeArray, getFieldsFromArg,
-    WritableData,
+    FieldArg, flattenStringArg, getFieldsFromArg, WritableData,
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector, VectorType } from '../vector';
@@ -168,20 +165,27 @@ export class DataFrame<
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
 
-        this.columns = freezeArray(columns);
-        this.fields = Object.freeze(this.columns.map((col) => col.name));
+        const cols: Column<any, keyof T>[] = [];
+        const fields: (keyof T)[] = [];
+        let size: number|undefined;
+        const len = columns.length;
 
-        const lengths = this.columns.map((col) => col.size);
-        if (new Set(lengths).size > 1) {
-            throw new Error(
-                `All columns in a DataFrame must have the same length, got ${joinList(lengths)}`
-            );
-        }
-        this.size = lengths[0] ?? 0;
+        for (let i = 0; i < len; i++) {
+            if (size == null) {
+                size = columns[i].size;
+            } else if (columns[i].size !== size) {
+                throw new Error(
+                    `All columns in a DataFrame must have the same length of ${size}, column (index: ${i}, name: ${columns[i].name}) got length of ${columns[i].size}`
+                );
+            }
 
-        if (!isInteger(this.size)) {
-            throw new Error(`Invalid size given to DataFrame, got ${this.size} (${getTypeOf(this.size)})`);
+            fields.push(columns[i].name);
+            cols.push(columns[i]);
         }
+
+        this.size = size ?? 0;
+        this.columns = cols;
+        this.fields = fields;
     }
 
     /**
@@ -785,6 +789,28 @@ export class DataFrame<
         return this.forkWithBuilders(
             buildRecords<T>(builders, arg as T[])
         );
+    }
+
+    /**
+     * Append one to the end of this DataFrame. This is does less than
+     * appendAll so it is faster.
+     *
+     * Useful for incremental building an DataFrame since the cost of
+     * this is relatively low.
+     *
+     * This is more efficient than using DataFrame.concat but comes with less
+     * data type checking and may less safe so use with caution
+    */
+    appendOne(frame: DataFrame<T>): DataFrame<T> {
+        if (frame.size === 0) return this;
+        if (this.size === 0) return frame;
+
+        function appendToColumn(col: Column<any, keyof T>) {
+            return col.fork(col.vector.append(
+                frame.getColumnOrThrow(col.name).vector.data
+            ));
+        }
+        return this.fork(this.columns.map(appendToColumn));
     }
 
     /**

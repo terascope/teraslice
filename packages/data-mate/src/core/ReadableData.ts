@@ -13,12 +13,28 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     /**
      * The values to value index lookup table
     */
-    private readonly _values: ReadonlySparseMap<T>;
+    private readonly _values!: ReadonlySparseMap<T>;
 
     /**
      * The number of total number of values stored
     */
-    readonly size: number;
+    readonly size!: number;
+
+    constructor(data: WritableData<T>) {
+        // freezing this is very important because it allows the
+        // raw values to be used without fully copying them
+        Object.defineProperty(this, '_values', {
+            value: Object.freeze(data.rawValues()),
+            enumerable: true,
+            writable: false
+        });
+
+        Object.defineProperty(this, 'size', {
+            value: data.size,
+            enumerable: true,
+            writable: false
+        });
+    }
 
     /**
      * A flag to indicate whether the values stored a javascript primitive.
@@ -27,14 +43,8 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
      *
      * @default true
     */
-    readonly isPrimitive: boolean;
-
-    constructor(data: WritableData<T>) {
-        // freezing this is very important
-        this._values = Object.freeze(data.rawValues());
-        this.size = data.size;
-        this.isPrimitive = isPrimitive(this._values);
-        Object.freeze(this);
+    get isPrimitive() {
+        return isPrimitive(this._values);
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
