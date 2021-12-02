@@ -572,12 +572,15 @@ function getDataBuckets<T>(data: DataBuckets<T>): [
         }
 
         const writable = new WritableData<T>(size);
+        let writeIndex = 0;
+
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let bucketIndex = 0; bucketIndex < len; bucketIndex++) {
             for (let i = 0; i < data[i].size; i++) {
-                writable.set(bucketIndex, data[bucketIndex].get(i));
+                writable.set(writeIndex++, data[bucketIndex].get(i));
             }
         }
+
         return [[new ReadableData<T>(writable)], size, -1];
     }
 
