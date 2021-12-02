@@ -482,13 +482,6 @@ describe('Vector', () => {
         it('should be an instance of a Vector', () => {
             expect(vector).toBeInstanceOf(Vector);
         });
-
-        it('should be immutable', () => {
-            expect(() => {
-                // @ts-expect-error
-                vector.data[0].values = '10';
-            }).toThrow();
-        });
     });
 
     it('should be able to return 2 data buckets (with a an start index of 0) when slicing', () => {

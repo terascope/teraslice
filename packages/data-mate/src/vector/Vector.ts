@@ -88,6 +88,10 @@ export abstract class Vector<T = unknown> {
      * for a Vector and potential indices/unique values. Currently
      * there one ore more data buckets can be used.
      *
+     * @note DO NOT MUTATE THESE IT WILL BREAK THE GUARANTEES OF
+     *       IMMUTABILITY AND WILL CREATE SIDE EFFECTS BETWEEN
+     *       DATA FRAMES
+     *
      * @internal
     */
     readonly data: readonly ReadableData<T>[];
