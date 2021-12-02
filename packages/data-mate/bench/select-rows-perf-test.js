@@ -5,6 +5,7 @@
 const { pDelay } = require('@terascope/utils');
 const fs = require('fs');
 const path = require('path');
+// const heapdump = require('heapdump');
 const { DataFrame } = require('./src');
 
 async function readData() {
@@ -30,15 +31,30 @@ async function setup(frame) {
     }
 }
 
+// function writeSnapshot(name) {
+//     const fName = `.local.${name}.${process.hrtime.bigint().toString()}.heapsnapshot`;
+//     return new Promise((resolve, reject) => {
+//         heapdump.writeSnapshot(fName, (err, filename) => {
+//             if (err) reject(err);
+//             else {
+//                 console.log(`Wrote snapshot: ${filename}`);
+//                 resolve();
+//             }
+//         });
+//     });
+// }
+
 async function test(frame) {
     console.log(`ready with ${frame.size} records`);
     let collectFrame = DataFrame.empty(frame.config);
     console.time('test');
     try {
+        // await writeSnapshot('before-all');
         for (let i = 0; i < frame.size; i++) {
             const rowFrame = frame.slice(i, i + 1);
             collectFrame = collectFrame.appendOne(rowFrame);
         }
+        // await writeSnapshot('after-all');
         return { collected: collectFrame.size };
     } finally {
         console.timeEnd('test');
