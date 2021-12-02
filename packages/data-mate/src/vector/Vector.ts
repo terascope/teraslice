@@ -98,17 +98,14 @@ export abstract class Vector<T = unknown> {
     sortable = true;
 
     /**
-     * Returns the number items in the Vector
+     * The cached size of the vector
     */
-    readonly size: number;
+    private __size: number|undefined;
 
     /**
-     * Sometimes when appending data buckets the size
-     * is consistent, when that happens we can be
-     * much smarter about find the data bucket for a
-     * given row, which speeds up some operations
+     * The cached consistent size of the vector
     */
-    private _consistentSize = -1;
+    private __consistentSize: number|undefined;
 
     constructor(
         /**
@@ -119,24 +116,13 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ) {
         this.type = type;
-        this.size = 0;
-
-        let consistentSize: number|undefined;
-
-        this.data = data.filter((bucket) => {
-            if (!bucket.size) return false;
-            if (consistentSize == null) {
-                consistentSize = bucket.size;
-            } else if (consistentSize !== bucket.size) {
-                consistentSize = -1;
-            }
-            // @ts-expect-error
-            this.size += bucket.size;
-            return true;
-        });
-        if (consistentSize != null) {
-            this._consistentSize = consistentSize;
-        }
+        const res = getDataBuckets(data);
+        // eslint-disable-next-line prefer-destructuring
+        this.data = res[0];
+        // eslint-disable-next-line prefer-destructuring
+        this.__size = res[1];
+        // eslint-disable-next-line prefer-destructuring
+        this.__consistentSize = res[2];
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
@@ -149,10 +135,47 @@ export abstract class Vector<T = unknown> {
     abstract toJSONCompatibleValue?(value: T, options?: SerializeOptions): any;
 
     /**
-     * A function for converting an in-memory representation of
-     * a value to an JSON spec compatible format.
+    * A function for converting an in-memory representation of
+    * a value to an JSON spec compatible format.
     */
     abstract getComparableValue?(value: T): any;
+
+    /**
+     * Returns the number items in the Vector
+    */
+    get size(): number {
+        if (this.__size != null) return this.__size;
+        this._setSizeAndConsistentSize();
+        return this.__size!;
+    }
+
+    /**
+     * Sometimes when appending data buckets the size
+     * is consistent, when that happens we can be
+     * much smarter about find the data bucket for a
+     * given row, which speeds up some operations
+    */
+    private get _consistentSize(): number {
+        if (this.__consistentSize != null) return this.__consistentSize;
+        this._setSizeAndConsistentSize();
+        return this.__consistentSize!;
+    }
+
+    private _setSizeAndConsistentSize() {
+        this.__size = 0;
+        let consistentSize: number|undefined;
+
+        for (const bucket of this.data) {
+            if (consistentSize == null) {
+                consistentSize = bucket.size;
+            } else if (consistentSize !== bucket.size) {
+                consistentSize = -1;
+            }
+            this.__size += bucket.size;
+        }
+
+        this.__consistentSize = consistentSize ?? -1;
+    }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const data of this.data) {
@@ -525,6 +548,51 @@ export abstract class Vector<T = unknown> {
             (index) => this.get(index) as Maybe<T>
         );
     }
+}
+
+/**
+ * This will get the data buckets with several optimizations when they
+ * are either small or there are lots of data buckets
+*/
+function getDataBuckets<T>(data: DataBuckets<T>): [
+    data: DataBuckets<T>, size: number|undefined, consistentSize: number|undefined
+] {
+    const len = data.length;
+    // we the number of data buckets too big it creates too many objects for the garbage collector
+    // to clean up
+    if (len >= 1000) {
+        let size = 0;
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let i = 0; i < len; i++) {
+            size += data[i].size;
+        }
+
+        const writable = new WritableData<T>(size);
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let bucketIndex = 0; bucketIndex < len; bucketIndex++) {
+            for (let i = 0; i < data[i].size; i++) {
+                writable.set(bucketIndex, data[bucketIndex].get(i));
+            }
+        }
+        return [[new ReadableData<T>(writable)], size, -1];
+    }
+
+    // this is a little optimization for smaller data lengths
+    if (len === 1) {
+        return [data, data[0].size, data[0].size];
+    }
+
+    // this is a little optimization for smaller data lengths
+    if (len <= 10) {
+        let size = 0;
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of
+        for (let i = 0; i < len; i++) {
+            size += data[i].size;
+        }
+        return [data, size, size === len ? 1 : undefined];
+    }
+
+    return [data, undefined, undefined];
 }
 
 /**
