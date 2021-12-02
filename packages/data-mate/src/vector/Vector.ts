@@ -123,28 +123,20 @@ export abstract class Vector<T = unknown> {
 
         let consistentSize: number|undefined;
 
-        const buckets: ReadableData<T>[] = [];
-
-        const len = data.length;
-        let size = 0;
-        for (let i = 0; i < len; i++) {
-            size = data[i].size;
-            if (size) {
-                if (consistentSize == null) {
-                    consistentSize = size;
-                } else if (consistentSize !== size) {
-                    consistentSize = -1;
-                }
-                this.size += size;
-                buckets.push(data[i]);
+        this.data = data.filter((bucket) => {
+            if (!bucket.size) return false;
+            if (consistentSize == null) {
+                consistentSize = bucket.size;
+            } else if (consistentSize !== bucket.size) {
+                consistentSize = -1;
             }
-        }
-
+            // @ts-expect-error
+            this.size += bucket.size;
+            return true;
+        });
         if (consistentSize != null) {
             this._consistentSize = consistentSize;
         }
-
-        this.data = buckets;
         this.name = options.name;
         this.config = options.config;
         this.childConfig = options.childConfig;
