@@ -562,11 +562,10 @@ function getDataBuckets<T>(data: DataBuckets<T>): [
     data: DataBuckets<T>, size: number|undefined, consistentSize: number|undefined
 ] {
     const len = data.length;
-    // we the number of data buckets too big it creates too many objects for the garbage collector
-    // to clean up
+    // we the number of data buckets too big it creates too many objects for the
+    // garbage collector to clean up
     if (len >= 1000) {
         let size = 0;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < len; i++) {
             size += data[i].size;
         }
@@ -574,11 +573,11 @@ function getDataBuckets<T>(data: DataBuckets<T>): [
         const writable = new WritableData<T>(size);
         let writeIndex = 0;
 
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let bucketIndex = 0; bucketIndex < len; bucketIndex++) {
-            for (let i = 0; i < data[i].size; i++) {
-                writable.set(writeIndex++, data[bucketIndex].get(i));
+            for (const [index, value] of data[bucketIndex].entries()) {
+                writable.set(writeIndex + index, value);
             }
+            writeIndex += data[bucketIndex].size;
         }
 
         return [[new ReadableData<T>(writable)], size, -1];
@@ -592,7 +591,6 @@ function getDataBuckets<T>(data: DataBuckets<T>): [
     // this is a little optimization for smaller data lengths
     if (len <= 10) {
         let size = 0;
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < len; i++) {
             size += data[i].size;
         }
