@@ -10707,7 +10707,7 @@ typedoc@~0.21.9:
     shiki "^0.9.8"
     typedoc-default-themes "^0.12.10"
 
-typescript@~4.4.4:
+typescript@~4.4.4, typescript@~4.5.3:
   version "4.4.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.4.tgz#2cd01a1a1f160704d3101fd5a58ff0f9fcb8030c"
   integrity sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
