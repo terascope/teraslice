@@ -32,10 +32,10 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "^4.3.2"
+        "debug": "^4.3.3"
     },
     "dependencies": {
-        "debug": "^4.3.2"
+        "debug": "^4.3.3"
     },
     "devDependencies": {},
     "engines": {
