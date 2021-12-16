@@ -2,9 +2,31 @@
 title: Data Frame
 ---
 
+## Architecture
+
+First lets discuss optimizations in JavaScript vs other languages, since JavaScript is a high level language it does not allow access to the raw bytes of a string, even if it did, the bytes would need to be converted from UTF-16 to UTF-8 to be useful, the language also does not have fine grain numeric types, `int8` or `uint16`. Those limitations make optimizations that other libraries use less relevant, and often times it is slower.
+
+When designing this implementation we wanted to model after the design Apache Arrow DataFrame but to also make the interface more intuitive and store the data in JavaScript objects instead of vectorized buffers. We also knew that while building this, we would use sacrifice memory over speed, since in our environment memory is cheap, this allows to use a more memory intensive data structure that makes application run faster (unless the allocation of the additional memory reduces the performance gains).
+
+Most data structures and objects in our implementation are immutable, whether enforced or not. The only object that is considered mutable is the metadata on the DataFrame. If immutability is maintained there are several performance that are made:
+
+- When a column is transformed, for example changing the case on a string to upper case, that column will be placed in a new data frame with all of the other columns. This new frame takes up minimal memory since most of it pointers to the previous columns and we rely on the garbage collector to clean it up old column and/or frame. Since the old frame was never modified we can still use the original data frame as is and know their weren't any side effects to deal with (this makes building on top of this library easier or caching the data frames more effective)
+- When the DataFrame is built certain optimizations and validation can applied once during construction. Like creating a field to column index map to make getting the column faster.
+- When objects are used with immutability it is much faster (and easier) for the garbage collector scavenge the unused objects
+
+A lot of the data we deal with has `nil` (`null` or `undefined`) values, so when designing how to store the values for a column, using a [SparseMap](https://yomguithereal.github.io/mnemonist/sparse-map) is more appropriate since it reduces the number of iterations over the values and to check certain aspects of the values (like how any non-`nil` values). And since only nil values are stored in the values on `SparseMap` that the V8 can optimize the type of array, like small integers will be reduced down to a `Int8Array`.
+
+A [`DataFrame`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/data-frame/DataFrame.ts) is made up of a few parts, one or more columns. Each [`Column`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/column/Column.ts) has a name and exposes higher level APIs but most of the metadata and data lives on the a [`Vector`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/vector/Vector.ts). A [`Vector`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/vector/Vector.ts) stores the field configuration and has lower level APIs to access data, the data is stored in a data bucket which is actually one or more [`ReadableData`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/core/ReadableData.ts) objects. A [`ReadableData`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/core/ReadableData.ts) is level lever object that does not care about the data type and is really just a read only abstraction over the [SparseMap](https://yomguithereal.github.io/mnemonist/sparse-map) which will that implement to be replaced or customized in the future.
+
+To build a [`DataFrame`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/data-frame/DataFrame.ts), first you need to build one or more [`Column`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/column/Column.ts) instances. To build a [`Column`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/column/Column.ts) first you need to be a [`Vector`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/vector/Vector.ts), which is done by using the [`Builder`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/builder/Builder.ts). To use the [`Builder`](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/builder/Builder.ts) construct it with the data type configuration and write out the values, when done call `Builder->toVector()` which you can then you create a Column.
+
+When doing row level operations, the whole data needs to be regenerated, which makes this a more expensive operation but this is general performance problem in most Columnar storage formats.
+
 ## Components
 
 ### DataFrame
+
+**NOTE:** this is outdated so checkout the [source file](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/data-frame/DataFrame.ts) for the current interface
 
 ```ts
 /**
