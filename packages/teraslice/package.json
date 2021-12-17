@@ -48,7 +48,7 @@
         "decompress": "^4.2.1",
         "easy-table": "^1.2.0",
         "event-loop-stats": "^1.2.0",
-        "express": "^4.17.1",
+        "express": "^4.17.2",
         "fs-extra": "^10.0.0",
         "gc-stats": "^1.4.0",
         "got": "^11.8.3",
