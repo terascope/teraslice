@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: daily
+      interval: monthly
       time: '04:00'
       timezone: US/Arizona
     open-pull-requests-limit: 4
@@ -59,10 +59,16 @@ updates:
       - dependency-name: graphql
         versions:
           - '>= 15'
+      - dependency-name: typedoc
+        versions:
+          - '>= 0.21.9'
+      - dependency-name: '@types/node'
+        versions:
+          - '>= 17.0.0'
   - package-ecosystem: npm
     directory: '/website'
     schedule:
-      interval: daily
+      interval: monthly
       time: '04:00'
       timezone: US/Arizona
     open-pull-requests-limit: 2
