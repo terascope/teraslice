@@ -304,9 +304,12 @@ describe('k8sResource', () => {
                 .toEqual('--max-old-space-size=1843');
         });
 
+        // eslint-disable-next-line jest/no-disabled-tests
         it('has separate memory and cpu limits and requests when set on execution', () => {
-            execution.cpu = { requests: 1, limits: 2 };
-            execution.memory = { requests: 2147483648, limits: 3147483648 };
+            execution.resources_requests_cpu = 1;
+            execution.resources_limits_cpu = 2;
+            execution.resources_requests_memory = 2147483648;
+            execution.resources_limits_memory = 3147483648;
 
             const kr = new K8sResource('deployments', 'worker', terasliceConfig, execution);
 
@@ -326,7 +329,6 @@ describe('k8sResource', () => {
         });
 
         it('has memory limits and requests when set on execution', () => {
-            execution.cpu = -1;
             execution.memory = 2147483648;
 
             const kr = new K8sResource('deployments', 'worker', terasliceConfig, execution);
@@ -344,7 +346,6 @@ describe('k8sResource', () => {
 
         it('has cpu limits and requests when set on execution', () => {
             execution.cpu = 1;
-            execution.memory = -1;
 
             const kr = new K8sResource('deployments', 'worker', terasliceConfig, execution);
 

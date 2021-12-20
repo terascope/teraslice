@@ -266,14 +266,40 @@ class K8sResource {
     _setResources() {
         let cpu;
         let memory;
+        let maxMemory;
+
+        const container = this.resource.spec.template.spec.containers[0];
 
         // use teraslice config as defaults and execution config will override it
         const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
 
         if (this.nodeType === 'worker') {
-            // The settings on the executions override the cluster configs
-            cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
-            memory = this.execution.memory || this.terasliceConfig.memory || -1;
+            if (this.execution.resources_requests_cpu
+                || this.execution.resources_limits_cpu) {
+                if (this.execution.resources_requests_cpu) {
+                    _.set(container, 'resources.requests.cpu', this.execution.resources_requests_cpu);
+                }
+                if (this.execution.resources_limits_cpu) {
+                    _.set(container, 'resources.limits.cpu', this.execution.resources_limits_cpu);
+                }
+            } else if (this.execution.cpu || this.terasliceConfig.cpu) {
+                // The settings on the executions override the cluster configs
+                cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
+                _.set(container, 'resources.requests.cpu', cpu);
+                _.set(container, 'resources.limits.cpu', cpu);
+            }
+            if (this.execution.resources_requests_memory
+                || this.execution.resources_limits_memory) {
+                _.set(container, 'resources.requests.memory', this.execution.resources_requests_memory);
+                _.set(container, 'resources.limits.memory', this.execution.resources_limits_memory);
+                maxMemory = this.execution.resources_limits_memory;
+            } else if (this.execution.memory || this.terasliceConfig.memory) {
+                // The settings on the executions override the cluster configs
+                memory = this.execution.memory || this.terasliceConfig.memory || -1;
+                _.set(container, 'resources.requests.memory', memory);
+                _.set(container, 'resources.limits.memory', memory);
+                maxMemory = memory;
+            }
         }
 
         if (this.nodeType === 'execution_controller') {
@@ -282,61 +308,18 @@ class K8sResource {
                 || this.terasliceConfig.cpu_execution_controller || -1;
             memory = this.execution.memory_execution_controller
                 || this.terasliceConfig.memory_execution_controller || -1;
+            _.set(container, 'resources.requests.cpu', cpu);
+            _.set(container, 'resources.limits.cpu', cpu);
+            _.set(container, 'resources.requests.memory', memory);
+            _.set(container, 'resources.limits.memory', memory);
+            maxMemory = memory;
         }
-
-        const container = this.resource.spec.template.spec.containers[0];
-
-        this._setResourcesCPU(container, cpu);
-        const maxMemory = this._setResourcesMemory(container, memory, envVars);
-        // this._setResourcesByName(container, 'cpu', cpu);
-        // this._setResourcesByName(container, 'memory', memory);
 
         // NOTE: This sucks, this manages the memory env var but it ALSO is
         // responsible for doing the config and execution env var merge, which
         // should NOT be in this function
         setMaxOldSpaceViaEnv(container.env, envVars, maxMemory);
     }
-
-    _setResourcesCPU(container, cpu) {
-        if (cpu !== -1) {
-            if (typeof cpu === 'number') {
-                _.set(container, 'resources.requests.cpu', cpu);
-                _.set(container, 'resources.limits.cpu', cpu);
-            } else if (typeof cpu === 'object') {
-                _.set(container, 'resources.requests.cpu', cpu.requests);
-                _.set(container, 'resources.limits.cpu', cpu.limits);
-            }
-        }
-    }
-
-    _setResourcesMemory(container, memory) {
-        let maxMemory;
-        if (memory !== -1) {
-            if (typeof memory === 'number') {
-                _.set(container, 'resources.requests.memory', memory);
-                _.set(container, 'resources.limits.memory', memory);
-                maxMemory = memory;
-            } else if (typeof memory === 'object') {
-                _.set(container, 'resources.requests.memory', memory.requests);
-                _.set(container, 'resources.limits.memory', memory.limits);
-                maxMemory = memory.limits;
-            }
-        }
-        return maxMemory;
-    }
-
-    // _setResourcesByName(container, resourceName, resourceValue) {
-    //     if (resourceValue !== -1) {
-    //         console.log(`XXX: ${JSON.stringify(container.resources)}`);
-    //         if (typeof resourceValue === 'number') {
-    //             _.set(container, `resources.requests.${resourceName}`, resourceValue);
-    //             _.set(container, `resources.limits.${resourceName}`, resourceValue);
-    //         } else if (typeof memory === 'object') {
-    //             _.set(container, `resources.requests.${resourceName}`, resourceValue.requests);
-    //             _.set(container, `resources.limits.${resourceName}`, resourceValue.limits);
-    //         }
-    //     }
-    // }
 
     _setTargets() {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {

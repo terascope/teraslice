@@ -303,6 +303,30 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: 'Number',
         };
 
+        schemas.resources_requests_cpu = {
+            doc: 'kubernetes CPU request to set on Teraslice workers',
+            default: undefined,
+            format: 'Number'
+        };
+
+        schemas.resources_requests_memory = {
+            doc: 'kubernetes memory request to set on Teraslice workers',
+            default: undefined,
+            format: 'Number'
+        };
+
+        schemas.resources_limits_cpu = {
+            doc: 'kubernetes CPU limit to set on Teraslice workers',
+            default: undefined,
+            format: 'Number'
+        };
+
+        schemas.resources_limits_memory = {
+            doc: 'kubernetes memory limit to set on Teraslice workers',
+            default: undefined,
+            format: 'Number'
+        };
+
         schemas.volumes = {
             default: [],
             doc: 'array of volumes to be mounted by job workers',
