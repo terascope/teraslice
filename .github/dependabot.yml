@@ -6,7 +6,7 @@ updates:
       interval: weekly
       time: '04:00'
       timezone: US/Arizona
-    open-pull-requests-limit: 6
+    open-pull-requests-limit: 3
     versioning-strategy: increase
     assignees:
       - godber
@@ -72,6 +72,6 @@ updates:
       interval: monthly
       time: '04:00'
       timezone: US/Arizona
-    open-pull-requests-limit: 4
+    open-pull-requests-limit: 3
     assignees:
       - peterdemartini
