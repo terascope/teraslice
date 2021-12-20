@@ -195,8 +195,30 @@ column.toJSON();
 [View the source](https://github.com/terascope/teraslice/blob/master/packages/data-mate/src/vector/Vector.ts)
 [View the API docs](https://terascope.github.io/teraslice/docs/packages/data-mate/api/classes/vector_Vector.Vector)
 
+**NOTE:** See [builder docs](#builder) for how to builder a vector with using `Column.fromJSON`
 
 ```ts
+let { vector } = Column.fromJSON('age', {
+    type: FieldType.Short
+}, [38, 47, null, 10, 15]);
+
+// ...
+// Get the number of rows
+// ...
+vector.size;
+// => 5
+
+// ...
+// Check to see if there are any null or undefined values in the vector
+// ...
+vector.hasNilValues();
+// => true
+
+// ...
+// Get a value by the row
+// ...
+vector.get(1)
+// => 47
 ```
 
 ### Builder
@@ -224,7 +246,7 @@ for (const item of dataPoints) {
 const vector = builder.toVector()
 // Vector<number>(size: 5)
 
-new Column(vector, { name: 'data_points' })
+new Column(vector, { name: 'data_points' });
 ```
 
 ### AggregationFrame
