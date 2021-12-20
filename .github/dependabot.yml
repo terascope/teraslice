@@ -7,8 +7,6 @@ updates:
       time: '04:00'
       timezone: US/Arizona
     open-pull-requests-limit: 6
-    assignees:
-      - peterdemartini
     versioning-strategy: increase
     ignore:
       - dependency-name: aws-sdk
