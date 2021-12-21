@@ -45,7 +45,7 @@
         "@types/validator": "^13.7.0",
         "awesome-phonenumber": "^2.65.0",
         "date-fns": "^2.27.0",
-        "date-fns-tz": "^1.2.0",
+        "date-fns-tz": "^1.2.2",
         "datemath-parser": "^1.0.6",
         "debug": "^4.3.3",
         "geo-tz": "^7.0.1",
