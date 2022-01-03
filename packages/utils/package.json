@@ -53,7 +53,7 @@
         "ip6addr": "^0.2.5",
         "ipaddr.js": "^2.0.1",
         "is-cidr": "^4.0.2",
-        "is-ip": "^3.1.0",
+        "is-ip": "^4.0.0",
         "is-plain-object": "^5.0.0",
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",

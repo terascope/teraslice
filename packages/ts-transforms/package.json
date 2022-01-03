@@ -40,12 +40,12 @@
         "@terascope/utils": "^0.44.1",
         "awesome-phonenumber": "^2.65.0",
         "graphlib": "^2.1.8",
-        "is-ip": "^3.1.0",
+        "is-ip": "^4.0.0",
         "jexl": "^2.2.2",
         "nanoid": "^3.1.30",
         "valid-url": "^1.0.9",
         "validator": "^13.7.0",
-        "yargs": "^17.2.0"
+        "yargs": "^17.3.1"
     },
     "devDependencies": {
         "@types/graphlib": "^2.1.7",
