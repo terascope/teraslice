@@ -39,7 +39,7 @@
         "@terascope/fetch-github-release": "^0.8.7",
         "@terascope/utils": "^0.44.1",
         "chalk": "^4.1.2",
-        "cli-table3": "^0.6.0",
+        "cli-table3": "^0.6.1",
         "easy-table": "^1.2.0",
         "esbuild": "^0.14.11",
         "execa": "^5.1.0",
