@@ -65,7 +65,7 @@ export type GeoShapeLineString = {
     coordinates: CoordinateTuple[];
 }
 
-export type GeoShapeLMultiLineString = {
+export type GeoShapeMultiLineString = {
     type: GeoShapeType.LineString;
     coordinates: CoordinateTuple[][];
 }
@@ -74,7 +74,7 @@ export type GeoShape = GeoShapePoint
 | GeoShapePolygon
 | GeoShapeMultiPolygon
 | GeoShapeLineString
-| GeoShapeLMultiLineString;
+| GeoShapeMultiLineString;
 
 export type JoinGeoShape = GeoShape | ESGeoShape;
 
