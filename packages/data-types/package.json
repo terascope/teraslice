@@ -28,7 +28,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^0.10.2",
+        "@terascope/types": "^0.10.3",
         "@terascope/utils": "^0.44.2",
         "graphql": "^14.7.0",
         "lodash": "^4.17.21",

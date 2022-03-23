@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@terascope/data-types": "^0.34.2",
-        "@terascope/types": "^0.10.2",
+        "@terascope/types": "^0.10.3",
         "@terascope/utils": "^0.44.2",
         "@types/validator": "^13.7.1",
         "awesome-phonenumber": "^2.65.0",

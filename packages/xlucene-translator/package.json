@@ -28,7 +28,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^0.10.2",
+        "@terascope/types": "^0.10.3",
         "@terascope/utils": "^0.44.2",
         "@types/elasticsearch": "^5.0.40",
         "xlucene-parser": "^0.42.2"

@@ -27,7 +27,7 @@ export type ESGeoShapeLineString = {
 }
 
 export type ESGeoShapeMultiLineString = {
-    type: ESGeoShapeType.LineString;
+    type: ESGeoShapeType.MultiLineString;
     coordinates: CoordinateTuple[][];
 }
 
@@ -66,7 +66,7 @@ export type GeoShapeLineString = {
 }
 
 export type GeoShapeMultiLineString = {
-    type: GeoShapeType.LineString;
+    type: GeoShapeType.MultiLineString;
     coordinates: CoordinateTuple[][];
 }
 
