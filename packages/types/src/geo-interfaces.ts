@@ -2,7 +2,8 @@ export enum ESGeoShapeType {
     Point = 'point',
     Polygon = 'polygon',
     MultiPolygon = 'multipolygon',
-    LineString = 'LineString'
+    LineString = 'LineString',
+    MultiLineString = 'MultiLineString'
 }
 
 export type ESGeoShapePoint = {
@@ -25,16 +26,23 @@ export type ESGeoShapeLineString = {
     coordinates: CoordinateTuple[];
 }
 
+export type ESGeoShapeMultiLineString = {
+    type: ESGeoShapeType.LineString;
+    coordinates: CoordinateTuple[][];
+}
+
 export type ESGeoShape = ESGeoShapePoint
 | ESGeoShapePolygon
 | ESGeoShapeMultiPolygon
-| ESGeoShapeLineString;
+| ESGeoShapeLineString
+| ESGeoShapeMultiLineString;
 
 export enum GeoShapeType {
     Point = 'Point',
     Polygon = 'Polygon',
     MultiPolygon = 'MultiPolygon',
-    LineString = 'LineString'
+    LineString = 'LineString',
+    MultiLineString = 'MultiLineString'
 }
 
 export type GeoShapePoint = {
@@ -57,10 +65,16 @@ export type GeoShapeLineString = {
     coordinates: CoordinateTuple[];
 }
 
+export type GeoShapeLMultiLineString = {
+    type: GeoShapeType.LineString;
+    coordinates: CoordinateTuple[][];
+}
+
 export type GeoShape = GeoShapePoint
 | GeoShapePolygon
 | GeoShapeMultiPolygon
-| GeoShapeLineString;
+| GeoShapeLineString
+| GeoShapeLMultiLineString;
 
 export type JoinGeoShape = GeoShape | ESGeoShape;
 
