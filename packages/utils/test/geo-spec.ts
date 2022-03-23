@@ -206,7 +206,7 @@ describe('geo utils', () => {
     describe('->toGeoJSON', () => {
         type Case = [
             msg: string,
-            input: GeoPointInput | JoinGeoShape |GeoPointInput[],
+            input: GeoPointInput | JoinGeoShape | GeoPointInput[],
             output: GeoShape
         ];
         const testCases: Case[] = [
@@ -251,6 +251,21 @@ describe('geo utils', () => {
                     ]
                 }
             ],
+            [
+                'converts an Elasticsearch line-string to a GeoJson line-string',
+                {
+                    type: ESGeoShapeType.LineString,
+                    coordinates: [
+                        [67.660, 39.904], [67.659, 39.905], [67.6587, 39.9061], [67.6581, 39.906]
+                    ]
+                },
+                {
+                    type: GeoShapeType.LineString,
+                    coordinates: [
+                        [67.660, 39.904], [67.659, 39.905], [67.6587, 39.9061], [67.6581, 39.906]
+                    ]
+                }
+            ]
         ];
 
         test.each(testCases)('should %s', (_msg, input, output) => {
