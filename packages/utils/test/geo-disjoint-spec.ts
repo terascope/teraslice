@@ -184,6 +184,122 @@ const geoDisjointTestCases: GeoDisjointCase[] = [
         false
     ],
     [
+        'line is separate from polygon (true)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [1, 2], [1, 3], [1, 4], [2, 4], [4, 7]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [10, 10], [10, 50], [50, 50], [50, 10], [10, 10]
+                ]
+            ]
+        },
+        true
+    ],
+    [
+        'line is separate from polygon (false)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [1, 2], [1, 3], [1, 4], [2, 4], [4, 7], [15, 55]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [10, 10], [50, 10], [50, 50], [10, 50], [10, 10]
+                ]
+            ]
+        },
+        false
+    ],
+    [
+        'line is separate from polygon with holes (true)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [30, 30], [31, 30], [32, 30], [33, 30]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]],
+                [[10, 10], [90, 10], [90, 50], [10, 50], [10, 10]]
+            ]
+        },
+        true
+    ],
+    [
+        'line is separate from polygon with holes (false)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [30, 30], [31, 30], [32, 30], [33, 30], [100, 100]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]],
+                [[10, 10], [90, 10], [90, 50], [10, 50], [10, 10]]
+            ]
+        },
+        false
+    ],
+    [
+        'multi-line is separate from polygon (true)',
+        {
+            type: GeoShapeType.MultiLineString,
+            coordinates: [
+                [
+                    [1, 2], [1, 3], [1, 4], [2, 4], [4, 7]
+                ],
+                [
+                    [5, 2], [6, 5], [5, 10], [7, 10], [8, 17]
+                ]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [10, 10], [50, 10], [50, 50], [10, 50], [10, 10]
+                ]
+            ]
+        },
+        true
+    ],
+    [
+        'multi-line is separate from polygon (false)',
+        {
+            type: GeoShapeType.MultiLineString,
+            coordinates: [
+                [
+                    [1, 2], [1, 3], [1, 4], [2, 4], [4, 7]
+                ],
+                [
+                    [5, 2], [6, 5], [5, 10], [7, 10], [50, 17]
+                ]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [10, 10], [50, 10], [50, 50], [10, 50], [10, 10]
+                ]
+            ]
+        },
+        false
+    ],
+    [
         'polygon is separate from polygon (false)',
         {
             type: GeoShapeType.Polygon,
@@ -320,13 +436,13 @@ const geoDisjointTestCases: GeoDisjointCase[] = [
 ];
 
 describe('->geoDisjoint', () => {
-    test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    test.each(geoDisjointTestCases)('%s', (_msg, firstGeo, secondGeo, output) => {
         expect(geoDisjoint(firstGeo, secondGeo)).toEqual(output);
     });
 });
 
 describe('->geoDisjointFP', () => {
-    test.each(geoDisjointTestCases)('should %s', (_msg, firstGeo, secondGeo, output) => {
+    test.each(geoDisjointTestCases)('%s', (_msg, firstGeo, secondGeo, output) => {
         expect(geoDisjointFP(secondGeo)(firstGeo)).toEqual(output);
     });
 });

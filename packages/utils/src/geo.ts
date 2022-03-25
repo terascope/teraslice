@@ -13,7 +13,9 @@ import {
     ESGeoShape,
     CoordinateTuple,
     GeoShapeRelation,
-    GeoInput
+    GeoInput,
+    GeoShapeLineString,
+    GeoShapeMultiLineString
 } from '@terascope/types';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
@@ -26,6 +28,7 @@ import disjoint from '@turf/boolean-disjoint';
 import intersect from '@turf/boolean-intersects';
 import {
     lineString,
+    multiLineString,
     multiPolygon,
     polygon as tPolygon,
     point as tPoint,
@@ -34,6 +37,8 @@ import {
     Properties,
     Polygon,
     Position,
+    MultiLineString,
+    LineString
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
@@ -67,6 +72,17 @@ export function isGeoShapePolygon(input: unknown): input is GeoShapePolygon {
 export function isGeoShapeMultiPolygon(input: unknown): input is GeoShapeMultiPolygon {
     return isGeoJSON(input)
     && (input.type === GeoShapeType.MultiPolygon || input.type === ESGeoShapeType.MultiPolygon);
+}
+
+export function isGeoShapeLineString(input: unknown): input is GeoShapeLineString {
+    return isGeoJSON(input)
+    && (input.type === GeoShapeType.LineString || input.type === ESGeoShapeType.LineString);
+}
+
+export function isGeoShapeMultiLineString(input: unknown): input is GeoShapeMultiLineString {
+    return isGeoJSON(input)
+    && (input.type === GeoShapeType.MultiLineString
+        || input.type === ESGeoShapeType.MultiLineString);
 }
 
 export function parseGeoDistance(str: string): GeoDistanceObj {
@@ -306,6 +322,14 @@ export function makeGeoFeature(geoShape: unknown): Feature<any>|undefined {
         return tPolygon(geoShape.coordinates);
     }
 
+    if (isGeoShapeLineString(geoShape)) {
+        return lineString(geoShape.coordinates);
+    }
+
+    if (isGeoShapeMultiLineString(geoShape)) {
+        return multiLineString(geoShape.coordinates);
+    }
+
     return;
 }
 
@@ -337,7 +361,7 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
     const queryGeo = toGeoJSONOrThrow(queryGeoEntity);
     const queryFeature = makeGeoFeatureOrThrow(queryGeo);
 
-    if (isGeoShapePoint(queryGeo)) return _pointContains(queryFeature);
+    if (_notAPolygonGeoShape(queryGeo)) return _nonPolygonContains(queryFeature);
 
     const {
         polygons: queryPolygons,
@@ -348,8 +372,8 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
 
-        if (isGeoPoint(inputGeoEntity)) {
-            // point cannot contain a poly like feature
+        if (_notAPolygonGeoShape(inputGeoEntity)) {
+            // point / line cannot contain a poly
             return false;
         }
 
@@ -383,7 +407,37 @@ export function geoContainsFP(queryGeoEntity: GeoInput): (input: unknown) => boo
     };
 }
 
-function _pointContains(queryFeature: Feature<any>) {
+function _notAPolygonGeoShape(input: GeoShape): boolean {
+    return isGeoPoint(input)
+        || isGeoShapeLineString(input)
+        || isGeoShapeMultiLineString(input);
+}
+
+function _nonPolygonContains(queryFeature: Feature<any>) {
+    if (queryFeature.geometry.type === GeoShapeType.MultiLineString) {
+        return (input: unknown) => {
+            const inputGeoEntity = toGeoJSON(input);
+            if (!inputGeoEntity) return false;
+
+            const inputFeature = makeGeoFeature(inputGeoEntity);
+            if (!inputFeature) return false;
+
+            if (isGeoShapeMultiLineString(inputGeoEntity)) {
+                return equal(inputFeature, queryFeature);
+            }
+
+            return queryFeature.geometry.coordinates
+                .map((line: CoordinateTuple[]) => lineString(line))
+                .every((lineFeature: Feature<MultiLineString>) => {
+                    if (isGeoPoint(inputGeoEntity) || isGeoShapeLineString(inputGeoEntity)) {
+                        return contains(inputFeature, lineFeature);
+                    }
+
+                    return _handlePolygonInputsForNonPolygonContains(inputFeature, lineFeature);
+                });
+        };
+    }
+
     return (input: unknown) => {
         const inputGeoEntity = toGeoJSON(input);
         if (!inputGeoEntity) return false;
@@ -391,23 +445,35 @@ function _pointContains(queryFeature: Feature<any>) {
         const inputFeature = makeGeoFeature(inputGeoEntity);
         if (!inputFeature) return false;
 
-        if (isGeoPoint(inputGeoEntity)) {
-            return equal(inputFeature, queryFeature);
+        if (isGeoShapeMultiLineString(inputGeoEntity)) {
+            return inputGeoEntity.coordinates.map((line) => lineString(line))
+                .some((line) => contains(line, queryFeature));
         }
 
-        const {
-            polygons,
-            holes
-        } = _featureToPolygonAndHoles(inputFeature);
-
-        let pointInHole = false;
-
-        if (holes.length) {
-            pointInHole = holes.some((iPolyHole) => contains(iPolyHole, queryFeature));
+        if (isGeoPoint(inputGeoEntity) || isGeoShapeLineString(inputGeoEntity)) {
+            return contains(inputFeature, queryFeature);
         }
 
-        return !pointInHole && polygons.some((poly) => contains(poly, queryFeature));
+        return _handlePolygonInputsForNonPolygonContains(inputFeature, queryFeature);
     };
+}
+
+function _handlePolygonInputsForNonPolygonContains(
+    inputFeature: Feature<any>,
+    queryFeature: Feature<any>
+) {
+    const {
+        polygons,
+        holes
+    } = _featureToPolygonAndHoles(inputFeature);
+
+    let inHole = false;
+
+    if (holes.length) {
+        inHole = holes.some((iPolyHole) => contains(iPolyHole, queryFeature));
+    }
+
+    return !inHole && polygons.some((poly) => contains(poly, queryFeature));
 }
 
 function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
@@ -474,6 +540,9 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
     // point can only be compared to other points
     if (isGeoShapePoint(queryGeo)) return _pointToPointMatch(queryFeature);
 
+    if (isGeoShapeLineString(queryGeo)
+    || isGeoShapeMultiLineString(queryGeo)) return _withinLine(queryFeature);
+
     const { polygons: queryPolygons, holes: queryHoles } = _featureToPolygonAndHoles(queryFeature);
     const hasQueryHoles = queryHoles.length > 0;
 
@@ -493,6 +562,15 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
             }
 
             return queryPolygons.some(within.bind(within, inputFeature));
+        }
+
+        if (isGeoShapeLineString(inputGeoEntity)) {
+            return within(inputFeature, queryFeature);
+        }
+
+        if (isGeoShapeMultiLineString(inputGeoEntity)) {
+            return inputGeoEntity.coordinates
+                .every((line) => within(lineString(line), queryFeature));
         }
 
         const {
@@ -521,6 +599,25 @@ export function geoWithinFP(queryGeoEntity: GeoInput): (input: unknown) => boole
         return inputPolygons.every(
             (iPoly) => queryPolygons.some(within.bind(within, iPoly))
         );
+    };
+}
+
+function _withinLine(queryFeature: Feature<LineString | MultiLineString>) {
+    return (input: unknown) => {
+        const inputGeoEntity = toGeoJSON(input);
+        if (!inputGeoEntity) return false;
+
+        if (!isGeoShapePoint(inputGeoEntity)) return false;
+        const inputFeature = makeGeoFeature(inputGeoEntity);
+
+        if (!inputFeature) return false;
+
+        if (queryFeature.geometry.type === 'MultiLineString') {
+            return queryFeature.geometry.coordinates
+                .some((line) => within(inputFeature, lineString(line)));
+        }
+
+        return within(inputFeature, queryFeature);
     };
 }
 

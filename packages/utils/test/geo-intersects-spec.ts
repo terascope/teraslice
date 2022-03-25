@@ -184,6 +184,88 @@ const geoIntersectsCase: GeoIntersectsCase[] = [
         true
     ],
     [
+        'line intersects polygon (true)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [10, 10], [11, 11], [12, 12], [13, 13]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [11, 7], [20, 7], [20, 20], [11, 20], [11, 7]
+                ]
+            ]
+        },
+        true
+    ],
+    [
+        'line intersects polygon (false)',
+        {
+            type: GeoShapeType.LineString,
+            coordinates: [
+                [10, 10], [11, 11], [12, 12], [13, 13]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [15, 7], [20, 7], [20, 20], [15, 20], [15, 7]
+                ]
+            ]
+        },
+        false
+    ],
+    [
+        'multi line intersects polygon (true)',
+        {
+            type: GeoShapeType.MultiLineString,
+            coordinates: [
+                [
+                    [10, 10], [11, 11], [12, 12], [13, 13]
+                ],
+                [
+                    [10, 7], [11, 8], [12, 9], [13, 10]
+                ]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [11, 7], [20, 7], [20, 20], [11, 20], [11, 7]
+                ]
+            ]
+        },
+        true
+    ],
+    [
+        'multi line intersects polygon (false)',
+        {
+            type: GeoShapeType.MultiLineString,
+            coordinates: [
+                [
+                    [10, 10], [11, 11], [12, 12], [13, 13]
+                ],
+                [
+                    [10, 7], [11, 8], [12, 9], [13, 10]
+                ]
+            ]
+        },
+        {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [
+                    [20, 7], [30, 7], [30, 30], [20, 20], [20, 7]
+                ]
+            ]
+        },
+        false
+    ],
+    [
         'polygon intersects from polygon (true)',
         {
             type: GeoShapeType.Polygon,
