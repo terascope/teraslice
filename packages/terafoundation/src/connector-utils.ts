@@ -119,3 +119,16 @@ export function createConnection(
 
     return mod.create(moduleConfig, logger, options);
 }
+
+export async function createClient(
+    name: string, moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+) {
+    const reason = `Could not find connector implementation for: ${name}\n`;
+
+    const mod = getConnectorModule(name, reason);
+    if (!mod) {
+        throw new Error(reason);
+    }
+
+    return mod.createClient(moduleConfig, logger, options);
+}
