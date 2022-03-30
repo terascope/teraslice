@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
-import IndexManager from './index-manager';
+import { IndexManager } from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -11,7 +11,7 @@ import * as utils from './utils';
  * A single index elasticsearch-store with some specific requirements around
  * the index name, and record data
  */
-export default class IndexStore<T extends ts.AnyObject> {
+export class IndexStore<T extends ts.AnyObject> {
     readonly client: es.Client;
     readonly config: i.IndexConfig<T>;
     readonly manager: IndexManager;
@@ -100,42 +100,91 @@ export default class IndexStore<T extends ts.AnyObject> {
      * This method will batch messages using the configured
      * bulk max size and wait configuration.
      *
+     * Because using the upsert-with-script api since that can break depending on the
+     * underlying elasticsearch version and/or client library
+     *
+     * @param onBulkQueueConflict is used to detect and replace existing items in
+     *                            the bulk queue with the same name and action
+     *
      * @todo we need to add concurrency support for sending multiple bulk requests in flight
+     *       and making sure they finish before shutdown
      */
-    async bulk(action: 'delete', id?: string): Promise<void>;
-    async bulk(action: 'index' | 'create', doc?: Partial<T>, id?: string): Promise<void>;
-    async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
-    async bulk(action: i.BulkAction, ...args: any[]): Promise<void> {
+    async bulk(action: 'delete', id: string,): Promise<void>;
+    async bulk(action: 'index' | 'create', doc: Partial<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
+    async bulk(action: 'update', doc: Partial<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
+    async bulk(action: 'upsert-with-script', script: UpsertWithScript<T>, id?: string, retryOnConflict?: number, onBulkQueueConflict?: OnBulkConflictFn<T>): Promise<void>;
+    async bulk(_action: i.BulkAction|'upsert-with-script', ...args: any[]): Promise<void> {
+        let retry_on_conflict: number|undefined;
+        let id: string|undefined;
+        let onBulkQueueConflict: OnBulkConflictFn<T>|undefined;
+
+        const last = args[args.length - 1];
+        const secondToLast = args[args.length - 2];
+        const thirdToLast = args[args.length - 3];
+
+        if (
+            (ts.isString(thirdToLast) || thirdToLast == null)
+            && (ts.isInteger(secondToLast) || secondToLast == null)
+            && ts.isFunction(last)
+        ) {
+            id = thirdToLast;
+            retry_on_conflict = secondToLast;
+            onBulkQueueConflict = last;
+        } else if ((ts.isString(secondToLast) || secondToLast == null) && ts.isInteger(last)) {
+            id = secondToLast;
+            retry_on_conflict = last;
+        } else if (ts.isString(last)) {
+            id = last;
+        }
+
+        const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
         metadata[action] = this.esVersion >= 7 ? {
             _index: this.writeIndex,
+            retry_on_conflict
         } : {
             _index: this.writeIndex,
             _type: this.config.name,
+            retry_on_conflict
         };
 
         let data: BulkRequestData<Partial<T>> = null;
-        let id: string;
 
-        if (action !== 'delete') {
-            if (action === 'update') {
+        if (_action !== 'delete') {
+            if (_action === 'update') {
                 const doc = this._runWriteHooks(args[0], false);
-                /**
-                 * TODO: Support more of the update formats
-                 */
                 data = { doc };
+            } else if (_action === 'upsert-with-script') {
+                data = {
+                    ...args[0],
+                    upsert: this._runWriteHooks(args[0].upsert, false)
+                };
             } else {
                 data = this._runWriteHooks(args[0], true);
             }
-            // eslint-disable-next-line prefer-destructuring
-            id = args[1];
-        } else {
-            ([id] = args);
         }
 
         if (id) {
             utils.validateId(id, `bulk->${action}`);
             metadata[action]!._id = id;
+        }
+
+        if (onBulkQueueConflict && id != null) {
+            const { queue } = this._collector;
+            for (let index = 0; index < queue.length; index++) {
+                const item = queue[index];
+                if (item.metadata[action]?._id === id) {
+                    const newItem = onBulkQueueConflict(item, {
+                        data,
+                        metadata,
+                    });
+                    if (newItem != null) {
+                        queue[index] = newItem;
+                        // we can stop early
+                        return this.flush();
+                    }
+                }
+            }
         }
 
         this._collector.add({
@@ -841,20 +890,34 @@ export default class IndexStore<T extends ts.AnyObject> {
     }
 }
 
-interface BulkRequest<T> {
+export interface BulkRequest<T> {
     data: BulkRequestData<T>;
     metadata: BulkRequestMetadata;
 }
 
-type BulkRequestData<T> = T | { doc: Partial<T> } | null;
+export type UpsertWithScript<T> = {
+    script: {
+        source: string;
+        lang: 'painless';
+        params: Record<string, unknown>;
+    },
+    upsert: Partial<T>;
+}
 
-type BulkRequestMetadata = {
+export type BulkRequestData<T> = T | { doc: Partial<T> } | UpsertWithScript<T> | null;
+
+export type BulkRequestMetadata = {
     [key in i.BulkAction]?: {
         _index: string;
         _type?: string;
         _id?: string;
+        retry_on_conflict?: number;
     }
 };
+export type OnBulkConflictFn<T> = (
+    existingItem: BulkRequest<Partial<T>>,
+    newItem: BulkRequest<Partial<T>>
+) => BulkRequest<Partial<T>>|null;
 
 interface RecordResponse<T> {
     _index: string;

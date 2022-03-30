@@ -17,19 +17,19 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@typescript-eslint/eslint-plugin": "^5.4.0",
-        "@typescript-eslint/parser": "^5.4.0",
-        "eslint-config-airbnb": "^19.0.0",
+        "@typescript-eslint/eslint-plugin": "^5.9.0",
+        "@typescript-eslint/parser": "^5.8.0",
+        "eslint-config-airbnb": "^19.0.4",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "~2.25.3",
-        "eslint-plugin-jest": "^25.2.4",
+        "eslint-plugin-jest": "^25.3.4",
         "eslint-plugin-jsx-a11y": "^6.5.1",
-        "eslint-plugin-react": "^7.27.0",
+        "eslint-plugin-react": "^7.28.0",
         "eslint-plugin-react-hooks": "^4.3.0"
     },
     "devDependencies": {},
     "peerDependencies": {
-        "eslint": ">=8.2.0"
+        "eslint": ">=8.5.0"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",

@@ -31,10 +31,10 @@
     },
     "resolutions": {
         "@types/lodash": "^4.14.173",
-        "debug": "^4.3.2",
+        "debug": "^4.3.3",
         "ms": "^2.1.3",
         "node-notifier": "^10.0.0",
-        "typescript": "~4.4.4"
+        "typescript": "~4.5.4"
     },
     "dependencies": {},
     "devDependencies": {
@@ -42,17 +42,17 @@
         "@types/convict": "^5.2.2",
         "@types/elasticsearch": "^5.0.40",
         "@types/fs-extra": "^9.0.9",
-        "@types/jest": "^27.0.2",
+        "@types/jest": "^27.0.3",
         "@types/lodash": "^4.14.173",
-        "@types/node": "^16.11.7",
+        "@types/node": "^16.11.22",
         "@types/uuid": "^8.3.1",
-        "eslint": "^8.2.0",
-        "jest": "^27.3.1",
-        "jest-extended": "^1.1.0",
+        "eslint": "^8.5.0",
+        "jest": "^27.4.5",
+        "jest-extended": "^1.2.0",
         "jest-watch-typeahead": "^1.0.0",
         "node-notifier": "^10.0.0",
-        "ts-jest": "^27.0.7",
-        "typescript": "~4.4.4"
+        "ts-jest": "^27.1.2",
+        "typescript": "~4.5.4"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",

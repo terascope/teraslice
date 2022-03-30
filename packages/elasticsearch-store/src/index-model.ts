@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';
-import IndexStore, { AnyInput } from './index-store';
+import { IndexStore, AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
 
@@ -11,7 +11,7 @@ import * as i from './interfaces';
  * An high-level, opinionated, abstract class
  * for an elasticsearch DataType, with a CRUD-like interface
  */
-export default abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {
+export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {
     readonly name: string;
     readonly logger: ts.Logger;
 
