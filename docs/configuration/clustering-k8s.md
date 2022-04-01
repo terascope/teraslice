@@ -194,6 +194,9 @@ the following resources on your job or omit them entirely.
 "resources_limits_memory": 536870912,
 ```
 
+The cpu settings are in [Kubernetes CPU Units](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#cpu-units)
+and the memory settings are in bytes.
+
 Note: The old method of setting just `cpu` or `memory` on the job or in the
 Teraslice master config file will be ignored if any of the new `resource_*` job
 properties are configured.

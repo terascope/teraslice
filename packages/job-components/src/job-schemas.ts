@@ -304,25 +304,25 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.resources_requests_cpu = {
-            doc: 'kubernetes CPU request to set on Teraslice workers',
+            doc: 'kubernetes CPU request, in cores, to set on Teraslice workers',
             default: undefined,
             format: 'Number'
         };
 
         schemas.resources_requests_memory = {
-            doc: 'kubernetes memory request to set on Teraslice workers',
+            doc: 'kubernetes memory request, in bytes, to set on Teraslice workers',
             default: undefined,
             format: 'Number'
         };
 
         schemas.resources_limits_cpu = {
-            doc: 'kubernetes CPU limit to set on Teraslice workers',
+            doc: 'kubernetes CPU limit, in cores, to set on Teraslice workers',
             default: undefined,
             format: 'Number'
         };
 
         schemas.resources_limits_memory = {
-            doc: 'kubernetes memory limit to set on Teraslice workers',
+            doc: 'kubernetes memory limit, in bytes, to set on Teraslice workers',
             default: undefined,
             format: 'Number'
         };
