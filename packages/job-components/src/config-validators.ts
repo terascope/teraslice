@@ -64,5 +64,15 @@ export function validateJobConfig<T>(
         throw new Error(`Validation failed for job config: ${inputConfig.name} - ${err.message}`);
     }
 
-    return config.getProperties();
+    const jobProperties = config.getProperties();
+
+    if ((jobProperties.cpu && jobProperties.resources_limits_cpu)
+        || (jobProperties.cpu && jobProperties.resources_requests_cpu)
+        || (jobProperties.memory && jobProperties.resources_limits_memory)
+        || (jobProperties.memory && jobProperties.resources_requests_memory)
+    ) {
+        throw new Error(`Validation failed for job config: ${inputConfig.name} - cpu/memory can't be mixed with resource settings of the same type.`);
+    }
+
+    return jobProperties;
 }

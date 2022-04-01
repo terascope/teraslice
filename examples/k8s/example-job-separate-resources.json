@@ -1,0 +1,29 @@
+{
+    "name": "example-data-generator-job-separate-resources",
+    "lifecycle": "once",
+    "workers": 2,
+    "assets": [
+        "example",
+        "elasticsearch",
+        "standard"
+    ],
+    "resources_requests_cpu": 0.25,
+    "resources_limits_cpu": 1,
+    "resources_requests_memory": 128000000,
+    "resources_limits_memory": 536870912,
+    "operations": [
+        {
+            "_op": "data_generator",
+            "size": 5000000
+        },
+        {
+            "_op": "example-op"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "index": "terak8s-example-data",
+            "type": "events",
+            "size": 5000
+        }
+    ]
+}

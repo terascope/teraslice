@@ -598,7 +598,7 @@ describe('when validating k8s clustering', () => {
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
 
-    describe('when passed a jobConfig with resources', () => {
+    describe('when passed a jobConfig with cpu and memory', () => {
         it('should return a completed and valid jobConfig', () => {
             const schema = jobSchema(context);
             const job = {
@@ -617,6 +617,58 @@ describe('when validating k8s clustering', () => {
             const jobConfig = validateJobConfig(schema, job);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
+        });
+    });
+
+    describe('when passed a jobConfig with cpu and memory resources', () => {
+        it('should return a completed and valid jobConfig', () => {
+            const schema = jobSchema(context);
+            const job = {
+                resources_requests_cpu: 1,
+                resources_requests_memory: 805306368,
+                resources_limits_cpu: 1.5,
+                resources_limits_memory: 905306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            const jobConfig = validateJobConfig(schema, job);
+            expect(jobConfig.resources_requests_cpu).toEqual(job.resources_requests_cpu);
+            expect(jobConfig.resources_requests_memory).toEqual(job.resources_requests_memory);
+            expect(jobConfig.resources_limits_cpu).toEqual(job.resources_limits_cpu);
+            expect(jobConfig.resources_limits_memory).toEqual(job.resources_limits_memory);
+        });
+    });
+
+    describe('when passed a jobConfig with old and new cpu and memory resources', () => {
+        it('should throw an exception', () => {
+            const schema = jobSchema(context);
+            const job = {
+                cpu: 1,
+                memory: 805306368,
+                resources_requests_cpu: 1,
+                resources_limits_cpu: 1.5,
+                resources_requests_memory: 805306368,
+                resources_limits_memory: 905306368,
+                operations: [
+                    {
+                        _op: 'noop',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError('Validation failed for job config: undefined - cpu/memory can\'t be mixed with resource settings of the same type.');
         });
     });
 

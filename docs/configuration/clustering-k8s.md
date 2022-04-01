@@ -6,6 +6,8 @@ sidebar_label: Kubernetes Clustering
 Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kubernetes have been used:
 
+* `1.22.*`
+* `1.20.*`
 * `1.19.*`
 * `1.18.*`
 * `1.17.*`
@@ -175,8 +177,37 @@ labels that Teraslice uses.
 
 It is possible to set CPU and memory resource constraints for your Teraslice
 Workers that translate to Kubernetes resource constraints.  Resources for
-Execution Controllers are handled separately and described below.  Currently you
-can specify optional integer values on your job or in the Teraslice master
+Execution Controllers are handled separately and described below.
+
+#### New Method for Setting Resources
+
+The new method for setting CPU and memory resources on Teraslice workers allows
+you to explicitly set the CPU and memory requests and limits separately on the
+Teraslice Job, which will result in the Kubernetes deployment for the Teraslice
+workers having the corresponding resource set.  You may set any combination of
+the following resources on your job or omit them entirely.
+
+```json
+"resources_requests_cpu": 0.25,
+"resources_limits_cpu": 1,
+"resources_requests_memory": 128000000,
+"resources_limits_memory": 536870912,
+```
+
+The cpu settings are in [Kubernetes CPU Units](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#cpu-units)
+and the memory settings are in bytes.
+
+Note: The old method of setting just `cpu` or `memory` on the job or in the
+Teraslice master config file will be ignored if any of the new `resource_*` job
+properties are configured.
+
+#### Old Method for Setting Resources
+
+**DEPRECATED** This older method of specifying CPU and memory resources should
+be avoided and will be removed in future versions.  They are only present
+briefly to aid in the migration of jobs.
+
+You can specify optional integer values on your job or in the Teraslice master
 configuration as shown below. The `cpu` setting is in vcores and the `memory`
 setting is in bytes.  Teraslice `cpu` and `memory` settings on your Teraslice
 Job override any settings in the master configuration.  Both are optional,
@@ -417,9 +448,7 @@ cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
 export TERASLICE_MODE=minikube
-# Set the version of Kubernetes you want to run
-export KUBERNETES_VERSION=v1.19.7
-minikube start --memory 4096 --cpus 4 --kubernetes-version=${KUBERNETES_VERSION}
+minikube start --memory 4096 --cpus 4
 eval $(minikube docker-env)
 make build
 make setup-all

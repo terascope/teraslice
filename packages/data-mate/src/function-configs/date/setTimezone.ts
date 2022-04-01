@@ -3,6 +3,7 @@ import {
     isNumber,
     isString,
     setTimezoneFP,
+    timezoneToOffset,
     toISO8601
 } from '@terascope/utils';
 import {
@@ -62,8 +63,7 @@ export const setTimezoneConfig: FieldTransformConfig<SetTimezoneArgs> = {
             },
             field: 'testField',
             input: '2020-02-14T20:45:30.091Z',
-            // FIXME this test breaks during daylight savings
-            output: [new Date('2020-02-14T20:45:30.091Z').getTime(), 1 * 60],
+            output: [new Date('2020-02-14T20:45:30.091Z').getTime(), timezoneToOffset('Europe/Paris')],
             serialize_output: toISO8601
         }
     ],
