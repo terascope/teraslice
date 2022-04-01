@@ -74,7 +74,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
     function search(query) {
         const esVersion = getESVersion();
-        if (esVersion >= 7) {
+        if (esVersion !== 6) {
             if (query._sourceExclude) {
                 query._sourceExcludes = query._sourceExclude.slice();
                 delete query._sourceExclude;
@@ -228,31 +228,29 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             );
             return Promise.resolve(true);
         }
-        return client.cluster.stats({}).then((data) => {
-            if (!_checkVersion(data.nodes.versions[0])) {
-                return Promise.resolve();
-            }
-            return client.indices
-                .getSettings({})
-                .then((results) => {
-                    const resultIndex = _verifyIndex(results, config.index);
-                    if (resultIndex.found) {
-                        resultIndex.indexWindowSize.forEach((ind) => {
-                            logger.warn(
-                                `max_result_window for index: ${ind.name} is set at ${ind.windowSize}. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`
-                            );
-                        });
-                    } else {
-                        const error = new TSError('index specified in reader does not exist', {
-                            statusCode: 404,
-                        });
-                        return Promise.reject(error);
-                    }
 
-                    return Promise.resolve();
-                })
-                .catch((err) => Promise.reject(new TSError(err)));
-        });
+        return client.indices
+            .getSettings({})
+            .then((results) => {
+                const settingsData = results.body && results.meta ? results.body : results;
+                const resultIndex = _verifyIndex(settingsData, config.index);
+
+                if (resultIndex.found) {
+                    resultIndex.indexWindowSize.forEach((ind) => {
+                        logger.warn(
+                            `max_result_window for index: ${ind.name} is set at ${ind.windowSize}. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`
+                        );
+                    });
+                } else {
+                    const error = new TSError('index specified in reader does not exist', {
+                        statusCode: 404,
+                    });
+                    return Promise.reject(error);
+                }
+
+                return Promise.resolve();
+            })
+            .catch((err) => Promise.reject(new TSError(err)));
     }
 
     function putTemplate(template, name) {
@@ -340,7 +338,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (getESVersion() >= 7) {
+            if (getESVersion() !== 7) {
                 const actionKey = getFirstKey(record.action);
                 const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
@@ -631,14 +629,26 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 client
                     .search(queryParam)
                     .then((data) => {
-                        const { failures, failed } = data._shards;
-                        if (!failed) {
-                            resolve(data);
-                            return;
+                        const failuresReasons = [];
+
+                        if (data.body) {
+                            const { failures, failed } = data.body._shards;
+                            if (!failed) {
+                                resolve(data.body);
+                                return;
+                            }
+                            failuresReasons.push(...failures);
+                        } else {
+                            const { failures, failed } = data._shards;
+                            if (!failed) {
+                                resolve(data);
+                                return;
+                            }
+                            failuresReasons.push(...failures);
                         }
 
                         const reasons = uniq(
-                            flatten(failures.map((shard) => shard.reason.type))
+                            flatten(failuresReasons.map((shard) => shard.reason.type))
                         );
 
                         if (
@@ -665,13 +675,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function _esV7adjustments(queryParam) {
-        if (getESVersion() >= 7) {
+        if (getESVersion() !== 6) {
             queryParam.trackTotalHits = true;
         }
     }
 
     function _adjustTypeForEs7(query) {
-        if (getESVersion() >= 7) {
+        if (getESVersion() !== 6) {
             if (Array.isArray(query)) {
                 return _removeTypeFromBulkRequest(query);
             }
@@ -682,7 +692,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function _removeTypeFromBulkRequest(query) {
-        if (getESVersion() < 7) return query;
+        if (getESVersion() === 6) return query;
 
         return query.map((queryItem) => {
             if (isSimpleObject(queryItem)) {
@@ -812,11 +822,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         };
     }
 
-    function _checkVersion(str) {
-        const num = Number(str.replace(/\./g, ''));
-        return num >= 210;
-    }
-
     function isAvailable(index, recordType) {
         const query = {
             index,
@@ -896,11 +901,14 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function getESVersion() {
-        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
+        const newClientVersion = get(client, '__meta.version');
+        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+
         if (esVersion && isString(esVersion)) {
             const [majorVersion] = esVersion.split('.');
             return toNumber(majorVersion);
         }
+
         return 6;
     }
 
@@ -912,16 +920,15 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         const defaultParams = {};
 
         const esVersion = getESVersion();
-        if (esVersion >= 6) {
-            if (params.body.template) {
-                if (isTemplate) {
-                    params.body.index_patterns = castArray(params.body.template).slice();
-                }
-                delete params.body.template;
+
+        if (params.body.template != null) {
+            if (isTemplate && params.body.index_patterns == null) {
+                params.body.index_patterns = castArray(params.body.template).slice();
             }
+            delete params.body.template;
         }
 
-        if (esVersion >= 7) {
+        if (esVersion !== 6) {
             const typeMappings = get(params.body, 'mappings', {});
             if (typeMappings.properties) {
                 defaultParams.includeTypeName = false;
@@ -935,6 +942,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 });
             }
         }
+
         return Object.assign({}, defaultParams, params);
     }
 
@@ -1034,7 +1042,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     function _verifyMapping(query, configMapping, recordType) {
         const params = Object.assign({}, query);
         const esVersion = getESVersion();
-        if (esVersion > 6) {
+        if (esVersion !== 6) {
             if (recordType) {
                 params.includeTypeName = true;
             }

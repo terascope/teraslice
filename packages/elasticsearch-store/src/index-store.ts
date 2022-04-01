@@ -139,7 +139,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
-        metadata[action] = this.esVersion >= 7 ? {
+        metadata[action] = this.esVersion !== 6 ? {
             _index: this.writeIndex,
             retry_on_conflict
         } : {
@@ -424,7 +424,7 @@ export class IndexStore<T extends ts.AnyObject> {
             const existing = await this.get(id) as any;
             const params: any = {};
             if (ts.DataEntity.isDataEntity(existing)) {
-                if (this.esVersion >= 7) {
+                if (this.esVersion !== 6) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
                     params.if_primary_term = existing.getMetadata('_primary_term');
                 } else {
@@ -450,7 +450,7 @@ export class IndexStore<T extends ts.AnyObject> {
         ...params: ((Partial<P> & Record<string, any>)|undefined)[]
     ): P {
         return Object.assign(
-            this.esVersion >= 7 ? {
+            this.esVersion !== 6 ? {
                 index,
             } : {
                 index,
@@ -674,7 +674,7 @@ export class IndexStore<T extends ts.AnyObject> {
     protected async _search(
         params: PartialParam<SearchParams<T>>,
     ): Promise<es.SearchResponse<T>> {
-        if (this.esVersion >= 7) {
+        if (this.esVersion !== 6) {
             const p: any = params;
             if (p._sourceExclude) {
                 p._sourceExcludes = p._sourceExclude.slice();

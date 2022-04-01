@@ -116,7 +116,7 @@ export class DataType {
             properties: {},
         };
 
-        if (version < 7) {
+        if (version === 6) {
             Object.assign(mappingSettings, {
                 _all: {
                     enabled: false,
@@ -126,7 +126,7 @@ export class DataType {
 
         const esMapping: ESMapping = {
             settings: {},
-            mappings: version >= 7 ? mappingSettings : {
+            mappings: version !== 6 ? mappingSettings : {
                 [indexType]: mappingSettings,
             },
         };
@@ -135,7 +135,7 @@ export class DataType {
             const { mapping, analyzer, tokenizer } = type.toESMapping(version);
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
-                    const keyPath = version >= 7
+                    const keyPath = version !== 6
                         ? ['mappings', 'properties', key]
                         : ['mappings', indexType, 'properties', key];
                     ts.set(esMapping, keyPath, config);

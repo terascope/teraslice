@@ -218,8 +218,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         delete params._sourceInclude;
         delete params._sourceExclude;
 
-        const excludesKey: any = esVersion >= 7 ? '_sourceExcludes' : '_sourceExclude';
-        const includesKey: any = esVersion >= 7 ? '_sourceIncludes' : '_sourceInclude';
+        const excludesKey: any = esVersion === 6 ? '_sourceExclude' : '_sourceExcludes';
+        const includesKey: any = esVersion === 6 ? '_sourceInclude' : '_sourceIncludes';
 
         const searchParams: SearchParams = {
             ...params,
