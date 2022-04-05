@@ -263,7 +263,7 @@ export class IndexManager {
 
     async getMapping(index: string): Promise<any> {
         const params: any = { index };
-        if (this.esVersion === 7) {
+        if (this.esVersion !== 6) {
             params.includeTypeName = false;
         }
         return this.client.indices.getMapping(params);
@@ -277,7 +277,7 @@ export class IndexManager {
                 properties,
             },
         };
-        if (this.esVersion >= 7) {
+        if (this.esVersion !== 6) {
             delete params.type;
             params.includeTypeName = false;
         }
@@ -294,7 +294,7 @@ export class IndexManager {
     ): Promise<void> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = this.esVersion >= 7 ? [
+        const propertiesPath = this.esVersion !== 6 ? [
             'mappings', 'properties'
         ] : ['mappings', type, 'properties'];
 
@@ -353,7 +353,7 @@ export class IndexManager {
 
     async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
         const params: any = { name, flatSettings };
-        if (this.esVersion === 7) {
+        if (this.esVersion !== 6) {
             params.includeTypeName = false;
         }
         return this.client.indices.getTemplate(params);

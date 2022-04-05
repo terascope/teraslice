@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import * as ts from '@terascope/utils';
-import { createConnection } from '../connector-utils';
+import { createConnection, createClient as createDBClient } from '../connector-utils';
 import { createRootLogger } from './utils';
 import * as i from '../interfaces';
 
@@ -16,6 +16,51 @@ export default function registerApis(context: i.FoundationContext): void {
     const connections = Object.create(null);
 
     const foundationApis: i.FoundationAPIs = {
+        async createClient(options) {
+            const { type, endpoint = 'default', cached } = options;
+
+            // If it's acceptable to use a cached connection just return instead
+            // of creating a new one
+            const key = `${type}:${endpoint}`;
+
+            // Location in the configuration where we look for connectors.
+            const { connectors } = foundationConfig;
+
+            if (cached && Object.prototype.hasOwnProperty.call(connections, key)) {
+                return connections[key];
+            }
+
+            if (Object.prototype.hasOwnProperty.call(connectors, type)) {
+                context.logger.info(`creating connection for ${type}`);
+
+                let moduleConfig = {};
+
+                if (Object.prototype.hasOwnProperty.call(connectors[type], endpoint)) {
+                    moduleConfig = Object.assign(
+                        {},
+                        foundationConfig.connectors[type][endpoint]
+                    );
+                    // If an endpoint was specified and doesn't exist we need to error.
+                } else if (endpoint) {
+                    throw new Error(`No ${type} endpoint configuration found for ${endpoint}`);
+                }
+
+                const connection = await createDBClient(
+                    type,
+                    moduleConfig,
+                    context.logger,
+                    options
+                );
+
+                if (cached) {
+                    connections[key] = connection;
+                }
+
+                return connection;
+            }
+
+            throw new Error(`No connection configuration found for ${type}`);
+        },
         getConnection(options) {
             const { type, endpoint = 'default', cached } = options;
 

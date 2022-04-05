@@ -117,6 +117,16 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (launchServices.includes(Service.Opensearch)) {
+        Object.assign(env, {
+            OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
+            OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
+            OPENSEARCH_PORT: config.OPENSEARCH_PORT,
+            OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
+        });
+    }
+
     if (options.keepOpen) {
         env.KEEP_OPEN = 'true';
     }

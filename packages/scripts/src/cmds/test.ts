@@ -22,6 +22,7 @@ type Options = {
     'kafka-version': string;
     'minio-version': string;
     'rabbitmq-version': string;
+    'opensearch-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
     'ignore-mount': boolean
@@ -112,6 +113,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.RABBITMQ_VERSION,
             })
+            .option('opensearch-version', {
+                description: 'The opensearch version to use',
+                type: 'string',
+                default: config.OPENSEARCH_VERSION,
+            })
             .option('ignore-mount', {
                 description: 'If we should ignore configured mount',
                 type: 'boolean',
@@ -142,6 +148,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
         const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
+        const opensearchVersion = hoistJestArg(argv, 'opensearch-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
 
@@ -163,6 +170,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             kafkaVersion,
             minioVersion,
             rabbitmqVersion,
+            opensearchVersion,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
