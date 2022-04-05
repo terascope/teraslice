@@ -295,6 +295,11 @@ const schema = {
         default: 'default',
         format: 'optional_String'
     },
+    kubernetes_priority_class_name: {
+        doc: 'Priority class that the Teraslice master, execution controller, and stateful workers should run with',
+        default: undefined,
+        format: 'optional_String'
+    },
     kubernetes_config_map_name: {
         doc: 'Specify the name of the Kubernetes ConfigMap used to configure worker pods',
         default: 'teraslice-worker',

@@ -103,6 +103,7 @@ support k8s based Teraslice deployments.
 |  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String  | optional |
 |   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String  | optional |
 |      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String  | optional |
+| kubernetes_priority_class_name |                       Priority class that the Teraslice master, execution controller, and stateful workers should run with                                 | String  | optional |
 | kubernetes_worker_antiaffinity |                                   If `true`, pod antiaffinity will be enabled for Teraslice workers, `false` by default                                    | Boolean | optional |
 |  memory_execution_controller   |                                         Memory resources to use for Execution Controller request and limit values                                          | Number  | optional |
 
