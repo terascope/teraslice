@@ -54,6 +54,7 @@ class K8sResource {
         this._setImagePullSecret();
         this._setEphemeralStorage();
         this._setExternalPorts();
+        this._setPriorityClassName();
 
         if (resourceName === 'worker') {
             this._setWorkerAntiAffinity();
@@ -216,6 +217,15 @@ class K8sResource {
             this.resource.spec.template.spec.imagePullSecrets = [
                 { name: this.terasliceConfig.kubernetes_image_pull_secret }
             ];
+        }
+    }
+
+    _setPriorityClassName() {
+        if (this.terasliceConfig.kubernetes_priority_class_name) {
+            if (this.nodeType === 'execution_controller') {
+                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
+            }
+            // TODO: set for stateful workers, make stateful job property first
         }
     }
 

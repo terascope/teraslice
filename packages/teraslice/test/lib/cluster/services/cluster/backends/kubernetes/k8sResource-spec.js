@@ -733,6 +733,7 @@ describe('k8sResource', () => {
             // The following properties should be absent in the default case
             expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
             expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
             // Configmaps should be mounted on all workers
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -889,6 +890,20 @@ describe('k8sResource', () => {
               operator: Equal
               value: value1
               effect: NoSchedule`));
+        });
+    });
+
+    describe('teraslice config with kubernetes_priority_class_name set', () => {
+        it('generates execution controller job with priorityClassName in pod spec', () => {
+            terasliceConfig.kubernetes_priority_class_name = 'testPriorityClass';
+
+            const kr = new K8sResource('jobs', 'execution_controller', terasliceConfig, execution);
+
+            expect(kr.resource.kind).toBe('Job');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+
+            expect(kr.resource.spec.template.spec).toHaveProperty('priorityClassName');
+            expect(kr.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
         });
     });
 });
