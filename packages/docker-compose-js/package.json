@@ -37,7 +37,6 @@
     "dependencies": {
         "debug": "^4.3.3"
     },
-    "devDependencies": {},
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
         "yarn": ">=1.16.0"

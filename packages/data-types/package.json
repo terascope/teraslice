@@ -13,9 +13,7 @@
     "sideEffects": false,
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "bin": {
-        "data-types": "./bin/data-types.js"
-    },
+    "bin": "./bin/data-types.js",
     "files": [
         "dist/src/**/*",
         "bin/*"

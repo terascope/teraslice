@@ -36,7 +36,6 @@
         "node-notifier": "^10.0.0",
         "typescript": "~4.5.4"
     },
-    "dependencies": {},
     "devDependencies": {
         "@types/bluebird": "^3.5.32",
         "@types/convict": "^5.2.2",

@@ -23,8 +23,6 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
-    "dependencies": {},
-    "devDependencies": {},
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
         "yarn": ">=1.16.0"

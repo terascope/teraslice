@@ -24,18 +24,18 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@elastic/elasticsearch": "7.13.0",
+        "@opensearch-project/opensearch": "^1.0.2",
         "@terascope/data-mate": "^0.37.4",
         "@terascope/data-types": "^0.34.1",
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.44.1",
-        "@types/elasticsearch": "^5.0.40",
         "ajv": "^6.12.6",
         "uuid": "^8.3.2",
         "xlucene-translator": "^0.26.1"
     },
     "devDependencies": {
-        "@types/uuid": "^8.3.1",
-        "elasticsearch": "^15.4.1"
+        "@types/uuid": "^8.3.1"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",

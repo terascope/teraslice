@@ -33,6 +33,7 @@
         "bunyan": "^1.8.15",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
+        "elasticsearch-store": "^0.60.4",
         "js-yaml": "^4.1.0",
         "mongoose": "~5.11.12",
         "nanoid": "^3.2.0",
