@@ -1,3 +1,6 @@
 {
-    "extends": "@terascope"
+    "extends": "@terascope",
+    "rules": {
+        "@typescript-eslint/naming-convention": "off"
+    }
 }
