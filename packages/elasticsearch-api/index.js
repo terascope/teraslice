@@ -338,7 +338,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (getESVersion() !== 7) {
+            if (getESVersion() !== 6) {
                 const actionKey = getFirstKey(record.action);
                 const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
@@ -355,10 +355,9 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             return record.data ? [record.action, record.data] : [record.action];
         });
 
-        const result = await _clientRequest('bulk', { body });
-
-        if (!result.errors) {
-            return result.items.reduce((c, item) => {
+        const results = await _clientRequest('bulk', { body });
+        if (!results.body.errors) {
+            return results.body.items.reduce((c, item) => {
                 const [value] = Object.values(item);
                 // ignore non-successful status codes
                 if (value.status != null && value.status >= 400) return c;
@@ -368,7 +367,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         const {
             retry, successful, error, reason
-        } = _filterRetryRecords(actionRecords, result);
+        } = _filterRetryRecords(actionRecords, results.body);
 
         if (error) {
             throw new Error(`bulk send error: ${reason}`);

@@ -42,21 +42,31 @@ export function getUrl(config: ClientConfig): string {
         return config.node;
     }
 
+    if (config.nodes && isString(config.nodes)) {
+        return config.nodes;
+    }
+
     if (isNodeOptions(config.node)) {
         return config.node.url;
     }
 
+    if (isNodeOptions(config.nodes)) {
+        return config.nodes.url;
+    }
+
     if (Array.isArray(config.node)) {
-        const firstNode = config.node[0];
-        if (isNodeOptions(firstNode)) {
-            return firstNode.url;
+        const val = config.node[0];
+        if (isString(val)) return val;
+        if (isNodeOptions(val)) {
+            return val.url;
         }
     }
 
     if (Array.isArray(config.nodes)) {
-        const firstNode = config.nodes[0];
-        if (isNodeOptions(firstNode)) {
-            return firstNode.url;
+        const val = config.nodes[0];
+        if (isString(val)) return val;
+        if (isNodeOptions(val)) {
+            return val.url;
         }
     }
 

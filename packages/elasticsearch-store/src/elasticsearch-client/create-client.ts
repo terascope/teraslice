@@ -37,7 +37,7 @@ export function createEndpointQuery(config: ClientConfig): OptionsOfJSONResponse
     return gotConfig;
 }
 
-export async function createClient(config: Record<string, any>, logger = debugLogger('elasticsearch-client')) {
+export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
     const gotOptions = createEndpointQuery(config);
 
     try {
@@ -66,7 +66,8 @@ export async function createClient(config: Record<string, any>, logger = debugLo
         const elasticConfig = {
             ...config,
             node: gotOptions.url as string
-        };
+        } as ClientConfig;
+        // @ts-expect-error
         const client = new elastic.Client(elasticConfig);
         const meta = {
             client_type: 'elasticsearch',
