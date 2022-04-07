@@ -30,11 +30,11 @@
         "test": "ts-scripts test"
     },
     "resolutions": {
-        "@types/lodash": "^4.14.173",
-        "debug": "^4.3.3",
+        "@types/lodash": "^4.14.181",
+        "debug": "^4.3.4",
         "ms": "^2.1.3",
-        "node-notifier": "^10.0.0",
-        "typescript": "~4.5.4"
+        "node-notifier": "^10.0.1",
+        "typescript": "~4.6.3"
     },
     "devDependencies": {
         "@types/bluebird": "^3.5.32",
@@ -45,7 +45,7 @@
         "@types/lodash": "^4.14.181",
         "@types/node": "^16.11.22",
         "@types/uuid": "^8.3.4",
-        "eslint": "^8.12.0",
+        "eslint": "^8.5.0",
         "jest": "^27.5.1",
         "jest-extended": "^1.2.0",
         "jest-watch-typeahead": "^1.0.0",

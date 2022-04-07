@@ -33,7 +33,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "^4.3.3",
+        "debug": "^4.3.4",
         "ms": "^2.1.3"
     },
     "dependencies": {
