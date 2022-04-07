@@ -32,9 +32,9 @@
         "@terascope/data-types": "^0.34.1",
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.44.1",
-        "@types/validator": "^13.7.1",
-        "awesome-phonenumber": "^2.65.0",
-        "date-fns": "^2.27.0",
+        "@types/validator": "^13.7.2",
+        "awesome-phonenumber": "^2.70.0",
+        "date-fns": "^2.28.0",
         "ip-bigint": "^3.0.3",
         "ip6addr": "^0.2.5",
         "ipaddr.js": "^2.0.1",
@@ -50,7 +50,7 @@
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.2",
-        "@types/uuid": "^8.3.1",
+        "@types/uuid": "^8.3.4",
         "benchmark": "^2.1.4",
         "chance": "^1.1.8",
         "lodash": "^4.17.21"

@@ -38,20 +38,20 @@
         "@terascope/data-mate": "^0.37.4",
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.44.1",
-        "awesome-phonenumber": "^2.65.0",
+        "awesome-phonenumber": "^2.70.0",
         "graphlib": "^2.1.8",
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
-        "nanoid": "^3.2.0",
+        "nanoid": "^3.3.2",
         "valid-url": "^1.0.9",
         "validator": "^13.7.0",
-        "yargs": "^17.3.1"
+        "yargs": "^17.4.0"
     },
     "devDependencies": {
         "@types/graphlib": "^2.1.7",
         "@types/jexl": "^2.3.0",
         "@types/valid-url": "^1.0.2",
-        "@types/validator": "^13.7.1",
+        "@types/validator": "^13.7.2",
         "@types/yargs": "^16.0.1",
         "execa": "^5.1.0"
     },

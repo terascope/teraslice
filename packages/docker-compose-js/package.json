@@ -35,7 +35,7 @@
         "debug": "^4.3.3"
     },
     "dependencies": {
-        "debug": "^4.3.3"
+        "debug": "^4.3.4"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
