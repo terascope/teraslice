@@ -164,6 +164,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'the number of workers dedicated for the job',
             format: 'positive_int'
         },
+        stateful: {
+            default: false,
+            doc: 'Indicates that the Teraslice worker maintains internal state, and must be handled differently',
+            format: Boolean,
+        },
         labels: {
             default: null,
             doc: 'An array of arrays containing key value pairs used to label kubernetes resources.',

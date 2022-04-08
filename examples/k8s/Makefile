@@ -193,6 +193,7 @@ register: ## creates asset and registers job
 	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-separate-resources.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-stateful.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-targets.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
 
@@ -201,6 +202,7 @@ deregister: ## resets jobs
 	earl tjm reset example-job-labels.json || echo '* it is okay'
 	earl tjm reset example-job-resource.json || echo '* it is okay'
 	earl tjm reset example-job-separate-resources.json || echo '* it is okay'
+	earl tjm reset example-job-stateful.json || echo '* it is okay'
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
 

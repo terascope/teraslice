@@ -25,6 +25,7 @@ class K8sResource {
     constructor(resourceType, resourceName, terasliceConfig, execution) {
         this.execution = execution;
         this.jobLabelPrefix = 'job.teraslice.terascope.io';
+        this.jobPropertyLabelPrefix = 'job-property.teraslice.terascope.io';
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
 
@@ -222,10 +223,13 @@ class K8sResource {
 
     _setPriorityClassName() {
         if (this.terasliceConfig.kubernetes_priority_class_name) {
-            if (this.nodeType === 'execution_controller') {
+            if (this.nodeType === 'execution_controller'
+                || (this.nodeType === 'worker' && this.execution.stateful)) {
+                // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
+                // eslint-disable-next-line max-len
+                this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
             }
-            // TODO: set for stateful workers, make stateful job property first
         }
     }
 
