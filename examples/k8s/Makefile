@@ -134,6 +134,15 @@ showauth: ## Show roles and roleBindings
 	kubectl get --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE) -o yaml
 	kubectl get --namespace $(NAMESPACE) roleBindings teraslice-all-$(NAMESPACE) -o yaml
 
+priority: ## Setup Kubernetes Priority Class
+	kubectl apply -f priorityClass.yaml
+
+delete-priority: ## Remove Kubernetes Priority Class
+	kubectl delete priorityclasses high-priority
+
+showpriority:  ## Show Kubernetes Priority Class
+	kubectl get priorityclasses high-priority -o yaml
+
 configs: ## create the configmaps
 ifeq ($(TERASLICE_MODE),minikube)
 	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
@@ -160,7 +169,7 @@ build: ## builds docker images
 push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
 
-setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+setup-all: namespace elasticsearch auth priority setup ## setup EVERYTHING
 	earl aliases remove ${TERASLICE_ALIAS} 2> /dev/null || true
 	earl aliases add ${TERASLICE_ALIAS} ${TERASLICE_MASTER_URL}
 

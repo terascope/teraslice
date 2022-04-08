@@ -18,6 +18,7 @@ teraslice:
     master_hostname: "teraslice-master"
     kubernetes_image: "teraslice-k8sdev"
     kubernetes_namespace: "ts-dev1"
+    kubernetes_priority_class_name: 'high-priority'
     name: "ts-dev1"
     cpu: 1
     memory: 536870912
