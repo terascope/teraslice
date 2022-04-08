@@ -118,6 +118,7 @@ must create a Kubernetes `PriorityClass` with an appropriate priority for your
 Kubernetes cluster.  See the
 [Kubernetes `PriorityClass` documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/)
 for details.
+
 ## Teraslice Job Properties
 
 Support for Kubernetes based clustering adds additional properties to a
