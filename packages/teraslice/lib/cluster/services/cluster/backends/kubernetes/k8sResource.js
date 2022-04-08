@@ -223,8 +223,15 @@ class K8sResource {
 
     _setPriorityClassName() {
         if (this.terasliceConfig.kubernetes_priority_class_name) {
-            if (this.nodeType === 'execution_controller'
-                || (this.nodeType === 'worker' && this.execution.stateful)) {
+            if (this.nodeType === 'execution_controller') {
+                // eslint-disable-next-line max-len
+                this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
+                if (this.execution.stateful) {
+                    // eslint-disable-next-line max-len
+                    this.resource.spec.template.metadata.labels[`${this.jobPropertyLabelPrefix}/stateful`] = 'true';
+                }
+            }
+            if (this.nodeType === 'worker' && this.execution.stateful) {
                 // eslint-disable-next-line max-len
                 this.resource.spec.template.spec.priorityClassName = this.terasliceConfig.kubernetes_priority_class_name;
                 // eslint-disable-next-line max-len
