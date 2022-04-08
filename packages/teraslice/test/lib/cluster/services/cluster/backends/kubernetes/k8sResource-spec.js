@@ -46,8 +46,9 @@ describe('k8sResource', () => {
 
             // The following properties should be absent in the default case
             // Note: This tests that both affinity and podAntiAffinity are absent
-            expect(kr).not.toHaveProperty('resource.spec.template.spec.affinity');
-            expect(kr).not.toHaveProperty('resource.spec.template.spec.imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
             // Configmaps should be mounted on all workers
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -733,6 +734,7 @@ describe('k8sResource', () => {
             // The following properties should be absent in the default case
             expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
             expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('priorityClassName');
 
             // Configmaps should be mounted on all workers
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -889,6 +891,31 @@ describe('k8sResource', () => {
               operator: Equal
               value: value1
               effect: NoSchedule`));
+        });
+    });
+
+    describe('teraslice config with kubernetes_priority_class_name set', () => {
+        it('generates execution controller job with priorityClassName in pod spec', () => {
+            execution.stateful = true;
+            terasliceConfig.kubernetes_priority_class_name = 'testPriorityClass';
+
+            const krWorker = new K8sResource('deployments', 'worker', terasliceConfig, execution);
+
+            expect(krWorker.resource.kind).toBe('Deployment');
+            expect(krWorker.resource.spec.template.spec).toHaveProperty('priorityClassName');
+            expect(krWorker.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
+            // eslint-disable-next-line max-len
+            expect(krWorker.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']).toEqual('true');
+
+            const krExporter = new K8sResource('jobs', 'execution_controller', terasliceConfig, execution);
+
+            expect(krExporter.resource.kind).toBe('Job');
+            expect(krExporter.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+
+            expect(krExporter.resource.spec.template.spec).toHaveProperty('priorityClassName');
+            expect(krExporter.resource.spec.template.spec.priorityClassName).toEqual('testPriorityClass');
+            // eslint-disable-next-line max-len
+            expect(krExporter.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']).toEqual('true');
         });
     });
 });

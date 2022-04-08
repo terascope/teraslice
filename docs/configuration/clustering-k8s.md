@@ -103,6 +103,7 @@ support k8s based Teraslice deployments.
 |  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String  | optional |
 |   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String  | optional |
 |      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String  | optional |
+| kubernetes_priority_class_name |                       Priority class that the Teraslice master, execution controller, and stateful workers should run with                                 | String  | optional |
 | kubernetes_worker_antiaffinity |                                   If `true`, pod antiaffinity will be enabled for Teraslice workers, `false` by default                                    | Boolean | optional |
 |  memory_execution_controller   |                                         Memory resources to use for Execution Controller request and limit values                                          | Number  | optional |
 
@@ -111,6 +112,12 @@ Note that the `assets_volume` should also be mounted to your Teraslice master po
 Targets specified in the `execution_controller_targets` setting will result in
 required NodeAffinities and tolerations being added to the execution controller
 Jobs so that they can be targeted to specific parts of your k8s infrastructure.
+
+In order for the setting `kubernetes_priority_class_name` to be useful, you
+must create a Kubernetes `PriorityClass` with an appropriate priority for your
+Kubernetes cluster.  See the
+[Kubernetes `PriorityClass` documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/)
+for details.
 
 ## Teraslice Job Properties
 
@@ -243,6 +250,25 @@ Teraslice Master configuration.  Settings on your Teraslice Job override the
 settings in the Master configuration.  The behavior of these two settings is
 the same as the Worker settings with the exception of the default being applied
 in the Execution Controller case.
+
+### Stateful Workers
+
+Teraslice jobs which use processors that maintain internal state might need
+special handling in Kubernetes.  To support this we have the job property
+`stateful`.  Setting it `stateful: true` in your Teraslice job will result the
+following things:
+
+* Teraslice workers for this job will have `priorityClassName` set equal to the
+`kubernetes_priority_class_name` setting.  This is meant to prevent preemption
+of the worker pods which could otherwise happen.
+* All of the Teraslice worker pods will have the Kubernetes label
+`job-property.teraslice.terascope.io/stateful: true`.
+
+This property is a boolean, so is simply set like:
+
+```json
+"stateful": true
+```
 
 ### Node Affinity and Tolerance Using Teraslice Job Targets
 

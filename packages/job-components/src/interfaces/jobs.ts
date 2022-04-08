@@ -95,6 +95,7 @@ export interface ValidatedJobConfig {
     env_vars: { [key: string]: string };
     slicers: number;
     workers: number;
+    stateful?: boolean;
     /** This will only be available in the context of k8s */
     labels?: { [key: string]: string };
     /** This will only be available in the context of k8s */
