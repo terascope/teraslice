@@ -355,9 +355,11 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             return record.data ? [record.action, record.data] : [record.action];
         });
 
-        const results = await _clientRequest('bulk', { body });
-        if (!results.body.errors) {
-            return results.body.items.reduce((c, item) => {
+        const response = await _clientRequest('bulk', { body });
+        const results = response.body ? response.body : response;
+
+        if (!results.errors) {
+            return results.items.reduce((c, item) => {
                 const [value] = Object.values(item);
                 // ignore non-successful status codes
                 if (value.status != null && value.status >= 400) return c;
@@ -367,7 +369,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         const {
             retry, successful, error, reason
-        } = _filterRetryRecords(actionRecords, results.body);
+        } = _filterRetryRecords(actionRecords, results);
 
         if (error) {
             throw new Error(`bulk send error: ${reason}`);
@@ -874,7 +876,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 });
         });
     }
-
+    // TODO: verifyClient needs to be checked with new client usage
     /**
      * Verify the state of the underlying es client.
      * Will throw error if in fatal state, like the connection is closed.
