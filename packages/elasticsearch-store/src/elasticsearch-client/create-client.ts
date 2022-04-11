@@ -51,7 +51,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             };
             const client = new open.Client(openConfig);
             const meta = {
-                client_type: 'opensearch',
+                distribution: 'opensearch',
                 version: body.version.number
             };
             // @ts-expect-error
@@ -70,7 +70,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
         // @ts-expect-error
         const client = new elastic.Client(elasticConfig);
         const meta = {
-            client_type: 'elasticsearch',
+            distribution: 'elasticsearch',
             version: body.version.number
         };
         // @ts-expect-error
