@@ -134,6 +134,15 @@ showauth: ## Show roles and roleBindings
 	kubectl get --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE) -o yaml
 	kubectl get --namespace $(NAMESPACE) roleBindings teraslice-all-$(NAMESPACE) -o yaml
 
+priority: ## Setup Kubernetes Priority Class
+	kubectl apply -f priorityClass.yaml
+
+delete-priority: ## Remove Kubernetes Priority Class
+	kubectl delete priorityclasses high-priority
+
+showpriority:  ## Show Kubernetes Priority Class
+	kubectl get priorityclasses high-priority -o yaml
+
 configs: ## create the configmaps
 ifeq ($(TERASLICE_MODE),minikube)
 	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
@@ -160,7 +169,7 @@ build: ## builds docker images
 push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
 
-setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+setup-all: namespace elasticsearch auth priority setup ## setup EVERYTHING
 	earl aliases remove ${TERASLICE_ALIAS} 2> /dev/null || true
 	earl aliases add ${TERASLICE_ALIAS} ${TERASLICE_MASTER_URL}
 
@@ -193,6 +202,7 @@ register: ## creates asset and registers job
 	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-separate-resources.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-stateful.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-targets.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
 
@@ -201,6 +211,7 @@ deregister: ## resets jobs
 	earl tjm reset example-job-labels.json || echo '* it is okay'
 	earl tjm reset example-job-resource.json || echo '* it is okay'
 	earl tjm reset example-job-separate-resources.json || echo '* it is okay'
+	earl tjm reset example-job-stateful.json || echo '* it is okay'
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
 
