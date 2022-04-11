@@ -1,7 +1,7 @@
 import { debugLogger } from '@terascope/utils';
 import got, { OptionsOfJSONResponseBody } from 'got';
-import * as open from '@opensearch-project/opensearch';
-import * as elastic from '@elastic/elasticsearch';
+import * as opensearch from '@opensearch-project/opensearch';
+import * as elasticsearch from '@elastic/elasticsearch';
 import { logWrapper } from './log-wrapper';
 import {
     getUrl, getAuth, getHeaders
@@ -49,7 +49,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
                 ...config,
                 node: gotOptions.url as string
             };
-            const client = new open.Client(openConfig);
+            const client = new opensearch.Client(openConfig);
             const meta = {
                 distribution: 'opensearch',
                 version: body.version.number
@@ -68,7 +68,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             node: gotOptions.url as string
         } as ClientConfig;
         // @ts-expect-error
-        const client = new elastic.Client(elasticConfig);
+        const client = new elasticsearch.Client(elasticConfig);
         const meta = {
             distribution: 'elasticsearch',
             version: body.version.number
