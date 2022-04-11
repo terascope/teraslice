@@ -631,22 +631,15 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     .search(queryParam)
                     .then((data) => {
                         const failuresReasons = [];
+                        const results = data.body ? data.body : data;
+                        const { failures, failed } = results._shards;
 
-                        if (data.body) {
-                            const { failures, failed } = data.body._shards;
-                            if (!failed) {
-                                resolve(data.body);
-                                return;
-                            }
-                            failuresReasons.push(...failures);
-                        } else {
-                            const { failures, failed } = data._shards;
-                            if (!failed) {
-                                resolve(data);
-                                return;
-                            }
-                            failuresReasons.push(...failures);
+                        if (!failed) {
+                            resolve(results);
+                            return;
                         }
+
+                        failuresReasons.push(...failures);
 
                         const reasons = uniq(
                             flatten(failuresReasons.map((shard) => shard.reason.type))
