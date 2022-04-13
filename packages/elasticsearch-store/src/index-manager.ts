@@ -1,5 +1,6 @@
 import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { ElasticsearchDistribution } from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
 
@@ -10,7 +11,9 @@ const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
  */
 export class IndexManager {
     readonly client: es.Client;
-    readonly esVersion: number;
+    readonly version: string;
+    readonly distribution: ElasticsearchDistribution;
+    readonly majorVersion: number;
     enableIndexMutations: boolean;
 
     constructor(client: es.Client, enableIndexMutations = ts.isTest) {
@@ -21,7 +24,10 @@ export class IndexManager {
         }
 
         this.enableIndexMutations = enableIndexMutations;
-        this.esVersion = utils.getESVersion(client);
+        const { version, distribution } = utils.getClientMetadata(client);
+        this.version = version;
+        this.distribution = distribution;
+        this.majorVersion = ts.toNumber(version.split('.', 1)[0]);
         this.client = client;
     }
 
@@ -87,11 +93,11 @@ export class IndexManager {
 
         const settings = Object.assign({}, config.index_settings);
 
-        logger.trace(`Using elasticsearch version ${this.esVersion}`);
-
+        logger.trace(`Using ${this.distribution} version ${this.version}`);
+        // TODO: add distibution here
         const body: any = config.data_type.toESMapping({
             typeName: config.name,
-            version: this.esVersion,
+            version: this.majorVersion,
             overrides: {
                 settings,
             }
@@ -263,7 +269,7 @@ export class IndexManager {
 
     async getMapping(index: string): Promise<any> {
         const params: any = { index };
-        if (this.esVersion !== 6) {
+        if (!utils.isElasticsearch6(this.client)) {
             params.includeTypeName = false;
         }
         return this.client.indices.getMapping(params);
@@ -277,7 +283,7 @@ export class IndexManager {
                 properties,
             },
         };
-        if (this.esVersion !== 6) {
+        if (!utils.isElasticsearch6(this.client)) {
             delete params.type;
             params.includeTypeName = false;
         }
@@ -294,7 +300,7 @@ export class IndexManager {
     ): Promise<void> {
         const result = await this.getMapping(index);
 
-        const propertiesPath = this.esVersion !== 6 ? [
+        const propertiesPath = !utils.isElasticsearch6(this.client) ? [
             'mappings', 'properties'
         ] : ['mappings', type, 'properties'];
 
@@ -353,7 +359,7 @@ export class IndexManager {
 
     async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
         const params: any = { name, flatSettings };
-        if (this.esVersion !== 6) {
+        if (!utils.isElasticsearch6(this.client)) {
             params.includeTypeName = false;
         }
         return this.client.indices.getTemplate(params);

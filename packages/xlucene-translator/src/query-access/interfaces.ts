@@ -5,7 +5,8 @@ import {
     ElasticsearchDSLOptions,
     xLuceneTypeConfig,
     xLuceneVariables,
-    GeoDistanceUnit
+    GeoDistanceUnit,
+    ElasticsearchDistribution
 } from '@terascope/types';
 import { ParserOptions } from 'xlucene-parser';
 
@@ -21,7 +22,12 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
      * The elasticsearch version (to format the request properly)
      * @default 6
     */
-    elasticsearch_version?: number;
+    version?: number;
+    /**
+     * The distribution (ie elasticsearch or opensearch)
+     * @default 'elasticsearch'
+    */
+    distribution?: ElasticsearchDistribution;
 }
 
 export interface RestrictOptions {

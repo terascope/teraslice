@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { debugLogger, times } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
-import { IndexManager, IndexConfig } from '../src';
+import { IndexManager, IndexConfig, isElasticsearch6 } from '../src';
 import { makeClient, cleanupIndex } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
@@ -58,7 +58,7 @@ describe('IndexManager->migrateIndex()', () => {
             times(10, (n) => {
                 body.push(
                     {
-                        index: indexManager.esVersion >= 7 ? {
+                        index: !isElasticsearch6(client) ? {
                             _index: previousIndex,
                         } : {
                             _index: previousIndex,

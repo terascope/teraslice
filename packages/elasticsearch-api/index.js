@@ -23,6 +23,8 @@ const {
     getTypeOf,
     isProd
 } = require('@terascope/utils');
+const { ElasticsearchDistribution } = require('@terascope/types');
+
 const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
@@ -73,8 +75,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function search(query) {
-        const esVersion = getESVersion();
-        if (esVersion !== 6) {
+        if (!isElasticsearch6()) {
             if (query._sourceExclude) {
                 query._sourceExcludes = query._sourceExclude.slice();
                 delete query._sourceExclude;
@@ -338,7 +339,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (getESVersion() !== 6) {
+            if (!isElasticsearch6()) {
                 const actionKey = getFirstKey(record.action);
                 const { _type, ...withoutTypeAction } = record.action[actionKey];
                 // if data is specified return both
@@ -669,13 +670,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function _esV7adjustments(queryParam) {
-        if (getESVersion() !== 6) {
+        if (!isElasticsearch6()) {
             queryParam.trackTotalHits = true;
         }
     }
 
     function _adjustTypeForEs7(query) {
-        if (getESVersion() !== 6) {
+        if (!isElasticsearch6()) {
             if (Array.isArray(query)) {
                 return _removeTypeFromBulkRequest(query);
             }
@@ -686,7 +687,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function _removeTypeFromBulkRequest(query) {
-        if (getESVersion() === 6) return query;
+        if (isElasticsearch6()) return query;
 
         return query.map((queryItem) => {
             if (isSimpleObject(queryItem)) {
@@ -893,7 +894,9 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         return true;
     }
-
+    /** This is deprecated as an external api,
+     * please use getClientMetadata
+     * */
     function getESVersion() {
         const newClientVersion = get(client, '__meta.version');
         const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
@@ -906,14 +909,30 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return 6;
     }
 
+    function getClientMetadata() {
+        const newClientVersion = get(client, '__meta.version');
+        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+        const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+
+        return {
+            distribution,
+            version: esVersion
+        };
+    }
+
+    function isElasticsearch6() {
+        const { distribution, version: esVersion } = getClientMetadata();
+        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
+
+        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
+    }
+
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
         }
         const params = cloneDeep(_params);
         const defaultParams = {};
-
-        const esVersion = getESVersion();
 
         if (params.body.template != null) {
             if (isTemplate && params.body.index_patterns == null) {
@@ -922,7 +941,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             delete params.body.template;
         }
 
-        if (esVersion !== 6) {
+        if (!isElasticsearch6()) {
             const typeMappings = get(params.body, 'mappings', {});
             if (typeMappings.properties) {
                 defaultParams.includeTypeName = false;
@@ -1035,8 +1054,8 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
     function _verifyMapping(query, configMapping, recordType) {
         const params = Object.assign({}, query);
-        const esVersion = getESVersion();
-        if (esVersion !== 6) {
+
+        if (!isElasticsearch6()) {
             if (recordType) {
                 params.includeTypeName = true;
             }
@@ -1204,12 +1223,14 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         indexRecovery,
         indexSetup,
         verifyClient,
-        getESVersion,
         validateGeoParameters,
+        getClientMetadata,
+        isElasticsearch6,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
         index_create: indexCreate,
         index_refresh: indexRefresh,
         index_recovery: indexRecovery,
+        getESVersion,
     };
 };

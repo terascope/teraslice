@@ -1,6 +1,6 @@
 import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { xLuceneTypeConfig } from '@terascope/types';
+import { xLuceneTypeConfig, ElasticsearchDistribution } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
 import { IndexManager } from './index-manager';
@@ -17,7 +17,9 @@ export class IndexStore<T extends ts.AnyObject> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
-    readonly esVersion: number;
+    readonly majorVersion: number;
+    readonly version: string;
+    readonly distribution: ElasticsearchDistribution;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
     readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
@@ -46,7 +48,9 @@ export class IndexStore<T extends ts.AnyObject> {
         this.config = config;
         this.name = utils.toInstanceName(this.config.name);
         this.manager = new IndexManager(client, config.enable_index_mutations);
-        this.esVersion = this.manager.esVersion;
+        this.majorVersion = this.manager.majorVersion;
+        this.version = this.manager.version;
+        this.distribution = this.manager.distribution;
 
         if (this.config.bulk_max_size != null) {
             this._bulkMaxSize = this.config.bulk_max_size;
@@ -139,7 +143,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
-        metadata[action] = this.esVersion !== 6 ? {
+        metadata[action] = !utils.isElasticsearch6(this.client) ? {
             _index: this.writeIndex,
             retry_on_conflict
         } : {
@@ -424,7 +428,7 @@ export class IndexStore<T extends ts.AnyObject> {
             const existing = await this.get(id) as any;
             const params: any = {};
             if (ts.DataEntity.isDataEntity(existing)) {
-                if (this.esVersion !== 6) {
+                if (!utils.isElasticsearch6(this.client)) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
                     params.if_primary_term = existing.getMetadata('_primary_term');
                 } else {
@@ -450,7 +454,7 @@ export class IndexStore<T extends ts.AnyObject> {
         ...params: ((Partial<P> & Record<string, any>)|undefined)[]
     ): P {
         return Object.assign(
-            this.esVersion !== 6 ? {
+            !utils.isElasticsearch6(this.client) ? {
                 index,
             } : {
                 index,
@@ -621,7 +625,8 @@ export class IndexStore<T extends ts.AnyObject> {
         if (_queryAccess) {
             searchParams = await _queryAccess.restrictSearchQuery(q ?? '', {
                 params,
-                elasticsearch_version: utils.getESVersion(this.client),
+                version: utils.getESVersion(this.client),
+                distribution: this.distribution,
                 variables: options?.variables
             });
         } else {
@@ -674,7 +679,7 @@ export class IndexStore<T extends ts.AnyObject> {
     protected async _search(
         params: PartialParam<SearchParams<T>>,
     ): Promise<es.SearchResponse<T>> {
-        if (this.esVersion !== 6) {
+        if (!utils.isElasticsearch6(this.client)) {
             const p: any = params;
             if (p._sourceExclude) {
                 p._sourceExcludes = p._sourceExclude.slice();

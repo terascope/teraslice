@@ -1,6 +1,8 @@
 import type { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import type { ESFieldType, ESTypeMapping } from '@terascope/types';
+import {
+    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
+} from '@terascope/types';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -120,6 +122,24 @@ export function getESVersion(client: Client): number {
     }
 
     return 6;
+}
+
+export function getClientMetadata(client: Client): ClientMetadata {
+    const newClientVersion = ts.get(client, '__meta.version');
+    const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
+    const distribution = ts.get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+
+    return {
+        distribution,
+        version
+    };
+}
+
+export function isElasticsearch6(client: Client): boolean {
+    const { distribution, version: esVersion } = getClientMetadata(client);
+    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+
+    return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
 }
 
 export function fixMappingRequest(

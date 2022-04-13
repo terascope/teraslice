@@ -4,7 +4,8 @@ import {
     xLuceneTypeConfig,
     xLuceneVariables,
     GeoDistanceUnit,
-    GeoPoint
+    GeoPoint,
+    ElasticsearchDistribution
 } from '@terascope/types';
 
 export type TranslatorOptions = {
@@ -23,6 +24,8 @@ export type UtilsTranslateQueryOptions = {
     logger: Logger;
     type_config: xLuceneTypeConfig;
     variables: xLuceneVariables;
+    version: number,
+    distribution: ElasticsearchDistribution,
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;

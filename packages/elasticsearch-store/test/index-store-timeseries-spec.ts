@@ -253,10 +253,11 @@ describe('IndexStore (timeseries)', () => {
                 expect(r).toEqual(record);
 
                 const metadata = r.getMetadata();
+                // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: indexStore.writeIndex,
                     _key: record.test_id,
-                    _type: indexStore.esVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();

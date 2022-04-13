@@ -3,6 +3,7 @@
 
 import * as es from 'elasticsearch';
 import { Logger } from '@terascope/utils';
+import { ClientMetadata } from '@terascope/types'
 
 export = elasticsearchAPI;
 
@@ -44,7 +45,10 @@ declare namespace elasticsearchAPI {
         indexSetup: (clusterName, newIndex, migrantIndexName, mapping, recordType, clientName) => Promise<boolean>;
         verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;
+        /** This api is deprecated, please use getClientMetadata */
         getESVersion: () => number;
+        getClientMetadata: () => ClientMetadata;
+        isElasticsearch6: () => boolean
     }
 
     /**

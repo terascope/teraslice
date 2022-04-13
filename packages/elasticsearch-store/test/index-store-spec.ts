@@ -265,10 +265,11 @@ describe('IndexStore', () => {
                 expect(r).toEqual(record);
 
                 const metadata = r.getMetadata();
+                // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: indexStore.esVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -768,7 +769,8 @@ describe('IndexStore', () => {
                                 body: record,
                                 refresh: false,
                             };
-                            if (indexStore.esVersion >= 7) {
+                            // TODO: fix this when tests are switched to use new client
+                            if (indexStore.majorVersion >= 7) {
                                 delete (indexParams as any).type;
                             }
                             return _client.index(indexParams);
