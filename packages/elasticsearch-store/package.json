@@ -30,11 +30,11 @@
         "@terascope/types": "^0.10.2",
         "@terascope/utils": "^0.44.1",
         "ajv": "^6.12.6",
-        "uuid": "^8.3.2",
-        "xlucene-translator": "^0.27.0",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
-        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
+        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
+        "uuid": "^8.3.2",
+        "xlucene-translator": "^0.27.0"
     },
     "devDependencies": {
         "@types/uuid": "^8.3.4"
