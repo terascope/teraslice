@@ -1,23 +1,4 @@
-import type { ClientOptions } from '@opensearch-project/opensearch';
 import { ConnectionOptions } from 'tls';
-
-export interface MetadataResponse {
-    name: string;
-    cluster_name: string;
-    cluster_uuid: string;
-    version: {
-        distribution: string;
-        number: string;
-        build_type: string;
-        build_hash: string;
-        build_date: string;
-        build_snapshot: boolean,
-        lucene_version: string;
-        minimum_wire_compatibility_version: string;
-        minimum_index_compatibility_version: string;
-    },
-    tagline: string;
-}
 
 export interface AgentOptions {
     keepAlive?: boolean;
@@ -36,6 +17,42 @@ export interface NodeOptions {
         master: boolean;
         data: boolean;
         ingest: boolean;
+    }
+}
+
+interface ClientOptions {
+    node?: string | string[] | NodeOptions | NodeOptions[];
+    nodes?: string | string[] | NodeOptions | NodeOptions[];
+    maxRetries?: number;
+    requestTimeout?: number;
+    pingTimeout?: number;
+    sniffInterval?: number | boolean;
+    sniffOnStart?: boolean;
+    sniffEndpoint?: string;
+    sniffOnConnectionFault?: boolean;
+    resurrectStrategy?: 'ping' | 'optimistic' | 'none';
+    suggestCompression?: boolean;
+    compression?: 'gzip';
+    ssl?: ConnectionOptions;
+    agent?: AgentOptions | false;
+    headers?: Record<string, any>;
+    opaqueIdPrefix?: string;
+    name?: string | symbol;
+    auth?: {
+        username: string;
+        password: string
+    };
+    proxy?: string | URL;
+    enableMetaHeader?: boolean;
+    cloud?: {
+        id: string;
+        // TODO: remove username and password here in 8
+        username?: string;
+        password?: string;
+    };
+    memoryCircuitBreaker?: {
+        enabled: boolean;
+        maxPercentage: number;
     }
 }
 
