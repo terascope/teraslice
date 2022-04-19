@@ -44,6 +44,24 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         },
         network: config.DOCKER_NETWORK_NAME
     },
+    [Service.Opensearch]: {
+        image: config.OPENSEARCH_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/usr/share/opensearch/data']
+            : undefined,
+        ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
+        env: {
+            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            'network.host': '0.0.0.0',
+            'http.port': config.OPENSEARCH_PORT,
+            'discovery.type': 'single-node',
+            ...disableXPackSecurity && {
+                'xpack.security.enabled': 'false'
+            }
+        },
+        network: config.DOCKER_NETWORK_NAME
+    },
     [Service.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.KAFKA_NAME}`,
@@ -100,6 +118,11 @@ export async function pullServices(suite: string, options: TestOptions): Promise
             images.push(image);
         }
 
+        if (launchServices.includes(Service.Opensearch)) {
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            images.push(image);
+        }
+
         if (launchServices.includes(Service.Kafka)) {
             const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
             images.push(image);
@@ -135,6 +158,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 
     if (launchServices.includes(Service.Elasticsearch)) {
         promises.push(ensureElasticsearch(options));
+    }
+
+    if (launchServices.includes(Service.Opensearch)) {
+        promises.push(ensureOpensearch(options));
     }
 
     if (launchServices.includes(Service.Kafka)) {
@@ -185,6 +212,14 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
     return fn;
 }
 
+export async function ensureOpensearch(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    const startTime = Date.now();
+    fn = await startService(options, Service.Opensearch);
+    await checkOpensearch(options, startTime);
+    return fn;
+}
+
 export async function ensureRabbitMQ(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     const startTime = Date.now();
@@ -202,6 +237,71 @@ async function stopService(service: Service) {
     signale.pending(`stopping service ${service}`);
     await dockerStop(name);
     signale.success(`stopped service ${service}, took ${ts.toHumanTime(Date.now() - startTime)}`);
+}
+
+async function checkOpensearch(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.OPENSEARCH_HOST;
+    const username = config.OPENSEARCH_USER;
+    const password = config.OPENSEARCH_PASSWORD;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
+
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking opensearch at ${host}`);
+            } else {
+                logger.debug(`checking opensearch at ${host}`);
+            }
+
+            let body: any;
+            try {
+                ({ body } = await got(host, {
+                    username,
+                    password,
+                    rejectUnauthorized: false,
+                    responseType: 'json',
+                    throwHttpErrors: true,
+                    retry: 0,
+                }));
+            } catch (err) {
+                return false;
+            }
+
+            if (options.trace) {
+                signale.debug('got response from opensearch service', body);
+            } else {
+                logger.debug('got response from opensearch service', body);
+            }
+
+            if (!body?.version?.number) {
+                return false;
+            }
+
+            const actual: string = body.version.number;
+            const expected = options.elasticsearchVersion;
+
+            const satifies = semver.satisfies(actual, `^${expected}`);
+            if (satifies) {
+                const took = ts.toHumanTime(Date.now() - startTime);
+                signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
+                return true;
+            }
+
+            throw new ts.TSError(
+                `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
+                {
+                    retryable: false,
+                }
+            );
+        },
+        {
+            name: `Opensearch service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+        }
+    );
 }
 
 async function checkElasticsearch(options: TestOptions, startTime: number): Promise<void> {

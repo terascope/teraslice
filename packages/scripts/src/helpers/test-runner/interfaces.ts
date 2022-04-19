@@ -16,6 +16,7 @@ export type TestOptions = {
     kafkaVersion: string;
     minioVersion: string;
     rabbitmqVersion: string;
+    opensearchVersion: string;
     jestArgs?: string[];
     ignoreMount: boolean
 };

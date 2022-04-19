@@ -6,7 +6,8 @@ import {
     GeoDistanceUnit,
     xLuceneVariables,
     xLuceneTypeConfig,
-    xLuceneFieldType
+    xLuceneFieldType,
+    ElasticsearchDistribution
 } from '@terascope/types';
 import { CachedTranslator } from '../translator';
 import * as i from './interfaces';
@@ -185,9 +186,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     ): Promise<SearchParams> {
         const {
             params: _params = {},
-            elasticsearch_version: esVersion = 6,
-            ...translateOptions
+            version: esVersion = 6,
+            distribution = ElasticsearchDistribution.elasticsearch,
+            ...options
         } = opts ?? {};
+
+        const translateOptions = {
+            ...options,
+            distribution,
+            version: esVersion,
+        };
 
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});
 
@@ -205,7 +213,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
-            variables
+            variables,
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);
@@ -218,8 +226,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         delete params._sourceInclude;
         delete params._sourceExclude;
 
-        const excludesKey: any = esVersion >= 7 ? '_sourceExcludes' : '_sourceExclude';
-        const includesKey: any = esVersion >= 7 ? '_sourceIncludes' : '_sourceInclude';
+        const excludesKey: any = esVersion === 6 ? '_sourceExclude' : '_sourceExcludes';
+        const includesKey: any = esVersion === 6 ? '_sourceInclude' : '_sourceIncludes';
 
         const searchParams: SearchParams = {
             ...params,

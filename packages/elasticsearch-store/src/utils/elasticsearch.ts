@@ -1,6 +1,8 @@
 import type { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import type { ESFieldType, ESTypeMapping } from '@terascope/types';
+import {
+    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
+} from '@terascope/types';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -111,12 +113,33 @@ export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
 }
 
 export function getESVersion(client: Client): number {
-    const version = ts.get(client, 'transport._config.apiVersion', '6.5');
+    const newClientVersion = ts.get(client, '__meta.version');
+    const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
+
     if (version && ts.isString(version)) {
         const [majorVersion] = version.split('.', 1);
         return ts.toNumber(majorVersion);
     }
+
     return 6;
+}
+
+export function getClientMetadata(client: Client): ClientMetadata {
+    const newClientVersion = ts.get(client, '__meta.version');
+    const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
+    const distribution = ts.get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+
+    return {
+        distribution,
+        version
+    };
+}
+
+export function isElasticsearch6(client: Client): boolean {
+    const { distribution, version: esVersion } = getClientMetadata(client);
+    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+
+    return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
 }
 
 export function fixMappingRequest(
@@ -130,29 +153,25 @@ export function fixMappingRequest(
 
     const esVersion = getESVersion(client);
 
-    if (esVersion === 5) {
-        if (params.body.index_patterns != null) {
-            if (isTemplate && params.body.template == null) {
-                params.body.template = ts.getFirst(params.body.index_patterns);
-            }
-            delete params.body.index_patterns;
+    if (params.body.template != null) {
+        if (isTemplate && params.body.index_patterns == null) {
+            params.body.index_patterns = ts.castArray(params.body.template).slice();
         }
+        delete params.body.template;
     }
-
-    if (esVersion >= 6) {
-        if (params.body.template != null) {
-            if (isTemplate && params.body.index_patterns == null) {
-                params.body.index_patterns = ts.castArray(params.body.template).slice();
-            }
-            delete params.body.template;
-        }
-    }
-
-    if (esVersion >= 7) {
-        const typeMapping = ts.get(params.body, 'mappings', {});
-        defaultParams.includeTypeName = false;
-        if (typeMapping) {
-            delete typeMapping._all;
+    // we do not support v5 anymore
+    if (esVersion !== 6) {
+        const typeMappings: Record<string, any> = ts.get(params.body, 'mappings', {});
+        if (typeMappings.properties) {
+            defaultParams.includeTypeName = false;
+        } else {
+            defaultParams.includeTypeName = true;
+            Object.values(typeMappings).forEach((typeMapping) => {
+                if (typeMapping && typeMapping._all) {
+                    delete typeMapping._all;
+                }
+                return '';
+            });
         }
     }
 

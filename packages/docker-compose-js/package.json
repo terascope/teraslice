@@ -32,12 +32,11 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "debug": "^4.3.3"
+        "debug": "^4.3.4"
     },
     "dependencies": {
-        "debug": "^4.3.3"
+        "debug": "^4.3.4"
     },
-    "devDependencies": {},
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
         "yarn": ">=1.16.0"

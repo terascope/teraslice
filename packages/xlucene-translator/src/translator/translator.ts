@@ -6,7 +6,8 @@ import {
     xLuceneTypeConfig,
     GeoDistanceUnit,
     ElasticsearchDSLOptions,
-    ElasticsearchDSLResult
+    ElasticsearchDSLResult,
+    ElasticsearchDistribution
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
 import * as i from './interfaces';
@@ -55,6 +56,8 @@ export class Translator {
     toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger,
+            version: opts.version || 6,
+            distribution: opts.distribution || ElasticsearchDistribution.elasticsearch,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             variables: this.variables ?? {},

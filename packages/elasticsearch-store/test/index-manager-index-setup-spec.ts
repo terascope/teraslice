@@ -60,7 +60,7 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            if (esVersion < 7) {
+            if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
             }
         });
@@ -87,7 +87,7 @@ describe('IndexManager->indexSetup()', () => {
             it('should have updated the index metadata', async () => {
                 const mapping = await indexManager.getMapping(index);
 
-                const properties = esVersion < 7
+                const properties = esVersion === 6
                     ? mapping[index].mappings[config.name].properties
                     : mapping[index].mappings.properties;
 
@@ -130,7 +130,7 @@ describe('IndexManager->indexSetup()', () => {
                 it('should have the previous the index metadata since removed fields shouldn\'t break', async () => {
                     const mapping = await indexManager.getMapping(index);
 
-                    const properties = esVersion < 7
+                    const properties = esVersion === 6
                         ? mapping[index].mappings[config.name].properties
                         : mapping[index].mappings.properties;
 
@@ -207,7 +207,7 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            if (esVersion < 7) {
+            if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
             }
         });
@@ -216,7 +216,7 @@ describe('IndexManager->indexSetup()', () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            if (esVersion < 7) {
+            if (esVersion === 6) {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);
@@ -225,7 +225,7 @@ describe('IndexManager->indexSetup()', () => {
         it('should be able upsert the same template safely', async () => {
             const { version } = config.index_schema!;
 
-            const { mappings } = config.data_type.toESMapping(esVersion < 7 ? {
+            const { mappings } = config.data_type.toESMapping(esVersion === 6 ? {
                 typeName: config.name,
                 version: esVersion,
             } : {
@@ -249,7 +249,7 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
 
-            const mappings = esVersion >= 7 ? mapping : {
+            const mappings = esVersion !== 6 ? mapping : {
                 [config.name]: mapping
             };
 
@@ -326,7 +326,7 @@ describe('IndexManager->indexSetup()', () => {
         it('should create the mapping', async () => {
             const mapping = await indexManager.getMapping(index);
 
-            if (esVersion < 7) {
+            if (esVersion === 6) {
                 expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
             }
         });
@@ -335,7 +335,7 @@ describe('IndexManager->indexSetup()', () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            if (esVersion < 7) {
+            if (esVersion === 6) {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);

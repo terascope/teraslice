@@ -360,7 +360,7 @@ describe('elasticsearch-api', () => {
             stats: () => Promise.resolve({ _nodes: {} })
         },
         cluster: {
-            stats: () => Promise.resolve({ nodes: { versions: ['5.4.1'] } })
+            stats: () => Promise.resolve({ nodes: { versions: ['6.8.1'] } })
         },
         __testing: {
             start: 100,

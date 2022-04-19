@@ -48,6 +48,7 @@ export interface FoundationAPIs {
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
+    createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 

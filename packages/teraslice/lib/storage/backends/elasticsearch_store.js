@@ -83,8 +83,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         };
 
         if (fields) {
-            const esVersion = elasticsearch.getESVersion();
-            if (esVersion > 6) {
+            if (!elasticsearch.isElasticsearch6()) {
                 query._sourceIncludes = fields;
             } else {
                 query._sourceInclude = fields;
@@ -118,8 +117,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         }
 
         if (fields) {
-            const esVersion = elasticsearch.getESVersion();
-            if (esVersion > 6) {
+            if (!elasticsearch.isElasticsearch6()) {
                 esQuery._sourceIncludes = fields;
             } else {
                 esQuery._sourceInclude = fields;
@@ -273,9 +271,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
             refresh: forceRefresh,
         };
 
-        const esVersion = elasticsearch.getESVersion();
-
-        if (esVersion >= 7) {
+        if (!elasticsearch.isElasticsearch6()) {
             query.if_seq_no = existing._seq_no;
             query.if_primary_term = existing._primary_term;
         } else {

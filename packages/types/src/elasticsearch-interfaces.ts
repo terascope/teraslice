@@ -12,6 +12,10 @@ export type ElasticsearchDSLOptions = {
     geo_sort_point?: geo.GeoPoint;
     geo_sort_order?: SortOrder;
     geo_sort_unit?: geo.GeoDistanceUnit;
+    /** The major version of elasticsearch, defaults to 6 */
+    version?: number;
+    /** The distribution, either elasticsearch or opensearch, defaults to elasticsearch */
+    distribution?: ElasticsearchDistribution
 };
 
 export type BoolQuery = {
@@ -250,4 +254,14 @@ export interface ESIndexSettings {
         };
     };
     [setting: string]: any;
+}
+
+export enum ElasticsearchDistribution {
+    opensearch = 'opensearch',
+    elasticsearch = 'elasticsearch'
+}
+
+export interface ClientMetadata {
+    distribution: ElasticsearchDistribution,
+    version: string;
 }
