@@ -1,4 +1,6 @@
-import { debugLogger, get, toNumber } from '@terascope/utils';
+import {
+    debugLogger, get, toNumber, Logger
+} from '@terascope/utils';
 import * as opensearch from '@opensearch-project/opensearch';
 import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
@@ -9,7 +11,15 @@ import { ClientConfig } from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
-async function findDistribution(config: Record<string, any>): Promise<ClientMetadata> {
+interface ServerMetadata extends ClientMetadata {
+    majorVersion: number;
+    minorVersion: number;
+}
+
+async function findDistribution(
+    config: Record<string, any>,
+    logger: Logger
+): Promise<ServerMetadata> {
     for (let i = 0; i < clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
@@ -18,9 +28,13 @@ async function findDistribution(config: Record<string, any>): Promise<ClientMeta
 
             if (response) {
                 const info = response.body || response;
-                const version = get(info, 'version.number');
+                const version: string = get(info, 'version.number');
                 const responseDistribution = get(info, 'version.distribution', 'elasticsearch');
                 let distribution: ElasticsearchDistribution;
+
+                if (logger.level() === 10) {
+                    logger.trace(info);
+                }
 
                 if (version == null || responseDistribution == null) {
                     throw new Error(`Got invalid response from api: ${JSON.stringify(info)}`);
@@ -31,13 +45,19 @@ async function findDistribution(config: Record<string, any>): Promise<ClientMeta
                 } else {
                     distribution = ElasticsearchDistribution.opensearch;
                 }
+                const [majorVersion, minorVersion] = version.split('.').map(toNumber);
 
                 return {
                     version,
-                    distribution
+                    distribution,
+                    majorVersion,
+                    minorVersion
                 };
             }
-        } catch (_err) {
+        } catch (err) {
+            if (logger.level() === 10) {
+                logger.error(err);
+            }
             continue;
         }
     }
@@ -47,7 +67,11 @@ async function findDistribution(config: Record<string, any>): Promise<ClientMeta
 
 export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
     try {
-        const serverMetadata = await findDistribution(config);
+        const {
+            minorVersion,
+            majorVersion,
+            ...serverMetadata
+        } = await findDistribution(config, logger);
 
         if (serverMetadata.distribution === ElasticsearchDistribution.opensearch) {
             // TODO: clean this up
@@ -57,20 +81,18 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             const client = new opensearch.Client(openConfig as any);
             // @ts-expect-error
             client.__meta = serverMetadata;
-
+            logger.debug('Creating an opensearch client');
             return {
                 client,
                 log: logWrapper(logger),
             };
         }
 
-        const majorVersion = toNumber(serverMetadata.version.split('.', 1)[0]);
-
         if (majorVersion === 8) {
             const client = new elasticsearch8.Client(config as any);
             // @ts-expect-error
             client.__meta = serverMetadata;
-
+            logger.debug('Creating an elasticsearch v8 client');
             return {
                 client,
                 log: logWrapper(logger),
@@ -78,9 +100,24 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
         }
 
         if (majorVersion === 7) {
+            // 7.13 and lower needs to use opensearch for now as its backwards
+            // compatible, anything past this version the newer client will
+            // throw if not their proprietary client
+            if (minorVersion <= 13) {
+                const client = new opensearch.Client(config as any);
+                // @ts-expect-error
+                client.__meta = serverMetadata;
+                logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
+                return {
+                    client,
+                    log: logWrapper(logger),
+                };
+            }
+
             const client = new elasticsearch7.Client(config as any);
             // @ts-expect-error
             client.__meta = serverMetadata;
+            logger.debug('Creating an elasticsearch v7 client');
 
             return {
                 client,
@@ -92,6 +129,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             const client = new elasticsearch6.Client(config as any);
             // @ts-expect-error
             client.__meta = serverMetadata;
+            logger.debug('Creating an elasticsearch v6 client');
 
             return {
                 client,
