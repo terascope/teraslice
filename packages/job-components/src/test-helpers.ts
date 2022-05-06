@@ -88,7 +88,7 @@ export function newTestExecutionContext(
 }
 
 interface ClientFactoryFns {
-    [prop: string]: i.ClientFactoryFn;
+    [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
@@ -97,7 +97,8 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create: i.ClientFactoryFn;
+    create?: i.ClientFactoryFn;
+    createClient?: i.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;
 }
@@ -143,6 +144,14 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
+function isPromise(p: any): boolean {
+    if (p && typeof p === 'object' && typeof p?.then === 'function') {
+        return true;
+    }
+
+    return false;
+}
+
 export interface TestContextOptions {
     assignment?: i.Assignment;
     clients?: TestClientConfig[];
@@ -183,6 +192,9 @@ export class TestContext implements i.Context {
                 connectors: {
                     elasticsearch: {
                         default: {},
+                    },
+                    'elasticsearch-next': {
+                        default: {}
                     },
                 },
             },
@@ -251,6 +263,40 @@ export class TestContext implements i.Context {
 
                     const client = create(config, logger, opts);
 
+                    if (isPromise(client)) {
+                        throw new Error('Cannot call a sync client creation method using an async function, please use createClient instead');
+                    }
+
+                    if (client) {
+                        cachedClients[key] = client;
+                    }
+
+                    _cachedClients.set(ctx, cachedClients);
+
+                    return client as { client: any };
+                },
+                async createClient(opts: i.ConnectionConfig) {
+                    const { cached } = opts;
+
+                    const cachedClients = _cachedClients.get(ctx) || {};
+                    const key = getKey(opts);
+                    if (cached && cachedClients[key] != null) {
+                        return cachedClients[key];
+                    }
+
+                    const clientFns = _createClientFns.get(ctx) || {};
+                    const create = clientFns[key];
+
+                    if (!create) throw new Error(`No client was found for connection "${key}"`);
+                    if (!isFunction(create)) {
+                        const actual = getTypeOf(create);
+                        throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
+                    }
+
+                    const connectorConfig = setConnectorConfig(ctx.sysconfig, opts, {}, false);
+
+                    const client = await create(connectorConfig, ctx.logger, opts);
+
                     cachedClients[key] = client;
                     _cachedClients.set(ctx, cachedClients);
 
@@ -265,26 +311,26 @@ export class TestContext implements i.Context {
             },
             setTestClients(clients: TestClientConfig[] = []) {
                 clients.forEach((clientConfig) => {
-                    const { create, config = {} } = clientConfig;
-
+                    const { create, createClient, config: connectionConfig = {} } = clientConfig;
+                    const createFN = createClient || create;
                     const clientFns = _createClientFns.get(ctx) || {};
 
                     const key = getKey(clientConfig);
-                    if (!isFunction(create)) {
-                        const actual = getTypeOf(create);
+                    if (!isFunction(createFN)) {
+                        const actual = getTypeOf(createFN);
                         throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
-                    logger.trace(`Setting test client for connection "${key}"`, config);
+                    ctx.logger.trace(`Setting test client for connection "${key}"`, connectionConfig);
 
-                    clientFns[key] = create;
+                    clientFns[key] = createFN;
                     _createClientFns.set(ctx, clientFns);
 
                     const cachedClients = _cachedClients.get(ctx) || {};
                     delete cachedClients[key];
                     _cachedClients.set(ctx, cachedClients);
 
-                    setConnectorConfig(sysconfig, clientConfig, config, true);
+                    setConnectorConfig(ctx.sysconfig, clientConfig, connectionConfig, true);
                 });
             },
             getTestClients(): TestClients {

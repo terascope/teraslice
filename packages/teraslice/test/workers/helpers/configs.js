@@ -108,6 +108,13 @@ const newSysConfig = (options = {}) => {
                         requestTimeout: timeout,
                         deadTimeout: timeout
                     }
+                },
+                'elasticsearch-next': {
+                    default: {
+                        node: [ELASTICSEARCH_HOST],
+                        requestTimeout: timeout,
+                        deadTimeout: timeout
+                    }
                 }
             }
         },

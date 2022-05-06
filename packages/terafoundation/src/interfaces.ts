@@ -41,6 +41,12 @@ export type ClientFactoryFn = (
     options: ConnectionConfig
 ) => { client: any };
 
+export type CreateClientFactoryFn = (
+    config: Record<string, any>,
+    logger: Logger,
+    options: ConnectionConfig
+) => Promise<{ client: any }>;
+
 export interface FoundationAPIs {
     /** Create a child logger */
     makeLogger(metadata?: Record<string, string>): Logger;
