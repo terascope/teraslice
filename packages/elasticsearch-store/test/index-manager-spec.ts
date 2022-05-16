@@ -7,7 +7,12 @@ import { makeClient } from './helpers/elasticsearch';
 const dataType = new DataType({}, 'hello');
 
 describe('IndexManager', () => {
-    const client = makeClient();
+    let indexManager: IndexManager;
+
+    beforeAll(async () => {
+        const client = await makeClient();
+        indexManager = new IndexManager(client);
+    });
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
@@ -19,14 +24,12 @@ describe('IndexManager', () => {
     });
 
     describe('when constructed', () => {
-        const indexManager = new IndexManager(client);
-
         describe('->_logger', () => {
-            // eslint-disable-next-line
-            const loggerFn = (config: Partial<IndexConfig<any>>) => {
+            const loggerFn = (
+                config: Partial<IndexConfig<any>>,
+                manager: IndexManager
                 // @ts-expect-error
-                return indexManager._logger(config);
-            };
+            ) => manager._logger(config);
 
             describe('when a logger is configured', () => {
                 const logger = debugLogger('hello');
@@ -36,7 +39,7 @@ describe('IndexManager', () => {
                 };
 
                 it('should return the configured logger', () => {
-                    expect(loggerFn(config)).toBe(logger);
+                    expect(loggerFn(config, indexManager)).toBe(logger);
                 });
             });
 
@@ -45,7 +48,11 @@ describe('IndexManager', () => {
                     name: 'hello-there',
                 };
 
-                const logger = loggerFn(config);
+                let logger: any;
+
+                beforeAll(() => {
+                    logger = loggerFn(config, indexManager);
+                });
 
                 it('should return a debug logger', () => {
                     expect(logger.debug).toBeFunction();
@@ -55,7 +62,7 @@ describe('IndexManager', () => {
                 });
 
                 it('should return the same logger if given the same config', () => {
-                    expect(loggerFn(config)).toBe(logger);
+                    expect(loggerFn(config, indexManager)).toBe(logger);
                 });
 
                 it('should return the a different logger if given a different config', () => {
@@ -63,7 +70,7 @@ describe('IndexManager', () => {
                         name: 'howdy-there',
                     };
 
-                    expect(loggerFn(newConfig)).not.toBe(logger);
+                    expect(loggerFn(newConfig, indexManager)).not.toBe(logger);
                 });
             });
         });
