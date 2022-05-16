@@ -255,7 +255,7 @@ export class IndexManager {
         }
 
         logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
-        return this.client.reindex({
+        const response = await this.client.reindex({
             timeout,
             waitForActiveShards: 'all',
             waitForCompletion: true,
@@ -268,6 +268,8 @@ export class IndexManager {
                 },
             },
         });
+
+        return ts.get(response, 'body', response);
     }
 
     async getMapping(index: string): Promise<any> {

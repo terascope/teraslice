@@ -9,8 +9,6 @@ describe('IndexManager->migrateIndex()', () => {
     const logger = debugLogger('index-manager-migrate');
 
     describe('using a mapped index', () => {
-        const client = makeClient();
-
         const previousConfig: IndexConfig<any> = {
             namespace: TEST_INDEX_PREFIX,
             name: 'migrate',
@@ -43,11 +41,18 @@ describe('IndexManager->migrateIndex()', () => {
             logger,
         };
 
-        const indexManager = new IndexManager(client);
-        const newIndex = indexManager.formatIndexName(newConfig);
-        const previousIndex = indexManager.formatIndexName(previousConfig);
+        let client: any;
+        let indexManager: IndexManager;
+        let newIndex: string;
+        let previousIndex: string;
 
         beforeAll(async () => {
+            client = await makeClient();
+
+            indexManager = new IndexManager(client);
+            newIndex = indexManager.formatIndexName(newConfig);
+            previousIndex = indexManager.formatIndexName(previousConfig);
+
             await Promise.all([
                 cleanupIndex(client, newIndex),
                 cleanupIndex(client, previousIndex)

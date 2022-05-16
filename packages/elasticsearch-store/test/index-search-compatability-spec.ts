@@ -109,7 +109,6 @@ describe('IndexSearchCompatability', () => {
         }
     ];
 
-    const client = makeClient();
     const searchConfig: IndexModelConfig<SearchRecord> = {
         name: 'search_compatability',
         data_type: dataType,
@@ -182,13 +181,16 @@ describe('IndexSearchCompatability', () => {
         }
     }
 
-    const indexModel = new SearchIndexModel(client, {
-        namespace: `${TEST_INDEX_PREFIX}modelcompatability`,
-    });
+    let indexModel: SearchIndexModel;
 
     const queryAccess = new QueryAccess({ type_config: dataType.toXlucene() });
 
     beforeAll(async () => {
+        const client = await makeClient();
+
+        indexModel = new SearchIndexModel(client, {
+            namespace: `${TEST_INDEX_PREFIX}modelcompatability`,
+        });
         await cleanupIndexStore(indexModel);
         await indexModel.initialize();
         await Promise.all(searchData.map((_record) => {

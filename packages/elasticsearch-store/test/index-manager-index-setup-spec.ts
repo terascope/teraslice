@@ -1,9 +1,11 @@
+/* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import { debugLogger, get } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import {
-    IndexManager, timeSeriesIndex, IndexConfig, getESVersion, __timeSeriesTest
+    IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
+    __timeSeriesTest
 } from '../src';
 import { makeClient, cleanupIndex } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
@@ -12,9 +14,6 @@ describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
 
     describe('using a mapped index', () => {
-        const client = makeClient();
-        const esVersion = getESVersion(client);
-
         const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}simple`,
             data_type: simple.dataType,
@@ -31,11 +30,16 @@ describe('IndexManager->indexSetup()', () => {
         };
 
         const index = `${config.name}-v1-s1`;
-
-        const indexManager = new IndexManager(client);
+        let indexManager: IndexManager;
+        let client: any;
+        let esVersion: number;
         let result = false;
 
         beforeAll(async () => {
+            client = await makeClient();
+            esVersion = getESVersion(client);
+            indexManager = new IndexManager(client);
+
             await cleanupIndex(client, index);
 
             result = await indexManager.indexSetup(config);
@@ -48,9 +52,10 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the versioned index', async () => {
-            const exists = await client.indices.exists({
+            const response = await client.indices.exists({
                 index,
             });
+            const exists = get(response, 'body', response);
 
             expect(exists).toBeTrue();
             expect(result).toBeTrue();
@@ -152,9 +157,6 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a templated index', () => {
-        const client = makeClient();
-        const esVersion = getESVersion(client);
-
         const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}template`,
             data_type: template.dataType,
@@ -174,16 +176,20 @@ describe('IndexManager->indexSetup()', () => {
         const index = `${config.name}-v1-s1`;
         const templateName = `${config.name}-v1`;
 
-        const indexManager = new IndexManager(client);
+        let indexManager: IndexManager;
+        let client: any;
+        let esVersion: number;
         let result = false;
 
         async function cleanup() {
             await cleanupIndex(client, index);
-            await client.indices.deleteTemplate({ name: templateName }).catch(() => {});
         }
 
         beforeAll(async () => {
+            client = await makeClient();
             await cleanup();
+            esVersion = getESVersion(client);
+            indexManager = new IndexManager(client);
 
             result = await indexManager.indexSetup(config);
         });
@@ -195,9 +201,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the versioned index', async () => {
-            const exists = await client.indices.exists({
-                index,
-            });
+            const response = await client.indices.exists({ index });
+            const exists = get(response, 'body', response);
 
             expect(exists).toBeTrue();
             expect(result).toBeTrue();
@@ -274,9 +279,6 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a timeseries index', () => {
-        const client = makeClient();
-        const esVersion = getESVersion(client);
-
         const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}timeseries`,
             data_type: template.dataType,
@@ -299,10 +301,15 @@ describe('IndexManager->indexSetup()', () => {
         const currentIndexName = timeSeriesIndex(`${config.name}-v1-s1`, 'daily');
         const templateName = `${config.name}-v1`;
 
-        const indexManager = new IndexManager(client);
+        let indexManager: IndexManager;
+        let client: any;
+        let esVersion: number;
         let result = false;
 
         beforeAll(async () => {
+            client = await makeClient();
+            esVersion = getESVersion(client);
+            indexManager = new IndexManager(client);
             await cleanupIndex(client, index, templateName);
 
             result = await indexManager.indexSetup(config);
@@ -315,9 +322,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the timeseries index', async () => {
-            const exists = await client.indices.exists({
-                index: currentIndexName,
-            });
+            const response = await client.indices.exists({ index });
+            const exists = get(response, 'body', response);
 
             expect(exists).toBeTrue();
             expect(result).toBeTrue();

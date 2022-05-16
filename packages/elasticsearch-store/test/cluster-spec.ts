@@ -3,8 +3,13 @@ import { Cluster } from '../src';
 import { makeClient } from './helpers/elasticsearch';
 
 describe('Cluster', () => {
-    const client = makeClient();
-    const cluster = new Cluster(client);
+    let client: any;
+    let cluster: Cluster;
+
+    beforeAll(async () => {
+        client = await makeClient();
+        cluster = new Cluster(client);
+    });
 
     afterAll(() => {
         client.close();

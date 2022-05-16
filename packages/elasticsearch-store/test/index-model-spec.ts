@@ -28,7 +28,6 @@ describe('IndexModel', () => {
         }
     });
 
-    const client = makeClient();
     const exampleConfig: IndexModelConfig<ExampleRecord> = {
         name: 'example_model',
         data_type: dataType,
@@ -58,11 +57,14 @@ describe('IndexModel', () => {
         }
     }
 
-    const indexModel = new ExampleIndexModel(client, {
-        namespace: `${TEST_INDEX_PREFIX}index_model`,
-    });
+    let indexModel : ExampleIndexModel;
 
     beforeAll(async () => {
+        const client = await makeClient();
+        indexModel = new ExampleIndexModel(client, {
+            namespace: `${TEST_INDEX_PREFIX}index_model`,
+        });
+
         await cleanupIndexStore(indexModel);
         return indexModel.initialize();
     });

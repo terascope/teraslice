@@ -29,22 +29,21 @@ export async function cleanupIndex(
         .catch((err) => {
             // ignore index not found exceptions
             const errType = err.meta ? err.meta : err;
-            console.log('what is this', errType.statusCode, typeof errType.statusCode, err);
             if (errType.statusCode !== 404) {
-                console.log('should not be herre');
                 throw err;
             }
-            console.log(`should be ok: ${index}`, err);
         });
 
     if (template) {
         await client.indices
             .deleteTemplate({
                 name: template,
-                requestTimeout: 3000,
             })
-            .catch((_err) => {
-                console.log('second err', _err);
+            .catch((err) => {
+                const errType = err.meta ? err.meta : err;
+                if (errType.statusCode !== 404) {
+                    throw err;
+                }
             });
     }
 }
