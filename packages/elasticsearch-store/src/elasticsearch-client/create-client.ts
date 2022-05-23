@@ -58,6 +58,7 @@ async function findDistribution(
             if (logger.level() === 10) {
                 logger.error(err);
             }
+
             continue;
         }
     }

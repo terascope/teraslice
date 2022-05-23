@@ -1,21 +1,30 @@
 import { Client } from 'elasticsearch';
 import { IndexStore, createClient } from '../../src';
-import { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } from './config';
+import {
+    ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,
+    OPENSEARCH_HOST,
+} from './config';
 
 // automatically set the timeout to 10s when using elasticsearch
 jest.setTimeout(30000);
 
 export async function makeClient() {
+    let host = ELASTICSEARCH_HOST;
+
+    if (process.env.TEST_OPENSEARCH) {
+        host = OPENSEARCH_HOST;
+    }
+
     if (process.env.LEGACY_CLIENT != null) {
         return new Client({
-            host: ELASTICSEARCH_HOST,
+            host,
             log: 'error',
             apiVersion: ELASTICSEARCH_API_VERSION,
         });
     }
 
     const { client } = await createClient({
-        node: ELASTICSEARCH_HOST
+        node: host,
     });
 
     return client as unknown as Client;

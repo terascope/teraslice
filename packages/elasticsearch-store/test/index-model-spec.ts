@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-translator';
@@ -141,12 +142,13 @@ describe('IndexModel', () => {
             let id: string;
 
             beforeAll(async () => {
-                id = (await indexModel.createRecord({
+                const record = await indexModel.createRecord({
                     client_id: 5,
                     name,
                     type: name,
                     config: {},
-                }))._key;
+                });
+                id = record._key;
             });
 
             it('should NOT be able to create a record with the same name and client', async () => {

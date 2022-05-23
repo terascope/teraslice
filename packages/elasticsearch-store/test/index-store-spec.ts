@@ -4,6 +4,7 @@ import {
     debugLogger, get
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
+import { ElasticsearchDistribution } from '@terascope/types';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';
@@ -265,13 +266,14 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
-
+                // eslint-disable-next-line max-len
+                const isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
                 const metadata = r.getMetadata();
                 // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: isOpenSearch || indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -671,6 +673,7 @@ describe('IndexStore', () => {
         });
 
         let indexStore: IndexStore<SimpleRecord>;
+        let isOpenSearch = false;
 
         beforeAll(async () => {
             indexStore = new IndexStore<SimpleRecord>(
@@ -678,6 +681,8 @@ describe('IndexStore', () => {
                 configWithDataSchema
             );
             await cleanupIndexStore(indexStore);
+
+            isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
 
             await indexStore.initialize();
         });
@@ -768,7 +773,7 @@ describe('IndexStore', () => {
                                 refresh: false,
                             };
                             // TODO: fix this when tests are switched to use new client
-                            if (indexStore.majorVersion >= 7) {
+                            if (isOpenSearch || indexStore.majorVersion >= 7) {
                                 delete (indexParams as any).type;
                             }
                             return client.index(indexParams);

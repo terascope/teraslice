@@ -47,15 +47,14 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Opensearch]: {
         image: config.OPENSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/usr/share/opensearch/data']
-            : undefined,
         ports: [`${config.OPENSEARCH_PORT}:${config.OPENSEARCH_PORT}`],
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
+            DISABLE_INSTALL_DEMO_CONFIG: 'true',
+            DISABLE_SECURITY_PLUGIN: 'true',
             ...disableXPackSecurity && {
                 'xpack.security.enabled': 'false'
             }
@@ -254,8 +253,8 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             } else {
                 logger.debug(`checking opensearch at ${host}`);
             }
-
             let body: any;
+
             try {
                 ({ body } = await got(host, {
                     username,
@@ -280,7 +279,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             }
 
             const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
+            const expected = options.opensearchVersion;
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {

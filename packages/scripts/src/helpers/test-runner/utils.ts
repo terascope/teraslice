@@ -124,6 +124,9 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
             OPENSEARCH_PORT: config.OPENSEARCH_PORT,
             OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
+            OPENSEARCH_HOST: config.OPENSEARCH_HOST,
+            DISABLE_SECURITY_PLUGIN: true,
+            DISABLE_INSTALL_DEMO_CONFIG: true,
         });
     }
 

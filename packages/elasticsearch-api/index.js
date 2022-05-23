@@ -927,6 +927,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
     }
 
+    function isElasticsearch8() {
+        const { distribution, version: esVersion } = getClientMetadata();
+        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
+
+        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
+    }
+
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
@@ -954,6 +961,10 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     return '';
                 });
             }
+        }
+
+        if (isElasticsearch8(client)) {
+            delete defaultParams.includeTypeName;
         }
 
         return Object.assign({}, defaultParams, params);

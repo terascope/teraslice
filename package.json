@@ -75,6 +75,10 @@
                 "elasticsearch": [
                     "elasticsearch"
                 ],
+                "search": [
+                    "elasticsearch",
+                    "opensearch"
+                ],
                 "kafka": [
                     "kafka"
                 ],
