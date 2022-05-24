@@ -155,6 +155,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
 
 export function setEnv(options: TestOptions, suite?: string): void {
     const env = getEnv(options, suite);
+
     for (const [key, value] of Object.entries(env)) {
         process.env[key] = value;
     }
@@ -173,12 +174,15 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
             logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
             return true;
         }
+
         const msg = `* skipping ${pkgInfo.name} ${suite} test`;
+
         if (!options.all) {
             signale.warn(msg);
         } else {
             logger.debug(msg);
         }
+
         return false;
     });
 }
@@ -211,6 +215,7 @@ export function groupBySuite(
 
     if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
         groups[bundleSuite] = flatten(Object.values(groups));
+
         for (const suite of Object.keys(groups)) {
             if (suite !== bundleSuite) {
                 groups[suite] = [];
