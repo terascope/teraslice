@@ -68,26 +68,22 @@ jobs:
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
-      - name: 'ES Store Legacy Client (elasticsearch 6) (node 14)'
+    - name: 'ES Store Legacy Client (elasticsearch 6) (node 14)'
       node_js: '14.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
       script: cd ./packages/elasticsearch-store; yarn --silent test:legacy  --report-coverage false
 
-
     - name: 'ES Store ES7 Client (elasticsearch 7) (node 14)'
       node_js: '14.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-store; yarn --silent test:7  --report-coverage false
-
+      script: cd ./packages/elasticsearch-store; yarn --silent test:7
 
     - name: 'ES Store Opensearch Client (opensearch 1.3.0) (node 14)'
       node_js: '14.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-store; yarn --silent test:open  --report-coverage false
-
 
     - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
       node_js: '14.17'
