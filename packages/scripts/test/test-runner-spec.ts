@@ -8,6 +8,7 @@ import { TestOptions } from '../src/helpers/test-runner/interfaces';
 describe('Test Runner Helpers', () => {
     const availableSuites = getAvailableTestSuites();
     const packages = listPackages();
+
     const defaultsOptions: TestOptions = {
         bail: false,
         debug: false,
