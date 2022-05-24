@@ -20,12 +20,12 @@
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --",
-        "test:legacy": "LEGACY_CLIENT=true yarn run test",
         "test:7": "ELASTICSEARCH_VERSION='7.9.3' yarn run test",
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
-        "test:open": "TEST_OPENSEARCH='true' yarn run test"
+        "test:debug": "ts-scripts test --debug . --",
+        "test:legacy": "LEGACY_CLIENT=true yarn run test",
+        "test:open": "TEST_OPENSEARCH='true' yarn run test",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@opensearch-project/opensearch": "^1.0.2",
