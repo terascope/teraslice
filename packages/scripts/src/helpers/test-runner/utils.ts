@@ -168,6 +168,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
         if (!suite) {
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
+
         if (options.suite!.includes(suite)) {
             logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
             return true;

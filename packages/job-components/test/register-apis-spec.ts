@@ -244,8 +244,6 @@ describe('registerApis', () => {
 
             expect(results).toEqual({
                 'elasticsearch-next': true,
-                connection: 'default',
-                connection_cache: true,
             });
         });
     });
