@@ -118,11 +118,11 @@ jobs:
             tags: true
 
     # Build nightly releases
-    - name: 'Daily Docker Builds'
-      # run on cron jobs
-      if: type = cron
-      script: true
-      deploy:
-        - provider: script
-          skip_cleanup: true
-          script: yarn ts-scripts publish -t daily docker
+    # - name: 'Daily Docker Builds'
+    #   # run on cron jobs
+    #   if: type = cron
+    #   script: true
+    #   deploy:
+    #     - provider: script
+    #       skip_cleanup: true
+    #       script: yarn ts-scripts publish -t daily docker
