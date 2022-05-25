@@ -65,6 +65,6 @@ describe('apis module', () => {
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
         expect(typeof context.apis.foundation.getConnection).toBe('function');
         expect(typeof context.apis.foundation.startWorkers).toBe('function');
-        expect(context.apis.foundation.createClient).toBe('function');
+        expect(typeof context.apis.foundation.createClient).toBe('function');
     });
 });

@@ -544,8 +544,6 @@ module.exports = function elasticsearchStorage(backendConfig) {
             connection,
         };
 
-        elasticsearch = elasticsearchApi(client, logger, options);
-
         Promise.resolve()
             .then(() => getClientAsync(context, connectionConfig, 'elasticsearch-next'))
             .then((esClient) => {
