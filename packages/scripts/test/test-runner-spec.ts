@@ -39,6 +39,7 @@ describe('Test Runner Helpers', () => {
             });
             const filtered = filterBySuite(packages, options);
             const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
+
             expect(suites).not.toContain('e2e');
             expect(suites).not.toContain('elasticsearch');
             expect(suites).not.toContain('disabled');
