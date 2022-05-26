@@ -12,7 +12,7 @@ export default {
         return {
             node: {
                 doc: 'A list of hosts to connect to',
-                default: ['127.0.0.1:9200']
+                default: ['http://127.0.0.1:9200']
             },
             sniffOnStart: {
                 doc: 'Sniff hosts on start up',

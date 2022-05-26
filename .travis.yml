@@ -43,9 +43,9 @@ jobs:
         - yarn sync --verify
 
     - stage: 'Tests'
-      name: 'Unit Test Suite (node 12)'
+      name: 'Unit Test Suite (node 16)'
       # use node 12 to make sure we don't lose compatibility
-      node_js: '12.22'
+      node_js: '16.15.0'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
@@ -56,8 +56,8 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
-    - name: 'ES Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.22'
+    - name: 'ES Test Suite (elasticsearch 6) (node 16)'
+      node_js: '16.15.0'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
