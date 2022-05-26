@@ -102,7 +102,10 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
             function _runRequest() {
                 clientBase[endpoint](query)
-                    .then(resolve)
+                    .then((rawResponse) => {
+                        const response = get(rawResponse, 'body', rawResponse);
+                        resolve(response);
+                    })
                     .catch(errHandler);
             }
 
@@ -1060,7 +1063,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 });
                 return Promise.reject(error);
             });
-        });
+        }).catch((err) => Promise.reject(err));
     }
 
     function _verifyMapping(query, configMapping, recordType) {

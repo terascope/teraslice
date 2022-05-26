@@ -24,12 +24,11 @@ const { findPort } = require('../../../lib/utils/port_utils');
 const { newConfig, newSysConfig } = require('./configs');
 const zipDirectory = require('./zip-directory');
 
-const { TERASLICE_CLUSTER_NAME } = process.env;
+const { TERASLICE_CLUSTER_NAME } = require('../../test.config');
 
 const cleanups = {};
 const tmpAssetDir = createTempDirSync();
 const clusterName = `${TERASLICE_CLUSTER_NAME}`;
-
 const stores = {};
 
 class TestContext {
