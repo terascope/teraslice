@@ -11,7 +11,6 @@ const {
     CLUSTER_NAME,
     HOST_IP,
     CONFIG_PATH,
-    OPENSEARCH_HOST
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
@@ -41,7 +40,7 @@ module.exports = async function setupTerasliceConfig() {
                 },
                 'elasticsearch-next': {
                     default: {
-                        node: [OPENSEARCH_HOST],
+                        node: [ELASTICSEARCH_HOST],
                         requestTimeout: '1 minute',
                         sniffOnStart: false,
                         sniffOnConnectionFault: false,
