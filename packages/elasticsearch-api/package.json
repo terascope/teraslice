@@ -14,24 +14,24 @@
     "typings": "types/index.d.ts",
     "scripts": {
         "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --",
         "test:7": "ELASTICSEARCH_VERSION='7.9.3' yarn run test",
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
+        "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
-        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test"
+        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/utils": "^0.44.2",
         "bluebird": "^3.7.2"
     },
     "devDependencies": {
+        "@opensearch-project/opensearch": "^1.0.2",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
-        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
-        "@opensearch-project/opensearch": "^1.0.2"
+        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
