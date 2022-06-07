@@ -10,7 +10,7 @@ const elasticAPI = require('../../index');
 
 const {
     ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,
-    ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
+    ELASTICSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST,
 } = require('./config');
 
 const semver = ELASTICSEARCH_VERSION.split('.');
@@ -37,7 +37,7 @@ async function makeClient() {
 
     if (isOpensearchTest) {
         return new opensearch.Client({
-            node: OPENSEARCH_HOST
+            node: RESTRAINED_OPENSEARCH_HOST
         });
     }
 
