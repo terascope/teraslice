@@ -77,6 +77,11 @@ describe('Test Runner Helpers', () => {
                     suite: ['search'],
                 }));
 
+                const restrainedTests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['restrained'],
+                }));
+
                 const unitATests = filterBySuite(packages, makeTestOptions({
                     all: true,
                     suite: ['unit-a'],
@@ -90,6 +95,7 @@ describe('Test Runner Helpers', () => {
                 const unitAndESPackages = [
                     ...unitBTests,
                     ...unitATests,
+                    ...restrainedTests,
                     ...opensearchTests,
                     ...elasticsearchTests,
                 ];
@@ -101,8 +107,8 @@ describe('Test Runner Helpers', () => {
 
                 expect(mapInfo(grouped['unit-a'])).toBeArrayOfSize(0);
                 expect(mapInfo(grouped['unit-b'])).toBeArrayOfSize(0);
-                expect(mapInfo(grouped.elasticsearch)).toEqual(
-                    mapInfo(unitAndESPackages)
+                expect(mapInfo(grouped.elasticsearch).length).toEqual(
+                    mapInfo(unitAndESPackages).length
                 );
             });
         });
