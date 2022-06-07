@@ -13,7 +13,9 @@ const {
     ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
 } = require('./config');
 
-const majorVersion = Number(ELASTICSEARCH_VERSION.charAt(0));
+const semver = ELASTICSEARCH_VERSION.split('.');
+const majorVersion = Number(semver[0]);
+const minorVersion = Number(semver[1]);
 
 const isLegacyTest = process.env.LEGACY_CLIENT != null;
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
@@ -46,6 +48,11 @@ async function makeClient() {
     }
 
     if (isES7ClientTest) {
+        if (minorVersion <= 13) {
+            return new opensearch.Client({
+                node
+            });
+        }
         return new elasticsearch7.Client({
             node
         });
@@ -72,24 +79,10 @@ function formatUploadData(
             meta._type = '_doc';
         }
 
-        results.push({ index: meta }, record);
+        results.push({ action: { index: meta }, data: record });
     });
 
     return results;
-}
-
-async function constrictQueue(client) {
-    const settings = {
-        persistent: {
-            'thread_pool.write.queue_size': '2'
-        }
-    };
-
-    if (isES8ClientTest) {
-        return client.cluster.putSettings(settings);
-    }
-
-    return client.cluster.putSettings({ body: settings });
 }
 
 async function waitForData(
@@ -106,7 +99,9 @@ async function waitForData(
                 const indexCount = await esClient.count({ index, q: '*' });
                 if (count === indexCount) return resolve();
             } catch (err) {
-                return reject(err);
+                if (err.statusCode !== 404) {
+                    // return reject(err);
+                }
             }
 
             return checkIndex();
@@ -129,7 +124,6 @@ async function cleanupIndex(
 
 module.exports = {
     makeClient,
-    constrictQueue,
     waitForData,
     cleanupIndex,
     formatUploadData

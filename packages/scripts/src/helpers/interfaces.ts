@@ -40,7 +40,9 @@ export enum Service {
     Elasticsearch = 'elasticsearch',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',
-    Opensearch = 'opensearch'
+    Opensearch = 'opensearch',
+    RestrainedElasticsearch = 'restrained_elasticsearch',
+    RestrainedOpensearch = 'restrained_opensearch'
 }
 
 export type PackageConfig = {

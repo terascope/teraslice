@@ -28,6 +28,7 @@ const { ElasticsearchDistribution } = require('@terascope/types');
 const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
+const TOO_MANY_REQUESTS = 429;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
@@ -293,7 +294,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     continue;
                 }
 
-                if (item.error.type === 'es_rejected_execution_exception') {
+                if (item.status === TOO_MANY_REQUESTS || item.error.type === 'es_rejected_execution_exception') {
                     if (actionRecords[i] == null) {
                         // this error should not happen in production,
                         // only in tests where the bulk function is mocked

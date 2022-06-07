@@ -22,6 +22,7 @@ const logger = ts.debugLogger('ts-scripts:cmd:test');
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
 const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
+const restrainedElasticsearchConfigPath = path.join(getRootDir(), '/.ts-test-config/elasticsearch.yml');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
@@ -38,6 +39,39 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'network.host': '0.0.0.0',
             'http.port': config.ELASTICSEARCH_PORT,
             'discovery.type': 'single-node',
+            ...disableXPackSecurity && {
+                'xpack.security.enabled': 'false'
+            }
+        },
+        network: config.DOCKER_NETWORK_NAME
+    },
+    [Service.RestrainedElasticsearch]: {
+        image: config.ELASTICSEARCH_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
+        mount: `type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`,
+        ports: [`${config.RESTRAINED_ELASTICSEARCH_PORT}:${config.RESTRAINED_ELASTICSEARCH_PORT}`],
+        env: {
+            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            'network.host': '0.0.0.0',
+            'http.port': config.RESTRAINED_ELASTICSEARCH_PORT,
+            'discovery.type': 'single-node',
+            ...disableXPackSecurity && {
+                'xpack.security.enabled': 'false'
+            }
+        },
+        network: config.DOCKER_NETWORK_NAME
+    },
+    [Service.RestrainedOpensearch]: {
+        image: config.OPENSEARCH_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.OPENSEARCH_NAME}`,
+        ports: [`${config.RESTRAINED_OPENSEARCH_PORT}:${config.RESTRAINED_OPENSEARCH_PORT}`],
+        env: {
+            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
+            'network.host': '0.0.0.0',
+            'http.port': config.RESTRAINED_OPENSEARCH_PORT,
+            'discovery.type': 'single-node',
+            DISABLE_INSTALL_DEMO_CONFIG: 'true',
+            DISABLE_SECURITY_PLUGIN: 'true',
             ...disableXPackSecurity && {
                 'xpack.security.enabled': 'false'
             }
@@ -122,6 +156,16 @@ export async function pullServices(suite: string, options: TestOptions): Promise
             images.push(image);
         }
 
+        if (launchServices.includes(Service.RestrainedOpensearch)) {
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            images.push(image);
+        }
+
+        if (launchServices.includes(Service.RestrainedElasticsearch)) {
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            images.push(image);
+        }
+
         if (launchServices.includes(Service.Kafka)) {
             const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
             images.push(image);
@@ -157,6 +201,22 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 
     if (launchServices.includes(Service.Elasticsearch)) {
         promises.push(ensureElasticsearch(options));
+    }
+
+    if (launchServices.includes(Service.RestrainedElasticsearch)) {
+        // we create the elasticsearch.yml file for tests
+        if (!options.ignoreMount) {
+            await fs.outputFile(restrainedElasticsearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
+        }
+        promises.push(ensureRestrainedElasticsearch(options));
+    }
+
+    if (launchServices.includes(Service.RestrainedOpensearch)) {
+        // we create the elasticsearch.yml file for tests
+        if (!options.ignoreMount) {
+            await fs.outputFile(restrainedElasticsearchConfigPath, 'network.host: 0.0.0.0\nthread_pool.write.queue_size: 2');
+        }
+        promises.push(ensureRestrainedOpensearch(options));
     }
 
     if (launchServices.includes(Service.Opensearch)) {
@@ -211,6 +271,22 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
     return fn;
 }
 
+export async function ensureRestrainedElasticsearch(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    const startTime = Date.now();
+    fn = await startService(options, Service.RestrainedElasticsearch);
+    await checkRestrainedElasticsearch(options, startTime);
+    return fn;
+}
+
+export async function ensureRestrainedOpensearch(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    const startTime = Date.now();
+    fn = await startService(options, Service.RestrainedOpensearch);
+    await checkRestrainedOpensearch(options, startTime);
+    return fn;
+}
+
 export async function ensureOpensearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     const startTime = Date.now();
@@ -236,6 +312,73 @@ async function stopService(service: Service) {
     signale.pending(`stopping service ${service}`);
     await dockerStop(name);
     signale.success(`stopped service ${service}, took ${ts.toHumanTime(Date.now() - startTime)}`);
+}
+
+async function checkRestrainedOpensearch(
+    options: TestOptions, startTime: number
+): Promise<void> {
+    const host = config.RESTRAINED_OPENSEARCH_HOST;
+    const username = config.OPENSEARCH_USER;
+    const password = config.OPENSEARCH_PASSWORD;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
+
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking restrained opensearch at ${host}`);
+            } else {
+                logger.debug(`checking restrained opensearch at ${host}`);
+            }
+            let body: any;
+
+            try {
+                ({ body } = await got(host, {
+                    username,
+                    password,
+                    rejectUnauthorized: false,
+                    responseType: 'json',
+                    throwHttpErrors: true,
+                    retry: 0,
+                }));
+            } catch (err) {
+                return false;
+            }
+
+            if (options.trace) {
+                signale.debug('got response from restrained opensearch service', body);
+            } else {
+                logger.debug('got response from restrained opensearch service', body);
+            }
+
+            if (!body?.version?.number) {
+                return false;
+            }
+
+            const actual: string = body.version.number;
+            const expected = options.opensearchVersion;
+
+            const satifies = semver.satisfies(actual, `^${expected}`);
+            if (satifies) {
+                const took = ts.toHumanTime(Date.now() - startTime);
+                signale.success(`restrained opensearch@${actual} is running at ${host}, took ${took}`);
+                return true;
+            }
+
+            throw new ts.TSError(
+                `restrained opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
+                {
+                    retryable: false,
+                }
+            );
+        },
+        {
+            name: `Restrained Opensearch service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+        }
+    );
 }
 
 async function checkOpensearch(options: TestOptions, startTime: number): Promise<void> {
@@ -297,6 +440,68 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
         },
         {
             name: `Opensearch service (${host})`,
+            timeoutMs: serviceUpTimeout,
+            enabledJitter: true,
+        }
+    );
+}
+
+async function checkRestrainedElasticsearch(
+    options: TestOptions, startTime: number
+): Promise<void> {
+    const host = config.RESTRAINED_ELASTICSEARCH_HOST;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
+
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking restrained elasticsearch at ${host}`);
+            } else {
+                logger.debug(`checking restrained elasticsearch at ${host}`);
+            }
+
+            let body: any;
+            try {
+                ({ body } = await got(host, {
+                    responseType: 'json',
+                    throwHttpErrors: true,
+                    retry: 0,
+                }));
+            } catch (err) {
+                return false;
+            }
+
+            if (options.trace) {
+                signale.debug('got response from restrained elasticsearch service', body);
+            } else {
+                logger.debug('got response from restrained elasticsearch service', body);
+            }
+
+            if (!body?.version?.number) {
+                return false;
+            }
+
+            const actual: string = body.version.number;
+            const expected = options.elasticsearchVersion;
+
+            const satifies = semver.satisfies(actual, `^${expected}`);
+            if (satifies) {
+                const took = ts.toHumanTime(Date.now() - startTime);
+                signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
+                return true;
+            }
+
+            throw new ts.TSError(
+                `Restrained Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
+                {
+                    retryable: false,
+                }
+            );
+        },
+        {
+            name: `Restrained Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
         }
@@ -467,7 +672,17 @@ async function checkKafka(options: TestOptions, startTime: number) {
 }
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
-    const version = options[`${service}Version`] as string;
+    let serviceName = service;
+
+    if (serviceName === 'restrained_elasticsearch') {
+        serviceName = Service.Elasticsearch;
+    }
+
+    if (serviceName === 'restrained_opensearch') {
+        serviceName = Service.Opensearch;
+    }
+
+    const version = options[`${serviceName}Version`] as string;
     if (options.useExistingServices) {
         signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
         return () => {};

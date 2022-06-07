@@ -90,6 +90,15 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (launchServices.includes(Service.RestrainedElasticsearch)) {
+        Object.assign(env, {
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
+            ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
+            ELASTICSEARCH_VERSION: options.elasticsearchVersion,
+            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+        });
+    }
+
     if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
             MINIO_HOST: config.MINIO_HOST,
@@ -125,6 +134,19 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             OPENSEARCH_PORT: config.OPENSEARCH_PORT,
             OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
             OPENSEARCH_HOST: config.OPENSEARCH_HOST,
+            DISABLE_SECURITY_PLUGIN: true,
+            DISABLE_INSTALL_DEMO_CONFIG: true,
+        });
+    }
+
+    if (launchServices.includes(Service.RestrainedElasticsearch)) {
+        Object.assign(env, {
+            OPENSEARCH_HOSTNAME: config.OPENSEARCH_HOSTNAME,
+            OPENSEARCH_USER: config.OPENSEARCH_USER,
+            OPENSEARCH_PASSWORD: config.OPENSEARCH_PASSWORD,
+            RESTRAINED_OPENSEARCH_PORT: config.RESTRAINED_OPENSEARCH_PORT,
+            OPENSEARCH_VERSION: config.OPENSEARCH_VERSION,
+            RESTRAINED_OPENSEARCH_HOST: config.RESTRAINED_OPENSEARCH_HOST,
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
         });

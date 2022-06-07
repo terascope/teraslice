@@ -84,6 +84,25 @@ jobs:
       node_js: '14.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+      script: cd ./packages/elasticsearch-store; yarn --silent test:opensearch  --report-coverage false
+
+    - name: 'ES API Legacy Client (elasticsearch 6) (node 14)'
+      node_js: '14.17'
+      # run only on pull-requests
+      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+      script: cd ./packages/elasticsearch-api; yarn --silent test:legacy  --report-coverage false
+
+    - name: 'ES API ES7 Client (elasticsearch 7) (node 14)'
+      node_js: '14.17'
+      # run only on pull-requests
+      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+      script: cd ./packages/elasticsearch-api; yarn --silent test:7
+
+    - name: 'ES API Opensearch Client (opensearch 1.3.0) (node 14)'
+      node_js: '14.17'
+      # run only on pull-requests
+      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+      script: cd ./packages/elasticsearch-api; yarn --silent test:opensearch  --report-coverage false
 
     - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
       node_js: '14.17'
