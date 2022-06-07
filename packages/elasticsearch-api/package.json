@@ -23,7 +23,8 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.44.2",
-        "bluebird": "^3.7.2"
+        "bluebird": "^3.7.2",
+        "setimmediate": "^1.0.5"
     },
     "devDependencies": {
         "@opensearch-project/opensearch": "^1.0.2",

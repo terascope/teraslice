@@ -1,5 +1,9 @@
 'use strict';
 
+// polyfill because opensearch has references to an api that won't exist
+// on the client side, should be able to remove in the future
+require('setimmediate');
+
 const Promise = require('bluebird');
 const {
     isTest,

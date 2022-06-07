@@ -38,6 +38,7 @@
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
+        "setimmediate": "^1.0.5",
         "uuid": "^8.3.2",
         "xlucene-translator": "^0.27.1"
     },
