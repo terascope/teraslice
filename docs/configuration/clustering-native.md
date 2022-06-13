@@ -28,6 +28,10 @@ terafoundation:
             default:
                 host:
                     - YOUR_ELASTICSEARCH_IP:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - YOUR_ELASTICSEARCH_IP:9200"
 ```
 
 ## Configuration Native Clustering - Worker Node
@@ -49,5 +53,8 @@ terafoundation:
             default:
                 host:
                     - YOUR_ELASTICSEARCH_IP:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - YOUR_ELASTICSEARCH_IP:9200
 ```
-

@@ -20,6 +20,10 @@ terafoundation:
             default:
                 host:
                     - localhost:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
 
 teraslice:
     workers: 8
@@ -112,15 +116,21 @@ terafoundation:
                     - 'some-other-ip:9200'
                 apiVersion: '6.5'
                 maxRetries: 0
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
         kafka:
             default:
                 brokers: "localhost:9092"
 # ...
 ```
 
-In this example we specify two different connector types: `elasticsearch` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
+In this example we specify two different connector types: `elasticsearch`, `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
 
 These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
+
+The difference between `elasticsearch` and `elasticsearch-next` is that the former relies on a legacy client that works on version 6 and 7.9 or lower, while the later dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
 ## Configuration Single Node / Native Clustering - Cluster Master
 
@@ -143,6 +153,10 @@ terafoundation:
             default:
                 host:
                     - YOUR_ELASTICSEARCH_IP:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - YOUR_ELASTICSEARCH_IP:9200"
 ```
 
 ## Configuration Native Clustering - Worker Node
@@ -164,4 +178,8 @@ terafoundation:
             default:
                 host:
                     - YOUR_ELASTICSEARCH_IP:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - YOUR_ELASTICSEARCH_IP:9200"
 ```
