@@ -51,7 +51,7 @@
         "express": "^4.17.3",
         "fs-extra": "^10.0.1",
         "gc-stats": "^1.4.0",
-        "got": "^11.8.3",
+        "got": "^12.1.0",
         "ip": "^1.1.5",
         "kubernetes-client": "^9.0.0",
         "lodash": "^4.17.21",
@@ -70,7 +70,7 @@
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.8",
         "elasticsearch": "^15.4.1",
-        "got": "^11.8.3",
+        "got": "^12.1.0",
         "jest-fixtures": "^0.6.0",
         "js-yaml": "^4.1.0",
         "nock": "^13.2.4"
