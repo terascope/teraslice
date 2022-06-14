@@ -85,6 +85,16 @@ describe('registerApis', () => {
                 },
             },
             {
+                type: 'elasticsearch-next',
+                create() {
+                    return {
+                        client: {
+                            'elasticsearch-next': true,
+                        },
+                    };
+                },
+            },
+            {
                 type: 'elasticsearch',
                 endpoint: 'otherConnection',
                 create() {
@@ -219,6 +229,22 @@ describe('registerApis', () => {
 
             expect(() => failingContext.apis.op_runner.getClient())
                 .toThrowError(err);
+        });
+
+        it('getClientAsync will return an async client', async () => {
+            const { getClientAsync } = context.apis.op_runner;
+
+            const results = await getClientAsync(
+                {
+                    connection: 'default',
+                    connection_cache: true,
+                },
+                'elasticsearch-next'
+            );
+
+            expect(results).toEqual({
+                'elasticsearch-next': true,
+            });
         });
     });
 

@@ -212,10 +212,11 @@ export class IndexStore<T extends ts.AnyObject> {
     /** Count records by a given Elasticsearch Query DSL */
     async countRequest(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
-            const { count } = await this.client.count(this.getDefaultParams<es.CountParams>(
+            const response = await this.client.count(this.getDefaultParams<es.CountParams>(
                 this.searchIndex,
                 params
             ));
+            const count = ts.get(response, 'body.count', response.count);
             return count;
         }, utils.getRetryConfig());
     }
@@ -229,7 +230,8 @@ export class IndexStore<T extends ts.AnyObject> {
         id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>
     ): Promise<T> {
         utils.validateId(id, 'createById');
-        return this.create(doc, Object.assign({}, params, { id }));
+        const response = await this.create(doc, Object.assign({}, params, { id }));
+        return ts.get(response, 'body', response);
     }
 
     /**
@@ -245,7 +247,10 @@ export class IndexStore<T extends ts.AnyObject> {
         );
 
         const result = await ts.pRetry(
-            () => this.client.create(p),
+            async () => {
+                const response = await this.client.create(p);
+                return ts.get(response, 'body', response);
+            },
             utils.getRetryConfig()
         );
         return this._toRecord({
@@ -276,7 +281,12 @@ export class IndexStore<T extends ts.AnyObject> {
         const p = this.getDefaultParams(this.writeIndex, params, { id });
 
         const result = await ts.pRetry(
-            () => this.client.get(p as es.GetParams) as Promise<RecordResponse<T>>,
+            async () => {
+                const response = await this.client.get(
+                    p as es.GetParams
+                );
+                return ts.get(response, 'body', response) as Promise<RecordResponse<T>>;
+            },
             utils.getRetryConfig()
         );
         return this._toRecord(result);
@@ -311,7 +321,12 @@ export class IndexStore<T extends ts.AnyObject> {
             { body }
         );
 
-        const result = await ts.pRetry(() => this.client.index(p), utils.getRetryConfig());
+        const result = await ts.pRetry(
+            async () => {
+                const response = await this.client.index(p);
+                return ts.get(response, 'body', response);
+            },
+            utils.getRetryConfig());
         result._source = doc;
         return this._toRecord(result);
     }
@@ -325,7 +340,8 @@ export class IndexStore<T extends ts.AnyObject> {
         params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>
     ): Promise<T> {
         utils.validateId(id, 'indexById');
-        return this.index(doc, Object.assign({}, params, { id }));
+        const response = await this.index(doc, Object.assign({}, params, { id }));
+        return ts.get(response, 'body', response);
     }
 
     /** Get multiple documents at the same time */
@@ -334,7 +350,8 @@ export class IndexStore<T extends ts.AnyObject> {
 
         const docs = await ts.pRetry(async () => {
             const result = await this.client.mget<T>(p);
-            return result.docs || [];
+            const response = ts.get(result, 'body', result);
+            return response.docs || [];
         }, utils.getRetryConfig());
 
         return this._toRecords(docs, true);
@@ -414,7 +431,10 @@ export class IndexStore<T extends ts.AnyObject> {
             { id, body: _body }
         );
 
-        await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
+        await ts.pRetry(async () => {
+            const response = await this.client.update(p);
+            return ts.get(response, 'body', response);
+        }, utils.getRetryConfig());
     }
 
     /** Safely apply updates to a document by applying the latest changes */
@@ -435,15 +455,18 @@ export class IndexStore<T extends ts.AnyObject> {
                     params.version = existing.getMetadata('_version');
                 }
             }
-            return await this.indexById(
+            const response = await this.indexById(
                 id,
                 await applyChanges(existing),
                 params
             );
+
+            return ts.get(response, 'body', response);
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {
-                return this.updatePartial(id, applyChanges, retriesOnConflict - 1);
+                const response = await this.updatePartial(id, applyChanges, retriesOnConflict - 1);
+                return ts.get(response, 'body', response);
             }
             throw error;
         }
@@ -691,12 +714,19 @@ export class IndexStore<T extends ts.AnyObject> {
             }
         }
 
-        const response = await ts.pRetry(async () => this.client.search<T>(
-            this.getDefaultParams<es.SearchParams>(
-                this.searchIndex,
-                params,
-            )
-        ), utils.getRetryConfig());
+        const response = await ts.pRetry(
+            async () => {
+                const data = await this.client.search<T>(
+                    this.getDefaultParams<es.SearchParams>(
+                        this.searchIndex,
+                        params,
+                    )
+                );
+
+                return ts.get(data, 'body', data);
+            },
+            utils.getRetryConfig()
+        );
 
         const { failures, failed } = response._shards as any;
 
@@ -864,6 +894,7 @@ export class IndexStore<T extends ts.AnyObject> {
         let _doc = doc;
         for (const hook of this.writeHooks) {
             const result = hook(_doc, critical);
+
             if (result == null) {
                 throw new Error('Expected write hook to return a doc or to throw');
             }

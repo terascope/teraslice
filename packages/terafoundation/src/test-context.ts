@@ -5,7 +5,7 @@ import { CoreContext } from './core-context';
 import validateConfigs from './validate-configs';
 
 interface ClientFactoryFns {
-    [prop: string]: i.ClientFactoryFn;
+    [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
@@ -14,7 +14,8 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create: i.ClientFactoryFn;
+    create?: i.ClientFactoryFn;
+    createClient?: i.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;
 }
@@ -70,24 +71,32 @@ export interface TestContextOptions<S> {
     sysconfig?: ts.PartialDeep<i.FoundationSysConfig<S>>;
 }
 
+function getDefaultSysconfig<S>(
+    options: TestContextOptions<S>
+): ts.PartialDeep<i.FoundationSysConfig<S>> {
+    return {
+        terafoundation: {
+            connectors: {
+                elasticsearch: {
+                    default: {},
+                },
+                'elasticsearch-next': {
+                    default: {},
+                },
+            },
+            ...ts.get(options.sysconfig, 'terafoundation', {})
+        },
+        ...options.sysconfig
+    };
+}
+
 export class TestContext<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string,
 > extends CoreContext<S, A & TestContextAPIs, D> {
     constructor(options: TestContextOptions<S> = {}) {
-        const sysconfig: ts.PartialDeep<i.FoundationSysConfig<S>> = {
-            terafoundation: {
-                connectors: {
-                    elasticsearch: {
-                        default: {},
-                    },
-                },
-                ...ts.get(options.sysconfig, 'terafoundation', {})
-            },
-            ...options.sysconfig
-        };
-
+        const sysconfig = getDefaultSysconfig(options);
         const config: i.FoundationConfig<S, A & TestContextAPIs, D> = {
             name: options.name || 'test-context',
         };
@@ -133,21 +142,49 @@ export class TestContext<
             return client;
         };
 
+        this.apis.foundation.createClient = async (opts: i.ConnectionConfig) => {
+            const { cached } = opts;
+
+            const cachedClients = _cachedClients.get(ctx) || {};
+            const key = getKey(opts);
+            if (cached && cachedClients[key] != null) {
+                return cachedClients[key];
+            }
+
+            const clientFns = _createClientFns.get(ctx) || {};
+            const create = clientFns[key];
+
+            if (!create) throw new Error(`No client was found for connection "${key}"`);
+            if (!ts.isFunction(create)) {
+                const actual = ts.getTypeOf(create);
+                throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
+            }
+
+            const connectorConfig = setConnectorConfig(ctx.sysconfig, opts, {}, false);
+
+            const client = await create(connectorConfig, ctx.logger, opts);
+
+            cachedClients[key] = client;
+            _cachedClients.set(ctx, cachedClients);
+
+            return client;
+        };
+
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {
-                const { create, config: connectionConfig = {} } = clientConfig;
-
+                const { create, createClient, config: connectionConfig = {} } = clientConfig;
+                const createFN = createClient || create;
                 const clientFns = _createClientFns.get(ctx) || {};
 
                 const key = getKey(clientConfig);
-                if (!ts.isFunction(create)) {
-                    const actual = ts.getTypeOf(create);
+                if (!ts.isFunction(createFN)) {
+                    const actual = ts.getTypeOf(createFN);
                     throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
                 }
 
                 ctx.logger.trace(`Setting test client for connection "${key}"`, connectionConfig);
 
-                clientFns[key] = create;
+                clientFns[key] = createFN;
                 _createClientFns.set(ctx, clientFns);
 
                 const cachedClients = _cachedClients.get(ctx) || {};

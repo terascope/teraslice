@@ -38,6 +38,14 @@ module.exports = async function setupTerasliceConfig() {
                         suggestCompression: false
                     }
                 },
+                'elasticsearch-next': {
+                    default: {
+                        node: [ELASTICSEARCH_HOST],
+                        requestTimeout: '1 minute',
+                        sniffOnStart: false,
+                        sniffOnConnectionFault: false,
+                    }
+                },
                 kafka: {
                     default: {
                         brokers: [KAFKA_BROKER]

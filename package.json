@@ -75,6 +75,14 @@
                 "elasticsearch": [
                     "elasticsearch"
                 ],
+                "search": [
+                    "elasticsearch",
+                    "opensearch"
+                ],
+                "restrained": [
+                    "restrained_elasticsearch",
+                    "restrained_opensearch"
+                ],
                 "kafka": [
                     "kafka"
                 ],

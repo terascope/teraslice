@@ -158,4 +158,26 @@ describe('Test Helpers', () => {
             }
         });
     });
+
+    it('should be able to get and set async clients', async () => {
+        const context = new TestContext('test-clients', {
+            clients: [
+                {
+                    async createClient() {
+                        return { client: 'hello' };
+                    },
+                    type: 'test'
+                }
+            ]
+        });
+
+        expect(context.apis.getTestClients()).toEqual({});
+
+        const results = await context.apis.foundation.createClient({
+            type: 'test',
+            endpoint: 'default'
+        });
+
+        expect(results).toEqual({ client: 'hello' });
+    });
 });

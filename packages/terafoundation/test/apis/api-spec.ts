@@ -59,10 +59,12 @@ describe('apis module', () => {
         expect(context.apis.foundation.getSystemEvents).toBeDefined();
         expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
+        expect(context.apis.foundation.createClient).toBeDefined();
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
         expect(typeof context.apis.foundation.getConnection).toBe('function');
         expect(typeof context.apis.foundation.startWorkers).toBe('function');
+        expect(typeof context.apis.foundation.createClient).toBe('function');
     });
 });

@@ -1,7 +1,9 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, TSError, debugLogger
+    times, pDelay, DataEntity, TSError, debugLogger,
+    get
 } from '@terascope/utils';
+import { ElasticsearchDistribution } from '@terascope/types';
 import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType
@@ -11,7 +13,6 @@ import { TEST_INDEX_PREFIX } from './helpers/config';
 import { IndexStore, IndexConfig, __timeSeriesTest } from '../src';
 
 describe('IndexStore (timeseries)', () => {
-    const client = makeClient();
     const logger = debugLogger(__filename);
 
     describe.each([0, 1])('when %d days pass', (numDays) => {
@@ -44,9 +45,13 @@ describe('IndexStore (timeseries)', () => {
             event_time_field: '_updated',
             enable_index_mutations: false
         };
-        const indexStore = new IndexStore<SimpleRecord>(client, config);
+        let indexStore: IndexStore<SimpleRecord>;
+        let client: any;
 
         beforeAll(async () => {
+            client = await makeClient();
+            indexStore = new IndexStore<SimpleRecord>(client, config);
+
             await cleanupIndexStore(indexStore);
 
             await indexStore.initialize();
@@ -65,9 +70,10 @@ describe('IndexStore (timeseries)', () => {
 
         it('should create the versioned index', async () => {
             expect(indexStore.searchIndex).not.toBe(indexStore.writeIndex);
-            const exists = await client.indices.exists({
+            const response = await client.indices.exists({
                 index: indexStore.writeIndex
             });
+            const exists = get(response, 'body', response);
 
             expect(exists).toBeTrue();
         });
@@ -94,7 +100,6 @@ describe('IndexStore (timeseries)', () => {
                     await indexStore.createById(record.test_id, record);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Document Already Exists');
                     expect(err.statusCode).toEqual(409);
                 }
             });
@@ -241,7 +246,6 @@ describe('IndexStore (timeseries)', () => {
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -251,13 +255,15 @@ describe('IndexStore (timeseries)', () => {
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
+                // eslint-disable-next-line max-len
+                const isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
 
                 const metadata = r.getMetadata();
                 // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: indexStore.writeIndex,
                     _key: record.test_id,
-                    _type: indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: isOpenSearch || indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -276,7 +282,6 @@ describe('IndexStore (timeseries)', () => {
                     await indexStore.get('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -292,7 +297,6 @@ describe('IndexStore (timeseries)', () => {
                     await indexStore.deleteById('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });

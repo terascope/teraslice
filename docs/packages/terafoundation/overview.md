@@ -215,6 +215,10 @@ terafoundation:
          keepAlive: true
          maxRetries: 5
          maxSockets: 20
+    elasticsearch-next:
+      default:
+        node:
+          - YOUR_ELASTICSEARCH_IP:9200"
     mongo:
       default:
         host: 127.0.0.1
@@ -228,6 +232,8 @@ This is where client config used to set up database connections lives. It is an 
 The values are once again objects with keys set to different endpoints within each client. For example in the config above, elasticsearch database has two endpoints listed. The first one is called default which listens to an elasticsearch database on port 9200, and by what its name implies is the endpoint that's used when making a client without specifying an endpoint. The other is endpoint2 which connects to an elasticsearch database on port 9215
 
 Each endpoint will have its own configuration which will then be used by the actual client of the library
+
+The difference between `elasticsearch` and `elasticsearch-next` is that the former relies on a legacy client that works on version 6 and 7.9.0 or lower, while the later dynamically queries the cluster to verify the version and distribution and returns the appropriate client. It can work with versions 6, 7, 8 and with opensearch.
 
 ### Configuration Settings
 

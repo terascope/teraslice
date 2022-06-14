@@ -10,7 +10,7 @@ const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
  * Manage Elasticsearch Indices
  */
 export class IndexManager {
-    readonly client: es.Client;
+    readonly client: any;
     readonly version: string;
     readonly distribution: ElasticsearchDistribution;
     readonly majorVersion: number;
@@ -33,9 +33,11 @@ export class IndexManager {
 
     /** Verify the index exists */
     async exists(index: string): Promise<boolean> {
-        return this.client.indices.exists({
+        const response = await this.client.indices.exists({
             index,
         });
+
+        return ts.get(response, 'body', response);
     }
 
     /**
@@ -178,7 +180,8 @@ export class IndexManager {
     }
 
     async isIndexActive(index: string): Promise<boolean> {
-        const stats = await this.client.indices.recovery({ index });
+        const response = await this.client.indices.recovery({ index });
+        const stats = ts.get(response, 'body', response);
         if (ts.isEmpty(stats)) return false;
 
         const getShardsPath = utils.shardsPath(index);
@@ -252,7 +255,7 @@ export class IndexManager {
         }
 
         logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
-        return this.client.reindex({
+        const response = await this.client.reindex({
             timeout,
             waitForActiveShards: 'all',
             waitForCompletion: true,
@@ -265,6 +268,8 @@ export class IndexManager {
                 },
             },
         });
+
+        return ts.get(response, 'body', response);
     }
 
     async getMapping(index: string): Promise<any> {
@@ -272,7 +277,8 @@ export class IndexManager {
         if (!utils.isElasticsearch6(this.client)) {
             params.includeTypeName = false;
         }
-        return this.client.indices.getMapping(params);
+        const response = await this.client.indices.getMapping(params);
+        return ts.get(response, 'body', response);
     }
 
     async putMapping(index: string, type: string, properties: Record<string, any>): Promise<any> {
@@ -287,7 +293,8 @@ export class IndexManager {
             delete params.type;
             params.includeTypeName = false;
         }
-        return this.client.indices.putMapping(params);
+        const response = await this.client.indices.putMapping(params);
+        return ts.get(response, 'body', response);
     }
 
     /**
@@ -362,7 +369,8 @@ export class IndexManager {
         if (!utils.isElasticsearch6(this.client)) {
             params.includeTypeName = false;
         }
-        return this.client.indices.getTemplate(params);
+        const response = await this.client.indices.getTemplate(params);
+        return ts.get(response, 'body', response);
     }
 
     /**

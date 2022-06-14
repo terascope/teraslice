@@ -1,5 +1,9 @@
 'use strict';
 
+// polyfill because opensearch has references to an api that won't exist
+// on the client side, should be able to remove in the future
+require('setimmediate');
+
 const Promise = require('bluebird');
 const {
     isTest,
@@ -28,6 +32,7 @@ const { ElasticsearchDistribution } = require('@terascope/types');
 const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
+const TOO_MANY_REQUESTS = 429;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
@@ -102,7 +107,10 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
             function _runRequest() {
                 clientBase[endpoint](query)
-                    .then(resolve)
+                    .then((rawResponse) => {
+                        const response = get(rawResponse, 'body', rawResponse);
+                        resolve(response);
+                    })
                     .catch(errHandler);
             }
 
@@ -290,7 +298,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     continue;
                 }
 
-                if (item.error.type === 'es_rejected_execution_exception') {
+                if (item.status === TOO_MANY_REQUESTS || item.error.type === 'es_rejected_execution_exception') {
                     if (actionRecords[i] == null) {
                         // this error should not happen in production,
                         // only in tests where the bulk function is mocked
@@ -927,6 +935,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
     }
 
+    function isElasticsearch8() {
+        const { distribution, version: esVersion } = getClientMetadata();
+        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
+
+        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
+    }
+
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
@@ -954,6 +969,10 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     return '';
                 });
             }
+        }
+
+        if (isElasticsearch8(client)) {
+            delete defaultParams.includeTypeName;
         }
 
         return Object.assign({}, defaultParams, params);
@@ -1049,7 +1068,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 });
                 return Promise.reject(error);
             });
-        });
+        }).catch((err) => Promise.reject(err));
     }
 
     function _verifyMapping(query, configMapping, recordType) {

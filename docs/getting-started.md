@@ -38,6 +38,10 @@ terafoundation:
             default:
                 host:
                     - localhost:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
 
 teraslice:
     workers: 8

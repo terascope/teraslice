@@ -82,6 +82,12 @@ export type ClientFactoryFn = (
     options: ConnectionConfig
 ) => { client: any };
 
+export type CreateClientFactoryFn = (
+    config: Record<string, any>,
+    logger: Logger,
+    options: ConnectionConfig
+) => Promise<{ client: any }>;
+
 export interface ExecutionControllerTargets {
     key: string;
     value: string;
@@ -91,6 +97,7 @@ export interface FoundationApis {
     makeLogger(...params: any[]): Logger;
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
+    createClient(config: ConnectionConfig): Promise<{ client: any }>;
 }
 
 export interface LegacyFoundationApis {
@@ -122,6 +129,7 @@ export interface GetClientConfig {
 */
 export interface OpRunnerAPI {
     getClient(config: GetClientConfig, type: string): any;
+    getClientAsync(config: GetClientConfig, type: string): Promise<any>;
 }
 
 export interface JobRunnerAPI {

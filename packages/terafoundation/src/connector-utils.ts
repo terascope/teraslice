@@ -8,6 +8,7 @@ type ErrorResult = {
 
 function requireConnector(filePath: string, errors: ErrorResult[]) {
     let mod = require(filePath);
+
     if (mod && mod.default) {
         mod = mod.default;
     }

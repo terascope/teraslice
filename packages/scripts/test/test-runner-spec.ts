@@ -3,19 +3,43 @@ import { listPackages } from '../src/helpers/packages';
 import { filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
 import { PackageInfo } from '../src/helpers/interfaces';
 import { getAvailableTestSuites } from '../src/helpers/misc';
+import { TestOptions } from '../src/helpers/test-runner/interfaces';
 
 describe('Test Runner Helpers', () => {
     const availableSuites = getAvailableTestSuites();
     const packages = listPackages();
 
+    const defaultsOptions: TestOptions = {
+        bail: false,
+        debug: false,
+        watch: false,
+        trace: false,
+        all: true,
+        keepOpen: false,
+        reportCoverage: false,
+        useExistingServices: false,
+        elasticsearchAPIVersion: '',
+        elasticsearchVersion: '',
+        kafkaVersion: '',
+        minioVersion: '',
+        rabbitmqVersion: '',
+        opensearchVersion: '',
+        ignoreMount: true
+    };
+
+    function makeTestOptions(input: Partial<TestOptions>): TestOptions {
+        return Object.assign({}, defaultsOptions, input);
+    }
+
     describe('->filterBySuite', () => {
         it('should be able to filter by a suite', () => {
-            const options: any = {
+            const options = makeTestOptions({
                 all: false,
-                suite: 'unit-a',
-            };
+                suite: ['unit-a'],
+            });
             const filtered = filterBySuite(packages, options);
             const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
+
             expect(suites).not.toContain('e2e');
             expect(suites).not.toContain('elasticsearch');
             expect(suites).not.toContain('disabled');
@@ -29,11 +53,13 @@ describe('Test Runner Helpers', () => {
                 const grouped = groupBySuite(packages, availableSuites, {
                     all: true,
                 } as any);
+
                 for (const [suite, group] of Object.entries(grouped)) {
-                    const filtered = filterBySuite(packages, {
+                    const filtered = filterBySuite(packages, makeTestOptions({
                         all: false,
-                        suite,
-                    } as any);
+                        suite: [suite],
+                    }));
+
                     expect(mapInfo(group)).toEqual(mapInfo(filtered));
                 }
             });
@@ -41,56 +67,68 @@ describe('Test Runner Helpers', () => {
 
         describe('when running all tests in watch mode', () => {
             it('should be able group elasticsearch and unit together', () => {
-                const elasticsearchTests = filterBySuite(packages, {
+                const elasticsearchTests = filterBySuite(packages, makeTestOptions({
                     all: true,
-                    suite: 'elasticsearch',
-                } as any);
+                    suite: ['elasticsearch'],
+                }));
 
-                const unitATests = filterBySuite(packages, {
+                const opensearchTests = filterBySuite(packages, makeTestOptions({
                     all: true,
-                    suite: 'unit-a',
-                } as any);
+                    suite: ['search'],
+                }));
 
-                const unitBTests = filterBySuite(packages, {
+                const restrainedTests = filterBySuite(packages, makeTestOptions({
                     all: true,
-                    suite: 'unit-b',
-                } as any);
+                    suite: ['restrained'],
+                }));
+
+                const unitATests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['unit-a'],
+                }));
+
+                const unitBTests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['unit-b'],
+                }));
 
                 const unitAndESPackages = [
                     ...unitBTests,
                     ...unitATests,
+                    ...restrainedTests,
+                    ...opensearchTests,
                     ...elasticsearchTests,
                 ];
 
-                const grouped = groupBySuite(packages, availableSuites, {
+                const grouped = groupBySuite(packages, availableSuites, makeTestOptions({
                     all: true,
                     watch: true
-                } as any);
+                }));
 
                 expect(mapInfo(grouped['unit-a'])).toBeArrayOfSize(0);
                 expect(mapInfo(grouped['unit-b'])).toBeArrayOfSize(0);
-                expect(mapInfo(grouped.elasticsearch)).toEqual(
-                    mapInfo(unitAndESPackages)
+                expect(mapInfo(grouped.elasticsearch).length).toEqual(
+                    mapInfo(unitAndESPackages).length
                 );
             });
         });
 
         describe('when a unit-a test and none-unit-a test, it should group them together', () => {
             it('should be able group elasticsearch and unit-a together', () => {
-                const elasticsearchTests = filterBySuite(packages, {
+                const elasticsearchTests = filterBySuite(packages, makeTestOptions({
                     all: false,
-                    suite: 'elasticsearch',
-                } as any).slice(0, 2);
+                    suite: ['elasticsearch'],
+                })).slice(0, 2);
 
-                const unitATests = filterBySuite(packages, {
+                const unitATests = filterBySuite(packages, makeTestOptions({
                     all: false,
-                    suite: 'unit-a',
-                } as any).slice(0, 2);
+                    suite: ['unit-a'],
+                })).slice(0, 2);
 
-                const unitBTests = filterBySuite(packages, {
+                const unitBTests = filterBySuite(packages, makeTestOptions({
                     all: false,
-                    suite: 'unit-b',
-                } as any).slice(0, 2);
+                    suite: ['unit-b'],
+                })).slice(0, 2);
 
                 const unitAndESPackages = [
                     ...unitATests,
@@ -98,9 +136,9 @@ describe('Test Runner Helpers', () => {
                     ...elasticsearchTests,
                 ];
 
-                const grouped = groupBySuite(unitAndESPackages, availableSuites, {
+                const grouped = groupBySuite(unitAndESPackages, availableSuites, makeTestOptions({
                     all: false,
-                } as any);
+                }));
 
                 expect(mapInfo(grouped['unit-a'])).toBeArrayOfSize(0);
                 expect(mapInfo(grouped.elasticsearch)).toEqual(

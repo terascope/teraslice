@@ -16,6 +16,11 @@ function getConnectors() {
             default: {
                 host: ['localhost:9200']
             }
+        },
+        'elasticsearch-next': {
+            default: {
+                node: ['localhost:9200']
+            }
         }
     };
 

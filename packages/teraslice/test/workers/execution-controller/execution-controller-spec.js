@@ -54,7 +54,6 @@ describe('ExecutionController', () => {
                     expect(err.message).toStartWith(
                         `Cannot get execution status ${testContext.exId}`
                     );
-                    expect(err.message).toInclude('Not Found');
                 }
             });
         });

@@ -12,25 +12,25 @@ describe('Elasticsearch Store Utils', () => {
         it('should return not return an dots for a valid string', () => {
             expect(
                 uniqueFieldQuery('fooBar0123')
-            ).toEqual('/fooBar0123/');
+            ).toEqual('/[fF][oO][oO][bB][aA][rR]0123/');
         });
 
         it('should return . for each dash', () => {
             expect(
                 uniqueFieldQuery('test-a-b-c')
-            ).toEqual('/test.a.b.c/');
+            ).toEqual('/[tT][eE][sS][tT].[aA].[bB].[cC]/');
         });
 
         it('should return . for each underscore', () => {
             expect(
                 uniqueFieldQuery('test_a_b_c')
-            ).toEqual('/test.a.b.c/');
+            ).toEqual('/[tT][eE][sS][tT].[aA].[bB].[cC]/');
         });
 
         it('should return . for each special characters', () => {
             expect(
                 uniqueFieldQuery('h*ll.?@^[]{})"\'`hih/\\ AND (')
-            ).toEqual('/h.ll............hih...AND../');
+            ).toEqual('/[hH].[lL][lL]............[hH][iI][hH]...[aA][nN][dD]../');
         });
     });
 

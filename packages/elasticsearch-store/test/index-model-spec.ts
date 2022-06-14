@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-translator';
@@ -28,7 +29,6 @@ describe('IndexModel', () => {
         }
     });
 
-    const client = makeClient();
     const exampleConfig: IndexModelConfig<ExampleRecord> = {
         name: 'example_model',
         data_type: dataType,
@@ -58,11 +58,14 @@ describe('IndexModel', () => {
         }
     }
 
-    const indexModel = new ExampleIndexModel(client, {
-        namespace: `${TEST_INDEX_PREFIX}index_model`,
-    });
+    let indexModel : ExampleIndexModel;
 
     beforeAll(async () => {
+        const client = await makeClient();
+        indexModel = new ExampleIndexModel(client, {
+            namespace: `${TEST_INDEX_PREFIX}index_model`,
+        });
+
         await cleanupIndexStore(indexModel);
         return indexModel.initialize();
     });
@@ -139,12 +142,13 @@ describe('IndexModel', () => {
             let id: string;
 
             beforeAll(async () => {
-                id = (await indexModel.createRecord({
+                const record = await indexModel.createRecord({
                     client_id: 5,
                     name,
                     type: name,
                     config: {},
-                }))._key;
+                });
+                id = record._key;
             });
 
             it('should NOT be able to create a record with the same name and client', async () => {

@@ -239,10 +239,13 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             const fieldKey = this._hasTextAnalyzer(field) ? `${field}.text` : field;
 
             let query = `${fieldKey}:${utils.uniqueFieldQuery(String(record[field]))}`;
+
             if (record.client_id && record.client_id > 0) {
                 query += ` AND client_id: ${record.client_id}`;
             }
+
             query += ' AND _deleted:false';
+
             const count = await this.count(query);
 
             if (count > 0) {

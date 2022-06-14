@@ -79,5 +79,15 @@ export function toInstanceName(name: string): string {
 
 const _wildcardRegex = /[^A-Za-z0-9]/gm;
 export function uniqueFieldQuery(field: string): string {
-    return `/${field.replace(_wildcardRegex, '.')}/`;
+    const parsed = field
+        .replace(_wildcardRegex, '.')
+        .split('')
+        .map((char) => {
+            if (char !== '.' && !ts.isNumberLike(char)) {
+                return `[${char.toLowerCase()}${char.toUpperCase()}]`;
+            }
+            return char;
+        })
+        .join('');
+    return `/${parsed}/`;
 }

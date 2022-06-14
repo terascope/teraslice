@@ -1,8 +1,10 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, Omit, TSError, debugLogger
+    times, pDelay, DataEntity, Omit, TSError,
+    debugLogger, get
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
+import { ElasticsearchDistribution } from '@terascope/types';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';
@@ -13,8 +15,13 @@ import {
 } from '../src';
 
 describe('IndexStore', () => {
-    const client = makeClient();
     const logger = debugLogger('index-store-spec');
+
+    let client: any;
+
+    beforeAll(async () => {
+        client = await makeClient();
+    });
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
@@ -54,20 +61,16 @@ describe('IndexStore', () => {
     };
 
     describe('when constructed without a data schema', () => {
-        const _client = makeClient();
-
-        const indexStore = new IndexStore<SimpleRecord>(_client, config);
+        let indexStore: IndexStore<SimpleRecord>;
 
         beforeAll(async () => {
+            indexStore = new IndexStore<SimpleRecord>(client, config);
             await cleanupIndexStore(indexStore);
-
             await indexStore.initialize();
         });
 
         afterAll(async () => {
-            await cleanupIndexStore(indexStore);
-
-            await indexStore.flush(true).catch((err) => {
+            await indexStore.flush(true).catch((err: any) => {
                 // this should probably throw
                 // but it is not a deal breaker
                 console.error(err);
@@ -76,10 +79,12 @@ describe('IndexStore', () => {
             // it should be able to call shutdown twice
             await indexStore.shutdown();
             await indexStore.shutdown();
+            await cleanupIndexStore(indexStore);
         });
 
         it('should create the versioned index', async () => {
-            const exists = await _client.indices.exists({ index });
+            const response = await client.indices.exists({ index });
+            const exists = get(response, 'body', response);
 
             expect(exists).toBeTrue();
         });
@@ -106,7 +111,6 @@ describe('IndexStore', () => {
                     await indexStore.createById(record.test_id, record);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Document Already Exists');
                     expect(err.statusCode).toEqual(409);
                 }
             });
@@ -253,7 +257,6 @@ describe('IndexStore', () => {
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -263,13 +266,14 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
-
+                // eslint-disable-next-line max-len
+                const isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
                 const metadata = r.getMetadata();
                 // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: isOpenSearch || indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -288,7 +292,6 @@ describe('IndexStore', () => {
                     await indexStore.get('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -304,7 +307,6 @@ describe('IndexStore', () => {
                     await indexStore.deleteById('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -662,9 +664,7 @@ describe('IndexStore', () => {
     });
 
     describe('when constructed with data schema', () => {
-        const _client = makeClient();
-
-        const configWithDataSchema = Object.assign(config, {
+        const configWithDataSchema = Object.assign({}, config, {
             data_schema: {
                 schema,
                 all_formatters: true,
@@ -672,20 +672,23 @@ describe('IndexStore', () => {
             },
         });
 
-        const indexStore = new IndexStore<SimpleRecord>(
-            _client,
-            configWithDataSchema
-        );
+        let indexStore: IndexStore<SimpleRecord>;
+        let isOpenSearch = false;
 
         beforeAll(async () => {
+            indexStore = new IndexStore<SimpleRecord>(
+                client,
+                configWithDataSchema
+            );
             await cleanupIndexStore(indexStore);
+
+            isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
 
             await indexStore.initialize();
         });
 
         afterAll(async () => {
             await cleanupIndexStore(indexStore);
-
             await indexStore.shutdown();
         });
 
@@ -770,10 +773,10 @@ describe('IndexStore', () => {
                                 refresh: false,
                             };
                             // TODO: fix this when tests are switched to use new client
-                            if (indexStore.majorVersion >= 7) {
+                            if (isOpenSearch || indexStore.majorVersion >= 7) {
                                 delete (indexParams as any).type;
                             }
-                            return _client.index(indexParams);
+                            return client.index(indexParams);
                         }
                         throw new Error('Invalid Input Type');
                     })

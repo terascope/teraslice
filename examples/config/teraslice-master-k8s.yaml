@@ -9,6 +9,10 @@ terafoundation:
             default:
                 host:
                     - "127.0.0.1:9200"
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
 
 teraslice:
     cluster_manager_type: 'kubernetes'

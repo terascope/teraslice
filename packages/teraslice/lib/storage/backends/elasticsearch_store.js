@@ -18,7 +18,7 @@ const {
     isInteger
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
-const { getClient } = require('@terascope/job-components');
+const { getClientAsync } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const { timeseriesIndex } = require('../../utils/date_utils');
 
@@ -533,11 +533,6 @@ module.exports = function elasticsearchStorage(backendConfig) {
         if (connectionConfig.connection_cache == null) {
             connectionConfig.connection_cache = true;
         }
-        client = getClient(context, connectionConfig, 'elasticsearch');
-        if (!client) {
-            reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
-            return;
-        }
 
         let { connection } = config.state;
         if (config.state.endpoint) {
@@ -549,8 +544,18 @@ module.exports = function elasticsearchStorage(backendConfig) {
             connection,
         };
 
-        elasticsearch = elasticsearchApi(client, logger, options);
-        _createIndex(newIndex)
+        Promise.resolve()
+            .then(() => getClientAsync(context, connectionConfig, 'elasticsearch-next'))
+            .then((esClient) => {
+                client = esClient;
+                if (!client) {
+                    reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
+                    return;
+                }
+                elasticsearch = elasticsearchApi(client, logger, options);
+                // eslint-disable-next-line consistent-return
+                return _createIndex(newIndex);
+            })
             .then(() => elasticsearch.isAvailable(newIndex, recordType))
             .then(() => resolve(api))
             .catch((err) => {

@@ -5,6 +5,10 @@ terafoundation:
             default:
                 host:
                     - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
+        elasticsearch-next:
+            default:
+                node:
+                    - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
 teraslice:
     assets_directory: '/app/assets/'
     cluster_manager_type: "kubernetes"
