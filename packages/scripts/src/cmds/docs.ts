@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs';
-import { buildPackages } from '../helpers/docs';
+import { buildPackages } from '../helpers/doc-builder';
 import { coercePkgArg } from '../helpers/args';
 import { PackageInfo } from '../helpers/interfaces';
 import { listPackages } from '../helpers/packages';
