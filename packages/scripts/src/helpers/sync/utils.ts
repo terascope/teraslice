@@ -6,7 +6,7 @@ import {
 import {
     getDocPath, updatePkgJSON, fixDepPkgName, listPackages, isMainPackage
 } from '../packages';
-import { updateReadme, ensureOverview } from '../docs/overview';
+import { updateReadme, ensureOverview } from '../doc-builder/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
 import { getChangedFiles, gitDiff } from '../scripts';

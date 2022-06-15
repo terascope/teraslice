@@ -1,5 +1,4 @@
 import path from 'path';
-import { listPackages } from '../packages';
 import { updateReadme, ensureOverview } from './overview';
 import { build } from '../scripts';
 import { updateSidebarJSON } from './sidebar';
