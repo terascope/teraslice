@@ -11,9 +11,7 @@ function getSubcategories(pkgDocFolder: string): string[] {
             const relativePath = path.relative(docsFolder, filePath).replace(/^[./]/, '');
             return path.join(path.dirname(relativePath), path.basename(relativePath, '.md'));
         })
-        .sort((a, b) => {
-            return a.length - b.length;
-        });
+        .sort((a, b) => a.length - b.length);
 }
 
 export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) {
@@ -45,10 +43,11 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
                         label: pkg,
                         ids: [`${name}/${pkg}/overview`],
                     };
-                } else if (pkg?.type === 'subcategory') {
+                } if (pkg?.type === 'subcategory') {
                     pkgMap[pkg.label] = true;
                     return pkg;
                 }
+                throw new Error(`Unknown pkg, ${pkg}`);
             });
 
             const missing = addMissing ? Object.entries(pkgMap)
@@ -68,10 +67,10 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) 
                     const hasDocs = fse.existsSync(filePath);
                     if (!hasDocs) return;
 
-                    return { ...pkg, ids: getSubcategories(filePath) }
+                    return { ...pkg, ids: getSubcategories(filePath) };
                 })
                 .filter(Boolean) as Subcategory[];
-        }
+        };
 
         const extraCategories = Object.keys(sidebarJSON[name])
             .filter((key) => key !== 'Overview' && key !== 'Packages');

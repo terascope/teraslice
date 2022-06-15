@@ -1,20 +1,18 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { Application, TSConfigReader } from 'typedoc';
-import {
-    JsxEmit, ModuleKind, ModuleResolutionKind, ScriptTarget
-} from 'typescript';
 import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
 import signale from '../signale';
-
-
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
 }
 
-async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: string; sidebarLabel: string }) {
+async function writeDocFile(
+    filePath: string,
+    { title, sidebarLabel }: { title: string; sidebarLabel: string }
+) {
     let contents = await fse.readFile(filePath, 'utf8');
     // remove header
     contents = contents
@@ -23,8 +21,9 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
         .join('\n')
         .trim();
 
-    // fix paths
+    // fix path
     contents = contents
+        // eslint-disable-next-line no-useless-escape
         .replace(/(\]\([\w\.\/]*)README\.md/g, '$1overview.md');
     // build final content
     contents = `---
@@ -56,8 +55,8 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
         signale.error(
-            'Error: Package documentation was not generated correctly' +
-            ", this means the package my not work with the typedoc's version of TypeScript."
+            'Error: Package documentation was not generated correctly'
+            + ", this means the package my not work with the typedoc's version of TypeScript."
         );
         return;
     }
@@ -84,8 +83,6 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     await Promise.all(promises);
 }
 
-
-
 export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): Promise<void> {
     signale.await(`building typedocs for package ${pkgInfo.name}`);
 
@@ -104,7 +101,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
             hideGenerator: true,
             readme: 'none',
         });
-        app.options.setValue("entryPoints", app.expandInputFiles(['src']));
+        app.options.setValue('entryPoints', app.expandInputFiles(['src']));
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);
