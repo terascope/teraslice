@@ -77,9 +77,11 @@ export function listPackages(
         .filter((pkg): pkg is i.PackageInfo => pkg?.name != null);
 
     const sortedNames = getSortedPackages(packages);
+
     _packages = sortedNames.map((name) => (
         packages.find((pkg) => pkg.name === name)!
     ));
+
     return _packages;
 }
 
@@ -167,15 +169,6 @@ export function isMainPackage(pkgInfo: i.PackageInfo): boolean {
     return get(pkgInfo, 'terascope.main', false);
 }
 
-export function addPackageConfig(pkgInfo: i.PackageInfo): void {
-    for (const _key of Object.keys(pkgInfo.terascope)) {
-        const key = _key as (keyof i.PackageConfig);
-        if (!i.AvailablePackageConfigKeys.includes(key)) {
-            throw new Error(`Unknown terascope config "${key}" found in "${pkgInfo.name}" package`);
-        }
-    }
-}
-
 export function readPackageInfo(folderPath: string): i.PackageInfo {
     const dir = path.isAbsolute(folderPath)
         ? path.join(folderPath)
@@ -239,7 +232,6 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
 
     pkgInfo.folderName = path.basename(pkgInfo.dir);
     pkgInfo.relativeDir = path.relative(rootInfo.dir, pkgInfo.dir);
-    addPackageConfig(pkgInfo);
 
     if (!pkgInfo.displayName) {
         pkgInfo.displayName = misc.getName(pkgInfo.folderName);
