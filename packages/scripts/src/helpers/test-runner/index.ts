@@ -53,8 +53,8 @@ async function _runTests(
         await runE2ETest(options, tracker);
         return;
     }
-
     const filtered = utils.filterBySuite(pkgInfos, options);
+
     if (!filtered.length) {
         signale.warn('No tests found.');
         return;
@@ -128,7 +128,15 @@ async function runTestSuite(
         }
 
         const args = utils.getArgs(options);
-        args.projects = pkgs.map((pkgInfo) => pkgInfo.relativeDir);
+
+        args.projects = pkgs.map(
+            (pkgInfo) => {
+                if (pkgInfo.relativeDir.length) {
+                    return pkgInfo.relativeDir;
+                }
+                return '.';
+            }
+        );
 
         tracker.started += pkgs.length;
         try {

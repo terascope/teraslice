@@ -51,6 +51,8 @@ export type PackageConfig = {
     testSuite?: string;
     allowBumpWhenPrivate?: boolean;
     linkToMain?: boolean;
+    root?: boolean
+    tests?: Record<string, Record<string, string[]>>
 };
 
 export enum Hook {
@@ -113,7 +115,8 @@ export type RootPackageInfo = {
 };
 
 export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
-    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate', 'linkToMain'
+    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
+    'linkToMain', 'root', 'tests'
 ];
 
 export type TSCommands = 'docs';
