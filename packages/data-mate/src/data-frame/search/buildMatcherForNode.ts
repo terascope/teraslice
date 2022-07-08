@@ -55,6 +55,10 @@ export function buildMatcherForNode(
         if (p.isTermType(node)) {
             const value = getComparisonValue(node, variables);
 
+            if (value === undefined) {
+                return () => false;
+            }
+
             if (p.isTerm(node)) {
                 return matchFieldValue(dataFrame, field, typeFunctions(
                     node, typeConfig, variables, makeIsValue(value)
@@ -111,6 +115,7 @@ function matchFieldValue(
         if (Array.isArray(data)) {
             return data.some(cb);
         }
+
         return cb(data);
     };
 }
@@ -160,7 +165,13 @@ function typeFunctions(
             const rangeQuery = p.parseRange(node, variables);
             return dateRange(rangeQuery);
         }
+
         const value = p.getFieldValue(node.value, variables);
+
+        if (value === undefined) {
+            return () => false;
+        }
+
         return compareTermDates(value);
     }
 
@@ -171,6 +182,11 @@ function typeFunctions(
         }
 
         const value = p.getFieldValue(node.value, variables);
+
+        if (value === undefined) {
+            return () => false;
+        }
+
         return ipTerm(value);
     }
 
@@ -191,6 +207,8 @@ function makeIsValue(value: unknown) {
         if (typeof value === 'number' && typeof data === 'bigint') {
             return toBigIntOrThrow(value) === data;
         }
+        if (data == null && value == null) return true;
+
         if (data == null && value == null) return true;
         return isEqual(data, value);
     };
@@ -230,14 +248,28 @@ function makeRangeFn(node: p.Range, variables: xLuceneVariables): MatchValueFn {
 
     if (right == null) {
         const value = p.getFieldValue(left.value, variables);
-        return rangeMapping[left.operator](value);
+
+        const leftFN = value === undefined
+            ? () => false
+            : rangeMapping[left.operator](value);
+
+        return leftFN;
     }
 
     const leftValue = p.getFieldValue(left.value, variables);
     const rightValue = p.getFieldValue(right.value, variables);
+
+    const leftFN = leftValue === undefined
+        ? () => false
+        : rangeMapping[left.operator](leftValue);
+
+    const rightFN = leftValue === undefined
+        ? () => false
+        : rangeMapping[right.operator](rightValue);
+
     return and(
-        rangeMapping[left.operator](leftValue),
-        rangeMapping[right.operator](rightValue)
+        leftFN,
+        rightFN
     );
 }
 
