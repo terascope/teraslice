@@ -5,7 +5,6 @@ import {
     TSError,
     isWildCardString,
     debugLogger,
-    toString,
     primitiveToString,
     isPrimitiveValue,
     toBoolean,
@@ -161,25 +160,33 @@ export function getFieldValue<T>(
     }
 
     if (value.type === 'variable') {
-        if (variables[value.value] != null) {
+        const varValue = variables[value.value];
+
+        /* a variable returning undefined is different from returning null
+        * undefined will signal dataframe and document matcher to
+        * return false for this logic operator node, this is to allow
+        * AND and OR operations to correctly return expected results
+        * if joining or partial data. Returning null would return incorrect
+        * results as it is to permissive in an OR statement
+        */
+        if (varValue === undefined) {
+            return undefined;
+        }
+
+        if (varValue != null) {
             return variables[value.value] as T;
         }
-        if (allowNil) return null;
 
-        if (value.scoped) {
-            throw new Error(`Could not find a scoped variable ${value.value}`);
-        } else {
-            throw new Error(`Could not find a variable $${value.value}`);
-        }
+        if (allowNil) return null;
     }
 
     if (value.value != null) {
-        return value.value;
+        return value.value as T;
     }
+
     if (allowNil) return null;
 
-    // should never get here
-    throw new Error(`Missing value in xLucene query, got ${toString(value)}`);
+    return undefined;
 }
 
 export function isInfiniteValue(input?: number|string): boolean {

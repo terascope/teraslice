@@ -19,6 +19,7 @@ export function buildSearchMatcherForQuery(
     if (variables) {
         parser = parser.resolveVariables(variables);
     }
+
     return buildMatcherForNode(dataFrame, parser.typeConfig, variables ?? {})(
         parser.ast
     );

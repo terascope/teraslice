@@ -6,6 +6,7 @@ import ip from './ip';
 import dates from './dates';
 import wildcard from './wildcard';
 import complexQueries from './complex-queries';
+import partialVariables from './partial-variables';
 
 export default {
     basic_queries_and_logic: basicQueries,
@@ -15,5 +16,6 @@ export default {
     regexp,
     wildcard,
     geo,
-    complex_queries: complexQueries
+    complex_queries: complexQueries,
+    partial_variables: partialVariables
 };

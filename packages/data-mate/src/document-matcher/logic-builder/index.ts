@@ -1,6 +1,10 @@
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
-import { isWildCardString, get, isEqual } from '@terascope/utils';
+import {
+    isWildCardString, get, isEqual,
+    and, isGreaterThanFP, isGreaterThanOrEqualToFP,
+    isLessThanOrEqualToFP, isLessThanFP
+} from '@terascope/utils';
 import { compareTermDates, dateRange } from './dates';
 import {
     regexp, wildcard, findWildcardField
@@ -54,36 +58,40 @@ function makeNegate(fn: any) {
 }
 
 const rangeMapping = {
-    gte(value: any, other: any) {
-        return value >= other;
-    },
-    gt(value: any, other: any) {
-        return value > other;
-    },
-    lte(value: any, other: any) {
-        return value <= other;
-    },
-    lt(value: any, other: any) {
-        return value < other;
-    }
-};
+    gte: isGreaterThanOrEqualToFP,
+    gt: isGreaterThanFP,
+    lte: isLessThanOrEqualToFP,
+    lt: isLessThanFP
+} as const;
 
 function rangeFn(node: p.Range, variables: xLuceneVariables): BooleanCB {
     const { left, right } = node;
 
-    if (!right) {
+    if (right == null) {
         const value = p.getFieldValue(left.value, variables);
-        return function singleRangeTerm(data: any) {
-            return rangeMapping[left.operator](data, value);
-        };
+
+        const leftFN = value === undefined
+            ? () => false
+            : rangeMapping[left.operator](value);
+
+        return leftFN;
     }
 
     const leftValue = p.getFieldValue(left.value, variables);
     const rightValue = p.getFieldValue(right.value, variables);
-    return function doubleRangeTerm(data: any) {
-        return rangeMapping[left.operator](data, leftValue)
-            && rangeMapping[right.operator](data, rightValue);
-    };
+
+    const leftFN = leftValue === undefined
+        ? () => false
+        : rangeMapping[left.operator](leftValue);
+
+    const rightFN = leftValue === undefined
+        ? () => false
+        : rangeMapping[right.operator](rightValue);
+
+    return and(
+        leftFN,
+        rightFN
+    );
 }
 
 function valueExists(value: any): boolean {
@@ -173,6 +181,11 @@ function typeFunctions(
             return dateRange(rangeQuery);
         }
         const value = p.getFieldValue(node.value, variables);
+
+        if (value === undefined) {
+            return () => false;
+        }
+
         return compareTermDates(value);
     }
 
@@ -183,6 +196,10 @@ function typeFunctions(
         }
 
         const value = p.getFieldValue(node.value, variables);
+        if (value === undefined) {
+            return () => false;
+        }
+
         return ipTerm(value);
     }
 
@@ -196,6 +213,8 @@ function typeFunctions(
 }
 
 function makeIsValue(value: any) {
+    if (value === undefined) return () => false;
+
     return function isValue(data: any) {
         if (typeof value === 'bigint' && typeof data === 'number') {
             return value === BigInt(data);

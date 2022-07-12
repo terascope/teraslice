@@ -85,9 +85,11 @@ function getComparisonValue(
     node: p.TermLikeNode, variables: xLuceneVariables
 ): unknown {
     if (!node) return undefined;
+
     if ('value' in node) {
         return p.getFieldValue((node as p.Term).value, variables);
     }
+
     throw new Error(`Unsupported value in node: ${inspect(node)}`);
 }
 

@@ -54,6 +54,7 @@ describe('DataFrame->search', () => {
             },
             {
                 name: 'Jane',
+                age: 10,
                 alive: false,
                 friends: ['Jill']
             },
@@ -79,6 +80,14 @@ describe('DataFrame->search', () => {
         ]);
     });
 
+    it('should be able to search with partial variables in simple queries)', () => {
+        const resultFrame = partialPeopleDataFrame
+            .search('name:@name', { '@name': undefined })
+            .select('age', 'alive', 'name', 'friends');
+
+        expect(resultFrame.toJSON()).toBeArrayOfSize(0);
+    });
+
     it('should be able to search with partial variables in OR statements (term type)', () => {
         const resultFrame = partialPeopleDataFrame
             .search('name:@name OR age:@age', { '@name': undefined, '@age': 20 })
@@ -88,8 +97,7 @@ describe('DataFrame->search', () => {
             {
                 age: 20,
                 friends: ['Jill']
-            },
-
+            }
         ]);
     });
 
@@ -131,6 +139,27 @@ describe('DataFrame->search', () => {
             },
             {
                 name: 'Jane',
+                age: 10,
+                alive: false,
+                friends: ['Jill']
+            },
+        ]);
+    });
+
+    it('should be able to search with partial variables in Complex AND statements', () => {
+        const variables = {
+            '@name': undefined,
+            '@age': 10,
+            '@alive': false
+        };
+        const resultFrame = partialPeopleDataFrame
+            .search('name:@name OR (age:@age AND alive:@alive)', variables)
+            .select('age', 'alive', 'name', 'friends');
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Jane',
+                age: 10,
                 alive: false,
                 friends: ['Jill']
             },
