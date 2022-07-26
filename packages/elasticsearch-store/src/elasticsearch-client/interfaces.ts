@@ -1,4 +1,5 @@
 import { ConnectionOptions } from 'tls';
+import { ClientMetadata } from '@terascope/types';
 
 export interface AgentOptions {
     keepAlive?: boolean;
@@ -59,4 +60,9 @@ interface ClientOptions {
 export interface ClientConfig extends ClientOptions {
     password?: string;
     username?: string;
+}
+
+export interface ServerMetadata extends ClientMetadata {
+    majorVersion: number;
+    minorVersion: number;
 }
