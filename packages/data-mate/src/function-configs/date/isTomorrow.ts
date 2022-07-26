@@ -7,7 +7,7 @@ import {
 const date = new Date();
 const currentTime = date.toISOString();
 const tomorrow = addToDate(currentTime, { days: 1 });
-const tomorrowDate = new Date(Date.now()).toISOString();
+const tomorrowDate = new Date(tomorrow).toISOString();
 
 export const isTomorrowConfig: FieldValidateConfig = {
     name: 'isTomorrow',

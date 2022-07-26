@@ -82,7 +82,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         },
         field: 'testField',
         input: '2018-01-22T18:00:00.000Z',
-        output: '2018-01-22T10:00:00.000-08:00',
+        output: '2018-01-22T18:00:00.000Z',
     }],
     create({ args: { format } }) {
         return function formatDate(input: unknown): string|number {
