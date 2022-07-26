@@ -73,6 +73,16 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         field: 'testField',
         input: '2001-01-01T01:00:00.000Z',
         output: '2001-01-01T01:00:00.000Z'
+    },
+    {
+        args: { format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX" },
+        config: {
+            version: 1,
+            fields: { testField: { type: FieldType.String } }
+        },
+        field: 'testField',
+        input: '2018-01-22T18:00:00.000Z',
+        output: '2018-01-22T10:00:00.000-08:00',
     }],
     create({ args: { format } }) {
         return function formatDate(input: unknown): string|number {
