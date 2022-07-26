@@ -25,8 +25,8 @@
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "test": "TZ=utc ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test:debug": "TZ=utc ts-scripts test --debug . --",
+        "test:watch": "TZ=utc ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/data-types": "^0.35.1",
