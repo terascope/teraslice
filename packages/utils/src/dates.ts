@@ -656,11 +656,8 @@ export function addToDate(input: unknown, args: AdjustDateArgs): number {
     if ('expr' in args) {
         return parser.parse(`now+${args.expr}`, date);
     }
-    console.log('here', date, args)
-    const stuff = add(date, args)
-    console.log('here', date, args, stuff)
 
-    return stuff.getTime();
+    return add(date, args).getTime();
 }
 
 export function addToDateFP(args: AdjustDateArgs): (input: unknown) => number {
