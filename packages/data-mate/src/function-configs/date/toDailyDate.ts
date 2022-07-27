@@ -34,6 +34,17 @@ export const toDailyDateConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
             },
             field: 'testField',
+            input: '2018-01-22T18:00:00.000Z',
+            output: new Date('2018-01-22T00:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        },
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
             input: [1571706000000, 60],
             output: new Date('2019-10-22T00:00:00.000Z').getTime(),
             serialize_output: toISO8601

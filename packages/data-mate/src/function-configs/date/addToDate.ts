@@ -17,58 +17,64 @@ export const addToDateConfig: FieldTransformConfig<AdjustDateArgs> = {
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
     description: 'Returns the input date added to a date expression or a specific number of years, months, weeks, days, hours, minutes, seconds, or milliseconds',
-    examples: [{
-        args: { expr: '10h+2m' },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date } }
+    examples: [
+        {
+            args: { expr: '10h+2m' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: '2019-10-22T22:00:00.000Z',
+            output: new Date('2019-10-23T08:02:00.000Z').getTime(),
+            serialize_output: toISO8601
         },
-        field: 'testField',
-        input: '2019-10-22T22:00:00.000Z',
-        output: new Date('2019-10-23T08:02:00.000Z').getTime(),
-        serialize_output: toISO8601
-    }, {
-        args: { months: 1, minutes: 2 },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date } }
+        {
+            args: { months: 1, minutes: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: '2019-10-22T22:00:00.000Z',
+            output: new Date('2019-11-22T22:02:00.000Z').getTime(),
+            serialize_output: toISO8601
         },
-        field: 'testField',
-        input: '2019-10-22T22:00:00.000Z',
-        output: new Date('2019-11-22T22:02:00.000Z').getTime(),
-        serialize_output: toISO8601
-    }, {
-        args: { months: 1, minutes: 2 },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date } }
+        {
+            args: { months: 1, minutes: 2 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: [1571781600000, -60],
+            output: new Date('2019-11-22T23:02:00.000Z').getTime(),
+            serialize_output: toISO8601,
+            test_only: true
         },
-        field: 'testField',
-        input: [1571781600000, -60],
-        output: new Date('2019-11-22T23:02:00.000Z').getTime(),
-        serialize_output: toISO8601,
-        test_only: true
-    }, {
-        args: {},
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date } }
+        {
+            args: {},
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: '2019-10-22T22:00:00.000Z',
+            fails: true,
+            output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
         },
-        field: 'testField',
-        input: '2019-10-22T22:00:00.000Z',
-        fails: true,
-        output: 'Expected an expr or years, months, weeks, days, hours, minutes, seconds or milliseconds'
-    }, {
-        args: { expr: '1hr', months: 10 },
-        config: {
-            version: 1,
-            fields: { testField: { type: FieldType.Date } }
-        },
-        field: 'testField',
-        input: '2019-10-22T22:00:00.000Z',
-        fails: true,
-        output: 'Invalid use of months with expr parameter'
-    }],
+        {
+            args: { expr: '1hr', months: 10 },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date } }
+            },
+            field: 'testField',
+            input: '2019-10-22T22:00:00.000Z',
+            fails: true,
+            output: 'Invalid use of months with expr parameter'
+        }
+    ],
     create({ args }) {
         return addToDateFP(args);
     },

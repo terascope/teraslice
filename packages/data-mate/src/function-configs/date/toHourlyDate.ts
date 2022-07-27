@@ -38,7 +38,29 @@ export const toHourlyDateConfig: FieldTransformConfig = {
             output: new Date('2019-10-22T03:00:00.000Z').getTime(),
             serialize_output: toISO8601,
             test_only: true,
-        }
+        },
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2018-01-22T18:00:00.000Z',
+            output: new Date('2018-01-22T18:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        },
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2018-01-22T18:20:00.000Z',
+            output: new Date('2018-01-22T18:00:00.000Z').getTime(),
+            serialize_output: toISO8601
+        },
     ],
     create() {
         return trimISODateSegment(ISO8601DateSegment.hourly);
