@@ -1,31 +1,35 @@
-import type { RequestParams } from 'elasticsearch7';
-import { Client } from 'elasticsearch7';
+import type { RequestParams } from '@opensearch-project/opensearch';
+import { ElasticsearchDistribution } from '@terascope/types';
+import {
+    convertCountParams, CountParams
+} from './method-helpers/count';
+import { Semver } from './interfaces';
 
-export default class Wrapper {
-    client: Client;
-    indices: { [key: string]: any };
+export class WrappedClient {
+    private client: any;
+    private distribution: ElasticsearchDistribution;
+    private version: Semver;
 
-    constructor(client: Client) {
+    constructor(
+        client: any,
+        distribution: ElasticsearchDistribution,
+        version: Semver
+    ) {
         this.client = client;
-
-        this.indices = {
-            get: (params: any) => this._indicesGet(params),
-            create: (params: any) => this._indicesCreate(params),
-            exists: (params: any) => this._indicesExists(params),
-            delete: (params: any) => this._indicesDelete(params)
-        };
+        this.distribution = distribution;
+        this.version = version;
     }
 
     /**
      * Gets the number of matches for a search query or
      * if no query provided the count for docs in an index
-     * @param RequestParams.AsyncSearchSubmit
-     * @returns number
+     * @param CountParams
+     * @returns { count: number }
     */
 
-    async count(params: RequestParams.AsyncSearchSubmit): Promise<number> {
-        const resp = await this.client.count(params);
-
+    async count(params: CountParams): Promise<{ count: number }> {
+        const parsedParams = convertCountParams(params, this.distribution, this.version);
+        const resp = await this.client.count(parsedParams);
         return this._removeBody(resp);
     }
 
@@ -37,9 +41,7 @@ export default class Wrapper {
 
     async deleteByQuery(params: RequestParams.DeleteByQuery) {
         if (!params.body) params.body = {};
-
         const resp = await this.client.deleteByQuery(params);
-
         return this._removeBody(resp);
     }
 
@@ -50,10 +52,8 @@ export default class Wrapper {
      */
     async get(params: RequestParams.Get) {
         const exists = await this.exists(params);
-
         if (exists) {
             const resp = await this.client.get(params);
-
             return this._removeBody(resp);
         }
 
@@ -83,22 +83,12 @@ export default class Wrapper {
     }
 
     /**
-     *
-     * @returns boolean based on if client can connect with cluster
-     */
-    async ping() {
-        const resp = await this.client.ping();
-
-        return this._removeBody(resp);
-    }
-
-    /**
      * Returns search hits that match the query defined in the request.
      * @param RequestParams.AsyncSearchSubmit
      * @returns array of docs that match search
      */
 
-    async search(params: RequestParams.AsyncSearchSubmit) {
+    async search(params: any) {
         const resp = await this.client.search(params);
 
         const body = this._removeBody(resp);
@@ -136,9 +126,8 @@ export default class Wrapper {
         return this._removeBody(resp);
     }
 
-    private _removeBody(input: { body?: any }): any {
+    private _removeBody(input: Record<string, any>): any {
         if (input.body == null) return input;
-
         return input.body;
     }
 
