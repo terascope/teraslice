@@ -71,10 +71,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
+            DISABLE_SECURITY_PLUGIN: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -88,10 +85,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
+            DISABLE_SECURITY_PLUGIN: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
