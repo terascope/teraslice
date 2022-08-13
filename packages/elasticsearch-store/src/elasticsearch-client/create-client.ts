@@ -9,11 +9,6 @@ import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig } from './interfaces';
 
-// polyfill because opensearch has references to an api that won't exist
-// on the client side, should be able to remove in the future
-// @ts-expect-error
-import('setimmediate');
-
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
 interface ServerMetadata extends ClientMetadata {

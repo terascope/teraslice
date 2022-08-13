@@ -48,6 +48,7 @@ export function toBigInt(input: unknown): bigint|false {
     if (!supportsBigInt) {
         throw new Error('BigInt isn\'t supported in this environment');
     }
+
     try {
         return toBigIntOrThrow(input);
     } catch {
@@ -66,6 +67,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
     }
 
     if (isBigInt(input)) return input;
+
     if (!supportsBigInt) {
         throw new Error('BigInt isn\'t supported in this environment');
     }
@@ -81,6 +83,7 @@ export function toBigIntOrThrow(input: unknown): bigint {
     }
 
     let big: bigint;
+
     if (typeof input === 'string' && input.includes('.')) {
         big = BigInt(Number.parseInt(input, 10));
     } else {
@@ -144,6 +147,7 @@ export function toIntegerOrThrow(input: unknown): number {
 
     if (isBigInt(input)) {
         const val = bigIntToJSON(input);
+
         if (typeof val === 'string') {
             throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a integer`);
         }
@@ -331,6 +335,7 @@ function setPrecisionFromString(
 export function toCelsius(input: unknown): number {
     const num = toFloatOrThrow(input);
     const cNum = (num - 32) * (5 / 9);
+
     return parseFloat(cNum.toFixed(2));
 }
 
@@ -341,13 +346,19 @@ export function toCelsius(input: unknown): number {
 export function toFahrenheit(input: unknown): number {
     const num = toFloatOrThrow(input);
     const fNum = ((9 / 5) * num) + 32;
+
     return parseFloat(fNum.toFixed(2));
 }
 
+/**
+ * A number in javascript is a double-precision 64-bit
+ * binary format IEEE 754 value, much bigger than a regular
+ * classical int value, any higher than that should be a bigint
+ */
 const INT_SIZES = {
     [FieldType.Byte]: { min: -128, max: 127 },
     [FieldType.Short]: { min: -32_768, max: 32_767 },
-    [FieldType.Integer]: { min: -(2 ** 31), max: (2 ** 31) - 1 },
+    [FieldType.Integer]: { min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER },
 } as const;
 
 function _validateNumberFieldType(input: unknown, type: FieldType): number {

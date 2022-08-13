@@ -44,10 +44,10 @@ describe('Vector', () => {
         ],
         [
             FieldType.Integer,
-            [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
+            [12.344, '2.01', BigInt(246071665871), 1, 2, null, undefined],
             undefined,
-            [12, 2, 200, 1, 2, null, null],
-            [-(2 ** 31) - 1, 2 ** 31 + 1, 'foo']
+            [12, 2, 246071665871, 1, 2, null, null],
+            ['foo']
         ],
         [
             FieldType.Byte,
