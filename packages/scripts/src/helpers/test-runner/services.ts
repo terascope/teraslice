@@ -183,7 +183,7 @@ export async function pullServices(suite: string, options: TestOptions): Promise
         }));
     } catch (err) {
         throw new ts.TSError(err, {
-            message: `Failed to pull services for test suite "${suite}"`,
+            message: `Failed to pull services for test suite "${suite}", ${err.message}`
         });
     }
 }
@@ -541,6 +541,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const expected = options.elasticsearchVersion;
 
             const satifies = semver.satisfies(actual, `^${expected}`);
+
             if (satifies) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
@@ -557,7 +558,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
         {
             name: `Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
-            enabledJitter: true,
+            enabledJitter: true
         }
     );
 }
@@ -665,7 +666,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
-async function startService(options: TestOptions, service: Service): Promise<() => void> {
+export async function startService(options: TestOptions, service: Service): Promise<() => void> {
     let serviceName = service;
 
     if (serviceName === 'restrained_elasticsearch') {
