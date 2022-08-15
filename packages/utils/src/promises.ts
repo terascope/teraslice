@@ -232,6 +232,9 @@ export type PWhileOptions = {
      * defaults to 3x the minJitter setting, but less than timeoutMs
      *  */
     maxJitter?: number
+
+    /** error that can be expressed if the timer ends because the function does not return true */
+    error?: string
 };
 
 /**
@@ -264,8 +267,11 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
 
             const remaining = endTime - Date.now();
             if (remaining <= 0) {
+                let errMsg = `${name} timeout after ${toHumanTime(timeoutMs)}`;
+                if (options.error) errMsg = `${errMsg}; ${options.error}`;
+
                 reject(
-                    new TSError(`${name} timeout after ${toHumanTime(timeoutMs)}`, {
+                    new TSError(errMsg, {
                         statusCode: 503,
                     })
                 );
