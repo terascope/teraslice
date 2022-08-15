@@ -1,5 +1,6 @@
 /* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 
 import {
     dockerRun,
@@ -41,7 +42,8 @@ describe('scripts', () => {
                 network: undefined
             };
 
-            await expect(dockerRun(dockerOptions, '0.1.0', false, false)).rejects.toThrowError();
+            // await dockerRun(dockerOptions, '0.1.0', false, false)
+            await expect(dockerRun(dockerOptions, '0.1.0', false, false)).rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
 
         it('should throw an error if image is unaccessible', async () => {
@@ -60,7 +62,7 @@ describe('scripts', () => {
                 network: undefined
             };
 
-            await expect(dockerRun(dockerOptions, '2.1.0', false, false)).rejects.toThrowError();
+            await expect(dockerRun(dockerOptions, '2.1.0', false, false)).rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
 
         it('should throw an error if same port is used for multiple services', async () => {
@@ -99,13 +101,13 @@ describe('scripts', () => {
                 dockerRun(dockerOptions2, '2.1.0', false, false),
             ]);
 
-            await expect(fn).rejects.toThrowError();
+            await expect(fn).rejects.toThrowWithMessage(TSError, /w*port is already allocated*\w/);
         });
     });
 
     describe('dockerPull', () => {
         it('should throw an error if image is incorrect', async () => {
-            await expect(dockerPull('yomama/hasabadimage')).rejects.toThrowError();
+            await expect(dockerPull('yomama/hasabadimage')).rejects.toThrowWithMessage(Error, /w*repository does not exist*\w/);
         });
     });
 });
