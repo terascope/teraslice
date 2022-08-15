@@ -318,6 +318,7 @@ async function checkRestrainedOpensearch(
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -337,6 +338,7 @@ async function checkRestrainedOpensearch(
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -371,6 +373,7 @@ async function checkRestrainedOpensearch(
             name: `Restrained Opensearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -383,6 +386,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -402,6 +406,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -436,6 +441,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             name: `Opensearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -448,6 +454,7 @@ async function checkRestrainedElasticsearch(
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -464,6 +471,7 @@ async function checkRestrainedElasticsearch(
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -498,6 +506,7 @@ async function checkRestrainedElasticsearch(
             name: `Restrained Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -508,6 +517,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -524,6 +534,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -558,7 +569,8 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
         {
             name: `Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
-            enabledJitter: true
+            enabledJitter: true,
+            error
         }
     );
 }
@@ -569,6 +581,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.MINIO_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -586,6 +599,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 statusCode = ts.getErrorStatusCode(err);
             }
 
@@ -606,6 +620,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             name: `MinIO service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -616,6 +631,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -636,6 +652,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
                     password: config.RABBITMQ_PASSWORD
                 }));
             } catch (err) {
+                error = err.message;
                 statusCode = ts.getErrorStatusCode(err);
             }
 
@@ -657,6 +674,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             name: `RabbitMQ service (${managementEndpoint})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -666,7 +684,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
-export async function startService(options: TestOptions, service: Service): Promise<() => void> {
+async function startService(options: TestOptions, service: Service): Promise<() => void> {
     let serviceName = service;
 
     if (serviceName === 'restrained_elasticsearch') {

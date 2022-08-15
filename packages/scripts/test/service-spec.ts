@@ -1,7 +1,6 @@
 /* eslint-disable jest/no-focused-tests */
 import { TSError } from '@terascope/utils';
 import * as services from '../src/helpers/test-runner/services';
-import { Service } from '../src/helpers/interfaces';
 
 describe('services', () => {
     const options = {
@@ -44,26 +43,14 @@ describe('services', () => {
             await expect(services.ensureElasticsearch(options))
                 .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
-    });
 
-    describe('startServices', () => {
-        it('should throw error if bad options passed to startServices for kafka', async () => {
-            await expect(services.startService(options, Service.Kafka))
+        it('should log error from ensureMinio if bad options', async () => {
+            await expect(services.ensureMinio(options))
                 .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
 
-        it('should throw error if bad options passed to startServices for minio', async () => {
-            await expect(services.startService(options, Service.Minio))
-                .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
-        });
-
-        it('should throw error if bad options passed to startServices for opensearch', async () => {
-            await expect(services.startService(options, Service.Opensearch))
-                .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
-        });
-
-        it('should throw error if bad options passed to startServices for elasticsearch', async () => {
-            await expect(services.startService(options, Service.Elasticsearch))
+        it('should throw error from ensureOpensearch if bad options', async () => {
+            await expect(services.ensureOpensearch(options))
                 .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
     });
