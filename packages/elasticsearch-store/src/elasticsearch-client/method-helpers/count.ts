@@ -14,11 +14,7 @@ export type Elasticsearch8CountParams =
 
 export type Opensearch1CountParams = Opensearch1Params.Count;
 
-export type CountParams =
-    Elasticsearch6CountParams
-    | Elasticsearch7CountParams
-    | Elasticsearch8CountParams
-    | Opensearch1CountParams
+export type CountParams = Elasticsearch7CountParams
 
 export function convertCountParams(
     params: Record<string, any>,

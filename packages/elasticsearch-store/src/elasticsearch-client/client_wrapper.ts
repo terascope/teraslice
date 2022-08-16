@@ -99,34 +99,14 @@ export class WrappedClient {
         return body.hits.hits.map((doc: any) => doc._source);
     }
 
-    /**
-     * Returns information about one or more indices
-     * @param RequestParams.IndicesGet
-     * @returns JSON of Index Mappings and Settings
-     */
+    get indices() {
+        const { distribution, version, client } = this;
 
-    private async _indicesGet(params: RequestParams.IndicesGet) {
-        const resp = await this.client.indices.get(params);
-
-        return this._removeBody(resp);
-    }
-
-    private async _indicesCreate(params: RequestParams.IndicesCreate) {
-        const resp = await this.client.indices.create(params);
-
-        return this._removeBody(resp);
-    }
-
-    private async _indicesDelete(params: RequestParams.IndicesDelete) {
-        const resp = await this.client.indices.delete(params);
-
-        return this._removeBody(resp);
-    }
-
-    private async _indicesExists(params: RequestParams.IndicesExists) {
-        const resp = await this.client.indices.exists(params);
-
-        return this._removeBody(resp);
+        return {
+            async create(params: any) {
+                return client.indices.create(params);
+            }
+        };
     }
 
     private _removeBody(input: Record<string, any>): any {
@@ -140,11 +120,11 @@ export class WrappedClient {
         * count √
         * delete_by_query √
         * get √
-        * exists √
-        * info √
-        * mget
-        * msearch
-        * ping √
+        * exists √ Charlie
+        * info √ Charlie
+        * mget Charlie
+        * msearch Charlie
+        * ping √ Charlie
         * search √
      * indices
        * create √

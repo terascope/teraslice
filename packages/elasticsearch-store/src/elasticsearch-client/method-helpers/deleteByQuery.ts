@@ -16,10 +16,7 @@ export type Opensearch1DeleteByQueryParams = Opensearch1Params.DeleteByQuery;
 export type DeleteByQueryResponse = Elasticsearch8TypeParams.DeleteByQueryResponse
 
 export type DeleteByQueryParams =
-    Elasticsearch6DeleteByQueryParams
-    | Elasticsearch7DeleteByQueryParams
-    | Elasticsearch8DeleteByQueryParams
-    | Opensearch1DeleteByQueryParams
+    Elasticsearch7DeleteByQueryParams
 
 export function convertDeleteByQueryParams(
     params: Record<string, any>,
@@ -50,8 +47,6 @@ export function convertDeleteByQueryParams(
                 ...parsedParams
             } = params;
 
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
             parsedParams.max_docs = max_docs ?? body.max_docs;
             const queryDSL = query ?? body?.query;
 

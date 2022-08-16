@@ -6,22 +6,22 @@ import type {
 } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export type Elasticsearch6GetParams = Elasticsearch6Params.Get
-export type Elasticsearch7GetParams = Elasticsearch7Params.Get
-export type Elasticsearch8GetParams =
+export type Elasticsearch6ExistsParams = Elasticsearch6Params.Exists
+export type Elasticsearch7ExistsParams = Elasticsearch7Params.Exists
+export type Elasticsearch8ExistsParams =
     Elasticsearch8TypeParams.GetRequest
     | Elasticsearch8TypeWithBodyParams.GetRequest;
 
-export type Opensearch1GetParams = Opensearch1Params.Get;
-export type GetQueryResponse = Elasticsearch8TypeParams.GetRequest
+export type Opensearch1ExistsParams = Opensearch1Params.Exists;
+export type GetQueryResponse = Elasticsearch8TypeParams.DeleteByQueryResponse
 
-export type GetParams =
-    Elasticsearch6GetParams
-    | Elasticsearch7GetParams
-    | Elasticsearch8GetParams
-    | Opensearch1GetParams
+export type ExistsParams =
+    Elasticsearch6ExistsParams
+    | Elasticsearch7ExistsParams
+    | Elasticsearch8ExistsParams
+    | Opensearch1ExistsParams
 
-export function convertGetParams(
+export function convertExistsParams(
     params: Record<string, any>,
     distribution: ElasticsearchDistribution,
     version: Semver

@@ -10,7 +10,7 @@ import {
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
-export const isRemoveTypeTest = isOpensearchTest || (semver[0] === 8);
+export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
 // automatically set the timeout to 10s when using elasticsearch
 jest.setTimeout(30000);
 
@@ -66,22 +66,25 @@ export async function cleanupIndex(
 export async function upload(
     client: any, queryBody: any, data: any[]
 ): Promise<Record<string, any>> {
+    const { type, ...safeQueryBody } = queryBody;
     const body = formatUploadData(
-        queryBody.index as string, queryBody.type as string, data
+        safeQueryBody.index as string, data
     );
-    const query = Object.assign({ refresh: 'wait_for', body }, queryBody);
+
+    const query = Object.assign({ refresh: 'wait_for', body }, safeQueryBody);
+
     return client.bulk(query);
 }
 
 export function formatUploadData(
-    index: string, type: string, data: any[]
+    index: string, data: any[]
 ): Record<string, any>[] {
     const results: any[] = [];
 
     data.forEach((record) => {
         const meta: any = { _index: index };
 
-        if (!isRemoveTypeTest) {
+        if (!removeTypeTest) {
             meta._type = '_doc';
         }
 

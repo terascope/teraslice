@@ -1,6 +1,7 @@
 import { debugLogger, pMap, toNumber } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { createClient, WrappedClient, Semver } from '../src';
+import { createClient, WrappedClient, Semver, } from '../src';
+import * as helpers from '../src/elasticsearch-client/method-helpers/index';
 import { upload, cleanupIndex, waitForData } from './helpers/elasticsearch';
 import {
     ELASTICSEARCH_HOST,
@@ -56,24 +57,28 @@ describe('can create an elasticsearch or opensearch client', () => {
             expect(response).toMatchObject({ count: 1000 });
         });
 
-        it('can convert params of other version to be compatable', async () => {
+        it('can convert params of other version to be compatible', async () => {
             expect.hasAssertions();
-
-            const es6Query = {
+            // singular include, has type
+            const bodyTypeQuery: helpers.CountParams = {
                 index,
                 type: docType,
-                q: ''
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                wildcard: {
+                                    uuid: 'bedb2b6e*'
+                                }
+                            }
+                        }
+                    }
+                },
             };
-            const es7Query = {};
-            const es8Query = {};
-            const es8BodyQuery = {};
-            const opensearchQuery = {};
 
-            const queries = [es6Query, es7Query, es8Query, es8BodyQuery, opensearchQuery];
-
-            await pMap(queries, async (query) => {
+            await pMap([bodyTypeQuery], async (query) => {
                 const response = await wrappedClient.count(query);
-                expect(response).toMatchObject({ count: 1000 });
+                expect(response).toMatchObject({ count: 1 });
             });
         });
     });
