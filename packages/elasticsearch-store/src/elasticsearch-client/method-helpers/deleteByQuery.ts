@@ -38,7 +38,7 @@ export function convertDeleteByQueryParams(
             } = params;
             const queryDSL = query ?? body?.query;
             // body is deprecated, its now put in query parameter
-            parsedParams.query = queryDSL;
+            if (queryDSL) parsedParams.query = queryDSL;
             return parsedParams;
         }
 
@@ -55,7 +55,7 @@ export function convertDeleteByQueryParams(
             parsedParams.max_docs = max_docs ?? body.max_docs;
             const queryDSL = query ?? body?.query;
 
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
@@ -72,7 +72,7 @@ export function convertDeleteByQueryParams(
             parsedParams.max_docs = max_docs ?? body.max_docs;
             const queryDSL = query ?? body?.query;
 
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
@@ -93,7 +93,7 @@ export function convertDeleteByQueryParams(
             parsedParams.max_docs = max_docs ?? body.max_docs;
             const queryDSL = query ?? body?.query;
 
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 

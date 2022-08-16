@@ -36,7 +36,7 @@ export function convertCountParams(
             } = params;
             const queryDSL = query ?? body?.query;
             // body is deprecated, its now put in query parameter
-            parsedParams.query = queryDSL;
+            if (queryDSL) parsedParams.query = queryDSL;
             return parsedParams as Opensearch1CountParams;
         }
 
@@ -45,10 +45,10 @@ export function convertCountParams(
                 body, query, ignore,
                 ...parsedParams
             } = params;
-            const queryDSL = query ?? body.query;
+            const queryDSL = query ?? body?.query;
             // make sure query is put on body if it exists since this
             // version requires body
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
@@ -57,10 +57,10 @@ export function convertCountParams(
                 body, query,
                 ...parsedParams
             } = params;
-            const queryDSL = query ?? body.query;
+            const queryDSL = query ?? body?.query;
             // make sure query is put on body if it exists since this
             // version requires body
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
@@ -73,10 +73,10 @@ export function convertCountParams(
                 body, query, ignore,
                 ...parsedParams
             } = params;
-            const queryDSL = query ?? body.query;
+            const queryDSL = query ?? body?.query;
             // query does not exist on elasticsearch, migrate it to
             // body for compatibility
-            parsedParams.body = { query: queryDSL };
+            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 

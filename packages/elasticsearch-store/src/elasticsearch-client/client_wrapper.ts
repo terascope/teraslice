@@ -28,6 +28,7 @@ export class WrappedClient {
     async count(params: methods.CountParams): Promise<{ count: number }> {
         const parsedParams = methods.convertCountParams(params, this.distribution, this.version);
         const resp = await this.client.count(parsedParams);
+
         return this._removeBody(resp);
     }
 
@@ -44,6 +45,7 @@ export class WrappedClient {
             params, this.distribution, this.version
         );
         const resp = await this.client.deleteByQuery(parsedParams);
+
         return this._removeBody(resp);
     }
 
@@ -52,14 +54,13 @@ export class WrappedClient {
      * @param RequestParams.Get
      * @returns Object
      */
-    async get(params: RequestParams.Get) {
-        const exists = await this.exists(params);
-        if (exists) {
-            const resp = await this.client.get(params);
-            return this._removeBody(resp);
-        }
+    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+        const parsedParams = methods.convertGetParams(
+            params, this.distribution, this.version
+        );
+        const response = await this.client.get(parsedParams);
 
-        return {};
+        return this._removeBody(response);
     }
 
     /**

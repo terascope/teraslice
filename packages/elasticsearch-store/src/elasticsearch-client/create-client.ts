@@ -83,6 +83,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             // @ts-expect-error
             client.__meta = serverMetadata;
             logger.debug('Creating an opensearch client');
+
             return {
                 client,
                 log: logWrapper(logger),
@@ -94,6 +95,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             // @ts-expect-error
             client.__meta = serverMetadata;
             logger.debug('Creating an elasticsearch v8 client');
+
             return {
                 client,
                 log: logWrapper(logger),
@@ -109,6 +111,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
                 // @ts-expect-error
                 client.__meta = serverMetadata;
                 logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
+
                 return {
                     client,
                     log: logWrapper(logger),
