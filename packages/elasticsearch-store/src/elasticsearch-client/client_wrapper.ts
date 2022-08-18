@@ -1,5 +1,5 @@
-import type { RequestParams } from '@opensearch-project/opensearch';
 import { ElasticsearchDistribution } from '@terascope/types';
+import type { ExistsParams } from './method-helpers/exists';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
@@ -65,12 +65,17 @@ export class WrappedClient {
 
     /**
      * Check that the document id exists in the specified index.
-     * @param RequestParams.Get
+     * @param ExistsParams
      * @returns boolean
     */
+    async exists(params: ExistsParams): Promise<boolean> {
+        const convertedParams = methods.convertExistsParams(
+            params,
+            this.distribution,
+            this.version
+        );
 
-    async exists(params: RequestParams.Get): Promise<boolean> {
-        const resp = await this.client.exists(params);
+        const resp = await this.client.exists(convertedParams);
 
         return this._removeBody(resp);
     }
@@ -99,51 +104,8 @@ export class WrappedClient {
         return body.hits.hits.map((doc: any) => doc._source);
     }
 
-    get indices() {
-        const { distribution, version, client } = this;
-
-        return {
-            async create(params: any) {
-                return client.indices.create(params);
-            }
-        };
-    }
-
     private _removeBody(input: Record<string, any>): any {
         if (input.body == null) return input;
         return input.body;
     }
-
-    /**
-     * document related operations
-        * bulk
-        * count √
-        * delete_by_query √
-        * get √
-        * exists √ Charlie
-        * info √ Charlie
-        * mget Charlie
-        * msearch Charlie
-        * ping √ Charlie
-        * search √
-     * indices
-       * create √
-       * delete √
-       * delete_template
-       * exists √
-       * exists_template
-       * get √
-       * get_field_mapping
-       * get_index_template
-       * get_mapping
-       * get_settings
-       * get_template
-       * put_mapping
-       * put_settings
-       * put_template
-     * tasks
-       * cancel
-       * get
-       * list
-    */
 }
