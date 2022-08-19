@@ -16,7 +16,7 @@ const {
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
-describe('info', () => {
+describe('ping', () => {
     let wrappedClient: WrappedClient;
     let client: any;
 
@@ -26,24 +26,15 @@ describe('info', () => {
         wrappedClient = new WrappedClient(client, distribution, semver);
     });
 
-    it('should return info about the cluster', async () => {
-        const resp = await wrappedClient.info();
+    it('should return true if cluster is running', async () => {
+        const resp = await wrappedClient.ping();
 
-        if (distribution === 'elasticsearch') {
-            expect(resp.cluster_name).toBe(distribution);
-        }
-
-        if (distribution === 'opensearch') {
-            expect(resp.cluster_name).toBe('docker-cluster');
-            expect(resp.version.distribution).toBe('opensearch');
-        }
-
-        expect(resp.version.number).toBe(version);
+        expect(resp).toBe(true);
     });
 
     it('should throw an error if tried on a non-supported distribution', async () => {
-        const badDistribution = new WrappedClient(client, distribution, [3, 2, 1]);
+        const badDistribution = new WrappedClient(client, distribution, [10, 0, 0]);
 
-        await expect(() => badDistribution.ping()).rejects.toThrowError(`${distribution} version 3.2.1 is not supported`);
+        await expect(() => badDistribution.ping()).rejects.toThrowError(`${distribution} version 10.0.0 is not supported`);
     });
 });

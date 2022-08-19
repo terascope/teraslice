@@ -1,32 +1,22 @@
 import { debugLogger, DataEntity } from '@terascope/utils';
-import { ElasticsearchDistribution } from '@terascope/types';
 import { createClient, WrappedClient, Semver, } from '../../src';
-import { upload, cleanupIndex, waitForData } from '../helpers/elasticsearch';
 import {
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
-    OPENSEARCH_VERSION
-} from '../helpers/config';
+    upload,
+    cleanupIndex,
+    waitForData,
+    getDistributionAndVersion
+} from '../helpers/elasticsearch';
 import { data } from '../helpers/data';
 
 const testLogger = debugLogger('create-client-test');
 
-const config = { node: '' };
-let expectedDistribution: ElasticsearchDistribution;
-let expectedVersion: string;
+const {
+    version,
+    host,
+    distribution
+} = getDistributionAndVersion();
 
-if (process.env.TEST_OPENSEARCH != null) {
-    config.node = OPENSEARCH_HOST;
-    expectedDistribution = ElasticsearchDistribution.opensearch;
-    expectedVersion = OPENSEARCH_VERSION;
-} else {
-    config.node = ELASTICSEARCH_HOST;
-    expectedDistribution = ElasticsearchDistribution.elasticsearch;
-    expectedVersion = ELASTICSEARCH_VERSION;
-}
-
-const semver = expectedVersion.split('.').map((i) => parseInt(i, 10)) as Semver;
+const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
 describe('exists', () => {
     let wrappedClient: WrappedClient;
@@ -35,9 +25,9 @@ describe('exists', () => {
     let client: any;
 
     beforeAll(async () => {
-        ({ client } = await createClient(config, testLogger));
+        ({ client } = await createClient({ node: host }, testLogger));
 
-        wrappedClient = new WrappedClient(client, expectedDistribution, semver);
+        wrappedClient = new WrappedClient(client, distribution, semver);
 
         const testData = data.slice(0, 1).map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
 

@@ -1,14 +1,14 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
 
-export function checkInfoDistribution(
+export function validateDistribution(
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {
     const [majorVersion] = version;
 
     if (!validDistributionAndVersion(distribution, majorVersion)) {
-        throw new Error(`${distribution} version ${version} is not supported`);
+        throw new Error(`${distribution} version ${version.join('.')} is not supported`);
     }
 }
 

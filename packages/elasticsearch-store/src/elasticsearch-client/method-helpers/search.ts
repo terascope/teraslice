@@ -1,13 +1,16 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
-import { ExistsParams } from './interfaces';
+import { SearchParams } from './interfaces';
 
-export function convertExistsParams(
-    params: ExistsParams,
+export function convertSearchParams(
+    params: SearchParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {
     const [majorVersion] = version;
+
+    qDependentFieldsCheck(params);
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             if (params.type) delete params.type;
@@ -15,16 +18,7 @@ export function convertExistsParams(
             return params;
         }
 
-        if (majorVersion === 7) {
-            return params;
-        }
-
-        if (majorVersion === 6) {
-            if (params.type == null) {
-                params.type = '_doc';
-                // throw new Error('type must be provided for an es 6 query');
-            }
-
+        if (majorVersion === 7 || majorVersion === 6) {
             return params;
         }
     }
@@ -36,4 +30,20 @@ export function convertExistsParams(
     }
 
     throw new Error(`${distribution} version ${version} is not supported`);
+}
+
+function qDependentFieldsCheck(params: SearchParams) {
+    const requiresQ = [
+        'analyzer',
+        'analyze_wildcard',
+        'default_operator',
+        'df',
+        'lenient'
+    ];
+
+    const hasQDependentFields = requiresQ.filter((field) => params[field] != null);
+
+    if (hasQDependentFields.length && params.q == null) {
+        throw new Error(`${hasQDependentFields.join(', ')} requires q parameter`);
+    }
 }

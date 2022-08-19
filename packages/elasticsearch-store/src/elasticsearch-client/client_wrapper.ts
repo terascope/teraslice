@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { ExistsParams } from './method-helpers/exists';
+import type { ExistsParams, SearchParams } from './method-helpers/interfaces';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
@@ -50,20 +50,6 @@ export class WrappedClient {
     }
 
     /**
-     * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
-     * @param RequestParams.Get
-     * @returns Object
-     */
-    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
-        const parsedParams = methods.convertGetParams(
-            params, this.distribution, this.version
-        );
-        const response = await this.client.get(parsedParams);
-
-        return this._removeBody(response);
-    }
-
-    /**
      * Check that the document id exists in the specified index.
      * @param ExistsParams
      * @returns boolean
@@ -81,12 +67,38 @@ export class WrappedClient {
     }
 
     /**
+     * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
+     * @param RequestParams.Get
+     * @returns Object
+    */
+
+    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+        const parsedParams = methods.convertGetParams(
+            params, this.distribution, this.version
+        );
+        const response = await this.client.get(parsedParams);
+
+        return this._removeBody(response);
+    }
+
+    /**
      * Returns info about the cluster the client is connected to
-     * @returns
+     * @returns object with cluster info
     */
     async info() {
-        methods.checkInfoDistribution(this.distribution, this.version);
+        methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Returns true or false based on whether the cluster is running.
+     * @returns Boolean
+    */
+    async ping() {
+        methods.validateDistribution(this.distribution, this.version);
+        const resp = await this.client.ping();
 
         return this._removeBody(resp);
     }
@@ -94,15 +106,14 @@ export class WrappedClient {
     /**
      * Returns search hits that match the query defined in the request.
      * @param RequestParams.AsyncSearchSubmit
-     * @returns array of docs that match search
+     * @returns Array of Record<string, any>
      */
 
-    async search(params: any) {
-        const resp = await this.client.search(params);
+    async search(params: SearchParams) {
+        const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
+        const resp = await this.client.search(parsedParams);
 
-        const body = this._removeBody(resp);
-
-        return body.hits.hits.map((doc: any) => doc._source);
+        return this._removeBody(resp);
     }
 
     private _removeBody(input: Record<string, any>): any {
