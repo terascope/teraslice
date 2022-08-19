@@ -85,6 +85,7 @@ export class WrappedClient {
      * @returns
     */
     async info() {
+        methods.checkInfoDistribution(this.distribution, this.version);
         const resp = await this.client.info();
 
         return this._removeBody(resp);

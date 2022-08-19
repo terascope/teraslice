@@ -36,8 +36,6 @@ export function convertExistsParams(
 
             return params;
         }
-
-        throw new Error(`unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
