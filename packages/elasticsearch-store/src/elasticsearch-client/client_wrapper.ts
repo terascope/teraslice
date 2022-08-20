@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { ExistsParams, SearchParams } from './method-helpers/interfaces';
+import type { ExistsParams, SearchParams, MSearchParams } from './method-helpers/interfaces';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
@@ -88,6 +88,23 @@ export class WrappedClient {
     async info() {
         methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Executes several searches with a single API request.
+     * @returns array of matching es docs
+     */
+
+    async mget(params: MSearchParams) {
+        const parsedParams = methods.convertMSearchParams(
+            params,
+            this.distribution,
+            this.version
+        );
+
+        const resp = await this.client.msearch(parsedParams);
 
         return this._removeBody(resp);
     }

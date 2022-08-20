@@ -33,7 +33,7 @@ export interface SearchParams {
     expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
     explain?: boolean;
     from?:number;
-    index?: string;
+    index?: string | string[];
     ignore?: number | number[];
     ignore_throttled?: boolean;
     ignore_unavailable?: boolean;
@@ -67,4 +67,35 @@ export interface SearchParams {
     type?: string;
     typed_keys?: boolean;
     version?: boolean;
+}
+
+export interface MSearchParams {
+    body: (MSearchHeader | MSearchBody)[];
+    ccs_minimize_roundtrips?: boolean;
+    index?: string | string[];
+    max_concurrent_searches?: number;
+    max_concurrent_shard_requests?: number;
+    pre_filter_shard_size?: number;
+    rest_total_hits_as_int?: boolean;
+    type?: string | string[];
+    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+    typed_keys?: boolean;
+}
+
+export interface MSearchHeader {
+    allow_no_indices?: boolean;
+    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
+    ignore_unavailable?: boolean;
+    index?: string | string[];
+    preference?: string;
+    request_cache?: boolean;
+    routing?: string;
+    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+}
+
+export interface MSearchBody {
+    track_total_hits?: boolean | number;
+    query: Record <string, any>;
+    from?: number;
+    size?: number;
 }

@@ -4,3 +4,4 @@ export * from './get';
 export * from './exists';
 export * from './validateDistribution';
 export * from './search';
+export * from './msearch';
