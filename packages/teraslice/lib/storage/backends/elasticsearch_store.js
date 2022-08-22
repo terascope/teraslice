@@ -4,18 +4,9 @@ const ms = require('ms');
 const fs = require('fs');
 const path = require('path');
 const {
-    TSError,
-    parseError,
-    isTest,
-    pDelay,
-    pRetry,
-    logError,
-    pWhile,
-    isString,
-    getTypeOf,
-    get,
-    random,
-    isInteger
+    TSError, parseError, isTest, pDelay,
+    pRetry, logError, pWhile, isString, getTypeOf,
+    get, random, isInteger
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClientAsync } = require('@terascope/job-components');
@@ -24,14 +15,9 @@ const { timeseriesIndex } = require('../../utils/date_utils');
 
 module.exports = async function elasticsearchStorage(backendConfig) {
     const {
-        context,
-        indexName,
-        recordType,
-        idField,
-        storageName,
-        bulkSize = 1000,
-        fullResponse = false,
-        logRecord = true,
+        context, indexName, recordType,
+        idField, storageName, bulkSize = 1000,
+        fullResponse = false, logRecord = true,
         forceRefresh = true,
     } = backendConfig;
 
