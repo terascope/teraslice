@@ -19,15 +19,39 @@ export class WrappedClient {
     }
 
     /**
+     * creates a new record
+     * @param CountParams
+    */
+    async create(params: methods.CreateParams): Promise<methods.CreateResponse> {
+        const parsedParams = methods.convertCreateParams(params, this.distribution, this.version);
+        const resp = await this.client.create(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
      * Gets the number of matches for a search query or
      * if no query provided the count for docs in an index
      * @param CountParams
-     * @returns { count: number }
     */
 
-    async count(params: methods.CountParams): Promise<{ count: number }> {
+    async count(params: methods.CountParams): Promise<methods.CountResponse> {
         const parsedParams = methods.convertCountParams(params, this.distribution, this.version);
         const resp = await this.client.count(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Deletes a specific record, requires an index and id.
+     * @param RequestParams.delete
+    */
+
+    async delete(params: methods.DeleteParams): Promise<methods.DeleteResponse> {
+        const parsedParams = methods.convertDeleteParams(
+            params, this.distribution, this.version
+        );
+        const resp = await this.client.delete(parsedParams);
 
         return this._removeBody(resp);
     }
@@ -51,10 +75,10 @@ export class WrappedClient {
 
     /**
      * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
-     * @param RequestParams.Get
+     * @param methods.GetParams
      * @returns Object
      */
-    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+    async get<T = unknown>(params: methods.GetParams): Promise<methods.GetQueryResponse<T>> {
         const parsedParams = methods.convertGetParams(
             params, this.distribution, this.version
         );
@@ -94,9 +118,7 @@ export class WrappedClient {
     async search(params: any) {
         const resp = await this.client.search(params);
 
-        const body = this._removeBody(resp);
-
-        return body.hits.hits.map((doc: any) => doc._source);
+        return this._removeBody(resp);
     }
 
     get indices() {

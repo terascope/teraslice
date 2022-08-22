@@ -1,3 +1,5 @@
+import { DataEntity } from '@terascope/utils';
+
 export const data = [
     {
         ip: '120.67.248.156',
@@ -9999,4 +10001,4 @@ export const data = [
         location: '33.01778, 11.92392',
         bytes: 3836982
     }
-];
+].map((record) => DataEntity.make(record, { _key: record.uuid }));
