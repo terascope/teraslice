@@ -18,13 +18,42 @@ export class WrappedClient {
         this.version = version;
     }
 
+    async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
+        const parsedParams = methods.convertBulkParams(params, this.distribution, this.version);
+        const resp = this.client.bulk(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
     /**
-     * creates a new record
+     * creates a new record, can throw if record already exists
      * @param CountParams
     */
     async create(params: methods.CreateParams): Promise<methods.CreateResponse> {
         const parsedParams = methods.convertCreateParams(params, this.distribution, this.version);
         const resp = await this.client.create(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * indexes a new record
+     * @param CountParams
+    */
+    async index(params: methods.IndexParams): Promise<methods.IndexResponse> {
+        const parsedParams = methods.convertIndexParams(params, this.distribution, this.version);
+        const resp = await this.client.index(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * updates a record, or can upsert a record
+     * @param CountParams
+    */
+    async update(params: methods.UpdateParams): Promise<methods.UpdateResponse> {
+        const parsedParams = methods.convertUpdateParams(params, this.distribution, this.version);
+        const resp = await this.client.update(parsedParams);
 
         return this._removeBody(resp);
     }

@@ -1,28 +1,43 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import {
-    IndexRefresh, VersionType, WriteResponseBase,
-    WaitForActiveShards
+    WriteResponseBase, SearchSourceFilter,
+    WaitForActiveShards, Script, InlineGet
 } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export interface CreateParams<TDocument = unknown> {
+export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
     id: string;
     index: string;
     type?: string;
-    refresh?: IndexRefresh;
+    lang?: string;
+    refresh?: boolean;
+    require_alias?: boolean;
+    retry_on_conflict?: number;
     routing?: string;
+    source_enabled?: boolean;
     timeout?: string | number;
-    version?: number;
-    version_type?: VersionType;
     wait_for_active_shards?: WaitForActiveShards;
-    body?: TDocument;
+    _source?: boolean | string | string[];
+    _source_excludes?: string | string[];
+    _source_includes?: string | string[];
+    body?: {
+        detect_noop?: boolean;
+        doc?: TPartialDocument;
+        doc_as_upsert?: boolean;
+        script?: Script;
+        scripted_upsert?: boolean;
+        _source?: boolean | SearchSourceFilter;
+        upsert?: TDocument;
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CreateResponse extends WriteResponseBase {}
+export interface UpdateResponse<TDocument = unknown> extends WriteResponseBase {
+    get?: InlineGet<TDocument>;
+}
 
-export function convertCreateParams(
-    params: CreateParams,
+export function convertUpdateParams(
+    params: UpdateParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {

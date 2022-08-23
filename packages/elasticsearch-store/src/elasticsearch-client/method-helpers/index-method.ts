@@ -1,14 +1,15 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import {
     IndexRefresh, VersionType, WriteResponseBase,
-    WaitForActiveShards
+    WaitForActiveShards, OpType
 } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export interface CreateParams<TDocument = unknown> {
-    id: string;
+export interface IndexParams<TDocument = unknown> {
+    id?: string;
     index: string;
     type?: string;
+    op_type?: OpType;
     refresh?: IndexRefresh;
     routing?: string;
     timeout?: string | number;
@@ -19,10 +20,10 @@ export interface CreateParams<TDocument = unknown> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CreateResponse extends WriteResponseBase {}
+export interface IndexResponse extends WriteResponseBase {}
 
-export function convertCreateParams(
-    params: CreateParams,
+export function convertIndexParams(
+    params: IndexParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {

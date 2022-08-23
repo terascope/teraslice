@@ -73,3 +73,37 @@ export interface WriteResponseBase {
 export type WaitForActiveShardOptions = 'all'
 
 export type WaitForActiveShards = number | WaitForActiveShardOptions
+
+export type OpType = 'index' | 'create';
+
+export type ScriptLanguage = 'painless' | 'expression' | 'mustache' | 'java';
+
+export interface IndexedScript extends ScriptBase {
+    id: string;
+}
+
+export interface ScriptBase {
+    lang?: ScriptLanguage;
+    params?: Record<string, any>;
+}
+export interface InlineScript extends ScriptBase {
+    source: string;
+}
+
+export type Script = InlineScript | IndexedScript | string;
+
+export interface SearchSourceFilter {
+    excludes?: string | string[];
+    includes?: string | string[];
+    exclude?: string | string[];
+    include?: string | string[];
+}
+
+export interface InlineGet<TDocument = unknown> {
+    fields?: Record<string, any>;
+    found: boolean;
+    _seq_no: number;
+    _primary_term: number;
+    _routing?: string;
+    _source: TDocument;
+}
