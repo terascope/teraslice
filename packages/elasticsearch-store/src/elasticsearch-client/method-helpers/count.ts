@@ -22,6 +22,7 @@ export interface CountResponse {
     count: number;
 }
 
+
 export function convertCountParams(
     params: Record<string, any>,
     distribution: ElasticsearchDistribution,

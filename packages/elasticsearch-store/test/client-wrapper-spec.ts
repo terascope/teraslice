@@ -209,7 +209,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 type: docType,
                 id: record.uuid,
             };
-k
+
             const response = await wrappedClient.get(bodyTypeQuery);
 
             expect(response).toHaveProperty('_index', index);
