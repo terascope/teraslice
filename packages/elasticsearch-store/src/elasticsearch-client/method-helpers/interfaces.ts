@@ -83,6 +83,7 @@ export interface MSearchParams {
 }
 
 export interface MSearchHeader {
+    type?: string;
     allow_no_indices?: boolean;
     expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
     ignore_unavailable?: boolean;
@@ -98,4 +99,32 @@ export interface MSearchBody {
     query: Record <string, any>;
     from?: number;
     size?: number;
+}
+
+export interface MGetParams {
+    index?: string;
+    type?: string;
+    stored_fields?: string | string[];
+    preference?: string;
+    realtime?: boolean;
+    refresh?: boolean;
+    routing?: string;
+    _source?: string | string[];
+    _source_excludes?: string | string[];
+    _source_includes?: string | string[];
+    body: {
+        docs?: MGetDocs[];
+        ids?: string[];
+    }
+}
+
+interface MGetDocs {
+    _id: string;
+    _index?: string;
+    _type?: string;
+    _source?: boolean;
+    routing?: string;
+    source_includes?: string | string[];
+    source_excludes?: string | string[];
+    _stored_fields?: string | string[];
 }

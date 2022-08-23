@@ -30,7 +30,11 @@ describe('info', () => {
         const resp = await wrappedClient.info();
 
         if (distribution === 'elasticsearch') {
-            expect(resp.cluster_name).toBe(distribution);
+            if (semver[0] === 8) {
+                expect(resp.cluster_name).toBe('docker-cluster');
+            } else {
+                expect(resp.cluster_name).toBe(distribution);
+            }
         }
 
         if (distribution === 'opensearch') {

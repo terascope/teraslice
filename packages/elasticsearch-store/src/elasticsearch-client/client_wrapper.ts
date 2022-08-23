@@ -1,5 +1,10 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { ExistsParams, SearchParams, MSearchParams } from './method-helpers/interfaces';
+import type {
+    ExistsParams,
+    SearchParams,
+    MSearchParams,
+    MGetParams
+} from './method-helpers/interfaces';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
@@ -93,23 +98,6 @@ export class WrappedClient {
     }
 
     /**
-     * Executes several searches with a single API request.
-     * @returns array of matching es docs
-     */
-
-    async mget(params: MSearchParams) {
-        const parsedParams = methods.convertMSearchParams(
-            params,
-            this.distribution,
-            this.version
-        );
-
-        const resp = await this.client.msearch(parsedParams);
-
-        return this._removeBody(resp);
-    }
-
-    /**
      * Returns true or false based on whether the cluster is running.
      * @returns Boolean
     */
@@ -122,15 +110,48 @@ export class WrappedClient {
 
     /**
      * Returns search hits that match the query defined in the request.
-     * @param RequestParams.AsyncSearchSubmit
+     * @param SearchParams
      * @returns Array of Record<string, any>
      */
 
     async search(params: SearchParams) {
         const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
+
         const resp = await this.client.search(parsedParams);
 
         return this._removeBody(resp);
+    }
+
+    /**
+     * The multi search execution of several searches within the same API request
+     * @param MSearchParams
+     * @returns Array of Record<string, any>
+     */
+
+    async msearch(params: MSearchParams) {
+        const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
+
+        const resp = await this.client.msearch(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * The multi get execution of multiple-get searches from a single API request
+     * @param MGetParams
+     * @returns Array of Record<string, any>
+     */
+
+    async mget(params: MGetParams) {
+        const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
+
+        try {
+            const resp = await this.client.mget(parsedParams);
+
+            return this._removeBody(resp);
+        } catch (e) {
+            return e;
+        }
     }
 
     private _removeBody(input: Record<string, any>): any {

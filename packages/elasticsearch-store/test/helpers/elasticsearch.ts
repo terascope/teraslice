@@ -148,3 +148,11 @@ export function getDistributionAndVersion() {
         version: ELASTICSEARCH_VERSION
     };
 }
+
+export function getTotalFormat(distribution: string, majorVersion: number, n: number) {
+    if (distribution === 'opensearch' || (distribution === 'elasticsearch' && majorVersion >= 7)) {
+        return { value: n, relation: 'eq' };
+    }
+
+    return n;
+}

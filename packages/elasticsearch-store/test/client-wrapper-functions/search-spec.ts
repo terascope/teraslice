@@ -4,7 +4,8 @@ import {
     upload,
     cleanupIndex,
     waitForData,
-    getDistributionAndVersion
+    getDistributionAndVersion,
+    getTotalFormat
 } from '../helpers/elasticsearch';
 import { data } from '../helpers/data';
 
@@ -17,6 +18,8 @@ const {
 } = getDistributionAndVersion();
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
+
+const total = getTotalFormat(distribution, semver[0], 1);
 
 describe('search', () => {
     let wrappedClient: WrappedClient;
@@ -43,14 +46,14 @@ describe('search', () => {
 
     it('should return record on q search', async () => {
         const params = {
+            index,
             q: 'uuid:bea4086e-6f2e-4f4b-a1bf-c20330f92e8c'
         };
 
         const resp = await wrappedClient.search(params);
 
-        const total = distribution === 'opensearch' ? { value: 1, relation: 'eq' } : 1;
-
         expect(resp.hits.total).toEqual(total);
+
         expect(resp.hits.hits[0]._source).toEqual({
             ip: '143.174.175.238',
             userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 6.3) AppleWebKit/531.0.0 (KHTML, like Gecko) Chrome/22.0.897.0 Safari/531.0.0',
@@ -71,8 +74,6 @@ describe('search', () => {
         };
 
         const resp = await wrappedClient.search(params);
-
-        const total = distribution === 'opensearch' ? { value: 1, relation: 'eq' } : 1;
 
         expect(resp.hits.total).toEqual(total);
         expect(resp.hits.hits[0]._source).toEqual({
@@ -101,8 +102,6 @@ describe('search', () => {
         };
 
         const resp = await wrappedClient.search(params);
-
-        const total = distribution === 'opensearch' ? { value: 1, relation: 'eq' } : 1;
 
         expect(resp.hits.total).toEqual(total);
         expect(resp.hits.hits[0]._source).toEqual({

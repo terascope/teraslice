@@ -1,9 +1,9 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import { MSearchParams } from './interfaces';
+import { MGetParams } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export function convertMSearchParams(
-    params: MSearchParams,
+export function convertMGetParams(
+    params: MGetParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {
@@ -14,25 +14,24 @@ export function convertMSearchParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             if (params.type) delete parsedParams.type;
-            if (params.body) {
-                parsedParams.searches = params.body.map((doc) => {
-                    if ('type' in doc) delete doc.type;
+
+            if (params.body.docs) {
+                parsedParams.docs = params.body.docs.map((doc) => {
+                    delete doc._type;
                     return doc;
                 });
-
-                delete parsedParams.body;
             }
+
+            if (params.body.ids) {
+                parsedParams.ids = params.body.ids;
+            }
+
+            delete parsedParams.body;
 
             return params;
         }
 
-        if (majorVersion === 7) {
-            return parsedParams;
-        }
-
-        if (majorVersion === 6) {
-            delete parsedParams.ccs_minimize_roundtrips;
-
+        if (majorVersion === 7 || majorVersion === 6) {
             return parsedParams;
         }
     }

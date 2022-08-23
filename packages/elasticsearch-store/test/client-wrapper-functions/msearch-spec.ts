@@ -8,7 +8,8 @@ import {
     upload,
     cleanupIndex,
     waitForData,
-    getDistributionAndVersion
+    getDistributionAndVersion,
+    getTotalFormat
 } from '../helpers/elasticsearch';
 import { data } from '../helpers/data';
 
@@ -21,6 +22,8 @@ const {
 } = getDistributionAndVersion();
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
+
+const total = getTotalFormat(distribution, semver[0], 1);
 
 describe('search', () => {
     let wrappedClient: WrappedClient;
@@ -48,17 +51,64 @@ describe('search', () => {
 
     it('should return requested records', async () => {
         const params = {
-            index,
             body: [
-                {},
+                { index },
                 { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
                 { index },
                 { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
             ]
         };
 
-        const resp = await wrappedClient.search(params);
+        const resp = await wrappedClient.msearch(params);
 
-        console.log(resp);
+        expect(resp.responses.length).toBe(2);
+
+        expect(resp.responses[0].hits.total).toEqual(total);
+        expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.responses[1].hits.total).toEqual(total);
+        expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+    });
+
+    it('should handle type in params and return requested records', async () => {
+        const params = {
+            index,
+            type: docType,
+            body: [
+                { index, type: docType },
+                { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
+                { index, type: docType },
+                { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
+            ]
+        };
+
+        const resp = await wrappedClient.msearch(params);
+
+        expect(resp.responses.length).toBe(2);
+
+        expect(resp.responses[0].hits.total).toEqual(total);
+        expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.responses[1].hits.total).toEqual(total);
+        expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+    });
+
+    it('should handle ccs_minimize_roundtrips in params and return requested records', async () => {
+        const params = {
+            ccs_minimize_roundtrips: true,
+            body: [
+                { index, type: docType },
+                { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
+                { index, type: docType },
+                { query: { match: { uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd' } } }
+            ]
+        };
+
+        const resp = await wrappedClient.msearch(params);
+
+        expect(resp.responses.length).toBe(2);
+
+        expect(resp.responses[0].hits.total).toEqual(total);
+        expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.responses[1].hits.total).toEqual(total);
+        expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
     });
 });
