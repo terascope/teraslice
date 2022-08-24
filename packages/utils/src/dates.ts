@@ -1,7 +1,7 @@
 import validator from 'validator';
 import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
-import formatDate from 'date-fns/lightFormat';
+import formatDate from 'date-fns/format';
 import differenceInMilliseconds from 'date-fns/differenceInMilliseconds';
 import differenceInSeconds from 'date-fns/differenceInSeconds';
 import differenceInMinutes from 'date-fns/differenceInMinutes';
@@ -296,7 +296,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
         const date = getValidDateWithTimezoneOrThrow(input);
 
         if (segment === ISO8601DateSegment.hourly) {
-            return new Date(
+            return new Date(Date.UTC(
                 date.getUTCFullYear(),
                 date.getUTCMonth(),
                 date.getUTCDate(),
@@ -304,11 +304,11 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).getTime() - timezoneOffset;
+            )).getTime();
         }
 
         if (segment === ISO8601DateSegment.daily) {
-            return new Date(
+            return new Date(Date.UTC(
                 date.getUTCFullYear(),
                 date.getUTCMonth(),
                 date.getUTCDate(),
@@ -316,11 +316,11 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).getTime() - timezoneOffset;
+            )).getTime();
         }
 
         if (segment === ISO8601DateSegment.monthly) {
-            return new Date(
+            return new Date(Date.UTC(
                 date.getUTCFullYear(),
                 date.getUTCMonth(),
                 1,
@@ -328,11 +328,11 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).getTime() - timezoneOffset;
+            )).getTime();
         }
 
         if (segment === ISO8601DateSegment.yearly) {
-            return new Date(
+            return new Date(Date.UTC(
                 date.getUTCFullYear(),
                 0,
                 1,
@@ -340,7 +340,7 @@ export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown
                 0,
                 0,
                 0
-            ).getTime() - timezoneOffset;
+            )).getTime();
         }
 
         throw new Error(`Invalid segment "${segment}" given`);
@@ -392,15 +392,17 @@ export function parseCustomDateFormat(
     if (typeof value !== 'string') {
         throw new Error(`Expected string for formatted date fields, got ${value}`);
     }
-
+    const hasTimezoneFormat = format.match(/[xX]/);
     const date = parseDate(value, format, referenceDate);
+
     if (!isValidDateInstance(date)) {
         throw new Error(`Expected value ${value} to be a date string with format ${format}`);
     }
-
+    // the format indicates its already UTC conversion
+    if (hasTimezoneFormat) return date.getTime();
     // need subtract the date offset here to
     // in order to deal with UTC time
-    return date.getTime() - (date.getTimezoneOffset() * 60_000);
+    return date.getTime() - timezoneOffset;
 }
 
 /**
@@ -449,9 +451,10 @@ export function formatDateValue(
     }
 
     if (format && !(format in DateFormat)) {
+        const inputValue = format.match(/[xX]/) ? inMs : inMs + timezoneOffset;
         // need add our offset here to
         // deal with UTC time
-        return formatDate(inMs + timezoneOffset, format);
+        return formatDate(inputValue, format);
     }
 
     return toISO8601(value);

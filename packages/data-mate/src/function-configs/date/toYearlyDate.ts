@@ -38,6 +38,18 @@ export const toYearlyDateConfig: FieldTransformConfig = {
             output: new Date('2019-01-01T00:00:00.000Z').getTime(),
             serialize_output: toISO8601,
             test_only: true,
+        },
+        {
+            args: { },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2018-01-22T18:00:00.000Z',
+            output: new Date('2018-01-01T00:00:00.000Z').getTime(),
+            serialize_output: toISO8601,
+            test_only: true,
         }
     ],
     create() {

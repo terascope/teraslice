@@ -9,11 +9,6 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig, ServerMetadata } from './interfaces';
 
-// polyfill because opensearch has references to an api that won't exist
-// on the client side, should be able to remove in the future
-// @ts-expect-error
-import('setimmediate');
-
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
 async function findDistribution(
@@ -87,6 +82,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             // @ts-expect-error
             client.__meta = serverMetadata;
             logger.debug('Creating an opensearch client');
+
             return {
                 client,
                 log: logWrapper(logger),
@@ -99,6 +95,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             // @ts-expect-error
             client.__meta = serverMetadata;
             logger.debug('Creating an elasticsearch v8 client');
+
             return {
                 client,
                 log: logWrapper(logger),

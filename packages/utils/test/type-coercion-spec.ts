@@ -29,6 +29,7 @@ describe('type-coercion', () => {
             ]),
             [FieldType.Long, BigInt(12e12), BigInt(12e12)],
             [FieldType.Long, '120000', BigInt(120000)],
+            [FieldType.Integer, BigInt(246071665871), 246071665871],
         ];
         describe.each(validTestCases)('when given valid values for field type %s', (type, input, output) => {
             it(`should convert ${input} to ${output}`, () => {
@@ -46,8 +47,6 @@ describe('type-coercion', () => {
             [FieldType.Short, -32_768 - 1],
             [FieldType.Byte, -128 - 1],
             [FieldType.Byte, 127 + 1],
-            [FieldType.Integer, -(2 ** 31) - 1],
-            [FieldType.Integer, 2 ** 31],
         ];
         describe.each(invalidTestCases)('when given invalid values for field type %s', (type, input) => {
             it(`should fail to convert ${input}`, () => {

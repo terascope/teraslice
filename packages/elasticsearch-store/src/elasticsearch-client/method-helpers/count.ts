@@ -1,16 +1,26 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { Count as Opensearch1CountParams } from './interfaces';
-import type { Count as Elasticsearch6CountParams } from 'elasticsearch6/api/requestParams';
-import type { Count as Elasticsearch7CountParams } from 'elasticsearch7';
-import type { Client as Elasticsearch8CountParams } from 'elasticsearch8';
 import type { Semver } from '../interfaces';
 
+export interface CountParams {
+    index: string | string[];
+    type?: string | string[];
+    ignore_unavailable?: boolean;
+    ignore_throttled?: boolean;
+    allow_no_indices?: boolean;
+    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
+    min_score?: number;
+    preference?: string;
+    routing?: string | string[];
+    q?: string;
+    analyzer?: string;
+    analyze_wildcard?: boolean;
+    lenient?: boolean;
+    body?: Record<string, any>;
+}
 
-export type CountParams =
-    Elasticsearch6CountParams
-    | Elasticsearch7CountParams
-    | Elasticsearch8CountParams
-    | Opensearch1CountParams
+export interface CountResponse {
+    count: number;
+}
 
 export function convertCountParams(
     params: Record<string, any>,
@@ -22,58 +32,38 @@ export function convertCountParams(
         if (majorVersion === 8) {
             // make sure to remove type
             const {
-                type, body, query,
-                ignore, method, source,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
-            const queryDSL = query ?? body?.query;
-            // body is deprecated, its now put in query parameter
-            parsedParams.query = queryDSL;
-            return parsedParams as Opensearch1CountParams;
+
+            return parsedParams;
         }
 
         if (majorVersion === 7) {
             const {
-                body, query, ignore,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
-            const queryDSL = query ?? body.query;
-            // make sure query is put on body if it exists since this
-            // version requires body
-            parsedParams.body = { query: queryDSL };
+
             return parsedParams;
         }
 
         if (majorVersion === 6) {
-            const {
-                body, query,
-                ...parsedParams
-            } = params;
-            const queryDSL = query ?? body.query;
-            // make sure query is put on body if it exists since this
-            // version requires body
-            parsedParams.body = { query: queryDSL };
-            return parsedParams;
+            return params;
         }
 
-        throw new Error(`unsupported elasticsearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             const {
-                body, query, ignore,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
-            const queryDSL = query ?? body.query;
-            // query does not exist on elasticsearch, migrate it to
-            // body for compatibility
-            parsedParams.body = { query: queryDSL };
+
             return parsedParams;
         }
 
-        throw new Error(`unsupported opensearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported distribution ${distribution}`);
 }

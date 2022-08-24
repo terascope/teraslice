@@ -1,8 +1,5 @@
-import type { RequestParams } from '@opensearch-project/opensearch';
 import { ElasticsearchDistribution } from '@terascope/types';
-import {
-    convertCountParams, CountParams
-} from './method-helpers/count';
+import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
 export class WrappedClient {
@@ -20,16 +17,70 @@ export class WrappedClient {
         this.version = version;
     }
 
+    async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
+        const parsedParams = methods.convertBulkParams(params, this.distribution, this.version);
+        const resp = this.client.bulk(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * creates a new record, can throw if record already exists
+     * @param CountParams
+    */
+    async create(params: methods.CreateParams): Promise<methods.CreateResponse> {
+        const parsedParams = methods.convertCreateParams(params, this.distribution, this.version);
+        const resp = await this.client.create(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * indexes a new record
+     * @param CountParams
+    */
+    async index(params: methods.IndexParams): Promise<methods.IndexResponse> {
+        const parsedParams = methods.convertIndexParams(params, this.distribution, this.version);
+        const resp = await this.client.index(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * updates a record, or can upsert a record
+     * @param CountParams
+    */
+    async update(params: methods.UpdateParams): Promise<methods.UpdateResponse> {
+        const parsedParams = methods.convertUpdateParams(params, this.distribution, this.version);
+        const resp = await this.client.update(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
     /**
      * Gets the number of matches for a search query or
      * if no query provided the count for docs in an index
      * @param CountParams
-     * @returns { count: number }
     */
 
-    async count(params: CountParams): Promise<{ count: number }> {
-        const parsedParams = convertCountParams(params, this.distribution, this.version);
+    async count(params: methods.CountParams): Promise<methods.CountResponse> {
+        const parsedParams = methods.convertCountParams(params, this.distribution, this.version);
         const resp = await this.client.count(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Deletes a specific record, requires an index and id.
+     * @param RequestParams.delete
+    */
+
+    async delete(params: methods.DeleteParams): Promise<methods.DeleteResponse> {
+        const parsedParams = methods.convertDeleteParams(
+            params, this.distribution, this.version
+        );
+        const resp = await this.client.delete(parsedParams);
+
         return this._removeBody(resp);
     }
 
@@ -39,89 +90,122 @@ export class WrappedClient {
      * @returns count or Elasticsearch task_id
     */
 
-    async deleteByQuery(params: RequestParams.DeleteByQuery) {
-        if (!params.body) params.body = {};
-        const resp = await this.client.deleteByQuery(params);
+    async deleteByQuery(
+        params: methods.DeleteByQueryParams
+    ): Promise<methods.DeleteByQueryResponse> {
+        const parsedParams = methods.convertDeleteByQueryParams(
+            params, this.distribution, this.version
+        );
+        const resp = await this.client.deleteByQuery(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Check that the document id exists in the specified index.
+     * @param ExistsParams
+     * @returns boolean
+    */
+    async exists(params: methods.ExistsParams): Promise<boolean> {
+        const convertedParams = methods.convertExistsParams(
+            params,
+            this.distribution,
+            this.version
+        );
+
+        const resp = await this.client.exists(convertedParams);
+
         return this._removeBody(resp);
     }
 
     /**
      * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
-     * @param RequestParams.Get
+     * @param methods.GetParams
      * @returns Object
-     */
-    async get(params: RequestParams.Get) {
-        const exists = await this.exists(params);
-        if (exists) {
-            const resp = await this.client.get(params);
-            return this._removeBody(resp);
-        }
-
-        return {};
-    }
-
-    /**
-     * Check that the document id exists in the specified index.
-     * @param RequestParams.Get
-     * @returns boolean
     */
 
-    async exists(params: RequestParams.Get): Promise<boolean> {
-        const resp = await this.client.exists(params);
+    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+        const parsedParams = methods.convertGetParams(
+            params, this.distribution, this.version
+        );
+        const response = await this.client.get(parsedParams);
 
-        return this._removeBody(resp);
+        return this._removeBody(response);
     }
 
     /**
      * Returns info about the cluster the client is connected to
-     * @returns
+     * @returns object with cluster info
     */
-    async info() {
+    async info(): Promise<methods.InfoResponse> {
+        methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
 
         return this._removeBody(resp);
     }
 
     /**
-     * Returns search hits that match the query defined in the request.
-     * @param RequestParams.AsyncSearchSubmit
-     * @returns array of docs that match search
-     */
-
-    async search(params: any) {
-        const resp = await this.client.search(params);
-
-        const body = this._removeBody(resp);
-
-        return body.hits.hits.map((doc: any) => doc._source);
+     * Returns true or false based on whether the cluster is running.
+     * @returns Boolean
+    */
+    async ping() {
+        methods.validateDistribution(this.distribution, this.version);
+        const resp = await this.client.ping();
+        return this._removeBody(resp);
     }
 
     /**
-     * Returns information about one or more indices
-     * @param RequestParams.IndicesGet
-     * @returns JSON of Index Mappings and Settings
+     * Returns search hits that match the query defined in the request.
+     * @param SearchParams
+     * @returns Array of Record<string, any>
      */
 
-    private async _indicesGet(params: RequestParams.IndicesGet) {
-        const resp = await this.client.indices.get(params);
+    async search(params: methods.SearchParams): Promise<methods.SearchResponse> {
+        const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
+
+        const resp = await this.client.search(parsedParams);
 
         return this._removeBody(resp);
     }
 
-    private async _indicesCreate(params: RequestParams.IndicesCreate) {
-        const resp = await this.client.indices.create(params);
+    /**
+     * The multi search execution of several searches within the same API request
+     * @param MSearchParams
+     * @returns Array of Record<string, any>
+     */
+
+    async msearch(params: methods.MSearchParams) {
+        const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
+
+        const resp = await this.client.msearch(parsedParams);
 
         return this._removeBody(resp);
     }
 
-    private async _indicesDelete(params: RequestParams.IndicesDelete) {
-        const resp = await this.client.indices.delete(params);
+    /**
+     * The multi get execution of multiple-get searches from a single API request
+     * @param MGetParams
+     * @returns Array of Record<string, any>
+     */
+
+    async mget(params: methods.MGetParams): Promise<methods.MGetResponse> {
+        const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
+
+        const resp = await this.client.mget(parsedParams);
 
         return this._removeBody(resp);
     }
 
-    private async _indicesExists(params: RequestParams.IndicesExists) {
-        const resp = await this.client.indices.exists(params);
+    /**
+     * Re-Index data to a new index
+     * @param ReIndexParams
+     * @returns Report of re-indexing task or task id if wait_for_completion is false
+     */
+
+    async reindex(params: methods.ReIndexParams) {
+        const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
+
+        const resp = await this.client.reindex(parsedParams);
 
         return this._removeBody(resp);
     }
@@ -130,37 +214,4 @@ export class WrappedClient {
         if (input.body == null) return input;
         return input.body;
     }
-
-    /**
-     * document related operations
-        * bulk
-        * count √
-        * delete_by_query √
-        * get √
-        * exists √
-        * info √
-        * mget
-        * msearch
-        * ping √
-        * search √
-     * indices
-       * create √
-       * delete √
-       * delete_template
-       * exists √
-       * exists_template
-       * get √
-       * get_field_mapping
-       * get_index_template
-       * get_mapping
-       * get_settings
-       * get_template
-       * put_mapping
-       * put_settings
-       * put_template
-     * tasks
-       * cancel
-       * get
-       * list
-    */
 }
