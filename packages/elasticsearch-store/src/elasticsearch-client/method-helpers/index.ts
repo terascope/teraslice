@@ -1,4 +1,7 @@
+export * from './bulk';
 export * from './count';
+export * from './create';
+export * from './delete';
 export * from './deleteByQuery';
 export * from './get';
 export * from './exists';
@@ -7,3 +10,5 @@ export * from './search';
 export * from './msearch';
 export * from './mget';
 export * from './reindex';
+export * from './index-method';
+export * from './update';

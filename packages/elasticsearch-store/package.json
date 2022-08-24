@@ -28,7 +28,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@opensearch-project/opensearch": "^1.0.2",
+        "@opensearch-project/opensearch": "^1.1.0",
         "@terascope/data-mate": "^0.38.4",
         "@terascope/data-types": "^0.35.3",
         "@terascope/types": "^0.10.3",

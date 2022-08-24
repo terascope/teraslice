@@ -1,4 +1,7 @@
 import { ConnectionOptions } from 'tls';
+import { ClientMetadata } from '@terascope/types';
+
+export type Semver = [number, number, number];
 
 export type Semver = [number, number, number];
 
@@ -61,4 +64,9 @@ interface ClientOptions {
 export interface ClientConfig extends ClientOptions {
     password?: string;
     username?: string;
+}
+
+export interface ServerMetadata extends ClientMetadata {
+    majorVersion: number;
+    minorVersion: number;
 }

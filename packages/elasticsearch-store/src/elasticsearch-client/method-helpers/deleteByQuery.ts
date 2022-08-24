@@ -1,22 +1,60 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type {
-    Elasticsearch6Params, Elasticsearch7Params,
-    Elasticsearch8TypeParams, Elasticsearch8TypeWithBodyParams,
-    Opensearch1Params
-} from './interfaces';
+import type { BulkIndexByScrollFailure } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export type Elasticsearch6DeleteByQueryParams = Elasticsearch6Params.DeleteByQuery
-export type Elasticsearch7DeleteByQueryParams = Elasticsearch7Params.DeleteByQuery
-export type Elasticsearch8DeleteByQueryParams =
-    Elasticsearch8TypeParams.DeleteByQueryRequest
-    | Elasticsearch8TypeWithBodyParams.DeleteByQueryRequest;
-export type Opensearch1DeleteByQueryParams = Opensearch1Params.DeleteByQuery;
+export interface DeleteByQueryResponse {
+    batches?: number;
+    deleted?: number;
+    failures?: BulkIndexByScrollFailure[];
+    noops?: number;
+    requests_per_second?: number;
+    retries?: {
+        bulk: number;
+        search: number;
+    };
+    slice_id?: number;
+    task?: string | number;
+    throttled_millis?: number;
+    throttled_until_millis?: number;
+    timed_out?: boolean;
+    took?: number;
+    total?: number;
+    version_conflicts?: number;
+}
 
-export type DeleteByQueryResponse = Elasticsearch8TypeParams.DeleteByQueryResponse
-
-export type DeleteByQueryParams =
-    Elasticsearch7DeleteByQueryParams
+export interface DeleteByQueryParams {
+    index: string | string[];
+    type?: string | string[];
+    analyzer?: string;
+    analyze_wildcard?: boolean;
+    from?: number;
+    ignore_unavailable?: boolean;
+    allow_no_indices?: boolean;
+    conflicts?: 'abort' | 'proceed';
+    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
+    lenient?: boolean;
+    preference?: string;
+    q?: string;
+    routing?: string | string[];
+    scroll?: string;
+    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+    search_timeout?: string;
+    size?: number;
+    max_docs?: number;
+    sort?: string | string[];
+    terminate_after?: number;
+    stats?: string | string[];
+    version?: boolean;
+    request_cache?: boolean;
+    refresh?: boolean;
+    timeout?: string;
+    wait_for_active_shards?: string;
+    scroll_size?: number;
+    wait_for_completion?: boolean;
+    requests_per_second?: number;
+    slices?: number | string;
+    body?: Record<string, any>,
+}
 
 export function convertDeleteByQueryParams(
     params: Record<string, any>,
@@ -28,72 +66,38 @@ export function convertDeleteByQueryParams(
         if (majorVersion === 8) {
             // make sure to remove type
             const {
-                type, body, query,
-                _source_exclude, _source_include,
-                _source, _source_excludes, _source_includes,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
-            const queryDSL = query ?? body?.query;
-            // body is deprecated, its now put in query parameter
-            if (queryDSL) parsedParams.query = queryDSL;
+
             return parsedParams;
         }
 
         if (majorVersion === 7) {
             const {
-                body, query, max_docs,
-                _source_exclude, _source_include,
-                _source, _source_excludes, _source_includes,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
 
-            parsedParams.max_docs = max_docs ?? body.max_docs;
-            const queryDSL = query ?? body?.query;
-
-            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
         if (majorVersion === 6) {
-            const {
-                body, query, max_docs,
-                _source_exclude, _source_include,
-                _source, _source_excludes, _source_includes,
-                ...parsedParams
-            } = params;
-
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
-            parsedParams.max_docs = max_docs ?? body.max_docs;
-            const queryDSL = query ?? body?.query;
-
-            if (queryDSL) parsedParams.body = { query: queryDSL };
-            return parsedParams;
+            return params;
         }
 
-        throw new Error(`unsupported elasticsearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             const {
-                body, query, max_docs,
-                _source_exclude, _source_include,
-                _source, _source_excludes, _source_includes,
-                ...parsedParams
+                type, ...parsedParams
             } = params;
 
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
-            parsedParams.max_docs = max_docs ?? body.max_docs;
-            const queryDSL = query ?? body?.query;
-
-            if (queryDSL) parsedParams.body = { query: queryDSL };
             return parsedParams;
         }
 
-        throw new Error(`unsupported opensearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported distribution ${distribution}`);
 }

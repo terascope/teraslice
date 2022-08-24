@@ -1,25 +1,24 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type {
-    Elasticsearch6Params, Elasticsearch7Params,
-    Elasticsearch8TypeParams, Elasticsearch8TypeWithBodyParams,
-    Opensearch1Params
-} from './interfaces';
+import type { SearchResult, VersionType } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export type Elasticsearch6GetParams = Elasticsearch6Params.Get
-export type Elasticsearch7GetParams = Elasticsearch7Params.Get
-export type Elasticsearch8GetParams =
-    Elasticsearch8TypeParams.GetRequest
-    | Elasticsearch8TypeWithBodyParams.GetRequest;
+export type GetQueryResponse<T = unknown> = SearchResult<T>
 
-export type Opensearch1GetParams = Opensearch1Params.Get;
-export type GetQueryResponse = Elasticsearch8TypeParams.GetRequest
-
-export type GetParams =
-    Elasticsearch6GetParams
-    | Elasticsearch7GetParams
-    | Elasticsearch8GetParams
-    | Opensearch1GetParams
+export interface GetParams {
+    id: string;
+    index: string;
+    type?: string;
+    stored_fields?: string | string[];
+    preference?: string;
+    realtime?: boolean;
+    refresh?: boolean;
+    routing?: string;
+    _source?: string | string[];
+    _source_excludes?: string | string[];
+    _source_includes?: string | string[];
+    version?: number;
+    version_type?: VersionType;
+}
 
 export function convertGetParams(
     params: Record<string, any>,
@@ -30,40 +29,21 @@ export function convertGetParams(
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
-                type, parent, _source_exclude,
-                _source_include, _source_excludes,
-                _source_includes, ...parsedParams
+                type, ...parsedParams
             } = params;
-
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
 
             return parsedParams;
         }
 
         if (majorVersion === 7) {
-            const {
-                parent, _source_exclude,
-                _source_include, _source_excludes,
-                _source_includes, ...parsedParams
-            } = params;
-
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
-
-            return parsedParams;
+            return params;
         }
 
         if (majorVersion === 6) {
             const {
-                type = '_doc', _source_exclude,
-                _source_include, _source_excludes,
-                _source_includes, ...parsedParams
+                type = '_doc', ...parsedParams
             } = params;
 
-            // this accepts plural and non plural standard, buts its best to be consistent
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
             // make sure that type exists as it is required here
             parsedParams.type = type;
 
