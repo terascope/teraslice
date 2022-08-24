@@ -104,6 +104,8 @@ describe('search', () => {
 
         const resp = await wrappedClient.msearch(params);
 
+        console.log(JSON.stringify(resp, null, 2));
+
         expect(resp.responses.length).toBe(2);
 
         expect(resp.responses[0].hits.total).toEqual(total);
