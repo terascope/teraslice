@@ -137,7 +137,7 @@ export class WrappedClient {
      * Returns info about the cluster the client is connected to
      * @returns object with cluster info
     */
-    async info() {
+    async info(): Promise<methods.InfoResponse> {
         methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
 
@@ -160,7 +160,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async search(params: methods.SearchParams) {
+    async search(params: methods.SearchParams): Promise<methods.SearchResponse> {
         const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
 
         const resp = await this.client.search(parsedParams);
@@ -188,7 +188,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async mget(params: methods.MGetParams) {
+    async mget(params: methods.MGetParams): Promise<methods.MGetResponse> {
         const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
 
         const resp = await this.client.mget(parsedParams);

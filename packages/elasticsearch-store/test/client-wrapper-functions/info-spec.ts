@@ -48,6 +48,6 @@ describe('info', () => {
     it('should throw an error if tried on a non-supported distribution', async () => {
         const badDistribution = new WrappedClient(client, distribution, [3, 2, 1]);
 
-        await expect(() => badDistribution.ping()).rejects.toThrowError(`${distribution} version 3.2.1 is not supported`);
+        await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 3.2.1`);
     });
 });

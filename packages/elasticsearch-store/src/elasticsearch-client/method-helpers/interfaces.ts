@@ -49,6 +49,7 @@ export interface BulkIndexByScrollFailure {
 
 export interface SearchResult<TDocument = unknown> {
     _index: string
+    _type?: string;
     fields?: Record<string, any>
     found: boolean
     _id: string

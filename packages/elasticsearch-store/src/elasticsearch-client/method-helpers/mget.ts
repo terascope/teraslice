@@ -1,4 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
+import type { GetQueryResponse } from './get';
 import type { Semver } from '../interfaces';
 
 export interface MGetParams {
@@ -27,6 +28,10 @@ interface MGetDocs {
     source_includes?: string | string[];
     source_excludes?: string | string[];
     _stored_fields?: string | string[];
+}
+
+export interface MGetResponse {
+    docs: GetQueryResponse[]
 }
 
 export function convertMGetParams(

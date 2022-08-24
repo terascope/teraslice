@@ -57,6 +57,35 @@ export interface SearchParams {
     version?: boolean;
 }
 
+export interface SearchResponse {
+    took: number;
+    timed_out: boolean;
+    _shards: {
+        total: number;
+        successful: number;
+        skipped: number;
+        failed:number;
+    },
+    hits: {
+        total: number | HitsTotal;
+        max_score: number;
+        hits: SearchResult[]
+    }
+}
+
+interface HitsTotal {
+    value: number;
+    relation: 'eq' | 'gt' | 'lt'
+}
+
+interface SearchResult {
+    _index: string;
+    _type?: string;
+    _id: string;
+    _score: number;
+    _source: unknown;
+}
+
 export function convertSearchParams(
     params: SearchParams,
     distribution: ElasticsearchDistribution,
