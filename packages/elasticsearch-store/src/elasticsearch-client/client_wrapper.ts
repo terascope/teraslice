@@ -3,7 +3,8 @@ import type {
     ExistsParams,
     SearchParams,
     MSearchParams,
-    MGetParams
+    MGetParams,
+    ReIndexParams
 } from './method-helpers/interfaces';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
@@ -145,13 +146,23 @@ export class WrappedClient {
     async mget(params: MGetParams) {
         const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
 
-        try {
-            const resp = await this.client.mget(parsedParams);
+        const resp = await this.client.mget(parsedParams);
 
-            return this._removeBody(resp);
-        } catch (e) {
-            return e;
-        }
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Re-Index data to a new index
+     * @param ReIndexParams
+     * @returns Report of re-indexing task or task id if wait_for_completion is false
+     */
+
+    async reindex(params: ReIndexParams) {
+        const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
+
+        const resp = await this.client.reindex(parsedParams);
+
+        return this._removeBody(resp);
     }
 
     private _removeBody(input: Record<string, any>): any {

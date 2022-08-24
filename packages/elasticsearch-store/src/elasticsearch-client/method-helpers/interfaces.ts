@@ -4,6 +4,30 @@ export * as Elasticsearch7Params from 'elasticsearch7/api/requestParams';
 export * as Elasticsearch8TypeParams from 'elasticsearch8/lib/api/types';
 export * as Elasticsearch8TypeWithBodyParams from 'elasticsearch8/lib/api/typesWithBodyKey';
 
+type Duration = number;
+type TimeUnit = 'd' | 'h' | 'm' | 's' | 'ms' | 'micros' | 'nanos';
+
+export type TimeValue = `${Duration}${TimeUnit}`;
+
+export enum ExpandWildcards {
+    open = 'open',
+    closed = 'closed',
+    hidden = 'hidden',
+    none = 'none',
+    all = 'all'
+}
+
+export enum SearchTypes {
+    query_then_fetch = 'query_then_fetch',
+    dfs_query_then_fetch = 'dfs_query_then_fetch'
+}
+
+export enum SuggestModes {
+    missing = 'missing',
+    popular = 'popular',
+    always = 'always'
+}
+
 export interface ExistsParams {
     id: string;
     index: string;
@@ -13,11 +37,6 @@ export interface ExistsParams {
     refresh?: boolean;
     routing?: string;
 }
-
-type TimeValue = number;
-type TimeUnit = 'd' | 'h' | 'm' | 's' | 'ms' | 'micros' | 'nanos';
-
-export type TimePeriod = `${TimeValue}${TimeUnit}`;
 
 export interface SearchParams {
     allow_no_indices?: boolean;
@@ -30,7 +49,7 @@ export interface SearchParams {
     default_operator?: string;
     df?: string;
     docvalue_fields?: string;
-    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
+    expand_wildcards?: ExpandWildcards,
     explain?: boolean;
     from?:number;
     index?: string | string[];
@@ -46,8 +65,8 @@ export interface SearchParams {
     request_cache?: boolean;
     rest_total_hits_as_int?: boolean;
     routing?: string;
-    scroll?: TimePeriod;
-    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+    scroll?: TimeValue;
+    search_type?: SearchTypes;
     seq_no_primary_term?: boolean;
     size?: number;
     sort?: string;
@@ -57,11 +76,11 @@ export interface SearchParams {
     stats?: string | string[];
     stored_fields?: string;
     suggest_field?: string;
-    suggest_mode?: 'missing' | 'popular' | 'always';
+    suggest_mode?: SuggestModes;
     suggest_size?: number;
     suggest_text?: string;
     terminate_after?: number;
-    timeout?: TimePeriod;
+    timeout?: TimeValue;
     track_scores?: boolean
     track_total_hits?: boolean | number;
     type?: string;
@@ -78,20 +97,20 @@ export interface MSearchParams {
     pre_filter_shard_size?: number;
     rest_total_hits_as_int?: boolean;
     type?: string | string[];
-    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+    search_type?: SearchTypes;
     typed_keys?: boolean;
 }
 
 export interface MSearchHeader {
     type?: string;
     allow_no_indices?: boolean;
-    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
+    expand_wildcards?: ExpandWildcards;
     ignore_unavailable?: boolean;
     index?: string | string[];
     preference?: string;
     request_cache?: boolean;
     routing?: string;
-    search_type?: 'query_then_fetch' | 'dfs_query_then_fetch';
+    search_type?: SearchTypes;
 }
 
 export interface MSearchBody {
@@ -127,4 +146,72 @@ interface MGetDocs {
     source_includes?: string | string[];
     source_excludes?: string | string[];
     _stored_fields?: string | string[];
+}
+
+export interface ReIndexParams {
+    refresh?: boolean;
+    timeout?: string;
+    wait_for_active_shards?: 'all' | number;
+    wait_for_completion?: boolean;
+    requests_per_second?: number;
+    scroll?: string;
+    slices?: number | string;
+    max_docs?: number;
+    body: ReIndexBody;
+}
+
+export interface ReIndexBody {
+    conflicts?: ConflictOptions;
+    max_docs?: number;
+    source: {
+        index: string;
+        query?: Record<string, any>;
+        remote?: {
+            host?: string;
+            username?: string;
+            password?: string;
+            socket_timeout?: TimeValue;
+            connect_timeout?: TimeValue;
+        },
+        size?: number;
+        slice?: {
+            id?: number;
+            max?: number;
+        },
+        _source?: boolean | string | string[];
+    },
+    dest: {
+        index: string;
+        version_type?: VersionTypes;
+        op_type?: OpTypes;
+        type?: string;
+    },
+    script?: {
+        source?: string;
+        lang?: ScriptLangs;
+    }
+}
+
+export enum ConflictOptions {
+    abort = 'abort',
+    proceed = 'proceed'
+}
+
+export enum OpTypes {
+    index = 'index',
+    create = 'create'
+}
+
+export enum VersionTypes {
+    internal = 'internal',
+    external = 'external',
+    external_gt = 'external_gt',
+    external_gte = 'external_gte'
+}
+
+export enum ScriptLangs {
+    painless = 'painless',
+    expression = 'expression',
+    mustache = 'mustache',
+    java = 'java'
 }

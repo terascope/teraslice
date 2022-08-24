@@ -6,3 +6,4 @@ export * from './validateDistribution';
 export * from './search';
 export * from './msearch';
 export * from './mget';
+export * from './reindex';
