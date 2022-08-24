@@ -1,6 +1,61 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
-import { SearchParams } from './interfaces';
+import {
+    ExpandWildcards,
+    TimeValue,
+    SearchTypes,
+    SuggestMode
+} from './interfaces';
+
+export interface SearchParams {
+    allow_no_indices?: boolean;
+    allow_partial_search_results?: boolean;
+    analyzer?: string;
+    analyze_wildcard?: boolean;
+    batched_reduce_size?: number;
+    body?: Record<string, any>;
+    ccs_minimize_roundtrips?: boolean;
+    default_operator?: string;
+    df?: string;
+    docvalue_fields?: string;
+    expand_wildcards?: ExpandWildcards,
+    explain?: boolean;
+    from?:number;
+    index?: string | string[];
+    ignore?: number | number[];
+    ignore_throttled?: boolean;
+    ignore_unavailable?: boolean;
+    lenient?: boolean;
+    max_concurrent_shard_requests?: number;
+    min_compatible_shard_node?: string;
+    pre_filter_shard_size?: number;
+    preference?: string; // define this
+    q?: string;
+    request_cache?: boolean;
+    rest_total_hits_as_int?: boolean;
+    routing?: string;
+    scroll?: TimeValue;
+    search_type?: SearchTypes;
+    seq_no_primary_term?: boolean;
+    size?: number;
+    sort?: string;
+    _source?: boolean | string;
+    _source_excludes?: string;
+    _source_includes?: string;
+    stats?: string | string[];
+    stored_fields?: string;
+    suggest_field?: string;
+    suggest_mode?: SuggestMode;
+    suggest_size?: number;
+    suggest_text?: string;
+    terminate_after?: number;
+    timeout?: TimeValue;
+    track_scores?: boolean
+    track_total_hits?: boolean | number;
+    type?: string;
+    typed_keys?: boolean;
+    version?: boolean;
+}
 
 export function convertSearchParams(
     params: SearchParams,
@@ -13,9 +68,12 @@ export function convertSearchParams(
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            if (params.type) delete params.type;
+            const {
+                type,
+                ...parsedParams
+            } = params;
 
-            return params;
+            return parsedParams;
         }
 
         if (majorVersion === 7 || majorVersion === 6) {
@@ -29,7 +87,7 @@ export function convertSearchParams(
         }
     }
 
-    throw new Error(`${distribution} version ${version} is not supported`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }
 
 function qDependentFieldsCheck(params: SearchParams) {

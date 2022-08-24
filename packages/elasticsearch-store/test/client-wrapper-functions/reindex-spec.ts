@@ -2,7 +2,7 @@ import { debugLogger, DataEntity } from '@terascope/utils';
 import { createClient, WrappedClient, Semver, } from '../../src';
 import {
     ConflictOptions,
-    OpTypes,
+    OpType,
     ScriptLangs
 } from '../../src/elasticsearch-client/method-helpers/interfaces';
 import {
@@ -106,12 +106,12 @@ describe('search', () => {
                 },
                 script: {
                     source: 'ctx._source.host = ctx._source.remove("url")',
-                    lang: ScriptLangs.painless
+                    lang: 'painless' as ScriptLangs
                 }
             }
         };
 
-        const resp = await wrappedClient.reindex(params as any);
+        const resp = await wrappedClient.reindex(params);
 
         expect(resp.total).toBe(10);
         expect(resp.created).toBe(10);
@@ -146,7 +146,7 @@ describe('search', () => {
             wait_for_active_shards: 1,
             requests_per_second: 100,
             body: {
-                conflicts: ConflictOptions.proceed,
+                conflicts: 'proceed' as ConflictOptions,
                 source: {
                     index,
                     _source: ['url', 'ip', 'created', 'userAgent']
@@ -154,7 +154,7 @@ describe('search', () => {
                 dest: {
                     index: 'test-reindex5',
                     type: '_doc',
-                    op_type: OpTypes.create
+                    op_type: 'create' as OpType
                 }
             }
         };

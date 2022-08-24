@@ -1,6 +1,50 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import { ReIndexParams } from './interfaces';
+import {
+    ConflictOptions,
+    Remote,
+    VersionType,
+    OpType,
+    ScriptLangs
+} from './interfaces';
 import type { Semver } from '../interfaces';
+
+export interface ReIndexParams {
+    refresh?: boolean;
+    timeout?: string;
+    wait_for_active_shards?: 'all' | number;
+    wait_for_completion?: boolean;
+    requests_per_second?: number;
+    scroll?: string;
+    slices?: number | string;
+    max_docs?: number;
+    body: ReIndexBody;
+}
+
+export interface ReIndexBody {
+    conflicts?: ConflictOptions;
+    max_docs?: number;
+    source: {
+        index: string;
+        query?: Record<string, any>;
+        remote?: Remote,
+        size?: number;
+        slice?: {
+            id?: number;
+            max?: number;
+        },
+        _source?: boolean | string | string[];
+    },
+    dest: {
+        index: string;
+        version_type?: VersionType;
+        op_type?: OpType;
+        type?: string;
+    },
+    script?: {
+        source?: string;
+        lang?: ScriptLangs;
+    }
+}
 
 export function convertReIndexParams(
     params: ReIndexParams,
@@ -28,8 +72,6 @@ export function convertReIndexParams(
             delete parsedParams.scroll;
             delete parsedParams.max_docs;
 
-            if (parsedParams.body.dest.type == null) parsedParams.body.dest.type = '_doc';
-
             return parsedParams;
         }
     }
@@ -40,5 +82,5 @@ export function convertReIndexParams(
         }
     }
 
-    throw new Error(`${distribution} version ${version.join('.')} is not supported`);
+    throw new Error(`Unsupported ${distribution} version ${version.join('.')}`);
 }

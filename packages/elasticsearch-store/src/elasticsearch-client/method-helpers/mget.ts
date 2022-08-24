@@ -1,6 +1,33 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import { MGetParams } from './interfaces';
 import type { Semver } from '../interfaces';
+
+export interface MGetParams {
+    index?: string;
+    type?: string;
+    stored_fields?: string | string[];
+    preference?: string;
+    realtime?: boolean;
+    refresh?: boolean;
+    routing?: string;
+    _source?: string | string[];
+    _source_excludes?: string | string[];
+    _source_includes?: string | string[];
+    body: {
+        docs?: MGetDocs[];
+        ids?: string[];
+    }
+}
+
+interface MGetDocs {
+    _id: string;
+    _index?: string;
+    _type?: string;
+    _source?: boolean;
+    routing?: string;
+    source_includes?: string | string[];
+    source_excludes?: string | string[];
+    _stored_fields?: string | string[];
+}
 
 export function convertMGetParams(
     params: MGetParams,
@@ -8,13 +35,10 @@ export function convertMGetParams(
     version: Semver
 ) {
     const [majorVersion] = version;
-
     const parsedParams: Record<string, any> = params;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            if (params.type) delete parsedParams.type;
-
             if (params.body.docs) {
                 parsedParams.docs = params.body.docs.map((doc) => {
                     delete doc._type;
@@ -26,21 +50,22 @@ export function convertMGetParams(
                 parsedParams.ids = params.body.ids;
             }
 
+            delete parsedParams.type;
             delete parsedParams.body;
 
-            return params;
+            return parsedParams;
         }
 
         if (majorVersion === 7 || majorVersion === 6) {
-            return parsedParams;
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            return parsedParams;
+            return params;
         }
     }
 
-    throw new Error(`${distribution} version ${version} is not supported`);
+    throw new Error(`unsupported ${distribution} version ${version}`);
 }

@@ -1,11 +1,4 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type {
-    ExistsParams,
-    SearchParams,
-    MSearchParams,
-    MGetParams,
-    ReIndexParams
-} from './method-helpers/interfaces';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
 
@@ -113,7 +106,7 @@ export class WrappedClient {
      * @param ExistsParams
      * @returns boolean
     */
-    async exists(params: ExistsParams): Promise<boolean> {
+    async exists(params: methods.ExistsParams): Promise<boolean> {
         const convertedParams = methods.convertExistsParams(
             params,
             this.distribution,
@@ -167,7 +160,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async search(params: SearchParams) {
+    async search(params: methods.SearchParams) {
         const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
 
         const resp = await this.client.search(parsedParams);
@@ -181,7 +174,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async msearch(params: MSearchParams) {
+    async msearch(params: methods.MSearchParams) {
         const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
 
         const resp = await this.client.msearch(parsedParams);
@@ -195,7 +188,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async mget(params: MGetParams) {
+    async mget(params: methods.MGetParams) {
         const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
 
         const resp = await this.client.mget(parsedParams);
@@ -209,7 +202,7 @@ export class WrappedClient {
      * @returns Report of re-indexing task or task id if wait_for_completion is false
      */
 
-    async reindex(params: ReIndexParams) {
+    async reindex(params: methods.ReIndexParams) {
         const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
 
         const resp = await this.client.reindex(parsedParams);

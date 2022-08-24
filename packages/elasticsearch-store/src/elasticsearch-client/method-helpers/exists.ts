@@ -1,6 +1,15 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
-import { ExistsParams } from './interfaces';
+
+export interface ExistsParams {
+    id: string;
+    index: string;
+    type?: string;
+    preference?: string;
+    realtime?: boolean;
+    refresh?: boolean;
+    routing?: string;
+}
 
 export function convertExistsParams(
     params: ExistsParams,
@@ -10,7 +19,7 @@ export function convertExistsParams(
     const [majorVersion] = version;
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            if (params.type) delete params.type;
+            delete params.type;
 
             return params;
         }
@@ -35,5 +44,5 @@ export function convertExistsParams(
         }
     }
 
-    throw new Error(`${distribution} version ${version} is not supported`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }
