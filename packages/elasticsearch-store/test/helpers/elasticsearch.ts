@@ -2,10 +2,14 @@ import { Client } from 'elasticsearch';
 import {
     DataEntity, pDelay, get, toNumber
 } from '@terascope/utils';
+import { ElasticsearchDistribution } from '@terascope/types';
 import { IndexStore, createClient } from '../../src';
 import {
-    ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,
-    OPENSEARCH_HOST, ELASTICSEARCH_VERSION
+    ELASTICSEARCH_HOST,
+    ELASTICSEARCH_API_VERSION,
+    ELASTICSEARCH_VERSION,
+    OPENSEARCH_HOST,
+    OPENSEARCH_VERSION
 } from './config';
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
@@ -127,4 +131,28 @@ export async function waitForData(
 
         checkIndex();
     });
+}
+
+export function getDistributionAndVersion() {
+    if (process.env.TEST_OPENSEARCH != null) {
+        return {
+            host: OPENSEARCH_HOST,
+            distribution: ElasticsearchDistribution.opensearch,
+            version: OPENSEARCH_VERSION
+        };
+    }
+
+    return {
+        host: ELASTICSEARCH_HOST,
+        distribution: ElasticsearchDistribution.elasticsearch,
+        version: ELASTICSEARCH_VERSION
+    };
+}
+
+export function getTotalFormat(distribution: string, majorVersion: number, n: number) {
+    if (distribution === 'opensearch' || (distribution === 'elasticsearch' && majorVersion >= 7)) {
+        return { value: n, relation: 'eq' };
+    }
+
+    return n;
 }

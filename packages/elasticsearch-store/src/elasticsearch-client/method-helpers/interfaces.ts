@@ -4,6 +4,29 @@ export * as Elasticsearch7Params from 'elasticsearch7/api/requestParams';
 export * as Elasticsearch8TypeParams from 'elasticsearch8/lib/api/types';
 export * as Elasticsearch8TypeWithBodyParams from 'elasticsearch8/lib/api/typesWithBodyKey';
 
+type Duration = number;
+type TimeUnit = 'd' | 'h' | 'm' | 's' | 'ms' | 'micros' | 'nanos';
+
+export type TimeValue = `${Duration}${TimeUnit}`;
+
+export type ExpandWildcards = 'open' | 'closed' | 'hidden' | 'none' | 'all';
+
+export type SearchTypes = 'query_then_fetch' | 'dfs_query_then_fetch';
+
+export type SuggestMode = 'missing' |'popular' |'always';
+
+export type ConflictOptions = 'abort' | 'proceed';
+
+export type ScriptLangs = 'painless' | 'expression' | 'mustache' | 'java';
+
+export interface Remote {
+    host?: string;
+    username?: string;
+    password?: string;
+    socket_timeout?: TimeValue;
+    connect_timeout?: TimeValue;
+}
+
 export interface ErrorCauseKeys {
     type: string;
     reason: string;
@@ -26,6 +49,7 @@ export interface BulkIndexByScrollFailure {
 
 export interface SearchResult<TDocument = unknown> {
     _index: string
+    _type?: string;
     fields?: Record<string, any>
     found: boolean
     _id: string

@@ -1,4 +1,3 @@
-import type { RequestParams } from '@opensearch-project/opensearch';
 import { ElasticsearchDistribution } from '@terascope/types';
 import * as methods from './method-helpers';
 import { Semver } from './interfaces';
@@ -103,11 +102,29 @@ export class WrappedClient {
     }
 
     /**
+     * Check that the document id exists in the specified index.
+     * @param ExistsParams
+     * @returns boolean
+    */
+    async exists(params: methods.ExistsParams): Promise<boolean> {
+        const convertedParams = methods.convertExistsParams(
+            params,
+            this.distribution,
+            this.version
+        );
+
+        const resp = await this.client.exists(convertedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
      * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
      * @param methods.GetParams
      * @returns Object
-     */
-    async get<T = unknown>(params: methods.GetParams): Promise<methods.GetQueryResponse<T>> {
+    */
+
+    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
         const parsedParams = methods.convertGetParams(
             params, this.distribution, this.version
         );
@@ -117,84 +134,84 @@ export class WrappedClient {
     }
 
     /**
-     * Check that the document id exists in the specified index.
-     * @param RequestParams.Get
-     * @returns boolean
-    */
-
-    async exists(params: RequestParams.Get): Promise<boolean> {
-        const resp = await this.client.exists(params);
-
-        return this._removeBody(resp);
-    }
-
-    /**
      * Returns info about the cluster the client is connected to
-     * @returns
+     * @returns object with cluster info
     */
-    async info() {
+    async info(): Promise<methods.InfoResponse> {
+        methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
 
         return this._removeBody(resp);
     }
 
     /**
+     * Returns true or false based on whether the cluster is running.
+     * @returns Boolean
+    */
+    async ping() {
+        methods.validateDistribution(this.distribution, this.version);
+        const resp = await this.client.ping();
+        return this._removeBody(resp);
+    }
+
+    /**
      * Returns search hits that match the query defined in the request.
-     * @param RequestParams.AsyncSearchSubmit
-     * @returns array of docs that match search
+     * @param SearchParams
+     * @returns Array of Record<string, any>
      */
 
-    async search(params: any) {
-        const resp = await this.client.search(params);
+    async search(params: methods.SearchParams): Promise<methods.SearchResponse> {
+        const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
+
+        const resp = await this.client.search(parsedParams);
 
         return this._removeBody(resp);
     }
 
-    get indices() {
-        const { distribution, version, client } = this;
+    /**
+     * The multi search execution of several searches within the same API request
+     * @param MSearchParams
+     * @returns Array of Record<string, any>
+     */
 
-        return {
-            async create(params: any) {
-                return client.indices.create(params);
-            }
-        };
+    async msearch(params: methods.MSearchParams) {
+        const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
+
+        const resp = await this.client.msearch(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * The multi get execution of multiple-get searches from a single API request
+     * @param MGetParams
+     * @returns Array of Record<string, any>
+     */
+
+    async mget(params: methods.MGetParams): Promise<methods.MGetResponse> {
+        const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
+
+        const resp = await this.client.mget(parsedParams);
+
+        return this._removeBody(resp);
+    }
+
+    /**
+     * Re-Index data to a new index
+     * @param ReIndexParams
+     * @returns Report of re-indexing task or task id if wait_for_completion is false
+     */
+
+    async reindex(params: methods.ReIndexParams) {
+        const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
+
+        const resp = await this.client.reindex(parsedParams);
+
+        return this._removeBody(resp);
     }
 
     private _removeBody(input: Record<string, any>): any {
         if (input.body == null) return input;
         return input.body;
     }
-
-    /**
-     * document related operations
-        * bulk
-        * count √
-        * delete_by_query √
-        * get √
-        * exists √ Charlie
-        * info √ Charlie
-        * mget Charlie
-        * msearch Charlie
-        * ping √ Charlie
-        * search √
-     * indices
-       * create √
-       * delete √
-       * delete_template
-       * exists √
-       * exists_template
-       * get √
-       * get_field_mapping
-       * get_index_template
-       * get_mapping
-       * get_settings
-       * get_template
-       * put_mapping
-       * put_settings
-       * put_template
-     * tasks
-       * cancel
-       * get
-       * list
-    */
 }

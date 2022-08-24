@@ -71,10 +71,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.RESTRAINED_OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
+            DISABLE_SECURITY_PLUGIN: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -88,10 +85,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true',
-            ...disableXPackSecurity && {
-                'xpack.security.enabled': 'false'
-            }
+            DISABLE_SECURITY_PLUGIN: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -189,7 +183,7 @@ export async function pullServices(suite: string, options: TestOptions): Promise
         }));
     } catch (err) {
         throw new ts.TSError(err, {
-            message: `Failed to pull services for test suite "${suite}"`,
+            message: `Failed to pull services for test suite "${suite}", ${err.message}`
         });
     }
 }
@@ -324,6 +318,7 @@ async function checkRestrainedOpensearch(
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -343,6 +338,7 @@ async function checkRestrainedOpensearch(
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -377,6 +373,7 @@ async function checkRestrainedOpensearch(
             name: `Restrained Opensearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -389,6 +386,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -408,6 +406,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -442,6 +441,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             name: `Opensearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -454,6 +454,7 @@ async function checkRestrainedElasticsearch(
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -470,6 +471,7 @@ async function checkRestrainedElasticsearch(
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -504,6 +506,7 @@ async function checkRestrainedElasticsearch(
             name: `Restrained Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -514,6 +517,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -530,6 +534,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 return false;
             }
 
@@ -547,6 +552,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const expected = options.elasticsearchVersion;
 
             const satifies = semver.satisfies(actual, `^${expected}`);
+
             if (satifies) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
@@ -564,6 +570,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             name: `Elasticsearch service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -574,6 +581,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.MINIO_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -591,6 +599,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                     retry: 0,
                 }));
             } catch (err) {
+                error = err.message;
                 statusCode = ts.getErrorStatusCode(err);
             }
 
@@ -611,6 +620,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             name: `MinIO service (${host})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
@@ -621,6 +631,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
 
+    let error = '';
     await ts.pWhile(
         async () => {
             if (options.trace) {
@@ -641,6 +652,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
                     password: config.RABBITMQ_PASSWORD
                 }));
             } catch (err) {
+                error = err.message;
                 statusCode = ts.getErrorStatusCode(err);
             }
 
@@ -662,6 +674,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             name: `RabbitMQ service (${managementEndpoint})`,
             timeoutMs: serviceUpTimeout,
             enabledJitter: true,
+            error
         }
     );
 }
