@@ -1,6 +1,10 @@
 import { debugLogger, DataEntity } from '@terascope/utils';
 import { createClient, WrappedClient, Semver, } from '../../src';
-import { ConflictOptions, OpTypes, ScriptLangs } from '../../src/elasticsearch-client/method-helpers/interfaces';
+import {
+    ConflictOptions,
+    OpTypes,
+    ScriptLangs
+} from '../../src/elasticsearch-client/method-helpers/interfaces';
 import {
     upload,
     cleanupIndex,
