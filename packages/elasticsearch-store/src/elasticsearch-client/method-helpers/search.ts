@@ -4,7 +4,8 @@ import {
     ExpandWildcards,
     TimeValue,
     SearchTypes,
-    SuggestMode
+    SuggestMode,
+    SearchResult
 } from './interfaces';
 
 export interface SearchParams {
@@ -60,6 +61,7 @@ export interface SearchParams {
 export interface SearchResponse {
     took: number;
     timed_out: boolean;
+    _scroll_id?: string;
     _shards: {
         total: number;
         successful: number;
@@ -75,15 +77,7 @@ export interface SearchResponse {
 
 interface HitsTotal {
     value: number;
-    relation: 'eq' | 'gt' | 'lt'
-}
-
-interface SearchResult {
-    _index: string;
-    _type?: string;
-    _id: string;
-    _score: number;
-    _source: unknown;
+    relation: 'eq' | 'gte';
 }
 
 export function convertSearchParams(

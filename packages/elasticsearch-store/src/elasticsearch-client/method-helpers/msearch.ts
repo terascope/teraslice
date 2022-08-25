@@ -1,5 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { ExpandWildcards, SearchTypes } from './interfaces';
+import { SearchResponse } from './search';
 import type { Semver } from '../interfaces';
 
 export interface MSearchParams {
@@ -32,6 +33,14 @@ export interface MSearchBody {
     query: Record <string, any>;
     from?: number;
     size?: number;
+}
+
+export interface MSearchResponse {
+    responses: IndividualResponse[];
+}
+
+interface IndividualResponse extends SearchResponse {
+    status: number;
 }
 
 export function convertMSearchParams(

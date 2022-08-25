@@ -3,8 +3,6 @@ import { ClientMetadata } from '@terascope/types';
 
 export type Semver = [number, number, number];
 
-export type Semver = [number, number, number];
-
 export interface AgentOptions {
     keepAlive?: boolean;
     keepAliveMsecs?: number;

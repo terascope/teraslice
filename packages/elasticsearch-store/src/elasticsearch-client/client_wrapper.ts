@@ -148,7 +148,7 @@ export class WrappedClient {
      * Returns true or false based on whether the cluster is running.
      * @returns Boolean
     */
-    async ping() {
+    async ping(): Promise<boolean> {
         methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.ping();
         return this._removeBody(resp);
@@ -174,7 +174,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async msearch(params: methods.MSearchParams) {
+    async msearch(params: methods.MSearchParams): Promise<methods.MSearchResponse> {
         const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
 
         const resp = await this.client.msearch(parsedParams);
@@ -202,7 +202,7 @@ export class WrappedClient {
      * @returns Report of re-indexing task or task id if wait_for_completion is false
      */
 
-    async reindex(params: methods.ReIndexParams) {
+    async reindex(params: methods.ReIndexParams): Promise<methods.ReindexResponse> {
         const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
 
         const resp = await this.client.reindex(parsedParams);
