@@ -12,3 +12,8 @@ export * from './mget';
 export * from './reindex';
 export * from './index-method';
 export * from './update';
+export * from './indicesCreate';
+export * from './indicesGet';
+export * from './indicesDelete';
+export * from './indicesExists';
+export * from './indicesDeleteTemplate';

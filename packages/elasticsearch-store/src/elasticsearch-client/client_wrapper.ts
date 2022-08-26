@@ -210,6 +210,112 @@ export class WrappedClient {
         return this._removeBody(resp);
     }
 
+    get indices() {
+        const {
+            distribution,
+            version,
+            client,
+            _removeBody
+        } = this;
+
+        return {
+            /**
+             * Creates a new index.
+             * @param IndicesCreateParams
+             * @returns IndicesCreateResponse
+             */
+            async create(params: methods.IndicesCreateParams):
+            Promise<methods.IndicesCreateResponse> {
+                const parsedParams = methods.convertIndicesCreateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.create(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Deletes one or more indices.
+             * @param IndicesDeleteParams
+             * @returns
+             */
+            async delete(params: methods.IndicesDeleteParams):
+            Promise<methods.IndicesDeleteResponse> {
+                const parsedParams = methods.convertIndicesDeleteParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.delete(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Checks if a data stream, index, or alias exists.
+             * @param IndicesExistsParams
+             * @returns boolean
+             */
+            async exists(params: methods.IndicesExistsParams): Promise<boolean> {
+                const parsedParams = methods.convertIndicesExistsParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.exists(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns information about one or more indices
+             * @param IndicesGetParams
+             * @returns
+            */
+            async get(params: methods.IndicesGetParams): Promise<methods.IndicesGetResponse> {
+                const parsedParams = methods.convertIndicesGetParams(params, distribution, version);
+
+                const resp = await client.indices.get(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Deletes index templates
+             * @param IndicesDeleteTemplateParams
+             * @returns IndicesDeleteTemplateResponse
+            */
+            async deleteTemplate(params: methods.IndicesDeleteTemplateParams): Promise<any> {
+                const parsedParams = methods.convertIndicesDeleteTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                try {
+                    const resp = await client.indices.deleteTemplate(parsedParams);
+
+                    return _removeBody(resp);
+                } catch (e) {
+                    return e;
+                }
+            },
+            async exists_template(): Promise<any> {},
+            async get_template(): Promise<any> {},
+            async get_index_template(): Promise<any> {},
+            async put_template(): Promise<any> {}
+        };
+    }
+
+    get tasks() {
+        return {
+            async cancel() {},
+            async get() {},
+            async list() {}
+        };
+    }
+
     private _removeBody(input: Record<string, any>): any {
         if (input.body == null) return input;
         return input.body;
