@@ -12,3 +12,8 @@ export * from './mget';
 export * from './reindex';
 export * from './index-method';
 export * from './update';
+export * from './clusterGetSettings';
+export * from './clusterHealth';
+export * from './catIndices';
+export * from './nodesInfo';
+export * from './nodesStats';

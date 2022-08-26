@@ -238,4 +238,30 @@ describe('can create an elasticsearch or opensearch client', () => {
             expect(response._source).toMatchObject(parsedRecord);
         });
     });
+
+    describe('cluster.get_settings', () => {
+        it('can fetch settings from the cluster', async () => {
+            const response = await wrappedClient.cluster.get_settings();
+
+            expect(response).toHaveProperty('persistent');
+            expect(response).toHaveProperty('transient');
+        });
+    });
+
+    describe('cluster.health', () => {
+        it('can fetch the health of the cluster', async () => {
+            const response = await wrappedClient.cluster.health();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('status');
+            expect(response).toHaveProperty('timed_out', false);
+            expect(response).toHaveProperty('number_of_nodes');
+            expect(response).toHaveProperty('number_of_data_nodes');
+            expect(response).toHaveProperty('active_primary_shards');
+            expect(response).toHaveProperty('active_shards');
+            expect(response).toHaveProperty('number_of_pending_tasks');
+            expect(response).toHaveProperty('number_of_in_flight_fetch');
+            expect(response).toHaveProperty('task_max_waiting_in_queue_millis');
+        });
+    });
 });

@@ -58,7 +58,7 @@ describe('search', () => {
             }
         };
 
-        const resp = await wrappedClient.mget(params);
+        const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
         expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
@@ -77,7 +77,7 @@ describe('search', () => {
             }
         };
 
-        const resp = await wrappedClient.mget(params);
+        const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
         expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
@@ -92,7 +92,7 @@ describe('search', () => {
             }
         };
 
-        const resp = await wrappedClient.mget(params);
+        const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs.length).toBe(3);
         expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
@@ -109,7 +109,7 @@ describe('search', () => {
             }
         };
 
-        const resp = await wrappedClient.mget(params);
+        const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs.length).toBe(3);
         expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');

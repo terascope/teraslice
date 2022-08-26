@@ -70,6 +70,85 @@ export class WrappedClient {
         return this._removeBody(resp);
     }
 
+    get cluster() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async get_settings(
+                params: methods.ClusterGetSettingsParams = {}
+            ): Promise<methods.ClusterGetSettingsResponse> {
+                const parsedParams = methods.convertClusterSettingsParams(
+                    params, distribution, version
+                );
+
+                const resp = await client.cluster.get_settings(parsedParams);
+
+                return _removeBody(resp);
+            },
+            async health(
+                params: methods.ClusterHealthParams = {}
+            ): Promise<methods.ClusterHealthResponse> {
+                const parsedParams = methods.convertClusterSettingsParams(
+                    params, distribution, version
+                );
+                const resp = await client.cluster.health(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
+    }
+
+    get cat() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async indices(
+                params: methods.CatIndicesParams = {}
+            ): Promise<methods.CatIndicesResponse> {
+                const parsedParams = methods.convertCatIndicesParams(
+                    params, distribution, version
+                );
+                const resp = await client.cat.indices(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
+    }
+
+    get nodes() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async stats(
+                params: methods.NodesStatsParams = {}
+            ): Promise<methods.NodesStatsResponse> {
+                const parsedParams = methods.convertNodesStatsParams(
+                    params, distribution, version
+                );
+                const resp = await client.nodes.info(parsedParams);
+
+                return _removeBody(resp);
+            },
+            async info(params: methods.NodesInfoParams = {}): Promise<methods.NodeInfoResponse> {
+                const parsedParams = methods.convertNodeInfoParams(
+                    params, distribution, version
+                );
+                const resp = await client.nodes.info(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
+    }
+
     /**
      * Deletes a specific record, requires an index and id.
      * @param RequestParams.delete
