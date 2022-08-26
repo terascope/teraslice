@@ -7,7 +7,7 @@ export * as Elasticsearch8TypeWithBodyParams from 'elasticsearch8/lib/api/typesW
 type Duration = number;
 type TimeUnit = 'd' | 'h' | 'm' | 's' | 'ms' | 'micros' | 'nanos';
 
-export type TimeValue = `${Duration}${TimeUnit}`;
+export type TimeSpan = `${Duration}${TimeUnit}`;
 
 export type ExpandWildcards = 'open' | 'closed' | 'hidden' | 'none' | 'all';
 
@@ -23,8 +23,8 @@ export interface Remote {
     host?: string;
     username?: string;
     password?: string;
-    socket_timeout?: TimeValue;
-    connect_timeout?: TimeValue;
+    socket_timeout?: TimeSpan;
+    connect_timeout?: TimeSpan;
 }
 
 export interface ErrorCauseKeys {
@@ -95,7 +95,7 @@ export interface WriteResponseBase {
     error?: ErrorCauseKeys;
 }
 
-export type WaitForActiveShardOptions = 'all'
+export type WaitForActiveShardOptions = 'all';
 
 export type WaitForActiveShards = number | WaitForActiveShardOptions
 
