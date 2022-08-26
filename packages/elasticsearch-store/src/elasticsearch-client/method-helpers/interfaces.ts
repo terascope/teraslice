@@ -134,17 +134,17 @@ export interface InlineGet<TDocument = unknown> {
 }
 
 export interface IndexTemplateProperties {
-    aliases?: {
-        [alias: string]: {
-            filter?: string;
-            index_routing?: string;
-            is_hidden?: boolean;
-            is_write_index?: boolean;
-            routing?: string;
-            search_routing?: string;
-        }
-    },
+    aliases?: { [alias: string]: Alias },
     mappings?: Record<string, any>;
     settings?:Record<string, any>;
     index_patterns?: string | string[];
+}
+
+export interface Alias {
+    filter?: string;
+    index_routing?: string;
+    is_hidden?: boolean;
+    is_write_index?: boolean;
+    routing?: string;
+    search_routing?: string;
 }

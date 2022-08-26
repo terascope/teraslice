@@ -315,9 +315,58 @@ export class WrappedClient {
 
                 return _removeBody(resp);
             },
-            async exists_template(): Promise<any> {},
-            async get_template(): Promise<any> {},
-            async get_index_template(): Promise<any> {},
+            /**
+             * Returns true if template exists
+             * @param IndicesExistsTemplateParams
+             * @returns boolean
+             */
+            async existsTemplate(params: methods.IndicesExistsTemplateParams):
+            Promise<boolean> {
+                const parsedParams = methods.convertIndicesExistsTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.existsTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns template
+             * @param IndicesGetTemplateParams
+             * @returns template
+            */
+            async getTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns index template
+             * @params IndicesGetIndexTemplateParams
+             * @returns IndicesGetIndexTemplateResponse
+             * not supported by elasticsearch version 6
+             */
+            async getIndexTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetIndexTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getIndexTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
         };
     }
 

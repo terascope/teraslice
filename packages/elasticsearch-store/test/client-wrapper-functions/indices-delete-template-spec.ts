@@ -2,7 +2,6 @@ import { debugLogger } from '@terascope/utils';
 import { TimeSpan } from '../../src/elasticsearch-client/method-helpers/interfaces';
 import { createClient, WrappedClient, Semver, } from '../../src';
 import {
-    cleanupIndex,
     getDistributionAndVersion
 } from '../helpers/elasticsearch';
 
@@ -18,7 +17,7 @@ const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
 describe('indices.deleteTemplate', () => {
     let wrappedClient: WrappedClient;
-    const index = 'test-indices-delete-template';
+    const tempName = 'test-template-delete';
     let client: any;
 
     beforeAll(async () => {
@@ -27,7 +26,7 @@ describe('indices.deleteTemplate', () => {
         wrappedClient = new WrappedClient(client, distribution, semver);
 
         await wrappedClient.indices.putTemplate({
-            name: 'great-test-template',
+            name: tempName,
             body: {
                 index_patterns: ['test-delete-template'],
                 settings: {
@@ -49,12 +48,12 @@ describe('indices.deleteTemplate', () => {
     });
 
     afterAll(async () => {
-        await cleanupIndex(client, index);
+        await client.indices.deleteTemplate({ name: tempName });
     });
 
     it('should delete the template', async () => {
         const params = {
-            name: 'great-test-template',
+            name: tempName,
             master_timeout: '60s' as TimeSpan
         };
 

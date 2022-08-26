@@ -18,3 +18,6 @@ export * from './indicesDelete';
 export * from './indicesExists';
 export * from './indicesDeleteTemplate';
 export * from './indicesPutTemplate';
+export * from './indicesExistsTemplate';
+export * from './indicesGetTemplate';
+export * from './indicesGetIndexTemplate';
