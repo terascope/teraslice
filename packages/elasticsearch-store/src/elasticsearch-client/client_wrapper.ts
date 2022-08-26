@@ -282,29 +282,42 @@ export class WrappedClient {
                 return _removeBody(resp);
             },
             /**
+             * Uploads index mapping template
+             * @param IndicesPutTemplateParams
+             * @returns IndicesPutTemplateResponse
+             */
+            async putTemplate(params: methods.IndicesPutTemplateParams):
+            Promise<methods.IndicesPutTemplateResponse> {
+                const parsedParams = methods.convertIndicesPutTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.putTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
              * Deletes index templates
              * @param IndicesDeleteTemplateParams
              * @returns IndicesDeleteTemplateResponse
             */
-            async deleteTemplate(params: methods.IndicesDeleteTemplateParams): Promise<any> {
+            async deleteTemplate(params: methods.IndicesDeleteTemplateParams):
+            Promise<methods.IndicesDeleteTemplateResponse> {
                 const parsedParams = methods.convertIndicesDeleteTemplateParams(
                     params,
                     distribution,
                     version
                 );
 
-                try {
-                    const resp = await client.indices.deleteTemplate(parsedParams);
+                const resp = await client.indices.deleteTemplate(parsedParams);
 
-                    return _removeBody(resp);
-                } catch (e) {
-                    return e;
-                }
+                return _removeBody(resp);
             },
             async exists_template(): Promise<any> {},
             async get_template(): Promise<any> {},
             async get_index_template(): Promise<any> {},
-            async put_template(): Promise<any> {}
         };
     }
 

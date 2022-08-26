@@ -1,4 +1,8 @@
 import { ElasticsearchDistribution } from '@terascope/types';
+import {
+    ensureNoTypeInMapping,
+    ensureTypeInMapping
+} from './helper-utils';
 import type {
     TimeSpan,
     WaitForActiveShards,
@@ -38,7 +42,7 @@ export function convertIndicesCreateParams(
             return {
                 aliases: body?.aliases,
                 // ensure no type in mapping
-                mappings: ensureNoType(body?.mappings),
+                mappings: ensureNoTypeInMapping(body?.mappings),
                 settings: body?.settings,
                 ...parsedParams
             };
@@ -51,12 +55,13 @@ export function convertIndicesCreateParams(
         if (majorVersion === 6) {
             const {
                 body,
+                include_type_name,
                 ...parsedParams
             } = params;
 
             return {
                 include_type_name: true,
-                body: ensureType(body),
+                body: ensureTypeInMapping(body),
                 ...parsedParams
             };
         }
@@ -69,24 +74,4 @@ export function convertIndicesCreateParams(
     }
 
     throw new Error(`unsupported ${distribution} version: ${distribution}`);
-}
-
-function ensureNoType(mappings: Record<string, any> | undefined) {
-    if (mappings != null) {
-        for (const [k, v] of Object.entries(mappings)) {
-            if (k === 'properties') return { [k]: v };
-
-            if (v.properties) return { properties: v.properties };
-        }
-    }
-}
-
-function ensureType(body: IndexTemplateProperties | undefined) {
-    if (body?.mappings?.properties) {
-        const { properties } = body.mappings;
-
-        body.mappings = { _doc: { properties } };
-    }
-
-    return body;
 }

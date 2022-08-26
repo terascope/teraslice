@@ -144,6 +144,7 @@ export interface IndexTemplateProperties {
             search_routing?: string;
         }
     },
-    mappings?: Record<string, any>,
-    settings?:Record<string, any>
+    mappings?: Record<string, any>;
+    settings?:Record<string, any>;
+    index_patterns?: string | string[];
 }
