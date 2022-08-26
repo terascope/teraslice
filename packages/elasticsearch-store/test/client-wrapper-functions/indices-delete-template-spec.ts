@@ -1,4 +1,5 @@
 import { debugLogger } from '@terascope/utils';
+import { TimeSpan } from '../../src/elasticsearch-client/method-helpers/interfaces';
 import { createClient, WrappedClient, Semver, } from '../../src';
 import {
     cleanupIndex,
@@ -55,10 +56,14 @@ describe('indices.deleteTemplate', () => {
 
     it('should delete the template', async () => {
         const params = {
-            name: 'great-test-template'
+            name: 'great-test-template',
+            master_timeout: '60s' as TimeSpan,
+            timeout: '60s' as TimeSpan
         };
 
         const resp = await wrappedClient.indices.deleteTemplate(params);
+
+        console.log(JSON.stringify(resp, null, 2));
 
         expect(resp.acknowledged).toBeTrue();
     });

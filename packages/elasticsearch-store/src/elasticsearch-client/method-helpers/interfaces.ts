@@ -132,3 +132,18 @@ export interface InlineGet<TDocument = unknown> {
     _routing?: string;
     _source: TDocument;
 }
+
+export interface IndexTemplateProperties {
+    aliases?: {
+        [alias: string]: {
+            filter?: string;
+            index_routing?: string;
+            is_hidden?: boolean;
+            is_write_index?: boolean;
+            routing?: string;
+            search_routing?: string;
+        }
+    },
+    mappings?: Record<string, any>,
+    settings?:Record<string, any>
+}

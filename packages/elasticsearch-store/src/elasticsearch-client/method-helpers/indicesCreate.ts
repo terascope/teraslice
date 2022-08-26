@@ -1,5 +1,9 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { TimeSpan, WaitForActiveShards } from './interfaces';
+import type {
+    TimeSpan,
+    WaitForActiveShards,
+    IndexTemplateProperties
+} from './interfaces';
 import type { Semver } from '../interfaces';
 
 export interface IndicesCreateParams {
@@ -8,22 +12,7 @@ export interface IndicesCreateParams {
     wait_for_active_shards?: WaitForActiveShards;
     timeout?: TimeSpan;
     master_timeout?: TimeSpan;
-    body?: IndicesCreateBody;
-}
-
-interface IndicesCreateBody {
-    aliases?: {
-        [alias: string]: {
-            filter?: string;
-            index_routing?: string;
-            is_hidden?: boolean;
-            is_write_index?: boolean;
-            routing?: string;
-            search_routing?: string;
-        }
-    },
-    mappings?: Record<string, any>,
-    settings?:Record<string, any>
+    body?: IndexTemplateProperties;
 }
 
 export interface IndicesCreateResponse {
@@ -92,7 +81,7 @@ function ensureNoType(mappings: Record<string, any> | undefined) {
     }
 }
 
-function ensureType(body: IndicesCreateBody | undefined) {
+function ensureType(body: IndexTemplateProperties | undefined) {
     if (body?.mappings?.properties) {
         const { properties } = body.mappings;
 

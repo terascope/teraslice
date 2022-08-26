@@ -293,9 +293,13 @@ export class WrappedClient {
                     version
                 );
 
-                const resp = await client.indices.deleteTemplate(parsedParams);
+                try {
+                    const resp = await client.indices.deleteTemplate(parsedParams);
 
-                return _removeBody(resp);
+                    return _removeBody(resp);
+                } catch (e) {
+                    return e;
+                }
             },
             async exists_template(): Promise<any> {},
             async get_template(): Promise<any> {},
