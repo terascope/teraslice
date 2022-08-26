@@ -371,10 +371,62 @@ export class WrappedClient {
     }
 
     get tasks() {
+        const {
+            distribution,
+            version,
+            client,
+            _removeBody
+        } = this;
+
         return {
-            async cancel() {},
-            async get() {},
-            async list() {}
+            /**
+             * Cancels a currently running task
+             * @param TasksCancelParams
+             * @returns TasksCancelResponse
+            */
+            async cancel(params: methods.TasksCancelParams): Promise<methods.TasksCancelResponse> {
+                const parsedParams = methods.convertTasksCancelParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.cancel(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Gets information about a running task
+             * @param TasksGetParams
+             * @returns TasksGetResponse
+            */
+            async get(params: methods.TasksGetParams): Promise<methods.TasksGetResponse> {
+                const parsedParams = methods.convertTasksGetParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.get(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns information about the tasks currently executing in the cluster.
+             * @param TasksListParams
+             * @returns
+             */
+            async list(params: methods.TasksListParams): Promise<methods.TasksListResponse> {
+                const parsedParams = methods.convertTasksListParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.list(parsedParams);
+
+                return _removeBody(resp);
+            }
         };
     }
 

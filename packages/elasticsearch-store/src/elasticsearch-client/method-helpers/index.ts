@@ -21,3 +21,6 @@ export * from './indicesPutTemplate';
 export * from './indicesExistsTemplate';
 export * from './indicesGetTemplate';
 export * from './indicesGetIndexTemplate';
+export * from './tasksList';
+export * from './tasksGet';
+export * from './tasksCancel';
