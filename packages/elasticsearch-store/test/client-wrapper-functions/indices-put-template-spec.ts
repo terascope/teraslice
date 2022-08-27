@@ -15,20 +15,30 @@ const {
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
-describe('indices.deleteTemplate', () => {
+describe('indices.putTemplate', () => {
     let wrappedClient: WrappedClient;
-    const tempName = 'test-template-delete';
+    const tempName = 'test-template-put';
     let client: any;
 
     beforeAll(async () => {
         ({ client } = await createClient({ node: host }, testLogger));
 
         wrappedClient = new WrappedClient(client, distribution, semver);
+    });
 
-        await wrappedClient.indices.putTemplate({
+    afterAll(async () => {
+        await client.indices.deleteTemplate({ name: tempName });
+    });
+
+    it('should save the template to the cluster', async () => {
+        const params = {
             name: tempName,
+            include_type_name: false,
+            order: 0,
+            create: true,
+            master_timeout: '60s' as TimeSpan,
             body: {
-                index_patterns: ['test-delete-template'],
+                index_patterns: ['test-put-template'],
                 settings: {
                     number_of_shards: 3,
                     number_of_replicas: 2
@@ -44,20 +54,9 @@ describe('indices.deleteTemplate', () => {
                     template_test: {}
                 }
             }
-        });
-    });
-
-    afterAll(async () => {
-        await client.indices.deleteTemplate({ name: tempName });
-    });
-
-    it('should delete the template', async () => {
-        const params = {
-            name: tempName,
-            master_timeout: '60s' as TimeSpan
         };
 
-        const resp = await wrappedClient.indices.deleteTemplate(params);
+        const resp = await wrappedClient.indices.putTemplate(params);
 
         expect(resp.acknowledged).toBeTrue();
     });

@@ -19,7 +19,7 @@ const {
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
-describe('indices.delete', () => {
+describe('indices.exists', () => {
     let wrappedClient: WrappedClient;
     const index = 'test-indices-exists';
     const anotherIndex = 'test-indices-exists2';

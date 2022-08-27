@@ -15,10 +15,10 @@ const {
 
 const semver = version.split('.').map((i) => parseInt(i, 10)) as Semver;
 
-describe('indices.deleteTemplate', () => {
+describe('indices.existsTemplate', () => {
     let wrappedClient: WrappedClient;
-    const tempName = 'test-template-delete';
     let client: any;
+    const tempName = 'test-template-exists';
 
     beforeAll(async () => {
         ({ client } = await createClient({ node: host }, testLogger));
@@ -28,7 +28,7 @@ describe('indices.deleteTemplate', () => {
         await wrappedClient.indices.putTemplate({
             name: tempName,
             body: {
-                index_patterns: ['test-delete-template'],
+                index_patterns: ['test-template-exists*'],
                 settings: {
                     number_of_shards: 3,
                     number_of_replicas: 2
@@ -51,14 +51,29 @@ describe('indices.deleteTemplate', () => {
         await client.indices.deleteTemplate({ name: tempName });
     });
 
-    it('should delete the template', async () => {
+    it('should return true if template exists', async () => {
         const params = {
             name: tempName,
-            master_timeout: '60s' as TimeSpan
+            master_timeout: '60s' as TimeSpan,
+            local: false,
+            flat_settings: false
         };
 
-        const resp = await wrappedClient.indices.deleteTemplate(params);
+        const resp = await wrappedClient.indices.existsTemplate(params);
 
-        expect(resp.acknowledged).toBeTrue();
+        expect(resp).toBeTrue();
+    });
+
+    it('should return false if template does not exist', async () => {
+        const params = {
+            name: 'not-exists',
+            master_timeout: '60s' as TimeSpan,
+            local: false,
+            flat_settings: false
+        };
+
+        const resp = await wrappedClient.indices.existsTemplate(params);
+
+        expect(resp).toBeFalse();
     });
 });

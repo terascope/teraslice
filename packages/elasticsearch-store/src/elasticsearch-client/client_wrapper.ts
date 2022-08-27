@@ -282,37 +282,151 @@ export class WrappedClient {
                 return _removeBody(resp);
             },
             /**
+             * Uploads index mapping template
+             * @param IndicesPutTemplateParams
+             * @returns IndicesPutTemplateResponse
+             */
+            async putTemplate(params: methods.IndicesPutTemplateParams):
+            Promise<methods.IndicesPutTemplateResponse> {
+                const parsedParams = methods.convertIndicesPutTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.putTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
              * Deletes index templates
              * @param IndicesDeleteTemplateParams
              * @returns IndicesDeleteTemplateResponse
             */
-            async deleteTemplate(params: methods.IndicesDeleteTemplateParams): Promise<any> {
+            async deleteTemplate(params: methods.IndicesDeleteTemplateParams):
+            Promise<methods.IndicesDeleteTemplateResponse> {
                 const parsedParams = methods.convertIndicesDeleteTemplateParams(
                     params,
                     distribution,
                     version
                 );
 
-                try {
-                    const resp = await client.indices.deleteTemplate(parsedParams);
+                const resp = await client.indices.deleteTemplate(parsedParams);
 
-                    return _removeBody(resp);
-                } catch (e) {
-                    return e;
-                }
+                return _removeBody(resp);
             },
-            async exists_template(): Promise<any> {},
-            async get_template(): Promise<any> {},
-            async get_index_template(): Promise<any> {},
-            async put_template(): Promise<any> {}
+            /**
+             * Returns true if template exists
+             * @param IndicesExistsTemplateParams
+             * @returns boolean
+             */
+            async existsTemplate(params: methods.IndicesExistsTemplateParams):
+            Promise<boolean> {
+                const parsedParams = methods.convertIndicesExistsTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.existsTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns template
+             * @param IndicesGetTemplateParams
+             * @returns template
+            */
+            async getTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns index template
+             * @params IndicesGetIndexTemplateParams
+             * @returns IndicesGetIndexTemplateResponse
+             * not supported by elasticsearch version 6
+             */
+            async getIndexTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetIndexTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getIndexTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
         };
     }
 
     get tasks() {
+        const {
+            distribution,
+            version,
+            client,
+            _removeBody
+        } = this;
+
         return {
-            async cancel() {},
-            async get() {},
-            async list() {}
+            /**
+             * Cancels a currently running task
+             * @param TasksCancelParams
+             * @returns TasksCancelResponse
+            */
+            async cancel(params: methods.TasksCancelParams): Promise<methods.TasksCancelResponse> {
+                const parsedParams = methods.convertTasksCancelParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.cancel(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Gets information about a running task
+             * @param TasksGetParams
+             * @returns TasksGetResponse
+            */
+            async get(params: methods.TasksGetParams): Promise<methods.TasksGetResponse> {
+                const parsedParams = methods.convertTasksGetParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.get(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns information about the tasks currently executing in the cluster.
+             * @param TasksListParams
+             * @returns
+             */
+            async list(params: methods.TasksListParams): Promise<methods.TasksListResponse> {
+                const parsedParams = methods.convertTasksListParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.list(parsedParams);
+
+                return _removeBody(resp);
+            }
         };
     }
 

@@ -1,18 +1,16 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { TimeSpan } from './interfaces';
+import { TimeSpan } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export interface IndicesDeleteTemplateParams {
-    name: string;
+export interface IndicesExistsTemplateParams {
+    name: string | string[];
+    flat_settings?: boolean;
     master_timeout?: TimeSpan;
+    local?: boolean;
 }
 
-export interface IndicesDeleteTemplateResponse {
-    acknowledged: boolean
-}
-
-export function convertIndicesDeleteTemplateParams(
-    params: IndicesDeleteTemplateParams,
+export function convertIndicesExistsTemplateParams(
+    params: IndicesExistsTemplateParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {

@@ -1,18 +1,23 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { TimeSpan } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export interface IndicesDeleteTemplateParams {
-    name: string;
-    master_timeout?: TimeSpan;
+export interface TasksCancelParams {
+    task_id?: string | number;
+    actions?: string | string[];
+    nodes?: string[];
+    parent_task_id?: string;
+    wait_for_completion?: boolean;
 }
 
-export interface IndicesDeleteTemplateResponse {
-    acknowledged: boolean
+export interface TasksCancelResponse {
+    node_failures?: Record<string, any>[];
+    task_failures?: Record<string, any>[];
+    nodes?: Record<string, any>;
+    tasks?: Record<string, any>;
 }
 
-export function convertIndicesDeleteTemplateParams(
-    params: IndicesDeleteTemplateParams,
+export function convertTasksCancelParams(
+    params: TasksCancelParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {
