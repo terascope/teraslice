@@ -134,7 +134,7 @@ export class WrappedClient {
                 const parsedParams = methods.convertNodesStatsParams(
                     params, distribution, version
                 );
-                const resp = await client.nodes.info(parsedParams);
+                const resp = await client.nodes.stats(parsedParams);
 
                 return _removeBody(resp);
             },

@@ -264,4 +264,63 @@ describe('can create an elasticsearch or opensearch client', () => {
             expect(response).toHaveProperty('task_max_waiting_in_queue_millis');
         });
     });
+
+    describe('cat.indices', () => {
+        it('can print out the indices status', async () => {
+            const response = await wrappedClient.cat.indices();
+
+            expect(typeof response).toEqual('string');
+            expect(response).toInclude(index);
+            // the size of the index
+            expect(response).toInclude('1000');
+        });
+    });
+
+    describe('nodes.info', () => {
+        it('can fetch info from the nodes', async () => {
+            const response = await wrappedClient.nodes.info();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('_nodes');
+            expect(response).toHaveProperty('nodes');
+            expect(response.nodes).toBeObject();
+
+            const node = Object.values(response.nodes)[0];
+
+            expect(node).toHaveProperty('name');
+            expect(node).toHaveProperty('host');
+            expect(node).toHaveProperty('ip');
+            expect(node).toHaveProperty('version');
+            expect(node).toHaveProperty('roles');
+            expect(node).toHaveProperty('settings');
+            expect(node).toHaveProperty('process');
+            expect(node).toHaveProperty('jvm');
+            expect(node).toHaveProperty('thread_pool');
+            expect(node).toHaveProperty('modules');
+        });
+    });
+
+    describe('nodes.stats', () => {
+        it('can fetch stats from the nodes', async () => {
+            const response = await wrappedClient.nodes.stats();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('_nodes');
+            expect(response).toHaveProperty('nodes');
+            expect(response.nodes).toBeObject();
+
+            const node = Object.values(response.nodes)[0];
+
+            expect(node).toHaveProperty('name');
+            expect(node).toHaveProperty('timestamp');
+            expect(node).toHaveProperty('host');
+            expect(node).toHaveProperty('ip');
+            expect(node).toHaveProperty('roles');
+            expect(node).toHaveProperty('indices');
+            expect(node).toHaveProperty('indices.docs.count', 1000);
+            expect(node).toHaveProperty('os');
+            expect(node).toHaveProperty('process');
+            expect(node).toHaveProperty('jvm');
+        });
+    });
 });
