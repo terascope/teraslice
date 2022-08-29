@@ -227,7 +227,7 @@ export class WrappedClient {
      * Returns true or false based on whether the cluster is running.
      * @returns Boolean
     */
-    async ping() {
+    async ping(): Promise<boolean> {
         methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.ping();
         return this._removeBody(resp);
@@ -253,7 +253,7 @@ export class WrappedClient {
      * @returns Array of Record<string, any>
      */
 
-    async msearch(params: methods.MSearchParams) {
+    async msearch(params: methods.MSearchParams): Promise<methods.MSearchResponse> {
         const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
 
         const resp = await this.client.msearch(parsedParams);
@@ -281,12 +281,232 @@ export class WrappedClient {
      * @returns Report of re-indexing task or task id if wait_for_completion is false
      */
 
-    async reindex(params: methods.ReIndexParams) {
+    async reindex(params: methods.ReIndexParams): Promise<methods.ReindexResponse> {
         const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
 
         const resp = await this.client.reindex(parsedParams);
 
         return this._removeBody(resp);
+    }
+
+    get indices() {
+        const {
+            distribution,
+            version,
+            client,
+            _removeBody
+        } = this;
+
+        return {
+            /**
+             * Creates a new index.
+             * @param IndicesCreateParams
+             * @returns IndicesCreateResponse
+             */
+            async create(params: methods.IndicesCreateParams):
+            Promise<methods.IndicesCreateResponse> {
+                const parsedParams = methods.convertIndicesCreateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.create(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Deletes one or more indices.
+             * @param IndicesDeleteParams
+             * @returns
+             */
+            async delete(params: methods.IndicesDeleteParams):
+            Promise<methods.IndicesDeleteResponse> {
+                const parsedParams = methods.convertIndicesDeleteParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.delete(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Checks if a data stream, index, or alias exists.
+             * @param IndicesExistsParams
+             * @returns boolean
+             */
+            async exists(params: methods.IndicesExistsParams): Promise<boolean> {
+                const parsedParams = methods.convertIndicesExistsParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.exists(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns information about one or more indices
+             * @param IndicesGetParams
+             * @returns
+            */
+            async get(params: methods.IndicesGetParams): Promise<methods.IndicesGetResponse> {
+                const parsedParams = methods.convertIndicesGetParams(params, distribution, version);
+
+                const resp = await client.indices.get(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Uploads index mapping template
+             * @param IndicesPutTemplateParams
+             * @returns IndicesPutTemplateResponse
+             */
+            async putTemplate(params: methods.IndicesPutTemplateParams):
+            Promise<methods.IndicesPutTemplateResponse> {
+                const parsedParams = methods.convertIndicesPutTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.putTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Deletes index templates
+             * @param IndicesDeleteTemplateParams
+             * @returns IndicesDeleteTemplateResponse
+            */
+            async deleteTemplate(params: methods.IndicesDeleteTemplateParams):
+            Promise<methods.IndicesDeleteTemplateResponse> {
+                const parsedParams = methods.convertIndicesDeleteTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.deleteTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns true if template exists
+             * @param IndicesExistsTemplateParams
+             * @returns boolean
+             */
+            async existsTemplate(params: methods.IndicesExistsTemplateParams):
+            Promise<boolean> {
+                const parsedParams = methods.convertIndicesExistsTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.existsTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns template
+             * @param IndicesGetTemplateParams
+             * @returns template
+            */
+            async getTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns index template
+             * @params IndicesGetIndexTemplateParams
+             * @returns IndicesGetIndexTemplateResponse
+             * not supported by elasticsearch version 6
+             */
+            async getIndexTemplate(params: methods.IndicesGetTemplateParams):
+            Promise<methods.IndicesGetIndexTemplateResponse> {
+                const parsedParams = methods.convertIndicesGetTemplateParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.getIndexTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+        };
+    }
+
+    get tasks() {
+        const {
+            distribution,
+            version,
+            client,
+            _removeBody
+        } = this;
+
+        return {
+            /**
+             * Cancels a currently running task
+             * @param TasksCancelParams
+             * @returns TasksCancelResponse
+            */
+            async cancel(params: methods.TasksCancelParams): Promise<methods.TasksCancelResponse> {
+                const parsedParams = methods.convertTasksCancelParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.cancel(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Gets information about a running task
+             * @param TasksGetParams
+             * @returns TasksGetResponse
+            */
+            async get(params: methods.TasksGetParams): Promise<methods.TasksGetResponse> {
+                const parsedParams = methods.convertTasksGetParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.get(parsedParams);
+
+                return _removeBody(resp);
+            },
+            /**
+             * Returns information about the tasks currently executing in the cluster.
+             * @param TasksListParams
+             * @returns
+             */
+            async list(params: methods.TasksListParams): Promise<methods.TasksListResponse> {
+                const parsedParams = methods.convertTasksListParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.tasks.list(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
     }
 
     private _removeBody(input: Record<string, any>): any {

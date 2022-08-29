@@ -7,7 +7,7 @@ export * as Elasticsearch8TypeWithBodyParams from 'elasticsearch8/lib/api/typesW
 type Duration = number;
 type TimeUnit = 'd' | 'h' | 'm' | 's' | 'ms' | 'micros' | 'nanos';
 
-export type TimeValue = `${Duration}${TimeUnit}`;
+export type TimeSpan = `${Duration}${TimeUnit}`;
 
 export type ExpandWildcards = 'open' | 'closed' | 'hidden' | 'none' | 'all';
 
@@ -27,8 +27,8 @@ export interface Remote {
     host?: string;
     username?: string;
     password?: string;
-    socket_timeout?: TimeValue;
-    connect_timeout?: TimeValue;
+    socket_timeout?: TimeSpan;
+    connect_timeout?: TimeSpan;
 }
 
 export interface ErrorCauseKeys {
@@ -52,10 +52,11 @@ export interface BulkIndexByScrollFailure {
 }
 
 export interface SearchResult<TDocument = unknown> {
-    _index: string
-    _type?: string;
     fields?: Record<string, any>
     found: boolean
+    _index: string
+    _type?: string;
+    _score?: number;
     _id: string
     _primary_term?: number
     _routing?: string
@@ -98,7 +99,7 @@ export interface WriteResponseBase {
     error?: ErrorCauseKeys;
 }
 
-export type WaitForActiveShardOptions = 'all'
+export type WaitForActiveShardOptions = 'all';
 
 export type WaitForActiveShards = number | WaitForActiveShardOptions
 
@@ -152,3 +153,18 @@ export interface PluginStats {
 export type NodeRole = 'cluster_manager' | 'master' | 'data' | 'client' | 'ingest' | 'voting_only' | 'remote_cluster_client' | 'coordinating_only'
 
 export type NodeRoles = NodeRole[];
+export interface IndexTemplateProperties {
+    aliases?: { [alias: string]: Alias },
+    mappings?: Record<string, any>;
+    settings?:Record<string, any>;
+    index_patterns?: string | string[];
+}
+
+export interface Alias {
+    filter?: string;
+    index_routing?: string;
+    is_hidden?: boolean;
+    is_write_index?: boolean;
+    routing?: string;
+    search_routing?: string;
+}

@@ -46,6 +46,26 @@ export interface ReIndexBody {
     }
 }
 
+export interface ReindexResponse {
+    took: number;
+    timed_out: boolean;
+    total: number;
+    updated: number;
+    created: number;
+    deleted: number;
+    batches: number;
+    noops: number;
+    version_conflicts: number;
+    retries: {
+        bulk: number;
+        search: number;
+    };
+    throttled_millis: number;
+    requests_per_second: number;
+    throttled_until_millis: number;
+    failures: any[]
+}
+
 export function convertReIndexParams(
     params: ReIndexParams,
     distribution: ElasticsearchDistribution,

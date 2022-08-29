@@ -2,9 +2,10 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
 import {
     ExpandWildcards,
-    TimeValue,
+    TimeSpan,
     SearchTypes,
-    SuggestMode
+    SuggestMode,
+    SearchResult
 } from './interfaces';
 
 export interface SearchParams {
@@ -34,7 +35,7 @@ export interface SearchParams {
     request_cache?: boolean;
     rest_total_hits_as_int?: boolean;
     routing?: string;
-    scroll?: TimeValue;
+    scroll?: TimeSpan;
     search_type?: SearchTypes;
     seq_no_primary_term?: boolean;
     size?: number;
@@ -49,7 +50,7 @@ export interface SearchParams {
     suggest_size?: number;
     suggest_text?: string;
     terminate_after?: number;
-    timeout?: TimeValue;
+    timeout?: TimeSpan;
     track_scores?: boolean
     track_total_hits?: boolean | number;
     type?: string;
@@ -60,6 +61,7 @@ export interface SearchParams {
 export interface SearchResponse {
     took: number;
     timed_out: boolean;
+    _scroll_id?: string;
     _shards: {
         total: number;
         successful: number;
@@ -75,15 +77,7 @@ export interface SearchResponse {
 
 interface HitsTotal {
     value: number;
-    relation: 'eq' | 'gt' | 'lt'
-}
-
-interface SearchResult {
-    _index: string;
-    _type?: string;
-    _id: string;
-    _score: number;
-    _source: unknown;
+    relation: 'eq' | 'gte';
 }
 
 export function convertSearchParams(
