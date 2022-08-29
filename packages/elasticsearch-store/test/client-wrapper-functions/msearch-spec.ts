@@ -64,8 +64,10 @@ describe('search', () => {
         expect(resp.responses.length).toBe(2);
 
         expect(resp.responses[0].hits.total).toEqual(total);
+        // @ts-expect-error
         expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
         expect(resp.responses[1].hits.total).toEqual(total);
+        // @ts-expect-error
         expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
     });
 
@@ -86,8 +88,10 @@ describe('search', () => {
         expect(resp.responses.length).toBe(2);
 
         expect(resp.responses[0].hits.total).toEqual(total);
+        // @ts-expect-error
         expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
         expect(resp.responses[1].hits.total).toEqual(total);
+        // @ts-expect-error
         expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
     });
 
@@ -107,8 +111,12 @@ describe('search', () => {
         expect(resp.responses.length).toBe(2);
 
         expect(resp.responses[0].hits.total).toEqual(total);
+        // @ts-expect-error
+
         expect(resp.responses[0].hits.hits[0]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
         expect(resp.responses[1].hits.total).toEqual(total);
+        // @ts-expect-error
+
         expect(resp.responses[1].hits.hits[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
     });
 });
