@@ -20,7 +20,7 @@ export class WrappedClient {
 
     async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
         const parsedParams = methods.convertBulkParams(params, this.distribution, this.version);
-        const resp = this.client.bulk(parsedParams);
+        const resp = await this.client.bulk(parsedParams);
 
         return this._removeBody(resp);
     }
@@ -69,6 +69,85 @@ export class WrappedClient {
         const resp = await this.client.count(parsedParams);
 
         return this._removeBody(resp);
+    }
+
+    get cluster() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async getSettings(
+                params: methods.ClusterGetSettingsParams = {}
+            ): Promise<methods.ClusterGetSettingsResponse> {
+                const parsedParams = methods.convertClusterSettingsParams(
+                    params, distribution, version
+                );
+
+                const resp = await client.cluster.getSettings(parsedParams);
+
+                return _removeBody(resp);
+            },
+            async health(
+                params: methods.ClusterHealthParams = {}
+            ): Promise<methods.ClusterHealthResponse> {
+                const parsedParams = methods.convertClusterSettingsParams(
+                    params, distribution, version
+                );
+                const resp = await client.cluster.health(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
+    }
+
+    get cat() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async indices(
+                params: methods.CatIndicesParams = {}
+            ): Promise<methods.CatIndicesResponse> {
+                const parsedParams = methods.convertCatIndicesParams(
+                    params, distribution, version
+                );
+                const resp = await client.cat.indices(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
+    }
+
+    get nodes() {
+        const {
+            distribution, version, client,
+            _removeBody
+        } = this;
+
+        return {
+            async stats(
+                params: methods.NodesStatsParams = {}
+            ): Promise<methods.NodesStatsResponse> {
+                const parsedParams = methods.convertNodesStatsParams(
+                    params, distribution, version
+                );
+                const resp = await client.nodes.stats(parsedParams);
+
+                return _removeBody(resp);
+            },
+            async info(params: methods.NodesInfoParams = {}): Promise<methods.NodeInfoResponse> {
+                const parsedParams = methods.convertNodeInfoParams(
+                    params, distribution, version
+                );
+                const resp = await client.nodes.info(parsedParams);
+
+                return _removeBody(resp);
+            }
+        };
     }
 
     /**
@@ -125,7 +204,9 @@ export class WrappedClient {
      * @returns Object
     */
 
-    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+    async get<T = Record<string, unknown>>(
+        params: methods.GetParams
+    ): Promise<methods.GetQueryResponse<T>> {
         const parsedParams = methods.convertGetParams(
             params, this.distribution, this.version
         );
@@ -364,6 +445,113 @@ export class WrappedClient {
                 );
 
                 const resp = await client.indices.getIndexTemplate(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async getMapping(
+                params: methods.IndicesGetMappingParams
+            ): Promise<methods.IndicesGetMappingResponse> {
+                const parsedParams = methods.convertIndicesGetMappingParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.getMapping(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async putMapping(
+                params: methods.IndicesPutMappingParams
+            ): Promise< methods.IndicesPutMappingResponse> {
+                const parsedParams = methods.convertIndicesPutMappingParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.putMapping(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async getFieldMapping(params: methods.IndicesGetFieldMappingParams
+            ): Promise<methods.IndicesGetFieldMappingResponse> {
+                const parsedParams = methods.convertIndicesGetFieldMappingParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.getSettings(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async getSettings(
+                params: methods.IndicesGetSettingsParams
+            ): Promise<methods.IndicesGetSettingsResponse> {
+                const parsedParams = methods.convertIndicesGetSettingsParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.getSettings(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async putSettings(
+                params: methods.IndicesPutSettingsParams
+            ): Promise<methods.IndicesPutSettingsResponse> {
+                const parsedParams = methods.convertIndicesPutSettingsParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.putSettings(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            // TODO: can this be an empty query?
+            async refresh(
+                params: methods.IndicesRefreshParams
+            ): Promise<methods.IndicesRefreshResponse> {
+                const parsedParams = methods.convertIndicesRefreshParams(
+                    params,
+                    distribution,
+                    version
+                );
+                const resp = await client.indices.refresh(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            // TODO: can this be an empty query?
+            async recovery(
+                params: methods.IndicesRecoveryParams
+            ): Promise<methods.IndicesRecoveryResponse> {
+                const parsedParams = methods.convertIndicesRecoveryParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.recovery(parsedParams);
+
+                return _removeBody(resp);
+            },
+
+            async validateQuery(
+                params: methods.IndicesValidateQueryParams
+            ): Promise<methods.IndicesValidateQueryResponse> {
+                const parsedParams = methods.convertIndicesValidateQueryPParams(
+                    params,
+                    distribution,
+                    version
+                );
+
+                const resp = await client.indices.validateQuery(parsedParams);
 
                 return _removeBody(resp);
             },
