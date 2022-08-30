@@ -12,6 +12,8 @@ export interface IndicesExistsParams {
     include_defaults?: boolean;
 }
 
+export type IndicesExistsResponse = boolean;
+
 export function convertIndicesExistsParams(
     params: IndicesExistsParams,
     distribution: ElasticsearchDistribution,

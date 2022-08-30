@@ -11,6 +11,8 @@ export interface ExistsParams {
     routing?: string;
 }
 
+export type ExistsResponse = boolean;
+
 export function convertExistsParams(
     params: ExistsParams,
     distribution: ElasticsearchDistribution,

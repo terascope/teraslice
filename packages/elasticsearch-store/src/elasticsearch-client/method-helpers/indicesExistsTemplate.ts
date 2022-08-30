@@ -9,6 +9,8 @@ export interface IndicesExistsTemplateParams {
     local?: boolean;
 }
 
+export type IndicesExistsTemplateResponse = boolean;
+
 export function convertIndicesExistsTemplateParams(
     params: IndicesExistsTemplateParams,
     distribution: ElasticsearchDistribution,

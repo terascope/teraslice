@@ -281,7 +281,7 @@ export interface NodesInfoNodeInfoRepositoriesUrl {
     allowed_urls: string;
 }
 
-export interface NodeInfoResponse {
+export interface NodesInfoResponse {
     cluster_name: string;
     nodes: Record<string, NodesInfoNodeInfo>;
 }

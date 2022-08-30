@@ -1,7 +1,9 @@
 import { DataEntity, debugLogger, toNumber } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { createClient, WrappedClient, Semver, } from '../src';
-import * as helpers from '../src/elasticsearch-client/method-helpers/index';
+import {
+    createClient, WrappedClient, Semver,
+    ClientParams
+} from '../src';
 import {
     upload, cleanupIndex, waitForData,
     formatUploadData
@@ -63,7 +65,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('can convert params of other version to be compatible', async () => {
             // has type, should be removed in Elasticsearch v8 tests
-            const bodyTypeQuery: helpers.CountParams = {
+            const bodyTypeQuery: ClientParams.CountParams = {
                 index,
                 type: docType,
                 body: {
@@ -94,7 +96,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         it('can send records to an index', async () => {
             const bulkData = formatUploadData(testIndex, data);
 
-            const request: helpers.BulkParams = {
+            const request: ClientParams.BulkParams = {
                 index: testIndex,
                 type: docType,
                 refresh: 'wait_for',
@@ -131,7 +133,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can create a new record and index', async () => {
-            const bodyTypeQuery: helpers.CreateParams = {
+            const bodyTypeQuery: ClientParams.CreateParams = {
                 index: createIndex,
                 type: docType,
                 refresh: true,
@@ -165,7 +167,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 obj: { other: 'thing' }
             };
 
-            const query: helpers.IndexParams = {
+            const query: ClientParams.IndexParams = {
                 index: testIndex,
                 type: docType,
                 refresh: 'wait_for',
@@ -212,7 +214,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 wasUpdated: true
             };
 
-            const query: helpers.UpdateParams = {
+            const query: ClientParams.UpdateParams = {
                 id,
                 index: testIndex,
                 type: docType,
@@ -246,7 +248,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can delete a single records', async () => {
-            const bodyTypeQuery: helpers.DeleteParams = {
+            const bodyTypeQuery: ClientParams.DeleteParams = {
                 index: deleteIndex,
                 type: docType,
                 id: '3849b210-d8b8-4708-b70d-90b043a2598d'
@@ -278,7 +280,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can delete multiple records by query', async () => {
-            const bodyTypeQuery: helpers.DeleteByQueryParams = {
+            const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
                 index: deleteByQueryIndex,
                 type: docType,
                 body: {
@@ -317,7 +319,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         };
 
         it('can fetch a record', async () => {
-            const bodyTypeQuery: helpers.GetParams = {
+            const bodyTypeQuery: ClientParams.GetParams = {
                 index,
                 type: docType,
                 id: record.uuid,
@@ -332,7 +334,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('records returned can have removed fields', async () => {
-            const bodyTypeQuery: helpers.GetParams = {
+            const bodyTypeQuery: ClientParams.GetParams = {
                 index,
                 type: docType,
                 id: record.uuid,
