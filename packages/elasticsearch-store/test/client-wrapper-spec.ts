@@ -1,8 +1,11 @@
-import { debugLogger, toNumber } from '@terascope/utils';
+import { DataEntity, debugLogger, toNumber } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
 import { createClient, WrappedClient, Semver, } from '../src';
 import * as helpers from '../src/elasticsearch-client/method-helpers/index';
-import { upload, cleanupIndex, waitForData } from './helpers/elasticsearch';
+import {
+    upload, cleanupIndex, waitForData,
+    formatUploadData
+} from './helpers/elasticsearch';
 import {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_VERSION,
@@ -81,6 +84,32 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
     });
 
+    describe('bulk', () => {
+        const testIndex = `${index}_bulk_index`;
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can send records to an index', async () => {
+            const bulkData = formatUploadData(testIndex, data);
+
+            const request: helpers.BulkParams = {
+                index: testIndex,
+                type: docType,
+                refresh: 'wait_for',
+                body: bulkData
+            };
+
+            const response = await wrappedClient.bulk(request);
+
+            console.dir({ response }, { depth: 100 });
+
+            // we will wait for 10s for bulk data before throwing
+            await waitForData(client, testIndex, 1000, 10000);
+        });
+    });
+
     describe('create', () => {
         const createIndex = `${index}_create`;
         const record = {
@@ -116,6 +145,87 @@ describe('can create an elasticsearch or opensearch client', () => {
             expect(response).toHaveProperty('_shards');
             expect(response).toHaveProperty('_seq_no');
             expect(response).toHaveProperty('_primary_term');
+        });
+    });
+
+    describe('index', () => {
+        const testIndex = `${index}_index_method`;
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can index a new record', async () => {
+            const doc = {
+                some: 'newThing',
+                bool: true,
+                obj: { other: 'thing' }
+            };
+
+            const query: helpers.IndexParams = {
+                index: testIndex,
+                type: docType,
+                refresh: 'wait_for',
+                body: doc
+            };
+
+            const response = await wrappedClient.index(query);
+
+            expect(response).toHaveProperty('_index', testIndex);
+            expect(response).toHaveProperty('_id');
+            expect(response).toHaveProperty('_version', 1);
+            expect(response).toHaveProperty('result', 'created');
+            expect(response).toHaveProperty('_shards');
+            expect(response).toHaveProperty('_seq_no');
+
+            // make sure record exists
+            await waitForData(client, testIndex, 1, 10000);
+        });
+    });
+
+    describe('update', () => {
+        const testIndex = `${index}_update_method`;
+        const doc = {
+            some: 'newThing',
+            bool: true,
+            obj: { other: 'thing' },
+            method: 'update'
+        };
+        const id = '123412341234';
+
+        const record = DataEntity.make(doc, { _key: id });
+
+        beforeAll(async () => {
+            const testData = formatUploadData(testIndex, [record]);
+            await upload(client, { index: testIndex }, testData);
+        });
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can update a new record', async () => {
+            const updatedDoc = {
+                wasUpdated: true
+            };
+
+            const query: helpers.UpdateParams = {
+                id,
+                index: testIndex,
+                type: docType,
+                body: { doc: updatedDoc },
+                refresh: true
+            };
+
+            const response = await wrappedClient.update(query);
+
+            expect(response).toHaveProperty('_index', testIndex);
+            expect(response).toHaveProperty('_id', id);
+            expect(response).toHaveProperty('_version', 2);
+            expect(response).toHaveProperty('result', 'updated');
+            expect(response).toHaveProperty('forced_refresh', true);
+            expect(response).toHaveProperty('_shards');
+            expect(response).toHaveProperty('_seq_no');
         });
     });
 
@@ -239,9 +349,9 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
     });
 
-    describe('cluster.get_settings', () => {
+    describe('cluster.getSettings', () => {
         it('can fetch settings from the cluster', async () => {
-            const response = await wrappedClient.cluster.get_settings();
+            const response = await wrappedClient.cluster.getSettings();
 
             expect(response).toHaveProperty('persistent');
             expect(response).toHaveProperty('transient');

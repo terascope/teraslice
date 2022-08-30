@@ -2,7 +2,7 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import type { SearchResult, VersionType } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export type GetQueryResponse<T = unknown> = SearchResult<T>
+export type GetQueryResponse<T = Record<string, unknown>> = SearchResult<T>
 
 export interface GetParams {
     id: string;

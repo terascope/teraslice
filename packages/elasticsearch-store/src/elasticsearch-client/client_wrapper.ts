@@ -77,14 +77,14 @@ export class WrappedClient {
         } = this;
 
         return {
-            async get_settings(
+            async getSettings(
                 params: methods.ClusterGetSettingsParams = {}
             ): Promise<methods.ClusterGetSettingsResponse> {
                 const parsedParams = methods.convertClusterSettingsParams(
                     params, distribution, version
                 );
 
-                const resp = await client.cluster.get_settings(parsedParams);
+                const resp = await client.cluster.getSettings(parsedParams);
 
                 return _removeBody(resp);
             },
@@ -203,7 +203,9 @@ export class WrappedClient {
      * @returns Object
     */
 
-    async get(params: methods.GetParams): Promise<methods.GetQueryResponse> {
+    async get<T = Record<string, unknown>>(
+        params: methods.GetParams
+    ): Promise<methods.GetQueryResponse<T>> {
         const parsedParams = methods.convertGetParams(
             params, this.distribution, this.version
         );
