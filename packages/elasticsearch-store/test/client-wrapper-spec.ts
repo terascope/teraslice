@@ -103,7 +103,10 @@ describe('can create an elasticsearch or opensearch client', () => {
 
             const response = await wrappedClient.bulk(request);
 
-            console.dir({ response }, { depth: 100 });
+            expect(response).toHaveProperty('took');
+            expect(response).toHaveProperty('errors', false);
+            expect(response).toHaveProperty('items');
+            expect(response.items).toBeArrayOfSize(1000);
 
             // we will wait for 10s for bulk data before throwing
             await waitForData(client, testIndex, 1000, 10000);

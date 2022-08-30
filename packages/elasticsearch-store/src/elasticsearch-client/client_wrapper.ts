@@ -20,7 +20,7 @@ export class WrappedClient {
 
     async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
         const parsedParams = methods.convertBulkParams(params, this.distribution, this.version);
-        const resp = this.client.bulk(parsedParams);
+        const resp = await this.client.bulk(parsedParams);
 
         return this._removeBody(resp);
     }
