@@ -1,5 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import * as methods from './method-helpers';
+import { InfoResponse } from './method-helpers/interfaces';
 import { Semver } from './interfaces';
 
 export class WrappedClient {
@@ -218,7 +219,7 @@ export class WrappedClient {
      * Returns info about the cluster the client is connected to
      * @returns object with cluster info
     */
-    async info(): Promise<methods.InfoResponse> {
+    async info(): Promise<InfoResponse> {
         methods.validateDistribution(this.distribution, this.version);
         const resp = await this.client.info();
 
@@ -281,8 +282,7 @@ export class WrappedClient {
      * Re-Index data to a new index
      * @param ReIndexParams
      * @returns Report of re-indexing task or task id if wait_for_completion is false
-     */
-
+    */
     async reindex(params: methods.ReIndexParams): Promise<methods.ReindexResponse> {
         const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
 

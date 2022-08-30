@@ -60,9 +60,9 @@ describe('search', () => {
 
         const resp = await wrappedClient.mget(params) as any;
 
-        expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
-        expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
-        expect(resp.docs[2]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+        expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
+        expect(resp.docs[2]._source?.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
     });
 
     it('should handle docs with _type doc objects', async () => {
@@ -79,9 +79,9 @@ describe('search', () => {
 
         const resp = await wrappedClient.mget(params) as any;
 
-        expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
-        expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
-        expect(resp.docs[2]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+        expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
+        expect(resp.docs[2]._source?.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
     });
 
     it('should handle ids in body property', async () => {
@@ -95,9 +95,9 @@ describe('search', () => {
         const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs.length).toBe(3);
-        expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
-        expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
-        expect(resp.docs[2]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+        expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
+        expect(resp.docs[2]._source?.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
     });
 
     it('should handle ids in body property with type', async () => {
@@ -112,8 +112,8 @@ describe('search', () => {
         const resp = await wrappedClient.mget(params) as any;
 
         expect(resp.docs.length).toBe(3);
-        expect(resp.docs[0]._source.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
-        expect(resp.docs[1]._source.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
-        expect(resp.docs[2]._source.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
+        expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
+        expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
+        expect(resp.docs[2]._source?.uuid).toBe('bd920141-45b3-41fd-8eea-b1640a2fa3d2');
     });
 });
