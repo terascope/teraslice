@@ -313,3 +313,6 @@ export type SearchResult<T> = {
     _fetched: number;
     results: T[];
 };
+
+export * as ClientParams from './elasticsearch-client/method-helpers/param-types';
+export * as ClientResponse from './elasticsearch-client/method-helpers/response-types';

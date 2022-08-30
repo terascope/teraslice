@@ -8,7 +8,7 @@ import {
 } from './interfaces';
 import type { Semver } from '../interfaces';
 
-export interface ReIndexParams {
+export interface ReindexParams {
     refresh?: boolean;
     timeout?: string;
     wait_for_active_shards?: 'all' | number;
@@ -17,10 +17,10 @@ export interface ReIndexParams {
     scroll?: string;
     slices?: number | string;
     max_docs?: number;
-    body: ReIndexBody;
+    body: ReindexBody;
 }
 
-export interface ReIndexBody {
+export interface ReindexBody {
     conflicts?: ConflictOptions;
     max_docs?: number;
     source: {
@@ -67,7 +67,7 @@ export interface ReindexResponse {
 }
 
 export function convertReIndexParams(
-    params: ReIndexParams,
+    params: ReindexParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {

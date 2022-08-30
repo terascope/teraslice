@@ -139,7 +139,7 @@ export class WrappedClient {
 
                 return _removeBody(resp);
             },
-            async info(params: methods.NodesInfoParams = {}): Promise<methods.NodeInfoResponse> {
+            async info(params: methods.NodesInfoParams = {}): Promise<methods.NodesInfoResponse> {
                 const parsedParams = methods.convertNodeInfoParams(
                     params, distribution, version
                 );
@@ -186,7 +186,7 @@ export class WrappedClient {
      * @param ExistsParams
      * @returns boolean
     */
-    async exists(params: methods.ExistsParams): Promise<boolean> {
+    async exists(params: methods.ExistsParams): Promise<methods.ExistsResponse> {
         const convertedParams = methods.convertExistsParams(
             params,
             this.distribution,
@@ -206,7 +206,7 @@ export class WrappedClient {
 
     async get<T = Record<string, unknown>>(
         params: methods.GetParams
-    ): Promise<methods.GetQueryResponse<T>> {
+    ): Promise<methods.GetResponse<T>> {
         const parsedParams = methods.convertGetParams(
             params, this.distribution, this.version
         );
@@ -283,7 +283,7 @@ export class WrappedClient {
      * @param ReIndexParams
      * @returns Report of re-indexing task or task id if wait_for_completion is false
     */
-    async reindex(params: methods.ReIndexParams): Promise<methods.ReindexResponse> {
+    async reindex(params: methods.ReindexParams): Promise<methods.ReindexResponse> {
         const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
 
         const resp = await this.client.reindex(parsedParams);
@@ -339,7 +339,9 @@ export class WrappedClient {
              * @param IndicesExistsParams
              * @returns boolean
              */
-            async exists(params: methods.IndicesExistsParams): Promise<boolean> {
+            async exists(
+                params: methods.IndicesExistsParams
+            ): Promise<methods.IndicesExistsResponse> {
                 const parsedParams = methods.convertIndicesExistsParams(
                     params,
                     distribution,
@@ -401,8 +403,9 @@ export class WrappedClient {
              * @param IndicesExistsTemplateParams
              * @returns boolean
              */
-            async existsTemplate(params: methods.IndicesExistsTemplateParams):
-            Promise<boolean> {
+            async existsTemplate(
+                params: methods.IndicesExistsTemplateParams
+            ): Promise<methods.IndicesExistsTemplateResponse> {
                 const parsedParams = methods.convertIndicesExistsTemplateParams(
                     params,
                     distribution,
