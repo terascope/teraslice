@@ -6,8 +6,9 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
+import { WrappedClient } from './client_wrapper';
 import { logWrapper } from './log-wrapper';
-import { ClientConfig, ServerMetadata } from './interfaces';
+import { ClientConfig, ServerMetadata, Semver } from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
@@ -63,15 +64,42 @@ async function findDistribution(
 }
 
 export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
+    const distribution = await findDistribution(config, logger);
+
+    const {
+        minorVersion,
+        majorVersion,
+        ...serverMetadata
+    } = distribution;
+
+    const { client } = await getCorrectClient(
+        serverMetadata,
+        majorVersion,
+        minorVersion,
+        config,
+        logger
+    );
+
+    const wrappedClient = new WrappedClient(
+        client,
+        serverMetadata.distribution,
+        serverMetadata.version.split('.').map((i) => Number.parseInt(i, 10)) as unknown as Semver
+    );
+
+    return {
+        client: wrappedClient,
+        log: logger
+    };
+}
+
+async function getCorrectClient(
+    serverMetadata: Record<string, any>,
+    majorVersion: number,
+    minorVersion: number,
+    config: ClientConfig,
+    logger = debugLogger('elasticsearch-client')
+) {
     try {
-        const distribution = await findDistribution(config, logger);
-
-        const {
-            minorVersion,
-            majorVersion,
-            ...serverMetadata
-        } = distribution;
-
         if (serverMetadata.distribution === ElasticsearchDistribution.opensearch) {
             // TODO: clean this up
             const openConfig = {
@@ -143,7 +171,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
         }
 
         throw new Error('no valid client available');
-    } catch (err) {
+    } catch (e) {
         throw new Error(`Could not create a client for config ${JSON.stringify(config, null, 4)}`);
     }
 }
