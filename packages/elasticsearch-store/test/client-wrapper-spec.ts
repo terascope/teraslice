@@ -1,8 +1,13 @@
-import { debugLogger, toNumber } from '@terascope/utils';
+import { DataEntity, debugLogger, toNumber } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { createClient, WrappedClient, Semver, } from '../src';
-import * as helpers from '../src/elasticsearch-client/method-helpers/index';
-import { upload, cleanupIndex, waitForData } from './helpers/elasticsearch';
+import {
+    createClient, WrappedClient, Semver,
+    ClientParams
+} from '../src';
+import {
+    upload, cleanupIndex, waitForData,
+    formatUploadData
+} from './helpers/elasticsearch';
 import {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_VERSION,
@@ -60,7 +65,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('can convert params of other version to be compatible', async () => {
             // has type, should be removed in Elasticsearch v8 tests
-            const bodyTypeQuery: helpers.CountParams = {
+            const bodyTypeQuery: ClientParams.CountParams = {
                 index,
                 type: docType,
                 body: {
@@ -78,6 +83,35 @@ describe('can create an elasticsearch or opensearch client', () => {
 
             const response = await wrappedClient.count(bodyTypeQuery);
             expect(response).toMatchObject({ count: 1 });
+        });
+    });
+
+    describe('bulk', () => {
+        const testIndex = `${index}_bulk_index`;
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can send records to an index', async () => {
+            const bulkData = formatUploadData(testIndex, data);
+
+            const request: ClientParams.BulkParams = {
+                index: testIndex,
+                type: docType,
+                refresh: 'wait_for',
+                body: bulkData
+            };
+
+            const response = await wrappedClient.bulk(request);
+
+            expect(response).toHaveProperty('took');
+            expect(response).toHaveProperty('errors', false);
+            expect(response).toHaveProperty('items');
+            expect(response.items).toBeArrayOfSize(1000);
+
+            // we will wait for 10s for bulk data before throwing
+            await waitForData(client, testIndex, 1000, 10000);
         });
     });
 
@@ -99,7 +133,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can create a new record and index', async () => {
-            const bodyTypeQuery: helpers.CreateParams = {
+            const bodyTypeQuery: ClientParams.CreateParams = {
                 index: createIndex,
                 type: docType,
                 refresh: true,
@@ -119,6 +153,87 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
     });
 
+    describe('index', () => {
+        const testIndex = `${index}_index_method`;
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can index a new record', async () => {
+            const doc = {
+                some: 'newThing',
+                bool: true,
+                obj: { other: 'thing' }
+            };
+
+            const query: ClientParams.IndexParams = {
+                index: testIndex,
+                type: docType,
+                refresh: 'wait_for',
+                body: doc
+            };
+
+            const response = await wrappedClient.index(query);
+
+            expect(response).toHaveProperty('_index', testIndex);
+            expect(response).toHaveProperty('_id');
+            expect(response).toHaveProperty('_version', 1);
+            expect(response).toHaveProperty('result', 'created');
+            expect(response).toHaveProperty('_shards');
+            expect(response).toHaveProperty('_seq_no');
+
+            // make sure record exists
+            await waitForData(client, testIndex, 1, 10000);
+        });
+    });
+
+    describe('update', () => {
+        const testIndex = `${index}_update_method`;
+        const doc = {
+            some: 'newThing',
+            bool: true,
+            obj: { other: 'thing' },
+            method: 'update'
+        };
+        const id = '123412341234';
+
+        const record = DataEntity.make(doc, { _key: id });
+
+        beforeAll(async () => {
+            const testData = formatUploadData(testIndex, [record]);
+            await upload(client, { index: testIndex }, testData);
+        });
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('can update a new record', async () => {
+            const updatedDoc = {
+                wasUpdated: true
+            };
+
+            const query: ClientParams.UpdateParams = {
+                id,
+                index: testIndex,
+                type: docType,
+                body: { doc: updatedDoc },
+                refresh: true
+            };
+
+            const response = await wrappedClient.update(query);
+
+            expect(response).toHaveProperty('_index', testIndex);
+            expect(response).toHaveProperty('_id', id);
+            expect(response).toHaveProperty('_version', 2);
+            expect(response).toHaveProperty('result', 'updated');
+            expect(response).toHaveProperty('forced_refresh', true);
+            expect(response).toHaveProperty('_shards');
+            expect(response).toHaveProperty('_seq_no');
+        });
+    });
+
     describe('delete', () => {
         const deleteIndex = `${index}_delete`;
 
@@ -133,7 +248,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can delete a single records', async () => {
-            const bodyTypeQuery: helpers.DeleteParams = {
+            const bodyTypeQuery: ClientParams.DeleteParams = {
                 index: deleteIndex,
                 type: docType,
                 id: '3849b210-d8b8-4708-b70d-90b043a2598d'
@@ -165,7 +280,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('can delete multiple records by query', async () => {
-            const bodyTypeQuery: helpers.DeleteByQueryParams = {
+            const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
                 index: deleteByQueryIndex,
                 type: docType,
                 body: {
@@ -204,7 +319,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         };
 
         it('can fetch a record', async () => {
-            const bodyTypeQuery: helpers.GetParams = {
+            const bodyTypeQuery: ClientParams.GetParams = {
                 index,
                 type: docType,
                 id: record.uuid,
@@ -219,7 +334,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('records returned can have removed fields', async () => {
-            const bodyTypeQuery: helpers.GetParams = {
+            const bodyTypeQuery: ClientParams.GetParams = {
                 index,
                 type: docType,
                 id: record.uuid,
@@ -236,6 +351,91 @@ describe('can create an elasticsearch or opensearch client', () => {
             expect(response).toHaveProperty('_id', record.uuid);
             expect(response).toHaveProperty('found', true);
             expect(response._source).toMatchObject(parsedRecord);
+        });
+    });
+
+    describe('cluster.getSettings', () => {
+        it('can fetch settings from the cluster', async () => {
+            const response = await wrappedClient.cluster.getSettings();
+
+            expect(response).toHaveProperty('persistent');
+            expect(response).toHaveProperty('transient');
+        });
+    });
+
+    describe('cluster.health', () => {
+        it('can fetch the health of the cluster', async () => {
+            const response = await wrappedClient.cluster.health();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('status');
+            expect(response).toHaveProperty('timed_out', false);
+            expect(response).toHaveProperty('number_of_nodes');
+            expect(response).toHaveProperty('number_of_data_nodes');
+            expect(response).toHaveProperty('active_primary_shards');
+            expect(response).toHaveProperty('active_shards');
+            expect(response).toHaveProperty('number_of_pending_tasks');
+            expect(response).toHaveProperty('number_of_in_flight_fetch');
+            expect(response).toHaveProperty('task_max_waiting_in_queue_millis');
+        });
+    });
+
+    describe('cat.indices', () => {
+        it('can print out the indices status', async () => {
+            const response = await wrappedClient.cat.indices();
+
+            expect(typeof response).toEqual('string');
+            expect(response).toInclude(index);
+            // the size of the index
+            expect(response).toInclude('1000');
+        });
+    });
+
+    describe('nodes.info', () => {
+        it('can fetch info from the nodes', async () => {
+            const response = await wrappedClient.nodes.info();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('_nodes');
+            expect(response).toHaveProperty('nodes');
+            expect(response.nodes).toBeObject();
+
+            const node = Object.values(response.nodes)[0];
+
+            expect(node).toHaveProperty('name');
+            expect(node).toHaveProperty('host');
+            expect(node).toHaveProperty('ip');
+            expect(node).toHaveProperty('version');
+            expect(node).toHaveProperty('roles');
+            expect(node).toHaveProperty('settings');
+            expect(node).toHaveProperty('process');
+            expect(node).toHaveProperty('jvm');
+            expect(node).toHaveProperty('thread_pool');
+            expect(node).toHaveProperty('modules');
+        });
+    });
+
+    describe('nodes.stats', () => {
+        it('can fetch stats from the nodes', async () => {
+            const response = await wrappedClient.nodes.stats();
+
+            expect(response).toHaveProperty('cluster_name');
+            expect(response).toHaveProperty('_nodes');
+            expect(response).toHaveProperty('nodes');
+            expect(response.nodes).toBeObject();
+
+            const node = Object.values(response.nodes)[0];
+
+            expect(node).toHaveProperty('name');
+            expect(node).toHaveProperty('timestamp');
+            expect(node).toHaveProperty('host');
+            expect(node).toHaveProperty('ip');
+            expect(node).toHaveProperty('roles');
+            expect(node).toHaveProperty('indices');
+            expect(node).toHaveProperty('indices.docs.count', 1000);
+            expect(node).toHaveProperty('os');
+            expect(node).toHaveProperty('process');
+            expect(node).toHaveProperty('jvm');
         });
     });
 });

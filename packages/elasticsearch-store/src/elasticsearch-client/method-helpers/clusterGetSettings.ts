@@ -1,28 +1,27 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { Semver } from '../interfaces';
 
-export interface ExistsParams {
-    id: string;
-    index: string;
-    type?: string;
-    preference?: string;
-    realtime?: boolean;
-    refresh?: boolean;
-    routing?: string;
+export interface ClusterGetSettingsParams {
+    flat_settings?: boolean
+    include_defaults?: boolean
+    timeout?: string | number;
 }
 
-export type ExistsResponse = boolean;
+export interface ClusterGetSettingsResponse {
+    persistent: Record<string, any>;
+    transient: Record<string, any>;
+    defaults?: Record<string, any>;
+}
 
-export function convertExistsParams(
-    params: ExistsParams,
+export function convertClusterSettingsParams(
+    params: ClusterGetSettingsParams,
     distribution: ElasticsearchDistribution,
     version: Semver
 ) {
     const [majorVersion] = version;
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            delete params.type;
-
+            // make sure to remove type
             return params;
         }
 
@@ -31,20 +30,19 @@ export function convertExistsParams(
         }
 
         if (majorVersion === 6) {
-            if (params.type == null) {
-                params.type = '_doc';
-                // throw new Error('type must be provided for an es 6 query');
-            }
-
             return params;
         }
+
+        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;
         }
+
+        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported ${distribution} version ${version}`);
+    throw new Error(`Unsupported distribution ${distribution}`);
 }

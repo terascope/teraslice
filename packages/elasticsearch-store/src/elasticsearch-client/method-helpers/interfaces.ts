@@ -19,6 +19,10 @@ export type ConflictOptions = 'abort' | 'proceed';
 
 export type ScriptLangs = 'painless' | 'expression' | 'mustache' | 'java';
 
+export type Health = 'green' | 'yellow' | 'red';
+
+export type Bytes = 'b' | 'k' | 'kb' | 'm' | 'mb' | 'g' | 'gb' | 't' | 'tb' | 'p' | 'pb';
+
 export interface Remote {
     host?: string;
     username?: string;
@@ -133,6 +137,22 @@ export interface InlineGet<TDocument = unknown> {
     _source: TDocument;
 }
 
+export interface PluginStats {
+    classname: string;
+    description: string;
+    opensearch_version: string;
+    extended_plugins: string[];
+    has_native_controller: boolean;
+    java_version: string;
+    name: string;
+    version: string;
+    licensed: boolean;
+    type: string;
+}
+
+export type NodeRole = 'cluster_manager' | 'master' | 'data' | 'client' | 'ingest' | 'voting_only' | 'remote_cluster_client' | 'coordinating_only'
+
+export type NodeRoles = NodeRole[];
 export interface IndexTemplateProperties {
     aliases?: { [alias: string]: Alias },
     mappings?: Record<string, any>;
