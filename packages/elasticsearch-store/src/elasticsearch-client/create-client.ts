@@ -8,14 +8,17 @@ import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
 import { WrappedClient } from './client_wrapper';
 import { logWrapper } from './log-wrapper';
-import { ClientConfig, ServerMetadata, Semver } from './interfaces';
+import {
+    ClientConfig,
+    DistributionMetadata
+} from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
-async function findDistribution(
+async function getDistributionMetadata(
     config: Record<string, any>,
     logger: Logger
-): Promise<ServerMetadata> {
+): Promise<DistributionMetadata> {
     for (let i = 0; i < clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
@@ -64,26 +67,17 @@ async function findDistribution(
 }
 
 export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
-    const distribution = await findDistribution(config, logger);
+    const distributionMetadata = await getDistributionMetadata(config, logger);
 
-    const {
-        minorVersion,
-        majorVersion,
-        ...serverMetadata
-    } = distribution;
-
-    const { client } = await getCorrectClient(
-        serverMetadata,
-        majorVersion,
-        minorVersion,
+    const { client } = await selectBaseClient(
+        distributionMetadata,
         config,
         logger
     );
 
     const wrappedClient = new WrappedClient(
         client,
-        serverMetadata.distribution,
-        serverMetadata.version.split('.').map((i) => Number.parseInt(i, 10)) as unknown as Semver
+        distributionMetadata
     );
 
     return {
@@ -92,15 +86,24 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
     };
 }
 
-async function getCorrectClient(
-    serverMetadata: Record<string, any>,
-    majorVersion: number,
-    minorVersion: number,
+async function selectBaseClient(
+    distributionMetadata: DistributionMetadata,
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ) {
+    const {
+        distribution,
+        majorVersion,
+        minorVersion
+    } = distributionMetadata;
+
+    const serverMetadata = {
+        distribution,
+        version: distributionMetadata.version
+    };
+
     try {
-        if (serverMetadata.distribution === ElasticsearchDistribution.opensearch) {
+        if (distribution === ElasticsearchDistribution.opensearch) {
             // TODO: clean this up
             const openConfig = {
                 ...config,

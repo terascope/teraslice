@@ -1,25 +1,21 @@
-import { ElasticsearchDistribution } from '@terascope/types';
 import * as methods from './method-helpers';
 import { InfoResponse } from './method-helpers/interfaces';
-import { Semver } from './interfaces';
+import { DistributionMetadata } from './interfaces';
 
 export class WrappedClient {
     private client: any;
-    private distribution: ElasticsearchDistribution;
-    private version: Semver;
+    private distributionMeta: DistributionMetadata;
 
     constructor(
         client: any,
-        distribution: ElasticsearchDistribution,
-        version: Semver
+        distributionMeta: DistributionMetadata
     ) {
         this.client = client;
-        this.distribution = distribution;
-        this.version = version;
+        this.distributionMeta = distributionMeta;
     }
 
     async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
-        const parsedParams = methods.convertBulkParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertBulkParams(params, this.distributionMeta);
         const resp = await this.client.bulk(parsedParams);
 
         return this._removeBody(resp);
@@ -30,7 +26,7 @@ export class WrappedClient {
      * @param CountParams
     */
     async create(params: methods.CreateParams): Promise<methods.CreateResponse> {
-        const parsedParams = methods.convertCreateParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertCreateParams(params, this.distributionMeta);
         const resp = await this.client.create(parsedParams);
 
         return this._removeBody(resp);
@@ -41,7 +37,7 @@ export class WrappedClient {
      * @param CountParams
     */
     async index(params: methods.IndexParams): Promise<methods.IndexResponse> {
-        const parsedParams = methods.convertIndexParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertIndexParams(params, this.distributionMeta);
         const resp = await this.client.index(parsedParams);
 
         return this._removeBody(resp);
@@ -52,7 +48,7 @@ export class WrappedClient {
      * @param CountParams
     */
     async update(params: methods.UpdateParams): Promise<methods.UpdateResponse> {
-        const parsedParams = methods.convertUpdateParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertUpdateParams(params, this.distributionMeta);
         const resp = await this.client.update(parsedParams);
 
         return this._removeBody(resp);
@@ -65,7 +61,7 @@ export class WrappedClient {
     */
 
     async count(params: methods.CountParams): Promise<methods.CountResponse> {
-        const parsedParams = methods.convertCountParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertCountParams(params, this.distributionMeta);
         const resp = await this.client.count(parsedParams);
 
         return this._removeBody(resp);
@@ -73,7 +69,7 @@ export class WrappedClient {
 
     get cluster() {
         const {
-            distribution, version, client,
+            distributionMeta, client,
             _removeBody
         } = this;
 
@@ -81,9 +77,7 @@ export class WrappedClient {
             async getSettings(
                 params: methods.ClusterGetSettingsParams = {}
             ): Promise<methods.ClusterGetSettingsResponse> {
-                const parsedParams = methods.convertClusterSettingsParams(
-                    params, distribution, version
-                );
+                const parsedParams = methods.convertClusterSettingsParams(params, distributionMeta);
 
                 const resp = await client.cluster.getSettings(parsedParams);
 
@@ -92,9 +86,7 @@ export class WrappedClient {
             async health(
                 params: methods.ClusterHealthParams = {}
             ): Promise<methods.ClusterHealthResponse> {
-                const parsedParams = methods.convertClusterSettingsParams(
-                    params, distribution, version
-                );
+                const parsedParams = methods.convertClusterSettingsParams(params, distributionMeta);
                 const resp = await client.cluster.health(parsedParams);
 
                 return _removeBody(resp);
@@ -104,7 +96,8 @@ export class WrappedClient {
 
     get cat() {
         const {
-            distribution, version, client,
+            distributionMeta,
+            client,
             _removeBody
         } = this;
 
@@ -112,9 +105,8 @@ export class WrappedClient {
             async indices(
                 params: methods.CatIndicesParams = {}
             ): Promise<methods.CatIndicesResponse> {
-                const parsedParams = methods.convertCatIndicesParams(
-                    params, distribution, version
-                );
+                const parsedParams = methods.convertCatIndicesParams(params, distributionMeta);
+
                 const resp = await client.cat.indices(parsedParams);
 
                 return _removeBody(resp);
@@ -124,7 +116,8 @@ export class WrappedClient {
 
     get nodes() {
         const {
-            distribution, version, client,
+            distributionMeta,
+            client,
             _removeBody
         } = this;
 
@@ -132,17 +125,15 @@ export class WrappedClient {
             async stats(
                 params: methods.NodesStatsParams = {}
             ): Promise<methods.NodesStatsResponse> {
-                const parsedParams = methods.convertNodesStatsParams(
-                    params, distribution, version
-                );
+                const parsedParams = methods.convertNodesStatsParams(params, distributionMeta);
+
                 const resp = await client.nodes.stats(parsedParams);
 
                 return _removeBody(resp);
             },
             async info(params: methods.NodesInfoParams = {}): Promise<methods.NodesInfoResponse> {
-                const parsedParams = methods.convertNodeInfoParams(
-                    params, distribution, version
-                );
+                const parsedParams = methods.convertNodeInfoParams(params, distributionMeta);
+
                 const resp = await client.nodes.info(parsedParams);
 
                 return _removeBody(resp);
@@ -154,11 +145,8 @@ export class WrappedClient {
      * Deletes a specific record, requires an index and id.
      * @param RequestParams.delete
     */
-
     async delete(params: methods.DeleteParams): Promise<methods.DeleteResponse> {
-        const parsedParams = methods.convertDeleteParams(
-            params, this.distribution, this.version
-        );
+        const parsedParams = methods.convertDeleteParams(params, this.distributionMeta);
         const resp = await this.client.delete(parsedParams);
 
         return this._removeBody(resp);
@@ -169,13 +157,10 @@ export class WrappedClient {
      * @param RequestParams.DeleteByQuery
      * @returns count or Elasticsearch task_id
     */
-
     async deleteByQuery(
         params: methods.DeleteByQueryParams
     ): Promise<methods.DeleteByQueryResponse> {
-        const parsedParams = methods.convertDeleteByQueryParams(
-            params, this.distribution, this.version
-        );
+        const parsedParams = methods.convertDeleteByQueryParams(params, this.distributionMeta);
         const resp = await this.client.deleteByQuery(parsedParams);
 
         return this._removeBody(resp);
@@ -187,11 +172,7 @@ export class WrappedClient {
      * @returns boolean
     */
     async exists(params: methods.ExistsParams): Promise<methods.ExistsResponse> {
-        const convertedParams = methods.convertExistsParams(
-            params,
-            this.distribution,
-            this.version
-        );
+        const convertedParams = methods.convertExistsParams(params, this.distributionMeta);
 
         const resp = await this.client.exists(convertedParams);
 
@@ -203,13 +184,11 @@ export class WrappedClient {
      * @param methods.GetParams
      * @returns Object
     */
-
     async get<T = Record<string, unknown>>(
         params: methods.GetParams
     ): Promise<methods.GetResponse<T>> {
-        const parsedParams = methods.convertGetParams(
-            params, this.distribution, this.version
-        );
+        const parsedParams = methods.convertGetParams(params, this.distributionMeta);
+
         const response = await this.client.get(parsedParams);
 
         return this._removeBody(response);
@@ -220,7 +199,8 @@ export class WrappedClient {
      * @returns object with cluster info
     */
     async info(): Promise<InfoResponse> {
-        methods.validateDistribution(this.distribution, this.version);
+        methods.validateDistribution(this.distributionMeta);
+
         const resp = await this.client.info();
 
         return this._removeBody(resp);
@@ -231,8 +211,10 @@ export class WrappedClient {
      * @returns Boolean
     */
     async ping(): Promise<boolean> {
-        methods.validateDistribution(this.distribution, this.version);
+        methods.validateDistribution(this.distributionMeta);
+
         const resp = await this.client.ping();
+
         return this._removeBody(resp);
     }
 
@@ -240,10 +222,9 @@ export class WrappedClient {
      * Returns search hits that match the query defined in the request.
      * @param SearchParams
      * @returns Array of Record<string, any>
-     */
-
+    */
     async search(params: methods.SearchParams): Promise<methods.SearchResponse> {
-        const parsedParams = methods.convertSearchParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertSearchParams(params, this.distributionMeta);
 
         const resp = await this.client.search(parsedParams);
 
@@ -254,10 +235,9 @@ export class WrappedClient {
      * The multi search execution of several searches within the same API request
      * @param MSearchParams
      * @returns Array of Record<string, any>
-     */
-
+    */
     async msearch(params: methods.MSearchParams): Promise<methods.MSearchResponse> {
-        const parsedParams = methods.convertMSearchParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertMSearchParams(params, this.distributionMeta);
 
         const resp = await this.client.msearch(parsedParams);
 
@@ -268,10 +248,9 @@ export class WrappedClient {
      * The multi get execution of multiple-get searches from a single API request
      * @param MGetParams
      * @returns Array of Record<string, any>
-     */
-
+    */
     async mget(params: methods.MGetParams): Promise<methods.MGetResponse> {
-        const parsedParams = methods.convertMGetParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertMGetParams(params, this.distributionMeta);
 
         const resp = await this.client.mget(parsedParams);
 
@@ -284,7 +263,7 @@ export class WrappedClient {
      * @returns Report of re-indexing task or task id if wait_for_completion is false
     */
     async reindex(params: methods.ReindexParams): Promise<methods.ReindexResponse> {
-        const parsedParams = methods.convertReIndexParams(params, this.distribution, this.version);
+        const parsedParams = methods.convertReIndexParams(params, this.distributionMeta);
 
         const resp = await this.client.reindex(parsedParams);
 
@@ -293,8 +272,7 @@ export class WrappedClient {
 
     get indices() {
         const {
-            distribution,
-            version,
+            distributionMeta,
             client,
             _removeBody
         } = this;
@@ -307,11 +285,7 @@ export class WrappedClient {
              */
             async create(params: methods.IndicesCreateParams):
             Promise<methods.IndicesCreateResponse> {
-                const parsedParams = methods.convertIndicesCreateParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertIndicesCreateParams(params, distributionMeta);
 
                 const resp = await client.indices.create(parsedParams);
 
@@ -324,11 +298,7 @@ export class WrappedClient {
              */
             async delete(params: methods.IndicesDeleteParams):
             Promise<methods.IndicesDeleteResponse> {
-                const parsedParams = methods.convertIndicesDeleteParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertIndicesDeleteParams(params, distributionMeta);
 
                 const resp = await client.indices.delete(parsedParams);
 
@@ -342,11 +312,7 @@ export class WrappedClient {
             async exists(
                 params: methods.IndicesExistsParams
             ): Promise<methods.IndicesExistsResponse> {
-                const parsedParams = methods.convertIndicesExistsParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertIndicesExistsParams(params, distributionMeta);
 
                 const resp = await client.indices.exists(parsedParams);
 
@@ -358,7 +324,7 @@ export class WrappedClient {
              * @returns
             */
             async get(params: methods.IndicesGetParams): Promise<methods.IndicesGetResponse> {
-                const parsedParams = methods.convertIndicesGetParams(params, distribution, version);
+                const parsedParams = methods.convertIndicesGetParams(params, distributionMeta);
 
                 const resp = await client.indices.get(parsedParams);
 
@@ -368,13 +334,11 @@ export class WrappedClient {
              * Uploads index mapping template
              * @param IndicesPutTemplateParams
              * @returns IndicesPutTemplateResponse
-             */
+            */
             async putTemplate(params: methods.IndicesPutTemplateParams):
             Promise<methods.IndicesPutTemplateResponse> {
                 const parsedParams = methods.convertIndicesPutTemplateParams(
-                    params,
-                    distribution,
-                    version
+                    params, distributionMeta
                 );
 
                 const resp = await client.indices.putTemplate(parsedParams);
@@ -389,9 +353,7 @@ export class WrappedClient {
             async deleteTemplate(params: methods.IndicesDeleteTemplateParams):
             Promise<methods.IndicesDeleteTemplateResponse> {
                 const parsedParams = methods.convertIndicesDeleteTemplateParams(
-                    params,
-                    distribution,
-                    version
+                    params, distributionMeta
                 );
 
                 const resp = await client.indices.deleteTemplate(parsedParams);
@@ -407,9 +369,7 @@ export class WrappedClient {
                 params: methods.IndicesExistsTemplateParams
             ): Promise<methods.IndicesExistsTemplateResponse> {
                 const parsedParams = methods.convertIndicesExistsTemplateParams(
-                    params,
-                    distribution,
-                    version
+                    params, distributionMeta,
                 );
 
                 const resp = await client.indices.existsTemplate(parsedParams);
@@ -424,9 +384,7 @@ export class WrappedClient {
             async getTemplate(params: methods.IndicesGetTemplateParams):
             Promise<methods.IndicesGetTemplateResponse> {
                 const parsedParams = methods.convertIndicesGetTemplateParams(
-                    params,
-                    distribution,
-                    version
+                    params, distributionMeta
                 );
 
                 const resp = await client.indices.getTemplate(parsedParams);
@@ -435,16 +393,16 @@ export class WrappedClient {
             },
             /**
              * Returns index template
-             * @params IndicesGetIndexTemplateParams
+             * @param IndicesGetIndexTemplateParams
              * @returns IndicesGetIndexTemplateResponse
              * not supported by elasticsearch version 6
-             */
+             * same params as IndicesGetTemplateParams
+            */
             async getIndexTemplate(params: methods.IndicesGetTemplateParams):
             Promise<methods.IndicesGetIndexTemplateResponse> {
-                const parsedParams = methods.convertIndicesGetTemplateParams(
+                const parsedParams = methods.convertIndicesGetIndexTemplateParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
 
                 const resp = await client.indices.getIndexTemplate(parsedParams);
@@ -452,106 +410,137 @@ export class WrappedClient {
                 return _removeBody(resp);
             },
 
+            /**
+             * Retrieves mapping definitions for one or more indices
+             * @param IndicesGetMappingParams
+             * @returns IndicesGetMappingResponse
+            */
             async getMapping(
                 params: methods.IndicesGetMappingParams
             ): Promise<methods.IndicesGetMappingResponse> {
                 const parsedParams = methods.convertIndicesGetMappingParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
+
                 const resp = await client.indices.getMapping(parsedParams);
 
                 return _removeBody(resp);
             },
 
+            /**
+             * Adds new fields to an existing index or edit the search settings of existing fields.
+             * @param IndicesPutMappingParams
+             * @returns IndicesPutMappingResponse
+            */
             async putMapping(
                 params: methods.IndicesPutMappingParams
             ): Promise< methods.IndicesPutMappingResponse> {
                 const parsedParams = methods.convertIndicesPutMappingParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
                 const resp = await client.indices.putMapping(parsedParams);
 
                 return _removeBody(resp);
             },
 
+            /**
+             * Retrieves mapping definitions for one or more fields.
+             * @param IndicesGetFieldMappingParams
+             * @response IndicesGetFieldMappingResponse
+            */
             async getFieldMapping(params: methods.IndicesGetFieldMappingParams
             ): Promise<methods.IndicesGetFieldMappingResponse> {
                 const parsedParams = methods.convertIndicesGetFieldMappingParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
+
                 const resp = await client.indices.getSettings(parsedParams);
 
                 return _removeBody(resp);
             },
 
+            /**
+             * Returns setting information for one or more indices
+             * @param IndicesGetSettingsParams
+             * @returns IndicesGetSettingsResponse
+             */
             async getSettings(
                 params: methods.IndicesGetSettingsParams
             ): Promise<methods.IndicesGetSettingsResponse> {
                 const parsedParams = methods.convertIndicesGetSettingsParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta,
                 );
+
                 const resp = await client.indices.getSettings(parsedParams);
 
                 return _removeBody(resp);
             },
 
+            /**
+             * Changes a dynamic index setting in real time.
+             * @param IndicesPutSettingsParams
+             * @returns IndicesPutSettingsResponse
+            */
             async putSettings(
                 params: methods.IndicesPutSettingsParams
             ): Promise<methods.IndicesPutSettingsResponse> {
                 const parsedParams = methods.convertIndicesPutSettingsParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
+
                 const resp = await client.indices.putSettings(parsedParams);
 
                 return _removeBody(resp);
             },
 
-            // TODO: can this be an empty query?
+            /**
+             * Makes a recent operation performed on one or more indices available for search.
+             * @param IndicesRefreshParams
+             * @returns IndicesRefreshResponse
+             * can be an empty query
+            */
             async refresh(
                 params: methods.IndicesRefreshParams
             ): Promise<methods.IndicesRefreshResponse> {
-                const parsedParams = methods.convertIndicesRefreshParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertIndicesRefreshParams(params, distributionMeta);
+
                 const resp = await client.indices.refresh(parsedParams);
 
                 return _removeBody(resp);
             },
 
-            // TODO: can this be an empty query?
+            /**
+             * Returns information about shard recoveries for one or more indices
+             * @param IndicesRecoveryParams
+             * @returns IndicesRecoveryResponse
+             * can be an empty query
+            */
             async recovery(
                 params: methods.IndicesRecoveryParams
             ): Promise<methods.IndicesRecoveryResponse> {
-                const parsedParams = methods.convertIndicesRecoveryParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertIndicesRecoveryParams(params, distributionMeta);
 
                 const resp = await client.indices.recovery(parsedParams);
 
                 return _removeBody(resp);
             },
 
+            /**
+             * Validates a query without executing it.
+             * @param IndicesValidateQueryParams
+             * @returns IndicesValidateQueryResponse
+             */
             async validateQuery(
                 params: methods.IndicesValidateQueryParams
             ): Promise<methods.IndicesValidateQueryResponse> {
-                const parsedParams = methods.convertIndicesValidateQueryPParams(
+                const parsedParams = methods.convertIndicesValidateQueryParams(
                     params,
-                    distribution,
-                    version
+                    distributionMeta
                 );
 
                 const resp = await client.indices.validateQuery(parsedParams);
@@ -563,8 +552,7 @@ export class WrappedClient {
 
     get tasks() {
         const {
-            distribution,
-            version,
+            distributionMeta,
             client,
             _removeBody
         } = this;
@@ -576,11 +564,7 @@ export class WrappedClient {
              * @returns TasksCancelResponse
             */
             async cancel(params: methods.TasksCancelParams): Promise<methods.TasksCancelResponse> {
-                const parsedParams = methods.convertTasksCancelParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertTasksCancelParams(params, distributionMeta);
 
                 const resp = await client.tasks.cancel(parsedParams);
 
@@ -592,11 +576,7 @@ export class WrappedClient {
              * @returns TasksGetResponse
             */
             async get(params: methods.TasksGetParams): Promise<methods.TasksGetResponse> {
-                const parsedParams = methods.convertTasksGetParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertTasksGetParams(params, distributionMeta);
 
                 const resp = await client.tasks.get(parsedParams);
 
@@ -605,14 +585,10 @@ export class WrappedClient {
             /**
              * Returns information about the tasks currently executing in the cluster.
              * @param TasksListParams
-             * @returns
-             */
+             * @returns TasksListResponse
+            */
             async list(params: methods.TasksListParams): Promise<methods.TasksListResponse> {
-                const parsedParams = methods.convertTasksListParams(
-                    params,
-                    distribution,
-                    version
-                );
+                const parsedParams = methods.convertTasksListParams(params, distributionMeta);
 
                 const resp = await client.tasks.list(parsedParams);
 

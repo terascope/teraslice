@@ -64,7 +64,7 @@ export interface ClientConfig extends ClientOptions {
     username?: string;
 }
 
-export interface ServerMetadata extends ClientMetadata {
+export interface DistributionMetadata extends ClientMetadata {
     majorVersion: number;
     minorVersion: number;
 }

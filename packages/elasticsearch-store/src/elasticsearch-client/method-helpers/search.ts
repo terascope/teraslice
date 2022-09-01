@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 import {
     ExpandWildcards,
     TimeSpan,
@@ -82,31 +82,37 @@ interface HitsTotal {
 
 export function convertSearchParams(
     params: SearchParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
-    qDependentFieldsCheck(params);
+    const {
+        type = '_doc',
+        ...parsedParams
+    } = params;
+
+    qDependentFieldsCheck(parsedParams);
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                type,
-                ...parsedParams
-            } = params;
-
+        if (majorVersion === 8 || majorVersion === 7) {
             return parsedParams;
         }
 
-        if (majorVersion === 7 || majorVersion === 6) {
-            return params;
+        if (majorVersion === 6) {
+            return {
+                type,
+                ...parsedParams
+            };
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            return params;
+            return parsedParams;
         }
     }
 

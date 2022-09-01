@@ -5,7 +5,7 @@ import type {
     MappingDynamicTemplate, MappingRuntimeField
 } from './indicesGetSettings';
 import type { MappingFieldMapping } from './indicesGetFieldMapping';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesPutMappingParams {
     index?: string | string []
@@ -78,45 +78,39 @@ export interface IndicesPutMappingTypeFieldMappings {
 
 export function convertIndicesPutMappingParams(
     params: IndicesPutMappingParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
+        const {
+            include_type_name,
+            type = '_doc',
+            ...parsedParams
+        } = params;
 
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
-
+        if (majorVersion === 8 || majorVersion === 7) {
             return parsedParams;
         }
 
         if (majorVersion === 6) {
-            const {
-                write_index_only,
+            return {
+                type,
                 ...parsedParams
-            } = params;
-
-            return parsedParams;
+            };
         }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             const {
-                include_type_name, type, master_timeout,
+                include_type_name,
+                type,
+                master_timeout,
                 ...parsedParams
             } = params;
 
@@ -127,9 +121,7 @@ export function convertIndicesPutMappingParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

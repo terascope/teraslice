@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { ShardStatistics, ExpandWildcards } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesRefreshParams {
     index?: string ;
@@ -17,33 +17,23 @@ export interface ShardsOperationResponseBase {
 
 export function convertIndicesRefreshParams(
     params: IndicesRefreshParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            return params;
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-
-        if (majorVersion === 6) {
-            return params;
-        }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+        if ([6, 7, 8].includes(majorVersion)) return params;
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

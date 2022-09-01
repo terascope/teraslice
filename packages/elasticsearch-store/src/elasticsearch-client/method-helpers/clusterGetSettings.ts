@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface ClusterGetSettingsParams {
     flat_settings?: boolean
@@ -15,34 +15,25 @@ export interface ClusterGetSettingsResponse {
 
 export function convertClusterSettingsParams(
     params: ClusterGetSettingsParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            // make sure to remove type
+        if ([6, 7, 8].includes(majorVersion)) {
             return params;
         }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-
-        if (majorVersion === 6) {
-            return params;
-        }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

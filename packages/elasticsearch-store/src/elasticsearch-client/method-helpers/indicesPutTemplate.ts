@@ -1,7 +1,7 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils';
 import type { TimeSpan, IndexTemplateProperties } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesPutTemplateParams {
     name: string;
@@ -18,10 +18,14 @@ export interface IndicesPutTemplateResponse {
 
 export function convertIndicesPutTemplateParams(
     params: IndicesPutTemplateParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
@@ -31,10 +35,10 @@ export function convertIndicesPutTemplateParams(
             } = params;
 
             return {
-                index_patterns: body.index_patterns,
-                aliases: body.aliases,
-                mappings: ensureNoTypeInMapping(body.mappings),
-                settings: body.settings,
+                index_patterns: body?.index_patterns,
+                aliases: body?.aliases,
+                mappings: ensureNoTypeInMapping(body?.mappings),
+                settings: body?.settings,
                 ...parsedParams
             };
         }
@@ -64,5 +68,5 @@ export function convertIndicesPutTemplateParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

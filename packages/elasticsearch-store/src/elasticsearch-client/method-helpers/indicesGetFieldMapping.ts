@@ -1,7 +1,7 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { ExpandWildcards } from './interfaces';
 import type { MappingProperty } from './indicesGetSettings';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesGetFieldMappingParams {
     fields: string | string[]
@@ -28,43 +28,38 @@ export interface MappingFieldMapping {
 
 export function convertIndicesGetFieldMappingParams(
     params: IndicesGetFieldMappingParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
+    const {
+        include_type_name,
+        type = '_doc',
+        ...parsedParams
+    } = params;
+
+    if (distribution === ElasticsearchDistribution.elasticsearch) {
+        if (majorVersion === 8 || majorVersion === 7) {
             return parsedParams;
         }
 
-        if (majorVersion === 7) {
-            return params;
-        }
-
         if (majorVersion === 6) {
-            return params;
+            return {
+                type,
+                ...parsedParams
+            };
         }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
-
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

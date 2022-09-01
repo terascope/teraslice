@@ -1,7 +1,7 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { Script, ExpandWildcards } from './interfaces';
 import type { IndicesIndexSettings } from './indicesPutSettings';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesGetSettingsParams {
     index?: string | string[]
@@ -536,24 +536,16 @@ export interface IndicesIndexStatePrefixedSettings {
 
 export function convertIndicesGetSettingsParams(
     params: IndicesGetSettingsParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            return params;
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
-
-        if (majorVersion === 6) {
-            return params;
-        }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+        if ([6, 7, 8].includes(majorVersion)) return params;
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -569,9 +561,7 @@ export function convertIndicesGetSettingsParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

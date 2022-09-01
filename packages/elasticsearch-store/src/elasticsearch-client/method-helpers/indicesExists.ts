@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { ExpandWildcards } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesExistsParams {
     index: string | string[];
@@ -16,10 +16,14 @@ export type IndicesExistsResponse = boolean;
 
 export function convertIndicesExistsParams(
     params: IndicesExistsParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if ([6, 7, 8].includes(majorVersion)) return params;
     }
@@ -30,5 +34,5 @@ export function convertIndicesExistsParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

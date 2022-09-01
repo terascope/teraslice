@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { WriteResponseBase, VersionType } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DeleteResponse extends WriteResponseBase {}
@@ -21,51 +21,37 @@ export interface DeleteParams {
 
 export function convertDeleteParams(
     params: Record<string, any>,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
+    const {
+        type = '_doc',
+        ...parsedParams
+    } = params;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            // make sure to remove type
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
-            const {
-                type, ...parsedParams
-            } = params;
-
+        if (majorVersion === 8 || majorVersion === 7) {
             return parsedParams;
         }
 
         if (majorVersion === 6) {
-            const {
-                type = '_doc', ...parsedParams
-            } = params;
-            // ES6 version requires a type to be set
-            parsedParams.type = type;
-            return parsedParams;
+            return {
+                type,
+                ...parsedParams
+            };
         }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            const {
-                type, ...parsedParams
-            } = params;
-
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

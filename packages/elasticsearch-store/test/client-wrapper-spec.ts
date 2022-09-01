@@ -1,9 +1,15 @@
 /* eslint-disable jest/no-disabled-tests */
-import { DataEntity, debugLogger, toNumber } from '@terascope/utils';
+import {
+    DataEntity,
+    debugLogger,
+    toNumber,
+    cloneDeep
+} from '@terascope/utils';
+
 import {
     createClient,
     WrappedClient,
-    Semver,
+    DistributionMetadata,
     ClientParams,
 } from '../src';
 import {
@@ -30,9 +36,14 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     const config = { node: host };
 
-    const semver = version.split('.').map(toNumber) as unknown as Semver;
+    const [majorVersion, minorVersion] = version.split('.').map(toNumber);
 
-    const majorVersion = semver[0];
+    const distributionMetadata: DistributionMetadata = {
+        version,
+        distribution,
+        majorVersion,
+        minorVersion
+    };
 
     let wrappedClient: WrappedClient;
     let client: any;
@@ -42,14 +53,14 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         await cleanupIndex(client, index);
 
-        if (semver.length !== 3) {
+        if (version.split('.').length !== 3) {
             throw new Error(`Expected version to follow semver format (major.minor.patch) got ${version}`);
         }
 
         await upload(client, { index, type: docType }, data);
         await waitForData(client, index, 1000);
 
-        wrappedClient = new WrappedClient(client, distribution, semver);
+        wrappedClient = new WrappedClient(client, distributionMetadata);
     });
 
     describe('info', () => {
@@ -73,7 +84,13 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('should throw an error if tried on a non-supported distribution', async () => {
-            const badDistribution = new WrappedClient(client, distribution, [3, 2, 1]);
+            const badVersion = cloneDeep(distributionMetadata);
+
+            badVersion.version = '3.2.1';
+            badVersion.majorVersion = 3;
+            badVersion.minorVersion = 2;
+
+            const badDistribution = new WrappedClient(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 3.2.1`);
         });
@@ -87,7 +104,13 @@ describe('can create an elasticsearch or opensearch client', () => {
         });
 
         it('should throw an error if tried on a non-supported distribution', async () => {
-            const badDistribution = new WrappedClient(client, distribution, [10, 0, 0]);
+            const badVersion = cloneDeep(distributionMetadata);
+
+            badVersion.version = '10.0.0';
+            badVersion.majorVersion = 10;
+            badVersion.minorVersion = 0;
+
+            const badDistribution = new WrappedClient(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 10.0.0`);
         });
@@ -440,12 +463,13 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('should handle docs in body property', async () => {
             const params = {
+                index: mgetIndex,
                 body: {
                     docs:
                         [
-                            { _index: 'test-mget', _id: '1' },
-                            { _index: 'test-mget', _id: '7' },
-                            { _index: 'test-mget', _id: '4' }
+                            { _index: mgetIndex, _id: '1' },
+                            { _index: mgetIndex, _id: '7' },
+                            { _index: mgetIndex, _id: '4' }
                         ]
                 }
             };
@@ -459,12 +483,13 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('should handle docs with _type doc objects', async () => {
             const params = {
+                index: mgetIndex,
                 body: {
                     docs:
                         [
-                            { _index: 'test-mget', _id: '1', _type: docType },
-                            { _index: 'test-mget', _id: '7', _type: docType },
-                            { _index: 'test-mget', _id: '4', _type: docType }
+                            { _index: mgetIndex, _id: '1', _type: docType },
+                            { _index: mgetIndex, _id: '7', _type: docType },
+                            { _index: mgetIndex, _id: '4', _type: docType }
                         ]
                 }
             };
@@ -513,7 +538,7 @@ describe('can create an elasticsearch or opensearch client', () => {
     describe('search', () => {
         const searchIndex = 'test-search';
 
-        const total = getTotalFormat(distribution, semver[0], 1);
+        const total = getTotalFormat(distribution, majorVersion, 1);
 
         beforeAll(async () => {
             const testData = data.slice(0, 10)
@@ -605,7 +630,7 @@ describe('can create an elasticsearch or opensearch client', () => {
     describe('msearch', () => {
         const msearchIndex = 'test-msearch';
 
-        const total = getTotalFormat(distribution, semver[0], 1);
+        const total = getTotalFormat(distribution, majorVersion, 1);
 
         beforeAll(async () => {
             const testData = data.slice(0, 10)
@@ -623,6 +648,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('should return requested records', async () => {
             const params = {
+                index: msearchIndex,
                 body: [
                     { index: msearchIndex },
                     { query: { match: { uuid: 'bd920141-45b3-41fd-8eea-b1640a2fa3d2' } } },
@@ -665,6 +691,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         it('should handle ccs_minimize_roundtrips in params and return requested records', async () => {
             const params = {
+                index: msearchIndex,
                 ccs_minimize_roundtrips: true,
                 body: [
                     { index: msearchIndex, type: docType },
@@ -874,7 +901,7 @@ describe('can create an elasticsearch or opensearch client', () => {
             const resp = await wrappedClient.reindex(params);
 
             if (distribution === 'elasticsearch') {
-                if (semver[0] === 6) {
+                if (majorVersion === 6) {
                     expect(resp.total).toBe(10);
                     expect(resp.created).toBe(10);
                 } else {
@@ -1316,7 +1343,7 @@ describe('can create an elasticsearch or opensearch client', () => {
             const resp = await wrappedClient.indices.getTemplate(params);
 
             if (distribution === 'elasticsearch' && majorVersion === 6) {
-                if (semver[0] === 6) {
+                if (majorVersion === 6) {
                     expect(resp).toEqual({
                         [tempName]: {
                             order: 0,
