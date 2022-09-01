@@ -6,7 +6,7 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { ExposedFunctions } from './client-functions';
+import { ExposedFunctions } from './exposed-functions';
 import { logWrapper } from './log-wrapper';
 import {
     ClientConfig,
