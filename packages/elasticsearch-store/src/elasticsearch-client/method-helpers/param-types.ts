@@ -37,7 +37,7 @@ import type { TasksGetParams } from './tasksGet';
 import type { TasksListParams } from './tasksList';
 import type { UpdateParams } from './update';
 
-export {
+export type {
     BulkParams,
     CatIndicesParams,
     ClusterGetSettingsParams,

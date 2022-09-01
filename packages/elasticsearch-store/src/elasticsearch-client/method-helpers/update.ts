@@ -50,7 +50,7 @@ export function convertUpdateParams(
             } = params;
             // ES8 does not have body
             return {
-                document: body,
+                doc: body,
                 ...parsedParams
             };
         }
@@ -67,9 +67,11 @@ export function convertUpdateParams(
             const {
                 type = '_doc', ...parsedParams
             } = params;
-            // @ts-ignore type is required in v6 query
-            parsedParams.type = type;
-            return parsedParams;
+
+            return {
+                type,
+                ...parsedParams
+            };
         }
 
         throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
