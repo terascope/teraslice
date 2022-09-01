@@ -6,7 +6,7 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { WrappedClient } from './client_wrapper';
+import { ExposedFunctions } from './client-functions';
 import { logWrapper } from './log-wrapper';
 import {
     ClientConfig,
@@ -14,6 +14,21 @@ import {
 } from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
+
+export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
+    const distributionMetadata = await getDistributionMetadata(config, logger);
+
+    const { client } = await getBaseClient(
+        distributionMetadata,
+        config,
+        logger
+    );
+
+    return {
+        client: new ExposedFunctions(client, distributionMetadata),
+        log: logger
+    };
+}
 
 async function getDistributionMetadata(
     config: Record<string, any>,
@@ -66,27 +81,7 @@ async function getDistributionMetadata(
     throw new Error(`Could not create a client with config ${JSON.stringify(config)}`);
 }
 
-export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
-    const distributionMetadata = await getDistributionMetadata(config, logger);
-
-    const { client } = await selectBaseClient(
-        distributionMetadata,
-        config,
-        logger
-    );
-
-    const wrappedClient = new WrappedClient(
-        client,
-        distributionMetadata
-    );
-
-    return {
-        client: wrappedClient,
-        log: logger
-    };
-}
-
-async function selectBaseClient(
+export async function getBaseClient(
     distributionMetadata: DistributionMetadata,
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
@@ -104,11 +99,7 @@ async function selectBaseClient(
 
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {
-            // TODO: clean this up
-            const openConfig = {
-                ...config,
-            };
-            const client = new opensearch.Client(openConfig as any);
+            const client = new opensearch.Client(config as any);
 
             // @ts-expect-error
             client.__meta = serverMetadata;

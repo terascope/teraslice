@@ -2,7 +2,7 @@ import * as methods from './method-helpers';
 import { InfoResponse } from './method-helpers/interfaces';
 import { DistributionMetadata } from './interfaces';
 
-export class WrappedClient {
+export class ExposedFunctions {
     private client: any;
     private distributionMeta: DistributionMetadata;
 

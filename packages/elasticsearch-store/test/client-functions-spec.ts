@@ -8,7 +8,8 @@ import {
 
 import {
     createClient,
-    WrappedClient,
+    getBaseClient,
+    ExposedFunctions,
     DistributionMetadata,
     ClientParams,
 } from '../src';
@@ -22,7 +23,7 @@ import {
 } from './helpers/elasticsearch';
 import { data } from './helpers/data';
 
-describe('can create an elasticsearch or opensearch client', () => {
+describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
     const docType = '_doc';
 
@@ -45,7 +46,6 @@ describe('can create an elasticsearch or opensearch client', () => {
         minorVersion
     };
 
-    let wrappedClient: WrappedClient;
     let client: any;
 
     beforeAll(async () => {
@@ -59,13 +59,11 @@ describe('can create an elasticsearch or opensearch client', () => {
 
         await upload(client, { index, type: docType }, data);
         await waitForData(client, index, 1000);
-
-        wrappedClient = new WrappedClient(client, distributionMetadata);
     });
 
     describe('info', () => {
         it('should return info about the cluster', async () => {
-            const resp = await wrappedClient.info();
+            const resp = await client.info();
 
             if (distribution === 'elasticsearch') {
                 if (version.split('.')[0] === '8') {
@@ -90,7 +88,7 @@ describe('can create an elasticsearch or opensearch client', () => {
             badVersion.majorVersion = 3;
             badVersion.minorVersion = 2;
 
-            const badDistribution = new WrappedClient(client, badVersion);
+            const badDistribution = new ExposedFunctions(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 3.2.1`);
         });
@@ -98,7 +96,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('ping', () => {
         it('should return true if cluster is running', async () => {
-            const resp = await wrappedClient.ping();
+            const resp = await client.ping();
 
             expect(resp).toBe(true);
         });
@@ -110,7 +108,7 @@ describe('can create an elasticsearch or opensearch client', () => {
             badVersion.majorVersion = 10;
             badVersion.minorVersion = 0;
 
-            const badDistribution = new WrappedClient(client, badVersion);
+            const badDistribution = new ExposedFunctions(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 10.0.0`);
         });
@@ -118,7 +116,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('count', () => {
         it('can return how many match a query', async () => {
-            const response = await wrappedClient.count({ index });
+            const response = await client.count({ index });
 
             expect(response).toBeObject();
             expect(response).toHaveProperty('count');
@@ -143,7 +141,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 },
             };
 
-            const response = await wrappedClient.count(bodyTypeQuery);
+            const response = await client.count(bodyTypeQuery);
             expect(response).toMatchObject({ count: 1 });
         });
     });
@@ -165,7 +163,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 body: bulkData
             };
 
-            const response = await wrappedClient.bulk(request);
+            const response = await client.bulk(request);
 
             expect(response).toHaveProperty('took');
             expect(response).toHaveProperty('errors', false);
@@ -203,7 +201,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 body: record
             };
 
-            const response = await wrappedClient.create(bodyTypeQuery);
+            const response = await client.create(bodyTypeQuery);
 
             expect(response).toHaveProperty('_index', createIndex);
             expect(response).toHaveProperty('_id', recordID);
@@ -236,7 +234,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 body: doc
             };
 
-            const response = await wrappedClient.index(query);
+            const response = await client.index(query);
 
             expect(response).toHaveProperty('_index', testIndex);
             expect(response).toHaveProperty('_id');
@@ -289,7 +287,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 refresh: true
             };
 
-            const response = await wrappedClient.update(query);
+            const response = await client.update(query);
 
             expect(response).toHaveProperty('_index', testIndex);
             expect(response).toHaveProperty('_id', id1);
@@ -312,7 +310,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 refresh: true
             };
 
-            const response = await wrappedClient.update(query);
+            const response = await client.update(query);
 
             expect(response).toHaveProperty('_index', testIndex);
             expect(response).toHaveProperty('_id', id2);
@@ -344,7 +342,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 id: '3849b210-d8b8-4708-b70d-90b043a2598d'
             };
 
-            const response = await wrappedClient.delete(bodyTypeQuery);
+            const response = await client.delete(bodyTypeQuery);
 
             expect(response).toHaveProperty('_index', deleteIndex);
             expect(response).toHaveProperty('_id', '3849b210-d8b8-4708-b70d-90b043a2598d');
@@ -386,7 +384,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 },
             };
 
-            const response = await wrappedClient.deleteByQuery(bodyTypeQuery);
+            const response = await client.deleteByQuery(bodyTypeQuery);
 
             expect(response).toHaveProperty('took');
             expect(response).toHaveProperty('total', 406);
@@ -415,7 +413,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 id: record.uuid,
             };
 
-            const response = await wrappedClient.get(bodyTypeQuery);
+            const response = await client.get(bodyTypeQuery);
 
             expect(response).toHaveProperty('_index', index);
             expect(response).toHaveProperty('_id', record.uuid);
@@ -435,7 +433,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 location, ipv6, userAgent, ...parsedRecord
             } = record;
 
-            const response = await wrappedClient.get(bodyTypeQuery);
+            const response = await client.get(bodyTypeQuery);
 
             expect(response).toHaveProperty('_index', index);
             expect(response).toHaveProperty('_id', record.uuid);
@@ -474,7 +472,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.mget(params) as any;
+            const resp = await client.mget(params) as any;
 
             expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
             expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
@@ -494,7 +492,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.mget(params) as any;
+            const resp = await client.mget(params) as any;
 
             expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
             expect(resp.docs[1]._source?.uuid).toBe('b284b6c9-43bb-4c59-a4e4-fdb17b004300');
@@ -509,7 +507,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.mget(params) as any;
+            const resp = await client.mget(params) as any;
 
             expect(resp.docs.length).toBe(3);
             expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
@@ -526,7 +524,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.mget(params) as any;
+            const resp = await client.mget(params) as any;
 
             expect(resp.docs.length).toBe(3);
             expect(resp.docs[0]._source?.uuid).toBe('b23a8550-0081-453f-9e80-93a90782a5bd');
@@ -560,7 +558,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 q: 'uuid:bea4086e-6f2e-4f4b-a1bf-c20330f92e8c'
             };
 
-            const resp = await wrappedClient.search(params);
+            const resp = await client.search(params);
 
             expect(resp.hits.total).toEqual(total);
 
@@ -583,7 +581,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 q: 'uuid:bea4086e-6f2e-4f4b-a1bf-c20330f92e8c'
             };
 
-            const resp = await wrappedClient.search(params);
+            const resp = await client.search(params);
 
             expect(resp.hits.total).toEqual(total);
             expect(resp.hits.hits[0]._source).toEqual({
@@ -611,7 +609,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.search(params);
+            const resp = await client.search(params);
 
             expect(resp.hits.total).toEqual(total);
             expect(resp.hits.hits[0]._source).toEqual({
@@ -657,7 +655,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 ]
             };
 
-            const resp = await wrappedClient.msearch(params);
+            const resp = await client.msearch(params);
 
             expect(resp.responses.length).toBe(2);
 
@@ -679,7 +677,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 ]
             };
 
-            const resp = await wrappedClient.msearch(params);
+            const resp = await client.msearch(params);
 
             expect(resp.responses.length).toBe(2);
 
@@ -701,7 +699,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 ]
             };
 
-            const resp = await wrappedClient.msearch(params);
+            const resp = await client.msearch(params);
 
             expect(resp.responses.length).toBe(2);
 
@@ -735,7 +733,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: existsIndex
             };
 
-            const resp = await wrappedClient.exists(params);
+            const resp = await client.exists(params);
 
             expect(resp).toBe(true);
         });
@@ -746,7 +744,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: existsIndex
             };
 
-            const resp = await wrappedClient.exists(params);
+            const resp = await client.exists(params);
 
             expect(resp).toBe(false);
         });
@@ -762,7 +760,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 routing: '1'
             };
 
-            const resp = await wrappedClient.exists(params);
+            const resp = await client.exists(params);
 
             expect(resp).toBe(true);
         });
@@ -806,7 +804,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.reindex(params);
+            const resp = await client.reindex(params);
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -826,7 +824,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.reindex(params);
+            const resp = await client.reindex(params);
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -850,7 +848,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.reindex(params);
+            const resp = await client.reindex(params);
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -871,7 +869,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.reindex(params);
+            const resp = await client.reindex(params);
 
             expect(resp.total).toBe(1);
             expect(resp.created).toBe(1);
@@ -898,7 +896,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.reindex(params);
+            const resp = await client.reindex(params);
 
             if (distribution === 'elasticsearch') {
                 if (majorVersion === 6) {
@@ -914,7 +912,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('cluster.getSettings', () => {
         it('can fetch settings from the cluster', async () => {
-            const response = await wrappedClient.cluster.getSettings();
+            const response = await client.cluster.getSettings();
 
             expect(response).toHaveProperty('persistent');
             expect(response).toHaveProperty('transient');
@@ -923,7 +921,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('cluster.health', () => {
         it('can fetch the health of the cluster', async () => {
-            const response = await wrappedClient.cluster.health();
+            const response = await client.cluster.health();
 
             expect(response).toHaveProperty('cluster_name');
             expect(response).toHaveProperty('status');
@@ -940,7 +938,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('cat.indices', () => {
         it('can print out the indices status', async () => {
-            const response = await wrappedClient.cat.indices();
+            const response = await client.cat.indices();
 
             expect(typeof response).toEqual('string');
             expect(response).toInclude(index);
@@ -951,7 +949,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('nodes.info', () => {
         it('can fetch info from the nodes', async () => {
-            const response = await wrappedClient.nodes.info();
+            const response = await client.nodes.info();
 
             expect(response).toHaveProperty('cluster_name');
             expect(response).toHaveProperty('_nodes');
@@ -975,7 +973,7 @@ describe('can create an elasticsearch or opensearch client', () => {
 
     describe('nodes.stats', () => {
         it('can fetch stats from the nodes', async () => {
-            const response = await wrappedClient.nodes.stats();
+            const response = await client.nodes.stats();
 
             expect(response).toHaveProperty('cluster_name');
             expect(response).toHaveProperty('_nodes');
@@ -1019,7 +1017,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: testIndex
             };
 
-            const resp = await wrappedClient.indices.get(params);
+            const resp = await client.indices.get(params);
 
             expect(resp).toHaveProperty(testIndex);
             expect(resp[testIndex]).toHaveProperty('settings');
@@ -1038,7 +1036,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: 'test-indices-g*'
             };
 
-            const resp = await wrappedClient.indices.get(params);
+            const resp = await client.indices.get(params);
 
             expect(resp).toHaveProperty(testIndex);
             expect(resp[testIndex]).toHaveProperty('settings');
@@ -1062,7 +1060,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 master_timeout: '60s'
             };
 
-            const resp = await wrappedClient.indices.get(params);
+            const resp = await client.indices.get(params);
 
             expect(resp).toHaveProperty(testIndex);
             expect(resp[testIndex]).toHaveProperty('settings');
@@ -1098,7 +1096,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: testIndex
             };
 
-            const resp = await wrappedClient.indices.exists(params);
+            const resp = await client.indices.exists(params);
 
             expect(resp).toBeTrue();
         });
@@ -1114,7 +1112,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 local: true
             };
 
-            const resp = await wrappedClient.indices.exists(params);
+            const resp = await client.indices.exists(params);
 
             expect(resp).toBeTrue();
         });
@@ -1130,7 +1128,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 local: true
             };
 
-            const resp = await wrappedClient.indices.exists(params);
+            const resp = await client.indices.exists(params);
 
             expect(resp).toBeTrue();
         });
@@ -1154,7 +1152,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: testIndex
             };
 
-            const resp = await wrappedClient.indices.create(params);
+            const resp = await client.indices.create(params);
 
             expect(resp.acknowledged).toBeTrue();
             expect(resp.shards_acknowledged).toBeTrue();
@@ -1189,7 +1187,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.indices.create(params);
+            const resp = await client.indices.create(params);
 
             expect(resp.acknowledged).toBeTrue();
             expect(resp.shards_acknowledged).toBeTrue();
@@ -1221,7 +1219,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.indices.create(params);
+            const resp = await client.indices.create(params);
 
             expect(resp.acknowledged).toBeTrue();
             expect(resp.shards_acknowledged).toBeTrue();
@@ -1251,7 +1249,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 index: testIndex
             };
 
-            const resp = await wrappedClient.indices.delete(params);
+            const resp = await client.indices.delete(params);
 
             expect(resp.acknowledged).toBeTrue();
         });
@@ -1290,7 +1288,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 }
             };
 
-            const resp = await wrappedClient.indices.putTemplate(params);
+            const resp = await client.indices.putTemplate(params);
 
             expect(resp.acknowledged).toBeTrue();
         });
@@ -1317,7 +1315,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         const aliases = { template_test: {} };
 
         beforeAll(async () => {
-            await wrappedClient.indices.putTemplate({
+            await client.indices.putTemplate({
                 name: tempName,
                 body: {
                     index_patterns: indexPatterns,
@@ -1340,7 +1338,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 flat_settings: false
             };
 
-            const resp = await wrappedClient.indices.getTemplate(params);
+            const resp = await client.indices.getTemplate(params);
 
             if (distribution === 'elasticsearch' && majorVersion === 6) {
                 if (majorVersion === 6) {
@@ -1372,7 +1370,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         const tempName = 'test-template-delete';
 
         beforeAll(async () => {
-            await wrappedClient.indices.putTemplate({
+            await client.indices.putTemplate({
                 name: tempName,
                 body: {
                     index_patterns: ['test-delete-template'],
@@ -1400,7 +1398,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 master_timeout: '60s'
             };
 
-            const resp = await wrappedClient.indices.deleteTemplate(params);
+            const resp = await client.indices.deleteTemplate(params);
 
             expect(resp.acknowledged).toBeTrue();
         });
@@ -1410,7 +1408,7 @@ describe('can create an elasticsearch or opensearch client', () => {
         const tempName = 'test-template-exists';
 
         beforeAll(async () => {
-            await wrappedClient.indices.putTemplate({
+            await client.indices.putTemplate({
                 name: tempName,
                 body: {
                     index_patterns: ['test-template-exists*'],
@@ -1444,7 +1442,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 flat_settings: false
             };
 
-            const resp = await wrappedClient.indices.existsTemplate(params);
+            const resp = await client.indices.existsTemplate(params);
 
             expect(resp).toBeTrue();
         });
@@ -1457,13 +1455,13 @@ describe('can create an elasticsearch or opensearch client', () => {
                 flat_settings: false
             };
 
-            const resp = await wrappedClient.indices.existsTemplate(params);
+            const resp = await client.indices.existsTemplate(params);
 
             expect(resp).toBeFalse();
         });
     });
 
-    xdescribe('indices.getIndexTemplate', () => {
+    describe('indices.getIndexTemplate', () => {
         const tempName = 'test-template-get';
 
         const settings = {
@@ -1485,7 +1483,11 @@ describe('can create an elasticsearch or opensearch client', () => {
         let newClient: any;
 
         beforeAll(async () => {
-            const createdClient = await createClient({ node: host }, testLogger);
+            const createdClient = await getBaseClient(
+                distributionMetadata,
+                { node: host },
+                testLogger
+            );
 
             newClient = createdClient.client;
 
@@ -1516,7 +1518,7 @@ describe('can create an elasticsearch or opensearch client', () => {
             };
 
             if (majorVersion !== 6) {
-                const resp = await wrappedClient.indices.getIndexTemplate(params);
+                const resp = await client.indices.getIndexTemplate(params);
 
                 expect(resp).toEqual({
                     index_templates: [
@@ -1545,7 +1547,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 timeout: '60s'
             };
 
-            const resp = await wrappedClient.tasks.list(params);
+            const resp = await client.tasks.list(params);
 
             expect(resp.nodes).toBeDefined();
         });
@@ -1557,7 +1559,7 @@ describe('can create an elasticsearch or opensearch client', () => {
                 detailed: true
             };
 
-            const resp = await wrappedClient.tasks.list(params);
+            const resp = await client.tasks.list(params);
 
             expect(resp.tasks).toBeDefined();
         });
