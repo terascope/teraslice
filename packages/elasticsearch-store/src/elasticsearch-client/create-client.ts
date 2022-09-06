@@ -6,7 +6,7 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { ExposedFunctions } from './exposed-functions';
+import { Client as WrappedClient } from './client';
 import { logWrapper } from './log-wrapper';
 import {
     ClientConfig,
@@ -25,7 +25,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
     );
 
     return {
-        client: new ExposedFunctions(client, distributionMetadata),
+        client: new WrappedClient(client, distributionMetadata),
         log: logger
     };
 }

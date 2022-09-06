@@ -1,3 +1,3 @@
 export * from './create-client';
 export * from './interfaces';
-export * from './exposed-functions';
+export * from './client';

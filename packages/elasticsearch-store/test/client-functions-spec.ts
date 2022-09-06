@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-disabled-tests */
 import {
     DataEntity,
     debugLogger,
@@ -9,7 +8,7 @@ import {
 import {
     createClient,
     getBaseClient,
-    ExposedFunctions,
+    Client,
     DistributionMetadata,
     ClientParams,
 } from '../src';
@@ -88,7 +87,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             badVersion.majorVersion = 3;
             badVersion.minorVersion = 2;
 
-            const badDistribution = new ExposedFunctions(client, badVersion);
+            const badDistribution = new Client(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 3.2.1`);
         });
@@ -108,7 +107,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             badVersion.majorVersion = 10;
             badVersion.minorVersion = 0;
 
-            const badDistribution = new ExposedFunctions(client, badVersion);
+            const badDistribution = new Client(client, badVersion);
 
             await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 10.0.0`);
         });
@@ -371,6 +370,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
                 index: deleteByQueryIndex,
                 type: docType,
+                refresh: true,
                 body: {
                     query: {
                         constant_score: {
@@ -389,6 +389,23 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             expect(response).toHaveProperty('took');
             expect(response).toHaveProperty('total', 406);
             expect(response).toHaveProperty('deleted', 406);
+            expect(response).toHaveProperty('version_conflicts', 0);
+            expect(response).toHaveProperty('failures', []);
+        });
+
+        it('can delete multiple records by query without body present', async () => {
+            const bodyTypeQuery: ClientParams.DeleteByQueryParams = {
+                index: deleteByQueryIndex,
+                type: docType,
+                refresh: true,
+                q: 'uuid:c*'
+            };
+
+            const response = await client.deleteByQuery(bodyTypeQuery);
+
+            expect(response).toHaveProperty('took');
+            expect(response).toHaveProperty('total', 120);
+            expect(response).toHaveProperty('deleted', 120);
             expect(response).toHaveProperty('version_conflicts', 0);
             expect(response).toHaveProperty('failures', []);
         });
