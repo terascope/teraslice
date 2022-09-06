@@ -275,7 +275,7 @@ export class IndexManager {
     async getMapping(index: string): Promise<any> {
         const params: any = { index };
         if (!utils.isElasticsearch6(this.client)) {
-            params.includeTypeName = false;
+            params.include_type_name = false;
         }
         const response = await this.client.indices.getMapping(params);
         return ts.get(response, 'body', response);
@@ -291,7 +291,7 @@ export class IndexManager {
         };
         if (!utils.isElasticsearch6(this.client)) {
             delete params.type;
-            params.includeTypeName = false;
+            params.include_type_name = false;
         }
         const response = await this.client.indices.putMapping(params);
         return ts.get(response, 'body', response);
@@ -367,7 +367,7 @@ export class IndexManager {
     async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
         const params: any = { name, flatSettings };
         if (!utils.isElasticsearch6(this.client)) {
-            params.includeTypeName = false;
+            params.include_type_name = false;
         }
         const response = await this.client.indices.getTemplate(params);
         return ts.get(response, 'body', response);
