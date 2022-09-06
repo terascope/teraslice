@@ -1500,13 +1500,11 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         let newClient: any;
 
         beforeAll(async () => {
-            const createdClient = await getBaseClient(
+            newClient = await getBaseClient(
                 distributionMetadata,
                 { node: host },
                 testLogger
             );
-
-            newClient = createdClient.client;
 
             if (majorVersion !== 6) {
                 await newClient.indices.putIndexTemplate({
