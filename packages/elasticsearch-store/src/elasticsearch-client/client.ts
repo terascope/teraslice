@@ -272,7 +272,9 @@ export class Client {
      * @param SearchParams
      * @returns Array of Record<string, any>
     */
-    async search(params: methods.SearchParams): Promise<methods.SearchResponse> {
+    async search<T = Record<string, unknown>>(
+        params: methods.SearchParams
+    ): Promise<methods.SearchResponse<T>> {
         const parsedParams = methods.convertSearchParams(
             params as methods.SearchParams,
             this.distributionMeta

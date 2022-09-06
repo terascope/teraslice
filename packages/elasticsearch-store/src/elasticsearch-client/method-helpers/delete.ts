@@ -11,7 +11,7 @@ export interface DeleteParams {
     type?: string;
     if_primary_term?: number;
     if_seq_no?: number;
-    refresh?: 'true' | 'false' | 'wait_for';
+    refresh?: 'true' | 'false' | 'wait_for' | boolean;
     routing?: string;
     timeout?: string | number;
     version?: number;

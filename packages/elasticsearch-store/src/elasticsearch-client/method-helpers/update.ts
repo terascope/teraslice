@@ -20,6 +20,9 @@ export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
     _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
+    if_seq_no?: number,
+    if_primary_term?: number,
+    version?: number,
     body?: {
         detect_noop?: boolean;
         doc?: TPartialDocument;

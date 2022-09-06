@@ -1,18 +1,18 @@
-import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, ElasticsearchDistribution } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
+import { Client } from './elasticsearch-client';
 import { IndexManager } from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
-
+import { MGetBody } from './elasticsearch-client/method-helpers/mget';
 /**
  * A single index elasticsearch-store with some specific requirements around
  * the index name, and record data
  */
 export class IndexStore<T extends ts.AnyObject> {
-    readonly client: es.Client;
+    readonly client: Client;
     readonly config: i.IndexConfig<T>;
     readonly manager: IndexManager;
     readonly name: string;
@@ -35,7 +35,7 @@ export class IndexStore<T extends ts.AnyObject> {
     private readonly _getIngestTime: (input: T) => number;
     private readonly _translator = new CachedTranslator();
 
-    constructor(client: es.Client, config: i.IndexConfig<T>) {
+    constructor(client: Client, config: i.IndexConfig<T>) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexStore requires elasticsearch client', {
                 fatalError: true,
@@ -143,6 +143,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         const action: i.BulkAction = _action === 'upsert-with-script' ? 'update' : _action;
         const metadata: BulkRequestMetadata = {};
+
         metadata[action] = !utils.isElasticsearch6(this.client) ? {
             _index: this.writeIndex,
             retry_on_conflict
@@ -175,6 +176,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         if (onBulkQueueConflict && id != null) {
             const { queue } = this._collector;
+
             for (let index = 0; index < queue.length; index++) {
                 const item = queue[index];
                 if (item.metadata[action]?._id === id) {
@@ -205,18 +207,24 @@ export class IndexStore<T extends ts.AnyObject> {
         options?: RestrictOptions,
         queryAccess?: QueryAccess<T>
     ): Promise<number> {
-        const p = this._translateQuery(query ?? '', options, queryAccess) as es.CountParams;
+        // TODO: check type here around index
+        const p = this._translateQuery(
+            query ?? '', options, queryAccess
+        ) as unknown as i.ClientParams.CountParams;
+
         return this.countRequest(p);
     }
 
     /** Count records by a given Elasticsearch Query DSL */
-    async countRequest(params: es.CountParams): Promise<number> {
+    async countRequest(params: i.ClientParams.CountParams): Promise<number> {
         return ts.pRetry(async () => {
-            const response = await this.client.count(this.getDefaultParams<es.CountParams>(
-                this.searchIndex,
-                params
-            ));
-            const count = ts.get(response, 'body.count', response.count);
+            const { count } = await this.client.count(
+                this.getDefaultParams< i.ClientParams.CountParams>(
+                    this.searchIndex,
+                    params
+                )
+            );
+
             return count;
         }, utils.getRetryConfig());
     }
@@ -227,11 +235,10 @@ export class IndexStore<T extends ts.AnyObject> {
      * @returns the created record
      */
     async createById(
-        id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>
+        id: string, doc: Partial<T>, params?: PartialParam<i.ClientParams.CreateParams<T>, 'id' | 'body'>
     ): Promise<T> {
         utils.validateId(id, 'createById');
-        const response = await this.create(doc, Object.assign({}, params, { id }));
-        return ts.get(response, 'body', response);
+        return this.create(doc, Object.assign({}, params, { id }));
     }
 
     /**
@@ -239,20 +246,22 @@ export class IndexStore<T extends ts.AnyObject> {
      *
      * @returns the created record
      */
-    async create(doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
+    async create(
+        doc: Partial<T>,
+        params?: PartialParam<i.ClientParams.CreateParams<T>, 'body'>
+    ): Promise<T> {
         const record = this._runWriteHooks(doc, true);
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams<es.CreateDocumentParams>(
+
+        const p = this.getDefaultParams<i.ClientParams.CreateParams<T>>(
             this.writeIndex, defaults, params, { body: record }
         );
 
         const result = await ts.pRetry(
-            async () => {
-                const response = await this.client.create(p);
-                return ts.get(response, 'body', response);
-            },
+            async () => this.client.create(p),
             utils.getRetryConfig()
         );
+
         return this._toRecord({
             ...result,
             _source: record
@@ -276,19 +285,17 @@ export class IndexStore<T extends ts.AnyObject> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
+    async get(id: string, params?: PartialParam<i.ClientParams.GetParams>): Promise<T> {
         utils.validateId(id, 'get');
         const p = this.getDefaultParams(this.writeIndex, params, { id });
 
         const result = await ts.pRetry(
-            async () => {
-                const response = await this.client.get(
-                    p as es.GetParams
-                );
-                return ts.get(response, 'body', response) as Promise<RecordResponse<T>>;
-            },
+            async () => this.client.get(
+                p as i.ClientParams.GetParams
+            ),
             utils.getRetryConfig()
-        );
+        ) as RecordResponse<T>;
+
         return this._toRecord(result);
     }
 
@@ -310,11 +317,11 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * Index a document
      */
-    async index(doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
+    async index(doc: T | Partial<T>, params?: PartialParam<i.ClientParams.IndexParams<T>, 'body'>): Promise<T> {
         const body = this._runWriteHooks(doc, true);
 
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams<es.IndexDocumentParams<T>>(
+        const p = this.getDefaultParams<i.ClientParams.IndexParams<T>>(
             this.writeIndex,
             defaults,
             params,
@@ -322,12 +329,12 @@ export class IndexStore<T extends ts.AnyObject> {
         );
 
         const result = await ts.pRetry(
-            async () => {
-                const response = await this.client.index(p);
-                return ts.get(response, 'body', response);
-            },
-            utils.getRetryConfig());
+            async () => this.client.index(p),
+            utils.getRetryConfig()) as unknown as RecordResponse<T>;
+
+        // @ts-expect-error
         result._source = doc;
+
         return this._toRecord(result);
     }
 
@@ -337,22 +344,26 @@ export class IndexStore<T extends ts.AnyObject> {
     async indexById(
         id: string,
         doc: T | Partial<T>,
-        params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>
+        params?: PartialParam<i.ClientParams.IndexParams<T>, 'index' | 'type' | 'id'>
     ): Promise<T> {
         utils.validateId(id, 'indexById');
-        const response = await this.index(doc, Object.assign({}, params, { id }));
-        return ts.get(response, 'body', response);
+
+        return this.index(doc, Object.assign({}, params, { id }));
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: unknown, params?: PartialParam<es.MGetParams>): Promise<T[]> {
-        const p = this.getDefaultParams(this.writeIndex, params, { body });
+    async mget(
+        body: MGetBody,
+        params?: PartialParam<i.ClientParams.MGetParams>
+    ): Promise<T[]> {
+        const p = this.getDefaultParams < i.ClientParams.MGetParams>(
+            this.writeIndex, params, { body }
+        );
 
         const docs = await ts.pRetry(async () => {
-            const result = await this.client.mget<T>(p);
-            const response = ts.get(result, 'body', result);
-            return response.docs || [];
-        }, utils.getRetryConfig());
+            const result = await this.client.mget(p);
+            return result.docs || [];
+        }, utils.getRetryConfig()) as RecordResponse<T>[];
 
         return this._toRecords(docs, true);
     }
@@ -365,7 +376,7 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * Refreshes the current index
      */
-    async refresh(params?: PartialParam<es.IndicesRefreshParams>): Promise<void> {
+    async refresh(params?: PartialParam<i.ClientParams.IndicesRefreshParams>): Promise<void> {
         const p = Object.assign(
             {
                 index: this.writeIndex,
@@ -379,9 +390,11 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * Deletes a document for a given id
      */
-    async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>): Promise<void> {
+    async deleteById(
+        id: string, params?: PartialParam<i.ClientParams.DeleteParams>
+    ): Promise<void> {
         utils.validateId(id, 'deleteById');
-        const p = this.getDefaultParams<es.DeleteDocumentParams>(
+        const p = this.getDefaultParams<i.ClientParams.DeleteParams>(
             this.writeIndex,
             {
                 refresh: this.refreshByDefault,
@@ -411,30 +424,36 @@ export class IndexStore<T extends ts.AnyObject> {
     }
 
     /** Update a document with a given id */
-    async update(id: string, body: UpdateBody<T>, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
+    async update(
+        id: string,
+        body: UpdateBody<T>,
+        params?: PartialParam<i.ClientParams.UpdateParams, 'body' | 'id'>
+    ): Promise<void> {
         utils.validateId(id, 'update');
+
         const defaults = {
             refresh: this.refreshByDefault,
             retryOnConflict: 3,
         };
 
         const _body = body as any;
+
         if (_body.doc) {
             const doc = this._runWriteHooks(_body.doc, false);
             _body.doc = doc;
         }
 
-        const p = this.getDefaultParams<es.UpdateDocumentParams>(
+        const p = this.getDefaultParams<i.ClientParams.UpdateParams>(
             this.writeIndex,
             defaults,
             params,
             { id, body: _body }
         );
 
-        await ts.pRetry(async () => {
-            const response = await this.client.update(p);
-            return ts.get(response, 'body', response);
-        }, utils.getRetryConfig());
+        await ts.pRetry(
+            async () => this.client.update(p),
+            utils.getRetryConfig()
+        );
     }
 
     /** Safely apply updates to a document by applying the latest changes */
@@ -444,9 +463,11 @@ export class IndexStore<T extends ts.AnyObject> {
         retriesOnConflict = 3
     ): Promise<T> {
         utils.validateId('updatePartial', id);
+
         try {
             const existing = await this.get(id) as any;
-            const params: any = {};
+            const params: Partial<i.ClientParams.IndexParams<T>> = {};
+
             if (ts.DataEntity.isDataEntity(existing)) {
                 if (!utils.isElasticsearch6(this.client)) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
@@ -455,19 +476,18 @@ export class IndexStore<T extends ts.AnyObject> {
                     params.version = existing.getMetadata('_version');
                 }
             }
-            const response = await this.indexById(
+
+            return this.indexById(
                 id,
                 await applyChanges(existing),
                 params
             );
-
-            return ts.get(response, 'body', response);
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {
-                const response = await this.updatePartial(id, applyChanges, retriesOnConflict - 1);
-                return ts.get(response, 'body', response);
+                return this.updatePartial(id, applyChanges, retriesOnConflict - 1);
             }
+
             throw error;
         }
     }
@@ -494,6 +514,7 @@ export class IndexStore<T extends ts.AnyObject> {
         queryAccess?: QueryAccess<T>,
     ): Promise<number> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
+
         return this.count(query, { variables }, queryAccess);
     }
 
@@ -532,6 +553,7 @@ export class IndexStore<T extends ts.AnyObject> {
         );
 
         const record = ts.getFirst(results);
+
         if (record == null) {
             let errQuery = query;
             for (const [key, value] of Object.entries(variables)) {
@@ -569,9 +591,11 @@ export class IndexStore<T extends ts.AnyObject> {
         queryAccess?: QueryAccess<T>
     ): Promise<T> {
         utils.validateId(id, 'findById');
+
         const fields = {
             [this.config.id_field!]: id
         } as AnyInput<T>;
+
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
@@ -635,16 +659,17 @@ export class IndexStore<T extends ts.AnyObject> {
         queryAccess?: QueryAccess<T>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
-        const params: Partial<es.SearchParams> = {
+        const params: Partial<i.ClientParams.SearchParams> = {
             size: options?.size,
             sort: options?.sort,
             from: options?.from,
-            _sourceExclude: options?.excludes as string[],
-            _sourceInclude: options?.includes as string[],
+            _source_excludes: options?.excludes as string[],
+            _source_includes: options?.includes as string[],
         };
 
-        let searchParams: Partial<es.SearchParams>;
+        let searchParams: Partial<i.ClientParams.SearchParams>;
         const _queryAccess = (queryAccess || this._defaultQueryAccess);
+
         if (_queryAccess) {
             searchParams = await _queryAccess.restrictSearchQuery(q ?? '', {
                 params,
@@ -660,12 +685,12 @@ export class IndexStore<T extends ts.AnyObject> {
             );
         }
 
-        return this.searchRequest(searchParams, critical);
+        return this.searchRequest<T>(searchParams, critical);
     }
 
     /** Search using the underlying Elasticsearch Query DSL */
-    async searchRequest(
-        params: PartialParam<SearchParams<T>>,
+    async searchRequest<T>(
+        params: PartialParam<i.ClientParams.SearchParams>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
         const response = await this._search({
@@ -674,7 +699,8 @@ export class IndexStore<T extends ts.AnyObject> {
         });
 
         const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
-        const results = this._toRecords(response.hits.hits, critical);
+        const results = this._toRecords<T>(response.hits.hits, critical);
+
         return {
             _total: total,
             _fetched: results.length,
@@ -685,7 +711,7 @@ export class IndexStore<T extends ts.AnyObject> {
     /** Run an aggregation using an Elasticsearch Query DSL */
     async aggregate<A = Record<string, any>>(
         query: Record<string, any>,
-        params?: PartialParam<SearchParams<T>>,
+        params?: PartialParam<i.ClientParams.SearchParams>,
     ): Promise<A> {
         const response = await this._search({
             ...params,
@@ -699,32 +725,16 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * A small abstraction on client.search with retry support
     */
-    protected async _search(
-        params: PartialParam<SearchParams<T>>,
-    ): Promise<es.SearchResponse<T>> {
-        if (!utils.isElasticsearch6(this.client)) {
-            const p: any = params;
-            if (p._sourceExclude) {
-                p._sourceExcludes = p._sourceExclude.slice();
-                delete p._sourceExclude;
-            }
-            if (p._sourceInclude) {
-                p._sourceIncludes = p._sourceInclude.slice();
-                delete p._sourceInclude;
-            }
-        }
-
+    protected async _search<T>(
+        params: PartialParam<i.ClientParams.SearchParams>,
+    ): Promise<i.ClientResponse.SearchResponse<T>> {
         const response = await ts.pRetry(
-            async () => {
-                const data = await this.client.search<T>(
-                    this.getDefaultParams<es.SearchParams>(
-                        this.searchIndex,
-                        params,
-                    )
-                );
-
-                return ts.get(data, 'body', data);
-            },
+            async () => this.client.search<T>(
+                this.getDefaultParams<i.ClientParams.SearchParams>(
+                    this.searchIndex,
+                    params,
+                )
+            ),
             utils.getRetryConfig()
         );
 
@@ -745,6 +755,7 @@ export class IndexStore<T extends ts.AnyObject> {
                 });
             }
         }
+
         return response;
     }
 
@@ -845,11 +856,13 @@ export class IndexStore<T extends ts.AnyObject> {
 
     protected _toRecord(result: RecordResponse<T>, critical = true): T {
         const doc = this._runReadHooks(this._makeDataEntity(result), critical);
+
         if (!doc && critical) {
             throw new ts.TSError('Record Missing', {
                 statusCode: 410
             });
         }
+
         return doc as T;
     }
 
@@ -957,7 +970,7 @@ export type OnBulkConflictFn<T> = (
 
 interface RecordResponse<T> {
     _index: string;
-    _type: string;
+    _type?: string;
     _id: string;
     _version?: number;
     _seq_no?: number;
@@ -969,17 +982,6 @@ type ReservedParams = 'index' | 'type';
 type PartialParam<T, E = any> = {
     [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K]
 };
-
-type SearchParams<T> = ts.Overwrite<
-es.SearchParams,
-{
-    q: never;
-    body: never;
-    _source?: (keyof T)[];
-    _sourceInclude?: (keyof T)[];
-    _sourceExclude?: (keyof T)[];
-}
->;
 
 type ApplyPartialUpdates<T> = (existing: T) => Promise<T> | T;
 

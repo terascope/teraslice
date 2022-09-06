@@ -13,10 +13,12 @@ export interface MGetParams {
     _source?: string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
-    body: {
-        docs?: MGetDocs[];
-        ids?: string[];
-    }
+    body: MGetBody
+}
+
+export interface MGetBody {
+    docs?: MGetDocs[];
+    ids?: string[];
 }
 
 interface MGetDocs {

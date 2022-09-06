@@ -13,6 +13,8 @@ export interface IndexParams<TDocument = unknown> {
     refresh?: IndexRefresh;
     routing?: string;
     timeout?: string | number;
+    if_seq_no?: number;
+    if_primary_term?: number;
     version?: number;
     version_type?: VersionType;
     wait_for_active_shards?: WaitForActiveShards;
