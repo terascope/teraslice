@@ -94,7 +94,6 @@ describe('IndexManager->migrateIndex()', () => {
                 cleanupIndex(client, newIndex),
                 cleanupIndex(client, previousIndex)
             ]);
-            client.close();
         });
 
         it('should be able to migrate to the new index', async () => {

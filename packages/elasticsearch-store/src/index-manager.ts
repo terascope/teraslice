@@ -1,22 +1,22 @@
-import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
+import { Client } from './elasticsearch-client/client';
 
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
 /**
  * Manage Elasticsearch Indices
- */
+*/
 export class IndexManager {
-    readonly client: any;
+    readonly client: Client;
     readonly version: string;
     readonly distribution: ElasticsearchDistribution;
     readonly majorVersion: number;
     enableIndexMutations: boolean;
 
-    constructor(client: es.Client, enableIndexMutations = ts.isTest) {
+    constructor(client: Client, enableIndexMutations = ts.isTest) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
@@ -257,8 +257,8 @@ export class IndexManager {
         logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
         const response = await this.client.reindex({
             timeout,
-            waitForActiveShards: 'all',
-            waitForCompletion: true,
+            wait_for_active_shards: 'all',
+            wait_for_completion: true,
             body: {
                 source: {
                     index: previousIndexName,
@@ -409,7 +409,7 @@ export class IndexManager {
             index,
             q: '',
             size: 0,
-            terminate_after: '1',
+            terminate_after: 1
         };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());

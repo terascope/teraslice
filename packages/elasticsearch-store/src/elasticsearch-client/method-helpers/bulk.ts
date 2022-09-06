@@ -109,33 +109,17 @@ export function convertBulkParams(
         }
 
         if (majorVersion === 7) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
 
         if (majorVersion === 6) {
-            const {
-                type = '_doc',
-                ...parsedParams
-            } = params;
-
-            return {
-                type,
-                ...parsedParams
-            };
+            return params;
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return params;
         }
     }
 

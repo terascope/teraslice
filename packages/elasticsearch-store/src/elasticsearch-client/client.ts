@@ -1,3 +1,4 @@
+import { ElasticsearchDistribution } from '@terascope/types';
 import * as methods from './method-helpers';
 import { InfoResponse } from './method-helpers/interfaces';
 import { DistributionMetadata } from './interfaces';
@@ -5,13 +6,18 @@ import { DistributionMetadata } from './interfaces';
 export class Client {
     private client: any;
     private distributionMeta: DistributionMetadata;
+    __meta: { distribution: ElasticsearchDistribution, version: string };
 
     constructor(
         client: any,
-        distributionMeta: DistributionMetadata
+        distributionMeta: DistributionMetadata,
     ) {
         this.client = client;
         this.distributionMeta = distributionMeta;
+        this.__meta = {
+            distribution: distributionMeta.distribution,
+            version: distributionMeta.version
+        };
     }
 
     async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
