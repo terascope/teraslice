@@ -1,22 +1,22 @@
+import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
-import { Client } from './elasticsearch-client/client';
 
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
 /**
  * Manage Elasticsearch Indices
-*/
+ */
 export class IndexManager {
-    readonly client: Client;
+    readonly client: any;
     readonly version: string;
     readonly distribution: ElasticsearchDistribution;
     readonly majorVersion: number;
     enableIndexMutations: boolean;
 
-    constructor(client: Client, enableIndexMutations = ts.isTest) {
+    constructor(client: es.Client, enableIndexMutations = ts.isTest) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
@@ -257,8 +257,8 @@ export class IndexManager {
         logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
         const response = await this.client.reindex({
             timeout,
-            wait_for_active_shards: 'all',
-            wait_for_completion: true,
+            waitForActiveShards: 'all',
+            waitForCompletion: true,
             body: {
                 source: {
                     index: previousIndexName,
@@ -275,7 +275,7 @@ export class IndexManager {
     async getMapping(index: string): Promise<any> {
         const params: any = { index };
         if (!utils.isElasticsearch6(this.client)) {
-            params.include_type_name = false;
+            params.includeTypeName = false;
         }
         const response = await this.client.indices.getMapping(params);
         return ts.get(response, 'body', response);
@@ -291,7 +291,7 @@ export class IndexManager {
         };
         if (!utils.isElasticsearch6(this.client)) {
             delete params.type;
-            params.include_type_name = false;
+            params.includeTypeName = false;
         }
         const response = await this.client.indices.putMapping(params);
         return ts.get(response, 'body', response);
@@ -367,7 +367,7 @@ export class IndexManager {
     async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
         const params: any = { name, flatSettings };
         if (!utils.isElasticsearch6(this.client)) {
-            params.include_type_name = false;
+            params.includeTypeName = false;
         }
         const response = await this.client.indices.getTemplate(params);
         return ts.get(response, 'body', response);
@@ -409,7 +409,7 @@ export class IndexManager {
             index,
             q: '',
             size: 0,
-            terminate_after: 1
+            terminate_after: '1',
         };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
