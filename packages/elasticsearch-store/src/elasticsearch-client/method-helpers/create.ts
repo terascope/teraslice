@@ -3,7 +3,7 @@ import {
     IndexRefresh, VersionType, WriteResponseBase,
     WaitForActiveShards
 } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface CreateParams<TDocument = unknown> {
     id: string;
@@ -23,17 +23,20 @@ export interface CreateResponse extends WriteResponseBase {}
 
 export function convertCreateParams(
     params: CreateParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            // make sure to remove type
             const {
                 type, body, ...parsedParams
             } = params;
-            // ES8 does not have body
+
             return {
                 document: body,
                 ...parsedParams
@@ -50,14 +53,15 @@ export function convertCreateParams(
 
         if (majorVersion === 6) {
             const {
-                type = '_doc', ...parsedParams
+                type = '_doc',
+                ...parsedParams
             } = params;
-            // @ts-ignore type is required in v6 query
-            parsedParams.type = type;
-            return parsedParams;
-        }
 
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+            return {
+                type,
+                ...parsedParams
+            };
+        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -68,9 +72,7 @@ export function convertCreateParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

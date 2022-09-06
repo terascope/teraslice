@@ -64,7 +64,14 @@ export interface ClientConfig extends ClientOptions {
     username?: string;
 }
 
-export interface ServerMetadata extends ClientMetadata {
+export interface DistributionMetadata extends ClientMetadata {
     majorVersion: number;
     minorVersion: number;
+}
+
+export interface ClientOnlyParams {
+    ignore?: string | string[] | number | number[];
+    headers?: string | string [];
+    requestTimeout?: number | string;
+    maxRetries?: number
 }

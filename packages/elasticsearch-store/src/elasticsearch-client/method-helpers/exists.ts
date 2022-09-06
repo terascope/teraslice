@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface ExistsParams {
     id: string;
@@ -15,35 +15,32 @@ export type ExistsResponse = boolean;
 
 export function convertExistsParams(
     params: ExistsParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
+    const {
+        type = '_doc',
+        ...parsedParams
+    } = params;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            delete params.type;
-
-            return params;
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
+        if (majorVersion === 8 || majorVersion === 7) return parsedParams;
 
         if (majorVersion === 6) {
-            if (params.type == null) {
-                params.type = '_doc';
-                // throw new Error('type must be provided for an es 6 query');
-            }
-
-            return params;
+            return {
+                type,
+                ...parsedParams
+            };
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
-            return params;
-        }
+        if (majorVersion === 1) return parsedParams;
     }
 
     throw new Error(`Unsupported ${distribution} version ${version}`);

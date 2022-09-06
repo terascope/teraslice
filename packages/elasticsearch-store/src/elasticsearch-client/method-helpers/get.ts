@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { SearchResult, VersionType } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export type GetResponse<T = Record<string, unknown>> = SearchResult<T>
 
@@ -22,54 +22,35 @@ export interface GetParams {
 
 export function convertGetParams(
     params: Record<string, any>,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
+    const {
+        type = '_doc',
+        ...parsedParams
+    } = params;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
-            return params;
-        }
+        if (majorVersion === 8 || majorVersion === 7) return parsedParams;
 
         if (majorVersion === 6) {
-            const {
-                type = '_doc', ...parsedParams
-            } = params;
-
-            // make sure that type exists as it is required here
-            parsedParams.type = type;
-
-            return parsedParams;
+            return {
+                type,
+                ...parsedParams
+            };
         }
-
-        throw new Error(`unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            // parent is from ES6, no use in other versions
-            const {
-                parent, _source_exclude,
-                _source_include, _source_excludes,
-                _source_includes, ...parsedParams
-            } = params;
-
-            parsedParams._source_includes = _source_includes ?? _source_include;
-            parsedParams._source_excludes = _source_excludes ?? _source_exclude;
-
             return parsedParams;
         }
-
-        throw new Error(`unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

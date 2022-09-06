@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { GetResponse } from './get';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface MGetParams {
     index?: string;
@@ -36,39 +36,70 @@ export interface MGetResponse {
 
 export function convertMGetParams(
     params: MGetParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
-    const parsedParams: Record<string, any> = params;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            if (params.body.docs) {
-                parsedParams.docs = params.body.docs.map((doc) => {
+            const {
+                type,
+                body,
+                ...parsedParams
+            } = params;
+
+            const returnParams: Record<string, any> = {
+                ...parsedParams
+            };
+
+            if (body?.docs) {
+                returnParams.docs = body.docs.map((doc) => {
                     delete doc._type;
                     return doc;
                 });
             }
 
-            if (params.body.ids) {
-                parsedParams.ids = params.body.ids;
+            if (body?.ids) {
+                returnParams.ids = params.body.ids;
             }
 
-            delete parsedParams.type;
-            delete parsedParams.body;
+            return returnParams;
+        }
+
+        if (majorVersion === 7) {
+            const {
+                type,
+                ...parsedParams
+            } = params;
 
             return parsedParams;
         }
 
-        if (majorVersion === 7 || majorVersion === 6) {
-            return params;
+        if (majorVersion === 6) {
+            const {
+                type = '_doc',
+                ...parsedParams
+            } = params;
+
+            return {
+                type,
+                ...parsedParams
+            };
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            return params;
+            const {
+                type,
+                ...parsedParams
+            } = params;
+
+            return parsedParams;
         }
     }
 

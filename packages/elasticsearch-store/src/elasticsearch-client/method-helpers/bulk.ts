@@ -1,10 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import {
-    IndexRefresh, WaitForActiveShards, InlineGet,
-    VersionType, ShardStatistics, ErrorCause,
-    Script, SearchSourceFilter
-} from './interfaces';
-import type { Semver } from '../interfaces';
+import { DistributionMetadata } from '../interfaces';
+import * as I from './interfaces';
 
 export type BulkCreateOperation = BulkOperation
 
@@ -24,7 +20,7 @@ export interface BulkOperation {
     retry_on_conflict: number;
     routing: string;
     version: number;
-    version_type: VersionType;
+    version_type: I.VersionType;
 }
 
 export interface BulkOperationContainer {
@@ -37,24 +33,24 @@ export interface BulkOperationContainer {
 export interface BulkParams<TDocument = unknown, TPartialDocument = unknown> {
     index?: string;
     type?: string;
-    refresh?: IndexRefresh;
+    refresh?: I.IndexRefresh;
     routing?: string;
     _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
     timeout?: string | number;
-    wait_for_active_shards?: WaitForActiveShards;
+    wait_for_active_shards?: I.WaitForActiveShards;
     require_alias?: boolean;
     body?: (BulkOperationContainer | BulkUpdateAction<TDocument, TPartialDocument> | TDocument)[]
 }
 
-export type SearchSourceConfig = boolean | SearchSourceFilter | string | string[];
+export type SearchSourceConfig = boolean | I.SearchSourceFilter | string | string[];
 
 export interface BulkUpdateAction<TDocument = unknown, TPartialDocument = unknown> {
     detect_noop?: boolean
     doc?: TPartialDocument
     doc_as_upsert?: boolean
-    script?: Script
+    script?: I.Script
     scripted_upsert?: boolean
     _source?: SearchSourceConfig
     upsert?: TDocument
@@ -71,14 +67,14 @@ export interface BulkResponseItemBase {
     _id?: string | null;
     _index: string;
     status: number;
-    error?: ErrorCause;
+    error?: I.ErrorCause;
     _primary_term?: number;
     result?: string;
     _seq_no?: number;
-    _shards?: ShardStatistics;
+    _shards?: I.ShardStatistics;
     _version?: number;
     forced_refresh?: boolean;
-    get?: InlineGet<Record<string, any>>;
+    get?: I.InlineGet<Record<string, any>>;
 }
 
 export interface BulkResponseItemContainer {
@@ -94,17 +90,18 @@ export type BulkUpdateResponseItem = BulkResponseItemBase
 
 export function convertBulkParams(
     params: BulkParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
+    const { majorVersion, distribution, version } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            // make sure to remove type
             const {
-                type, body, ...parsedParams
+                type,
+                body,
+                ...parsedParams
             } = params;
-            // ES8 does not have body, it has operations
+
             return {
                 operations: body,
                 ...parsedParams
@@ -120,10 +117,16 @@ export function convertBulkParams(
         }
 
         if (majorVersion === 6) {
-            return params;
-        }
+            const {
+                type = '_doc',
+                ...parsedParams
+            } = params;
 
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+            return {
+                type,
+                ...parsedParams
+            };
+        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -134,9 +137,7 @@ export function convertBulkParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

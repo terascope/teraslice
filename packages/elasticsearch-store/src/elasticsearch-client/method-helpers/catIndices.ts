@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { ExpandWildcards, Health, Bytes } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface CatIndicesParams {
     index?: string | string[];
@@ -312,17 +312,16 @@ export type CatIndicesResponse = CatIndicesIndicesRecord[];
 
 export function convertCatIndicesParams(
     params: CatIndicesParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
-    if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            // make sure to remove type
-            return params;
-        }
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
-        if (majorVersion === 7) {
+    if (distribution === ElasticsearchDistribution.elasticsearch) {
+        if (majorVersion === 8 || majorVersion === 7) {
             return params;
         }
 
@@ -334,8 +333,6 @@ export function convertCatIndicesParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -352,9 +349,7 @@ export function convertCatIndicesParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

@@ -2,7 +2,7 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import type {
     TimeSpan
 } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface TasksGetParams {
     task_id: string | number;
@@ -19,10 +19,14 @@ export interface TasksGetResponse {
 
 export function convertTasksGetParams(
     params: TasksGetParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if ([6, 7, 8].includes(majorVersion)) return params;
     }
@@ -33,5 +37,5 @@ export function convertTasksGetParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

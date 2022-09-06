@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import type { BulkIndexByScrollFailure } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface DeleteByQueryResponse {
     batches?: number;
@@ -58,46 +58,47 @@ export interface DeleteByQueryParams {
 
 export function convertDeleteByQueryParams(
     params: Record<string, any>,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
+    // though documentation says body property is optional
+    // es base client requires body property to be present even if empty
+    const {
+        type = '_doc',
+        body = {},
+        ...parsedParams
+    } = params;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            // make sure to remove type
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
+        if (majorVersion === 8 || majorVersion === 7) {
+            return {
+                body,
+                ...parsedParams
+            };
         }
 
         if (majorVersion === 6) {
-            return params;
+            return {
+                type,
+                body,
+                ...parsedParams
+            };
         }
-
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
+            return {
+                body,
+                ...parsedParams
+            };
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} veresion ${version}`);
 }

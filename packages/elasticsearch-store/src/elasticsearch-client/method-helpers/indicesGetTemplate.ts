@@ -1,6 +1,6 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { TimeSpan, IndexTemplateProperties } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesGetTemplateParams {
     name?: string | string[];
@@ -21,10 +21,14 @@ interface TemplateBody extends IndexTemplateProperties {
 
 export function convertIndicesGetTemplateParams(
     params: IndicesGetTemplateParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if ([6, 7, 8].includes(majorVersion)) return params;
     }
@@ -35,5 +39,5 @@ export function convertIndicesGetTemplateParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

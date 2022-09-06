@@ -1,5 +1,5 @@
 import { ElasticsearchDistribution } from '@terascope/types';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface TasksCancelParams {
     task_id?: string | number;
@@ -18,10 +18,14 @@ export interface TasksCancelResponse {
 
 export function convertTasksCancelParams(
     params: TasksCancelParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata,
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if ([6, 7, 8].includes(majorVersion)) return params;
     }
@@ -32,5 +36,5 @@ export function convertTasksCancelParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

@@ -8,7 +8,7 @@ import type {
     WaitForActiveShards,
     IndexTemplateProperties
 } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface IndicesCreateParams {
     index: string;
@@ -27,10 +27,14 @@ export interface IndicesCreateResponse {
 
 export function convertIndicesCreateParams(
     params: IndicesCreateParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             const {
@@ -73,5 +77,5 @@ export function convertIndicesCreateParams(
         }
     }
 
-    throw new Error(`unsupported ${distribution} version: ${distribution}`);
+    throw new Error(`unsupported ${distribution} version: ${version}`);
 }

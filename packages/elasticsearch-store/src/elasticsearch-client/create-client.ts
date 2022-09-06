@@ -6,15 +6,34 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
+import { Client as WrappedClient } from './client';
 import { logWrapper } from './log-wrapper';
-import { ClientConfig, ServerMetadata } from './interfaces';
+import {
+    ClientConfig,
+    DistributionMetadata
+} from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
-async function findDistribution(
+export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
+    const distributionMetadata = await getDistributionMetadata(config, logger);
+
+    const { client } = await getBaseClient(
+        distributionMetadata,
+        config,
+        logger
+    );
+
+    return {
+        client: new WrappedClient(client, distributionMetadata),
+        log: logger
+    };
+}
+
+async function getDistributionMetadata(
     config: Record<string, any>,
     logger: Logger
-): Promise<ServerMetadata> {
+): Promise<DistributionMetadata> {
     for (let i = 0; i < clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
@@ -62,22 +81,25 @@ async function findDistribution(
     throw new Error(`Could not create a client with config ${JSON.stringify(config)}`);
 }
 
-export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
+export async function getBaseClient(
+    distributionMetadata: DistributionMetadata,
+    config: ClientConfig,
+    logger = debugLogger('elasticsearch-client')
+) {
+    const {
+        distribution,
+        majorVersion,
+        minorVersion
+    } = distributionMetadata;
+
+    const serverMetadata = {
+        distribution,
+        version: distributionMetadata.version
+    };
+
     try {
-        const distribution = await findDistribution(config, logger);
-
-        const {
-            minorVersion,
-            majorVersion,
-            ...serverMetadata
-        } = distribution;
-
-        if (serverMetadata.distribution === ElasticsearchDistribution.opensearch) {
-            // TODO: clean this up
-            const openConfig = {
-                ...config,
-            };
-            const client = new opensearch.Client(openConfig as any);
+        if (distribution === ElasticsearchDistribution.opensearch) {
+            const client = new opensearch.Client(config as any);
 
             // @ts-expect-error
             client.__meta = serverMetadata;
@@ -143,7 +165,7 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
         }
 
         throw new Error('no valid client available');
-    } catch (err) {
+    } catch (e) {
         throw new Error(`Could not create a client for config ${JSON.stringify(config, null, 4)}`);
     }
 }

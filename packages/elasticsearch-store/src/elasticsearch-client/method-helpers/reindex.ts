@@ -6,7 +6,7 @@ import {
     OpType,
     ScriptLangs
 } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface ReindexParams {
     refresh?: boolean;
@@ -68,29 +68,42 @@ export interface ReindexResponse {
 
 export function convertReIndexParams(
     params: ReindexParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
-
-    const parsedParams: Record<string, any> = params;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            parsedParams.source = params.body.source;
-            parsedParams.dest = params.body.dest;
-            delete parsedParams.dest.type;
+            const {
+                body,
+                ...parsedParams
+            } = params;
 
-            return parsedParams;
+            delete body?.dest?.type;
+
+            return {
+                source: body?.source,
+                dest: body?.dest,
+                ...parsedParams
+            };
         }
 
         if (majorVersion === 7) {
-            return parsedParams;
+            return params;
         }
 
         if (majorVersion === 6) {
-            delete parsedParams.scroll;
-            delete parsedParams.max_docs;
+            const {
+                scroll,
+                max_docs,
+                ...parsedParams
+            } = params;
+
+            if (parsedParams.body.dest.type == null) parsedParams.body.dest.type = '_doc';
 
             return parsedParams;
         }
@@ -98,9 +111,9 @@ export function convertReIndexParams(
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
-            return parsedParams;
+            return params;
         }
     }
 
-    throw new Error(`Unsupported ${distribution} version ${version.join('.')}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }

@@ -1,15 +1,18 @@
 import { ElasticsearchDistribution } from '@terascope/types';
 import { IndexTemplateProperties } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export function validateDistribution(
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
 
     if (!validDistributionAndVersion(distribution, majorVersion)) {
-        throw new Error(`Unsupported ${distribution} version: ${version.join('.')}`);
+        throw new Error(`Unsupported ${distribution} version: ${version}`);
     }
 }
 

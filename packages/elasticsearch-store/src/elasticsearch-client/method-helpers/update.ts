@@ -3,7 +3,7 @@ import {
     WriteResponseBase, SearchSourceFilter,
     WaitForActiveShards, Script, InlineGet
 } from './interfaces';
-import type { Semver } from '../interfaces';
+import type { DistributionMetadata } from '../interfaces';
 
 export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
     id: string;
@@ -38,19 +38,22 @@ export interface UpdateResponse<TDocument = unknown> extends WriteResponseBase {
 
 export function convertUpdateParams(
     params: UpdateParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: DistributionMetadata
 ) {
-    const [majorVersion] = version;
+    const {
+        majorVersion,
+        distribution,
+        version
+    } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
-            // make sure to remove type
             const {
                 type, body, ...parsedParams
             } = params;
-            // ES8 does not have body
+
             return {
-                document: body,
+                doc: body,
                 ...parsedParams
             };
         }
@@ -67,12 +70,12 @@ export function convertUpdateParams(
             const {
                 type = '_doc', ...parsedParams
             } = params;
-            // @ts-ignore type is required in v6 query
-            parsedParams.type = type;
-            return parsedParams;
-        }
 
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+            return {
+                type,
+                ...parsedParams
+            };
+        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -83,9 +86,7 @@ export function convertUpdateParams(
 
             return parsedParams;
         }
-
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
     }
 
-    throw new Error(`Unsupported distribution ${distribution}`);
+    throw new Error(`Unsupported ${distribution} version ${version}`);
 }
