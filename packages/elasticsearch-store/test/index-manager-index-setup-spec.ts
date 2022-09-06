@@ -47,8 +47,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanupIndex(client, index);
-
-            client.close();
         });
 
         it('should create the versioned index', async () => {
@@ -196,8 +194,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanup();
-
-            client.close();
         });
 
         it('should create the versioned index', async () => {
@@ -317,8 +313,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanupIndex(client, index, templateName);
-
-            client.close();
         });
 
         it('should create the timeseries index', async () => {

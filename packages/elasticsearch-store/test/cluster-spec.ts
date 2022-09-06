@@ -11,10 +11,6 @@ describe('Cluster', () => {
         cluster = new Cluster(client);
     });
 
-    afterAll(() => {
-        client.close();
-    });
-
     it('should be an instance of Cluster', () => {
         expect(cluster).toBeInstanceOf(Cluster);
     });

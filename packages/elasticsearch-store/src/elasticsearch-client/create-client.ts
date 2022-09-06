@@ -6,7 +6,7 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { Client as WrappedClient } from './client';
+import { Client } from './client';
 import { logWrapper } from './log-wrapper';
 import {
     ClientConfig,
@@ -18,15 +18,15 @@ const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
     const distributionMetadata = await getDistributionMetadata(config, logger);
 
-    const { client } = await getBaseClient(
+    const baseClient = await getBaseClient(
         distributionMetadata,
         config,
         logger
     );
 
     return {
-        client: new WrappedClient(client, distributionMetadata),
-        log: logger
+        client: new Client(baseClient, distributionMetadata),
+        log: logWrapper(logger)
     };
 }
 
@@ -92,36 +92,21 @@ export async function getBaseClient(
         minorVersion
     } = distributionMetadata;
 
-    const serverMetadata = {
-        distribution,
-        version: distributionMetadata.version
-    };
-
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {
             const client = new opensearch.Client(config as any);
 
-            // @ts-expect-error
-            client.__meta = serverMetadata;
             logger.debug('Creating an opensearch client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         if (majorVersion === 8) {
             const client = new elasticsearch8.Client(config as any);
 
-            // @ts-expect-error
-            client.__meta = serverMetadata;
             logger.debug('Creating an elasticsearch v8 client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         if (majorVersion === 7) {
@@ -130,38 +115,25 @@ export async function getBaseClient(
             // throw if not their proprietary client
             if (minorVersion <= 13) {
                 const client = new opensearch.Client(config as any);
-                // @ts-expect-error
-                client.__meta = serverMetadata;
+
                 logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
 
-                return {
-                    client,
-                    log: logWrapper(logger),
-                };
+                return client;
             }
 
             const client = new elasticsearch7.Client(config as any);
 
-            // @ts-expect-error
-            client.__meta = serverMetadata;
             logger.debug('Creating an elasticsearch v7 client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         if (majorVersion === 6) {
             const client = new elasticsearch6.Client(config as any);
-            // @ts-expect-error
-            client.__meta = serverMetadata;
+
             logger.debug('Creating an elasticsearch v6 client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         throw new Error('no valid client available');
