@@ -1,22 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import { ShardStatistics, ExpandWildcards } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesRefreshParams {
-    index?: string ;
-    allow_no_indices?: boolean;
-    expand_wildcards?: ExpandWildcards;
-    ignore_unavailable?: boolean;
-}
-
-export type IndicesRefreshResponse = ShardsOperationResponseBase
-
-export interface ShardsOperationResponseBase {
-    _shards: ShardStatistics;
-}
-
 export function convertIndicesRefreshParams(
-    params: IndicesRefreshParams,
+    params: ClientParams.IndicesRefreshParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

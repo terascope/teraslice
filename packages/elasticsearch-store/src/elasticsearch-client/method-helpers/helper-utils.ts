@@ -1,5 +1,4 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import { IndexTemplateProperties } from './interfaces';
+import { ElasticsearchDistribution, ESTypes } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
 export function validateDistribution(
@@ -37,7 +36,7 @@ export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined)
     }
 }
 
-export function ensureTypeInMapping(body: IndexTemplateProperties | undefined) {
+export function ensureTypeInMapping(body: ESTypes.IndexTemplateProperties | undefined) {
     if (body?.mappings?.properties) {
         const { properties } = body.mappings;
 

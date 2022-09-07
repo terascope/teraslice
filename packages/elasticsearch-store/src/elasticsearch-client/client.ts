@@ -1,5 +1,5 @@
+import { ClientParams, ClientResponse } from '@terascope/types';
 import * as methods from './method-helpers';
-import { InfoResponse } from './method-helpers/interfaces';
 import { DistributionMetadata } from './interfaces';
 
 export class Client {
@@ -14,7 +14,9 @@ export class Client {
         this.distributionMeta = distributionMeta;
     }
 
-    async bulk(params: methods.BulkParams): Promise<methods.BulkResponse> {
+    async bulk(
+        params: ClientParams.BulkParams
+    ): Promise<ClientResponse.BulkResponse> {
         const parsedParams = methods.convertBulkParams(
             params,
             this.distributionMeta
@@ -29,9 +31,11 @@ export class Client {
      * creates a new record, can throw if record already exists
      * @param CountParams
     */
-    async create(params: methods.CreateParams): Promise<methods.CreateResponse> {
+    async create(
+        params: ClientParams.CreateParams
+    ): Promise<ClientResponse.CreateResponse> {
         const parsedParams = methods.convertCreateParams(
-            params as methods.CreateParams,
+            params as ClientParams.CreateParams,
             this.distributionMeta
         );
         const resp = await this.client.create(parsedParams);
@@ -43,9 +47,11 @@ export class Client {
      * indexes a new record
      * @param CountParams
     */
-    async index(params: methods.IndexParams): Promise<methods.IndexResponse> {
+    async index(
+        params: ClientParams.IndexParams
+    ): Promise<ClientResponse.IndexResponse> {
         const parsedParams = methods.convertIndexParams(
-            params as methods.IndexParams,
+            params as ClientParams.IndexParams,
             this.distributionMeta
         );
 
@@ -58,9 +64,11 @@ export class Client {
      * updates a record, or can upsert a record
      * @param CountParams
     */
-    async update(params: methods.UpdateParams): Promise<methods.UpdateResponse> {
+    async update(
+        params: ClientParams.UpdateParams
+    ): Promise<ClientResponse.UpdateResponse> {
         const parsedParams = methods.convertUpdateParams(
-            params as methods.UpdateParams,
+            params as ClientParams.UpdateParams,
             this.distributionMeta
         );
 
@@ -75,9 +83,11 @@ export class Client {
      * @param CountParams
     */
 
-    async count(params: methods.CountParams): Promise<methods.CountResponse> {
+    async count(
+        params: ClientParams.CountParams
+    ): Promise<ClientResponse.CountResponse> {
         const parsedParams = methods.convertCountParams(
-            params as methods.CountParams,
+            params as ClientParams.CountParams,
             this.distributionMeta
         );
 
@@ -95,8 +105,8 @@ export class Client {
 
         return {
             async getSettings(
-                params: methods.ClusterGetSettingsParams = {}
-            ): Promise<methods.ClusterGetSettingsResponse> {
+                params: ClientParams.ClusterGetSettingsParams = {}
+            ): Promise<ClientResponse.ClusterGetSettingsResponse> {
                 const parsedParams = methods.convertClusterSettingsParams(
                     params,
                     distributionMeta
@@ -107,8 +117,8 @@ export class Client {
                 return _removeBody(resp);
             },
             async health(
-                params: methods.ClusterHealthParams = {}
-            ): Promise<methods.ClusterHealthResponse> {
+                params: ClientParams.ClusterHealthParams = {}
+            ): Promise<ClientResponse.ClusterHealthResponse> {
                 const parsedParams = methods.convertClusterSettingsParams(
                     params,
                     distributionMeta
@@ -129,8 +139,8 @@ export class Client {
 
         return {
             async indices(
-                params: methods.CatIndicesParams = {}
-            ): Promise<methods.CatIndicesResponse> {
+                params: ClientParams.CatIndicesParams = {}
+            ): Promise<ClientResponse.CatIndicesResponse> {
                 const parsedParams = methods.convertCatIndicesParams(
                     params,
                     distributionMeta
@@ -152,8 +162,8 @@ export class Client {
 
         return {
             async stats(
-                params: methods.NodesStatsParams = {}
-            ): Promise<methods.NodesStatsResponse> {
+                params: ClientParams.NodesStatsParams = {}
+            ): Promise<ClientResponse.NodesStatsResponse> {
                 const parsedParams = methods.convertNodesStatsParams(
                     params,
                     distributionMeta
@@ -163,7 +173,9 @@ export class Client {
 
                 return _removeBody(resp);
             },
-            async info(params: methods.NodesInfoParams = {}): Promise<methods.NodesInfoResponse> {
+            async info(
+                params: ClientParams.NodesInfoParams = {}
+            ): Promise<ClientResponse.NodesInfoResponse> {
                 const parsedParams = methods.convertNodeInfoParams(
                     params,
                     distributionMeta
@@ -180,7 +192,9 @@ export class Client {
      * Deletes a specific record, requires an index and id.
      * @param RequestParams.delete
     */
-    async delete(params: methods.DeleteParams): Promise<methods.DeleteResponse> {
+    async delete(
+        params: ClientParams.DeleteParams
+    ): Promise<ClientResponse.DeleteResponse> {
         const parsedParams = methods.convertDeleteParams(
             params,
             this.distributionMeta
@@ -197,8 +211,8 @@ export class Client {
      * @returns count or Elasticsearch task_id
     */
     async deleteByQuery(
-        params: methods.DeleteByQueryParams
-    ): Promise<methods.DeleteByQueryResponse> {
+        params: ClientParams.DeleteByQueryParams
+    ): Promise<ClientResponse.DeleteByQueryResponse> {
         const parsedParams = methods.convertDeleteByQueryParams(
             params,
             this.distributionMeta
@@ -214,9 +228,11 @@ export class Client {
      * @param ExistsParams
      * @returns boolean
     */
-    async exists(params: methods.ExistsParams): Promise<methods.ExistsResponse> {
+    async exists(
+        params: ClientParams.ExistsParams
+    ): Promise<ClientResponse.ExistsResponse> {
         const convertedParams = methods.convertExistsParams(
-            params as methods.ExistsParams,
+            params as ClientParams.ExistsParams,
             this.distributionMeta
         );
 
@@ -227,14 +243,14 @@ export class Client {
 
     /**
      * Retrieves the specified JSON document from an index or an empty doc if no doc id is found
-     * @param methods.GetParams
+     * @param ClientParams.GetParams
      * @returns Object
     */
     async get<T = Record<string, unknown>>(
-        params: methods.GetParams
-    ): Promise<methods.GetResponse<T>> {
+        params: ClientParams.GetParams
+    ): Promise<ClientResponse.GetResponse<T>> {
         const parsedParams = methods.convertGetParams(
-            params as methods.GetParams,
+            params as ClientParams.GetParams,
             this.distributionMeta
         );
 
@@ -247,7 +263,7 @@ export class Client {
      * Returns info about the cluster the client is connected to
      * @returns object with cluster info
     */
-    async info(): Promise<InfoResponse> {
+    async info(): Promise<ClientResponse.InfoResponse> {
         methods.validateDistribution(this.distributionMeta);
 
         const resp = await this.client.info();
@@ -273,10 +289,10 @@ export class Client {
      * @returns Array of Record<string, any>
     */
     async search<T = Record<string, unknown>>(
-        params: methods.SearchParams
-    ): Promise<methods.SearchResponse<T>> {
+        params: ClientParams.SearchParams
+    ): Promise<ClientResponse.SearchResponse<T>> {
         const parsedParams = methods.convertSearchParams(
-            params as methods.SearchParams,
+            params as ClientParams.SearchParams,
             this.distributionMeta
         );
 
@@ -290,9 +306,11 @@ export class Client {
      * @param MSearchParams
      * @returns Array of Record<string, any>
     */
-    async msearch(params: methods.MSearchParams): Promise<methods.MSearchResponse> {
+    async msearch(
+        params: ClientParams.MSearchParams
+    ): Promise<ClientResponse.MSearchResponse> {
         const parsedParams = methods.convertMSearchParams(
-            params as methods.MSearchParams,
+            params as ClientParams.MSearchParams,
             this.distributionMeta
         );
 
@@ -306,9 +324,11 @@ export class Client {
      * @param MGetParams
      * @returns Array of Record<string, any>
     */
-    async mget(params: methods.MGetParams): Promise<methods.MGetResponse> {
+    async mget(
+        params: ClientParams.MGetParams
+    ): Promise<ClientResponse.MGetResponse> {
         const parsedParams = methods.convertMGetParams(
-            params as methods.MGetParams,
+            params as ClientParams.MGetParams,
             this.distributionMeta
         );
 
@@ -322,9 +342,11 @@ export class Client {
      * @param ReIndexParams
      * @returns Report of re-indexing task or task id if wait_for_completion is false
     */
-    async reindex(params: methods.ReindexParams): Promise<methods.ReindexResponse> {
+    async reindex(
+        params: ClientParams.ReindexParams
+    ): Promise<ClientResponse.ReindexResponse> {
         const parsedParams = methods.convertReIndexParams(
-            params as methods.ReindexParams,
+            params as ClientParams.ReindexParams,
             this.distributionMeta
         );
 
@@ -346,10 +368,10 @@ export class Client {
              * @param IndicesCreateParams
              * @returns IndicesCreateResponse
              */
-            async create(params: methods.IndicesCreateParams):
-            Promise<methods.IndicesCreateResponse> {
+            async create(params: ClientParams.IndicesCreateParams):
+            Promise<ClientResponse.IndicesCreateResponse> {
                 const parsedParams = methods.convertIndicesCreateParams(
-                    params as methods.IndicesCreateParams,
+                    params as ClientParams.IndicesCreateParams,
                     distributionMeta
                 );
 
@@ -362,10 +384,10 @@ export class Client {
              * @param IndicesDeleteParams
              * @returns
              */
-            async delete(params: methods.IndicesDeleteParams):
-            Promise<methods.IndicesDeleteResponse> {
+            async delete(params: ClientParams.IndicesDeleteParams):
+            Promise<ClientResponse.IndicesDeleteResponse> {
                 const parsedParams = methods.convertIndicesDeleteParams(
-                    params as methods.IndicesDeleteParams,
+                    params as ClientParams.IndicesDeleteParams,
                     distributionMeta
                 );
 
@@ -379,10 +401,10 @@ export class Client {
              * @returns boolean
              */
             async exists(
-                params: methods.IndicesExistsParams
-            ): Promise<methods.IndicesExistsResponse> {
+                params: ClientParams.IndicesExistsParams
+            ): Promise<ClientResponse.IndicesExistsResponse> {
                 const parsedParams = methods.convertIndicesExistsParams(
-                    params as methods.IndicesExistsParams,
+                    params as ClientParams.IndicesExistsParams,
                     distributionMeta
                 );
 
@@ -395,9 +417,11 @@ export class Client {
              * @param IndicesGetParams
              * @returns
             */
-            async get(params: methods.IndicesGetParams): Promise<methods.IndicesGetResponse> {
+            async get(
+                params: ClientParams.IndicesGetParams
+            ): Promise<ClientResponse.IndicesGetResponse> {
                 const parsedParams = methods.convertIndicesGetParams(
-                    params as methods.IndicesGetParams,
+                    params as ClientParams.IndicesGetParams,
                     distributionMeta
                 );
 
@@ -410,10 +434,11 @@ export class Client {
              * @param IndicesPutTemplateParams
              * @returns IndicesPutTemplateResponse
             */
-            async putTemplate(params: methods.IndicesPutTemplateParams):
-            Promise<methods.IndicesPutTemplateResponse> {
+            async putTemplate(
+                params: ClientParams.IndicesPutTemplateParams
+            ): Promise<ClientResponse.IndicesPutTemplateResponse> {
                 const parsedParams = methods.convertIndicesPutTemplateParams(
-                    params as methods.IndicesPutTemplateParams,
+                    params as ClientParams.IndicesPutTemplateParams,
                     distributionMeta
                 );
 
@@ -426,10 +451,11 @@ export class Client {
              * @param IndicesDeleteTemplateParams
              * @returns IndicesDeleteTemplateResponse
             */
-            async deleteTemplate(params: methods.IndicesDeleteTemplateParams):
-            Promise<methods.IndicesDeleteTemplateResponse> {
+            async deleteTemplate(
+                params: ClientParams.IndicesDeleteTemplateParams
+            ):Promise<ClientResponse.IndicesDeleteTemplateResponse> {
                 const parsedParams = methods.convertIndicesDeleteTemplateParams(
-                    params as methods.IndicesDeleteTemplateParams,
+                    params as ClientParams.IndicesDeleteTemplateParams,
                     distributionMeta
                 );
 
@@ -443,10 +469,10 @@ export class Client {
              * @returns boolean
              */
             async existsTemplate(
-                params: methods.IndicesExistsTemplateParams
-            ): Promise<methods.IndicesExistsTemplateResponse> {
+                params: ClientParams.IndicesExistsTemplateParams
+            ): Promise<ClientResponse.IndicesExistsTemplateResponse> {
                 const parsedParams = methods.convertIndicesExistsTemplateParams(
-                    params as methods.IndicesExistsTemplateParams,
+                    params as ClientParams.IndicesExistsTemplateParams,
                     distributionMeta,
                 );
 
@@ -459,10 +485,11 @@ export class Client {
              * @param IndicesGetTemplateParams
              * @returns template
             */
-            async getTemplate(params: methods.IndicesGetTemplateParams):
-            Promise<methods.IndicesGetTemplateResponse> {
+            async getTemplate(
+                params: ClientParams.IndicesGetTemplateParams
+            ):Promise<ClientResponse.IndicesGetTemplateResponse> {
                 const parsedParams = methods.convertIndicesGetTemplateParams(
-                    params as methods.IndicesGetTemplateParams,
+                    params as ClientParams.IndicesGetTemplateParams,
                     distributionMeta
                 );
 
@@ -477,10 +504,11 @@ export class Client {
              * not supported by elasticsearch version 6
              * same params as IndicesGetTemplateParams
             */
-            async getIndexTemplate(params: methods.IndicesGetIndexTemplateParams):
-            Promise<methods.IndicesGetIndexTemplateResponse> {
+            async getIndexTemplate(
+                params: ClientParams.IndicesGetIndexTemplateParams
+            ): Promise<ClientResponse.IndicesGetIndexTemplateResponse> {
                 const parsedParams = methods.convertIndicesGetIndexTemplateParams(
-                    params as methods.IndicesGetIndexTemplateParams,
+                    params as ClientParams.IndicesGetIndexTemplateParams,
                     distributionMeta
                 );
 
@@ -495,8 +523,8 @@ export class Client {
              * @returns IndicesGetMappingResponse
             */
             async getMapping(
-                params: methods.IndicesGetMappingParams
-            ): Promise<methods.IndicesGetMappingResponse> {
+                params: ClientParams.IndicesGetMappingParams
+            ): Promise<ClientResponse.IndicesGetMappingResponse> {
                 const parsedParams = methods.convertIndicesGetMappingParams(
                     params,
                     distributionMeta
@@ -513,10 +541,10 @@ export class Client {
              * @returns IndicesPutMappingResponse
             */
             async putMapping(
-                params: methods.IndicesPutMappingParams
-            ): Promise< methods.IndicesPutMappingResponse> {
+                params: ClientParams.IndicesPutMappingParams
+            ): Promise< ClientResponse.IndicesPutMappingResponse> {
                 const parsedParams = methods.convertIndicesPutMappingParams(
-                    params as methods.IndicesPutMappingParams,
+                    params as ClientParams.IndicesPutMappingParams,
                     distributionMeta
                 );
 
@@ -531,10 +559,10 @@ export class Client {
              * @response IndicesGetFieldMappingResponse
             */
             async getFieldMapping(
-                params: methods.IndicesGetFieldMappingParams
-            ): Promise<methods.IndicesGetFieldMappingResponse> {
+                params: ClientParams.IndicesGetFieldMappingParams
+            ): Promise<ClientResponse.IndicesGetFieldMappingResponse> {
                 const parsedParams = methods.convertIndicesGetFieldMappingParams(
-                    params as methods.IndicesGetFieldMappingParams,
+                    params as ClientParams.IndicesGetFieldMappingParams,
                     distributionMeta
                 );
 
@@ -549,10 +577,10 @@ export class Client {
              * @returns IndicesGetSettingsResponse
              */
             async getSettings(
-                params: methods.IndicesGetSettingsParams
-            ): Promise<methods.IndicesGetSettingsResponse> {
+                params: ClientParams.IndicesGetSettingsParams
+            ): Promise<ClientResponse.IndicesGetSettingsResponse> {
                 const parsedParams = methods.convertIndicesGetSettingsParams(
-                    params as methods.IndicesGetSettingsParams,
+                    params as ClientParams.IndicesGetSettingsParams,
                     distributionMeta,
                 );
 
@@ -567,10 +595,10 @@ export class Client {
              * @returns IndicesPutSettingsResponse
             */
             async putSettings(
-                params: methods.IndicesPutSettingsParams
-            ): Promise<methods.IndicesPutSettingsResponse> {
+                params: ClientParams.IndicesPutSettingsParams
+            ): Promise<ClientResponse.IndicesPutSettingsResponse> {
                 const parsedParams = methods.convertIndicesPutSettingsParams(
-                    params as methods.IndicesPutSettingsParams,
+                    params as ClientParams.IndicesPutSettingsParams,
                     distributionMeta
                 );
 
@@ -586,10 +614,10 @@ export class Client {
              * can be an empty query
             */
             async refresh(
-                params: methods.IndicesRefreshParams
-            ): Promise<methods.IndicesRefreshResponse> {
+                params: ClientParams.IndicesRefreshParams
+            ): Promise<ClientResponse.IndicesRefreshResponse> {
                 const parsedParams = methods.convertIndicesRefreshParams(
-                    params as methods.IndicesRefreshParams,
+                    params as ClientParams.IndicesRefreshParams,
                     distributionMeta
                 );
 
@@ -605,10 +633,10 @@ export class Client {
              * can be an empty query
             */
             async recovery(
-                params: methods.IndicesRecoveryParams
-            ): Promise<methods.IndicesRecoveryResponse> {
+                params: ClientParams.IndicesRecoveryParams
+            ): Promise<ClientResponse.IndicesRecoveryResponse> {
                 const parsedParams = methods.convertIndicesRecoveryParams(
-                    params as methods.IndicesRecoveryParams,
+                    params as ClientParams.IndicesRecoveryParams,
                     distributionMeta
                 );
 
@@ -623,10 +651,10 @@ export class Client {
              * @returns IndicesValidateQueryResponse
              */
             async validateQuery(
-                params: methods.IndicesValidateQueryParams
-            ): Promise<methods.IndicesValidateQueryResponse> {
+                params: ClientParams.IndicesValidateQueryParams
+            ): Promise<ClientResponse.IndicesValidateQueryResponse> {
                 const parsedParams = methods.convertIndicesValidateQueryParams(
-                    params as methods.IndicesValidateQueryParams,
+                    params as ClientParams.IndicesValidateQueryParams,
                     distributionMeta
                 );
 
@@ -651,9 +679,11 @@ export class Client {
              * @param TasksCancelParams
              * @returns TasksCancelResponse
             */
-            async cancel(params: methods.TasksCancelParams): Promise<methods.TasksCancelResponse> {
+            async cancel(
+                params: ClientParams.TasksCancelParams
+            ): Promise<ClientResponse.TasksCancelResponse> {
                 const parsedParams = methods.convertTasksCancelParams(
-                    params as methods.TasksCancelParams,
+                    params as ClientParams.TasksCancelParams,
                     distributionMeta
                 );
 
@@ -666,9 +696,11 @@ export class Client {
              * @param TasksGetParams
              * @returns TasksGetResponse
             */
-            async get(params: methods.TasksGetParams): Promise<methods.TasksGetResponse> {
+            async get(
+                params: ClientParams.TasksGetParams
+            ): Promise<ClientResponse.TasksGetResponse> {
                 const parsedParams = methods.convertTasksGetParams(
-                    params as methods.TasksGetParams,
+                    params as ClientParams.TasksGetParams,
                     distributionMeta
                 );
 
@@ -681,9 +713,11 @@ export class Client {
              * @param TasksListParams
              * @returns TasksListResponse
             */
-            async list(params: methods.TasksListParams): Promise<methods.TasksListResponse> {
+            async list(
+                params: ClientParams.TasksListParams
+            ): Promise<ClientResponse.TasksListResponse> {
                 const parsedParams = methods.convertTasksListParams(
-                    params as methods.TasksListParams,
+                    params as ClientParams.TasksListParams,
                     distributionMeta
                 );
 

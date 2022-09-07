@@ -1,24 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type {
-    TimeSpan
-} from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface TasksGetParams {
-    task_id: string | number;
-    timeout?: TimeSpan;
-    wait_for_completion?: boolean;
-}
-
-export interface TasksGetResponse {
-    completed: boolean;
-    task: Record<string, any>;
-    response?: Record<string, any>;
-    error?: Record<string, any>;
-}
-
 export function convertTasksGetParams(
-    params: TasksGetParams,
+    params: ClientParams.TasksGetParams,
     distributionMeta: DistributionMetadata,
 ) {
     const {

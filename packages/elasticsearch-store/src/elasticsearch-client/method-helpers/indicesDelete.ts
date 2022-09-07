@@ -1,22 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type { TimeSpan, ExpandWildcards } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesDeleteParams {
-    index: string | string[];
-    timeout?: TimeSpan;
-    master_timeout?: TimeSpan;
-    ignore_unavailable?: boolean;
-    allow_no_indices?: boolean;
-    expand_wildcards?: ExpandWildcards
-}
-
-export interface IndicesDeleteResponse {
-    acknowledged: boolean
-}
-
 export function convertIndicesDeleteParams(
-    params: IndicesDeleteParams,
+    params: ClientParams.IndicesDeleteParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

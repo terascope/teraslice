@@ -1,26 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type { WriteResponseBase, VersionType } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface DeleteResponse extends WriteResponseBase {}
-
-export interface DeleteParams {
-    id: string;
-    index: string;
-    type?: string;
-    if_primary_term?: number;
-    if_seq_no?: number;
-    refresh?: 'true' | 'false' | 'wait_for' | boolean;
-    routing?: string;
-    timeout?: string | number;
-    version?: number;
-    version_type?: VersionType;
-    wait_for_active_shards?: number | 'all'
-}
-
 export function convertDeleteParams(
-    params: Record<string, any>,
+    params: ClientParams.DeleteParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

@@ -1,33 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import { ExpandWildcards } from './interfaces';
-import type { MappingProperty } from './indicesGetSettings';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesGetFieldMappingParams {
-    fields: string | string[]
-    index?: string | string[]
-    include_type_name?: boolean;
-    type?: string | string[];
-    allow_no_indices?: boolean
-    expand_wildcards?: ExpandWildcards
-    ignore_unavailable?: boolean
-    include_defaults?: boolean
-    local?: boolean
-}
-
-export type IndicesGetFieldMappingResponse = Record<string, IndicesGetFieldMappingTypeFieldMappings>
-
-export interface IndicesGetFieldMappingTypeFieldMappings {
-    mappings: Partial<Record<string, MappingFieldMapping>>
-}
-
-export interface MappingFieldMapping {
-    full_name: string
-    mapping: Partial<Record<string, MappingProperty>>
-}
-
 export function convertIndicesGetFieldMappingParams(
-    params: IndicesGetFieldMappingParams,
+    params: ClientParams.IndicesGetFieldMappingParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

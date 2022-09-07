@@ -1,20 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface ClusterGetSettingsParams {
-    flat_settings?: boolean
-    include_defaults?: boolean
-    timeout?: string | number;
-}
-
-export interface ClusterGetSettingsResponse {
-    persistent: Record<string, any>;
-    transient: Record<string, any>;
-    defaults?: Record<string, any>;
-}
-
 export function convertClusterSettingsParams(
-    params: ClusterGetSettingsParams,
+    params: ClientParams.ClusterGetSettingsParams,
     distributionMeta: DistributionMetadata,
 ) {
     const {

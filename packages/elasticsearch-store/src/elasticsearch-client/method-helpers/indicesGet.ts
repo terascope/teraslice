@@ -1,28 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type { ExpandWildcards, TimeSpan } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesGetParams {
-    index: string | string[];
-    include_type_name?: boolean;
-    local?: boolean;
-    ignore_unavailable?: boolean;
-    allow_no_indices?: boolean;
-    expand_wildcards?: ExpandWildcards;
-    flat_settings?: boolean;
-    include_defaults?: boolean;
-    master_timeout?: TimeSpan;
-}
-
-export interface IndicesGetResponse {
-    [indexName: string]: {
-        settings: Record<string, any>,
-        mappings: Record<string, any>
-    }
-}
-
 export function convertIndicesGetParams(
-    params: IndicesGetParams,
+    params: ClientParams.IndicesGetParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

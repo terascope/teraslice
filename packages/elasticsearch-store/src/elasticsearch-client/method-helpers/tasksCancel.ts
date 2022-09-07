@@ -1,23 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface TasksCancelParams {
-    task_id?: string | number;
-    actions?: string | string[];
-    nodes?: string[];
-    parent_task_id?: string;
-    wait_for_completion?: boolean;
-}
-
-export interface TasksCancelResponse {
-    node_failures?: Record<string, any>[];
-    task_failures?: Record<string, any>[];
-    nodes?: Record<string, any>;
-    tasks?: Record<string, any>;
-}
-
 export function convertTasksCancelParams(
-    params: TasksCancelParams,
+    params: ClientParams.TasksCancelParams,
     distributionMeta: DistributionMetadata,
 ) {
     const {

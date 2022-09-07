@@ -1,18 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import { TimeSpan } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesExistsTemplateParams {
-    name: string | string[];
-    flat_settings?: boolean;
-    master_timeout?: TimeSpan;
-    local?: boolean;
-}
-
-export type IndicesExistsTemplateResponse = boolean;
-
 export function convertIndicesExistsTemplateParams(
-    params: IndicesExistsTemplateParams,
+    params: ClientParams.IndicesExistsTemplateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

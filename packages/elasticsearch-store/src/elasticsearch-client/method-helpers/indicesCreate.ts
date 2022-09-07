@@ -1,32 +1,12 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import {
     ensureNoTypeInMapping,
     ensureTypeInMapping
 } from './helper-utils';
-import type {
-    TimeSpan,
-    WaitForActiveShards,
-    IndexTemplateProperties
-} from './interfaces';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesCreateParams {
-    index: string;
-    include_type_name?: boolean;
-    wait_for_active_shards?: WaitForActiveShards;
-    timeout?: TimeSpan;
-    master_timeout?: TimeSpan;
-    body?: IndexTemplateProperties;
-}
-
-export interface IndicesCreateResponse {
-    acknowledged: boolean;
-    shards_acknowledged: boolean;
-    index: string;
-}
-
 export function convertIndicesCreateParams(
-    params: IndicesCreateParams,
+    params: ClientParams.IndicesCreateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {
