@@ -18,7 +18,7 @@ const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
-): Promise<{ log: Logger, client: WrappedClient }> {
+): Promise<{ log: () => Logger, client: Client }> {
     const distributionMetadata = await getDistributionMetadata(config, logger);
 
     const baseClient = await getBaseClient(
