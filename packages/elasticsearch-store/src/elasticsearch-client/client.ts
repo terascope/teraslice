@@ -8,10 +8,14 @@ export class Client {
 
     constructor(
         client: any,
-        distributionMeta: DistributionMetadata
+        distributionMeta: DistributionMetadata,
     ) {
         this.client = client;
         this.distributionMeta = distributionMeta;
+    }
+
+    get __meta() {
+        return this.distributionMeta;
     }
 
     async bulk(
