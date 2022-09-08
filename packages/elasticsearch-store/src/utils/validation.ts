@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
-import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { Client } from '../../src';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
 import { throwValidationError, getErrorMessages } from './errors';
 
@@ -111,7 +111,7 @@ export function validateIndexConfig(config: Record<string, any>): config is Inde
     return true;
 }
 
-export function isValidClient(input: unknown): input is es.Client {
+export function isValidClient(input: unknown): input is Client {
     if (input == null) return false;
     if (typeof input !== 'object') return false;
 

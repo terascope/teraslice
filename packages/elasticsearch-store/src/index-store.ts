@@ -1,12 +1,15 @@
 import * as ts from '@terascope/utils';
-import { xLuceneTypeConfig, ElasticsearchDistribution } from '@terascope/types';
+import {
+    xLuceneTypeConfig, ElasticsearchDistribution, ESTypes,
+    ClientParams, ClientResponse,
+} from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
 import { Client } from './elasticsearch-client';
 import { IndexManager } from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { MGetBody } from './elasticsearch-client/method-helpers/mget';
+
 /**
  * A single index elasticsearch-store with some specific requirements around
  * the index name, and record data
@@ -210,16 +213,16 @@ export class IndexStore<T extends ts.AnyObject> {
         // TODO: check type here around index
         const p = this._translateQuery(
             query ?? '', options, queryAccess
-        ) as unknown as i.ClientParams.CountParams;
+        ) as unknown as ClientParams.CountParams;
 
         return this.countRequest(p);
     }
 
     /** Count records by a given Elasticsearch Query DSL */
-    async countRequest(params: i.ClientParams.CountParams): Promise<number> {
+    async countRequest(params: ClientParams.CountParams): Promise<number> {
         return ts.pRetry(async () => {
             const { count } = await this.client.count(
-                this.getDefaultParams< i.ClientParams.CountParams>(
+                this.getDefaultParams< ClientParams.CountParams>(
                     this.searchIndex,
                     params
                 )
@@ -235,7 +238,7 @@ export class IndexStore<T extends ts.AnyObject> {
      * @returns the created record
      */
     async createById(
-        id: string, doc: Partial<T>, params?: PartialParam<i.ClientParams.CreateParams<T>, 'id' | 'body'>
+        id: string, doc: Partial<T>, params?: PartialParam<ClientParams.CreateParams<T>, 'id' | 'body'>
     ): Promise<T> {
         utils.validateId(id, 'createById');
         return this.create(doc, Object.assign({}, params, { id }));
@@ -248,12 +251,12 @@ export class IndexStore<T extends ts.AnyObject> {
      */
     async create(
         doc: Partial<T>,
-        params?: PartialParam<i.ClientParams.CreateParams<T>, 'body'>
+        params?: PartialParam<ClientParams.CreateParams<T>, 'body'>
     ): Promise<T> {
         const record = this._runWriteHooks(doc, true);
         const defaults = { refresh: this.refreshByDefault };
 
-        const p = this.getDefaultParams<i.ClientParams.CreateParams<T>>(
+        const p = this.getDefaultParams<ClientParams.CreateParams<T>>(
             this.writeIndex, defaults, params, { body: record }
         );
 
@@ -262,10 +265,12 @@ export class IndexStore<T extends ts.AnyObject> {
             utils.getRetryConfig()
         );
 
-        return this._toRecord({
+        const finalRecord = {
             ...result,
             _source: record
-        });
+        } as unknown as ESTypes.SearchResult<T>;
+
+        return this._toRecord(finalRecord);
     }
 
     async flush(flushAll = false): Promise<void> {
@@ -285,16 +290,16 @@ export class IndexStore<T extends ts.AnyObject> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: PartialParam<i.ClientParams.GetParams>): Promise<T> {
+    async get(id: string, params?: PartialParam<ClientParams.GetParams>): Promise<T> {
         utils.validateId(id, 'get');
         const p = this.getDefaultParams(this.writeIndex, params, { id });
 
         const result = await ts.pRetry(
             async () => this.client.get(
-                p as i.ClientParams.GetParams
+                p as ClientParams.GetParams
             ),
             utils.getRetryConfig()
-        ) as RecordResponse<T>;
+        ) as ESTypes.SearchResult<T>;
 
         return this._toRecord(result);
     }
@@ -317,11 +322,11 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * Index a document
      */
-    async index(doc: T | Partial<T>, params?: PartialParam<i.ClientParams.IndexParams<T>, 'body'>): Promise<T> {
+    async index(doc: T | Partial<T>, params?: PartialParam<ClientParams.IndexParams<T>, 'body'>): Promise<T> {
         const body = this._runWriteHooks(doc, true);
 
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams<i.ClientParams.IndexParams<T>>(
+        const p = this.getDefaultParams<ClientParams.IndexParams<T>>(
             this.writeIndex,
             defaults,
             params,
@@ -330,7 +335,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         const result = await ts.pRetry(
             async () => this.client.index(p),
-            utils.getRetryConfig()) as unknown as RecordResponse<T>;
+            utils.getRetryConfig()) as unknown as ESTypes.SearchResult<T>;
 
         // @ts-expect-error
         result._source = doc;
@@ -344,7 +349,7 @@ export class IndexStore<T extends ts.AnyObject> {
     async indexById(
         id: string,
         doc: T | Partial<T>,
-        params?: PartialParam<i.ClientParams.IndexParams<T>, 'index' | 'type' | 'id'>
+        params?: PartialParam<ClientParams.IndexParams<T>, 'index' | 'type' | 'id'>
     ): Promise<T> {
         utils.validateId(id, 'indexById');
 
@@ -353,17 +358,17 @@ export class IndexStore<T extends ts.AnyObject> {
 
     /** Get multiple documents at the same time */
     async mget(
-        body: MGetBody,
-        params?: PartialParam<i.ClientParams.MGetParams>
+        body: ESTypes.MGetBody,
+        params?: PartialParam<ClientParams.MGetParams>
     ): Promise<T[]> {
-        const p = this.getDefaultParams < i.ClientParams.MGetParams>(
+        const p = this.getDefaultParams < ClientParams.MGetParams>(
             this.writeIndex, params, { body }
         );
 
         const docs = await ts.pRetry(async () => {
             const result = await this.client.mget(p);
             return result.docs || [];
-        }, utils.getRetryConfig()) as RecordResponse<T>[];
+        }, utils.getRetryConfig()) as ESTypes.SearchResult<T>[];
 
         return this._toRecords(docs, true);
     }
@@ -376,7 +381,7 @@ export class IndexStore<T extends ts.AnyObject> {
     /**
      * Refreshes the current index
      */
-    async refresh(params?: PartialParam<i.ClientParams.IndicesRefreshParams>): Promise<void> {
+    async refresh(params?: PartialParam<ClientParams.IndicesRefreshParams>): Promise<void> {
         const p = Object.assign(
             {
                 index: this.writeIndex,
@@ -391,10 +396,10 @@ export class IndexStore<T extends ts.AnyObject> {
      * Deletes a document for a given id
      */
     async deleteById(
-        id: string, params?: PartialParam<i.ClientParams.DeleteParams>
+        id: string, params?: PartialParam<ClientParams.DeleteParams>
     ): Promise<void> {
         utils.validateId(id, 'deleteById');
-        const p = this.getDefaultParams<i.ClientParams.DeleteParams>(
+        const p = this.getDefaultParams<ClientParams.DeleteParams>(
             this.writeIndex,
             {
                 refresh: this.refreshByDefault,
@@ -427,7 +432,7 @@ export class IndexStore<T extends ts.AnyObject> {
     async update(
         id: string,
         body: UpdateBody<T>,
-        params?: PartialParam<i.ClientParams.UpdateParams, 'body' | 'id'>
+        params?: PartialParam<ClientParams.UpdateParams, 'body' | 'id'>
     ): Promise<void> {
         utils.validateId(id, 'update');
 
@@ -443,7 +448,7 @@ export class IndexStore<T extends ts.AnyObject> {
             _body.doc = doc;
         }
 
-        const p = this.getDefaultParams<i.ClientParams.UpdateParams>(
+        const p = this.getDefaultParams<ClientParams.UpdateParams>(
             this.writeIndex,
             defaults,
             params,
@@ -466,7 +471,7 @@ export class IndexStore<T extends ts.AnyObject> {
 
         try {
             const existing = await this.get(id) as any;
-            const params: Partial<i.ClientParams.IndexParams<T>> = {};
+            const params: Partial<ClientParams.IndexParams<T>> = {};
 
             if (ts.DataEntity.isDataEntity(existing)) {
                 if (!utils.isElasticsearch6(this.client)) {
@@ -659,7 +664,7 @@ export class IndexStore<T extends ts.AnyObject> {
         queryAccess?: QueryAccess<T>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
-        const params: Partial<i.ClientParams.SearchParams> = {
+        const params: Partial<ClientParams.SearchParams> = {
             size: options?.size,
             sort: options?.sort,
             from: options?.from,
@@ -667,7 +672,7 @@ export class IndexStore<T extends ts.AnyObject> {
             _source_includes: options?.includes as string[],
         };
 
-        let searchParams: Partial<i.ClientParams.SearchParams>;
+        let searchParams: Partial<ClientParams.SearchParams>;
         const _queryAccess = (queryAccess || this._defaultQueryAccess);
 
         if (_queryAccess) {
@@ -685,12 +690,12 @@ export class IndexStore<T extends ts.AnyObject> {
             );
         }
 
-        return this.searchRequest<T>(searchParams, critical);
+        return this.searchRequest(searchParams, critical);
     }
 
     /** Search using the underlying Elasticsearch Query DSL */
-    async searchRequest<T>(
-        params: PartialParam<i.ClientParams.SearchParams>,
+    async searchRequest(
+        params: PartialParam<ClientParams.SearchParams>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
         const response = await this._search({
@@ -699,7 +704,7 @@ export class IndexStore<T extends ts.AnyObject> {
         });
 
         const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
-        const results = this._toRecords<T>(response.hits.hits, critical);
+        const results = this._toRecords(response.hits.hits, critical);
 
         return {
             _total: total,
@@ -709,9 +714,9 @@ export class IndexStore<T extends ts.AnyObject> {
     }
 
     /** Run an aggregation using an Elasticsearch Query DSL */
-    async aggregate<A = Record<string, any>>(
+    async aggregate<A = ESTypes.SearchAggregations>(
         query: Record<string, any>,
-        params?: PartialParam<i.ClientParams.SearchParams>,
+        params?: PartialParam<ClientParams.SearchParams>,
     ): Promise<A> {
         const response = await this._search({
             ...params,
@@ -719,18 +724,18 @@ export class IndexStore<T extends ts.AnyObject> {
             body: query
         });
 
-        return response.aggregations;
+        return response.aggregations as unknown as A;
     }
 
     /**
      * A small abstraction on client.search with retry support
     */
-    protected async _search<T>(
-        params: PartialParam<i.ClientParams.SearchParams>,
-    ): Promise<i.ClientResponse.SearchResponse<T>> {
+    protected async _search(
+        params: PartialParam<ClientParams.SearchParams>,
+    ): Promise<ClientResponse.SearchResponse<T>> {
         const response = await ts.pRetry(
             async () => this.client.search<T>(
-                this.getDefaultParams<i.ClientParams.SearchParams>(
+                this.getDefaultParams<ClientParams.SearchParams>(
                     this.searchIndex,
                     params,
                 )
@@ -854,7 +859,7 @@ export class IndexStore<T extends ts.AnyObject> {
         }
     }
 
-    protected _toRecord(result: RecordResponse<T>, critical = true): T {
+    protected _toRecord(result: ESTypes.SearchResult<T>, critical = true): T {
         const doc = this._runReadHooks(this._makeDataEntity(result), critical);
 
         if (!doc && critical) {
@@ -866,16 +871,18 @@ export class IndexStore<T extends ts.AnyObject> {
         return doc as T;
     }
 
-    protected _toRecords(results: RecordResponse<T>[], critical = false): T[] {
+    protected _toRecords(results: ESTypes.SearchResult<T>[], critical = false): T[] {
         return results.map((result) => this._toRecord(result, critical)).filter(Boolean);
     }
 
-    private _makeDataEntity(result: RecordResponse<T>): T {
-        return ts.DataEntity.make<T>(result._source, {
+    private _makeDataEntity(
+        result: ESTypes.SearchResult<T>
+    ): T {
+        return ts.DataEntity.make<T>(result._source as any, {
             _key: result._id,
             _processTime: Date.now(),
-            _ingestTime: this._getIngestTime(result._source),
-            _eventTime: this._getEventTime(result._source),
+            _ingestTime: this._getIngestTime(result._source as any),
+            _eventTime: this._getEventTime(result._source as any),
             _index: result._index,
             _type: result._type,
             _version: result._version,
@@ -967,16 +974,6 @@ export type OnBulkConflictFn<T> = (
     existingItem: BulkRequest<Partial<T>>,
     newItem: BulkRequest<Partial<T>>
 ) => BulkRequest<Partial<T>>|null;
-
-interface RecordResponse<T> {
-    _index: string;
-    _type?: string;
-    _id: string;
-    _version?: number;
-    _seq_no?: number;
-    _primary_term?: number;
-    _source: T;
-}
 
 type ReservedParams = 'index' | 'type';
 type PartialParam<T, E = any> = {

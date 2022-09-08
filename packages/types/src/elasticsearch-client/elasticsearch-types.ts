@@ -45,7 +45,7 @@ export interface BulkIndexByScrollFailure {
     type: string;
 }
 
-export interface SearchResult<TDocument = Record<string, unknown>> {
+export interface SearchResult<TDocument = Record<string, any>> {
     fields?: Record<string, any>
     found: boolean
     _index: string
@@ -1416,7 +1416,7 @@ export interface SearchRecordResponse<T = Record<string, unknown>> {
     terminated_early?: boolean;
     max_score?: number;
     fields?: Record<string, any>
-    aggregations?: Record<string, AggregationsAggregate>;
+    aggregations?: SearchAggregations;
     _shards: {
         total: number;
         successful: number;
@@ -1429,6 +1429,8 @@ export interface SearchRecordResponse<T = Record<string, unknown>> {
         hits: SearchResult<T>[]
     }
 }
+
+export type SearchAggregations = Record<string, AggregationsAggregate>
 
 export interface NodesInfoNodeInfoHttp {
     bound_address: string[];

@@ -23,7 +23,7 @@ export interface DeleteByQueryResponse {
 
 export type ExistsResponse = boolean;
 
-export type GetResponse<T = Record<string, unknown>> = i.SearchResult<T>
+export type GetResponse<T = Record<string, any>> = i.SearchResult<T>
 
 export interface IndexResponse extends i.WriteResponseBase {}
 

@@ -1,9 +1,9 @@
-import { Client } from 'elasticsearch';
+import { Client as RawClient } from 'elasticsearch';
 import {
     DataEntity, pDelay, get, toNumber
 } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { IndexStore, createClient } from '../../src';
+import { IndexStore, createClient, Client } from '../../src';
 import {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,
@@ -18,7 +18,7 @@ export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
 // automatically set the timeout to 10s when using elasticsearch
 jest.setTimeout(30000);
 
-export async function makeClient() {
+export async function makeClient(): Promise<Client> {
     let host = ELASTICSEARCH_HOST;
 
     if (process.env.TEST_OPENSEARCH) {
@@ -26,11 +26,11 @@ export async function makeClient() {
     }
 
     if (process.env.LEGACY_CLIENT != null) {
-        return new Client({
+        return new RawClient({
             host,
             log: 'error',
             apiVersion: ELASTICSEARCH_API_VERSION,
-        });
+        }) as unknown as Client;
     }
 
     const { client } = await createClient({

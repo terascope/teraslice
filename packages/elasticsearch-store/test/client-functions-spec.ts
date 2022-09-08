@@ -4,13 +4,12 @@ import {
     toNumber,
     cloneDeep
 } from '@terascope/utils';
-
+import { ClientParams } from '@terascope/types';
 import {
     createClient,
     getBaseClient,
     Client,
     DistributionMetadata,
-    ClientParams,
 } from '../src';
 import {
     upload,
