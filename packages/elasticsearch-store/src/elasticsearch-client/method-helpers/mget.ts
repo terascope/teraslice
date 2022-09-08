@@ -1,41 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type { GetResponse } from './get';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface MGetParams {
-    index?: string;
-    type?: string;
-    stored_fields?: string | string[];
-    preference?: string;
-    realtime?: boolean;
-    refresh?: boolean;
-    routing?: string;
-    _source?: string | string[];
-    _source_excludes?: string | string[];
-    _source_includes?: string | string[];
-    body: {
-        docs?: MGetDocs[];
-        ids?: string[];
-    }
-}
-
-interface MGetDocs {
-    _id: string;
-    _index?: string;
-    _type?: string;
-    _source?: boolean;
-    routing?: string;
-    source_includes?: string | string[];
-    source_excludes?: string | string[];
-    _stored_fields?: string | string[];
-}
-
-export interface MGetResponse {
-    docs: GetResponse[]
-}
-
 export function convertMGetParams(
-    params: MGetParams,
+    params: ClientParams.MGetParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

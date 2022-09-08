@@ -1,8 +1,8 @@
-import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams, ClientResponse } from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
+import { Client } from './elasticsearch-client';
 
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
@@ -10,13 +10,13 @@ const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
  * Manage Elasticsearch Indices
  */
 export class IndexManager {
-    readonly client: any;
+    readonly client: Client;
     readonly version: string;
     readonly distribution: ElasticsearchDistribution;
     readonly majorVersion: number;
     enableIndexMutations: boolean;
 
-    constructor(client: es.Client, enableIndexMutations = ts.isTest) {
+    constructor(client: Client, enableIndexMutations = ts.isTest) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
@@ -32,12 +32,10 @@ export class IndexManager {
     }
 
     /** Verify the index exists */
-    async exists(index: string): Promise<boolean> {
-        const response = await this.client.indices.exists({
+    async exists(index: string): Promise<ClientResponse.IndicesExistsResponse> {
+        return this.client.indices.exists({
             index,
         });
-
-        return ts.get(response, 'body', response);
     }
 
     /**
@@ -180,8 +178,8 @@ export class IndexManager {
     }
 
     async isIndexActive(index: string): Promise<boolean> {
-        const response = await this.client.indices.recovery({ index });
-        const stats = ts.get(response, 'body', response);
+        const stats = await this.client.indices.recovery({ index });
+
         if (ts.isEmpty(stats)) return false;
 
         const getShardsPath = utils.shardsPath(index);
@@ -199,7 +197,9 @@ export class IndexManager {
      * @todo add support for timeseries and templated indexes
      * @todo add support for complicated re-indexing behaviors
      */
-    async migrateIndex<T>(options: MigrateIndexOptions<T>): Promise<any> {
+    async migrateIndex<T>(
+        options: MigrateIndexOptions<T>
+    ): Promise<ClientResponse.ReindexResponse | boolean> {
         const {
             timeout, config, previousVersion, previousName, previousNamespace
         } = options;
@@ -255,10 +255,11 @@ export class IndexManager {
         }
 
         logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
-        const response = await this.client.reindex({
+
+        return this.client.reindex({
             timeout,
-            waitForActiveShards: 'all',
-            waitForCompletion: true,
+            wait_for_active_shards: 'all',
+            wait_for_completion: true,
             body: {
                 source: {
                     index: previousIndexName,
@@ -268,33 +269,26 @@ export class IndexManager {
                 },
             },
         });
-
-        return ts.get(response, 'body', response);
     }
 
-    async getMapping(index: string): Promise<any> {
-        const params: any = { index };
-        if (!utils.isElasticsearch6(this.client)) {
-            params.includeTypeName = false;
-        }
-        const response = await this.client.indices.getMapping(params);
-        return ts.get(response, 'body', response);
+    async getMapping(index: string): Promise<ClientResponse.IndicesGetMappingResponse> {
+        const params: ClientParams.IndicesGetMappingParams = { index };
+
+        return this.client.indices.getMapping(params);
     }
 
-    async putMapping(index: string, type: string, properties: Record<string, any>): Promise<any> {
-        const params: any = {
+    async putMapping(
+        index: string, type: string, properties: Record<string, any>
+    ): Promise<ClientResponse.IndicesPutMappingResponse> {
+        const params: ClientParams.IndicesPutMappingParams = {
             index,
             type,
             body: {
                 properties,
             },
         };
-        if (!utils.isElasticsearch6(this.client)) {
-            delete params.type;
-            params.includeTypeName = false;
-        }
-        const response = await this.client.indices.putMapping(params);
-        return ts.get(response, 'body', response);
+
+        return this.client.indices.putMapping(params);
     }
 
     /**
@@ -319,6 +313,7 @@ export class IndexManager {
 
         const cFlattened = utils.getFlattenedNamesAndTypes(current);
         const eFlattened = utils.getFlattenedNamesAndTypes(existing);
+
         logger.trace({
             current: cFlattened,
             existing: eFlattened
@@ -347,6 +342,7 @@ export class IndexManager {
 
         const changesList = changes.map(([changeType, field]) => `${changeType} field "${field}"`);
         const changesInfo = changesList.length ? ` CHANGES: ${changesList.join(', ')}` : '';
+
         if (breakingChange) {
             throw new Error(`Index ${index} (${type}) has breaking change in the mapping, increment the schema version to fix this.${changesInfo}`);
         }
@@ -364,13 +360,15 @@ export class IndexManager {
         }
     }
 
-    async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
-        const params: any = { name, flatSettings };
-        if (!utils.isElasticsearch6(this.client)) {
-            params.includeTypeName = false;
-        }
-        const response = await this.client.indices.getTemplate(params);
-        return ts.get(response, 'body', response);
+    async getTemplate(
+        name: string, flat_settings: boolean
+    ): Promise<ClientResponse.IndicesGetTemplateResponse> {
+        const params: ClientParams.IndicesGetTemplateParams = {
+            name,
+            flat_settings
+        };
+
+        return this.client.indices.getTemplate(params);
     }
 
     /**
@@ -380,6 +378,7 @@ export class IndexManager {
         template: Record<string, any>, logger?: ts.Logger
     ): Promise<void> {
         const { template: name, version } = template;
+
         try {
             const templates = await this.getTemplate(name, true);
             const latestVersion = templates[name].version;
@@ -398,18 +397,20 @@ export class IndexManager {
             },
             true
         );
+
         if (logger) {
             logger.debug(`Upserting template "${name}"...`, params);
         }
+
         await this.client.indices.putTemplate(params);
     }
 
     protected async waitForIndexAvailability(index: string): Promise<void> {
-        const query = {
+        const query: ClientParams.SearchParams = {
             index,
             q: '',
             size: 0,
-            terminate_after: '1',
+            terminate_after: 1,
         };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());

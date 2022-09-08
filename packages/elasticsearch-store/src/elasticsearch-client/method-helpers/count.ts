@@ -1,29 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface CountParams {
-    index: string | string[];
-    type?: string | string[];
-    ignore_unavailable?: boolean;
-    ignore_throttled?: boolean;
-    allow_no_indices?: boolean;
-    expand_wildcards?: 'open' | 'closed' | 'hidden' | 'none' | 'all';
-    min_score?: number;
-    preference?: string;
-    routing?: string | string[];
-    q?: string;
-    analyzer?: string;
-    analyze_wildcard?: boolean;
-    lenient?: boolean;
-    body?: Record<string, any>;
-}
-
-export interface CountResponse {
-    count: number;
-}
-
 export function convertCountParams(
-    params: Record<string, any>,
+    params: ClientParams.CountParams,
     distributionMeta: DistributionMetadata,
 ) {
     const {

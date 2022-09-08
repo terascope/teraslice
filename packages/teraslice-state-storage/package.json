@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^3.2.2",
+        "@terascope/data-types": "^0.35.3",
         "@terascope/utils": "^0.44.4"
     },
     "engines": {

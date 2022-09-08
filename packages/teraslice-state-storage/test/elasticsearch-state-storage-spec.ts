@@ -1,13 +1,7 @@
 import 'jest-extended';
 import { DataEntity, debugLogger, times } from '@terascope/utils';
+import { ClientParams, ClientResponse } from '@terascope/types';
 import { ESCachedStateStorage, ESStateStorageConfig } from '../src';
-import {
-    ESBulkQuery,
-    ESMGetResponse,
-    ESGetResponse,
-    ESGetParams,
-    ESMGetParams,
-} from '../src/elasticsearch-state-storage';
 
 // TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {
@@ -339,7 +333,7 @@ describe('elasticsearch-state-storage', () => {
                 const mget = client.createMGetResponse(mgetResponse.slice(0, 4));
                 const notFound = client.createMGetResponse(mgetResponse.slice(4), false);
 
-                notFound.docs.forEach((item) => mget.docs.push(item));
+                notFound.docs.forEach((item: any) => mget.docs.push(item));
 
                 client.setMGetResponse(mget);
 
@@ -505,31 +499,27 @@ function copyDataEntity(doc: DataEntity): DataEntity {
     return DataEntity.make(updated, doc.getMetadata());
 }
 
-interface BulkRequest {
-    body: ESBulkQuery[];
-}
-
 class TestClient {
-    private _getResponse!: ESGetResponse;
-    private _mgetResponse!: ESMGetResponse;
-    _bulkRequest!: ESBulkQuery[];
+    private _getResponse!: ClientResponse.GetResponse;
+    private _mgetResponse!: ClientResponse.MGetResponse;
+    _bulkRequest!: ClientParams.BulkParams<Record<string, any>>;
     private _config: ESStateStorageConfig;
 
     constructor(config: ESStateStorageConfig) {
         this._config = config;
     }
 
-    createGetResponse(doc: DataEntity, found = true): ESGetResponse {
+    createGetResponse(doc: DataEntity, found = true): ClientResponse.GetResponse {
         return this.createMGetResponse([doc], found).docs[0];
     }
 
-    createMGetResponse(dataArray: DataEntity[], found = true): ESMGetResponse {
+    createMGetResponse(dataArray: DataEntity[], found = true): ClientResponse.MGetResponse {
         const docs = dataArray.map((item) => {
             const id = item.getKey();
             if (!id) throw new Error('Missing _key on test record');
             if (typeof id !== 'string') throw new Error('Invalid _key on test record');
 
-            const response: ESGetResponse = {
+            const response: ClientResponse.GetResponse = {
                 _index: this._config.index,
                 _type: this._config.type,
                 _version: 1,
@@ -554,15 +544,15 @@ class TestClient {
         };
     }
 
-    setGetResponse(response: ESGetResponse) {
+    setGetResponse(response: ClientResponse.GetResponse) {
         this._getResponse = response;
     }
 
-    setMGetResponse(response: ESMGetResponse) {
+    setMGetResponse(response: ClientResponse.MGetResponse) {
         this._mgetResponse = response;
     }
 
-    async get(params: ESGetParams) {
+    async get(params: ClientParams.GetParams) {
         if (params.index !== this._config.index) {
             throw new Error(`Invalid index ${params.index} on fake get`);
         }
@@ -575,7 +565,7 @@ class TestClient {
         return this._getResponse;
     }
 
-    async mget(params: ESMGetParams) {
+    async mget(params: ClientParams.MGetParams) {
         const ids = params.body && params.body.ids;
         const invalidMsg = 'Invalid test data for mget';
 
@@ -608,12 +598,12 @@ class TestClient {
         return this._mgetResponse;
     }
 
-    async bulk(request: BulkRequest) {
-        this._bulkRequest = request.body;
+    async bulk(request: ClientParams.BulkParams<Record<string, any>>) {
+        this._bulkRequest = request.body as any;
         let i = -1;
         return {
             errors: false,
-            items: request.body.flatMap((obj: Record<string, any>) => {
+            items: request.body!.flatMap((obj: Record<string, any>) => {
                 if (!obj.index && !obj.update && !obj.create && !obj.delete) {
                     // ignore the non-metadata objects
                     return [];

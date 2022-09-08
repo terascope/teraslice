@@ -1,18 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type { TimeSpan } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesDeleteTemplateParams {
-    name: string;
-    master_timeout?: TimeSpan;
-}
-
-export interface IndicesDeleteTemplateResponse {
-    acknowledged: boolean
-}
-
 export function convertIndicesDeleteTemplateParams(
-    params: IndicesDeleteTemplateParams,
+    params: ClientParams.IndicesDeleteTemplateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

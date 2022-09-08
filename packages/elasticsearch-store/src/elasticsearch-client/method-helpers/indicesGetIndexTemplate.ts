@@ -1,31 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import { TimeSpan, Alias } from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesGetIndexTemplateParams {
-    name?: string | string[];
-    include_type_name?: boolean;
-    flat_settings?: boolean;
-    master_timeout?: TimeSpan;
-    local?: boolean;
-}
-
-export interface IndicesGetIndexTemplateResponse {
-    index_templates: IndexTemplate[];
-}
-
-interface IndexTemplate {
-    name: string,
-    index_template: {
-        index_patterns: string[];
-        settings: { index: Record<string, any> };
-        mappings: Record<string, any>,
-        aliases: Alias
-    }
-}
-
 export function convertIndicesGetIndexTemplateParams(
-    params: IndicesGetIndexTemplateParams,
+    params: ClientParams.IndicesGetIndexTemplateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

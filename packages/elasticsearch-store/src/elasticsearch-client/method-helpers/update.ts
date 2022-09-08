@@ -1,43 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import {
-    WriteResponseBase, SearchSourceFilter,
-    WaitForActiveShards, Script, InlineGet
-} from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface UpdateParams<TDocument = unknown, TPartialDocument = unknown> {
-    id: string;
-    index: string;
-    type?: string;
-    lang?: string;
-    refresh?: boolean;
-    require_alias?: boolean;
-    retry_on_conflict?: number;
-    routing?: string;
-    source_enabled?: boolean;
-    timeout?: string | number;
-    wait_for_active_shards?: WaitForActiveShards;
-    _source?: boolean | string | string[];
-    _source_excludes?: string | string[];
-    _source_includes?: string | string[];
-    body?: {
-        detect_noop?: boolean;
-        doc?: TPartialDocument;
-        doc_as_upsert?: boolean;
-        script?: Script;
-        scripted_upsert?: boolean;
-        _source?: boolean | SearchSourceFilter;
-        upsert?: TDocument;
-    };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UpdateResponse<TDocument = unknown> extends WriteResponseBase {
-    get?: InlineGet<TDocument>;
-}
-
 export function convertUpdateParams(
-    params: UpdateParams,
+    params: ClientParams.UpdateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

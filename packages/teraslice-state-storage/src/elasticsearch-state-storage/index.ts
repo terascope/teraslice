@@ -1,10 +1,8 @@
 import {
-    DataEntity,
-    Logger,
-    TSError,
-    chunk,
-    pMap
+    DataEntity, Logger, TSError,
+    chunk, pMap
 } from '@terascope/utils';
+import { ClientParams, ClientResponse } from '@terascope/types';
 import esApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
@@ -188,14 +186,14 @@ export default class ESCachedStateStorage {
     }
 
     private async _esGet(key: string): Promise<DataEntity|undefined> {
-        const request: ESGetParams = {
+        const request: ClientParams.GetParams = {
             index: this.index,
             type: this.type,
             id: key
         };
 
         if (this.sourceFields.length > 0) {
-            request._sourceIncludes = this.sourceFields;
+            request._source_includes = this.sourceFields;
         }
 
         const response = await this.es.get(request, true);
@@ -215,7 +213,7 @@ export default class ESCachedStateStorage {
     }
 
     private async _esMGet(ids: string[]): Promise<DataEntity[]> {
-        const request: ESMGetParams = {
+        const request: ClientParams.MGetParams = {
             index: this.index,
             type: this.type,
             body: {
@@ -224,7 +222,7 @@ export default class ESCachedStateStorage {
         };
 
         if (this.sourceFields.length > 0) {
-            request._sourceIncludes = this.sourceFields;
+            request._source_includes = this.sourceFields;
         }
 
         return this.es.mget(request);
@@ -255,10 +253,17 @@ export default class ESCachedStateStorage {
     }
 }
 
-interface ESMeta {
-    _index: string;
-    _type: string;
-    _id: string;
+function makeDataEntity(result: ClientResponse.GetResponse): DataEntity {
+    const key = result._id;
+
+    return DataEntity.make(result._source as any, {
+        _key: key,
+        _processTime: Date.now(),
+        // TODO Add event and ingest time
+        _index: result._index,
+        _type: result._type,
+        _version: result._version,
+    });
 }
 
 interface CacheResults {
@@ -267,50 +272,4 @@ interface CacheResults {
     uniqIncoming: number;
     notInMemory: number;
     found: number;
-}
-
-export interface ESQuery {
-    index: ESMeta;
-}
-
-export type ESBulkQuery = ESQuery | DataEntity;
-
-export interface ESMGetParams {
-    index: string;
-    type: string;
-    id?: string;
-    body?: any;
-    _sourceIncludes?: string[];
-}
-
-export interface ESGetParams {
-    index: string;
-    type: string;
-    id: string;
-    _sourceIncludes?: string[];
-}
-
-export interface ESMGetResponse {
-    docs: ESGetResponse[];
-}
-
-export interface ESGetResponse {
-    _index: string;
-    _type: string;
-    _version: number;
-    _id: string;
-    found: boolean;
-    _source?: any;
-}
-
-function makeDataEntity(result: ESGetResponse): DataEntity {
-    const key = result._id;
-    return DataEntity.make(result._source, {
-        _key: key,
-        _processTime: Date.now(),
-        // TODO Add event and ingest time
-        _index: result._index,
-        _type: result._type,
-        _version: result._version,
-    });
 }

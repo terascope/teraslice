@@ -1,6 +1,5 @@
 import 'jest-extended';
-import { SearchParams } from 'elasticsearch';
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, ClientParams } from '@terascope/types';
 import { TSError } from '@terascope/utils';
 import { QueryAccess } from '../src';
 
@@ -512,9 +511,9 @@ describe('QueryAccess', () => {
 
     describe('when there is no field restrictions', () => {
         it('should be able to limit the source fields via params', async () => {
-            const params: SearchParams = {
-                _sourceInclude: ['foo'],
-                _sourceExclude: ['bar'],
+            const params: ClientParams.SearchParams = {
+                _source_includes: ['foo'],
+                _source_excludes: ['bar'],
             };
 
             const qa = new QueryAccess({
@@ -555,10 +554,10 @@ describe('QueryAccess', () => {
         });
 
         it('should be able to return a restricted query', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['moo'],
-                _sourceExclude: ['baz'],
+                _source_includes: ['moo'],
+                _source_excludes: ['baz'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', {
@@ -570,8 +569,8 @@ describe('QueryAccess', () => {
             });
             expect(result).not.toHaveProperty('q', 'idk');
 
-            expect(params._sourceInclude).toBe(params._sourceInclude);
-            expect(params._sourceExclude).toBe(params._sourceExclude);
+            expect(params._source_includes).toBe(params._source_includes);
+            expect(params._source_excludes).toBe(params._source_excludes);
 
             expect(params).toMatchObject({
                 _sourceInclude: ['moo'],

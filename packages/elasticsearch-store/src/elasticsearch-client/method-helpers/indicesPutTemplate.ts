@@ -1,23 +1,9 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils';
-import type { TimeSpan, IndexTemplateProperties } from './interfaces';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface IndicesPutTemplateParams {
-    name: string;
-    include_type_name?: boolean;
-    order?: number;
-    create?: boolean;
-    master_timeout?: TimeSpan;
-    body: IndexTemplateProperties
-}
-
-export interface IndicesPutTemplateResponse {
-    acknowledged: boolean
-}
-
 export function convertIndicesPutTemplateParams(
-    params: IndicesPutTemplateParams,
+    params: ClientParams.IndicesPutTemplateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

@@ -1,9 +1,9 @@
 import 'jest-extended';
-import { Client } from 'elasticsearch';
 import { FieldType, GeoShape, GeoShapeType } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
+    IndexModel, IndexModelRecord, IndexModelConfig,
+    IndexModelOptions, makeRecordDataType, Client
 } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';

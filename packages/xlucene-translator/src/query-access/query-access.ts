@@ -1,4 +1,3 @@
-import type { SearchParams } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import {
@@ -7,7 +6,8 @@ import {
     xLuceneVariables,
     xLuceneTypeConfig,
     xLuceneFieldType,
-    ElasticsearchDistribution
+    ElasticsearchDistribution,
+    ClientParams
 } from '@terascope/types';
 import { CachedTranslator } from '../translator';
 import * as i from './interfaces';
@@ -183,7 +183,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         query: string,
         opts?: i.RestrictSearchQueryOptions,
         _overrideParsedQuery?: p.Node
-    ): Promise<SearchParams> {
+    ): Promise<ClientParams.SearchParams> {
         const {
             params: _params = {},
             version: esVersion = 6,
@@ -218,22 +218,26 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const translated = translator.toElasticsearchDSL(translateOptions);
 
+        // keep _sourceInclude && _sourceExclude for backward compatibility
+        const {
+            _sourceInclude, _source_includes,
+            _sourceExclude, _source_excludes,
+            ...parsedParams
+        } = params as any;
+
+        const sourceIncludes = _sourceInclude ?? _source_includes;
+        const sourceExcludes = _sourceExclude ?? _source_excludes;
+
         const { includes, excludes } = this.restrictSourceFields(
-            params._sourceInclude as (keyof T)[],
-            params._sourceExclude as (keyof T)[]
+            sourceIncludes as (keyof T)[],
+            sourceExcludes as (keyof T)[]
         );
 
-        delete params._sourceInclude;
-        delete params._sourceExclude;
-
-        const excludesKey: any = esVersion === 6 ? '_sourceExclude' : '_sourceExcludes';
-        const includesKey: any = esVersion === 6 ? '_sourceInclude' : '_sourceIncludes';
-
-        const searchParams: SearchParams = {
-            ...params,
-            body: { ...params.body, ...translated },
-            [excludesKey]: excludes,
-            [includesKey]: includes,
+        const searchParams: ClientParams.SearchParams = {
+            ...parsedParams,
+            body: { ...parsedParams.body, ...translated },
+            _source_excludes: excludes,
+            _source_includes: includes,
         };
 
         if (searchParams != null) {

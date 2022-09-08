@@ -1,11 +1,11 @@
 /* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
-import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
+    IndexModel, IndexModelRecord, IndexModelConfig,
+    IndexModelOptions, makeRecordDataType, Client
 } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';

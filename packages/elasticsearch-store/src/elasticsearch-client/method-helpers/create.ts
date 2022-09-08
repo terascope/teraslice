@@ -1,28 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import {
-    IndexRefresh, VersionType, WriteResponseBase,
-    WaitForActiveShards
-} from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface CreateParams<TDocument = unknown> {
-    id: string;
-    index: string;
-    type?: string;
-    refresh?: IndexRefresh;
-    routing?: string;
-    timeout?: string | number;
-    version?: number;
-    version_type?: VersionType;
-    wait_for_active_shards?: WaitForActiveShards;
-    body?: TDocument;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CreateResponse extends WriteResponseBase {}
-
 export function convertCreateParams(
-    params: CreateParams,
+    params: ClientParams.CreateParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

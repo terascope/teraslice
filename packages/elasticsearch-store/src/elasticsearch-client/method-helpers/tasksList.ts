@@ -1,34 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
-import type {
-    TimeSpan
-} from './interfaces';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface TasksListParams {
-    nodes?: string | string[];
-    actions?: string | string[];
-    detailed?: boolean;
-    parent_task_id?: string;
-    wait_for_completion?: boolean;
-    node_id?: string[];
-    group_by?: 'nodes' | 'parents' | 'none';
-    timeout?: TimeSpan;
-}
-
-export interface TasksListResponse {
-    node_failures?: Record<string, any>[];
-    task_failures?: {
-        task_id: number;
-        node_id: string;
-        status: string;
-        reason: Record<string, any>;
-    }[];
-    nodes?: Record<string, any>;
-    tasks?: Record<string, any>;
-}
-
 export function convertTasksListParams(
-    params: TasksListParams,
+    params: ClientParams.TasksListParams,
     distributionMeta: DistributionMetadata
 ) {
     const {

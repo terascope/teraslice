@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+
 'use strict';
 
 // polyfill because opensearch has references to an api that won't exist
@@ -80,18 +82,24 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function search(query) {
-        if (!isElasticsearch6()) {
-            if (query._sourceExclude) {
-                query._sourceExcludes = query._sourceExclude.slice();
-                delete query._sourceExclude;
-            }
-            if (query._sourceInclude) {
-                query._sourceIncludes = query._sourceInclude.slice();
-                delete query._sourceInclude;
-            }
+        const {
+            _sourceInclude, _source_includes,
+            _sourceExclude, _source_excludes,
+            ...safeQuery
+        } = query;
+
+        const sourceIncludes = _sourceInclude || _source_includes;
+        const sourceExcludes = _sourceExclude || _source_excludes;
+
+        if (sourceIncludes) {
+            safeQuery._source_includes = sourceIncludes;
         }
 
-        return _searchES(query).then((data) => {
+        if (sourceExcludes) {
+            safeQuery._source_excludes = sourceExcludes;
+        }
+
+        return _searchES(safeQuery).then((data) => {
             if (config.full_response) {
                 return data;
             }

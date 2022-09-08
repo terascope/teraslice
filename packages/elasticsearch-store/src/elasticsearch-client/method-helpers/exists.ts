@@ -1,20 +1,8 @@
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
 import type { DistributionMetadata } from '../interfaces';
 
-export interface ExistsParams {
-    id: string;
-    index: string;
-    type?: string;
-    preference?: string;
-    realtime?: boolean;
-    refresh?: boolean;
-    routing?: string;
-}
-
-export type ExistsResponse = boolean;
-
 export function convertExistsParams(
-    params: ExistsParams,
+    params: ClientParams.ExistsParams,
     distributionMeta: DistributionMetadata
 ) {
     const {
