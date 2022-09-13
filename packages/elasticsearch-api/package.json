@@ -27,13 +27,13 @@
         "setimmediate": "^1.0.5"
     },
     "devDependencies": {
-        "@opensearch-project/opensearch": "^1.0.2",
+        "@opensearch-project/opensearch": "^1.1.0",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
+        "elasticsearch-store": "^0.62.3",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
-        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
-        "elasticsearch-store": "^0.62.3"
+        "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
     },
     "engines": {
         "node": "^12.22.0 || >=14.17.0",
