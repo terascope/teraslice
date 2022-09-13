@@ -7,6 +7,10 @@ terafoundation:
                 apiVersion: "5.6"
                 host:
                     - "elasticsearch:9200"
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://elasticsearch:9200"
 teraslice:
     worker_disconnect_timeout: 60000
     node_disconnect_timeout: 60000

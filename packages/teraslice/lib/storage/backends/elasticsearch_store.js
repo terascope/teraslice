@@ -4,34 +4,20 @@ const ms = require('ms');
 const fs = require('fs');
 const path = require('path');
 const {
-    TSError,
-    parseError,
-    isTest,
-    pDelay,
-    pRetry,
-    logError,
-    pWhile,
-    isString,
-    getTypeOf,
-    get,
-    random,
-    isInteger
+    TSError, parseError, isTest, pDelay,
+    pRetry, logError, pWhile, isString, getTypeOf,
+    get, random, isInteger
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClientAsync } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const { timeseriesIndex } = require('../../utils/date_utils');
 
-module.exports = function elasticsearchStorage(backendConfig) {
+module.exports = async function elasticsearchStorage(backendConfig) {
     const {
-        context,
-        indexName,
-        recordType,
-        idField,
-        storageName,
-        bulkSize = 1000,
-        fullResponse = false,
-        logRecord = true,
+        context, indexName, recordType,
+        idField, storageName, bulkSize = 1000,
+        fullResponse = false, logRecord = true,
         forceRefresh = true,
     } = backendConfig;
 
@@ -523,7 +509,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
 
-    return new Promise((resolve, reject) => {
+    async function setup() {
         const clientName = JSON.stringify({
             connection: config.state.connection,
             index: indexName,
@@ -544,77 +530,34 @@ module.exports = function elasticsearchStorage(backendConfig) {
             connection,
         };
 
-        Promise.resolve()
-            .then(() => getClientAsync(context, connectionConfig, 'elasticsearch-next'))
-            .then((esClient) => {
-                client = esClient;
-                if (!client) {
-                    reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
-                    return;
-                }
+        await pWhile(async () => {
+            try {
+                client = await getClientAsync(context, connectionConfig, 'elasticsearch-next');
                 elasticsearch = elasticsearchApi(client, logger, options);
-                // eslint-disable-next-line consistent-return
-                return _createIndex(newIndex);
-            })
-            .then(() => elasticsearch.isAvailable(newIndex, recordType))
-            .then(() => resolve(api))
-            .catch((err) => {
+
+                await _createIndex(newIndex);
+                await elasticsearch.isAvailable(newIndex, recordType);
+
+                return true;
+            } catch (err) {
                 const error = new TSError(err, {
                     reason: `Failure initializing ${recordType} index: ${indexName}`,
                 });
+
                 if (error.statusCode >= 400 && error.statusCode < 500) {
-                    reject(err);
-                    return;
+                    throw error;
                 }
 
                 logError(logger, error, `Failed attempt connecting to elasticsearch: ${clientName} (will retry)`);
-                let running = false;
 
-                const checking = setInterval(() => {
-                    if (isShutdown) {
-                        clearInterval(checking);
-                        return;
-                    }
-                    if (running) return;
-                    running = true;
+                await pDelay(isTest ? 0 : random(2000, 4000));
 
-                    _createIndex(newIndex)
-                        .then(() => {
-                            const query = { index: newIndex };
-                            return elasticsearch.index_recovery(query);
-                        })
-                        .then((results) => {
-                            let bool = false;
-                            const shards = get(results, [newIndex, 'shards'], []);
-                            if (shards.length) {
-                                bool = shards
-                                    .filter((shard) => shard.primary)
-                                    .every((shard) => shard.stage === 'DONE');
-                            }
+                return false;
+            }
+        });
 
-                            if (bool) {
-                                clearInterval(checking);
-                                logger.info('connection to elasticsearch has been established');
-                                return elasticsearch.isAvailable(newIndex, recordType).then(() => {
-                                    resolve(api);
-                                });
-                            }
-                            return true;
-                        })
-                        .then(() => {
-                            running = false;
-                        })
-                        .catch((checkingErr) => {
-                            // add a random delay to stagger requests
-                            pDelay(isTest ? 0 : random(0, 1000)).then(() => {
-                                running = false;
-                                const checkingError = new TSError(checkingErr, {
-                                    reason: `Attempting to connect to elasticsearch: ${clientName}`,
-                                });
-                                logger.info(checkingError.message);
-                            });
-                        });
-                }, 3000);
-            });
-    });
+        return api;
+    }
+
+    return setup();
 };
