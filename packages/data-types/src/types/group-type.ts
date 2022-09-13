@@ -2,6 +2,7 @@ import {
     xLuceneTypeConfig,
     PropertyESTypeMapping,
     PropertyESTypes,
+    ClientMetadata,
 } from '@terascope/types';
 import { firstToUpper } from '@terascope/utils';
 import BaseType, { ToGraphQLOptions } from './base-type';
@@ -17,12 +18,12 @@ export default class GroupType extends BaseType {
         this.types = types;
     }
 
-    toESMapping(version?: number): TypeESMapping {
+    toESMapping(config: ClientMetadata): TypeESMapping {
         const {
             mapping,
             analyzer = {},
             tokenizer = {},
-        } = this.types[this.field].toESMapping(version);
+        } = this.types[this.field].toESMapping(config);
         const baseMapping = mapping[this.field] as PropertyESTypeMapping;
         if (!baseMapping.properties) {
             baseMapping.properties = {};
@@ -33,7 +34,7 @@ export default class GroupType extends BaseType {
                 continue;
             }
 
-            const fieldResult = type.toESMapping(version);
+            const fieldResult = type.toESMapping(config);
 
             const nestedField = this._removeBase(field);
             const fieldMapping = fieldResult.mapping[field] as PropertyESTypes;

@@ -1,6 +1,6 @@
 import * as ts from '@terascope/utils';
 import {
-    xLuceneTypeConfig, ElasticsearchDistribution, ESTypes,
+    xLuceneTypeConfig, ClientMetadata, ESTypes,
     ClientParams, ClientResponse,
 } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
@@ -20,9 +20,7 @@ export class IndexStore<T extends ts.AnyObject> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
-    readonly majorVersion: number;
-    readonly version: string;
-    readonly distribution: ElasticsearchDistribution;
+    readonly clientMetadata: ClientMetadata;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
     readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
@@ -51,9 +49,7 @@ export class IndexStore<T extends ts.AnyObject> {
         this.config = config;
         this.name = utils.toInstanceName(this.config.name);
         this.manager = new IndexManager(client, config.enable_index_mutations);
-        this.majorVersion = this.manager.majorVersion;
-        this.version = this.manager.version;
-        this.distribution = this.manager.distribution;
+        this.clientMetadata = this.manager.clientMetadata;
 
         if (this.config.bulk_max_size != null) {
             this._bulkMaxSize = this.config.bulk_max_size;
@@ -678,9 +674,8 @@ export class IndexStore<T extends ts.AnyObject> {
         if (_queryAccess) {
             searchParams = await _queryAccess.restrictSearchQuery(q ?? '', {
                 params,
-                version: utils.getESVersion(this.client),
-                distribution: this.distribution,
-                variables: options?.variables
+                variables: options?.variables,
+                ...this.clientMetadata
             });
         } else {
             searchParams = Object.assign(

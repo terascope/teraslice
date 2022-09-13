@@ -1,11 +1,7 @@
 import { Logger } from '@terascope/utils';
 import {
-    SortOrder,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    GeoDistanceUnit,
-    GeoPoint,
-    ElasticsearchDistribution
+    SortOrder, xLuceneTypeConfig, xLuceneVariables,
+    GeoDistanceUnit, GeoPoint, ClientMetadata
 } from '@terascope/types';
 
 export type TranslatorOptions = {
@@ -20,14 +16,12 @@ export type TranslatorOptions = {
 /**
  * @internal
 */
-export type UtilsTranslateQueryOptions = {
+export interface UtilsTranslateQueryOptions extends Partial<ClientMetadata> {
     logger: Logger;
     type_config: xLuceneTypeConfig;
     variables: xLuceneVariables;
-    version: number,
-    distribution: ElasticsearchDistribution,
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
     geo_sort_unit: GeoDistanceUnit;
-};
+}

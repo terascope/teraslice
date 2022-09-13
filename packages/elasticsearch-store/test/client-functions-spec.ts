@@ -1,25 +1,17 @@
-import {
-    DataEntity,
-    debugLogger,
-    toNumber,
-    cloneDeep
-} from '@terascope/utils';
+import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
 import { ClientParams } from '@terascope/types';
 import {
-    createClient,
-    getBaseClient,
-    Client,
-    DistributionMetadata,
+    createClient, getBaseClient, Client,
+    ElasticsearchTestHelpers
 } from '../src';
-import {
-    upload,
-    cleanupIndex,
-    waitForData,
-    formatUploadData,
-    getDistributionAndVersion,
-    getTotalFormat
-} from './helpers/elasticsearch';
-import { data } from './helpers/data';
+
+const {
+    upload, cleanupIndex, waitForData,
+    formatUploadData, getTestENVClientInfo,
+    getTotalFormat, EvenDateData
+} = ElasticsearchTestHelpers;
+
+const { data } = EvenDateData;
 
 describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
@@ -28,21 +20,11 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
     const testLogger = debugLogger('create-client-test');
 
     const {
-        version,
         host,
-        distribution
-    } = getDistributionAndVersion();
+        ...clientMetadata
+    } = getTestENVClientInfo();
 
     const config = { node: host };
-
-    const [majorVersion, minorVersion] = version.split('.').map(toNumber);
-
-    const distributionMetadata: DistributionMetadata = {
-        version,
-        distribution,
-        majorVersion,
-        minorVersion
-    };
 
     let client: any;
 
@@ -51,8 +33,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         await cleanupIndex(client, index);
 
-        if (version.split('.').length !== 3) {
-            throw new Error(`Expected version to follow semver format (major.minor.patch) got ${version}`);
+        if (clientMetadata.version.split('.').length !== 3) {
+            throw new Error(`Expected version to follow semver format (major.minor.patch) got ${clientMetadata.version}`);
         }
 
         await upload(client, { index, type: docType }, data);
@@ -63,24 +45,24 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         it('should return info about the cluster', async () => {
             const resp = await client.info();
 
-            if (distribution === 'elasticsearch') {
-                if (version.split('.')[0] === '8') {
+            if (clientMetadata.distribution === 'elasticsearch') {
+                if (clientMetadata.version.split('.')[0] === '8') {
                     expect(resp.cluster_name).toBe('docker-cluster');
                 } else {
-                    expect(resp.cluster_name).toBe(distribution);
+                    expect(resp.cluster_name).toBe(clientMetadata.distribution);
                 }
             }
 
-            if (distribution === 'opensearch') {
+            if (clientMetadata.distribution === 'opensearch') {
                 expect(resp.cluster_name).toBe('docker-cluster');
                 expect(resp.version.distribution).toBe('opensearch');
             }
 
-            expect(resp.version.number).toBe(version);
+            expect(resp.version.number).toBe(clientMetadata.version);
         });
 
         it('should throw an error if tried on a non-supported distribution', async () => {
-            const badVersion = cloneDeep(distributionMetadata);
+            const badVersion = cloneDeep(clientMetadata);
 
             badVersion.version = '3.2.1';
             badVersion.majorVersion = 3;
@@ -88,7 +70,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const badDistribution = new Client(client, badVersion);
 
-            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 3.2.1`);
+            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${clientMetadata.distribution} version: 3.2.1`);
         });
     });
 
@@ -100,7 +82,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         });
 
         it('should throw an error if tried on a non-supported distribution', async () => {
-            const badVersion = cloneDeep(distributionMetadata);
+            const badVersion = cloneDeep(clientMetadata);
 
             badVersion.version = '10.0.0';
             badVersion.majorVersion = 10;
@@ -108,7 +90,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const badDistribution = new Client(client, badVersion);
 
-            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${distribution} version: 10.0.0`);
+            await expect(() => badDistribution.ping()).rejects.toThrowError(`Unsupported ${clientMetadata.distribution} version: 10.0.0`);
         });
     });
 
@@ -552,7 +534,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
     describe('search', () => {
         const searchIndex = 'test-search';
 
-        const total = getTotalFormat(distribution, majorVersion, 1);
+        const total = getTotalFormat(clientMetadata.distribution, clientMetadata.majorVersion, 1);
 
         beforeAll(async () => {
             const testData = data.slice(0, 10)
@@ -644,7 +626,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
     describe('msearch', () => {
         const msearchIndex = 'test-msearch';
 
-        const total = getTotalFormat(distribution, majorVersion, 1);
+        const total = getTotalFormat(clientMetadata.distribution, clientMetadata.majorVersion, 1);
 
         beforeAll(async () => {
             const testData = data.slice(0, 10)
@@ -914,8 +896,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const resp = await client.reindex(params);
 
-            if (distribution === 'elasticsearch') {
-                if (majorVersion === 6) {
+            if (clientMetadata.distribution === 'elasticsearch') {
+                if (clientMetadata.majorVersion === 6) {
                     expect(resp.total).toBe(10);
                     expect(resp.created).toBe(10);
                 } else {
@@ -1356,8 +1338,8 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             const resp = await client.indices.getTemplate(params);
 
-            if (distribution === 'elasticsearch' && majorVersion === 6) {
-                if (majorVersion === 6) {
+            if (clientMetadata.distribution === 'elasticsearch' && clientMetadata.majorVersion === 6) {
+                if (clientMetadata.majorVersion === 6) {
                     expect(resp).toEqual({
                         [tempName]: {
                             order: 0,
@@ -1500,12 +1482,12 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         beforeAll(async () => {
             newClient = await getBaseClient(
-                distributionMetadata,
+                clientMetadata,
                 { node: host },
                 testLogger
             );
 
-            if (majorVersion !== 6) {
+            if (clientMetadata.majorVersion !== 6) {
                 await newClient.indices.putIndexTemplate({
                     name: tempName,
                     body: {
@@ -1521,7 +1503,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         });
 
         afterAll(async () => {
-            if (majorVersion !== 6) {
+            if (clientMetadata.majorVersion !== 6) {
                 await newClient.indices.deleteIndexTemplate({ name: tempName });
             }
         });
@@ -1531,7 +1513,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 name: tempName
             };
 
-            if (majorVersion !== 6) {
+            if (clientMetadata.majorVersion !== 6) {
                 const resp = await client.indices.getIndexTemplate(params);
 
                 expect(resp).toEqual({

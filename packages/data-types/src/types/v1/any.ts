@@ -3,7 +3,7 @@ import BaseType from '../base-type';
 import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class AnyType extends BaseType {
-    toESMapping(_version?: number): TypeESMapping {
+    toESMapping(): TypeESMapping {
         return {
             mapping: { [this.field]: { enabled: false } }
         };

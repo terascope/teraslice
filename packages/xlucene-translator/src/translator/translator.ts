@@ -56,8 +56,10 @@ export class Translator {
     toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger,
-            version: opts.version || 6,
-            distribution: opts.distribution || ElasticsearchDistribution.elasticsearch,
+            majorVersion: opts.majorVersion ?? 6,
+            minorVersion: opts.minorVersion ?? 8,
+            version: opts.version ?? '6.8.6',
+            distribution: opts.distribution ?? ElasticsearchDistribution.elasticsearch,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             variables: this.variables ?? {},

@@ -1,14 +1,13 @@
-import { ClientParams, ClientResponse } from '@terascope/types';
+import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
 import * as methods from './method-helpers';
-import { DistributionMetadata } from './interfaces';
 
 export class Client {
     private client: any;
-    private distributionMeta: DistributionMetadata;
+    private distributionMeta: ClientMetadata;
 
     constructor(
         client: any,
-        distributionMeta: DistributionMetadata,
+        distributionMeta: ClientMetadata,
     ) {
         this.client = client;
         this.distributionMeta = distributionMeta;

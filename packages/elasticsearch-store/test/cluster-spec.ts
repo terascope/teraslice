@@ -1,13 +1,12 @@
 import 'jest-extended';
-import { Cluster } from '../src';
-import { makeClient } from './helpers/elasticsearch';
+import { Cluster, ElasticsearchTestHelpers } from '../src';
 
 describe('Cluster', () => {
     let client: any;
     let cluster: Cluster;
 
     beforeAll(async () => {
-        client = await makeClient();
+        client = await ElasticsearchTestHelpers.makeClient();
         cluster = new Cluster(client);
     });
 

@@ -8,11 +8,12 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
 import {
-    IndexStore, IndexConfig, OnBulkConflictFn, UpsertWithScript
+    IndexStore, IndexConfig, OnBulkConflictFn,
+    UpsertWithScript, ElasticsearchTestHelpers
 } from '../src';
+
+const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');
@@ -267,13 +268,13 @@ describe('IndexStore', () => {
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
                 // eslint-disable-next-line max-len
-                const isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
+                const isOpenSearch = indexStore.clientMetadata.distribution === ElasticsearchDistribution.opensearch;
                 const metadata = r.getMetadata();
                 // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: isOpenSearch || indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: isOpenSearch || indexStore.clientMetadata.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -682,7 +683,8 @@ describe('IndexStore', () => {
             );
             await cleanupIndexStore(indexStore);
 
-            isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
+            const { distribution } = indexStore.clientMetadata;
+            isOpenSearch = distribution === ElasticsearchDistribution.opensearch;
 
             await indexStore.initialize();
         });
@@ -773,7 +775,7 @@ describe('IndexStore', () => {
                                 refresh: false,
                             };
                             // TODO: fix this when tests are switched to use new client
-                            if (isOpenSearch || indexStore.majorVersion >= 7) {
+                            if (isOpenSearch || indexStore.clientMetadata.majorVersion >= 7) {
                                 delete (indexParams as any).type;
                             }
                             return client.index(indexParams);

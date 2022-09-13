@@ -1,8 +1,7 @@
-import { ElasticsearchDistribution, ESTypes } from '@terascope/types';
-import type { DistributionMetadata } from '../interfaces';
+import { ElasticsearchDistribution, ESTypes, ClientMetadata } from '@terascope/types';
 
 export function validateDistribution(
-    distributionMeta: DistributionMetadata
+    distributionMeta: ClientMetadata
 ) {
     const {
         majorVersion,

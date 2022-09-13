@@ -128,10 +128,14 @@ export function getClientMetadata(client: Client): ClientMetadata {
     const newClientVersion = ts.get(client, '__meta.version');
     const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
     const distribution = ts.get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+    // lowest Elasticsearch we run is 6.8.6
+    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(ts.toNumber);
 
     return {
         distribution,
-        version
+        version,
+        majorVersion,
+        minorVersion
     };
 }
 

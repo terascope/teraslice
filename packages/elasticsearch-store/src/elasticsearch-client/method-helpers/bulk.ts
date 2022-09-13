@@ -1,9 +1,8 @@
-import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
-import { DistributionMetadata } from '../interfaces';
+import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 
 export function convertBulkParams(
     params: ClientParams.BulkParams,
-    distributionMeta: DistributionMetadata,
+    distributionMeta: ClientMetadata,
 ) {
     const { majorVersion, distribution, version } = distributionMeta;
 

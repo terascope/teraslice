@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { ElasticsearchDistribution, ClientParams, ClientResponse } from '@terascope/types';
+import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
 import { Client } from './elasticsearch-client';
@@ -11,9 +11,8 @@ const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
  */
 export class IndexManager {
     readonly client: Client;
-    readonly version: string;
-    readonly distribution: ElasticsearchDistribution;
-    readonly majorVersion: number;
+    readonly clientMetadata: ClientMetadata;
+
     enableIndexMutations: boolean;
 
     constructor(client: Client, enableIndexMutations = ts.isTest) {
@@ -25,9 +24,15 @@ export class IndexManager {
 
         this.enableIndexMutations = enableIndexMutations;
         const { version, distribution } = utils.getClientMetadata(client);
-        this.version = version;
-        this.distribution = distribution;
-        this.majorVersion = ts.toNumber(version.split('.', 1)[0]);
+
+        const [majorVersion = 6, minorVersion = 8] = version.split('.').map(ts.toNumber);
+        this.clientMetadata = {
+            version,
+            distribution,
+            majorVersion,
+            minorVersion
+        };
+
         this.client = client;
     }
 
@@ -93,14 +98,14 @@ export class IndexManager {
 
         const settings = Object.assign({}, config.index_settings);
 
-        logger.trace(`Using ${this.distribution} version ${this.version}`);
-        // TODO: add distibution here
+        logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
+
         const body: any = config.data_type.toESMapping({
             typeName: config.name,
-            version: this.majorVersion,
             overrides: {
                 settings,
-            }
+            },
+            ...this.clientMetadata
         });
 
         const enableMutations = (

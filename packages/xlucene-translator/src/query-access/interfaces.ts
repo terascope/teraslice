@@ -1,12 +1,7 @@
 import type { AnyObject } from '@terascope/utils';
 import {
-    SortOrder,
-    ElasticsearchDSLOptions,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    GeoDistanceUnit,
-    ElasticsearchDistribution,
-    ClientParams
+    SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
+    xLuceneVariables, GeoDistanceUnit, ClientParams,
 } from '@terascope/types';
 import { ParserOptions } from 'xlucene-parser';
 
@@ -18,16 +13,6 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
      * on the excludes and includes fields specified in the config
     */
     params?: Partial<ClientParams.SearchParams>;
-    /**
-     * The elasticsearch version (to format the request properly)
-     * @default 6
-    */
-    version?: number;
-    /**
-     * The distribution (ie elasticsearch or opensearch)
-     * @default 'elasticsearch'
-    */
-    distribution?: ElasticsearchDistribution;
 }
 
 export interface RestrictOptions {

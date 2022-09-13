@@ -5,13 +5,10 @@ import * as opensearch from '@opensearch-project/opensearch';
 import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
-import { ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
 import { Client } from './client';
 import { logWrapper } from './log-wrapper';
-import {
-    ClientConfig,
-    DistributionMetadata
-} from './interfaces';
+import { ClientConfig } from './interfaces';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
@@ -19,7 +16,7 @@ export async function createClient(
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ): Promise<{ log: () => Logger, client: Client }> {
-    const distributionMetadata = await getDistributionMetadata(config, logger);
+    const distributionMetadata = await getClientMetadata(config, logger);
 
     const baseClient = await getBaseClient(
         distributionMetadata,
@@ -33,10 +30,10 @@ export async function createClient(
     };
 }
 
-async function getDistributionMetadata(
+async function getClientMetadata(
     config: Record<string, any>,
     logger: Logger
-): Promise<DistributionMetadata> {
+): Promise<ClientMetadata> {
     for (let i = 0; i < clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
@@ -85,7 +82,7 @@ async function getDistributionMetadata(
 }
 
 export async function getBaseClient(
-    distributionMetadata: DistributionMetadata,
+    clientMetadata: ClientMetadata,
     config: ClientConfig,
     logger = debugLogger('elasticsearch-client')
 ) {
@@ -93,7 +90,7 @@ export async function getBaseClient(
         distribution,
         majorVersion,
         minorVersion
-    } = distributionMetadata;
+    } = clientMetadata;
 
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {

@@ -24,7 +24,6 @@ describe('DataType', () => {
     it('should throw when given a unknown version', () => {
         expect(() => {
             new DataType({
-                // @ts-expect-error
                 version: 999,
                 fields: {},
             });

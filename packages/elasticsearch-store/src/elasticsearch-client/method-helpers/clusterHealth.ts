@@ -1,12 +1,11 @@
-import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
-import type { Semver } from '../interfaces';
+import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 
 export function convertClusterHealthParams(
     params: ClientParams.ClusterHealthParams,
-    distribution: ElasticsearchDistribution,
-    version: Semver
+    distributionMeta: ClientMetadata,
 ) {
-    const [majorVersion] = version;
+    const { majorVersion, distribution, version } = distributionMeta;
+
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         if (majorVersion === 8) {
             return params;
@@ -25,7 +24,7 @@ export function convertClusterHealthParams(
             return parsedParams;
         }
 
-        throw new Error(`Unsupported elasticsearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported elasticsearch version: ${version}`);
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
@@ -43,7 +42,7 @@ export function convertClusterHealthParams(
             return parsedParams;
         }
         // future version will have master_timeout gone, renamed to cluster_manager_timeout
-        throw new Error(`Unsupported opensearch version: ${version.join('.')}`);
+        throw new Error(`Unsupported opensearch version: ${version}`);
     }
 
     throw new Error(`Unsupported distribution ${distribution}`);

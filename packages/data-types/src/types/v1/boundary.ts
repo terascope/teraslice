@@ -3,7 +3,7 @@ import BaseType, { ToGraphQLOptions } from '../base-type';
 import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Boundary extends BaseType {
-    toESMapping(_version?: number): TypeESMapping {
+    toESMapping(): TypeESMapping {
         return {
             mapping: {
                 [this.field]: this.config.indexed === false ? {

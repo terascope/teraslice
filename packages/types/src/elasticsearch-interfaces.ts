@@ -5,18 +5,14 @@ import * as geo from './geo-interfaces';
 */
 export type SortOrder = 'asc'|'desc';
 
-export type ElasticsearchDSLOptions = {
+export interface ElasticsearchDSLOptions extends Partial<ClientMetadata> {
     /**
      * If a default_geo_field is set, this is required to enable sorting
     */
     geo_sort_point?: geo.GeoPoint;
     geo_sort_order?: SortOrder;
     geo_sort_unit?: geo.GeoDistanceUnit;
-    /** The major version of elasticsearch, defaults to 6 */
-    version?: number;
-    /** The distribution, either elasticsearch or opensearch, defaults to elasticsearch */
-    distribution?: ElasticsearchDistribution
-};
+}
 
 export type BoolQuery = {
     bool: {
@@ -264,4 +260,6 @@ export enum ElasticsearchDistribution {
 export interface ClientMetadata {
     distribution: ElasticsearchDistribution,
     version: string;
+    majorVersion: number;
+    minorVersion: number;
 }

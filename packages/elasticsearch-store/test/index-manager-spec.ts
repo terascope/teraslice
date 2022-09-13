@@ -1,8 +1,7 @@
 import 'jest-extended';
 import { TSError, debugLogger } from '@terascope/utils';
 import { DataType } from '@terascope/data-types';
-import { IndexManager, IndexConfig } from '../src';
-import { makeClient } from './helpers/elasticsearch';
+import { IndexManager, IndexConfig, ElasticsearchTestHelpers } from '../src';
 
 const dataType = new DataType({}, 'hello');
 
@@ -10,7 +9,7 @@ describe('IndexManager', () => {
     let indexManager: IndexManager;
 
     beforeAll(async () => {
-        const client = await makeClient();
+        const client = await ElasticsearchTestHelpers.makeClient();
         indexManager = new IndexManager(client);
     });
 
