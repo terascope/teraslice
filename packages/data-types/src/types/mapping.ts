@@ -59,5 +59,5 @@ export const mapping: DataTypeMapping = {
         // ever get here
         Tuple: AnyV1,
         Any: AnyV1
-    },
+    }
 };

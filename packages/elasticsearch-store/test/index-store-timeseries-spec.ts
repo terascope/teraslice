@@ -8,9 +8,12 @@ import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType
 } from './helpers/simple-index';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
-import { IndexStore, IndexConfig, __timeSeriesTest } from '../src';
+import {
+    IndexStore, IndexConfig, __timeSeriesTest,
+    ElasticsearchTestHelpers
+} from '../src';
+
+const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
 describe('IndexStore (timeseries)', () => {
     const logger = debugLogger(__filename);
@@ -256,14 +259,14 @@ describe('IndexStore (timeseries)', () => {
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
                 // eslint-disable-next-line max-len
-                const isOpenSearch = indexStore.distribution === ElasticsearchDistribution.opensearch;
+                const isOpenSearch = indexStore.clientMetadata.distribution === ElasticsearchDistribution.opensearch;
 
                 const metadata = r.getMetadata();
                 // TODO: fix this when tests are switched to use new client
                 expect(metadata).toMatchObject({
                     _index: indexStore.writeIndex,
                     _key: record.test_id,
-                    _type: isOpenSearch || indexStore.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: isOpenSearch || indexStore.clientMetadata.majorVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();

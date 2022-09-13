@@ -186,15 +186,19 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     ): Promise<ClientParams.SearchParams> {
         const {
             params: _params = {},
-            version: esVersion = 6,
+            majorVersion = 6,
+            minorVersion = 8,
             distribution = ElasticsearchDistribution.elasticsearch,
+            version = '6.8.6',
             ...options
         } = opts ?? {};
 
         const translateOptions = {
             ...options,
             distribution,
-            version: esVersion,
+            majorVersion,
+            minorVersion,
+            version
         };
 
         const variables = Object.assign({}, this.variables, opts?.variables ?? {});

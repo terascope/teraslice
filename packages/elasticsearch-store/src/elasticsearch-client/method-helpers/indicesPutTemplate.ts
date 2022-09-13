@@ -1,10 +1,10 @@
-import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
+import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
+
 import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils';
-import type { DistributionMetadata } from '../interfaces';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,
-    distributionMeta: DistributionMetadata
+    distributionMeta: ClientMetadata
 ) {
     const {
         majorVersion,

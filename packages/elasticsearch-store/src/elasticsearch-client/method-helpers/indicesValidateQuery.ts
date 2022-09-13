@@ -1,9 +1,8 @@
-import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
-import type { DistributionMetadata } from '../interfaces';
+import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 
 export function convertIndicesValidateQueryParams(
     params: ClientParams.IndicesValidateQueryParams,
-    distributionMeta: DistributionMetadata
+    distributionMeta: ClientMetadata
 ) {
     const {
         majorVersion,

@@ -87,7 +87,7 @@ export type DataTypeVersion = 1;
 /**
  * A list of DataType config versions
 */
-export const dataTypeVersions: ReadonlyArray<DataTypeVersion> = Object.freeze([1]);
+export const dataTypeVersions: ReadonlyArray<number> = Object.freeze([1]);
 
 /**
  * A list of valid valid formats for FieldType.Date.
@@ -187,7 +187,7 @@ export interface DataTypeConfig {
     /**
      * The major version of DataType config, defaults to the latest version.
     */
-    version?: DataTypeVersion;
+    version?: number;
 }
 
 /**

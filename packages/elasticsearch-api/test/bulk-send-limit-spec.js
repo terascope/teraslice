@@ -1,13 +1,14 @@
 'use strict';
 
 const { debugLogger, chunk, pMap } = require('@terascope/utils');
+const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const elasticsearchAPI = require('../index');
-const { data } = require('./helpers/data');
 const { TEST_INDEX_PREFIX } = require('./helpers/config');
+
 const {
-    makeClient, cleanupIndex,
-    waitForData, formatUploadData
-} = require('./helpers/elasticsearch');
+    makeClient, cleanupIndex, waitForData,
+    formatUploadData, EvenDate
+} = ElasticsearchTestHelpers;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
@@ -31,13 +32,13 @@ describe('bulkSend can work with congested queues', () => {
     });
 
     it('can get correct data even with congested queues', async () => {
-        const chunkedData = chunk(data, 50);
+        const chunkedData = chunk(EvenDate.data, 50);
 
         await pMap(chunkedData, async (cData) => {
             const formattedData = formatUploadData(index, cData);
             return api.bulkSend(formattedData);
         }, { concurrency: 9 });
 
-        await waitForData(client, index, data.length, logger, THREE_MINUTES);
+        await waitForData(client, index, EvenDate.data.length, logger, THREE_MINUTES);
     });
 });

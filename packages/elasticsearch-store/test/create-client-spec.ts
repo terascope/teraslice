@@ -1,14 +1,17 @@
 import { debugLogger, get } from '@terascope/utils';
-import { createClient } from '../src';
-import { getDistributionAndVersion } from './helpers/elasticsearch';
+import { createClient, ElasticsearchTestHelpers } from '../src';
 
 describe('can create an elasticsearch or opensearch client', () => {
     const testLogger = debugLogger('create-client-test');
 
-    const distributionData = getDistributionAndVersion();
+    const {
+        host, distribution: testDist,
+        version: testVersion, majorVersion: testMajorVersion,
+        minorVersion: testMinorVersion
+    } = ElasticsearchTestHelpers.getTestENVClientInfo();
 
     it('can make a client', async () => {
-        const { client, log } = await createClient({ node: distributionData.host }, testLogger);
+        const { client, log } = await createClient({ node: host }, testLogger);
 
         expect(client).toBeDefined();
         expect(log).toBeDefined();
@@ -16,9 +19,13 @@ describe('can create an elasticsearch or opensearch client', () => {
         const metadata = get(client, '__meta');
         expect(metadata).toBeDefined();
 
-        const { distribution, version } = metadata;
+        const {
+            distribution, version, majorVersion, minorVersion
+        } = metadata;
 
-        expect(distribution).toEqual(distributionData.distribution);
-        expect(version).toEqual(distributionData.version);
+        expect(distribution).toEqual(testDist);
+        expect(version).toEqual(testVersion);
+        expect(majorVersion).toEqual(testMajorVersion);
+        expect(minorVersion).toEqual(testMinorVersion);
     });
 });

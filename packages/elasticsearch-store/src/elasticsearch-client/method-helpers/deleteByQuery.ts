@@ -1,9 +1,8 @@
-import { ElasticsearchDistribution, ClientParams } from '@terascope/types';
-import type { DistributionMetadata } from '../interfaces';
+import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 
 export function convertDeleteByQueryParams(
     params: ClientParams.DeleteByQueryParams,
-    distributionMeta: DistributionMetadata
+    distributionMeta: ClientMetadata
 ) {
     const {
         majorVersion,

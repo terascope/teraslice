@@ -1,16 +1,10 @@
 import { DataEntity } from '@terascope/utils';
+import { DataType } from '@terascope/data-types';
+import type { Data } from './interfaces';
 
-export interface Data {
-    ip: string;
-    userAgent: string;
-    url: string;
-    uuid: string;
-    created: string;
-    ipv6: string;
-    location: string;
-    bytes: number;
-}
+export type EvenData = Data;
 
+// These records are converted to a DataEntity with its _id set to the uuid field
 export const data = [
     {
         ip: '120.67.248.156',
@@ -10013,3 +10007,16 @@ export const data = [
         bytes: 3836982
     }
 ].map((record) => DataEntity.make(record, { _key: record.uuid }));
+
+export const EvenDataType = new DataType({
+    fields: {
+        ip: { type: 'IP' },
+        userAgent: { type: 'Keyword' },
+        url: { type: 'Keyword' },
+        uuid: { type: 'Keyword' },
+        created: { type: 'Date' },
+        ipv6: { type: 'Keyword' },
+        location: { type: 'GeoPoint' },
+        bytes: { type: 'Integer' }
+    }
+});

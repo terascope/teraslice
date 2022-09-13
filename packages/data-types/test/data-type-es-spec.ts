@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { DataTypeConfig, FieldType } from '@terascope/types';
+import { DataTypeConfig, ElasticsearchDistribution, FieldType } from '@terascope/types';
 import {
-    DataType, LATEST_VERSION
+    DataType, LATEST_VERSION, ESMappingOptions
 } from '../src';
 
 describe('DataType (elasticsearch)', () => {
@@ -58,9 +58,14 @@ describe('DataType (elasticsearch)', () => {
 
             const dataType = new DataType(typeConfig);
 
-            expect(dataType.toESMapping({
-                version: 6,
-            })).toEqual(results);
+            const mappingConfig: ESMappingOptions = {
+                distribution: ElasticsearchDistribution.elasticsearch,
+                minorVersion: 8,
+                majorVersion: 6,
+                version: '6.8.6'
+            };
+
+            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
         it('can create a elasticsearch 7 mapping', () => {
@@ -84,8 +89,14 @@ describe('DataType (elasticsearch)', () => {
             };
 
             const dataType = new DataType(typeConfig);
+            const mappingConfig: ESMappingOptions = {
+                distribution: ElasticsearchDistribution.elasticsearch,
+                minorVersion: 3,
+                majorVersion: 7,
+                version: '7.3.1'
+            };
 
-            expect(dataType.toESMapping({ version: 7 })).toEqual(results);
+            expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
 
         it('can create an elasticsearch mapping with nested objects', () => {

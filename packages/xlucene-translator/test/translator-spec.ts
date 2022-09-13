@@ -27,7 +27,7 @@ describe('Translator', () => {
             variables: {},
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
-            version: 6,
+            majorVersion: 6,
             distribution: ElasticsearchDistribution.elasticsearch
         })).toEqual({
             query: {

@@ -1,9 +1,14 @@
 import { Client as RawClient } from 'elasticsearch';
 import {
-    DataEntity, pDelay, get, toNumber
+    DataEntity, pDelay, get, toNumber,
+    uniq
 } from '@terascope/utils';
-import { ElasticsearchDistribution } from '@terascope/types';
-import { IndexStore, createClient, Client } from '../../src';
+import { DataType } from '@terascope/data-types';
+import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
+import {
+    IndexStore, createClient, Client, getClientMetadata,
+    fixMappingRequest, Semver
+} from '../../src';
 import {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,
@@ -67,6 +72,11 @@ export async function cleanupIndex(
     }
 }
 
+/*
+ This is a quick and easy way to upload data, however, types are auto generated
+ by elasticsearch itself. If you need to control types for detailed searching
+ mechanisms use populateIndex
+*/
 export async function upload(
     client: any, queryBody: any, data: any[]
 ): Promise<Record<string, any>> {
@@ -78,6 +88,54 @@ export async function upload(
     const query = Object.assign({ refresh: 'wait_for', body }, safeQueryBody);
 
     return client.bulk(query);
+}
+
+export async function populateIndex(
+    client: Client,
+    index: string,
+    dataType: DataType,
+    records: any[],
+    type = '_doc'
+): Promise<void> {
+    const overrides = {
+        settings: {
+            'index.number_of_shards': 1,
+            'index.number_of_replicas': 0,
+        },
+    };
+
+    const metaData = getClientMetadata(client);
+    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
+
+    await client.indices.create(
+        fixMappingRequest(
+            client,
+            {
+                index,
+                waitForActiveShards: 'all',
+                body: mapping,
+            },
+            false
+        )
+    );
+
+    const body = formatUploadData(index, records);
+
+    const results = await client.bulk({
+        index,
+        type,
+        body,
+        refresh: true
+    });
+
+    if (results.errors) {
+        const errors: string[] = [];
+        for (const response of results.items) {
+            if (response?.index?.error) errors.push(response.index.error.reason);
+        }
+
+        throw new Error(`There were errors populating index, errors: ${uniq(errors).join(' ; ')}`);
+    }
 }
 
 export function formatUploadData(
@@ -115,8 +173,12 @@ export async function waitForData(
 
     return new Promise((resolve, reject) => {
         async function checkIndex() {
-            if (failTestTime <= Date.now()) reject(new Error('Could not find count in alloated time'));
+            if (failTestTime <= Date.now()) {
+                reject(new Error('Could not find count in alloated time'));
+            }
+
             await pDelay(100);
+
             try {
                 const response = await client.count({ index, q: '*' });
                 const responseCount = get(response, 'body.count', response.count);
@@ -133,19 +195,43 @@ export async function waitForData(
     });
 }
 
-export function getDistributionAndVersion() {
+export interface TestENVClientInfo extends ClientMetadata {
+    host: string
+}
+
+function parseVersion(version: string): Semver {
+    const [
+        majorVersion = 6,
+        minorVersion = 8,
+        patchVersion = 6
+    ] = version.split('.').map(toNumber);
+
+    return [majorVersion, minorVersion, patchVersion];
+}
+
+export function getTestENVClientInfo()
+: TestENVClientInfo {
     if (process.env.TEST_OPENSEARCH != null) {
+        const version = OPENSEARCH_VERSION;
+        const [majorVersion, minorVersion] = parseVersion(version);
+
         return {
             host: OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
-            version: OPENSEARCH_VERSION
+            version,
+            majorVersion,
+            minorVersion
         };
     }
+    const version = ELASTICSEARCH_VERSION;
+    const [majorVersion, minorVersion] = parseVersion(version);
 
     return {
         host: ELASTICSEARCH_HOST,
         distribution: ElasticsearchDistribution.elasticsearch,
-        version: ELASTICSEARCH_VERSION
+        version,
+        majorVersion,
+        minorVersion
     };
 }
 

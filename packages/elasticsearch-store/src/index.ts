@@ -10,3 +10,4 @@ export * from './index-model';
 export * from './index-store';
 export * from './interfaces';
 export * from './elasticsearch-client';
+export * as ElasticsearchTestHelpers from './test-helpers';
