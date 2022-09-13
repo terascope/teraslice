@@ -3,11 +3,10 @@
 const { debugLogger, chunk, pMap } = require('@terascope/utils');
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const elasticsearchAPI = require('../index');
-const { TEST_INDEX_PREFIX } = require('./helpers/config');
 
 const {
     makeClient, cleanupIndex, waitForData,
-    formatUploadData, EvenDate
+    formatUploadData, EvenDate, TEST_INDEX_PREFIX
 } = ElasticsearchTestHelpers;
 
 const THREE_MINUTES = 3 * 60 * 1000;
