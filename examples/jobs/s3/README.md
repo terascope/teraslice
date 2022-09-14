@@ -2,6 +2,7 @@
 
 https://github.com/terascope/teraslice/blob/master/docs/getting-started.md
 
+https://github.com/terascope/file-assets/blob/master/docs/s3_exporter.md
 
 ### Setup
 
