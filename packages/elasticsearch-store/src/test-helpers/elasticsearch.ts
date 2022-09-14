@@ -20,8 +20,6 @@ import {
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
 export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
-// automatically set the timeout to 10s when using elasticsearch
-jest.setTimeout(30000);
 
 export async function makeClient(): Promise<Client> {
     let host = ELASTICSEARCH_HOST;

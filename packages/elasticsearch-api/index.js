@@ -57,9 +57,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
     const { connection = 'unknown' } = config;
 
-    function count(query) {
+    async function count(query) {
         query.size = 0;
-        return _searchES(query).then((data) => get(data, 'hits.total.value', get(data, 'hits.total')));
+        const response = await _searchES(query);
+
+        const data = get(response, 'hits.total.value', get(response, 'hits.total'));
+
+        return data;
     }
 
     function convertDocToDataEntity(doc) {
