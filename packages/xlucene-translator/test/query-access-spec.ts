@@ -530,8 +530,8 @@ describe('QueryAccess', () => {
             });
 
             expect(result).toMatchObject({
-                _sourceInclude: ['foo'],
-                _sourceExclude: ['bar'],
+                _source_includes: ['foo'],
+                _source_excludes: ['bar'],
             });
         });
     });
@@ -564,8 +564,8 @@ describe('QueryAccess', () => {
                 params
             });
             expect(result).toMatchObject({
-                _sourceInclude: ['moo'],
-                _sourceExclude: ['baz'],
+                _source_includes: ['moo'],
+                _source_excludes: ['baz'],
             });
             expect(result).not.toHaveProperty('q', 'idk');
 
@@ -573,8 +573,8 @@ describe('QueryAccess', () => {
             expect(params._source_excludes).toBe(params._source_excludes);
 
             expect(params).toMatchObject({
-                _sourceInclude: ['moo'],
-                _sourceExclude: ['baz'],
+                _source_includes: ['moo'],
+                _source_excludes: ['baz'],
             });
 
             expect(params).toHaveProperty('q', 'idk');
@@ -594,16 +594,16 @@ describe('QueryAccess', () => {
                         },
                     },
                 },
-                _sourceExclude: ['bar', 'baz'],
-                _sourceInclude: ['foo', 'moo'],
+                _source_excludes: ['bar', 'baz'],
+                _source_includes: ['foo', 'moo'],
             });
         });
 
         it('should be able to return a restricted query without any params', async () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
-                _sourceExclude: ['bar', 'baz'],
-                _sourceInclude: ['foo', 'moo'],
+                _source_excludes: ['bar', 'baz'],
+                _source_includes: ['foo', 'moo'],
             });
 
             expect(result).not.toHaveProperty('q', 'idk');
@@ -675,11 +675,11 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [
+                _source_includes: [
                     'foo',
                     'moo'
                 ],
-                _sourceExclude: [
+                _source_excludes: [
                     'bar',
                     'baz'
                 ]
@@ -723,8 +723,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -773,8 +773,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -800,8 +800,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -827,8 +827,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -851,8 +851,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
 
             const variables = {
@@ -876,8 +876,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
     });
