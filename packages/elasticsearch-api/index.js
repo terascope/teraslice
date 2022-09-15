@@ -351,6 +351,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     */
     async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
         const body = actionRecords.flatMap((record, index) => {
+            console.dir({ record, index }, { depth: 100 })
             if (record.action == null) {
                 let dbg = '';
                 if (!isProd) {
@@ -918,8 +919,12 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * please use getClientMetadata
      * */
     function getESVersion() {
-        const newClientVersion = get(client, '__meta.version');
-        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+        const newClientVersion = get(client, '__meta.majorVersion');
+
+        if (newClientVersion) return newClientVersion;
+
+        // legacy
+        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
 
         if (esVersion && isString(esVersion)) {
             const [majorVersion] = esVersion.split('.');
@@ -930,28 +935,29 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function getClientMetadata() {
-        const newClientVersion = get(client, '__meta.version');
-        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
-        const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+        if (client.__meta) {
+            return client.__meta;
+        }
+
+        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
+        const distribution = ElasticsearchDistribution.elasticsearch;
 
         return {
             distribution,
-            version: esVersion
+            version: esVersion,
+            majorVersion: 6,
+            minorVersion: 5
         };
     }
 
     function isElasticsearch6() {
-        const { distribution, version: esVersion } = getClientMetadata();
-        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
-
-        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 6;
     }
 
     function isElasticsearch8() {
-        const { distribution, version: esVersion } = getClientMetadata();
-        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
-
-        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
     function _fixMappingRequest(_params, isTemplate) {
@@ -1257,6 +1263,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         validateGeoParameters,
         getClientMetadata,
         isElasticsearch6,
+        isElasticsearch8,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
         index_create: indexCreate,
