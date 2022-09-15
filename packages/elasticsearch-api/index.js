@@ -940,12 +940,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         const esVersion = get(client, 'transport._config.apiVersion', '6.5');
         const distribution = ElasticsearchDistribution.elasticsearch;
+        const [majorVersion = 6, minorVersion = 5] = esVersion.split('.').map(toNumber);
 
         return {
             distribution,
             version: esVersion,
-            majorVersion: 6,
-            minorVersion: 5
+            majorVersion,
+            minorVersion
         };
     }
 
