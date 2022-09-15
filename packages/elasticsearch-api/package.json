@@ -18,7 +18,7 @@
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
         "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
-        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch": "TEST_OPENSEARCH='true' RESTRAINED_OPENSEARCH='true' yarn run test",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
