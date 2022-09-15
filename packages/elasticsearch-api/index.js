@@ -351,7 +351,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     */
     async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
         const body = actionRecords.flatMap((record, index) => {
-            console.dir({ record, index }, { depth: 100 })
             if (record.action == null) {
                 let dbg = '';
                 if (!isProd) {
