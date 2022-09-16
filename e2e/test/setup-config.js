@@ -11,7 +11,7 @@ const {
     CLUSTER_NAME,
     HOST_IP,
     CONFIG_PATH,
-} = require('./misc');
+} = require('./config');
 
 module.exports = async function setupTerasliceConfig() {
     const baseConfig = {

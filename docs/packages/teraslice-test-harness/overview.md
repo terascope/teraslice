@@ -404,9 +404,9 @@ Since this is downloading additional files to the asset be sure to add `./test/.
 
 **Usage:**
 
-To use this functionality add DownloadExternalAssets to a global setup file, ./test/global.setup.js.
+To use this functionality add DownloadExternalAssets to a global setup file, ./test/global-setup.js.
 
-global.setup.js example:
+global-setup.js example:
 ```js
 const { DownloadExternalAsset } = require('teraslice-test-harness');
 
@@ -424,7 +424,7 @@ await externalAssets.downloadExternalAsset('terascope/elasticsearch-assets@v2.2.
 await externalAssets.downloadExternalAsset('terascope/kafka-assets@v2.8.2');
 ```
 
-Make sure `globalSetup: './test/global.setup.js',` is included in the `jest.config.js` file.
+Make sure `globalSetup: './test/global-setup.js',` is included in the `jest.config.js` file.
 
 Example of `jest.config.js` file with the globalSetup property:
 
@@ -435,7 +435,7 @@ module.exports = {
     verbose: true,
     testEnvironment: 'node',
     ...
-    globalSetup: './test/global.setup.js',
+    globalSetup: './test/global-setup.js',
 };
 
 ```

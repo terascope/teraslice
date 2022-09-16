@@ -249,11 +249,11 @@ export function groupBySuite(
 }
 
 function _getTeardownFile(dir: string): string|undefined {
-    let filePath = path.join(dir, 'test/global.teardown.js');
+    let filePath = path.join(dir, 'test/global-teardown.js');
     if (fse.existsSync(filePath)) return filePath;
-    filePath = path.join(dir, 'dist/test/global.teardown.js');
+    filePath = path.join(dir, 'dist/test/global-teardown.js');
     if (fse.existsSync(filePath)) return filePath;
-    filePath = path.join(dir, 'dist/global.teardown.js');
+    filePath = path.join(dir, 'dist/global-teardown.js');
     if (fse.existsSync(filePath)) return filePath;
     return undefined;
 }
