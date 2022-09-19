@@ -439,7 +439,8 @@ module.exports = class TerasliceHarness {
                 const executions = castArray(result);
                 await Promise.all(executions.map((ex) => this.waitForExStatus(ex, 'completed')));
             } else {
-                await this.postJob(jobSpec);
+                const ex = await this.postJob(jobSpec);
+                await this.waitForExStatus(ex, 'completed');
             }
 
             signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));

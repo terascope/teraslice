@@ -11,7 +11,7 @@ export function convertSearchParams(
     } = distributionMeta;
 
     const {
-        type = '_doc',
+        type,
         ...parsedParams
     } = params;
 
@@ -24,7 +24,7 @@ export function convertSearchParams(
 
         if (majorVersion === 6) {
             return {
-                type,
+                ...(type !== undefined && { type }),
                 ...parsedParams
             };
         }

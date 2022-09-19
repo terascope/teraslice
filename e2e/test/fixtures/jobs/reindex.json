@@ -8,7 +8,7 @@
         {
             "_op": "elasticsearch_reader",
             "index": "replace-me-100",
-            "type": "change",
+            "type": "events",
             "size": 100,
             "date_field_name": "created",
             "preserve_id": true

@@ -102,27 +102,17 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
 
-        console.dir({ jobSpec }, { depth: 30 });
-        let ex;
-        try {
-            ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
-        } catch (err) {
-            console.log('err1', err);
-        }
+        const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
+
         await pDelay(1000);
         const exId = ex.id();
 
         const state = await terasliceHarness.teraslice.cluster.state();
 
-        let complete;
+        const complete = terasliceHarness.waitForExStatus(ex, 'completed');
 
-        try {
-            complete = terasliceHarness.waitForExStatus(ex, 'completed');
-        } catch (err) {
-            console.log('err2', err);
-        }
         const nodes = Object.keys(state);
-        console.dir({ state }, { depth: 100 })
+
         nodes.forEach((node) => {
             expect(state[node].total).toBe(WORKERS_PER_NODE);
 
@@ -137,6 +127,7 @@ describe('cluster state', () => {
         });
 
         await complete;
+
         const stats = await terasliceHarness.indexStats(specIndex);
         expect(stats.count).toBe(1000);
     });

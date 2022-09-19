@@ -1,4 +1,7 @@
-import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
+import {
+    DataEntity, debugLogger, cloneDeep,
+    get
+} from '@terascope/utils';
 import { ClientParams } from '@terascope/types';
 import {
     createClient, getBaseClient, Client,
@@ -26,7 +29,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
     const config = { node: host };
 
-    let client: any;
+    let client: Client;
 
     beforeAll(async () => {
         ({ client } = await createClient(config, testLogger));
@@ -1129,6 +1132,43 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const resp = await client.indices.exists(params);
 
             expect(resp).toBeTrue();
+        });
+    });
+
+    describe('indices.stats', () => {
+        const testIndex = 'test-indices-stats';
+
+        beforeAll(async () => {
+            await cleanupIndex(client, testIndex);
+            await upload(client, { index: testIndex, type: docType }, data);
+            await waitForData(client, testIndex, 1000);
+        });
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('should return stats for indices', async () => {
+            const params = {
+                index: testIndex
+            };
+
+            const resp = await client.indices.stats(params);
+
+            expect(resp).toHaveProperty('_shards');
+            expect(resp._shards).toBeObject();
+
+            expect(resp).toHaveProperty('_all');
+            expect(resp._all).toBeObject();
+
+            expect(resp).toHaveProperty('indices');
+            expect(resp.indices).toBeObject();
+
+            const totalIndexCount = get(resp, `indices.${testIndex}.total.docs.count`);
+            expect(totalIndexCount).toEqual(data.length);
+
+            const totalAllIndexCount = get(resp, '_all.total.docs.count');
+            expect(totalAllIndexCount).toEqual(data.length);
         });
     });
 

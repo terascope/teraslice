@@ -665,6 +665,19 @@ export class Client {
 
                 return _removeBody(resp);
             },
+
+            async stats(
+                params: ClientParams.IndicesStatsParams
+            ): Promise<ClientResponse.IndicesStatsResponse> {
+                const parsedParams = methods.convertIndicesStatsParams(
+                    params as ClientParams.IndicesStatsParams,
+                    distributionMeta
+                );
+
+                const resp = await client.indices.stats(parsedParams);
+
+                return _removeBody(resp);
+            }
         };
     }
 
