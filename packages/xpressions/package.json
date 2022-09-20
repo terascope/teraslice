@@ -29,7 +29,7 @@
         "@terascope/types": "^0.10.3"
     },
     "engines": {
-        "node": "^12.22.0 || >=14.17.0",
+        "node": ">=14.17.0",
         "yarn": ">=1.16.0"
     },
     "publishConfig": {

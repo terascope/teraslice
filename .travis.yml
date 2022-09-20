@@ -27,9 +27,8 @@ jobs:
 
   include:
     - stage: 'Verify'
-      name: 'Verify Build (node 12)'
-      # use node 12 to make sure we don't lose compatibility
-      node_js: '12.22'
+      name: 'Verify Build (node 14)'
+      node_js: '14.17'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -44,7 +43,6 @@ jobs:
 
     - stage: 'Tests'
       name: 'Unit Test Suite (node 16)'
-      # use node 12 to make sure we don't lose compatibility
       node_js: '16.15.0'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
