@@ -29,10 +29,10 @@ describe('kafka', () => {
         readerSpec.operations[0].group = groupId;
         readerSpec.operations[1].index = specIndex;
 
-        const sender = await terasliceHarness.executions.submit(senderSpec);
+        const sender = await terasliceHarness.teraslice.executions.submit(senderSpec);
 
         const [reader] = await Promise.all([
-            terasliceHarness.executions.submit(readerSpec),
+            terasliceHarness.teraslice.executions.submit(readerSpec),
             terasliceHarness.waitForExStatus(sender, 'completed')
         ]);
 
