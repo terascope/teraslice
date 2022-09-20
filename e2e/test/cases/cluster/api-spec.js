@@ -9,14 +9,14 @@ describe('cluster api', () => {
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
-        await terasliceHarness.terasliceHarness.init();
+        await terasliceHarness.init();
         await terasliceHarness.resetState();
     });
 
     it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = fs.createReadStream(assetPath);
-        const jobSpec = terasliceHarness.terasliceHarness.newJob('generator-asset');
+        const jobSpec = terasliceHarness.newJob('generator-asset');
 
         await terasliceHarness.teraslice.assets.upload(testStream, {
             blocking: true
