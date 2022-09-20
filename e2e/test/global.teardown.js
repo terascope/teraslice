@@ -9,7 +9,7 @@ const signale = require('./signale');
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
 
 async function getClient(client) {
-    if (client) return client;
+    if (client && client.delete) return client;
     return makeClient();
 }
 
