@@ -43,7 +43,7 @@
         "jexl": "^2.2.2",
         "lodash": "^4.17.21",
         "mnemonist": "^0.39.2",
-        "uuid": "^8.3.2",
+        "uuid": "^9.0.0",
         "valid-url": "^1.0.9",
         "validator": "^13.7.0",
         "xlucene-parser": "^0.42.5"
