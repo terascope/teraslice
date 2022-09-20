@@ -40,7 +40,7 @@
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^3.1.2",
-        "yargs": "^17.4.0"
+        "yargs": "^17.5.1"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",
