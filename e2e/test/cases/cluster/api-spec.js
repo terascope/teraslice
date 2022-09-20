@@ -8,7 +8,7 @@ describe('cluster api', () => {
     let terasliceHarness;
 
     beforeAll(async () => {
-        terasliceHarness.terasliceHarness = new TerasliceHarness();
+        terasliceHarness = new TerasliceHarness();
         await terasliceHarness.terasliceHarness.init();
         await terasliceHarness.resetState();
     });
