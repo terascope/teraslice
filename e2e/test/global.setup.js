@@ -3,7 +3,7 @@
 const { pDelay } = require('@terascope/utils');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
-const globalTeardown = require('./global-teardown');
+const globalTeardown = require('./global.teardown');
 const { dockerUp } = require('./docker-helpers');
 const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
