@@ -36,7 +36,7 @@
         "elasticsearch-store": "^0.62.3",
         "js-yaml": "^4.1.0",
         "mongoose": "~5.11.12",
-        "nanoid": "^3.3.2",
+        "nanoid": "^3.3.4",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^3.1.2",

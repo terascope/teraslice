@@ -52,8 +52,10 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: getJestAliases(),
-        moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs'],
+        moduleNameMapper: {
+            ...getJestAliases(),
+        },
+        moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
@@ -80,7 +82,7 @@ module.exports = (projectDir) => {
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts']
+        availableExtensions: ['.js', '.ts', '.mjs']
     };
 
     if (isTypescript) {
@@ -88,13 +90,15 @@ module.exports = (projectDir) => {
             isolatedModules: true,
             tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
-            pretty: true
+            pretty: true,
+            useESM: true
         };
     } else {
         config.globals['ts-jest'] = {
             isolatedModules: true,
             diagnostics: true,
-            pretty: true
+            pretty: true,
+            useESM: true
         };
     }
 
