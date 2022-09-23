@@ -6,10 +6,11 @@ https://github.com/terascope/file-assets/blob/master/docs/s3_exporter.md
 
 ### Setup
 
-Startup environment and register assets:
+Startup the environment in this directory and register assets:
 
 ```
-docker compose up
+cd examples/es-to-s3
+docker compose --project-directory ../../ -f docker-compose.yml up
 
 teraslice-cli  assets deploy localhost terascope/file-assets --bundle
 Downloading terascope/file-assets@v2.1.1...
@@ -28,13 +29,10 @@ Asset posted to localhost: d90263889d364df9c356b3bb412307dbc620227d
 ### Generate some sample data into Elasticsearch and verify Teraslice functionality:
 
 ```
-teraslice-cli tjm register localhost examples/jobs/data_generator.json
+teraslice-cli tjm register localhost data_generator.json
 Successfully registered Data Generator on http://localhost:5678 with job id b1d22e28-3eeb-4ad1-a725-eb8e8973e303
 
 teraslice-cli tjm start data_generator.json
-Started Data Generator on http://localhost:5678
-
-teraslice-cli tjm start examples/jobs/data_generator.json
 Started Data Generator on http://localhost:5678
 
 curl -Ss localhost:9200/_cat/indices
@@ -82,13 +80,28 @@ curl -Ss localhost:9200/example-logs/_search | jq
 
 ### Copy Data from Elasticsearch into Minio (S3)
 
+Edit `s3.json` and optionally edit the filter for the elasticsearch query. To search for an ip, for instance, use:
+
 ```
-teraslice-cli tjm register localhost examples/jobs/s3/s3.json
+"query": "ip:'152.40.103.28'"
+```
+
+The default filter will search for `userAgent:FireFox`
+
+```
+teraslice-cli tjm register localhost s3.json
 Successfully registered s3-writer on http://localhost:5678 with job id 7055e5af-c1dd-4114-811f-6ad26e82834c
 
-teraslice-cli tjm start examples/jobs/s3/s3.json
+teraslice-cli tjm start s3.json
 Started s3-writer on http://localhost:5678
 ```
 
 ### Check Minio web interface to see bucket was created and data copied
 http://localhost:9001/buckets/example-logs/browse
+
+
+### Shutdown docker
+
+```
+docker compose --project-directory ../../ -f docker-compose.yml down
+```

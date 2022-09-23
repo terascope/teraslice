@@ -14,13 +14,8 @@
             "type": "logs",
             "size": 10000,
             "date_field_name": "created",
-            "preserve_id": true
-        },
-        {
-            "_name": "s3_exporter_api",
-            "path": "example-logs",
-            "format": "ldjson",
-            "connection": "minio"
+            "preserve_id": true,
+            "query": "userAgent:FireFox"
         }
     ],
     "operations": [
@@ -30,7 +25,9 @@
         },
         {
             "_op": "s3_exporter",
-            "api_name": "s3_exporter_api"
+            "path": "example-logs-ip",
+            "format": "ldjson",
+            "connection": "minio"
         }
     ]
 }
