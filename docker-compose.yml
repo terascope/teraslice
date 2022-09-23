@@ -91,6 +91,5 @@ volumes:
     driver: local
   zookeeper-data:
     driver: local
-  minio_storage: {}
 networks:
   cluster:
