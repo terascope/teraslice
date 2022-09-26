@@ -17,8 +17,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@typescript-eslint/eslint-plugin": "^5.18.0",
-        "@typescript-eslint/parser": "^5.18.0",
+        "@typescript-eslint/eslint-plugin": "^5.38.1",
+        "@typescript-eslint/parser": "^5.38.1",
         "eslint-config-airbnb": "^19.0.4",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "~2.26.0",

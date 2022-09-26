@@ -34,7 +34,7 @@
     },
     "devDependencies": {
         "@types/lodash": "^4.14.185",
-        "@types/yargs": "^17.0.12"
+        "@types/yargs": "^17.0.13"
     },
     "engines": {
         "node": ">=14.17.0",
