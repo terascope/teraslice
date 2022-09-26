@@ -230,13 +230,13 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             if (field === '_key') continue;
             if (field === 'client_id') continue;
             if (!existing && record[field] == null) {
-                throw new ts.TSError(`${this.name} requires field ${field}`, {
+                throw new ts.TSError(`${this.name} requires field ${String(field)}`, {
                     statusCode: 422,
                 });
             }
             if (existing && existing[field] === record[field]) continue;
 
-            const fieldKey = this._hasTextAnalyzer(field) ? `${field}.text` : field;
+            const fieldKey = this._hasTextAnalyzer(field) ? `${String(field)}.text` : String(field);
 
             let query = `${fieldKey}:${utils.uniqueFieldQuery(String(record[field]))}`;
 
@@ -249,7 +249,7 @@ export abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStor
             const count = await this.count(query);
 
             if (count > 0) {
-                throw new ts.TSError(`${this.name} requires ${field} to be unique`, {
+                throw new ts.TSError(`${this.name} requires ${String(field)} to be unique`, {
                     statusCode: 409,
                 });
             }

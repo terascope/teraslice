@@ -19,13 +19,14 @@ export interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOper
     column(values: unknown[]): unknown[];
 }
 
-export interface FunctionAdapterContext<T> extends FunctionContext<T> {
+export interface FunctionAdapterContext<T extends Record<string, any>> extends FunctionContext<T> {
     preserveNulls: boolean;
     preserveEmptyObjects: boolean;
     field?: string
 }
 
-export interface DynamicFunctionAdapterContext<T> extends DynamicFunctionContext<T> {
+export interface DynamicFunctionAdapterContext<T extends Record<string, any>>
+    extends DynamicFunctionContext<T> {
     preserveNulls: boolean;
     preserveEmptyObjects: boolean;
     field?: string

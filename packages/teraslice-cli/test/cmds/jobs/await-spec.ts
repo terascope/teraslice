@@ -12,7 +12,7 @@ describe('jobs await', () => {
                 () => true
             );
 
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'await ts-test1 job_id', {}
             );
 
@@ -29,7 +29,7 @@ describe('jobs await', () => {
                 () => true
             );
 
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'await ts-test1 job_id --status paused stopped --timeout 10000', {}
             );
 

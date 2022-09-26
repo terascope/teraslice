@@ -11,7 +11,7 @@ describe('jobs save', () => {
                 save.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'save ts-test1', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

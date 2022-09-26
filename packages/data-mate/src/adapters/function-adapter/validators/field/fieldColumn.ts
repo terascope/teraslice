@@ -36,7 +36,7 @@ export function fieldValidationColumnExecution<T extends Record<string, any>>(
     };
 }
 
-function _fieldValidationDynamic<T>(
+function _fieldValidationDynamic<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
     configs: DynamicFunctionAdapterContext<T>,
 ) {
@@ -61,7 +61,7 @@ function _fieldValidationDynamic<T>(
     return results;
 }
 
-function _fieldValidation<T>(
+function _fieldValidation<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
     configs: FunctionAdapterContext<T>,
 ) {

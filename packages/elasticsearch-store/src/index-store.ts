@@ -756,7 +756,7 @@ export class IndexStore<T extends ts.AnyObject> {
         });
         if (result) return result;
 
-        return { query: `${ts.getFirstKey(fields)}: "__undefined__"`, variables: {} };
+        return { query: `${String(ts.getFirstKey(fields))}: "__undefined__"`, variables: {} };
     }
 
     /**
@@ -776,8 +776,8 @@ export class IndexStore<T extends ts.AnyObject> {
             script: {
                 source: `
                     for(int i = 0; i < params.values.length; i++) {
-                        if (!ctx._source["${field}"].contains(params.values[i])) {
-                            ctx._source["${field}"].add(params.values[i])
+                        if (!ctx._source["${String(field)}"].contains(params.values[i])) {
+                            ctx._source["${String(field)}"].add(params.values[i])
                         }
                     }
                 `,
@@ -801,15 +801,16 @@ export class IndexStore<T extends ts.AnyObject> {
         utils.validateId(id, 'removeFromArray');
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
+        const fieldStr = String(field);
 
         try {
             await this.update(id, {
                 script: {
                     source: `
                         for(int i = 0; i < params.values.length; i++) {
-                            if (ctx._source["${field}"].contains(params.values[i])) {
-                                int itemIndex = ctx._source["${field}"].indexOf(params.values[i]);
-                                ctx._source["${field}"].remove(itemIndex)
+                            if (ctx._source["${fieldStr}"].contains(params.values[i])) {
+                                int itemIndex = ctx._source["${fieldStr}"].indexOf(params.values[i]);
+                                ctx._source["${fieldStr}"].remove(itemIndex)
                             }
                         }
                     `,

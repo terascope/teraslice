@@ -30,7 +30,7 @@ export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
 /**
  * Get the first key in an object
 */
-export function getFirstKey<T>(input: T): (keyof T) | undefined {
+export function getFirstKey<T extends object>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
 }
 
@@ -49,7 +49,7 @@ export function fastCloneDeep<T>(input: T): T {
 }
 
 /** Perform a shallow clone of an object to another, in the fastest way possible */
-export function fastAssign<T, U>(target: T, source: U): T & U {
+export function fastAssign<T extends object, U extends object>(target: T, source: U): T & U {
     if (!isObjectEntity(source)) {
         return target as T & U;
     }
@@ -82,7 +82,10 @@ export function sortKeys<T extends Record<string, unknown>>(
 }
 
 /** Map the values of an object */
-export function mapValues<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
+export function mapValues<T extends object, R = T>(
+    input: T,
+    fn: (value: T[keyof T], key: (keyof T)) => any
+): R {
     const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
@@ -93,7 +96,10 @@ export function mapValues<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyo
 }
 
 /** Map the keys of an object */
-export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
+export function mapKeys<T extends object, R = T>(
+    input: T,
+    fn: (value: T[keyof T], key: (keyof T)) => any
+): R {
     const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
@@ -121,7 +127,7 @@ export function withoutNil<T>(input: T): WithoutNil<T> {
  * Filters the keys of an object, by list of included key and excluded
 */
 export function filterObject<
-    T, I extends(keyof T), E extends (keyof T)
+    T extends object, I extends(keyof T), E extends (keyof T)
 >(data: T, by?: {
     includes?: I[];
     excludes?: E[];

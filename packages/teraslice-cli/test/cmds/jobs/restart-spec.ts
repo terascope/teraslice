@@ -11,7 +11,7 @@ describe('jobs restart', () => {
                 restart.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'restart ts-test1', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
@@ -24,7 +24,7 @@ describe('jobs restart', () => {
                 restart.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'restart ts-test1 99999999-9999-9999-9999-999999999999', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

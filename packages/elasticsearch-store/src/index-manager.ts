@@ -45,7 +45,10 @@ export class IndexManager {
      *
      * @param useWildcard if true a wildcard is added to the end of the end the index name
     */
-    formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true): string {
+    formatIndexName<T extends Record<string, any>>(
+        config: IndexConfig<T>,
+        useWildcard = true
+    ): string {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -70,7 +73,7 @@ export class IndexManager {
      * Format the template name, similar to formatIndexName except it excludes
      * template wildcards and the time series parts of the index name.
     */
-    formatTemplateName<T = any>(config: IndexConfig<T>): string {
+    formatTemplateName<T extends Record<string, any>>(config: IndexConfig<T>): string {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -87,7 +90,7 @@ export class IndexManager {
      *
      * @returns a boolean that indicates whether the index was created or not
      */
-    async indexSetup<T>(config: IndexConfig<T>): Promise<boolean> {
+    async indexSetup<T extends Record<string, any>>(config: IndexConfig<T>): Promise<boolean> {
         utils.validateIndexConfig(config);
 
         const indexName = this.formatIndexName(config, false);
@@ -199,7 +202,9 @@ export class IndexManager {
      * @todo add support for timeseries and templated indexes
      * @todo add support for complicated re-indexing behaviors
      */
-    async migrateIndex<T>(options: MigrateIndexOptions<T>): Promise<any> {
+    async migrateIndex<T extends Record<string, any>>(
+        options: MigrateIndexOptions<T>
+    ): Promise<any> {
         const {
             timeout, config, previousVersion, previousName, previousNamespace
         } = options;
@@ -415,7 +420,7 @@ export class IndexManager {
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
 
-    private _logger<T>(config: IndexConfig<T>): ts.Logger {
+    private _logger<T extends Record<string, any>>(config: IndexConfig<T>): ts.Logger {
         if (config.logger) return config.logger;
 
         const logger = _loggers.get(config);

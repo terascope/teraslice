@@ -18,7 +18,7 @@ import { locked } from '../decorators';
  */
 export class DataEntity<
     T = Record<string, any>,
-    M = Record<string, any>
+    M = i._DataEntityMetadata<Record<string, any>>
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -169,11 +169,7 @@ export class DataEntity<
         return utils.isDataEntity(instance);
     }
 
-    private readonly [i.__ENTITY_METADATA_KEY]: {
-        metadata: i._DataEntityMetadata<M>;
-        rawData: Buffer|null;
-    };
-    private readonly [i.__IS_DATAENTITY_KEY]: true;
+    private get [i.__IS_DATAENTITY_KEY]() { return true; }
 
     constructor(data: T|null|undefined, metadata?: M) {
         if (data && !isSimpleObject(data)) {
@@ -181,7 +177,10 @@ export class DataEntity<
         }
 
         utils.defineEntityProperties(this);
-        this[i.__ENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata);
+
+        this[i.__ENTITY_METADATA_KEY] = {
+            metadata: utils.makeMetadata(metadata as any)
+        };
 
         if (data) {
             Object.assign(this, data);
@@ -214,9 +213,11 @@ export class DataEntity<
         if (field == null || field === '') {
             throw new Error('Missing field to set in metadata');
         }
+
         if (field === '_createTime') {
-            throw new Error(`Cannot set readonly metadata property ${field}`);
+            throw new Error(`Cannot set readonly metadata property ${String(field)}`);
         }
+
         this[i.__ENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 

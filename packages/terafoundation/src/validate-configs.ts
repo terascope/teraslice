@@ -81,7 +81,7 @@ export default function validateConfigs<
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
-        const subConfig = sysconfig[schemaKey] || {};
+        const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
 
         result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
 
