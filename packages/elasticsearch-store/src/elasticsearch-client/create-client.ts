@@ -10,7 +10,7 @@ import { Client } from './client';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig } from './interfaces';
 
-const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
+const clientList = [elasticsearch6];
 
 export async function createClient(
     config: ClientConfig,
@@ -34,10 +34,10 @@ async function getClientMetadata(
     config: Record<string, any>,
     logger: Logger
 ): Promise<ClientMetadata> {
-    for (let i = 0; i < clientList.length - 1; i++) {
+    for (let i = 0; i <= clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
-            // @ts-expect-error
+
             const response = await client.info();
 
             if (response) {
@@ -80,6 +80,17 @@ async function getClientMetadata(
 
     throw new Error(`Could not create a client with config ${JSON.stringify(config)}`);
 }
+
+/*
+
+const config = {
+    "node": "http://127.0.0.1:49200",
+    "sniffOnStart":false,
+    "sniffOnConnectionFault":false,
+    "requestTimeout":120000,
+    "maxRetries":3
+}
+*/
 
 export async function getBaseClient(
     clientMetadata: ClientMetadata,

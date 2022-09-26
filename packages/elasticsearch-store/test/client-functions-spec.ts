@@ -27,7 +27,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
     const config = { node: host };
 
-    let client: any;
+    let client: Client;
 
     beforeAll(async () => {
         ({ client } = await createClient(config, testLogger));

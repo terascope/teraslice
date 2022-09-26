@@ -2470,3 +2470,90 @@ export interface HitsTotal {
     value: number;
     relation: 'eq' | 'gte';
 }
+
+export interface IndicesStatsIndicesStats {
+    primaries: IndicesStatsIndexStats;
+    shards?: Record<string, IndicesStatsShardStats[]>;
+    total: IndicesStatsIndexStats;
+    uuid?: string;
+}
+
+export interface IndicesStatsShardStats {
+    commit: IndicesStatsShardCommit;
+    completion: CompletionStats;
+    docs: DocStats;
+    fielddata: FielddataStats;
+    flush: FlushStats;
+    get: GetStats;
+    indexing: IndexingStats;
+    merges: MergesStats;
+    shard_path: IndicesStatsShardPath;
+    query_cache: IndicesStatsShardQueryCache;
+    recovery: RecoveryStats;
+    refresh: RefreshStats;
+    request_cache: RequestCacheStats;
+    retention_leases: IndicesStatsShardRetentionLeases;
+    routing: IndicesStatsShardRouting;
+    search: SearchStats;
+    segments: SegmentsStats;
+    seq_no: IndicesStatsShardSequenceNumber;
+    store: StoreStats;
+    translog: TranslogStats;
+    warmer: WarmerStats;
+    bulk?: BulkStats;
+}
+
+export interface IndicesStatsShardSequenceNumber {
+    global_checkpoint: number;
+    local_checkpoint: number;
+    max_seq_no: number;
+}
+
+export interface IndicesStatsShardRouting {
+    node: string;
+    primary: boolean;
+    relocating_node?: string;
+    state: IndicesStatsShardRoutingState;
+}
+
+export type IndicesStatsShardRoutingState =
+  | 'UNASSIGNED'
+  | 'INITIALIZING'
+  | 'STARTED'
+  | 'RELOCATING';
+
+export interface IndicesStatsShardRetentionLeases {
+    primary_term: number;
+    version: number;
+    leases: IndicesStatsShardLease[];
+}
+
+export interface IndicesStatsShardLease {
+    id: string;
+    retaining_seq_no: number;
+    timestamp: number;
+    source: string;
+}
+
+export interface IndicesStatsShardQueryCache {
+    cache_count: number;
+    cache_size: number;
+    evictions: number;
+    hit_count: number;
+    memory_size_in_bytes: number;
+    miss_count: number;
+    total_count: number;
+}
+
+export interface IndicesStatsShardPath {
+    data_path: string;
+    is_custom_data_path: boolean;
+    state_path: string;
+}
+
+export interface IndicesStatsShardCommit {
+    generation: number;
+    id: string;
+    num_docs: number;
+    user_data: Record<string, string>;
+}

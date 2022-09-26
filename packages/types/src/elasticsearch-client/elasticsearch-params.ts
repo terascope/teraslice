@@ -1,5 +1,17 @@
 import * as i from './elasticsearch-types';
 
+export interface IndicesStatsParams {
+    metric?: i.Metrics;
+    index?: string | string[];
+    completion_fields?: string | string[];
+    fielddata_fields?: string | string[];
+    fields?: string | string[];
+    groups?: string | string[];
+    level?: i.Level
+    types?: string | string[];
+    expand_wildcards?: i.ExpandWildcards
+}
+
 export interface DeleteByQueryParams {
     index: string | string[];
     type?: string | string[];

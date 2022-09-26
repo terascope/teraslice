@@ -10,24 +10,23 @@ import {
     fixMappingRequest, Semver
 } from '../../src';
 import {
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_API_VERSION,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
-    OPENSEARCH_VERSION
+    ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION, ELASTICSEARCH_VERSION,
+    OPENSEARCH_HOST, OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
 } from './config';
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
 const isOpensearchTest = process.env.TEST_OPENSEARCH != null;
 export const removeTypeTest = isOpensearchTest || (semver[0] === 8);
-// automatically set the timeout to 10s when using elasticsearch
-jest.setTimeout(30000);
 
 export async function makeClient(): Promise<Client> {
     let host = ELASTICSEARCH_HOST;
 
     if (process.env.TEST_OPENSEARCH) {
         host = OPENSEARCH_HOST;
+    }
+
+    if (process.env.RESTRAINED_OPENSEARCH) {
+        host = RESTRAINED_OPENSEARCH_HOST;
     }
 
     if (process.env.LEGACY_CLIENT != null) {

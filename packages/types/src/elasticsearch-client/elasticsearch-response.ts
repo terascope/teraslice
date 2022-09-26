@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as i from './elasticsearch-types';
 
+export interface IndicesStatsResponse {
+    indices?: Record<string, i.IndicesStatsIndicesStats>
+    _shards: i.ShardStatistics
+    _all: i.IndicesStatsIndicesStats
+}
+
 export interface DeleteByQueryResponse {
     batches?: number;
     deleted?: number;

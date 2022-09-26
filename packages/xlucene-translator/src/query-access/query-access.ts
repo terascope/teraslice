@@ -237,11 +237,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             sourceExcludes as (keyof T)[]
         );
 
+        // we can remove this logic when we can get rid of legacy client
+        const isLegacy = version === '6.5';
+        const excludesKey = isLegacy ? '_sourceExclude' : '_source_excludes';
+        const includesKey = isLegacy ? '_sourceInclude' : '_source_includes';
+
         const searchParams: ClientParams.SearchParams = {
             ...parsedParams,
             body: { ...parsedParams.body, ...translated },
-            _source_excludes: excludes,
-            _source_includes: includes,
+            [excludesKey]: excludes,
+            [includesKey]: includes,
         };
 
         if (searchParams != null) { delete searchParams.q; }

@@ -54,6 +54,7 @@ async function stateStorage(context) {
         await waitForClient();
 
         const { record, index } = _createSliceRecord(exId, slice, state, error);
+
         return backend.indexWithId(slice.slice_id, record, index);
     }
 
@@ -73,6 +74,7 @@ async function stateStorage(context) {
                 data: record
             };
         });
+
         return backend.bulkSend(bulkRequest);
     }
 
