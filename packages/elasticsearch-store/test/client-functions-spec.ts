@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-focused-tests */
 import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
 import { ClientParams } from '@terascope/types';
 import {
@@ -1129,6 +1130,44 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const resp = await client.indices.exists(params);
 
             expect(resp).toBeTrue();
+        });
+    });
+
+    describe('indices.stats', () => {
+        const testIndex = 'test-indices-stats';
+
+        beforeAll(async () => {
+            const testData = data.slice(0, 5)
+                .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
+
+            await cleanupIndex(client, testIndex);
+
+            await upload(client, { index: testIndex, type: docType }, testData);
+            await waitForData(client, testIndex, 5);
+        });
+
+        afterAll(async () => {
+            await cleanupIndex(client, testIndex);
+        });
+
+        it('should return stats on the index', async () => {
+            const params = { index: testIndex };
+
+            const resp = await client.indices.stats(params);
+
+            expect(resp._shards).toBeDefined();
+            expect(resp._all).toBeDefined();
+            expect(resp._all.total.docs.count).toBe(5);
+        });
+
+        it('should return stats on the index if types in params', async () => {
+            const params = { index: testIndex, types: '_doc' };
+
+            const resp = await client.indices.stats(params);
+
+            expect(resp._shards).toBeDefined();
+            expect(resp._all).toBeDefined();
+            expect(resp._all.total.docs.count).toBe(5);
         });
     });
 

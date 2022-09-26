@@ -114,6 +114,7 @@ export class DataType {
         majorVersion = 6, minorVersion = 8, version = '6.8.6'
     }: Partial<i.ESMappingOptions> = {}): ESMapping {
         const indexType = typeName || this.name || '_doc';
+
         const mappingSettings: ESTypeMappings = {
             dynamic: false,
             properties: {},
@@ -152,6 +153,7 @@ export class DataType {
             const { mapping, analyzer, tokenizer } = type.toESMapping({
                 distribution, majorVersion, minorVersion, version
             });
+
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
                     const keyPath = (

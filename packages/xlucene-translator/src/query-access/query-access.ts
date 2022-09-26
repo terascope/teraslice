@@ -244,9 +244,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             _source_includes: includes,
         };
 
-        if (searchParams != null) {
-            delete searchParams.q;
-        }
+        if (searchParams != null) { delete searchParams.q; }
+
+        console.log('search inside', searchParams);
 
         return searchParams;
     }

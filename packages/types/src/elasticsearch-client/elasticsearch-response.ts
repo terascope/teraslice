@@ -52,6 +52,8 @@ export interface IndicesGetResponse {
     }
 }
 
+export type IndicesStatsResponse = Record<string, any>;
+
 export type IndicesGetMappingResponse = Record<string, i.IndicesGetMappingIndexMappingRecord>
 
 export interface IndicesPutTemplateResponse {

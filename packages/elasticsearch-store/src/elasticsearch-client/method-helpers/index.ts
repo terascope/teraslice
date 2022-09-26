@@ -37,3 +37,4 @@ export * from './indicesGetSettings';
 export * from './indicesGetFieldMapping';
 export * from './indicesPutMapping';
 export * from './indicesGetMapping';
+export * from './indicesStats';

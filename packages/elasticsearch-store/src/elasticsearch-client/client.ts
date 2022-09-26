@@ -41,6 +41,7 @@ export class Client {
             params as ClientParams.CreateParams,
             this.distributionMeta
         );
+
         const resp = await this.client.create(parsedParams);
 
         return this._removeBody(resp);
@@ -294,10 +295,13 @@ export class Client {
     async search<T = Record<string, unknown>>(
         params: ClientParams.SearchParams
     ): Promise<ClientResponse.SearchResponse<T>> {
+        // console.log('incoming', params);
         const parsedParams = methods.convertSearchParams(
             params as ClientParams.SearchParams,
             this.distributionMeta
         );
+
+        // console.log('parsed', parsedParams);
 
         const resp = await this.client.search(parsedParams);
 
@@ -652,7 +656,7 @@ export class Client {
              * Validates a query without executing it.
              * @param IndicesValidateQueryParams
              * @returns IndicesValidateQueryResponse
-             */
+            */
             async validateQuery(
                 params: ClientParams.IndicesValidateQueryParams
             ): Promise<ClientResponse.IndicesValidateQueryResponse> {
@@ -665,6 +669,23 @@ export class Client {
 
                 return _removeBody(resp);
             },
+
+            /**
+             * Returns statistics for one or more indices
+             * @param IndicesStatsParams
+             * @returns IndicesStatsResponse
+            */
+            async stats(
+                params: ClientParams.IndicesStats
+            ): Promise<ClientResponse.IndicesStatsResponse> {
+                const parsedParams = methods.convertIndicesStatsParams(
+                    params as ClientParams.IndicesStats,
+                    distributionMeta
+                );
+
+                const resp = await client.indices.stats(parsedParams);
+                return _removeBody(resp);
+            }
         };
     }
 

@@ -237,10 +237,10 @@ export interface ESMapping {
 }
 
 export interface ESIndexSettings {
-    'index.number_of_shards'?: number;
-    'index.number_of_replicas'?: number;
+    'index.number_of_shards'?: number | string;
+    'index.number_of_replicas'?: number | string;
     'index.refresh_interval'?: string;
-    'index.max_result_window'?: number;
+    'index.max_result_window'?: number | string;
     analysis?: {
         analyzer?: {
             [key: string]: any;

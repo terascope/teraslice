@@ -21,7 +21,7 @@ export async function shouldNPMPublish(
     const local = pkgInfo.version;
     const isMain = isMainPackage(pkgInfo) || pkgInfo.terascope?.linkToMain;
     const isPrerelease = getPublishTag(local) === 'prerelease';
-    const options: semver.Options = { includePrerelease: true };
+    const options: semver.Options = {};
 
     if (semver.eq(local, remote, options)) return false;
 
