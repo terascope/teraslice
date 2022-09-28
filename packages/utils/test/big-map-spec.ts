@@ -166,10 +166,6 @@ describe('BigMap', () => {
 
                 expect(bigMapEntries).toStrictEqual(mapEntries);
             });
-
-            it('should return the same thing', () => {
-                expect(bigMap.entries()).toStrictEqual(bigMap.entries());
-            });
         });
     });
 
@@ -194,10 +190,6 @@ describe('BigMap', () => {
 
             expect(bigMapValues).toStrictEqual(mapValues);
         });
-
-        it('should return the same thing', () => {
-            expect(bigMap.values()).toStrictEqual(bigMap.values());
-        });
     });
 
     describe('->keys', () => {
@@ -220,10 +212,6 @@ describe('BigMap', () => {
             }
 
             expect(bigMapKeys).toStrictEqual(mapKeys);
-        });
-
-        it('should return the same thing', () => {
-            expect(bigMap.keys()).toStrictEqual(bigMap.keys());
         });
     });
 });
