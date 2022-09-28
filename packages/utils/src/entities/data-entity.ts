@@ -9,6 +9,11 @@ import * as i from './interfaces';
 import * as utils from './utils';
 import { locked } from '../decorators';
 
+interface Metadata<M> {
+    metadata: i._DataEntityMetadata<M>;
+    rawData: Buffer|null;
+}
+
 /**
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations.
@@ -169,7 +174,10 @@ export class DataEntity<
         return utils.isDataEntity(instance);
     }
 
-    private get [i.__IS_DATAENTITY_KEY]() { return true; }
+    // @ts-expect-error the initializer is set in defineEntityProperties
+    private readonly [i.__ENTITY_METADATA_KEY]: Metadata<M>;
+    // @ts-expect-error the initializer is set in defineEntityProperties
+    private readonly [i.__IS_DATAENTITY_KEY]: true;
 
     constructor(data: T|null|undefined, metadata?: M) {
         if (data && !isSimpleObject(data)) {
@@ -178,9 +186,8 @@ export class DataEntity<
 
         utils.defineEntityProperties(this);
 
-        this[i.__ENTITY_METADATA_KEY] = {
-            metadata: utils.makeMetadata(metadata as any)
-        };
+        // @ts-expect-error the initializer is set in defineEntityProperties
+        this[i.__ENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata as i._DataEntityMetadata<M>);
 
         if (data) {
             Object.assign(this, data);

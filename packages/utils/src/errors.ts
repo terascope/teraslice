@@ -7,11 +7,17 @@ import { getTypeOf, isPlainObject } from './deps';
 import { tryParseJSON } from './json';
 import * as s from './strings';
 
+type Override<T, R> = Omit<T, keyof R> & R;
+
+type OverrideError = Override<Error, {
+    cause: () => any
+}>
+
 /**
  * A custom Error class with additional properties,
  * like statusCode and fatalError
  */
-export class TSError extends Error {
+export class TSError extends Error implements OverrideError {
     /**
      * An descriptive error code that specifies the error type, this follows more
      * node convention

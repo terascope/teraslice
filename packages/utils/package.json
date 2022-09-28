@@ -20,9 +20,9 @@
         "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "TZ=utc ts-scripts test . --",
+        "test:debug": "TZ=utc ts-scripts test --debug . --",
+        "test:watch": "TZ=utc ts-scripts test --watch . --"
     },
     "resolutions": {
         "debug": "^4.3.4"
