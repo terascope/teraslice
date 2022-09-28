@@ -39,7 +39,6 @@ module.exports = (projectDir) => {
     }
     const config = {
         rootDir,
-        name: workspaceName,
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
@@ -84,22 +83,23 @@ module.exports = (projectDir) => {
     config.globals = {
         availableExtensions: ['.js', '.ts', '.mjs']
     };
+    config.transform = {};
 
     if (isTypescript) {
-        config.globals['ts-jest'] = {
+        config.transform['^.+.[tj]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
             pretty: true,
             useESM: true
-        };
+        }];
     } else {
-        config.globals['ts-jest'] = {
+        config.transform['^.+.[tj]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             diagnostics: true,
             pretty: true,
             useESM: true
-        };
+        }];
     }
 
     config.roots = [`${packageRoot}/test`];
