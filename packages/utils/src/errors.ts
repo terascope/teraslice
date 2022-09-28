@@ -7,17 +7,11 @@ import { getTypeOf, isPlainObject } from './deps';
 import { tryParseJSON } from './json';
 import * as s from './strings';
 
-type Override<T, R> = Omit<T, keyof R> & R;
-
-type OverrideError = Override<Error, {
-    cause: () => any
-}>
-
 /**
  * A custom Error class with additional properties,
  * like statusCode and fatalError
  */
-export class TSError extends Error implements OverrideError {
+export class TSError extends Error {
     /**
      * An descriptive error code that specifies the error type, this follows more
      * node convention
@@ -85,7 +79,7 @@ export class TSError extends Error implements OverrideError {
         Error.captureStackTrace(this, TSError);
     }
 
-    cause(): any {
+    getCause(): any {
         return this.context._cause;
     }
 }
@@ -162,7 +156,7 @@ export function getFullErrorStack(err: unknown): string {
 
 function getCauseStack(err: any) {
     if (!err || !isFunction(err.cause)) return '';
-    const cause = err.cause();
+    const cause = err.getCause();
     if (!cause) return '';
     return `\nCaused by: ${getFullErrorStack(cause)}`;
 }
