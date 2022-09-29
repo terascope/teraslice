@@ -45,7 +45,7 @@ export class TSError extends Error {
         const instance = _instance as Record<string, unknown>;
         if (instance.message == null || instance.stack == null) return false;
         if (instance.statusCode == null) return false;
-        if (typeof instance.cause !== 'function') return false;
+        if (typeof instance.getCause !== 'function') return false;
         return true;
     }
 
