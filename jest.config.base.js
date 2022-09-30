@@ -86,7 +86,7 @@ module.exports = (projectDir) => {
     config.transform = {};
 
     if (isTypescript) {
-        config.transform['^.+.[tj]sx?$'] = ['ts-jest', {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
@@ -94,7 +94,7 @@ module.exports = (projectDir) => {
             useESM: true
         }];
     } else {
-        config.transform['^.+.[tj]sx?$'] = ['ts-jest', {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             diagnostics: true,
             pretty: true,
