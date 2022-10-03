@@ -51,7 +51,7 @@
         "toposort": "^2.0.2",
         "typedoc": "~0.23.15",
         "typedoc-plugin-markdown": "~3.13.6",
-        "yargs": "^17.5.1"
+        "yargs": "^17.6.0"
     },
     "devDependencies": {
         "@types/ip": "^1.1.0",

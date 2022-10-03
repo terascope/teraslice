@@ -28,19 +28,19 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.45.0",
-        "aws-sdk": "^2.1224.0",
+        "aws-sdk": "^2.1227.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "elasticsearch-store": "^0.63.0",
         "js-yaml": "^4.1.0",
-        "mongoose": "~6.6.2",
+        "mongoose": "~6.6.4",
         "nanoid": "^3.3.4",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^4.3.1",
-        "yargs": "^17.5.1"
+        "yargs": "^17.6.0"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",

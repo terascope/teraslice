@@ -61,7 +61,8 @@ module.exports = (projectDir) => {
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
         preset: 'ts-jest',
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
+        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
+        workerIdleMemoryLimit: '1G'
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
