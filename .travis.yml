@@ -48,6 +48,34 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
 
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 1'
+      node_js: '16.17.1'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-a . -- -- --shard=1/4
+
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 2'
+      node_js: '16.17.1'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-a . -- -- --shard=2/4
+
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 3'
+      node_js: '16.17.1'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-a . -- -- --shard=3/4
+
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 4'
+      node_js: '16.17.1'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-a . -- -- --shard=4/4
+
     - name: 'Unit Test Suite (node 14)'
       node_js: '14.17'
       # run only on pull-requests or cron
