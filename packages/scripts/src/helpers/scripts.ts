@@ -30,7 +30,6 @@ type ExecOpts = {
 
 function _exec(opts: ExecOpts) {
     let subprocess;
-    console.log('what opts', opts)
     const options: execa.Options = {
         cwd: opts.cwd || getRootDir(),
         env: opts.env,
