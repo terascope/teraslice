@@ -16,8 +16,7 @@ export function getRootDir(cwd: string = process.cwd()): string {
     const rootPkgJSON = pkgUp.sync({ cwd });
 
     if (!rootPkgJSON) {
-        const children = fse.readdirSync(cwd);
-        throw new Error(`Unable to find root directory, run in the root of the repo. cwd is ${cwd}, rootPkgJSON is ${rootPkgJSON}, children: ${children.join('\n')}`);
+        throw new Error(`Unable to find root directory, run in the root of the repo. cwd is ${cwd}, rootPkgJSON is ${rootPkgJSON}`);
     }
 
     if (_getRootInfo(rootPkgJSON) != null) {
