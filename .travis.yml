@@ -43,7 +43,7 @@ jobs:
 
     - stage: 'Tests'
       name: 'Unit Test Suite (node 16)'
-      node_js: '16.10.0'
+      node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
@@ -55,7 +55,7 @@ jobs:
       script: yarn --silent test --suite unit-b
 
     - name: 'ES Test Suite (elasticsearch 6) (node 16)'
-      node_js: '16.10.0'
+      node_js: '16.17.1'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
