@@ -61,8 +61,8 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
-const _cachedClients = new WeakMap<TestContext, CachedClients>();
-const _createClientFns = new WeakMap<TestContext, ClientFactoryFns>();
+const _cachedClients = new WeakMap<TestContext<ts.AnyObject, ts.AnyObject>, CachedClients>();
+const _createClientFns = new WeakMap<TestContext<ts.AnyObject, ts.AnyObject>, ClientFactoryFns>();
 
 export interface TestContextOptions<S> {
     name?: string;
@@ -91,8 +91,8 @@ function getDefaultSysconfig<S>(
 }
 
 export class TestContext<
-    S = Record<string, any>,
-    A = Record<string, any>,
+    S extends Record<string, any>,
+    A extends Record<string, any>,
     D extends string = string,
 > extends CoreContext<S, A & TestContextAPIs, D> {
     constructor(options: TestContextOptions<S> = {}) {

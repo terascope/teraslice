@@ -151,7 +151,7 @@ function validatorTransformFN(validatorFn: (value: unknown, index: number) => un
     };
 }
 
-function dynamicValidatorFN<T>(
+function dynamicValidatorFN<T extends Record<string, unknown>>(
     fnDef: FieldValidateConfig<T>,
     context: DynamicFrameFunctionContext<T>
 ) {
@@ -169,7 +169,7 @@ function dynamicValidatorFN<T>(
     };
 }
 
-function dynamicTransformerFN<T>(
+function dynamicTransformerFN<T extends Record<string, unknown>>(
     fnDef: FieldTransformConfig<T>,
     context: DynamicFrameFunctionContext<T>
 ) {

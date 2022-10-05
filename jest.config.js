@@ -35,7 +35,7 @@ module.exports = {
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts']
+        availableExtensions: ['.js', '.ts', 'mjs']
     },
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',

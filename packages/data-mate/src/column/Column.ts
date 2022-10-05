@@ -258,7 +258,7 @@ export class Column<T = unknown, N extends NameType = string> {
 
     serialize(): string {
         const column: ColumnConfig<T> = {
-            name: `${this.name}`,
+            name: `${String(this.name)}`,
             size: this.size,
             version: this.version,
             config: this.vector.config,

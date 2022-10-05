@@ -21,7 +21,7 @@ export function getFieldsFromArg<
 
     for (const field of result) {
         if (!fields.includes(field)) {
-            throw new TSError(`Unknown field ${field}`, {
+            throw new TSError(`Unknown field ${String(field)}`, {
                 statusCode: 400
             });
         }

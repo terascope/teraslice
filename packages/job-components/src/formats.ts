@@ -1,4 +1,8 @@
-import { addFormat, Format } from 'convict';
+import { addFormat, Format, addFormats as nativeAddFormats } from 'convict';
+// @ts-expect-error no types
+import convict_format_with_validator from 'convict-format-with-validator';
+// @ts-expect-error no types
+import convict_format_with_moment from 'convict-format-with-moment';
 import dateMath from 'datemath-parser';
 import {
     startsWith,
@@ -7,6 +11,9 @@ import {
     isInteger,
     toInteger,
 } from '@terascope/utils';
+
+nativeAddFormats(convict_format_with_validator);
+nativeAddFormats(convict_format_with_moment);
 
 export const formats: Format[] = [
     {
@@ -19,7 +26,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'optional_String',
         validate(val: unknown) {
@@ -30,7 +37,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'optional_Date',
         validate(val: unknown) {
@@ -52,7 +59,7 @@ export const formats: Format[] = [
         coerce(val) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'elasticsearch_Name',
         validate(val: unknown) {
@@ -87,7 +94,7 @@ export const formats: Format[] = [
         coerce(val) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'positive_int',
         validate(val: unknown) {
@@ -99,7 +106,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return toInteger(val) || 0;
         },
-    } as Format,
+    },
 ];
 
 export function addFormats(): void {

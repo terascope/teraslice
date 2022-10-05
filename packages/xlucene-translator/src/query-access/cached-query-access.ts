@@ -9,7 +9,10 @@ export class CachedQueryAccess {
         _cache.set(this, {});
     }
 
-    make<T>(config: QueryAccessConfig<T>, options?: QueryAccessOptions): QueryAccess<T> {
+    make<T extends Record<string, any>>(
+        config: QueryAccessConfig<T>,
+        options?: QueryAccessOptions
+    ): QueryAccess<T> {
         return new QueryAccess(config, options);
     }
 

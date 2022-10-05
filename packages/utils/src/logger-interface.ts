@@ -277,7 +277,7 @@ declare namespace Logger {
         records: any[];
 
         write(record: any): boolean;
-        end(record?: any): void;
+        end(data?: any): this;
         destroy(): void;
         destroySoon(): void;
     }
@@ -299,7 +299,7 @@ declare namespace Logger {
         rotating: boolean;
 
         write(record: any): boolean;
-        end(record?: any): void;
+        end(data?: any): this;
         destroy(): void;
         destroySoon(): void;
         rotate(): void;

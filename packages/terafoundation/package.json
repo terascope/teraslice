@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "0.39.3",
+    "version": "0.40.0",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -27,30 +27,32 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.44.4",
-        "aws-sdk": "^2.1110.0",
+        "@terascope/utils": "^0.45.0",
+        "aws-sdk": "^2.1229.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",
-        "convict": "^4.4.1",
+        "convict": "^6.2.3",
+        "convict-format-with-moment": "^6.2.0",
+        "convict-format-with-validator": "^6.2.0",
         "elasticsearch": "^15.4.1",
-        "elasticsearch-store": "^0.62.3",
+        "elasticsearch-store": "^0.63.0",
         "js-yaml": "^4.1.0",
-        "mongoose": "~5.11.12",
-        "nanoid": "^3.3.2",
+        "mongoose": "~6.6.5",
+        "nanoid": "^3.3.4",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
-        "redis": "^3.1.2",
-        "yargs": "^17.4.0"
+        "redis": "^4.3.1",
+        "yargs": "^17.6.0"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",
         "@types/elasticsearch": "^5.0.40",
         "@types/js-yaml": "^4.0.5",
         "@types/mongoose": "^5.10.3",
-        "@types/redis": "^2.8.25"
+        "@types/redis": "^4.0.11"
     },
     "engines": {
-        "node": "^12.22.0 || >=14.17.0",
+        "node": ">=14.17.0",
         "yarn": ">=1.16.0"
     },
     "publishConfig": {

@@ -21,7 +21,7 @@ describe('assets deploy', () => {
     describe('-> parse', () => {
         // TODO: test for conflicts
         it('should parse properly', () => {
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'deploy ts-test1 terascope/file-assets', {}
             );
 
@@ -30,7 +30,7 @@ describe('assets deploy', () => {
         });
 
         it('should parse options properly', () => {
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'deploy ts-test1 terascope/file-assets --arch x64 --config-dir somedir --node-version 6 --quiet true --src-dir sourceDir'
             );
 
@@ -67,7 +67,7 @@ describe('assets deploy', () => {
         });
 
         it('should deploy a file', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir}  -f ${assetPath}`);
+            const argv = yargsCmd.parseSync(`deploy localhost --config-dir ${configDir}  -f ${assetPath}`);
 
             teraNock.post('/v1/assets').reply(201, {
                 _id: 'assset_test_id'
@@ -78,7 +78,7 @@ describe('assets deploy', () => {
         });
 
         it('should deploy an asset', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets`);
+            const argv = yargsCmd.parseSync(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets`);
             teraNock
                 .get('/v1/')
                 .reply(200, {
@@ -99,7 +99,7 @@ describe('assets deploy', () => {
         });
 
         it('should deploy a versioned asset', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets@v9.9.9`);
+            const argv = yargsCmd.parseSync(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets@v9.9.9`);
             teraNock
                 .get('/v1/')
                 .reply(200, {
