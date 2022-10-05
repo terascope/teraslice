@@ -1,18 +1,19 @@
 import 'jest-extended'; // require for type definitions
-import convict, { Format } from 'convict';
-import { formats } from '../src/formats';
+import convict from 'convict';
+import { formats, addFormats } from '../src/formats';
+
+addFormats();
 
 describe('Convict Formats', () => {
-    function createSchemaValueTest(name: string, defaultVal = null) {
-        const format = getFormat(name);
-
-        const config = convict({
+    function createSchemaValueTest(name: string, defaultVal:any = null) {
+        const myConfig = {
             [name]: {
-                name,
                 default: defaultVal,
-                format
+                format: name
             }
-        });
+        };
+
+        const config = convict(myConfig);
 
         return (val: any) => {
             config.load({ [name]: val });
@@ -20,26 +21,22 @@ describe('Convict Formats', () => {
         };
     }
 
-    function getFormat(name: string): Format | undefined {
-        return formats.find((obj: Format) => obj.name === name);
-    }
-
     it('returns an array with objects used for validations', () => {
         expect(formats).toBeArray();
     });
 
     it('required_String will throw if not given a string', () => {
-        const testFormat = createSchemaValueTest('required_String');
+        const testFormat = createSchemaValueTest('required_String', '');
 
         expect(() => {
             testFormat('someString');
-        }).not.toThrowError();
+        }).not.toThrow();
         expect(() => {
             testFormat(253);
-        }).toThrowError('This field is required and must by of type string');
+        }).toThrow('This field is required and must by of type string');
         expect(() => {
             testFormat(undefined);
-        }).toThrowError('This field is required and must by of type string');
+        }).toThrow('This field is required and must by of type string');
     });
 
     it('optional_String if not given a string it will not throw if its undefined', () => {
@@ -47,13 +44,13 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat('someString');
-        }).not.toThrowError();
+        }).not.toThrow();
         expect(() => {
             testFormat(253);
-        }).toThrowError('This field is optional but if specified it must be of type string');
+        }).toThrow('This field is optional but if specified it must be of type string');
         expect(() => {
             testFormat(undefined);
-        }).not.toThrowError();
+        }).not.toThrow();
     });
 
     it('positive_int if given a float it not fail', () => {
@@ -69,7 +66,7 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat(-1);
-        }).toThrowError('must be valid integer greater than zero');
+        }).toThrow('must be valid integer greater than zero');
     });
 
     it('positive_int if given a zero it should fail', () => {
@@ -77,7 +74,7 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat(0);
-        }).toThrowError('must be valid integer greater than zero');
+        }).toThrow('must be valid integer greater than zero');
     });
 
     it('positive_int if given a undefined it should fail', () => {
@@ -85,7 +82,7 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat(undefined);
-        }).toThrowError('must be valid integer greater than zero');
+        }).toThrow('must be valid integer greater than zero');
     });
 
     it('positive_int if given a string it should fail', () => {
@@ -93,7 +90,7 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat('hello');
-        }).toThrowError('must be valid integer greater than zero');
+        }).toThrow('must be valid integer greater than zero');
     });
 
     it('positive_int if given a stringified int it should pass', () => {
@@ -109,19 +106,19 @@ describe('Convict Formats', () => {
 
         expect(() => {
             testFormat(Date.now());
-        }).not.toThrowError();
+        }).not.toThrow();
         expect(() => {
             testFormat('now+1h');
-        }).not.toThrowError();
+        }).not.toThrow();
         expect(() => {
             testFormat({ hi: 'there' });
-        }).toThrowError('parameter must be a string or number IF specified');
+        }).toThrow('parameter must be a string or number IF specified');
         expect(() => {
             testFormat('idk');
-        }).toThrowError(/^value: "idk" cannot be coerced into a proper date/);
+        }).toThrow(/value: "idk" cannot be coerced into a proper date/);
         expect(() => {
             testFormat(undefined);
-        }).not.toThrowError();
+        }).not.toThrow();
     });
 
     describe('elasticsearch_Name', () => {
@@ -130,10 +127,10 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('data-2018-01-01');
-            }).not.toThrowError();
+            }).not.toThrow();
             expect(() => {
                 testFormat('data-2018-01-01.01');
-            }).not.toThrowError();
+            }).not.toThrow();
         });
 
         it('should not exceed 255 characters', () => {
@@ -141,10 +138,10 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('a'.repeat(256));
-            }).toThrow(/^value: .* should not exceed 255 characters/);
+            }).toThrow(/value: .* should not exceed 255 characters/);
             expect(() => {
                 testFormat('a'.repeat(255));
-            }).not.toThrowError();
+            }).not.toThrow();
         });
 
         // eslint-disable-next-line no-useless-escape
@@ -153,35 +150,35 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('a#a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a\\a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a/a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a*a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a?a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a"a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a<a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a>a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
             expect(() => {
                 testFormat('a|a');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
 
             expect(() => {
                 testFormat('|aa');
-            }).toThrow(/^value: .* should not contain any invalid characters/);
+            }).toThrow(/value: .* should not contain any invalid characters/);
         });
 
         it('should not start with _, -, or +', () => {
@@ -189,19 +186,19 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('_foo');
-            }).toThrow(/^value: .* should not start with _, -, or +/);
+            }).toThrow(/value: .* should not start with _, -, or +/);
 
             expect(() => {
                 testFormat('-foo');
-            }).toThrow(/^value: .* should not start with _, -, or +/);
+            }).toThrow(/value: .* should not start with _, -, or +/);
 
             expect(() => {
                 testFormat('+foo');
-            }).toThrow(/^value: .* should not start with _, -, or +/);
+            }).toThrow(/value: .* should not start with _, -, or +/);
 
             expect(() => {
                 testFormat('a_foo');
-            }).not.toThrowError();
+            }).not.toThrow();
         });
 
         it('should not equal . or ..', () => {
@@ -209,16 +206,16 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('.');
-            }).toThrow(/^value: .* should not equal . or ../);
+            }).toThrow(/value: .* should not equal . or ../);
             expect(() => {
                 testFormat('..');
-            }).toThrow(/^value: .* should not equal . or ../);
+            }).toThrow(/value: .* should not equal . or ../);
             expect(() => {
                 testFormat('.foo');
-            }).not.toThrowError();
+            }).not.toThrow();
             expect(() => {
                 testFormat('..foo');
-            }).not.toThrowError();
+            }).not.toThrow();
         });
 
         it('should be lowercase', () => {
@@ -226,13 +223,13 @@ describe('Convict Formats', () => {
 
             expect(() => {
                 testFormat('ASDF');
-            }).toThrow(/^value: .* should be lower case/);
+            }).toThrow(/value: .* should be lower case/);
             expect(() => {
                 testFormat('asdF');
-            }).toThrow(/^value: .* should be lower case/);
+            }).toThrow(/value: .* should be lower case/);
             expect(() => {
                 testFormat('asdf');
-            }).not.toThrowError();
+            }).not.toThrow();
         });
     });
 });
