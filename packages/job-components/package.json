@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.45.0",
-        "convict": "^4.4.1",
+        "convict": "^6.2.3",
         "datemath-parser": "^1.0.6",
         "uuid": "^9.0.0"
     },
