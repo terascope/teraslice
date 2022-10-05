@@ -32,6 +32,8 @@
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",
         "convict": "^6.2.3",
+        "convict-format-with-moment": "^6.2.0",
+        "convict-format-with-validator": "^6.2.0",
         "elasticsearch": "^15.4.1",
         "elasticsearch-store": "^0.63.0",
         "js-yaml": "^4.1.0",
