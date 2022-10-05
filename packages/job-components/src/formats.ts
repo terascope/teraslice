@@ -19,7 +19,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'optional_String',
         validate(val: unknown) {
@@ -30,7 +30,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'optional_Date',
         validate(val: unknown) {
@@ -52,7 +52,7 @@ export const formats: Format[] = [
         coerce(val) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'elasticsearch_Name',
         validate(val: unknown) {
@@ -87,7 +87,7 @@ export const formats: Format[] = [
         coerce(val) {
             return val;
         },
-    } as Format,
+    },
     {
         name: 'positive_int',
         validate(val: unknown) {
@@ -99,7 +99,7 @@ export const formats: Format[] = [
         coerce(val: any) {
             return toInteger(val) || 0;
         },
-    } as Format,
+    },
 ];
 
 export function addFormats(): void {
