@@ -2,6 +2,7 @@
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
     "version": "0.39.0",
+    "type": "module",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {

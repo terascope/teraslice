@@ -1,7 +1,5 @@
-'use strict';
-
-const misc = require('../../misc');
-const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
+import misc from '../../misc';
+import { resetState, testJobLifeCycle, runEsJob } from '../../helpers';
 
 /**
  * The id reader don't work in 6.x and greater

@@ -1,12 +1,11 @@
-'use strict';
-
-const {
-    TSError, includes, getTypeOf, makeISODate
-} = require('@terascope/utils');
-const { v4: uuid } = require('uuid');
-const { RecoveryCleanupType } = require('@terascope/job-components');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
+import {
+    TSError, includes, getTypeOf,
+    makeISODate
+} from '@terascope/utils';
+import { v4 as uuid }  from 'uuid';
+import { RecoveryCleanupType } from '@terascope/job-components';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import elasticsearchBackend from './backends/elasticsearch_store';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
@@ -17,7 +16,7 @@ const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = async function executionStorage(context) {
+export default async function executionStorage(context) {
     const logger = makeLogger(context, 'ex_storage');
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';

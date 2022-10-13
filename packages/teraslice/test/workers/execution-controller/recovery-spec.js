@@ -1,9 +1,7 @@
-'use strict';
-
-const eventsModule = require('events');
-const { pDelay, pWhile } = require('@terascope/utils');
-const { debugLogger } = require('@terascope/job-components');
-const recoveryCode = require('../../../lib/workers/execution-controller/recovery');
+import eventsModule from 'events';
+import { pDelay, pWhile } from '@terascope/utils';
+import { debugLogger } from '@terascope/job-components';
+import recoveryCode from '../../../lib/workers/execution-controller/recovery';
 
 const eventEmitter = new eventsModule.EventEmitter();
 const eventEmitter2 = new eventsModule.EventEmitter();

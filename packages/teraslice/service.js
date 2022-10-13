@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-'use strict';
-
-const util = require('util');
-
-const { safeEncode, safeDecode } = require('./lib/utils/encoding_utils');
+import util from 'util';
+import { ClusterContext } from 'terafoundation';
+import nodeMaster from './lib/cluster/node_master';
+import { getTerasliceConfig } from './lib/config';
+import { safeEncode, safeDecode } from './lib/utils/encoding_utils';
 
 const assignment = process.env.assignment || process.env.NODE_TYPE;
 
@@ -27,10 +27,6 @@ if (['execution_controller', 'worker'].includes(assignment)) {
 } else {
     process.env.assignment = 'node_master';
     process.env.NODE_TYPE = 'node_master';
-
-    const { ClusterContext } = require('terafoundation');
-    const nodeMaster = require('./lib/cluster/node_master');
-    const { getTerasliceConfig } = require('./lib/config');
 
     const terasliceConfig = getTerasliceConfig({
         master: nodeMaster,

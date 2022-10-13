@@ -1,14 +1,12 @@
-'use strict';
-
 // You can set the following environment variable to generate more verbose debug
 // output for nock
 //   env DEBUG='nock*' make test
 
-const fs = require('fs');
-const nock = require('nock');
-const path = require('path');
-const { debugLogger } = require('@terascope/job-components');
-const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
+import fs from 'fs';
+import nock from 'nock';
+import path from 'path';
+import { debugLogger } from '@terascope/job-components';
+import K8s from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s';
 
 const logger = debugLogger('k8s-spec');
 

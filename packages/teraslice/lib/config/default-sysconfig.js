@@ -1,5 +1,3 @@
-'use strict';
-
 function hasKafkaConnector() {
     try {
         // eslint-disable-next-line
@@ -35,7 +33,7 @@ function getConnectors() {
     return connectors;
 }
 
-module.exports = {
+export default {
     terafoundation: {
         environment: 'development',
         connectors: getConnectors()

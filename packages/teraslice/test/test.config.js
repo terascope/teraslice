@@ -1,6 +1,4 @@
-'use strict';
-
-const { newId } = require('../lib/utils/id_utils');
+import { newId } from '../lib/utils/id_utils';
 
 const {
     TEST_INDEX_PREFIX = 'teratest_',
@@ -15,7 +13,7 @@ process.env.ELASTICSEARCH_HOST = ELASTICSEARCH_HOST;
 process.env.ELASTICSEARCH_API_VERSION = ELASTICSEARCH_API_VERSION;
 process.env.ELASTICSEARCH_VERSION = ELASTICSEARCH_VERSION;
 
-module.exports = {
+export default {
     TEST_INDEX_PREFIX,
     ELASTICSEARCH_HOST,
     TERASLICE_CLUSTER_NAME,

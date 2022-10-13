@@ -1,18 +1,18 @@
-'use strict';
+import ip from 'ip';
+import path from 'path';
+import {
+    isPlainObject, isString, isArray,
+    isInteger
+} from '@terascope/utils';
+import os from 'os';
 
-const ip = require('ip');
-const path = require('path');
-const {
-    isPlainObject, isString, isArray, isInteger
-} = require('@terascope/utils');
-
-const workerCount = require('os').cpus().length;
+const workerCount = os.cpus().length;
 
 /**
  * This schema object is for the Teraslice configuration settings coming from
  * its configuration file.
  */
-const schema = {
+export const schema = {
     api_response_timeout: {
         doc: 'HTTP response timeout for the Teraslice API server',
         default: '5 minutes',
@@ -317,12 +317,8 @@ const schema = {
     }
 };
 
-function configSchema() {
+export function configSchema() {
     return { teraslice: schema };
 }
 
-module.exports = {
-    configSchema,
-    config_schema: configSchema,
-    schema
-};
+export const config_schema = configSchema

@@ -1,12 +1,10 @@
-'use strict';
+import { rules, overrides } from './lib';
 
-const { rules, overrides } = require('./lib');
-
-module.exports = {
+export default {
     extends: ['airbnb-base'],
     parserOptions: {
-        ecmaVersion: 2019,
-        sourceType: 'script',
+        ecmaVersion: 2020,
+        sourceType: 'module'
     },
     env: {
         node: true,

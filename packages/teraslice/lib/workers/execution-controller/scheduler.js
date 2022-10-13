@@ -1,12 +1,12 @@
-'use strict';
+import {
+    Queue, noop, pDelay,
+    get, toString, makeISODate,
+    logError, pWhile
+} from '@terascope/utils';
+import makeExecutionRecovery from './recovery';
+import { makeLogger } from '../helpers/terafoundation';
 
-const {
-    Queue, noop, pDelay, get, toString, makeISODate, logError, pWhile
-} = require('@terascope/utils');
-const makeExecutionRecovery = require('./recovery');
-const { makeLogger } = require('../helpers/terafoundation');
-
-class Scheduler {
+export default class Scheduler {
     constructor(context, executionContext) {
         this.context = context;
         this.logger = makeLogger(context, 'execution_scheduler');
@@ -457,5 +457,3 @@ class Scheduler {
         this.logger.info(`execution: ${this.exId} finished its recovery`);
     }
 }
-
-module.exports = Scheduler;

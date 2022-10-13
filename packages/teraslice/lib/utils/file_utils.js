@@ -1,17 +1,15 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const fse = require('fs-extra');
-const semver = require('semver');
-const { Mutex } = require('async-mutex');
-const { TSError } = require('@terascope/utils');
-const decompress = require('decompress');
-const { getMajorVersion } = require('./asset_utils');
+import fs from 'fs';
+import path from 'path';
+import fse from 'fs-extra';
+import semver from 'semver';
+import { Mutex } from 'async-mutex';
+import { TSError } from '@terascope/utils';
+import decompress from 'decompress';
+import { getMajorVersion } from './asset_utils';
 
 const mutex = new Mutex();
 
-function existsSync(filename) {
+export function existsSync(filename) {
     try {
         fs.accessSync(filename);
         return true;
@@ -20,11 +18,11 @@ function existsSync(filename) {
     }
 }
 
-function deleteDir(dirPath) {
+export function deleteDir(dirPath) {
     return fse.remove(dirPath);
 }
 
-async function verifyAssetJSON(id, newPath) {
+export async function verifyAssetJSON(id, newPath) {
     const hasAssetJSONTopLevel = await fse.pathExists(path.join(newPath, 'asset.json'));
     if (!hasAssetJSONTopLevel) {
         const err = new TSError(
@@ -104,15 +102,8 @@ async function _saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
     }
 }
 
-async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
+export async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
     return mutex.runExclusive(() => _saveAsset(
         logger, assetsPath, id, binaryData, metaCheck
     ));
 }
-
-module.exports = {
-    existsSync,
-    saveAsset,
-    deleteDir,
-    verifyAssetJSON
-};

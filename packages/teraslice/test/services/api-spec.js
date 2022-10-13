@@ -1,11 +1,9 @@
-'use strict';
-
-const got = require('got');
-const express = require('express');
-const { TestContext } = require('@terascope/job-components');
-const { version } = require('../../package.json');
-const { findPort } = require('../../lib/utils/port_utils');
-const makeAPI = require('../../lib/cluster/services/api');
+import got from 'got';
+import express from 'express';
+import { TestContext } from '@terascope/job-components';
+import { version } from '../../package.json';
+import { findPort } from '../../lib/utils/port_utils';
+import makeAPI from '../../lib/cluster/services/api';
 
 describe('HTTP API', () => {
     const app = express();

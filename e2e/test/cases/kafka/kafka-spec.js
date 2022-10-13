@@ -1,10 +1,8 @@
-'use strict';
-
-const { v4: uuidv4 } = require('uuid');
-const misc = require('../../misc');
-const wait = require('../../wait');
-const signale = require('../../signale');
-const { resetState } = require('../../helpers');
+import { v4 as uuidv4 } from 'uuid';
+import misc from '../../misc';
+import wait from '../../wait';
+import signale from '../../signale';
+import { resetState } from '../../helpers';
 
 const { waitForExStatus, waitForIndexCount } = wait;
 

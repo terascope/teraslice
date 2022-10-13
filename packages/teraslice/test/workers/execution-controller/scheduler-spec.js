@@ -1,10 +1,8 @@
-'use strict';
-
-const _ = require('lodash');
-const { v4: uuidv4 } = require('uuid');
-const { pDelay } = require('@terascope/utils');
-const TestContext = require('../helpers/test-context');
-const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
+import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { pDelay } from '@terascope/utils';
+import TestContext from '../helpers/test-context';
+import Scheduler from '../../../lib/workers/execution-controller/scheduler';
 
 describe('Scheduler', () => {
     const slicers = 3;

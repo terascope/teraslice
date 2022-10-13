@@ -1,17 +1,15 @@
-'use strict';
-
-const path = require('path');
-const Chance = require('chance');
-const pickBy = require('lodash/pickBy');
-const { newId } = require('../../../lib/utils/id_utils');
+import path from 'path';
+import Chance from 'chance';
+import pickBy from 'lodash/pickBy';
+import { newId } from '../../../lib/utils/id_utils';
 
 const { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } = process.env;
 
-const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
+export const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
 
 const chance = new Chance();
 
-const newConfig = (options = {}) => {
+export const newConfig = (options = {}) => {
     const { newOps } = options;
     let { operations } = options;
     if (operations == null) {
@@ -87,7 +85,7 @@ const newConfig = (options = {}) => {
     };
 };
 
-const newSysConfig = (options = {}) => {
+export const newSysConfig = (options = {}) => {
     const {
         clusterName = 'test-teraslice-cluster',
         timeout = 3000,
@@ -156,10 +154,4 @@ const newSysConfig = (options = {}) => {
             }
         }
     };
-};
-
-module.exports = {
-    opsPath,
-    newConfig,
-    newSysConfig
 };

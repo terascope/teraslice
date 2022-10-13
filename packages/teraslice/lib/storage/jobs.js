@@ -1,14 +1,12 @@
-'use strict';
-
-const { v4: uuid } = require('uuid');
-const { TSError, makeISODate } = require('@terascope/utils');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
+import { v4 as uuid } from 'uuid';
+import { TSError, makeISODate } from '@terascope/utils';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import elasticsearchBackend from './backends/elasticsearch_store';
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = async function jobsStorage(context) {
+export default async function jobsStorage(context) {
     const logger = makeLogger(context, 'job_storage');
 
     const config = context.sysconfig.teraslice;

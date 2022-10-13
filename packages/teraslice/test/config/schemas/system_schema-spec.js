@@ -1,10 +1,7 @@
-'use strict';
-
-const convict = require('convict');
+import convict from 'convict';
 // load any convict schema
-require('@terascope/job-components');
-
-const sysSchema = require('../../../lib/config/schemas/system');
+import ('@terascope/job-components');
+import sysSchema from '../../../lib/config/schemas/system';
 
 describe('system_schema', () => {
     const schema = sysSchema.config_schema({}).teraslice;

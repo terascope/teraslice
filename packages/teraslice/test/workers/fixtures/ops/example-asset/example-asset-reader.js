@@ -1,14 +1,12 @@
-'use strict';
-
-function newReader() {
+export function newReader() {
     return () => Array(100).fill('howdy');
 }
 
-function newSlicer() {
+export function newSlicer() {
     return () => Array(100).fill('sliced-data');
 }
 
-function schema() {
+export function schema() {
     return {
         exampleProp: {
             doc: 'Specify some example configuration',
@@ -17,9 +15,3 @@ function schema() {
         }
     };
 }
-
-module.exports = {
-    newSlicer,
-    newReader,
-    schema,
-};

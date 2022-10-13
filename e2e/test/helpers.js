@@ -1,18 +1,12 @@
-'use strict';
-
-const ms = require('ms');
-const {
-    pDelay,
-    uniq,
-    toString
-} = require('@terascope/utils');
-const signale = require('./signale');
-const misc = require('./misc');
-const wait = require('./wait');
+import ms from 'ms';
+import { pDelay, uniq, toString } from '@terascope/utils';
+import signale from './signale';
+import misc from './misc';
+import wait from './wait';
 
 const { cluster, executions } = misc.teraslice();
 
-async function resetState() {
+export async function resetState() {
     const startTime = Date.now();
     const state = await cluster.state();
 
@@ -57,7 +51,7 @@ async function resetState() {
     }
 }
 
-async function submitAndStart(jobSpec, delay) {
+export async function submitAndStart(jobSpec, delay) {
     if (delay) {
         misc.injectDelay(jobSpec, delay);
     }
@@ -67,7 +61,7 @@ async function submitAndStart(jobSpec, delay) {
     return ex;
 }
 
-async function runEsJob(jobSpec, index, delay) {
+export async function runEsJob(jobSpec, index, delay) {
     if (delay) {
         misc.injectDelay(jobSpec, delay);
     }
@@ -86,7 +80,7 @@ async function runEsJob(jobSpec, index, delay) {
 /**
  * Test pause
  */
-async function testJobLifeCycle(jobSpec, delay = 3000) {
+export async function testJobLifeCycle(jobSpec, delay = 3000) {
     let ex;
     const waitForStatus = async (status) => wait.waitForExStatus(ex, status, 50, 0);
 
@@ -127,9 +121,3 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
     return ex;
 }
 
-module.exports = {
-    resetState,
-    submitAndStart,
-    runEsJob,
-    testJobLifeCycle
-};

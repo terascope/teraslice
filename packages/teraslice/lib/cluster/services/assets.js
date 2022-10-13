@@ -1,19 +1,16 @@
-'use strict';
-
-const express = require('express');
-const {
-    TSError, parseErrorInfo, logError, toBoolean
-} = require('@terascope/utils');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const makeAssetsStore = require('../../storage/assets');
-const {
-    makeTable,
-    handleRequest,
-    getSearchOptions,
+import express from 'express';
+import {
+    TSError, parseErrorInfo, logError,
+    toBoolean
+} from '@terascope/utils';
+import { makeLogger } from '../../workers/helpers/terafoundation';
+import makeAssetsStore from '../../storage/assets';
+import {
+    makeTable, handleRequest, getSearchOptions,
     sendError,
-} = require('../../utils/api_utils');
+} from '../../utils/api_utils';
 
-module.exports = function assetsService(context) {
+export default function assetsService(context) {
     const logger = makeLogger(context, 'assets_service');
     const app = express();
 

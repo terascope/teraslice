@@ -1,9 +1,7 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
 
-const fs = require('fs');
-const path = require('path');
-
-const stateUtils = require('../../../../../../lib/cluster/services/cluster/backends/state-utils');
+import stateUtils from '../../../../../../lib/cluster/services/cluster/backends/state-utils';
 
 const clusterStateFile = path.join(__dirname, 'files', 'sample-state.json');
 

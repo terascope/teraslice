@@ -1,9 +1,7 @@
-'use strict';
-
-const _ = require('lodash');
-const events = require('events');
-const { debugLogger } = require('@terascope/job-components');
-const messagingModule = require('../../lib/cluster/services/cluster/backends/native/messaging');
+import _ from 'lodash';
+import events from 'events';
+import { debugLogger } from '@terascope/job-components';
+import messagingModule from '../../lib/cluster/services/cluster/backends/native/messaging';
 
 describe('messaging module', () => {
     const logger = debugLogger('messaging');

@@ -1,6 +1,4 @@
-'use strict';
-
-const rules = require('./rules');
+import rules from './rules';
 
 let hasTypescript;
 try {
@@ -81,4 +79,4 @@ if (hasTypescript) {
     );
 }
 
-module.exports = overrides;
+export default overrides;

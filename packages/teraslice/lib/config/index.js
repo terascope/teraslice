@@ -1,9 +1,7 @@
-'use strict';
-
-const path = require('path');
-const { get } = require('@terascope/utils');
-const { formats } = require('@terascope/job-components');
-const { configSchema } = require('./schemas/system');
+import path from 'path';
+import { get } from '@terascope/utils';
+import { formats } from '@terascope/job-components';
+import { configSchema } from './schemas/system';
 
 const terasliceOpPath = path.join(__dirname, '..');
 
@@ -23,7 +21,7 @@ function getTerasliceConfig(sysconfig) {
     }, sysconfig);
 }
 
-module.exports = {
+export default {
     terasliceOpPath,
     formats,
     configSchema,

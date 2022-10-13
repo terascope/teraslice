@@ -1,12 +1,11 @@
-'use strict';
+import {
+    get, pDelay, pRaceWithTimeout,
+    isError, logError
+} from '@terascope/utils';
+import ms from 'ms';
+import { makeLogger } from './terafoundation';
 
-const {
-    get, pDelay, pRaceWithTimeout, isError, logError
-} = require('@terascope/utils');
-const ms = require('ms');
-const { makeLogger } = require('./terafoundation');
-
-function waitForWorkerShutdown(context, eventName) {
+export function waitForWorkerShutdown(context, eventName) {
     const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
     const events = context.apis.foundation.getSystemEvents();
 
@@ -29,7 +28,7 @@ function waitForWorkerShutdown(context, eventName) {
 }
 
 /* istanbul ignore next */
-function shutdownHandler(context, shutdownFn) {
+export function shutdownHandler(context, shutdownFn) {
     const assignment = context.assignment
         || process.env.NODE_TYPE
         || process.env.assignment
@@ -180,8 +179,3 @@ function shutdownHandler(context, shutdownFn) {
 
     return api;
 }
-
-module.exports = {
-    shutdownHandler,
-    waitForWorkerShutdown
-};

@@ -1,11 +1,10 @@
-'use strict';
+import {
+    isInteger, trimStart, trim,
+    getFirst, joinList
+} from '@terascope/utils';
+import semver from 'semver';
 
-const {
-    isInteger, trimStart, trim, getFirst, joinList
-} = require('@terascope/utils');
-const semver = require('semver');
-
-function findMatchingAsset(records, name, version) {
+export function findMatchingAsset(records, name, version) {
     const range = toSemverRange(version);
     const assets = records
         .filter(_isCompatibleAsset(name, range, false))
@@ -14,7 +13,7 @@ function findMatchingAsset(records, name, version) {
     return getFirst(assets);
 }
 
-function findSimilarAssets(records, name, version) {
+export function findSimilarAssets(records, name, version) {
     const range = toSemverRange(version);
     const assets = records
         .filter(_isCompatibleAsset(name, range, true))
@@ -23,7 +22,7 @@ function findSimilarAssets(records, name, version) {
     return assets;
 }
 
-function getInCompatibilityReason(assets, prefix) {
+export function getInCompatibilityReason(assets, prefix) {
     if (!assets || !assets.length) return '';
 
     const reasons = [];
@@ -45,7 +44,7 @@ function getInCompatibilityReason(assets, prefix) {
     return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')} mismatch`;
 }
 
-function getMajorVersion(version) {
+export function getMajorVersion(version) {
     if (version == null) return version;
     if (isInteger(version)) return version;
     return semver.major(version);
@@ -83,7 +82,7 @@ function _isCompatibleAsset(name, range, skipRestrictions = false) {
     };
 }
 
-function toSemverRange(version) {
+export function toSemverRange(version) {
     if (!version || version === 'latest') return '*';
     if (semver.validRange(version)) {
         return trimStart(trim(version), 'v');
@@ -92,7 +91,7 @@ function toSemverRange(version) {
     throw new Error(`Version "${version}" is not a valid semver range`);
 }
 
-function toVersionQuery(_version) {
+export function toVersionQuery(_version) {
     const version = trimStart(trim(_version));
 
     if (!version || version === 'latest' || version === '*') {
@@ -106,12 +105,3 @@ function toVersionQuery(_version) {
     const range = new semver.Range(version);
     return `version:${range.range.split(' ').join(' AND version:')}`;
 }
-
-module.exports = {
-    findSimilarAssets,
-    getInCompatibilityReason,
-    getMajorVersion,
-    findMatchingAsset,
-    toSemverRange,
-    toVersionQuery,
-};

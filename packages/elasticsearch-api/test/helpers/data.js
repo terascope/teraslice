@@ -1,6 +1,4 @@
-'use strict';
-
-const { cloneDeep } = require('@terascope/utils');
+import { cloneDeep } from '@terascope/utils';
 
 const data = [
     {
@@ -10016,7 +10014,7 @@ const types = {
     bytes: { type: 'Integer' }
 };
 
-module.exports = {
+export default {
     data: cloneDeep(data),
     types,
     index: 'queue_test'

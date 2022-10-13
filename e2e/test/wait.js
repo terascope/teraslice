@@ -1,12 +1,8 @@
-'use strict';
 
-const ms = require('ms');
-const {
-    pDelay,
-    isEmpty,
-} = require('@terascope/utils');
-const signale = require('./signale');
-const misc = require('./misc');
+import ms from 'ms';
+import { pDelay, isEmpty } from '@terascope/utils';
+import signale from './signale';
+import misc from './misc';
 
 /*
  * Waits for the promise returned by 'func' to resolve to an array
@@ -211,7 +207,7 @@ async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
     return waitForIndexCount(index, expected, remainingMs - elapsed);
 }
 
-module.exports = {
+export default {
     forValue,
     forLength,
     forNodes,

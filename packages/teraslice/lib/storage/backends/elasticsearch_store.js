@@ -1,19 +1,17 @@
-'use strict';
-
-const ms = require('ms');
-const fs = require('fs');
-const path = require('path');
-const {
+import ms from 'ms';
+import fs from 'fs';
+import path from 'path';
+import {
     TSError, parseError, isTest, pDelay,
     pRetry, logError, pWhile, isString, getTypeOf,
     get, random, isInteger
-} = require('@terascope/utils');
-const elasticsearchApi = require('@terascope/elasticsearch-api');
-const { getClientAsync } = require('@terascope/job-components');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../../utils/date_utils');
+} from '@terascope/utils';
+import elasticsearchApi from '@terascope/elasticsearch-api';
+import { getClientAsync } from '@terascope/job-components';
+import { makeLogger } from '../../workers/helpers/terafoundation';
+import { timeseriesIndex } from '../../utils/date_utils';
 
-module.exports = async function elasticsearchStorage(backendConfig) {
+export default async function elasticsearchStorage(backendConfig) {
     const {
         context, indexName, recordType,
         idField, storageName, bulkSize = 1000,

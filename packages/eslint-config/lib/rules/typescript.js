@@ -1,9 +1,7 @@
-'use strict';
+import { INDENT } from './constants';
+import jsRules from './javascript';
 
-const { INDENT } = require('./constants');
-const jsRules = require('./javascript');
-
-module.exports = Object.assign({}, jsRules, {
+export default Object.assign({}, jsRules, {
     // typescript preferences
     '@typescript-eslint/no-object-literal-type-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',

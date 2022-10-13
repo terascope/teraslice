@@ -1,12 +1,10 @@
-'use strict';
+import path from 'path';
+import random from 'lodash/random';
+import BufferStreams from 'bufferstreams';
+import archiver from 'archiver';
+import { newId } from '../../../lib/utils/id_utils';
 
-const path = require('path');
-const random = require('lodash/random');
-const BufferStreams = require('bufferstreams');
-const archiver = require('archiver');
-const { newId } = require('../../../lib/utils/id_utils');
-
-function zipDirectory(dir) {
+export default function zipDirectory(dir) {
     return new Promise((resolve, reject) => {
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.append(JSON.stringify({
@@ -24,5 +22,3 @@ function zipDirectory(dir) {
         archive.directory(dir, 'asset').finalize();
     });
 }
-
-module.exports = zipDirectory;

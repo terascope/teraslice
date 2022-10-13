@@ -1,21 +1,20 @@
-'use strict';
+import express from 'express';
+import got from 'got';
+import {
+    pDelay, logError, get,
+    parseError
+} from '@terascope/utils';
+import { ClusterMaster } from '@terascope/teraslice-messaging';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import makeExecutionService from './services/execution';
+import makeApiService from './services/api';
+import makeJobsService from './services/jobs';
+import makeClusterService from './services/cluster';
+import makeJobStore from '../storage/jobs';
+import makeExStore from '../storage/execution';
+import makeStateStore from '../storage/state';
 
-const express = require('express');
-const got = require('got');
-const {
-    pDelay, logError, get, parseError
-} = require('@terascope/utils');
-const { ClusterMaster } = require('@terascope/teraslice-messaging');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const makeExecutionService = require('./services/execution');
-const makeApiService = require('./services/api');
-const makeJobsService = require('./services/jobs');
-const makeClusterService = require('./services/cluster');
-const makeJobStore = require('../storage/jobs');
-const makeExStore = require('../storage/execution');
-const makeStateStore = require('../storage/state');
-
-module.exports = function _clusterMaster(context) {
+export default function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');
     const clusterConfig = context.sysconfig.teraslice;
     const assetsPort = process.env.assets_port;

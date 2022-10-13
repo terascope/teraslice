@@ -1,16 +1,13 @@
-'use strict';
-
-const path = require('path');
-const fse = require('fs-extra');
-const { v4: uuidv4 } = require('uuid');
-const {
+import path from 'path';
+import fse from 'fs-extra';
+import { v4 as uuidv4 } from 'uuid';
+import {
     initializeTestExecution,
     makeTerafoundationContext
-} = require('teraslice');
-
-const misc = require('../../misc');
-const { waitForExStatus } = require('../../wait');
-const { resetState } = require('../../helpers');
+} from 'teraslice';
+import misc from '../../misc';
+import { waitForExStatus } from '../../wait';
+import { resetState } from '../../helpers';
 
 const teraslice = misc.teraslice();
 

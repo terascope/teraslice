@@ -1,8 +1,6 @@
-'use strict';
+import { ParallelSlicer, pDelay, times } from '@terascope/job-components';
 
-const { ParallelSlicer, pDelay, times } = require('@terascope/job-components');
-
-class ExampleSlicer extends ParallelSlicer {
+export default class ExampleSlicer extends ParallelSlicer {
     async newSlicer(id) {
         const { countPerSlicer } = this.opConfig;
         const records = times(countPerSlicer, (i) => ({ id: `slicer-${id}-${i}` }));
@@ -13,5 +11,3 @@ class ExampleSlicer extends ParallelSlicer {
         };
     }
 }
-
-module.exports = ExampleSlicer;

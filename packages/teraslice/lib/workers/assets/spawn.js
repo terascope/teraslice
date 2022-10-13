@@ -1,15 +1,13 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const { fork } = require('child_process');
-const { isEmpty, get, has } = require('@terascope/utils');
-const { makeLogger } = require('../helpers/terafoundation');
-const { safeEncode } = require('../../utils/encoding_utils');
+import fs from 'fs';
+import path from 'path';
+import { fork } from 'child_process';
+import { isEmpty, get, has } from '@terascope/utils';
+import { makeLogger } from '../helpers/terafoundation';
+import { safeEncode } from '../../utils/encoding_utils';
 
 const loaderPath = path.join(__dirname, 'loader.js');
 
-async function spawnAssetLoader(assets, context) {
+export default async function spawnAssetLoader(assets, context) {
     // if assets is empty return early
     if (isEmpty(assets)) {
         return [];

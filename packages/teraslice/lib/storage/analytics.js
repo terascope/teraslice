@@ -1,13 +1,11 @@
-'use strict';
-
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../utils/date_utils');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
+import { makeLogger } from '../workers/helpers/terafoundation';
+import { timeseriesIndex } from '../utils/date_utils';
+import elasticsearchBackend from './backends/elasticsearch_store';
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = async function analyticsService(context) {
+export default async function analyticsService(context) {
     const logger = makeLogger(context, 'analytics_storage');
     const config = context.sysconfig.teraslice;
     const workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker.id}`;

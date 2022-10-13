@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster
@@ -10,7 +8,7 @@ const _ = require('lodash');
  * @param  {Object} clusterState     Teraslice Cluster State
  * @param  {String} clusterNameLabel k8s label containing clusterName
  */
-function gen(k8sPods, clusterState) {
+export function gen(k8sPods, clusterState) {
     // Make sure we clean up the old
     const hostIPs = _.uniq(_.map(k8sPods.items, 'status.hostIP'));
     const oldHostIps = _.difference(_.keys(clusterState), hostIPs);
@@ -63,5 +61,3 @@ function gen(k8sPods, clusterState) {
         }
     });
 }
-
-exports.gen = gen;

@@ -1,9 +1,7 @@
-'use strict';
+import _ from 'lodash';
+import { customAlphabet } from 'nanoid';
 
-const _ = require('lodash');
-const { customAlphabet } = require('nanoid');
-
-function newId(prefix, lowerCase = false, length = 15) {
+export function newId(prefix, lowerCase = false, length = 15) {
     let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
     if (!lowerCase) {
         characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -15,5 +13,3 @@ function newId(prefix, lowerCase = false, length = 15) {
     }
     return id;
 }
-
-module.exports = { newId };

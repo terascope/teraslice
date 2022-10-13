@@ -1,17 +1,12 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import barbe from 'barbe';
+import _ from 'lodash';
+import { isNumber } from '@terascope/utils';
+import { safeEncode } from '../../../../../utils/encoding_utils';
+import { setMaxOldSpaceViaEnv } from './utils';
 
-const fs = require('fs');
-const path = require('path');
-
-const barbe = require('barbe');
-const _ = require('lodash');
-
-const { isNumber } = require('@terascope/utils');
-
-const { safeEncode } = require('../../../../../utils/encoding_utils');
-const { setMaxOldSpaceViaEnv } = require('./utils');
-
-class K8sResource {
+export default class K8sResource {
     /**
      * K8sResource allows the generation of k8s resources based on templates.
      * After creating the object, the k8s resource is accessible on the objects
@@ -413,5 +408,3 @@ class K8sResource {
         });
     }
 }
-
-module.exports = K8sResource;

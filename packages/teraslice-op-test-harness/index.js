@@ -1,22 +1,17 @@
 'use strict';
 
-const Promise = require('bluebird');
-const {
-    validateJobConfig,
-    validateOpConfig,
-    jobSchema,
-    TestContext,
-    newTestExecutionConfig,
-    schemaShim,
-    isFunction,
-    cloneDeep,
-} = require('@terascope/job-components');
-const { bindThis } = require('./lib/utils');
-const Operation = require('./lib/operation');
+import Promise from 'bluebird';
+import {
+    validateJobConfig, validateOpConfig, jobSchema,
+    TestContext, newTestExecutionConfig, schemaShim,
+    isFunction, cloneDeep,
+} from '@terascope/job-components';
+import { bindThis } from './lib/utils';
+import Operation from './lib/operation';
 
 // load data
-const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
-const sampleDataEsLike = require('./data/sampleDataEsLike.json');
+import sampleDataArrayLike from './data/sampleDataArrayLike.json';
+import sampleDataEsLike from './data/sampleDataEsLike.json';
 
 const simpleData = [
     { name: 'Skippy', age: 20 },
@@ -225,4 +220,4 @@ class TestHarness {
     }
 }
 
-module.exports = (op) => new TestHarness(op);
+export default (op) => new TestHarness(op);

@@ -1,7 +1,5 @@
-'use strict';
-
-const events = require('events');
-const analyticsCode = require('../../../lib/workers/execution-controller/slice-analytics');
+import events from 'events';
+import analyticsCode from '../../../lib/workers/execution-controller/slice-analytics';
 
 const eventEmitter = new events.EventEmitter();
 

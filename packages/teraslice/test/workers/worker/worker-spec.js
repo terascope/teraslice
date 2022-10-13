@@ -1,12 +1,10 @@
-'use strict';
-
 /* eslint-disable no-console */
 
-const { pDelay } = require('@terascope/utils');
-const { ExecutionController } = require('@terascope/teraslice-messaging');
-const { findPort } = require('../../../lib/utils/port_utils');
-const Worker = require('../../../lib/workers/worker');
-const { TestContext } = require('../helpers');
+import { pDelay } from '@terascope/utils';
+import { ExecutionController } from '@terascope/teraslice-messaging';
+import { findPort } from '../../../lib/utils/port_utils';
+import Worker from '../../../lib/workers/worker';
+import { TestContext } from '../helpers';
 
 describe('Worker', () => {
     async function setupTest(options = {}) {

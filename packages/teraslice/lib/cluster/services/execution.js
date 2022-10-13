@@ -1,21 +1,12 @@
-'use strict';
-
-const sortBy = require('lodash/sortBy');
-const {
-    Queue,
-    TSError,
-    getFullErrorStack,
-    logError,
-    get,
-    withoutNil,
-    isEmpty,
-    isString,
-    flatten,
-    includes,
+import sortBy from 'lodash/sortBy';
+import {
+    Queue, TSError, getFullErrorStack,
+    logError, get, withoutNil, isEmpty,
+    isString, flatten, includes,
     cloneDeep,
-} = require('@terascope/utils');
-const { setInterval } = require('timers');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
+} from '@terascope/utils';
+import { setInterval } from 'timers';
+import { makeLogger } from '../../workers/helpers/terafoundation';
 
 /**
  * New execution result
@@ -33,7 +24,7 @@ const { makeLogger } = require('../../workers/helpers/terafoundation');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = function executionService(context, { clusterMasterServer }) {
+export default function executionService(context, { clusterMasterServer }) {
     const logger = makeLogger(context, 'execution_service');
     const pendingExecutionQueue = new Queue();
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';

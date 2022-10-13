@@ -1,11 +1,9 @@
-'use strict';
+import { get, makeISODate } from '@terascope/utils';
+import { JobValidator } from '@terascope/job-components';
+import { terasliceOpPath } from '../../config';
+import { makeJobStore, makeExStore, makeStateStore } from '../../storage';
 
-const { get, makeISODate } = require('@terascope/utils');
-const { JobValidator } = require('@terascope/job-components');
-const { terasliceOpPath } = require('../../config');
-const { makeJobStore, makeExStore, makeStateStore } = require('../../storage');
-
-async function validateJob(context, jobSpec) {
+export async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,
         assetPath: get(context, 'sysconfig.teraslice.assets_directory'),
@@ -18,7 +16,7 @@ async function validateJob(context, jobSpec) {
     }
 }
 
-async function initializeTestExecution({
+export async function initializeTestExecution({
     context,
     config,
     stores = {},
@@ -86,8 +84,3 @@ async function initializeTestExecution({
         ex,
     };
 }
-
-module.exports = {
-    initializeTestExecution,
-    validateJob,
-};

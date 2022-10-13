@@ -1,9 +1,7 @@
-'use strict';
+import _ from 'lodash';
+import { makeLogger } from '../helpers/terafoundation';
 
-const _ = require('lodash');
-const { makeLogger } = require('../helpers/terafoundation');
-
-module.exports = function _sliceAnalytics(context, executionContext) {
+export default function _sliceAnalytics(context, executionContext) {
     const logger = makeLogger(context, 'slice_analytics');
 
     const events = context.apis.foundation.getSystemEvents();

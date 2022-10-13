@@ -1,16 +1,14 @@
-'use strict';
+import { get, isFunction, isString } from '@terascope/utils';
+import { makeContextLogger } from '@terascope/job-components';
+import { safeDecode } from '../../utils/encoding_utils';
 
-const { get, isFunction, isString } = require('@terascope/utils');
-const { makeContextLogger } = require('@terascope/job-components');
-const { safeDecode } = require('../../utils/encoding_utils');
-
-function generateWorkerId(context) {
+export function generateWorkerId(context) {
     const { hostname } = context.sysconfig.teraslice;
     const clusterId = get(context, 'cluster.worker.id');
     return `${hostname}__${clusterId}`;
 }
 
-function makeLogger(context, moduleName, extra = {}) {
+export function makeLogger(context, moduleName, extra = {}) {
     if (!context || !context.apis) {
         throw new Error('makeLogger expected terafoundation context as first arg');
     }
@@ -39,5 +37,3 @@ function makeLogger(context, moduleName, extra = {}) {
 
     return makeContextLogger(context, moduleName, Object.assign(defaultContext, extra));
 }
-
-module.exports = { generateWorkerId, makeLogger };

@@ -1,13 +1,11 @@
-'use strict';
-
-const { debugLogger, chunk, pMap } = require('@terascope/utils');
-const elasticsearchAPI = require('../index');
-const { data } = require('./helpers/data');
-const { TEST_INDEX_PREFIX } = require('./helpers/config');
-const {
+import { debugLogger, chunk, pMap } from '@terascope/utils';
+import elasticsearchAPI from '../index';
+import { data } from './helpers/data';
+import { TEST_INDEX_PREFIX } from './helpers/config';
+import {
     makeClient, cleanupIndex,
     waitForData, formatUploadData
-} = require('./helpers/elasticsearch');
+} from './helpers/elasticsearch';
 
 const THREE_MINUTES = 3 * 60 * 1000;
 

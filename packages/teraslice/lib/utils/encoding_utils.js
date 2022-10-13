@@ -1,8 +1,6 @@
-'use strict';
+import _ from 'lodash';
 
-const _ = require('lodash');
-
-function safeEncode(obj) {
+export function safeEncode(obj) {
     let str;
     if (_.isString(obj)) {
         str = obj;
@@ -12,7 +10,7 @@ function safeEncode(obj) {
     return Buffer.from(str).toString('base64');
 }
 
-function safeDecode(str) {
+export function safeDecode(str) {
     if (!_.isString(str) && _.isObjectLike(str)) {
         return str;
     }
@@ -22,8 +20,3 @@ function safeDecode(str) {
         throw new Error(`Unable to decode ${str}`);
     }
 }
-
-module.exports = {
-    safeEncode,
-    safeDecode
-};

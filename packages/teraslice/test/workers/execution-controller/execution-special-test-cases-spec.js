@@ -1,14 +1,12 @@
-'use strict';
-
-const { v4: uuidv4 } = require('uuid');
-const { pDelay, times, random } = require('@terascope/utils');
-const { RecoveryCleanupType } = require('@terascope/job-components');
-const Messaging = require('@terascope/teraslice-messaging');
-const { TestContext } = require('../helpers');
-const { makeShutdownEarlyFn, getTestCases } = require('../helpers/execution-controller-helper');
-const ExecutionController = require('../../../lib/workers/execution-controller');
-const { findPort } = require('../../../lib/utils/port_utils');
-const { newId } = require('../../../lib/utils/id_utils');
+import { v4 as uuidv4 } from 'uuid';
+import { pDelay, times, random } from '@terascope/utils';
+import { RecoveryCleanupType } from '@terascope/job-components';
+import Messaging from '@terascope/teraslice-messaging';
+import { TestContext } from '../helpers';
+import { makeShutdownEarlyFn, getTestCases } from '../helpers/execution-controller-helper';
+import ExecutionController from '../../../lib/workers/execution-controller';
+import { findPort } from '../../../lib/utils/port_utils';
+import { newId } from '../../../lib/utils/id_utils';
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';

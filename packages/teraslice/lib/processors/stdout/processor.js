@@ -1,11 +1,9 @@
-'use strict';
-
 /* eslint-disable no-console */
 
-const _ = require('lodash');
-const { BatchProcessor } = require('@terascope/job-components');
+import _ from 'lodash';
+import { BatchProcessor } from '@terascope/job-components';
 
-class Stdout extends BatchProcessor {
+export default class Stdout extends BatchProcessor {
     async onBatch(data) {
         if (this.opConfig.limit === 0) {
             console.log(data);
@@ -15,5 +13,3 @@ class Stdout extends BatchProcessor {
         return data;
     }
 }
-
-module.exports = Stdout;

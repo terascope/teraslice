@@ -1,17 +1,15 @@
-'use strict';
+import { Client } from 'elasticsearch';
+import opensearch from '@opensearch-project/opensearch';
+import elasticsearch6 from 'elasticsearch6';
+import elasticsearch7 from 'elasticsearch7';
+import elasticsearch8 from 'elasticsearch8';
+import { pDelay } from '@terascope/utils';
+import elasticAPI from '../../index';
 
-const { Client } = require('elasticsearch');
-const opensearch = require('@opensearch-project/opensearch');
-const elasticsearch6 = require('elasticsearch6');
-const elasticsearch7 = require('elasticsearch7');
-const elasticsearch8 = require('elasticsearch8');
-const { pDelay } = require('@terascope/utils');
-const elasticAPI = require('../../index');
-
-const {
+import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,
     ELASTICSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST,
-} = require('./config');
+} from './config';
 
 const semver = ELASTICSEARCH_VERSION.split('.');
 const majorVersion = Number(semver[0]);
@@ -122,7 +120,7 @@ async function cleanupIndex(
         .catch(() => {});
 }
 
-module.exports = {
+export default {
     makeClient,
     waitForData,
     cleanupIndex,

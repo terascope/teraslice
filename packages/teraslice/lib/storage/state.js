@@ -1,21 +1,12 @@
-'use strict';
-
-const {
-    RecoveryCleanupType
-} = require('@terascope/job-components');
-const {
-    TSError,
-    pRetry,
-    toString,
-    isRetryableError,
-    parseErrorInfo,
-    isTest,
-    times,
-    getFullErrorStack,
-} = require('@terascope/utils');
-const { timeseriesIndex } = require('../utils/date_utils');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
+import { RecoveryCleanupType } from '@terascope/job-components';
+import {
+    TSError, pRetry, toString,
+    isRetryableError, parseErrorInfo, isTest,
+    times, getFullErrorStack,
+} from '@terascope/utils';
+import { timeseriesIndex } from '../utils/date_utils';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import elasticsearchBackend from './backends/elasticsearch_store';
 
 const SliceState = Object.freeze({
     pending: 'pending',
@@ -297,4 +288,4 @@ async function stateStorage(context) {
 
 stateStorage.SliceState = SliceState;
 
-module.exports = stateStorage;
+export default stateStorage;

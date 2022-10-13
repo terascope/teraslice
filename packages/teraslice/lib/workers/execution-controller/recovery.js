@@ -1,11 +1,10 @@
-'use strict';
+import {
+    pRaceWithTimeout, logError, cloneDeep,
+    Queue
+} from '@terascope/utils';
+import { makeLogger } from '../helpers/terafoundation';
 
-const {
-    pRaceWithTimeout, logError, cloneDeep, Queue
-} = require('@terascope/utils');
-const { makeLogger } = require('../helpers/terafoundation');
-
-function recoveryModule(context, stateStore, executionContext) {
+export default function recoveryModule(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
     const slicersToRecover = executionContext.config.slicers;
     const recoveryQueue = new Queue();
@@ -184,5 +183,3 @@ function recoveryModule(context, stateStore, executionContext) {
         __test_context: testContext
     };
 }
-
-module.exports = recoveryModule;

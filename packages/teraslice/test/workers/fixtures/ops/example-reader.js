@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 const defaultResults = _.times(10, () => ({ hello: true }));
 const defaultSlicerResults = [{ howdy: true }, null];
@@ -41,7 +39,7 @@ function schema() {
     };
 }
 
-module.exports = {
+export default {
     schema,
     newReader: jest.fn((context, opConfig) => {
         const results = _.get(opConfig, 'results', defaultResults);

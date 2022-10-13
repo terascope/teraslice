@@ -1,13 +1,12 @@
-'use strict';
+import {
+    TSError, get, isEmpty,
+    pDelay, pRetry
+} from '@terascope/utils';
+import { Client, KubeConfig } from 'kubernetes-client';
+import Request from 'kubernetes-client/backends/request';
+import { getRetryConfig } from './utils';
 
-const {
-    TSError, get, isEmpty, pDelay, pRetry
-} = require('@terascope/utils');
-const { Client, KubeConfig } = require('kubernetes-client');
-const Request = require('kubernetes-client/backends/request');
-const { getRetryConfig } = require('./utils');
-
-class K8s {
+export default class K8s {
     constructor(logger, clientConfig, defaultNamespace,
         apiPollDelay, shutdownTimeout) {
         this.apiPollDelay = apiPollDelay;
@@ -446,5 +445,3 @@ class K8s {
         return patchResponseBody;
     }
 }
-
-module.exports = K8s;

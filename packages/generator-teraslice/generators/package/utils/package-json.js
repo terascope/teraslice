@@ -1,11 +1,11 @@
 'use strict';
 
-const { times, get } = require('@terascope/utils');
-const defaultsDeep = require('lodash/defaultsDeep');
-const path = require('path');
-const fs = require('fs');
+import { times, get } from '@terascope/utils';
+import defaultsDeep from 'lodash/defaultsDeep';
+import path from 'path';
+import fs from 'fs';
 
-module.exports = (options) => {
+export default (options) => {
     const rootPkgJSON = readRootPkgJSON();
 
     function readRootPkgJSON() {

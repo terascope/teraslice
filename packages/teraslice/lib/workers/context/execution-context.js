@@ -1,10 +1,8 @@
-'use strict';
+import { makeExecutionContext } from '@terascope/job-components';
+import { terasliceOpPath } from '../../config';
+import spawnAssetLoader from '../assets/spawn';
 
-const { makeExecutionContext } = require('@terascope/job-components');
-const { terasliceOpPath } = require('../../config');
-const spawnAssetLoader = require('../assets/spawn');
-
-module.exports = async function _makeExecutionContext(context, executionConfig) {
+export default async function _makeExecutionContext(context, executionConfig) {
     const assetIds = await spawnAssetLoader(executionConfig.assets, context);
 
     return makeExecutionContext({

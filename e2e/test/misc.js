@@ -1,16 +1,10 @@
-'use strict';
-
-const {
-    memoize,
-    cloneDeep,
-    toBoolean
-} = require('@terascope/utils');
-const path = require('path');
-const fse = require('fs-extra');
-const { customAlphabet } = require('nanoid');
-const { TerasliceClient } = require('teraslice-client-js');
-const ElasticsearchClient = require('elasticsearch').Client;
-const { Compose } = require('@terascope/docker-compose-js');
+import { memoize, cloneDeep, toBoolean } from '@terascope/utils';
+import path from 'path';
+import fse from 'fs-extra';
+import { customAlphabet } from 'nanoid';
+import { TerasliceClient } from 'teraslice-client-js';
+import { Client as ElasticsearchClient} from 'elasticsearch';
+import { Compose } from '@terascope/docker-compose-js';
 
 const {
     TEST_INDEX_PREFIX = 'teratest_',
@@ -47,7 +41,7 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 const WORKERS_PER_NODE = 8;
 
 const compose = new Compose('docker-compose.yml');
-const signale = require('./signale');
+import signale from './signale';
 
 const es = memoize(
     () => new ElasticsearchClient({
@@ -179,7 +173,7 @@ async function globalTeardown() {
     }
 }
 
-module.exports = {
+export default {
     newJob,
     cleanupIndex,
     teraslice,

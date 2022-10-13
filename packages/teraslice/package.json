@@ -2,6 +2,7 @@
     "name": "teraslice",
     "displayName": "Teraslice",
     "version": "0.80.1",
+    "type": "module",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {

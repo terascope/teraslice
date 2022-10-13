@@ -1,37 +1,30 @@
-'use strict';
-
 /* eslint-disable no-console */
 
-const fs = require('fs-extra');
-const path = require('path');
-const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const { newTestSlice, get, pWhile } = require('@terascope/job-components');
-const { ClusterMaster } = require('@terascope/teraslice-messaging');
+import fs from 'fs-extra';
+import path from 'path';
+import { createTempDirSync, cleanupTempDirs } from 'jest-fixtures';
+import { newTestSlice, get, pWhile } from '@terascope/job-components';
+import { ClusterMaster } from '@terascope/teraslice-messaging';
+import {
+    makeAssetStore, makeStateStore, makeAnalyticsStore,
+    makeExStore, makeJobStore
+} from '../../../lib/storage';
+import { initializeTestExecution } from '../../../lib/workers/helpers/job';
+import makeTerafoundationContext from '../../../lib/workers/context/terafoundation-context';
+import makeExecutionContext from '../../../lib/workers/context/execution-context';
+import { newId } from '../../../lib/utils/id_utils';
+import { findPort } from '../../../lib/utils/port_utils';
+import { newConfig, newSysConfig } from './configs';
+import zipDirectory from './zip-directory';
 
-const {
-    makeAssetStore,
-    makeStateStore,
-    makeAnalyticsStore,
-    makeExStore,
-    makeJobStore
-} = require('../../../lib/storage');
-
-const { initializeTestExecution } = require('../../../lib/workers/helpers/job');
-const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');
-const makeExecutionContext = require('../../../lib/workers/context/execution-context');
-const { newId } = require('../../../lib/utils/id_utils');
-const { findPort } = require('../../../lib/utils/port_utils');
-const { newConfig, newSysConfig } = require('./configs');
-const zipDirectory = require('./zip-directory');
-
-const { TERASLICE_CLUSTER_NAME } = require('../../test.config');
+import { TERASLICE_CLUSTER_NAME } from '../../test.config';
 
 const cleanups = {};
 const tmpAssetDir = createTempDirSync();
 const clusterName = `${TERASLICE_CLUSTER_NAME}`;
 const stores = {};
 
-class TestContext {
+export default class TestContext {
     constructor(options = {}) {
         const {
             clusterMasterPort, shutdownTimeout, actionTimeout, timeout
@@ -191,7 +184,7 @@ class TestContext {
 }
 
 // make sure we cleanup if any test fails to cleanup properly
-async function cleanupAll(withEs = false) {
+export async function cleanupAll(withEs = false) {
     const count = Object.keys(cleanups).length;
     if (!count) return;
 
@@ -223,9 +216,8 @@ async function cleanupAll(withEs = false) {
 
 beforeAll(async () => cleanupAll(true), Object.keys(cleanups).length * 5000);
 
-module.exports = TestContext;
-module.exports.cleanupAll = cleanupAll;
-module.exports.waitForCleanup = () => pWhile(() => !Object.keys(cleanups).length, {
+
+export const waitForCleanup = () => pWhile(() => !Object.keys(cleanups).length, {
     name: 'Test Context',
     timeoutMs: 3000
 });

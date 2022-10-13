@@ -2,6 +2,7 @@
     "name": "teraslice-test-harness",
     "displayName": "Teraslice Test Harness",
     "version": "0.28.2",
+    "type": "module",
     "description": "A helpful library for testing teraslice jobs, operations, and other components.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
     "bugs": {

@@ -1,10 +1,8 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const semver = require('semver');
-const { downloadRelease } = require('@terascope/fetch-github-release');
-const signale = require('./signale');
+import fs from 'fs';
+import path from 'path';
+import semver from 'semver';
+import { downloadRelease } from '@terascope/fetch-github-release';
+import signale from './signale';
 
 /**
  * This will get the correct teraslice node version so
@@ -143,7 +141,7 @@ function logAssets() {
 /**
  * @todo change this to not download both the bundled and non-bundled versions
 */
-async function downloadAssets() {
+export default async function downloadAssets() {
     await Promise.all(bundles.map(({ repo }) => downloadRelease(
         'terascope',
         repo,

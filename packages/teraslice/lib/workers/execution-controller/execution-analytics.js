@@ -1,7 +1,5 @@
-'use strict';
-
-const { makeISODate, get, has } = require('@terascope/utils');
-const { makeLogger } = require('../helpers/terafoundation');
+import { makeISODate, get, has } from '@terascope/utils';
+import { makeLogger } from '../helpers/terafoundation';
 
 /**
  * @typedef ExecutionStats
@@ -22,7 +20,7 @@ const { makeLogger } = require('../helpers/terafoundation');
  * @property queuing_complete {String} a date string
 */
 
-class ExecutionAnalytics {
+export default class ExecutionAnalytics {
     constructor(context, executionContext, client) {
         this.logger = makeLogger(context, 'execution_analytics');
         this.events = context.apis.foundation.getSystemEvents();
@@ -207,5 +205,3 @@ class ExecutionAnalytics {
         });
     }
 }
-
-module.exports = ExecutionAnalytics;

@@ -1,7 +1,5 @@
-'use strict';
-
-const misc = require('../../misc');
-const { resetState, runEsJob } = require('../../helpers');
+import misc from '../../misc';
+import { resetState, runEsJob } from '../../helpers';
 
 describe('elasticsearch bulk', () => {
     beforeAll(() => resetState());

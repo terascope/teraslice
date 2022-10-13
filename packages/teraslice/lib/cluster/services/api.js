@@ -1,28 +1,24 @@
-'use strict';
-
-const { Router } = require('express');
-const bodyParser = require('body-parser');
-const stream = require('stream');
-const { promisify } = require('util');
-const got = require('got');
-const { RecoveryCleanupType } = require('@terascope/job-components');
-const {
-    parseErrorInfo, parseList, logError, TSError, startsWith
-} = require('@terascope/utils');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const {
-    makePrometheus,
-    isPrometheusRequest,
-    makeTable,
-    sendError,
-    handleRequest,
-    getSearchOptions,
-} = require('../../utils/api_utils');
-const terasliceVersion = require('../../../package.json').version;
+import { Router } from 'express';
+import bodyParser from 'body-parser';
+import stream from 'stream';
+import { promisify } from 'util';
+import got from 'got';
+import { RecoveryCleanupType } from '@terascope/job-components';
+import {
+    parseErrorInfo, parseList, logError,
+     TSError, startsWith
+} from '@terascope/utils';
+import { makeLogger } from '../../workers/helpers/terafoundation';
+import {
+    makePrometheus, isPrometheusRequest, makeTable,
+    sendError, handleRequest, getSearchOptions,
+} from '../../utils/api_utils';
+import * as packageInfo from '../../../package.json';
+const terasliceVersion = packageInfo.version;
 
 const pStreamPipeline = promisify(stream.pipeline);
 
-module.exports = function apiService(context, { assetsUrl, app }) {
+export default function apiService(context, { assetsUrl, app }) {
     const clusterConfig = context.sysconfig.teraslice;
     const clusterType = clusterConfig.cluster_manager_type;
 

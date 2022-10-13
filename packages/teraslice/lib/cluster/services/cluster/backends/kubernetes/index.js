@@ -1,13 +1,12 @@
-'use strict';
-
-const {
-    TSError, logError, get, cloneDeep, pRetry
-} = require('@terascope/utils');
-const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
-const K8sResource = require('./k8sResource');
-const k8sState = require('./k8sState');
-const K8s = require('./k8s');
-const { getRetryConfig } = require('./utils');
+import {
+    TSError, logError, get,
+    cloneDeep, pRetry
+} from '@terascope/utils';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation';
+import K8sResource from './k8sResource';
+import k8sState from './k8sState';
+import K8s from './k8s';
+import { getRetryConfig } from './utils';
 
 /*
  Execution Life Cycle for _status
@@ -18,7 +17,7 @@ const { getRetryConfig } = require('./utils');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
+export default function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = makeLogger(context, 'kubernetes_cluster_service');
 
     const clusterName = get(context, 'sysconfig.teraslice.name');

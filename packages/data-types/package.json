@@ -2,6 +2,7 @@
     "name": "@terascope/data-types",
     "displayName": "Data Types",
     "version": "0.36.0",
+    "type": "module",
     "description": "A library for defining the data structures and mapping",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-types#readme",
     "bugs": {

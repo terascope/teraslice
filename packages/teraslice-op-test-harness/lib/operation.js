@@ -1,15 +1,10 @@
-'use strict';
+import {
+    readerShim, processorShim, registerApis,
+    DataEntity, times,
+} from '@terascope/job-components';
+import { bindThis } from './utils';
 
-const {
-    readerShim,
-    processorShim,
-    registerApis,
-    DataEntity,
-    times,
-} = require('@terascope/job-components');
-const { bindThis } = require('./utils');
-
-class OperationTester {
+export default class OperationTester {
     constructor({
         op,
         context,
@@ -114,5 +109,3 @@ class OperationTester {
         return this.operation.handle(data);
     }
 }
-
-module.exports = OperationTester;

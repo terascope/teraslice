@@ -1,23 +1,22 @@
-'use strict';
-
-const path = require('path');
-const fse = require('fs-extra');
-const crypto = require('crypto');
-const {
-    TSError, uniq, isString, toString, filterObject
-} = require('@terascope/utils');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const { saveAsset } = require('../utils/file_utils');
-const {
+import path from 'path';
+import fse from 'fs-extra';
+import crypto from 'crypto';
+import {
+    TSError, uniq, isString,
+    toString, filterObject
+} from '@terascope/utils';
+import elasticsearchBackend from './backends/elasticsearch_store';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import { saveAsset } from '../utils/file_utils';
+import {
     findMatchingAsset, findSimilarAssets,
     toVersionQuery, getInCompatibilityReason
-} = require('../utils/asset_utils');
+} from ('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = async function assetsStore(context) {
+export default async function assetsStore(context) {
     const logger = makeLogger(context, 'assets_storage');
     const config = context.sysconfig.teraslice;
     const assetsPath = config.assets_directory;

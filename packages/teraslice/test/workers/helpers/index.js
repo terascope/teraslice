@@ -1,11 +1,10 @@
-'use strict';
+import TestContext from './test-context';
+import {
+    newConfig, newSysConfig, opsPath,
+    newId
+} from './configs';
 
-const TestContext = require('./test-context');
-const {
-    newConfig, newSysConfig, opsPath, newId
-} = require('./configs');
-
-module.exports = {
+export default {
     newConfig,
     opsPath,
     newId,

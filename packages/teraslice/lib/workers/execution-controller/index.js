@@ -1,24 +1,24 @@
-'use strict';
-
-const ms = require('ms');
-const _ = require('lodash');
-const Messaging = require('@terascope/teraslice-messaging');
-const {
-    TSError, includes, get, pDelay, getFullErrorStack, logError, pWhile, makeISODate
-} = require('@terascope/utils');
-const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
-const { makeStateStore, makeExStore, SliceState } = require('../../storage');
-const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
-const ExecutionAnalytics = require('./execution-analytics');
-const makeSliceAnalytics = require('./slice-analytics');
-const Scheduler = require('./scheduler');
-const Metrics = require('../metrics');
+import ms from 'ms';
+import _ from 'lodash';
+import Messaging from '@terascope/teraslice-messaging';
+import {
+    TSError, includes, get,
+    pDelay, getFullErrorStack, logError,
+    pWhile, makeISODate
+} from '@terascope/utils';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
+import { makeStateStore, makeExStore, SliceState } from '../../storage';
+import { makeLogger, generateWorkerId } from '../helpers/terafoundation';
+import ExecutionAnalytics from './execution-analytics';
+import makeSliceAnalytics from './slice-analytics';
+import Scheduler from './scheduler';
+import Metrics from '../metrics';
 
 const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
 const { formatURL } = Messaging;
 
-class ExecutionController {
+export default class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, 'execution_controller');
@@ -1029,5 +1029,3 @@ class ExecutionController {
         this.pendingDispatches++;
     }
 }
-
-module.exports = ExecutionController;

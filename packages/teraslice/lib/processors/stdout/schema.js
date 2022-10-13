@@ -1,8 +1,6 @@
-'use strict';
+import { ConvictSchema } from '@terascope/job-components';
 
-const { ConvictSchema } = require('@terascope/job-components');
-
-class Schema extends ConvictSchema {
+export default class Schema extends ConvictSchema {
     build() {
         return {
             limit: {
@@ -14,5 +12,3 @@ class Schema extends ConvictSchema {
         };
     }
 }
-
-module.exports = Schema;

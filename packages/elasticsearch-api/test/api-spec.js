@@ -1,10 +1,8 @@
-'use strict';
-
-const Promise = require('bluebird');
-const {
+import Promise from 'bluebird';
+import {
     debugLogger, cloneDeep, DataEntity, isEmpty
-} = require('@terascope/utils');
-const esApi = require('..');
+} from '@terascope/utils';
+import esApi from '..';
 
 describe('elasticsearch-api', () => {
     let recordsReturned = [];

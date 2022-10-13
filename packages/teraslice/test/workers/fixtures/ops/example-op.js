@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 const defaultResults = _.times(10, () => ({ hi: true }));
 
@@ -19,7 +17,7 @@ function schema() {
     };
 }
 
-module.exports = {
+export default {
     schema,
     newProcessor: jest.fn((context, opConfig) => {
         const results = _.get(opConfig, 'results', defaultResults);

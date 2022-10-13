@@ -1,9 +1,7 @@
-'use strict';
+import _ from 'lodash';
+import { pDelay, pDefer } from '@terascope/utils';
 
-const _ = require('lodash');
-const { pDelay, pDefer } = require('@terascope/utils');
-
-function makeShutdownEarlyFn({ exController, enabled = false }) {
+export function makeShutdownEarlyFn({ exController, enabled = false }) {
     let shutdownErr = {
         message: 'Shutdown never triggered'
     };
@@ -43,7 +41,7 @@ function makeShutdownEarlyFn({ exController, enabled = false }) {
     };
 }
 
-function getTestCases(testCases) {
+export function getTestCases(testCases) {
     const onlyCases = _.filter(testCases, (ts) => ts[1].only);
     if (onlyCases.length > 0) {
         // eslint-disable-next-line no-console
@@ -62,5 +60,3 @@ function getTestCases(testCases) {
     }
     return cases;
 }
-
-module.exports = { makeShutdownEarlyFn, getTestCases };
