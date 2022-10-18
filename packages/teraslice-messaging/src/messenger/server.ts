@@ -2,17 +2,12 @@ import http from 'http';
 import porty from 'porty';
 import SocketIOServer from 'socket.io';
 import {
-    get,
-    isTest,
-    isString,
-    isNumber,
-    debugLogger,
-    pDelay,
-    pRetry,
+    get, isTest, isString, isNumber,
+    debugLogger, pDelay, pRetry,
 } from '@terascope/utils';
-import { newMsgId } from '../utils';
-import * as i from './interfaces';
-import { Core } from './core';
+import { newMsgId } from '../utils/index.js';
+import * as i from './interfaces.js';
+import { Core } from './core.js';
 
 const _logger = debugLogger('teraslice-messaging:server');
 

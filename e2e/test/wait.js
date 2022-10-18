@@ -1,8 +1,8 @@
 
 import ms from 'ms';
 import { pDelay, isEmpty } from '@terascope/utils';
-import signale from './signale';
-import misc from './misc';
+import signale from './signale.js';
+import misc from './misc.js';
 
 /*
  * Waits for the promise returned by 'func' to resolve to an array

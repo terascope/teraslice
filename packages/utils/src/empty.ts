@@ -1,5 +1,5 @@
 import { Nil } from '@terascope/types';
-import { isAsyncIterator, isIterator } from './iterators';
+import { isAsyncIterator, isIterator } from './iterators.js';
 
 export function isNil<T>(input: T|Nil): input is Nil {
     return input == null;

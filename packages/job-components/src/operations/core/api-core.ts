@@ -1,14 +1,10 @@
-import Core from './core';
+import Core from './core.js';
 import {
-    ExecutionConfig,
-    WorkerOperationLifeCycle,
-    SlicerOperationLifeCycle,
-    WorkerContext,
-    APIConfig,
-    DeadLetterAction,
-    DeadLetterAPIFn
-} from '../../interfaces';
-import { makeExContextLogger } from '../../utils';
+    ExecutionConfig, WorkerOperationLifeCycle, 
+    SlicerOperationLifeCycle, WorkerContext,
+    APIConfig, DeadLetterAction, DeadLetterAPIFn
+} from '../../interfaces/index.js';
+import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { WorkerOperationLifeCycle } from '../../interfaces';
+import { WorkerOperationLifeCycle } from '../../interfaces/index.js';
 
 interface SliceOperation extends WorkerOperationLifeCycle {
     readonly events: EventEmitter;

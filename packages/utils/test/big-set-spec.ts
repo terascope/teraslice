@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { BigSet } from '../src/big-set';
+import { BigSet } from '../src/big-set.js';
 
 describe('BigSet', () => {
     let bigSet: BigSet<string>;

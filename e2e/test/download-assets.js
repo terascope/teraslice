@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import semver from 'semver';
 import { downloadRelease } from '@terascope/fetch-github-release';
-import signale from './signale';
+import signale from './signale.js';
 
 /**
  * This will get the correct teraslice node version so

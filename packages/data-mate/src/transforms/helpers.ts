@@ -1,19 +1,12 @@
 import {
-    AnyObject,
-    parseGeoPoint,
-    startsWith,
-    isGeoJSON,
-    isGeoShapePolygon,
-    isGeoShapeMultiPolygon
+    AnyObject, parseGeoPoint, startsWith,
+    isGeoJSON, isGeoShapePolygon, isGeoShapeMultiPolygon
 } from '@terascope/utils';
 import {
-    GeoPointInput,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    xLuceneFieldType,
-    GeoShapeRelation
+    GeoPointInput, xLuceneTypeConfig, xLuceneVariables,
+    xLuceneFieldType, GeoShapeRelation
 } from '@terascope/types';
-import { isGeoShapePoint } from '../validations/field-validator';
+import { isGeoShapePoint } from '../validations/field-validator.js';
 
 // TODO: move these
 export type JoinBy = 'AND'|'OR';

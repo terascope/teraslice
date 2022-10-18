@@ -3,7 +3,7 @@ import { MACDelimiter, FieldType } from '@terascope/types';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,
-} from '../interfaces';
+} from '../interfaces.js';
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 

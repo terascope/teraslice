@@ -1,19 +1,16 @@
 import * as ts from '@terascope/utils';
 import {
-    ExecutionContextConfig,
-    RunSliceResult,
-    WorkerSliceState,
-    WorkerStatus,
-    SliceStatus,
-    JobAPIInstances
-} from './interfaces';
+    ExecutionContextConfig, RunSliceResult, WorkerSliceState,
+    WorkerStatus, SliceStatus, JobAPIInstances
+} from './interfaces.js';
 import {
-    WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData
-} from '../interfaces';
-import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
-import JobObserver from '../operations/job-observer';
-import BaseExecutionContext from './base';
-import { getMetric } from './utils';
+    WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics,
+    SliceAnalyticsData
+} from '../interfaces/index.js';
+import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core/index.js';
+import JobObserver from '../operations/job-observer.js';
+import BaseExecutionContext from './base.js';
+import { getMetric } from './utils.js';
 
 /**
  * WorkerExecutionContext is designed to add more

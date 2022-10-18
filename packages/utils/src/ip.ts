@@ -3,9 +3,9 @@ import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
-import { isString } from './strings';
-import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
-import { getTypeOf } from './deps';
+import { isString } from './strings.js';
+import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers.js';
+import { getTypeOf } from './deps.js';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);

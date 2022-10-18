@@ -1,8 +1,8 @@
 import 'jest-extended';
-import * as index from '../src';
-import * as config from '../src/helpers/config';
-import { makeArray } from '../src/helpers/args';
-import { getName } from '../src/helpers/misc';
+import * as index from '../src/index.js';
+import * as config from '../src/helpers/config.js';
+import { makeArray } from '../src/helpers/args.js';
+import { getName } from '../src/helpers/misc.js';
 
 describe('Helpers', () => {
     it('should export an object', () => {

@@ -1,5 +1,5 @@
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import NgramTokens from '../../../src/types/v1/ngram-tokens';
+import NgramTokens from '../../../src/types/v1/ngram-tokens.js';
 
 describe('NgramTokens V1', () => {
     const field = 'someField';

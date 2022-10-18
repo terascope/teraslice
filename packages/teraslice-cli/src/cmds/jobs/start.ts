@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     // TODO: is it [id] or <id>
     command: 'start <cluster-alias> [id]',
     describe: 'starts all job on the specified in the saved state file \n',

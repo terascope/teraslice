@@ -1,5 +1,5 @@
-import misc from '../../misc';
-import { resetState } from '../../helpers';
+import misc from '../../misc.js';
+import { resetState } from '../../helpers.js';
 
 describe('job validation', () => {
     beforeAll(() => resetState());

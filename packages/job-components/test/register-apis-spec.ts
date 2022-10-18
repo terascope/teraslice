@@ -1,13 +1,9 @@
 import 'jest-extended'; // require for type definitions
 import path from 'path';
 import {
-    registerApis,
-    OperationAPI,
-    newTestJobConfig,
-    TestContext,
-    TestClientConfig,
-    AnyObject
-} from '../src';
+    registerApis, OperationAPI, newTestJobConfig,
+    TestContext, TestClientConfig, AnyObject
+} from '../src/index.js';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');

@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import misc from '../../misc';
-import wait from '../../wait';
-import signale from '../../signale';
-import { resetState } from '../../helpers';
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import signale from '../../signale.js';
+import { resetState } from '../../helpers.js';
 
 const { waitForExStatus, waitForIndexCount } = wait;
 

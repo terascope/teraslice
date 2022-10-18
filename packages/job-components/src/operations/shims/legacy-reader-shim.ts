@@ -1,30 +1,18 @@
 import {
-    DataEntity,
-    DataInput,
-    Logger,
-    times,
-    isFunction
+    DataEntity, DataInput, Logger,
+    times, isFunction
 } from '@terascope/utils';
-import SlicerClass from '../slicer';
-import operationAPIShim, { APIs } from './operation-api-shim';
-import legacySliceEventsShim from './legacy-slice-events-shim';
+import SlicerClass from '../slicer.js';
+import operationAPIShim, { APIs } from './operation-api-shim.js';
+import legacySliceEventsShim from './legacy-slice-events-shim.js';
+import { SchemaConstructor } from '../interfaces.js';
 import {
-    SchemaConstructor
-} from '../interfaces';
-import {
-    SliceRequest,
-    ReaderFn,
-    SlicerFns,
-    LegacyReader,
-    WorkerContext,
-    SlicerRecoveryData,
-    Context,
-    ValidatedJobConfig,
-    SysConfig,
-    ExecutionConfig,
+    SliceRequest, ReaderFn, SlicerFns, LegacyReader,
+    WorkerContext, SlicerRecoveryData, Context,
+    ValidatedJobConfig, SysConfig, ExecutionConfig,
     LegacyExecutionContext,
-} from '../../interfaces';
-import ConvictSchema from '../convict-schema';
+} from '../../interfaces/index.js';
+import ConvictSchema from '../convict-schema.js';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today

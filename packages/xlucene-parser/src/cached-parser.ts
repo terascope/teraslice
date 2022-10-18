@@ -1,5 +1,5 @@
-import { ParserOptions, Node } from './interfaces';
-import { Parser } from './parser';
+import { ParserOptions, Node } from './interfaces.js';
+import { Parser } from './parser.js';
 
 type Cached = Map<string, Parser>;
 const _cache = new WeakMap<CachedParser, Cached>();

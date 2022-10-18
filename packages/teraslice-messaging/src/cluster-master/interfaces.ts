@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import { Message, RequestListener } from '../messenger/interfaces';
+import { Message, RequestListener } from '../messenger/interfaces.js';
 
 export interface ClientOptions {
     exId: string;

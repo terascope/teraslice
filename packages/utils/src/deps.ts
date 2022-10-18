@@ -12,8 +12,8 @@ import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
-import { AnyObject } from './interfaces';
-import { DataEntity } from './entities';
+import { AnyObject } from './interfaces.js';
+import { DataEntity } from './entities/index.js';
 
 /**
  * Detect if an object created by Object.create(null)

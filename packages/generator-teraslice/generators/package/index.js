@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import yosay from 'yosay';
 import { toKebabCase, trim } from '@terascope/utils';
 import Generator from 'yeoman-generator';
-import genPackageJSON from './utils/package-json';
+import genPackageJSON from './utils/package-json.js';
 
 export default class extends Generator {
     prompting() {
@@ -142,7 +142,7 @@ export default class extends Generator {
             );
         }
 
-        const folderName = this.props.typescript ? 'src' : 'lib';
+        const folderName = this.props.typescript ? 'src/index.js' : 'lib';
         const ext = this.props.typescript ? '.ts' : '.js';
 
         if (!pathExists(folderName)) {

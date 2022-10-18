@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { debugLogger, cloneDeep } from '@terascope/utils';
-import { isPrimaryConfig } from '../../src/loader/utils';
+import { isPrimaryConfig } from '../../src/loader/utils.js';
 import {
     RulesValidator,
     RulesParser,
@@ -8,7 +8,7 @@ import {
     OperationConfigInput,
     OperationsManager,
     PluginList
-} from '../../src';
+} from '../../src/index.js';
 
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');

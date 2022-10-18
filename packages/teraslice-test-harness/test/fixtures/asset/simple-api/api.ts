@@ -1,5 +1,5 @@
 import { OperationAPI } from '@terascope/job-components';
-import { SimpleAPIConfig, SimpleAPI } from './interfaces';
+import { SimpleAPIConfig, SimpleAPI } from './interfaces.js';
 
 export default class SimpleOperationAPI extends OperationAPI<SimpleAPIConfig> {
     async createAPI(): Promise<SimpleAPI> {

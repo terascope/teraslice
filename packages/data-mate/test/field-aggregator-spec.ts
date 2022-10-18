@@ -1,4 +1,4 @@
-import { FieldAggregator } from '../src';
+import { FieldAggregator } from '../src/index.js';
 
 describe('FieldAggregator', () => {
     describe('uniqueField should', () => {

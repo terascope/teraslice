@@ -5,12 +5,12 @@ import {
     and, isGreaterThanFP, isGreaterThanOrEqualToFP,
     isLessThanOrEqualToFP, isLessThanFP
 } from '@terascope/utils';
-import { compareTermDates, dateRange } from './dates';
+import { compareTermDates, dateRange } from './dates.js';
 import {
     regexp, wildcard, findWildcardField
 } from './string';
-import { BooleanCB } from '../interfaces';
-import { ipTerm, ipRange } from './ip';
+import { BooleanCB } from '../interfaces.js';
+import { ipTerm, ipRange } from './ip.js';
 
 export default function buildLogicFn(
     parser: p.Parser,

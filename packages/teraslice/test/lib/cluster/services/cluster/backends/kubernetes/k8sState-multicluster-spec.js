@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import _podsJobRunning from './files/job-running-v1-k8s-pods-multicluster.json';
-import k8sState from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState';
+import k8sState from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState.js';
 
 describe('k8sState with pods from multiple clusters', () => {
     it('should generate cluster state correctly on first call', () => {

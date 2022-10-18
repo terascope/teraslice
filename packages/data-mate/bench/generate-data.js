@@ -9,7 +9,7 @@ const Chance = require('chance');
 const util = require('util');
 const stream = require('stream');
 const { once } = require('events');
-const { DataFrame } = require('./src');
+const { DataFrame } = require('./src/index.js');
 
 const chance = new Chance();
 

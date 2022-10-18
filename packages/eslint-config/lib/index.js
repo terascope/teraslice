@@ -1,5 +1,5 @@
-import rules from './rules';
-import overrides from './overrides';
+import rules from './rules.js';
+import overrides from './overrides.js';
 
 export default {
     rules,

@@ -1,6 +1,6 @@
 import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
-import BaseType, { ToGraphQLOptions } from '../base-type';
-import { GraphQLType, TypeESMapping } from '../../interfaces';
+import BaseType, { ToGraphQLOptions } from '../base-type.js';
+import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 // TODO: This type is deprecated, not sure how to properly indicate it.
 export default class GeoType extends BaseType {

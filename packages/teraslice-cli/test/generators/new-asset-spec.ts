@@ -15,7 +15,7 @@ describe('new asset generator should', () => {
         [helpers.createDummyGenerator(), 'addExampleProcessor: app']
     ];
 
-    beforeAll(() => helpers.run(path.join(__dirname, '..', '..', 'src', 'generators', 'new-asset'))
+    beforeAll(() => helpers.run(path.join(__dirname, '..', '..', 'src/index.js', 'generators', 'new-asset'))
         .inDir(testAssetBasePath)
         .withGenerators(deps)
         .withArguments(['generated-asset'])

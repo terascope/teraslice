@@ -1,15 +1,15 @@
-import empty from './empty';
-import exists from './exists';
-import fieldGroup from './field-group';
-import logicalGroup from './logical-group';
-import negation from './negation';
-import range from './range';
-import regexp from './regexp';
-import term from './term';
-import wildcard from './wildcard';
-import geo from './geo';
+import empty from './empty.js';
+import exists from './exists.js';
+import fieldGroup from './field-group.js';
+import logicalGroup from './logical-group.js';
+import negation from './negation.js';
+import range from './range.js';
+import regexp from './regexp.js';
+import term from './term.js';
+import wildcard from './wildcard.js';
+import geo from './geo.js';
 
-export * from './interfaces';
+export * from './interfaces.js';
 export default {
     empty,
     term,

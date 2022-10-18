@@ -1,7 +1,7 @@
 'use strict';
 
 const { Suite } = require('./helpers');
-const { DataEntity } = require('../dist/src');
+const { DataEntity } = require('../dist/src/index.js');
 
 const data = JSON.stringify({
     id: Math.random(),

@@ -1,14 +1,14 @@
 import path from 'path';
 import fs from 'fs-extra';
 import yeoman from 'yeoman-environment';
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import newProcessor from '../../generators/new-processor';
-import newAsset from '../../generators/new-asset';
-import registry from '../../generators/registry';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import newProcessor from '../../generators/new-processor.js';
+import newAsset from '../../generators/new-asset.js';
+import registry from '../../generators/registry.js';
 
 const yargsOptions = new YargsOptions();
 
@@ -17,7 +17,7 @@ env.registerStub(newProcessor as any, 'new-processor');
 env.registerStub(newAsset as any, 'new-asset');
 env.registerStub(registry as any, 'registry');
 
-export = {
+export default {
     command: 'init',
     describe: 'Creates a new asset bundle or asset processor.  If called without --processor it builds the whole asset in the current directory.  Used with the --processor it adds an asset to the ./asset dir',
     builder(yargs) {

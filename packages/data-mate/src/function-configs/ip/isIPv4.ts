@@ -1,10 +1,9 @@
 import { isIPv4 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isIPv4Config: FieldValidateConfig = {
     name: 'isIPv4',

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { TestContext } from '../src';
+import { TestContext } from '../src/index.js';
 
 describe('TestContext', () => {
     it('should have a TestContext', () => {

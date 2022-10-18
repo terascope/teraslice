@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { HexDecode } from '../../../src/operations';
+import { HexDecode } from '../../../src/operations.js';
 
 describe('HexDecode operator', () => {
     function encode(str: string) {

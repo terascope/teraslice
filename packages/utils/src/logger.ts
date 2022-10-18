@@ -1,10 +1,10 @@
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import { isPlainObject } from './deps';
-import { toString, isString, trimAndToLower } from './strings';
-import { Logger } from './logger-interface';
-import { uniq } from './arrays';
-import { isTest } from './env';
+import { isPlainObject } from './deps.js';
+import { toString, isString, trimAndToLower } from './strings.js';
+import { Logger } from './logger-interface.js';
+import { uniq } from './arrays.js';
+import { isTest } from './env.js';
 
 interface DebugParamObj {
     module: string;

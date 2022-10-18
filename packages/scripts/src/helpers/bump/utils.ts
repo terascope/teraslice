@@ -1,12 +1,17 @@
 import semver, { ReleaseType } from 'semver';
 import {
-    get, chunk, isEmpty, joinList
+    get, chunk, isEmpty,
+    joinList
 } from '@terascope/utils';
-import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
-import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
-import { PackageInfo } from '../interfaces';
-import signale from '../signale';
-import { getRootInfo } from '../misc';
+import { 
+    BumpPackageOptions, BumpPkgInfo, BumpType
+} from './interfaces.js';
+import { 
+    isMainPackage, findPackageByName, getRemotePackageVersion
+} from '../packages.js';
+import { PackageInfo } from '../interfaces.js';
+import signale from '../signale.js';
+import { getRootInfo } from '../misc.js';
 
 export async function getPackagesToBump(
     packages: PackageInfo[],

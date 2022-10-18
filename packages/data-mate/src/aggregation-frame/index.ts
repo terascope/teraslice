@@ -1,1 +1,1 @@
-export * from './AggregationFrame';
+export * from './AggregationFrame.js';

@@ -2,7 +2,7 @@ import 'jest-extended';
 import path from 'path';
 import fs from 'fs';
 import { createTempDirSync } from 'jest-fixtures';
-import Config from '../../src/helpers/config';
+import Config from '../../src/helpers/config.js';
 
 const tmpDir = createTempDirSync();
 

@@ -12,7 +12,7 @@ import {
     newTestExecutionContext,
     OpConfig,
     JobConfig,
-} from '../../../src';
+} from '../../../src/index.js';
 
 describe('Legacy Reader Shim', () => {
     class ExampleParallelSlicer extends ParallelSlicer<ExampleOpConfig> {

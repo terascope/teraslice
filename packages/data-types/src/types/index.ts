@@ -1,14 +1,15 @@
 import * as ts from '@terascope/utils';
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
+    DataTypeFieldConfig, DataTypeFields, DataTypeVersion,
+    FieldType
 } from '@terascope/types';
-import { mapping } from './mapping';
+import { mapping } from './mapping.js';
 import {
     GroupedFields
-} from '../interfaces';
-import GroupType, { NestedTypes } from './group-type';
-import BaseType, { IBaseType } from './base-type';
-import TupleType from './tuple-type';
+} from '../interfaces.js';
+import GroupType, { NestedTypes } from './group-type.js';
+import BaseType, { IBaseType } from './base-type.js';
+import TupleType from './tuple-type.js';
 
 export const LATEST_VERSION: DataTypeVersion = 1;
 

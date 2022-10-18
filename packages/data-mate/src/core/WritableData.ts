@@ -1,6 +1,6 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
 import type { Maybe, TypedArrayConstructor } from '@terascope/types';
-import SparseMap from 'mnemonist/sparse-map';
+import SparseMap from 'mnemonist/sparse-map.js';
 
 /**
  * A generic write-only optimized view of data used for Builders.

@@ -1,4 +1,4 @@
-import { INDENT } from './constants';
+import { INDENT } from './constants.js';
 
 export default {
     // airbnb overrides

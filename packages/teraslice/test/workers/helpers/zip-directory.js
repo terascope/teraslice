@@ -2,7 +2,7 @@ import path from 'path';
 import random from 'lodash/random';
 import BufferStreams from 'bufferstreams';
 import archiver from 'archiver';
-import { newId } from '../../../lib/utils/id_utils';
+import { newId } from '../../../lib/utils/id_utils.js';
 
 export default function zipDirectory(dir) {
     return new Promise((resolve, reject) => {

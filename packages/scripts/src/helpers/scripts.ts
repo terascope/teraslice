@@ -3,17 +3,13 @@ import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import {
-    debugLogger,
-    isString,
-    get,
-    pWhile,
-    pDelay,
-    TSError
+    debugLogger, isString, get,
+    pWhile, pDelay, TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces';
-import { getRootDir } from './misc';
-import signale from './signale';
-import * as config from './config';
+import { TSCommands, PackageInfo } from './interfaces.js';
+import { getRootDir } from './misc.js';
+import signale from './signale.js';
+import * as config from './config.js';
 
 const logger = debugLogger('ts-scripts:cmd');
 

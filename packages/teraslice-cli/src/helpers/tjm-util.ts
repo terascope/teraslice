@@ -1,5 +1,5 @@
 import { TerasliceClient } from 'teraslice-client-js';
-import reply from '../helpers/reply';
+import reply from '../helpers/reply.js';
 
 export default class TjmUtil {
     client: TerasliceClient;

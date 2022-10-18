@@ -3,11 +3,9 @@ import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
 import path from 'path';
 import {
-    OperationLoader,
-    newTestExecutionConfig,
-    TestContext,
+    OperationLoader, newTestExecutionConfig, TestContext,
     WorkerContext
-} from '../src';
+} from '../src/index.js';
 
 describe('OperationLoader', () => {
     const assetId = '1234';

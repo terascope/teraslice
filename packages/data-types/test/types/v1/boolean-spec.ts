@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import BooleanType from '../../../src/types/v1/boolean';
+import BooleanType from '../../../src/types/v1/boolean.js';
 
 describe('Boolean V1', () => {
     const field = 'someField';

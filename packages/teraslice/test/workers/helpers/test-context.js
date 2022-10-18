@@ -9,13 +9,13 @@ import {
     makeAssetStore, makeStateStore, makeAnalyticsStore,
     makeExStore, makeJobStore
 } from '../../../lib/storage';
-import { initializeTestExecution } from '../../../lib/workers/helpers/job';
-import makeTerafoundationContext from '../../../lib/workers/context/terafoundation-context';
-import makeExecutionContext from '../../../lib/workers/context/execution-context';
-import { newId } from '../../../lib/utils/id_utils';
-import { findPort } from '../../../lib/utils/port_utils';
-import { newConfig, newSysConfig } from './configs';
-import zipDirectory from './zip-directory';
+import { initializeTestExecution } from '../../../lib/workers/helpers/job.js';
+import makeTerafoundationContext from '../../../lib/workers/context/terafoundation-context.js';
+import makeExecutionContext from '../../../lib/workers/context/execution-context.js';
+import { newId } from '../../../lib/utils/id_utils.js';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import { newConfig, newSysConfig } from './configs.js';
+import zipDirectory from './zip-directory.js';
 
 import { TERASLICE_CLUSTER_NAME } from '../../test.config';
 

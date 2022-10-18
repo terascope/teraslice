@@ -1,5 +1,5 @@
-import { INDENT } from './constants';
-import jsRules from './javascript';
+import { INDENT } from './constants.js';
+import jsRules from './javascript.js';
 
 export default Object.assign({}, jsRules, {
     // typescript preferences

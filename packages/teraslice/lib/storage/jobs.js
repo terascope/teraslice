@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { TSError, makeISODate } from '@terascope/utils';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import elasticsearchBackend from './backends/elasticsearch_store';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import elasticsearchBackend from './backends/elasticsearch_store.js';
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to

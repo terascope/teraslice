@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { has, set } from '@terascope/utils';
-import reply from '../helpers/reply';
-import { getPackage } from '../../src/helpers/utils';
+import reply from '../helpers/reply.js';
+import { getPackage } from '../../src/helpers/utils.js';
 
 const { version } = getPackage();
 

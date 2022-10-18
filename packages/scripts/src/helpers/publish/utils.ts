@@ -1,14 +1,13 @@
 import semver from 'semver';
 import { TSError, toHumanTime } from '@terascope/utils';
-import {
-    getCommitHash,
-    dockerBuild,
-} from '../scripts';
-import { PublishType } from './interfaces';
-import { PackageInfo } from '../interfaces';
-import signale from '../signale';
-import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
-import { getDevDockerImage } from '../misc';
+import { getCommitHash, dockerBuild } from '../scripts.js';
+import { PublishType } from './interfaces.js';
+import { PackageInfo } from '../interfaces.js';
+import signale from '../signale.js';
+import { 
+    getRemotePackageVersion, getPublishTag, isMainPackage
+} from '../packages.js';
+import { getDevDockerImage } from '../misc.js';
 
 export async function shouldNPMPublish(
     pkgInfo: PackageInfo,

@@ -1,5 +1,5 @@
 import { makeISODate, get, has } from '@terascope/utils';
-import { makeLogger } from '../helpers/terafoundation';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 /**
  * @typedef ExecutionStats

@@ -1,14 +1,10 @@
 import 'jest-extended';
 import {
-    TSError,
-    ElasticsearchError,
-    isFatalError,
-    isRetryableError,
-    parseError,
-    isTSError,
+    TSError, ElasticsearchError, isFatalError,
+    isRetryableError, parseError, isTSError,
     stripErrorMessage
 } from '../src/errors';
-import { times } from '../src';
+import { times } from '../src/index.js';
 
 describe('Error Utils', () => {
     describe('TSError', () => {

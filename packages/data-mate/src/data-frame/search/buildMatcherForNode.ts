@@ -1,4 +1,6 @@
-import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
+import { 
+    xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables
+} from '@terascope/types';
 import {
     and, isEqual, isNotNil, isWildCardString, not, or,
     isGreaterThanFP, isGreaterThanOrEqualToFP,
@@ -6,11 +8,11 @@ import {
 } from '@terascope/utils';
 import { inspect } from 'util';
 import * as p from 'xlucene-parser';
-import type { DataFrame } from '../DataFrame';
-import { compareTermDates, dateRange } from './date-utils';
-import { MatchRowFn, MatchValueFn } from './interfaces';
-import { ipRange, ipTerm } from './ip-utils';
-import { findWildcardFields, regexp, wildcard } from './wildcards-and-regex-utils';
+import type { DataFrame } from '../DataFrame.js';
+import { compareTermDates, dateRange } from './date-utils.js';
+import { MatchRowFn, MatchValueFn } from './interfaces.js';
+import { ipRange, ipTerm } from './ip-utils.js';
+import { findWildcardFields, regexp, wildcard } from './wildcards-and-regex-utils.js';
 
 /**
  * This builds a matcher for particular node,

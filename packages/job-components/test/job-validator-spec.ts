@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
-import { JobValidator, TestContext, JobConfig } from '../src';
+import { JobValidator, TestContext, JobConfig } from '../src/index.js';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');

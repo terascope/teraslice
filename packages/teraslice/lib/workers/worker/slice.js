@@ -1,7 +1,7 @@
 import { TSError, getTypeOf, logError } from '@terascope/utils';
-import { SliceState } from '../../storage';
-import { makeLogger } from '../helpers/terafoundation';
-import { logOpStats } from '../helpers/op-analytics';
+import { SliceState } from '../../storage.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { logOpStats } from '../helpers/op-analytics.js';
 
 export default class Slice {
     constructor(context, executionContext) {

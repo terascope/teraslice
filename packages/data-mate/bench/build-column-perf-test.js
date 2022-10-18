@@ -1,7 +1,7 @@
 'use strict';
 
 const { config, data } = require('./fixtures/data.json');
-const { Column } = require('./src');
+const { Column } = require('./src/index.js');
 
 const name = 'results';
 const fieldConfig = config.fields[name];

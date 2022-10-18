@@ -1,7 +1,7 @@
-import { toString } from './strings';
-import { getTypeOf } from './deps';
-import { isBigInt, bigIntToJSON } from './numbers';
-import { hasOwn } from './objects';
+import { toString } from './strings.js';
+import { getTypeOf } from './deps.js';
+import { isBigInt, bigIntToJSON } from './numbers.js';
+import { hasOwn } from './objects.js';
 
 export function tryParseJSON<T = any>(input: unknown): T {
     try {

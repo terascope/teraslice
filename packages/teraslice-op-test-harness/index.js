@@ -6,8 +6,8 @@ import {
     TestContext, newTestExecutionConfig, schemaShim,
     isFunction, cloneDeep,
 } from '@terascope/job-components';
-import { bindThis } from './lib/utils';
-import Operation from './lib/operation';
+import { bindThis } from './lib/utils.js';
+import Operation from './lib/operation.js';
 
 // load data
 import sampleDataArrayLike from './data/sampleDataArrayLike.json';

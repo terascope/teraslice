@@ -1,8 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { getSeconds } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FieldTransformConfig
+} from '../interfaces.js';
 
 export const getSecondsConfig: FieldTransformConfig = {
     name: 'getSeconds',

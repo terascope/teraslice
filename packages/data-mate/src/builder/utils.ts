@@ -2,9 +2,9 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { WritableData } from '../core';
-import { Builder, BuilderOptions } from './Builder';
-import { ListBuilder } from './ListBuilder';
+import { WritableData } from '../core/index.js';
+import { Builder, BuilderOptions } from './Builder.js';
+import { ListBuilder } from './ListBuilder.js';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
     DateBuilder, IntBuilder, FloatBuilder,

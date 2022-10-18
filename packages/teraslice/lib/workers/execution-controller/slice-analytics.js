@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { makeLogger } from '../helpers/terafoundation';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 export default function _sliceAnalytics(context, executionContext) {
     const logger = makeLogger(context, 'slice_analytics');

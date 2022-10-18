@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import * as services from '../src/helpers/test-runner/services';
+import * as services from '../src/helpers/test-runner/services.js';
 
 describe('services', () => {
     const options = {

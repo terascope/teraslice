@@ -6,7 +6,7 @@ import {
 import {
     functionConfigRepository, FunctionDefinitionType,
     ProcessMode, Column, dataFrameAdapter, FunctionContext
-} from '../../../src';
+} from '../../../src/index.js';
 
 const toJSONConfig = functionConfigRepository.toJSON;
 

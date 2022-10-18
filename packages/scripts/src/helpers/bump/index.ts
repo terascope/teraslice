@@ -1,11 +1,11 @@
-import { BumpPackageOptions } from './interfaces';
-import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
-import { Hook, PackageInfo } from '../interfaces';
-import { getRootInfo } from '../misc';
-import * as utils from './utils';
-import signale from '../signale';
-import { syncVersions } from '../sync/utils';
-import { executeHook } from '../hooks';
+import { BumpPackageOptions } from './interfaces.js';
+import { listPackages, isMainPackage, updatePkgJSON } from '../packages.js';
+import { Hook, PackageInfo } from '../interfaces.js';
+import { getRootInfo } from '../misc.js';
+import * as utils from './utils.js';
+import signale from '../signale.js';
+import { syncVersions } from '../sync/utils.js';
+import { executeHook } from '../hooks.js';
 
 export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
     const rootInfo = getRootInfo();

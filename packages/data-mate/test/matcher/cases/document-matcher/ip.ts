@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 const ipRange = [
     { ipField: '192.198.0.0' },

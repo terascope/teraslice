@@ -1,9 +1,9 @@
 import { getCIDRMax } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType, FieldTransformConfig,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const getCIDRMaxConfig: FieldTransformConfig = {
     name: 'getCIDRMax',

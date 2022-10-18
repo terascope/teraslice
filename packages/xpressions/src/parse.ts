@@ -1,7 +1,7 @@
 import { TSError } from '@terascope/utils';
 import {
     Nodes, ExpressionNode, LiteralNode, NodeType, VariableNode
-} from './interfaces';
+} from './interfaces.js';
 
 /**
  * Parse and validate an templated expression string

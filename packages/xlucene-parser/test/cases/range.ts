@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Range } from '../../src';
-import { TestCase } from './interfaces';
+import { NodeType, Range } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     ['count: >=10', 'gte ranges', {

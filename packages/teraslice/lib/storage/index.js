@@ -1,8 +1,8 @@
-import makeAnalyticsStore from './analytics';
-import makeAssetStore from './assets';
-import makeExStore from './execution';
-import makeJobStore from './jobs';
-import makeStateStore from './state';
+import makeAnalyticsStore from './analytics.js';
+import makeAssetStore from './assets.js';
+import makeExStore from './execution.js';
+import makeJobStore from './jobs.js';
+import makeStateStore from './state.js';
 
 export default {
     SliceState: makeStateStore.SliceState,

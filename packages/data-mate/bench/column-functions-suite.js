@@ -7,7 +7,7 @@ const { config, data } = require('./fixtures/data.json');
 const {
     DataFrame, functionConfigRepository,
     FunctionDefinitionType, dataFrameAdapter
-} = require('./src');
+} = require('./src/index.js');
 
 /**
  * @todo add tuple support

@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import restart from '../../../src/cmds/jobs/restart';
+import restart from '../../../src/cmds/jobs/restart.js';
 
 describe('jobs restart', () => {
     describe('-> parse', () => {

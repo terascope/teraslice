@@ -2,7 +2,7 @@ import {
     DataTypeFieldConfig, FieldType, DataTypeFields,
     ReadonlyDataTypeFields, ReadonlyDataTypeConfig,
 } from '@terascope/types';
-import { Column } from '../column';
+import { Column } from '../column/index.js';
 
 export type { InNumberRangeArg } from '@terascope/utils';
 

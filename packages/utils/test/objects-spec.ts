@@ -1,13 +1,9 @@
 import 'jest-extended';
 import {
-    getFirstKey,
-    getFirstValue,
-    withoutNil,
-    filterObject,
-    isObjectEntity,
-    lookup
+    getFirstKey, getFirstValue, withoutNil,
+    filterObject, isObjectEntity, lookup
 } from '../src/objects';
-import { DataEntity } from '../src';
+import { DataEntity } from '../src/index.js';
 
 describe('Objects', () => {
     describe('withoutNil', () => {

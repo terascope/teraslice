@@ -1,4 +1,4 @@
-import { Fetcher, DataEntity } from '../../../../src';
+import { Fetcher, DataEntity } from '../../../../src/index.js';
 
 export class AssetExampleFetcher extends Fetcher {
     _initialized = false;

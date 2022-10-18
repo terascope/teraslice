@@ -1,11 +1,11 @@
 import jexlCore from 'jexl';
 import * as ts from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { FieldTransform } from '../transforms';
-import { FieldValidator, RecordValidator } from '../validations';
+import { FieldTransform } from '../transforms/index.js';
+import { FieldValidator, RecordValidator } from '../validations/index.js';
 import {
     Repository, InputType, RepoConfig, ExtractFieldConfig, RecordInput
-} from '../interfaces';
+} from '../interfaces.js';
 
 class Jexl extends jexlCore.Jexl {
     _context = {};

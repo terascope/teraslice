@@ -1,8 +1,8 @@
 import { hasOwn, TSError } from '@terascope/utils';
 import {
     ExpressionNode, isVariableNode, Options, VariableNode
-} from './interfaces';
-import { parseExpression } from './parse';
+} from './interfaces.js';
+import { parseExpression } from './parse.js';
 
 /**
  * Evaluate a single expression

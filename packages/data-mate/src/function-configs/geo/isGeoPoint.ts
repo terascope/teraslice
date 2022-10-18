@@ -1,11 +1,9 @@
 import { isGeoPoint } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const isGeoPointConfig: FieldValidateConfig = {
     name: 'isGeoPoint',

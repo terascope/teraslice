@@ -4,7 +4,7 @@ import elasticsearch6 from 'elasticsearch6';
 import elasticsearch7 from 'elasticsearch7';
 import elasticsearch8 from 'elasticsearch8';
 import { pDelay } from '@terascope/utils';
-import elasticAPI from '../../index';
+import elasticAPI from '../../index.js';
 
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,

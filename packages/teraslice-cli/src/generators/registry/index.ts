@@ -1,8 +1,8 @@
 import path from 'path';
 import Generator from 'yeoman-generator';
 
-import { AssetSrc } from '../../helpers/asset-src';
-import { getTemplatePath } from '../utils';
+import { AssetSrc } from '../../helpers/asset-src.js';
+import { getTemplatePath } from '../utils.js';
 
 export default class extends Generator {
     constructor(args: string|string[], opts: Record<string, any>) {

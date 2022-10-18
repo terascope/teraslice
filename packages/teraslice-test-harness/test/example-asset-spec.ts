@@ -1,12 +1,12 @@
 import 'jest-extended';
 import path from 'path';
 import { DataEntity, TestClientConfig } from '@terascope/job-components';
-import SimpleClient from './fixtures/asset/simple-connector/client';
+import SimpleClient from './fixtures/asset/simple-connector/client.js';
 import {
     JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness
-} from '../src';
-import SimpleAPIClass from './fixtures/asset/simple-api/api';
-import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
+} from '../src/index.js';
+import SimpleAPIClass from './fixtures/asset/simple-api/api.js';
+import { SimpleAPI } from './fixtures/asset/simple-api/interfaces.js';
 
 jest.mock('./fixtures/asset/simple-connector/client');
 

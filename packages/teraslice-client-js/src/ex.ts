@@ -7,7 +7,7 @@ import {
     toHumanTime
 } from '@terascope/job-components';
 import autoBind from 'auto-bind';
-import Client from './client';
+import Client from './client.js';
 
 import {
     ClientConfig,
@@ -29,7 +29,7 @@ import {
     ChangeWorkerResponse,
     ChangeWorkerQueryParams,
     JobIDResponse
-} from './interfaces';
+} from './interfaces.js';
 
 export default class Ex extends Client {
     private readonly _exId: string;

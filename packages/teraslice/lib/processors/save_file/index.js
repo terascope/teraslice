@@ -1,5 +1,5 @@
-import Processor from './processor';
-import Schema from './schema';
+import Processor from './processor.js';
+import Schema from './schema.js';
 
 export default {
     Processor,

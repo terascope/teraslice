@@ -1,7 +1,7 @@
 import path from 'path';
 import Chance from 'chance';
 import pickBy from 'lodash/pickBy';
-import { newId } from '../../../lib/utils/id_utils';
+import { newId } from '../../../lib/utils/id_utils.js';
 
 const { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } = process.env;
 

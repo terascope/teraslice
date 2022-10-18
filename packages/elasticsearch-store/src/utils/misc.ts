@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { TimeSeriesFormat } from '../interfaces';
+import { TimeSeriesFormat } from '../interfaces.js';
 
 export function getRolloverFrequency(config: unknown): TimeSeriesFormat {
     return ts.get(config, ['index_schema', 'rollover_frequency'], 'monthly');

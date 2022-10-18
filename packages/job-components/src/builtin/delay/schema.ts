@@ -1,5 +1,5 @@
-import { DelayConfig } from './interfaces';
-import { ConvictSchema } from '../../operations';
+import { DelayConfig } from './interfaces.js';
+import { ConvictSchema } from '../../operations/index.js';
 
 export default class Schema extends ConvictSchema<DelayConfig> {
     build(): Record<string, any> {

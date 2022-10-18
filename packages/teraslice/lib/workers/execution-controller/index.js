@@ -6,13 +6,13 @@ import {
     pDelay, getFullErrorStack, logError,
     pWhile, makeISODate
 } from '@terascope/utils';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import { makeStateStore, makeExStore, SliceState } from '../../storage';
-import { makeLogger, generateWorkerId } from '../helpers/terafoundation';
-import ExecutionAnalytics from './execution-analytics';
-import makeSliceAnalytics from './slice-analytics';
-import Scheduler from './scheduler';
-import Metrics from '../metrics';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { makeStateStore, makeExStore, SliceState } from '../../storage.js';
+import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
+import ExecutionAnalytics from './execution-analytics.js';
+import makeSliceAnalytics from './slice-analytics.js';
+import Scheduler from './scheduler.js';
+import Metrics from '../metrics.js';
 
 const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;

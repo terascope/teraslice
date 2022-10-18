@@ -6,7 +6,7 @@ import fs from 'fs';
 import nock from 'nock';
 import path from 'path';
 import { debugLogger } from '@terascope/job-components';
-import K8s from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s';
+import K8s from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s.js';
 
 const logger = debugLogger('k8s-spec');
 

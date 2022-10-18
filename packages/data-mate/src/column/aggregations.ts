@@ -1,5 +1,6 @@
 import {
-    isBigInt, toBigInt, trimISODateSegment, getHashCodeFrom
+    isBigInt, toBigInt, trimISODateSegment,
+    getHashCodeFrom
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {

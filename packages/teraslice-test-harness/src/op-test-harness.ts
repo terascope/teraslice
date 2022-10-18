@@ -1,6 +1,6 @@
 import OpHarness from '@terascope/teraslice-op-test-harness';
 import { TestClientConfig, CoreOperation } from '@terascope/job-components';
-import { OpTestHarnessOptions } from './interfaces';
+import { OpTestHarnessOptions } from './interfaces.js';
 
 /**
  * A simple test harness for running an single operation

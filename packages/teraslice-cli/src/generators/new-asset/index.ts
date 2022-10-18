@@ -1,8 +1,8 @@
 import path from 'path';
 import Generator from 'yeoman-generator';
-import ProcessorGenerator from '../new-processor';
-import { getTemplatePath } from '../utils';
-import { kebabCase } from '../../helpers/utils';
+import ProcessorGenerator from '../new-processor.js';
+import { getTemplatePath } from '../utils.js';
+import { kebabCase } from '../../helpers/utils.js';
 
 export default class extends Generator {
     answers!: any;

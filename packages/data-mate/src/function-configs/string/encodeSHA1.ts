@@ -1,13 +1,10 @@
 import { BinaryToTextEncoding } from 'crypto';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
-} from '../interfaces';
-import { cryptoEncode } from './encode-utils';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
+} from '../interfaces.js';
+import { cryptoEncode } from './encode-utils.js';
 
 export interface EncodeSHA1Args {
     digest?: BinaryToTextEncoding;

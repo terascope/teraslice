@@ -1,13 +1,10 @@
 import 'jest-extended';
 import { EventEmitter } from 'events';
 import {
-    debugLogger,
-    newTestJobConfig,
-    newTestSlice,
-    newTestExecutionContext,
-    newTestExecutionConfig,
+    debugLogger, newTestJobConfig, newTestSlice,
+    newTestExecutionContext, newTestExecutionConfig,
     TestContext,
-} from '../src';
+} from '../src/index.js';
 
 describe('Test Helpers', () => {
     it('should have a debugLogger', async () => {

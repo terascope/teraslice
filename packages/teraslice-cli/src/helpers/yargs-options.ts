@@ -1,6 +1,6 @@
 import os from 'os';
 import yargs from 'yargs';
-import Url from './url';
+import Url from './url.js';
 
 const homeDir = os.homedir();
 

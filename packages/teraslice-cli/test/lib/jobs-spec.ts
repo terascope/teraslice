@@ -1,7 +1,7 @@
 import path from 'path';
 import nock from 'nock';
 
-import Jobs from '../../src/helpers/jobs';
+import Jobs from '../../src/helpers/jobs.js';
 
 describe('jobs', () => {
     const id = '12341234';

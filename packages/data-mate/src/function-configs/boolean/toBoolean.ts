@@ -1,12 +1,9 @@
 import { toBoolean } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const toBooleanConfig: FieldTransformConfig = {
     name: 'toBoolean',

@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'aliases <command>',
     describe: 'commands to add and remove cluster aliases',
     exclude: 'lib',

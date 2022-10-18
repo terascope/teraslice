@@ -1,11 +1,11 @@
-import Assets from './assets';
-import Cluster from './cluster';
-import Ex from './ex';
-import Executions from './executions';
-import Job from './job';
-import Jobs from './jobs';
+import Assets from './assets.js';
+import Cluster from './cluster.js';
+import Ex from './ex.js';
+import Executions from './executions.js';
+import Job from './job.js';
+import Jobs from './jobs.js';
 
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 class TerasliceClient {
     config?: i.ClientConfig;
@@ -27,7 +27,7 @@ class TerasliceClient {
     }
 }
 
-export * from './interfaces';
+export * from './interfaces.js';
 export {
     TerasliceClient,
     Assets,

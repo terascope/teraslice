@@ -7,8 +7,8 @@ import {
     AnyObject,
     LifeCycle
 } from '@terascope/job-components';
-import { SlicerTestHarness } from '../src';
-import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
+import { SlicerTestHarness } from '../src/index.js';
+import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
 
 describe('SlicerTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');

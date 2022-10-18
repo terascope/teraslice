@@ -1,5 +1,5 @@
 # baseCmd="earl"
-baseCmd="node ./index.js"
+baseCmd="node ."
 
 declare -a cmds=(
     "${baseCmd}"

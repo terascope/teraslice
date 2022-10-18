@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { cloneDeep } from '@terascope/utils';
-import misc from '../../misc';
-import { resetState } from '../../helpers';
-import { waitForExStatus } from '../../wait';
+import misc from '../../misc.js';
+import { resetState } from '../../helpers.js';
+import { waitForExStatus } from '../../wait.js';
 
 describe('cluster api', () => {
     beforeAll(() => resetState());

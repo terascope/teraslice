@@ -2,7 +2,7 @@
 
 const path = require('path');
 const { Suite } = require('../../utils/bench/helpers');
-const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src');
+const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src/index.js');
 
 const SimpleFetcher = require('./fixtures/simple-reader/fetcher');
 const SimpleMap = require('./fixtures/simple-map/processor');

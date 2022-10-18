@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
-import TransformOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import TransformOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class UrlDecode extends TransformOpBase {
     constructor(config: PostProcessConfig) {

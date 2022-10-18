@@ -1,10 +1,8 @@
-'use strict';
-
-const fs = require('fs');
-const readline = require('readline');
+import fs from 'fs';
+import readline from 'readline';
 
 const filePath = process.argv[2];
-const { Parser } = require('../dist/src');
+import { Parser } from '../dist/src/index.js';
 
 if (!filePath) throw new Error('A file path must be provided ie "node scripts/parse_file.js path/to/file.txt"');
 

@@ -1,9 +1,10 @@
 import { DateFormat, FieldType } from '@terascope/types';
 import { isISO8601 } from '@terascope/utils';
 import {
-    FieldValidateConfig, ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory
-} from '../interfaces';
-import { isIS8601FieldConfig } from './utils';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
+import { isIS8601FieldConfig } from './utils.js';
 
 export const isISO8601Config: FieldValidateConfig = {
     name: 'isISO8601',

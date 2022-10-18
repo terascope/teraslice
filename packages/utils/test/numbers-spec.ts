@@ -1,16 +1,9 @@
 import 'jest-extended';
 import {
-    parseNumberList,
-    toFloat,
-    toNumber,
-    toInteger,
-    toBigInt,
-    bigIntToJSON,
-    isBigInt,
-    inNumberRange,
-    setPrecision,
-    toFahrenheit,
-    toCelsius
+    parseNumberList, toFloat, toNumber,
+    toInteger, toBigInt, bigIntToJSON,
+    isBigInt, inNumberRange, setPrecision,
+    toFahrenheit, toCelsius
 } from '../src/numbers';
 
 describe('Numbers', () => {

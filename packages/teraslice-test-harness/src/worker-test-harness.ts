@@ -13,8 +13,8 @@ import {
     newTestJobConfig,
     OpAPI,
 } from '@terascope/job-components';
-import BaseTestHarness from './base-test-harness';
-import { JobHarnessOptions } from './interfaces';
+import BaseTestHarness from './base-test-harness.js';
+import { JobHarnessOptions } from './interfaces.js';
 
 /**
  * A test harness for testing Operations that run on Workers,

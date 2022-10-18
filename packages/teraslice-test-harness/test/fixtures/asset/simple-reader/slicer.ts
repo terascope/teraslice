@@ -1,8 +1,8 @@
 import {
     Slicer, times, WorkerContext, ExecutionConfig
 } from '@terascope/job-components';
-import { SimpleReaderConfig } from './interfaces';
-import SimpleClient from '../simple-connector/client';
+import { SimpleReaderConfig } from './interfaces.js';
+import SimpleClient from '../simple-connector/client.js';
 
 export default class TestSlicer extends Slicer<SimpleReaderConfig> {
     client: SimpleClient;

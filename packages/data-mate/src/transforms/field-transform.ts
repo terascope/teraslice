@@ -3,15 +3,12 @@ import { FieldType } from '@terascope/types';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import { format as dateFormat, parse } from 'date-fns';
-import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces';
+import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces.js';
 import {
-    isString,
-    isValidDate,
-    isNumber,
-    isArray,
-    isNumberTuple
+    isString, isValidDate, isNumber,
+    isArray, isNumberTuple
 } from '../validations/field-validator';
-import { Repository, InputType } from '../interfaces';
+import { Repository, InputType } from '../interfaces.js';
 
 export const repository: Repository = {
     toString: {

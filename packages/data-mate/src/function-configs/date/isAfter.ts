@@ -3,7 +3,7 @@ import { isAfter, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsAfterArgs {
     date: string | number | Date | DateTuple;

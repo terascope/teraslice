@@ -1,14 +1,12 @@
 import {
-    toCIDR,
-    isNumberLike,
-    toNumber,
+    toCIDR, isNumberLike, toNumber,
     toString
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface ToCIDRArgs {
     suffix: number | string

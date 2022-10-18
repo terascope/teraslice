@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import events from 'events';
 import { debugLogger } from '@terascope/job-components';
-import messagingModule from '../../lib/cluster/services/cluster/backends/native/messaging';
+import messagingModule from '../../lib/cluster/services/cluster/backends/native/messaging.js';
 
 describe('messaging module', () => {
     const logger = debugLogger('messaging');

@@ -1,6 +1,6 @@
-import { waitForExStatus } from '../../wait';
-import { resetState } from '../../helpers';
-import misc from '../../misc';
+import { waitForExStatus } from '../../wait.js';
+import { resetState } from '../../helpers.js';
+import misc from '../../misc.js';
 
 describe('job state', () => {
     beforeAll(() => resetState());

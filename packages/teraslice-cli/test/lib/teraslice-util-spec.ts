@@ -1,5 +1,5 @@
 import path from 'path';
-import TerasliceUtil from '../../src/helpers/teraslice-util';
+import TerasliceUtil from '../../src/helpers/teraslice-util.js';
 
 describe('teraslice-util', () => {
     let cliArgs;

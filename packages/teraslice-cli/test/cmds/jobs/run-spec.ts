@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import run from '../../../src/cmds/jobs/run';
+import run from '../../../src/cmds/jobs/run.js';
 
 describe('jobs run', () => {
     describe('-> parse', () => {

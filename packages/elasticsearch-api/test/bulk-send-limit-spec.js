@@ -1,7 +1,7 @@
 import { debugLogger, chunk, pMap } from '@terascope/utils';
-import elasticsearchAPI from '../index';
-import { data } from './helpers/data';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+import elasticsearchAPI from '../index.js';
+import { data } from './helpers/data.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 import {
     makeClient, cleanupIndex,
     waitForData, formatUploadData

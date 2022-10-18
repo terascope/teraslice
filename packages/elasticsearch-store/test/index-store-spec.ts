@@ -8,11 +8,11 @@ import { ElasticsearchDistribution } from '@terascope/types';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 import {
     IndexStore, IndexConfig, OnBulkConflictFn, UpsertWithScript
-} from '../src';
+} from '../src/index.js';
 
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');

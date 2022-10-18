@@ -1,6 +1,7 @@
 import { address } from 'ip';
 import {
-    toBoolean, toSafeString, isCI, toIntegerOrThrow
+    toBoolean, toSafeString, isCI,
+    toIntegerOrThrow
 } from '@terascope/utils';
 
 const forceColor = process.env.FORCE_COLOR || '1';

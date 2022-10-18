@@ -2,11 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { pDelay, times, random } from '@terascope/utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
 import Messaging from '@terascope/teraslice-messaging';
-import { TestContext } from '../helpers';
-import { makeShutdownEarlyFn, getTestCases } from '../helpers/execution-controller-helper';
-import ExecutionController from '../../../lib/workers/execution-controller';
-import { findPort } from '../../../lib/utils/port_utils';
-import { newId } from '../../../lib/utils/id_utils';
+import { TestContext } from '../helpers.js';
+import { makeShutdownEarlyFn, getTestCases } from '../helpers/execution-controller-helper.js';
+import ExecutionController from '../../../lib/workers/execution-controller.js';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import { newId } from '../../../lib/utils/id_utils.js';
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';

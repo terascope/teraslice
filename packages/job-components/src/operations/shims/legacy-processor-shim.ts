@@ -1,16 +1,14 @@
 import {
     DataEntity, DataInput, Logger, isFunction
 } from '@terascope/utils';
-import operationAPIShim, { APIs } from './operation-api-shim';
-import legacySliceEventsShim from './legacy-slice-events-shim';
-import { SchemaConstructor } from '../interfaces';
+import operationAPIShim, { APIs } from './operation-api-shim.js';
+import legacySliceEventsShim from './legacy-slice-events-shim.js';
+import { SchemaConstructor } from '../interfaces.js';
 import {
-    LegacyProcessor,
-    SliceRequest,
-    ProcessorFn,
+    LegacyProcessor, SliceRequest, ProcessorFn,
     WorkerContext,
-} from '../../interfaces';
-import ConvictSchema from '../convict-schema';
+} from '../../interfaces/index.js';
+import ConvictSchema from '../convict-schema.js';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today

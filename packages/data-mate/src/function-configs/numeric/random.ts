@@ -1,12 +1,9 @@
 import { random } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    DataTypeFieldAndChildren
-} from '../interfaces';
+    FieldTransformConfig,  ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, DataTypeFieldAndChildren
+} from '../interfaces.js';
 
 export interface RandomArgs {
     readonly min: number;

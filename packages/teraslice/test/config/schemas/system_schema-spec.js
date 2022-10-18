@@ -1,7 +1,7 @@
 import convict from 'convict';
 // load any convict schema
 import ('@terascope/job-components');
-import sysSchema from '../../../lib/config/schemas/system';
+import sysSchema from '../../../lib/config/schemas/system.js';
 
 describe('system_schema', () => {
     const schema = sysSchema.config_schema({}).teraslice;

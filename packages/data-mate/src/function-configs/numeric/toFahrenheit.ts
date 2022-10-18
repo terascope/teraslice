@@ -1,13 +1,9 @@
-import {
-    toFahrenheit
-} from '@terascope/utils';
+import { toFahrenheit } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode,FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toFahrenheitConfig: FieldTransformConfig = {
     name: 'toFahrenheit',

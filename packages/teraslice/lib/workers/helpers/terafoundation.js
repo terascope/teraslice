@@ -1,6 +1,6 @@
 import { get, isFunction, isString } from '@terascope/utils';
 import { makeContextLogger } from '@terascope/job-components';
-import { safeDecode } from '../../utils/encoding_utils';
+import { safeDecode } from '../../utils/encoding_utils.js';
 
 export function generateWorkerId(context) {
     const { hostname } = context.sysconfig.teraslice;

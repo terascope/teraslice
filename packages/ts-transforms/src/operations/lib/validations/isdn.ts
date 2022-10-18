@@ -1,6 +1,6 @@
 import PhoneValidator from 'awesome-phonenumber';
-import ValidationOpBase from './base';
-import { PostProcessConfig } from '../../../interfaces';
+import ValidationOpBase from './base.js';
+import { PostProcessConfig } from '../../../interfaces.js';
 
 export default class ISDN extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {

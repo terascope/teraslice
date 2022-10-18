@@ -1,8 +1,9 @@
 import { isPast } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldValidateConfig
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const isPastConfig: FieldValidateConfig = {
     name: 'isPast',

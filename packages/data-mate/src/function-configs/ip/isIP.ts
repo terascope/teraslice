@@ -1,10 +1,9 @@
 import { isIP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isIPConfig: FieldValidateConfig = {
     name: 'isIP',

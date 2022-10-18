@@ -38,10 +38,10 @@ import {
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import { find as geoToTimezone } from 'geo-tz';
-import { isArrayLike } from './arrays';
-import { isPlainObject, geoHash, getTypeOf } from './deps';
-import { trim, toString } from './strings';
-import { parseNumberList, toNumber, isNumber } from './numbers';
+import { isArrayLike } from './arrays.js';
+import { isPlainObject, geoHash, getTypeOf } from './deps.js';
+import { trim, toString } from './strings.js';
+import { parseNumberList, toNumber, isNumber } from './numbers.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 

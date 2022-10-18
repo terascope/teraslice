@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { createTempDirSync } from 'jest-fixtures';
 
-import Aliases from '../../src/helpers/aliases';
+import Aliases from '../../src/helpers/aliases.js';
 
 describe('Aliases', () => {
     let aliases: Aliases;

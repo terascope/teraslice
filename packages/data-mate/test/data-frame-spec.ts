@@ -5,7 +5,7 @@ import {
     GeoShapeType, DataTypeFieldConfig
 } from '@terascope/types';
 import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
-import { Column, DataFrame } from '../src';
+import { Column, DataFrame } from '../src/index.js';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table using DataFrame#fromJSON', () => {

@@ -3,8 +3,8 @@ import {
     get, toString, makeISODate,
     logError, pWhile
 } from '@terascope/utils';
-import makeExecutionRecovery from './recovery';
-import { makeLogger } from '../helpers/terafoundation';
+import makeExecutionRecovery from './recovery.js';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 export default class Scheduler {
     constructor(context, executionContext) {

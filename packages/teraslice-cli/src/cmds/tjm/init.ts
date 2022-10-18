@@ -1,11 +1,11 @@
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import JobSrc from '../../helpers/job-src.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'init <job-file>',
     describe: 'Create a new job file with example job definitions',
     builder(yargs) {

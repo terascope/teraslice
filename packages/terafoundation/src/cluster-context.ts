@@ -1,10 +1,10 @@
 import _cluster from 'cluster';
 import * as ts from '@terascope/utils';
-import { getArgs } from './sysconfig';
-import validateConfigs from './validate-configs';
-import * as i from './interfaces';
-import { CoreContext, handleStdStreams } from './core-context';
-import master from './master';
+import { getArgs } from './sysconfig.js';
+import validateConfigs from './validate-configs.js';
+import * as i from './interfaces.js';
+import { CoreContext, handleStdStreams } from './core-context.js';
+import master from './master.js';
 
 const cluster: i.Cluster = (_cluster as any);
 

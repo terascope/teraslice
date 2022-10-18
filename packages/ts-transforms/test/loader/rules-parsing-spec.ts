@@ -4,7 +4,7 @@ import {
 } from '@terascope/utils';
 import {
     RulesLoader, RulesParser, OperationConfig, OperationConfigInput
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Loader', () => {
     const logger = debugLogger('rules-loader-test');

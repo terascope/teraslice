@@ -1,12 +1,12 @@
 import ms from 'ms';
 import { castArray, pDelay } from '@terascope/utils';
 import fse from 'fs-extra';
-import signale from './signale';
-import { waitForClusterState, waitForExStatus } from './wait';
-import setupTerasliceConfig from './setup-config';
-import downloadAssets from './download-assets';
-import { resetState } from './helpers';
-import misc from './misc';
+import signale from './signale.js';
+import { waitForClusterState, waitForExStatus } from './wait.js';
+import setupTerasliceConfig from './setup-config.js';
+import downloadAssets from './download-assets.js';
+import { resetState } from './helpers.js';
+import misc from './misc.js';
 
 const { GENERATE_ONLY } = process.env;
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;

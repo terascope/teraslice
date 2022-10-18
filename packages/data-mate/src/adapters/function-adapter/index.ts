@@ -1,35 +1,25 @@
 import { isFunction } from '@terascope/utils';
 import {
-    fieldValidationRowExecution,
-    fieldValidationColumnExecution,
-    wholeFieldValidationRowExecution,
-    wholeFieldValidationColumnExecution,
+    fieldValidationRowExecution, fieldValidationColumnExecution,
+    wholeFieldValidationRowExecution, wholeFieldValidationColumnExecution,
     recordValidationExecution
-} from './validators';
+} from './validators/index.js';
 import {
-    fieldTransformColumnExecution,
-    fieldTransformRowExecution,
-    wholeFieldTransformColumnExecution,
-    wholeFieldTransformRowExecution
-} from './transformers';
+    fieldTransformColumnExecution, fieldTransformRowExecution,
+    wholeFieldTransformColumnExecution, wholeFieldTransformRowExecution
+} from './transformers/index.js';
 import {
     FunctionAdapterOptions, RecordFunctionAdapterOperation,
     FieldFunctionAdapterOperation
-} from './interfaces';
+} from './interfaces.js';
 import {
-    FieldValidateConfig,
-    FieldTransformConfig,
-    isFieldValidation,
-    isFieldTransform,
-    RecordValidationConfig,
-    RecordTransformConfig,
-    isRecordValidation,
-    ProcessMode,
-    FunctionDefinitionConfig,
-    InitialFunctionContext
-} from '../../function-configs/interfaces';
-import { validateFunctionArgs } from '../argument-validator';
-import { getDataTypeFieldAndChildren } from '../utils';
+    FieldValidateConfig, FieldTransformConfig,
+    isFieldValidation, isFieldTransform, RecordValidationConfig,
+    RecordTransformConfig, isRecordValidation, ProcessMode,
+    FunctionDefinitionConfig, InitialFunctionContext
+} from '../../function-configs/interfaces.js';
+import { validateFunctionArgs } from '../argument-validator/index.js';
+import { getDataTypeFieldAndChildren } from '../utils.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(

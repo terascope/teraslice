@@ -3,7 +3,7 @@ import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     SelectionPhase, Loader, OperationsManager, SelectorConfig, WatcherConfig
-} from '../../src';
+} from '../../src/index.js';
 
 describe('selector phase', () => {
     const logger = debugLogger('selectorPhaseTest');

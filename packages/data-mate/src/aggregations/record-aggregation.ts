@@ -1,8 +1,8 @@
 import * as ts from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { BatchConfig, ValidatedBatchConfig } from './interfaces';
-import { Repository, InputType, ArgSchema } from '../interfaces';
-import { isArray } from '../validations/field-validator';
+import { BatchConfig, ValidatedBatchConfig } from './interfaces.js';
+import { Repository, InputType, ArgSchema } from '../interfaces.js';
+import { isArray } from '../validations/field-validator.js';
 
 const batchConfigSchema: ArgSchema = {
     keys: {

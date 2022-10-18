@@ -1,25 +1,17 @@
 import {
-    isString,
-    isEmpty,
-    isPlainObject,
-    TSError,
-    isWildCardString,
-    debugLogger,
-    primitiveToString,
-    isPrimitiveValue,
-    toBoolean,
-    toNumber,
-    toIntegerOrThrow,
-    toFloatOrThrow,
-    getTypeOf,
-    isBooleanLike,
+    isString, isEmpty, isPlainObject,
+    TSError, isWildCardString, debugLogger,
+    primitiveToString, isPrimitiveValue,
+    toBoolean, toNumber, toIntegerOrThrow,
+    toFloatOrThrow, getTypeOf, isBooleanLike,
     isNotNil
 } from '@terascope/utils';
 import { Netmask } from 'netmask';
 import {
-    xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
+    xLuceneFieldType, xLuceneVariables, CoordinateTuple,
+    Maybe
 } from '@terascope/types';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export const logger = debugLogger('xlucene-parser');
 

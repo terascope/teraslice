@@ -1,12 +1,12 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
-import defaultsDeep from 'lodash/defaultsDeep';
+import { defaultsDeep } from 'lodash';
 import { isPlainObject, get, toTitleCase } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
-import { PackageInfo, RootPackageInfo, Service } from './interfaces';
-import { NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE } from './config';
-import signale from './signale';
+import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
+import { NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE } from './config.js';
+import signale from './signale.js';
 
 let rootDir: string | undefined;
 

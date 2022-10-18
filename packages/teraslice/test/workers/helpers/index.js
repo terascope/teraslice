@@ -1,4 +1,4 @@
-import TestContext from './test-context';
+import TestContext from './test-context.js';
 import {
     newConfig, newSysConfig, opsPath,
     newId

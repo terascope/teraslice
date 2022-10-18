@@ -1,15 +1,11 @@
 import 'jest-extended';
 import path from 'path';
 import { pDelay, DataEntity } from '@terascope/utils';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    FetcherCore,
-    ProcessorCore,
-    newTestSlice
-} from '../../src';
+    WorkerExecutionContext, TestContext, newTestExecutionConfig,
+    FetcherCore, ProcessorCore, newTestSlice
+} from '../../src/index.js';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];

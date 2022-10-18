@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { PackageInfo } from '../src/helpers/interfaces';
-import { syncVersions } from '../src/helpers/sync/utils';
-import { getRootInfo } from '../src/helpers/misc';
+import { PackageInfo } from '../src/helpers/interfaces.js';
+import { syncVersions } from '../src/helpers/sync/utils.js';
+import { getRootInfo } from '../src/helpers/misc.js';
 
 describe('Sync Helpers', () => {
     describe('->syncVersions', () => {

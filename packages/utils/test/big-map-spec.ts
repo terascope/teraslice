@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { BigMap } from '../src/big-map';
+import { BigMap } from '../src/big-map.js';
 
 describe('BigMap', () => {
     let bigMap: BigMap<string, string>;

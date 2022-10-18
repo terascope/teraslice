@@ -1,4 +1,4 @@
-import { RecordValidator } from '../src';
+import { RecordValidator } from '../src/index.js';
 
 describe('record validators', () => {
     describe('required', () => {

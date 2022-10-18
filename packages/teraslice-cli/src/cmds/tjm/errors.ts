@@ -1,8 +1,8 @@
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import { getTerasliceClient } from '../../helpers/utils';
+import JobSrc from '../../helpers/job-src.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import { getTerasliceClient } from '../../helpers/utils.js';
 
 const yargsOptions = new YargsOptions();
 
@@ -37,4 +37,4 @@ const cmd: CMD = {
     }
 };
 
-export = cmd;
+export default cmd;

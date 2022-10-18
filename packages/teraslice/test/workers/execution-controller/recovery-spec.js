@@ -1,7 +1,7 @@
 import eventsModule from 'events';
 import { pDelay, pWhile } from '@terascope/utils';
 import { debugLogger } from '@terascope/job-components';
-import recoveryCode from '../../../lib/workers/execution-controller/recovery';
+import recoveryCode from '../../../lib/workers/execution-controller/recovery.js';
 
 const eventEmitter = new eventsModule.EventEmitter();
 const eventEmitter2 = new eventsModule.EventEmitter();

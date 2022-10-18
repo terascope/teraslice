@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import TerasliceUtil from '../../helpers/teraslice-util';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import TerasliceUtil from '../../helpers/teraslice-util.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'status <cluster-alias> <id>',
     describe: 'Get the status of an execution id.\n',
     builder(yargs) {

@@ -3,11 +3,9 @@ import {
 } from '@terascope/types';
 import { toISO8601, trimISODateSegment } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toHourlyDateConfig: FieldTransformConfig = {
     name: 'toHourlyDate',

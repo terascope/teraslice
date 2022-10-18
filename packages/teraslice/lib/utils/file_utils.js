@@ -5,7 +5,7 @@ import semver from 'semver';
 import { Mutex } from 'async-mutex';
 import { TSError } from '@terascope/utils';
 import decompress from 'decompress';
-import { getMajorVersion } from './asset_utils';
+import { getMajorVersion } from './asset_utils.js';
 
 const mutex = new Mutex();
 

@@ -1,8 +1,8 @@
 import 'jest-extended';
 import http from 'http';
-import { Message } from '../src/messenger';
-import { Messenger, formatURL, newMsgId } from '../src';
-import { findPort, pDelay } from './helpers';
+import { Message } from '../src/messenger.js';
+import { Messenger, formatURL, newMsgId } from '../src/index.js';
+import { findPort, pDelay } from './helpers.js';
 
 jest.setTimeout(10000);
 

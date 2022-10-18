@@ -1,4 +1,4 @@
-import { AnyObject } from '../interfaces';
+import { AnyObject } from '../interfaces.js';
 
 export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
 export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';

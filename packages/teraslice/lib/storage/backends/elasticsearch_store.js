@@ -8,8 +8,8 @@ import {
 } from '@terascope/utils';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { getClientAsync } from '@terascope/job-components';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { timeseriesIndex } from '../../utils/date_utils';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { timeseriesIndex } from '../../utils/date_utils.js';
 
 export default async function elasticsearchStorage(backendConfig) {
     const {

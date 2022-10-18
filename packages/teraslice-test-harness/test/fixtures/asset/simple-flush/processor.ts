@@ -1,5 +1,5 @@
 import { BatchProcessor, DataEntity } from '@terascope/job-components';
-import { FlusherConfig } from './interfaces';
+import { FlusherConfig } from './interfaces.js';
 
 export default class Flusher extends BatchProcessor<FlusherConfig> {
     _flushing = false;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { MapProcessor } = require('../../../dist/src');
+const { MapProcessor } = require('../../../dist/src/index.js');
 
 class SimpleMap extends MapProcessor {
     map(data) {

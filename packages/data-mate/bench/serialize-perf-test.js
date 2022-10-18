@@ -6,7 +6,7 @@ const { pDelay, toHumanTime } = require('@terascope/utils');
 const MultiMap = require('mnemonist/multi-map');
 const fs = require('fs');
 const path = require('path');
-const { DataFrame } = require('./src');
+const { DataFrame } = require('./src/index.js');
 
 function readFile(fileName) {
     const filePath = fs.existsSync(path.join(__dirname, 'fixtures', `.local.${fileName}`))

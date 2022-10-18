@@ -2,8 +2,8 @@ import got from 'got';
 import express from 'express';
 import { TestContext } from '@terascope/job-components';
 import { version } from '../../package.json';
-import { findPort } from '../../lib/utils/port_utils';
-import makeAPI from '../../lib/cluster/services/api';
+import { findPort } from '../../lib/utils/port_utils.js';
+import makeAPI from '../../lib/cluster/services/api.js';
 
 describe('HTTP API', () => {
     const app = express();

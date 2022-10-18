@@ -1,12 +1,9 @@
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
-} from '../interfaces';
-import { bufferEncode } from './encode-utils';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory
+} from '../interfaces.js';
+import { bufferEncode } from './encode-utils.js';
 
 export const encodeBase64Config: FieldTransformConfig = {
     name: 'encodeBase64',

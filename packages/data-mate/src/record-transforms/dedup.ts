@@ -4,7 +4,7 @@ import {
     isNotNil, isObjectEntity,
     isEmpty, sortKeys, getTypeOf
 } from '@terascope/utils';
-// import { RecordTransformConfig, FunctionDefinitionType } from '../interfaces';
+// import { RecordTransformConfig, FunctionDefinitionType } from '../interfaces.js';
 
 // export const dedupConfig: RecordTransformConfig = {
 //     name: 'required',

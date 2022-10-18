@@ -1,6 +1,6 @@
 import 'jest-extended';
-import findPort from './helpers/find-port';
-import { formatURL, newMsgId, ClusterMaster } from '../src';
+import findPort from './helpers/find-port.js';
+import { formatURL, newMsgId, ClusterMaster } from '../src/index.js';
 
 describe('ClusterMaster', () => {
     describe('->Client', () => {

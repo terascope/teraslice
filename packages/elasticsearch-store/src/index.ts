@@ -3,10 +3,10 @@
 // @ts-expect-error
 import('setimmediate');
 
-export * from './utils';
-export * from './cluster';
-export * from './index-manager';
-export * from './index-model';
-export * from './index-store';
-export * from './interfaces';
-export * from './elasticsearch-client';
+export * from './utils/index.js';
+export * from './cluster.js';
+export * from './index-manager.js';
+export * from './index-model.js';
+export * from './index-store.js';
+export * from './interfaces.js';
+export * from './elasticsearch-client/index.js';

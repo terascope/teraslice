@@ -4,8 +4,8 @@ import {
 } from '@terascope/utils';
 import { v4 as uuid }  from 'uuid';
 import { RecoveryCleanupType } from '@terascope/job-components';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import elasticsearchBackend from './backends/elasticsearch_store';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import elasticsearchBackend from './backends/elasticsearch_store.js';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];

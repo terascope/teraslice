@@ -1,12 +1,11 @@
 import 'jest-extended';
 import {
-    isDeepEqual,
-    isGreaterThan, isGreaterThanFP,
-    isLessThan, isLessThanFP,
-    isGreaterThanOrEqualTo, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualTo, isLessThanOrEqualToFP
+    isDeepEqual,isGreaterThan, isGreaterThanFP,
+    isLessThan, isLessThanFP, isGreaterThanOrEqualTo,
+    isGreaterThanOrEqualToFP, isLessThanOrEqualTo, 
+    isLessThanOrEqualToFP
 } from '../src/equality';
-import { DataEntity } from '../src';
+import { DataEntity } from '../src/index.js';
 
 describe('Equality', () => {
     describe('isDeepEqual', () => {

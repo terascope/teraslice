@@ -1,7 +1,7 @@
-import javascriptRules from './javascript';
-import typescriptRules from './typescript';
-import reactRules from './react';
-import jestRules from './jest';
+import javascriptRules from './javascript.js';
+import typescriptRules from './typescript.js';
+import reactRules from './react.js';
+import jestRules from './jest.js';
 
 export default {
     javascript: javascriptRules,

@@ -2,7 +2,7 @@ import {
     pRaceWithTimeout, logError, cloneDeep,
     Queue
 } from '@terascope/utils';
-import { makeLogger } from '../helpers/terafoundation';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 export default function recoveryModule(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();

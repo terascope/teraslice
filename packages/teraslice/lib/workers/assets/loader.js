@@ -4,11 +4,11 @@ import {
     get, isEmpty, getFullErrorStack,
     pDelay
 } from '@terascope/utils';
-import makeTerafoundationContext from '../context/terafoundation-context';
-import makeAssetStore from '../../storage/assets';
-import { safeDecode } from '../../utils/encoding_utils';
-import { makeLogger } from '../helpers/terafoundation';
-import { saveAsset } from '../../utils/file_utils';
+import makeTerafoundationContext from '../context/terafoundation-context.js';
+import makeAssetStore from '../../storage/assets.js';
+import { safeDecode } from '../../utils/encoding_utils.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { saveAsset } from '../../utils/file_utils.js';
 
 class AssetLoader {
     constructor(context, assets = []) {

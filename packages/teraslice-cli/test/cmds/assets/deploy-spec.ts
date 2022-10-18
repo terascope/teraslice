@@ -2,9 +2,9 @@ import yargs from 'yargs';
 import tmp from 'tmp';
 import path from 'path';
 import nock from 'nock';
-import { GithubServer } from '../../servers';
+import { GithubServer } from '../../servers.js';
 
-import deploy from '../../../src/cmds/assets/deploy';
+import deploy from '../../../src/cmds/assets/deploy.js';
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;

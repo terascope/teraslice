@@ -8,7 +8,7 @@ import {
     parseErrorInfo, parseList, logError,
      TSError, startsWith
 } from '@terascope/utils';
-import { makeLogger } from '../../workers/helpers/terafoundation';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import {
     makePrometheus, isPrometheusRequest, makeTable,
     sendError, handleRequest, getSearchOptions,

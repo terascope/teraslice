@@ -1,12 +1,9 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
 import {
-    jobSchema,
-    validateJobConfig,
-    validateOpConfig,
-    TestContext,
-    validateAPIConfig
-} from '../src';
+    jobSchema, validateJobConfig, validateOpConfig,
+    TestContext, validateAPIConfig
+} from '../src/index.js';
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {

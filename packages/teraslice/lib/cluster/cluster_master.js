@@ -5,14 +5,14 @@ import {
     parseError
 } from '@terascope/utils';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import makeExecutionService from './services/execution';
-import makeApiService from './services/api';
-import makeJobsService from './services/jobs';
-import makeClusterService from './services/cluster';
-import makeJobStore from '../storage/jobs';
-import makeExStore from '../storage/execution';
-import makeStateStore from '../storage/state';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import makeExecutionService from './services/execution.js';
+import makeApiService from './services/api.js';
+import makeJobsService from './services/jobs.js';
+import makeClusterService from './services/cluster.js';
+import makeJobStore from '../storage/jobs.js';
+import makeExStore from '../storage/execution.js';
+import makeStateStore from '../storage/state.js';
 
 export default function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');

@@ -1,8 +1,8 @@
 import { pDelay, flatten } from '@terascope/utils';
-import misc from '../../misc';
-import wait from '../../wait';
-import signale from '../../signale';
-import { resetState, submitAndStart } from '../../helpers';
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import signale from '../../signale.js';
+import { resetState, submitAndStart } from '../../helpers.js';
 
 const { waitForExStatus, scaleWorkersAndWait } = wait;
 

@@ -1,4 +1,4 @@
-import { rules, overrides } from './lib';
+import { rules, overrides } from './lib.js';
 
 export default {
     extends: ['airbnb-base'],

@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import awaitJob from '../../../src/cmds/jobs/await';
+import awaitJob from '../../../src/cmds/jobs/await.js';
 
 describe('jobs await', () => {
     describe('-> parse', () => {

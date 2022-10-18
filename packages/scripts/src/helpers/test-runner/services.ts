@@ -4,18 +4,15 @@ import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'path';
 import * as ts from '@terascope/utils';
-import { getServicesForSuite, getRootDir } from '../misc';
+import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
-    dockerRun,
-    DockerRunOptions,
-    getContainerInfo,
-    dockerStop,
-    dockerPull
-} from '../scripts';
-import { TestOptions } from './interfaces';
-import { Service } from '../interfaces';
-import * as config from '../config';
-import signale from '../signale';
+    dockerRun, DockerRunOptions, getContainerInfo,
+    dockerStop, dockerPull
+} from '../scripts.js';
+import { TestOptions } from './interfaces.js';
+import { Service } from '../interfaces.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
 const logger = ts.debugLogger('ts-scripts:cmd:test');
 

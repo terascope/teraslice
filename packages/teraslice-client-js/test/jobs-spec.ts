@@ -1,8 +1,8 @@
 import 'jest-extended';
 import nock from 'nock';
-import Job from '../src/job';
-import Jobs from '../src/jobs';
-import { ExecutionStatus, JobConfiguration } from '../src/interfaces';
+import Job from '../src/job.js';
+import Jobs from '../src/jobs.js';
+import { ExecutionStatus, JobConfiguration } from '../src/interfaces.js';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;

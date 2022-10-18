@@ -4,22 +4,22 @@ import {
     GeoPoint, GeoBoundary
 } from '@terascope/types';
 import { createHash } from 'crypto';
-import { primitiveToString, toString } from './strings';
-import { isIPRangeOrThrow, isIPOrThrow } from './ip';
-import { toEpochMSOrThrow } from './dates';
-import { toBooleanOrThrow } from './booleans';
+import { primitiveToString, toString } from './strings.js';
+import { isIPRangeOrThrow, isIPOrThrow } from './ip.js';
+import { toEpochMSOrThrow } from './dates.js';
+import { toBooleanOrThrow } from './booleans.js';
 import {
     isValidateNumberType, toBigIntOrThrow,
     toNumberOrThrow, toIntegerOrThrow,
     toFloatOrThrow,
 } from './numbers';
-import { toGeoJSONOrThrow, parseGeoPoint } from './geo';
-import { hasOwn } from './objects';
-import { isArrayLike, castArray } from './arrays';
-import { getTypeOf, isPlainObject } from './deps';
-import { noop } from './functions';
-import { isNotNil } from './empty';
-import { isIterator } from './iterators';
+import { toGeoJSONOrThrow, parseGeoPoint } from './geo.js';
+import { hasOwn } from './objects.js';
+import { isArrayLike, castArray } from './arrays.js';
+import { getTypeOf, isPlainObject } from './deps.js';
+import { noop } from './functions.js';
+import { isNotNil } from './empty.js';
+import { isIterator } from './iterators.js';
 
 type CoerceFN<T = unknown> = (input: unknown) => T
 

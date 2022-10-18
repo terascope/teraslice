@@ -1,11 +1,9 @@
 import 'jest-extended';
 import path from 'path';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    SlicerExecutionContext,
-    TestContext,
-    newTestExecutionConfig
-} from '../../src';
+    SlicerExecutionContext, TestContext, newTestExecutionConfig
+} from '../../src/index.js';
 
 describe('SlicerExecutionContext', () => {
     const assetIds = ['fixtures'];

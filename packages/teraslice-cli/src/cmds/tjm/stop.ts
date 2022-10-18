@@ -1,13 +1,13 @@
-import TjmUtil from '../../helpers/tjm-util';
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
+import TjmUtil from '../../helpers/tjm-util.js';
+import JobSrc from '../../helpers/job-src.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { getTerasliceClient } from '../../helpers/utils.js';
 
 const yargsOptions = new YargsOptions();
 
 // TODO: review old describe to this
-export = {
+export default {
     command: 'stop <job-file>',
     describe: 'Stop a job by referencing the job file',
     aliases: ['run'],

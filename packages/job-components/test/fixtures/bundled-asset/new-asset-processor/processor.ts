@@ -1,4 +1,4 @@
-import { DataEntity, BatchProcessor, times } from '../../../../src';
+import { DataEntity, BatchProcessor, times } from '../../../../src/index.js';
 
 export class AssetProcessorExampleBatch extends BatchProcessor {
     _initialized = false;

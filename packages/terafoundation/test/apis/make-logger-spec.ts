@@ -1,5 +1,5 @@
 import 'jest-extended';
-import api from '../../src/api';
+import api from '../../src/api.js';
 
 process.env.USE_DEBUG_LOGGER = 'false';
 

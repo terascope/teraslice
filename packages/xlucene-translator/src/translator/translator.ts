@@ -2,16 +2,13 @@ import {
     debugLogger, isString, parseGeoDistanceUnit
 } from '@terascope/utils';
 import {
-    xLuceneVariables,
-    xLuceneTypeConfig,
-    GeoDistanceUnit,
-    ElasticsearchDSLOptions,
-    ElasticsearchDSLResult,
+    xLuceneVariables, xLuceneTypeConfig, GeoDistanceUnit,
+    ElasticsearchDSLOptions, ElasticsearchDSLResult,
     ElasticsearchDistribution
 } from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import * as i from './interfaces';
-import * as utils from './utils';
+import * as i from './interfaces.js';
+import * as utils from './utils.js';
 
 const logger = debugLogger('xlucene-translator');
 

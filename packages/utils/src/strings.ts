@@ -7,9 +7,9 @@ import lSnakeCase from 'lodash/snakeCase';
 import lKebabCase from 'lodash/kebabCase';
 import lStartCase from 'lodash/startCase';
 import { MACDelimiter } from '@terascope/types';
-import { isArrayLike } from './arrays';
-import { getTypeOf } from './deps';
-import { bigIntToJSON } from './numbers';
+import { isArrayLike } from './arrays.js';
+import { getTypeOf } from './deps.js';
+import { bigIntToJSON } from './numbers.js';
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {

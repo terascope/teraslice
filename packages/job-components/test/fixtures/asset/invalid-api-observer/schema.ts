@@ -1,4 +1,4 @@
-import { ConvictSchema, AnyObject } from '../../../../src';
+import { ConvictSchema, AnyObject } from '../../../../src/index.js';
 
 export default class Schema extends ConvictSchema<any, any> {
     build(): AnyObject {

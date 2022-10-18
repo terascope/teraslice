@@ -3,8 +3,8 @@ import fs from 'fs-extra';
 import decompress from 'decompress';
 import path from 'path';
 import nock from 'nock';
-import GithubAsset from '../../src/helpers/github-asset';
-import { GithubServer } from '../servers';
+import GithubAsset from '../../src/helpers/github-asset.js';
+import { GithubServer } from '../servers.js';
 
 const server = new GithubServer();
 

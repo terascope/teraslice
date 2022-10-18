@@ -5,7 +5,7 @@ const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
 const {
     DataFrame, isNumberLike, ValueAggregation, KeyAggregation
-} = require('./src');
+} = require('./src/index.js');
 
 const run = async () => {
     const suite = Suite('Aggregate');

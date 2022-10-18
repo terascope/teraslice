@@ -1,6 +1,6 @@
 import 'jest-extended';
 import path from 'path';
-import { Compose } from '../src';
+import { Compose } from '../src/index.js';
 
 jest.setTimeout(60 * 1000);
 

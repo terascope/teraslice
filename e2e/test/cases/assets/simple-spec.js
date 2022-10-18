@@ -1,7 +1,7 @@
 import fs from 'fs';
-import misc from '../../misc';
-import wait from '../../wait';
-import { resetState, submitAndStart } from '../../helpers';
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import { resetState, submitAndStart } from '../../helpers.js';
 
 describe('assets', () => {
     beforeAll(() => resetState());

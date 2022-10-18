@@ -1,5 +1,5 @@
-import { INDENT } from './constants';
-import tsRules from './typescript';
+import { INDENT } from './constants.js';
+import tsRules from './typescript.js';
 
 export default Object.assign({}, tsRules, {
     // overides

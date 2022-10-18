@@ -1,5 +1,5 @@
-import { Context } from '../../interfaces';
-import { OperationAPIConstructor } from '../interfaces';
+import { Context } from '../../interfaces/index.js';
+import { OperationAPIConstructor } from '../interfaces.js';
 
 export default function operationAPIShim(context: Context, apis: APIs = {}): void {
     Object.keys(apis).forEach((name) => {

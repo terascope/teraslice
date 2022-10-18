@@ -1,6 +1,6 @@
 import { isBoolean } from '@terascope/utils';
-import { PostProcessConfig, BoolValidationResult } from '../../../interfaces';
-import ValidationOpBase from './base';
+import { PostProcessConfig, BoolValidationResult } from '../../../interfaces.js';
+import ValidationOpBase from './base.js';
 
 export default class BooleanValidation extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {

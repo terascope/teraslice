@@ -3,11 +3,11 @@ import {
     logError, pWhile
 } from '@terascope/utils';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
-import { makeStateStore, makeAnalyticsStore } from '../../storage';
-import { generateWorkerId, makeLogger } from '../helpers/terafoundation';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import Metrics from '../metrics';
-import Slice from './slice';
+import { makeStateStore, makeAnalyticsStore } from '../../storage.js';
+import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import Metrics from '../metrics.js';
+import Slice from './slice.js';
 
 export default class Worker {
     constructor(context, executionContext) {

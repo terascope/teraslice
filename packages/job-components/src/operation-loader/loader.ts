@@ -1,37 +1,20 @@
 import fs from 'fs';
 import * as pathModule from 'path';
 import {
-    isString,
-    uniq,
-    parseError,
-    castArray,
-    get,
-    has,
-    joinList,
+    isString, uniq, parseError,
+    castArray, get, has, joinList,
 } from '@terascope/utils';
 import {
-    OperationAPIConstructor,
-    FetcherConstructor,
-    SlicerConstructor,
-    ProcessorConstructor,
-    ObserverConstructor,
-    SchemaConstructor,
-    ProcessorModule,
-    APIModule,
-    ReaderModule,
+    OperationAPIConstructor, FetcherConstructor, SlicerConstructor,
+    ProcessorConstructor, ObserverConstructor, SchemaConstructor,
+    ProcessorModule, APIModule, ReaderModule,
 } from '../operations';
-import { readerShim, processorShim } from '../operations/shims';
+import { readerShim, processorShim } from '../operations/shims/index.js';
 import {
-    ASSET_KEYWORD,
-    LoaderOptions,
-    ValidLoaderOptions,
-    AssetBundleType,
-    OperationLocationType,
-    OpTypeToRepositoryKey,
-    OperationResults,
-    FindOperationResults,
-    OperationTypeName
-} from './interfaces';
+    ASSET_KEYWORD, LoaderOptions, ValidLoaderOptions,
+    AssetBundleType, OperationLocationType, OpTypeToRepositoryKey,
+    OperationResults, FindOperationResults, OperationTypeName
+} from './interfaces.js';
 
 export class OperationLoader {
     private readonly options: ValidLoaderOptions;
@@ -450,7 +433,7 @@ export class OperationLoader {
         if (this.availableExtensions.includes('.ts')) {
             return pathModule.join(__dirname, '../builtin');
         }
-        return pathModule.join(__dirname, '..', '..', '..', 'dist', 'src', 'builtin');
+        return pathModule.join(__dirname, '..', '..', '..', 'dist', 'src/index.js', 'builtin');
     }
 
     private validateOptions(options: LoaderOptions): ValidLoaderOptions {

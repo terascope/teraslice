@@ -1,14 +1,14 @@
 import fs from 'fs';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
-import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { getAvailableTestSuites } from '../helpers/misc';
-import * as config from '../helpers/config';
-import { listPackages } from '../helpers/packages';
-import { runTests } from '../helpers/test-runner';
-import { coercePkgArg } from '../helpers/args';
+import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces.js';
+import { getAvailableTestSuites } from '../helpers/misc.js';
+import * as config from '../helpers/config.js';
+import { listPackages } from '../helpers/packages.js';
+import { runTests } from '../helpers/test-runner/index.js';
+import { coercePkgArg } from '../helpers/args.js';
 
-type Options = {
+export type TestOptions = {
     debug: boolean;
     watch: boolean;
     bail: boolean;
@@ -31,7 +31,7 @@ type Options = {
 const jestArgs = getExtraArgs();
 const testSuites = getAvailableTestSuites();
 
-const cmd: CommandModule<GlobalCMDOptions, Options> = {
+const cmd: CommandModule<GlobalCMDOptions, TestOptions> = {
     command: 'test [packages..]',
     describe: 'Run monorepo tests',
     builder(yargs) {
@@ -179,7 +179,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
-type Arg = keyof Options;
+type Arg = keyof TestOptions;
 // this only works with booleans for now
 function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'string'): string;
 function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'boolean'): boolean;
@@ -240,4 +240,4 @@ function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {
     return listPackages();
 }
 
-export = cmd;
+export default cmd;

@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { fork } from 'child_process';
 import { isEmpty, get, has } from '@terascope/utils';
-import { makeLogger } from '../helpers/terafoundation';
-import { safeEncode } from '../../utils/encoding_utils';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { safeEncode } from '../../utils/encoding_utils.js';
 
 const loaderPath = path.join(__dirname, 'loader.js');
 

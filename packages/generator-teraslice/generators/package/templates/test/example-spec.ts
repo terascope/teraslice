@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { Example } from '../src';
+import { Example } from '../src/index.js';
 
 describe('Example', () => {
     const example = new Example();

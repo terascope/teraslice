@@ -1,10 +1,10 @@
 /* eslint-disable import/no-import-module-exports */
-import Config from '../../helpers/config';
-import Jobs from '../../helpers/jobs';
-import YargsOptions from '../../helpers/yargs-options';
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import reply from '../../helpers/reply';
+import Config from '../../helpers/config.js';
+import Jobs from '../../helpers/jobs.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import JobSrc from '../../helpers/job-src.js';
+import { CMD } from '../../interfaces.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 

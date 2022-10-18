@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { FunctionNode, LogicalGroup, NodeType } from '../../src';
-import { TestCase } from './interfaces';
+import { FunctionNode, LogicalGroup, NodeType } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

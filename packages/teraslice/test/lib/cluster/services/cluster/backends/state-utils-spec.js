@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import stateUtils from '../../../../../../lib/cluster/services/cluster/backends/state-utils';
+import stateUtils from '../../../../../../lib/cluster/services/cluster/backends/state-utils.js';
 
 const clusterStateFile = path.join(__dirname, 'files', 'sample-state.json');
 

@@ -1,4 +1,4 @@
-import { newId } from '../lib/utils/id_utils';
+import { newId } from '../lib/utils/id_utils.js';
 
 const {
     TEST_INDEX_PREFIX = 'teratest_',

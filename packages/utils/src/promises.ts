@@ -1,5 +1,5 @@
-import { debugLogger } from './logger';
-import { toHumanTime } from './dates';
+import { debugLogger } from './logger.js';
+import { toHumanTime } from './dates.js';
 import {
     isRetryableError,
     TSError,

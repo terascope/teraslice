@@ -1,7 +1,7 @@
 import { pDelay } from '@terascope/utils';
-import { TestContext } from '../helpers';
-import { findPort } from '../../../lib/utils/port_utils';
-import ExecutionController from '../../../lib/workers/execution-controller';
+import { TestContext } from '../helpers.js';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import ExecutionController from '../../../lib/workers/execution-controller.js';
 
 describe('ExecutionController', () => {
     describe('when the execution context is invalid', () => {

@@ -3,7 +3,7 @@ import {
     isError, logError
 } from '@terascope/utils';
 import ms from 'ms';
-import { makeLogger } from './terafoundation';
+import { makeLogger } from './terafoundation.js';
 
 export function waitForWorkerShutdown(context, eventName) {
     const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);

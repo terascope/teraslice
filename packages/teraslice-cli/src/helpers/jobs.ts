@@ -2,9 +2,9 @@ import fs from 'fs-extra';
 import {
     has, toString, pDelay, set
 } from '@terascope/utils';
-import TerasliceUtil from './teraslice-util';
-import Display from '../helpers/display';
-import reply from '../helpers/reply';
+import TerasliceUtil from './teraslice-util.js';
+import Display from '../helpers/display.js';
+import reply from '../helpers/reply.js';
 
 const display = new Display();
 

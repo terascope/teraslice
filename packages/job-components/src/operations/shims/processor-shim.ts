@@ -2,16 +2,13 @@
 
 import { toString, DataEntity } from '@terascope/utils';
 import {
-    Context,
-    LegacyProcessor,
-    SliceRequest,
-    ProcessorFn,
-    ValidatedJobConfig
-} from '../../interfaces';
-import ProcessorCore from '../core/processor-core';
-import ConvictSchema from '../convict-schema';
-import { ProcessorModule } from '../interfaces';
-import { convertResult } from './shim-utils';
+    Context, LegacyProcessor, SliceRequest,
+    ProcessorFn, ValidatedJobConfig
+} from '../../interfaces/index.js';
+import ProcessorCore from '../core/processor-core.js';
+import ConvictSchema from '../convict-schema.js';
+import { ProcessorModule } from '../interfaces.js';
+import { convertResult } from './shim-utils.js';
 
 export default function processorShim<S extends Record<string, any>>(
     legacy: LegacyProcessor

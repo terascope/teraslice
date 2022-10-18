@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import eventsModule from 'events';
 import { debugLogger } from '@terascope/job-components';
-import nodeModule from '../lib/cluster/node_master';
+import nodeModule from '../lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
 

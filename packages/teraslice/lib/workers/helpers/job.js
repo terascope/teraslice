@@ -1,7 +1,7 @@
 import { get, makeISODate } from '@terascope/utils';
 import { JobValidator } from '@terascope/job-components';
-import { terasliceOpPath } from '../../config';
-import { makeJobStore, makeExStore, makeStateStore } from '../../storage';
+import { terasliceOpPath } from '../../config.js';
+import { makeJobStore, makeExStore, makeStateStore } from '../../storage.js';
 
 export async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {

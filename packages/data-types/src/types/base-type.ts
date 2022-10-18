@@ -1,9 +1,7 @@
 import { DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
 import * as ts from '@terascope/utils';
-import {
-    GraphQLType, TypeESMapping
-} from '../interfaces';
-import { formatGQLComment } from '../graphql-helper';
+import { GraphQLType, TypeESMapping } from '../interfaces.js';
+import { formatGQLComment } from '../graphql-helper.js';
 
 export interface IBaseType {
     new(field: string, config: DataTypeFieldConfig): BaseType;

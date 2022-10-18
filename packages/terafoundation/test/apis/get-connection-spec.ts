@@ -40,7 +40,7 @@ redis.createClient.mockImplementation(() => Object.assign({}, redisClient));
 const statsdClient = { statsd: true };
 statsd.StatsD.mockImplementation(() => Object.assign({}, statsdClient));
 
-import api from '../../src/api';
+import api from '../../src/api.js';
 
 describe('getConnection foundation API', () => {
     const invalidConnector = path.join(__dirname, '../fixtures/invalid_connector');

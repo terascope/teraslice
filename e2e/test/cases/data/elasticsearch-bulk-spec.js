@@ -1,5 +1,5 @@
-import misc from '../../misc';
-import { resetState, runEsJob } from '../../helpers';
+import misc from '../../misc.js';
+import { resetState, runEsJob } from '../../helpers.js';
 
 describe('elasticsearch bulk', () => {
     beforeAll(() => resetState());

@@ -3,9 +3,9 @@ import {
     getTimeBetween, getDurationFunc, joinList
 } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
-    FieldTransformConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FieldTransformConfig
+} from '../interfaces.js';
 
 export type { GetTimeBetweenArgs };
 

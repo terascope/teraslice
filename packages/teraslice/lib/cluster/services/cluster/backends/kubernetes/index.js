@@ -2,11 +2,11 @@ import {
     TSError, logError, get,
     cloneDeep, pRetry
 } from '@terascope/utils';
-import { makeLogger } from '../../../../../workers/helpers/terafoundation';
-import K8sResource from './k8sResource';
-import k8sState from './k8sState';
-import K8s from './k8s';
-import { getRetryConfig } from './utils';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import K8sResource from './k8sResource.js';
+import k8sState from './k8sState.js';
+import K8s from './k8s.js';
+import { getRetryConfig } from './utils.js';
 
 /*
  Execution Life Cycle for _status

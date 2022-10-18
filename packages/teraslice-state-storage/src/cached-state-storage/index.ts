@@ -3,7 +3,7 @@ import { pImmediate, BigLRUMap } from '@terascope/utils';
 
 import {
     CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent
-} from '../interfaces';
+} from '../interfaces.js';
 
 export default class CachedStateStorage<T> extends EventEmitter {
     private _cache: BigLRUMap<T>;

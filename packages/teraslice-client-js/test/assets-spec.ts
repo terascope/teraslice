@@ -1,8 +1,8 @@
 import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
-import Assets from '../src/assets';
-import { AssetIDResponse, Asset } from '../src/interfaces';
+import Assets from '../src/assets.js';
+import { AssetIDResponse, Asset } from '../src/interfaces.js';
 
 describe('Teraslice Assets', () => {
     let assets: Assets;

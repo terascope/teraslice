@@ -3,7 +3,7 @@ import { isBefore, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsBeforeArgs {
     date: string | number | Date | DateTuple;

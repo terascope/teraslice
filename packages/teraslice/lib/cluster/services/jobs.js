@@ -5,9 +5,9 @@ import {
     isString,
 } from '@terascope/utils';
 import { JobValidator } from '@terascope/job-components';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import spawnAssetsLoader from '../../workers/assets/spawn';
-import { terasliceOpPath } from '../../config';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import spawnAssetsLoader from '../../workers/assets/spawn.js';
+import { terasliceOpPath } from '../../config.js';
 
 /**
  * New execution result

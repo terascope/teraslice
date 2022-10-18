@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig, InputOutputCardinality } from '../../../src';
+import { OperationConfig, InputOutputCardinality } from '../../../src/index.js';
 
 export default class NoOp {
     static cardinality: InputOutputCardinality = 'one-to-one';

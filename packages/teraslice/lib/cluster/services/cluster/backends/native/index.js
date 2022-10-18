@@ -3,9 +3,9 @@ import {
     Queue, TSError, getFullErrorStack,
     pDelay, cloneDeep
 } from '@terascope/utils';
-import { makeLogger } from '../../../../../workers/helpers/terafoundation';
-import stateUtils from '../state-utils';
-import Messaging from './messaging';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import stateUtils from '../state-utils.js';
+import Messaging from './messaging.js';
 
 /*
  Execution Life Cycle for _status

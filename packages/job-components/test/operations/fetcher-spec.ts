@@ -1,7 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    Fetcher, DataEntity, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    Fetcher, DataEntity, newTestExecutionConfig,
+    TestContext, WorkerContext
+} from '../../src/index.js';
 
 describe('Fetcher', () => {
     class ExampleFetcher extends Fetcher<Record<string, any>> {

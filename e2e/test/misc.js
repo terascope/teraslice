@@ -41,7 +41,7 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 const WORKERS_PER_NODE = 8;
 
 const compose = new Compose('docker-compose.yml');
-import signale from './signale';
+import signale from './signale.js';
 
 const es = memoize(
     () => new ElasticsearchClient({

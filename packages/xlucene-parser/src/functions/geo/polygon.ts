@@ -1,13 +1,11 @@
 import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
 import {
-    toString,
-    geoRelationFP,
-    validateListCoords,
+    toString, geoRelationFP, validateListCoords,
     polyHasHoles
 } from '@terascope/utils';
-import * as i from '../../interfaces';
-import { getFieldValue, logger } from '../../utils';
+import * as i from '../../interfaces.js';
+import { getFieldValue, logger } from '../../utils.js';
 
 const compatMapping = {
     [t.GeoShapeType.Polygon]: t.ESGeoShapeType.Polygon,

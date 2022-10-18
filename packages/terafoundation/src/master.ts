@@ -1,6 +1,6 @@
 import { cpus } from 'os';
 import { times, once } from '@terascope/utils';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export default function masterModule<
     S = Record<string, any>,

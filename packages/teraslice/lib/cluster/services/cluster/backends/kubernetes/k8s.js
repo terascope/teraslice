@@ -4,7 +4,7 @@ import {
 } from '@terascope/utils';
 import { Client, KubeConfig } from 'kubernetes-client';
 import Request from 'kubernetes-client/backends/request';
-import { getRetryConfig } from './utils';
+import { getRetryConfig } from './utils.js';
 
 export default class K8s {
     constructor(logger, clientConfig, defaultNamespace,

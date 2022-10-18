@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { FieldType, Maybe } from '@terascope/types';
-import { DataFrame } from '../src';
+import { DataFrame } from '../src/index.js';
 
 describe('AggregationFrame', () => {
     type Person = {

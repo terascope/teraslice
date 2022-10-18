@@ -1,5 +1,5 @@
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import KeywordTokens from '../../../src/types/v1/keyword-tokens';
+import KeywordTokens from '../../../src/types/v1/keyword-tokens.js';
 
 describe('KeywordTokens V1', () => {
     const field = 'someField';

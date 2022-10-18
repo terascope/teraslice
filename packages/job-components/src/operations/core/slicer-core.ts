@@ -1,20 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Queue } from '@terascope/utils';
 import {
-    Queue
-} from '@terascope/utils';
-import {
-    OpConfig,
-    ExecutionConfig,
-    Slice,
-    SliceRequest,
-    SlicerOperationLifeCycle,
-    ExecutionStats,
-    WorkerContext,
-    SlicerRecoveryData,
-    OpAPI
-} from '../../interfaces';
-import Core from './core';
-import { makeExContextLogger } from '../../utils';
+    OpConfig, ExecutionConfig, Slice,
+    SliceRequest, SlicerOperationLifeCycle, ExecutionStats,
+    WorkerContext, SlicerRecoveryData, OpAPI
+} from '../../interfaces/index.js';
+import Core from './core.js';
+import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting "Slicers" that run on a "Execution Controller",

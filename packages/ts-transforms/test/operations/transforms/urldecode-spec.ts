@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { UrlDecode } from '../../../src/operations';
+import { UrlDecode } from '../../../src/operations.js';
 
 describe('urldecode operator', () => {
     it('can instantiate', () => {

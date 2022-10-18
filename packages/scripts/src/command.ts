@@ -1,9 +1,11 @@
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers'
+import commands from './cmds/index.js';
 
 // eslint-disable-next-line no-unused-expressions
-yargs
+yargs(hideBin(process.argv))
     .usage('Usage: $0 <command> [options]')
-    .commandDir('cmds')
+    .command(commands as any)
     .demandCommand(1, 'A command is required. Pass --help to see all available commands and options.')
     .recommendCommands()
     .strict()

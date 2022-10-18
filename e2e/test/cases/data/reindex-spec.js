@@ -1,7 +1,7 @@
 import { get, times } from '@terascope/utils';
-import misc from '../../misc';
-import { waitForExStatus } from '../../wait';
-import { resetState, runEsJob, testJobLifeCycle } from '../../helpers';
+import misc from '../../misc.js';
+import { waitForExStatus } from '../../wait.js';
+import { resetState, runEsJob, testJobLifeCycle } from '../../helpers.js';
 
 const teraslice = misc.teraslice();
 

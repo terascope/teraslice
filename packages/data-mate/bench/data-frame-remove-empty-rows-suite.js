@@ -2,7 +2,7 @@
 
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
-const { DataFrame } = require('./src');
+const { DataFrame } = require('./src/index.js');
 
 const run = async () => {
     const suite = Suite('DataFrame->removeEmptyRows');

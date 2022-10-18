@@ -1,2 +1,2 @@
-export * from './interfaces';
-export * from './loader';
+export * from './interfaces.js';
+export * from './loader.js';

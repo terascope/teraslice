@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import recover from '../../../src/cmds/jobs/recover';
+import recover from '../../../src/cmds/jobs/recover.js';
 
 describe('jobs recover', () => {
     describe('-> parse', () => {

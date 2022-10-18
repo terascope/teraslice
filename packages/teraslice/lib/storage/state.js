@@ -4,9 +4,9 @@ import {
     isRetryableError, parseErrorInfo, isTest,
     times, getFullErrorStack,
 } from '@terascope/utils';
-import { timeseriesIndex } from '../utils/date_utils';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import elasticsearchBackend from './backends/elasticsearch_store';
+import { timeseriesIndex } from '../utils/date_utils.js';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import elasticsearchBackend from './backends/elasticsearch_store.js';
 
 const SliceState = Object.freeze({
     pending: 'pending',

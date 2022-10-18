@@ -1,5 +1,5 @@
 import { isFunction } from '@terascope/utils';
-import { OperationAPI, OperationAPIType } from '../operations';
+import { OperationAPI, OperationAPIType } from '../operations/index.js';
 
 export function getMetric(input: number[], i: number): number {
     const val = input && input[i];

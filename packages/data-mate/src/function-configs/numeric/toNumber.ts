@@ -1,14 +1,12 @@
 import {
-    toNumber, ipToInt, parseDateValue, toBigIntOrThrow
+    toNumber, ipToInt, parseDateValue,
+    toBigIntOrThrow
 } from '@terascope/utils';
 import { FieldType, DateFormat } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    isNumericType
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode,FunctionDefinitionType,
+    FunctionDefinitionCategory, isNumericType
+} from '../interfaces.js';
 
 export const toNumberConfig: FieldTransformConfig = {
     name: 'toNumber',

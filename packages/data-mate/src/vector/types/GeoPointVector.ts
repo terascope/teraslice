@@ -1,6 +1,6 @@
 import { GeoPoint } from '@terascope/types';
-import { Vector, VectorOptions } from '../Vector';
-import { VectorType, DataBuckets } from '../interfaces';
+import { Vector, VectorOptions } from '../Vector.js';
+import { VectorType, DataBuckets } from '../interfaces.js';
 
 export class GeoPointVector extends Vector<GeoPoint> {
     toJSONCompatibleValue = undefined;

@@ -2,9 +2,9 @@
 
 import { pDelay } from '@terascope/utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';
-import { findPort } from '../../../lib/utils/port_utils';
-import Worker from '../../../lib/workers/worker';
-import { TestContext } from '../helpers';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import Worker from '../../../lib/workers/worker.js';
+import { TestContext } from '../helpers.js';
 
 describe('Worker', () => {
     async function setupTest(options = {}) {

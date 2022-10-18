@@ -1,8 +1,6 @@
 import 'jest-extended';
 import {
-    matchAll,
-    match,
-    formatRegex,
+    matchAll, match, formatRegex,
     matchWildcard,
 } from '../src/regex';
 

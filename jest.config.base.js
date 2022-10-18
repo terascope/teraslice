@@ -111,7 +111,7 @@ module.exports = (projectDir) => {
         config.roots.push(`${packageRoot}`);
     }
 
-    if (fs.existsSync(path.join(projectDir, 'src'))) {
+    if (fs.existsSync(path.join(projectDir, 'src/index.js'))) {
         config.roots.push(`${packageRoot}/src`);
     }
 

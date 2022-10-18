@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import yaml from 'js-yaml';
 
-import K8sResource from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sResource';
+import K8sResource from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sResource.js';
 
 describe('k8sResource', () => {
     let execution;

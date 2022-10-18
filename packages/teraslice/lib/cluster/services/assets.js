@@ -3,8 +3,8 @@ import {
     TSError, parseErrorInfo, logError,
     toBoolean
 } from '@terascope/utils';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import makeAssetsStore from '../../storage/assets';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import makeAssetsStore from '../../storage/assets.js';
 import {
     makeTable, handleRequest, getSearchOptions,
     sendError,

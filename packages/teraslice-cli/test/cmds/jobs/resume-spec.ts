@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import resume from '../../../src/cmds/jobs/resume';
+import resume from '../../../src/cmds/jobs/resume.js';
 
 describe('jobs resume', () => {
     describe('-> parse', () => {

@@ -2,7 +2,7 @@ import {
     readerShim, processorShim, registerApis,
     DataEntity, times,
 } from '@terascope/job-components';
-import { bindThis } from './utils';
+import { bindThis } from './utils.js';
 
 export default class OperationTester {
     constructor({

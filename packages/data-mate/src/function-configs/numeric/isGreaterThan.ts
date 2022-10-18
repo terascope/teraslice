@@ -1,11 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { isGreaterThanFP } from '@terascope/utils';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface GreaterThanArgs {
     readonly value: number;

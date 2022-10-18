@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Base64Decode } from '../../../src/operations';
+import { Base64Decode } from '../../../src/operations.js';
 
 describe('Base64Decode operator', () => {
     function encode(str: string) {

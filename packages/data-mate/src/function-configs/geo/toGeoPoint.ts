@@ -1,13 +1,10 @@
 import { parseGeoPoint, isNil, isNumber } from '@terascope/utils';
 import { FieldType, DataTypeFieldConfig } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
     isNumericType
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toGeoPointConfig: FieldTransformConfig = {
     name: 'toGeoPoint',

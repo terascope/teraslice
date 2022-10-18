@@ -1,7 +1,7 @@
 import path from 'path';
 import { get } from '@terascope/utils';
 import { formats } from '@terascope/job-components';
-import { configSchema } from './schemas/system';
+import { configSchema } from './schemas/system.js';
 
 const terasliceOpPath = path.join(__dirname, '..');
 

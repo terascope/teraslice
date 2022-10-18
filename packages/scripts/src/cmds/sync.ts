@@ -1,15 +1,15 @@
 import { CommandModule } from 'yargs';
 import { isCI } from '@terascope/utils';
-import { syncAll } from '../helpers/sync';
-import { GlobalCMDOptions } from '../helpers/interfaces';
+import { syncAll } from '../helpers/sync/index.js';
+import { GlobalCMDOptions } from '../helpers/interfaces.js';
 
-type Options = {
+export type SyncOptions = {
     verify: boolean;
     'tsconfig-only': boolean;
     quiet?: boolean;
 }
 
-const cmd: CommandModule<GlobalCMDOptions, Options> = {
+const cmd: CommandModule<GlobalCMDOptions, SyncOptions> = {
     command: 'sync',
     describe: 'Sync packages to make sure they are up-to-date',
     builder(yargs) {
@@ -40,4 +40,4 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
-export = cmd;
+export default cmd;

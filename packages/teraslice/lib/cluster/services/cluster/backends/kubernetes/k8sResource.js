@@ -3,8 +3,8 @@ import path from 'path';
 import barbe from 'barbe';
 import _ from 'lodash';
 import { isNumber } from '@terascope/utils';
-import { safeEncode } from '../../../../../utils/encoding_utils';
-import { setMaxOldSpaceViaEnv } from './utils';
+import { safeEncode } from '../../../../../utils/encoding_utils.js';
+import { setMaxOldSpaceViaEnv } from './utils.js';
 
 export default class K8sResource {
     /**

@@ -15,8 +15,8 @@ import {
     toUpperCase
 } from '@terascope/utils';
 
-import reply from './reply';
-import { wasmPlugin, getPackage } from '../helpers/utils';
+import reply from './reply.js';
+import { wasmPlugin, getPackage } from '../helpers/utils.js';
 
 interface ZipResults {
     name: string;
@@ -228,7 +228,7 @@ export class AssetSrc {
             await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
             // Since we now require bundled assets to implement a registry, we
-            // require that Javascript assets place it at `asset/index.js` and
+            // require that Javascript assets place it at `asset` and
             // TypeScript assets place it at `asset/src/index.ts`
             let entryPoint = '';
             try {
@@ -237,7 +237,7 @@ export class AssetSrc {
                 } else if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'src', 'index.ts'))) {
                     entryPoint = path.join(tmpDir.name, 'asset', 'src', 'index.ts');
                 } else {
-                    reply.fatal('Bundled assets require an asset registry at either asset/index.js or asset/src/index.ts');
+                    reply.fatal('Bundled assets require an asset registry at either asset or asset/src/index.ts');
                 }
                 reply.warning(`* entryPoint: ${entryPoint}`);
             } catch (err) {

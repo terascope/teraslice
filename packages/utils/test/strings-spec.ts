@@ -1,38 +1,15 @@
 import 'jest-extended';
+import { escapeString } from '../src/deps';
 import {
-    escapeString
-} from '../src/deps';
-import {
-    toSafeString,
-    unescapeString,
-    getWordParts,
-    toCamelCase,
-    toPascalCase,
-    toSnakeCase,
-    toKebabCase,
-    parseList,
-    joinList,
-    isString,
-    isEmail,
-    isMACAddress,
-    isURL,
-    isUUID,
-    isBase64,
-    isFQDN,
-    isCountryCode,
-    isAlphaNumeric,
-    isPostalCode,
-    isPort,
-    isMIMEType,
-    contains,
-    trim,
-    trimStart,
-    trimEnd,
-    isAlpha,
-    toTitleCase,
-    stringEntropy,
-    StringEntropy,
-    shannonEntropy
+    toSafeString, unescapeString, getWordParts,
+    toCamelCase, toPascalCase, toSnakeCase,
+    toKebabCase, parseList, joinList,
+    isString, isEmail, isMACAddress,
+    isURL, isUUID, isBase64, isFQDN,
+    isCountryCode, isAlphaNumeric, isPostalCode,
+    isPort, isMIMEType, contains, trim,
+    trimStart, trimEnd, isAlpha, toTitleCase,
+    stringEntropy, StringEntropy, shannonEntropy
 } from '../src/strings';
 
 describe('String Utils', () => {

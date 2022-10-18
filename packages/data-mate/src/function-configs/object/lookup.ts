@@ -3,7 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig, DataTypeFieldAndChildren
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface LookupArgs {
     readonly in: Record<string, unknown> | string | any[];

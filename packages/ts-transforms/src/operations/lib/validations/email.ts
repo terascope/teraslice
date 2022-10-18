@@ -1,5 +1,5 @@
-import { PostProcessConfig } from '../../../interfaces';
-import ValidationOpBase from './base';
+import { PostProcessConfig } from '../../../interfaces.js';
+import ValidationOpBase from './base.js';
 
 export default class Email extends ValidationOpBase<any> {
     private regex: RegExp;

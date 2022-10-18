@@ -1,5 +1,5 @@
-import { TestReaderConfig } from './interfaces';
-import { ConvictSchema } from '../../operations';
+import { TestReaderConfig } from './interfaces.js';
+import { ConvictSchema } from '../../operations/index.js';
 
 export default class Schema extends ConvictSchema<TestReaderConfig> {
     build(): Record<string, any> {

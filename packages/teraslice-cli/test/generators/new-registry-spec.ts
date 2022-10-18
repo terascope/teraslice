@@ -8,7 +8,7 @@ jest.setTimeout(20000);
 
 describe('processor generator with no new flag', () => {
     const testAssetPath = path.join(__dirname, '..', 'fixtures', 'testAsset');
-    const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'registry');
+    const helpersPath = path.join(__dirname, '..', '..', 'src/index.js', 'generators', 'registry');
 
     beforeAll(() => helpers.run(helpersPath)
         .withArguments([testAssetPath]));

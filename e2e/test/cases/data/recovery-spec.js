@@ -5,9 +5,9 @@ import {
     initializeTestExecution,
     makeTerafoundationContext
 } from 'teraslice';
-import misc from '../../misc';
-import { waitForExStatus } from '../../wait';
-import { resetState } from '../../helpers';
+import misc from '../../misc.js';
+import { waitForExStatus } from '../../wait.js';
+import { resetState } from '../../helpers.js';
 
 const teraslice = misc.teraslice();
 

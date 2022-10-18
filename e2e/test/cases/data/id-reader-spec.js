@@ -1,5 +1,5 @@
-import misc from '../../misc';
-import { resetState, testJobLifeCycle, runEsJob } from '../../helpers';
+import misc from '../../misc.js';
+import { resetState, testJobLifeCycle, runEsJob } from '../../helpers.js';
 
 /**
  * The id reader don't work in 6.x and greater

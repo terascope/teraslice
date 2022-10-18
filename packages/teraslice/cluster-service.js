@@ -1,10 +1,10 @@
 'use strict';
 
 import { get, logError } from '@terascope/utils';
-import { shutdownHandler } from './lib/workers/helpers/worker-shutdown';
-import makeTerafoundationContext from './lib/workers/context/terafoundation-context';
-import makeClusterMaster from './lib/cluster/cluster_master';
-import makeAssetService from './lib/cluster/services/assets';
+import { shutdownHandler } from './lib/workers/helpers/worker-shutdown.js';
+import makeTerafoundationContext from './lib/workers/context/terafoundation-context.js';
+import makeClusterMaster from './lib/cluster/cluster_master.js';
+import makeAssetService from './lib/cluster/services/assets.js';
 
 class Service {
     constructor(context) {

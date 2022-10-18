@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { debugLogger } from '@terascope/utils';
-import masterModule from '../src/master';
+import masterModule from '../src/master.js';
 
 describe('master', () => {
     const events = new EventEmitter();

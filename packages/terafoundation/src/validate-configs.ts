@@ -8,9 +8,9 @@ import {
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema } from './connector-utils';
-import foundationSchema from './schema';
-import * as i from './interfaces';
+import { getConnectorSchema } from './connector-utils.js';
+import foundationSchema from './schema.js';
+import * as i from './interfaces.js';
 
 addFormats(convict_format_with_validator);
 addFormats(convict_format_with_moment);

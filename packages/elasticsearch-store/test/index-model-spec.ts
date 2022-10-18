@@ -5,10 +5,11 @@ import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
-} from '../src';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+    IndexModel, IndexModelRecord, IndexModelConfig,
+    IndexModelOptions, makeRecordDataType
+} from '../src/index.js';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {

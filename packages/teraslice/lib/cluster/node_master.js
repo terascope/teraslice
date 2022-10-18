@@ -2,11 +2,11 @@ import ms from 'ms';
 import _ from 'lodash';
 import { Mutex } from 'async-mutex';
 import { getFullErrorStack } from '@terascope/utils';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import messageModule from './services/cluster/backends/native/messaging';
-import spawnAssetLoader from '../workers/assets/spawn';
-import { safeEncode } from '../utils/encoding_utils';
-import { findPort, getPorts } from '../utils/port_utils';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import messageModule from './services/cluster/backends/native/messaging.js';
+import spawnAssetLoader from '../workers/assets/spawn.js';
+import { safeEncode } from '../utils/encoding_utils.js';
+import { findPort, getPorts } from '../utils/port_utils.js';
 
 const nodeVersion = process.version;
 import * as packageInfo from '../../../package.json';

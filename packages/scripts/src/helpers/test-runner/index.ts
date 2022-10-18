@@ -1,34 +1,24 @@
 import {
-    debugLogger,
-    chunk,
-    TSError,
-    isCI,
-    pMap
+    debugLogger, chunk, TSError,
+    isCI, pMap
 } from '@terascope/utils';
 import {
-    writePkgHeader,
-    writeHeader,
-    getRootDir,
-    getRootInfo,
-    getAvailableTestSuites,
+    writePkgHeader, writeHeader, getRootDir,
+    getRootInfo, getAvailableTestSuites,
     getDevDockerImage,
-} from '../misc';
-import { ensureServices, pullServices } from './services';
-import { PackageInfo } from '../interfaces';
-import { TestOptions } from './interfaces';
-import {
-    runJest,
-    dockerTag,
-} from '../scripts';
-import * as utils from './utils';
-import signale from '../signale';
-import { getE2EDir } from '../packages';
-import { buildDevDockerImage } from '../publish/utils';
-import { TestTracker } from './tracker';
-import {
-    MAX_PROJECTS_PER_BATCH,
-    SKIP_DOCKER_BUILD_IN_E2E
-} from '../config';
+} from '../misc.js';
+import { ensureServices, pullServices } from './services.js';
+import { PackageInfo } from '../interfaces.js';
+import { TestOptions } from './interfaces.js';
+import { runJest, dockerTag } from '../scripts.js';
+import * as utils from './utils.js';
+import signale from '../signale.js';
+import { getE2EDir } from '../packages.js';
+import { buildDevDockerImage } from '../publish/utils.js';
+import { TestTracker } from './tracker.js';
+import { 
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E
+} from '../config.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 

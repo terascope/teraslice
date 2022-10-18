@@ -1,5 +1,5 @@
-import { OpAPI, APIConfig } from '../interfaces';
-import APICore from './core/api-core';
+import { OpAPI, APIConfig } from '../interfaces/index.js';
+import APICore from './core/api-core.js';
 
 /**
  * An API factory class for operations

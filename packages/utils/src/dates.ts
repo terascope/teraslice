@@ -39,12 +39,12 @@ import {
     GetTimeBetweenArgs
 } from '@terascope/types';
 import tzOffset from 'date-fns-tz/getTimezoneOffset';
-import { getTypeOf } from './deps';
+import { getTypeOf } from './deps.js';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
 } from './numbers';
-import { isString } from './strings';
-import { isBoolean } from './booleans';
+import { isString } from './strings.js';
+import { isBoolean } from './booleans.js';
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376

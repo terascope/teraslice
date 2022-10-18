@@ -1,5 +1,5 @@
 import 'jest-extended';
-import api from '../../src/api';
+import api from '../../src/api.js';
 
 describe('getSystemEvents foundation API', () => {
     const context = {

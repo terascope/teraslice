@@ -1,5 +1,5 @@
-import * as FieldAggregator from './field-aggregation';
-import * as RecordAggregator from './record-aggregation';
+import * as FieldAggregator from './field-aggregation.js';
+import * as RecordAggregator from './record-aggregation.js';
 
-export * from './interfaces';
+export * from './interfaces.js';
 export { FieldAggregator, RecordAggregator };

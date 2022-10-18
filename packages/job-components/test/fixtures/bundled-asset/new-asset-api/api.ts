@@ -1,4 +1,4 @@
-import { OperationAPI, AnyObject } from '../../../../src';
+import { OperationAPI, AnyObject } from '../../../../src/index.js';
 
 export class AssetExampleAPI extends OperationAPI {
     _initialized = false;

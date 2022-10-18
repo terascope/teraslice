@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataEntity, debugLogger, times } from '@terascope/utils';
-import { ESCachedStateStorage, ESStateStorageConfig } from '../src';
+import { ESCachedStateStorage, ESStateStorageConfig } from '../src/index.js';
 import {
     ESBulkQuery,
     ESMGetResponse,

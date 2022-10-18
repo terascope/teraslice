@@ -1,18 +1,13 @@
 import {
-    DataTypeFieldConfig,
-    Maybe, SortOrder,
+    DataTypeFieldConfig, Maybe, SortOrder,
     ReadonlyDataTypeFields,
 } from '@terascope/types';
-import {
-    isPrimitiveValue, getHashCodeFrom,
-} from '@terascope/utils';
+import { isPrimitiveValue, getHashCodeFrom,} from '@terascope/utils';
 import { inspect } from 'util';
-import {
-    ReadableData, WritableData
-} from '../core';
+import { ReadableData, WritableData } from '../core/index.js';
 import {
     DataBuckets, SerializeOptions, VectorType
-} from './interfaces';
+} from './interfaces.js';
 
 /**
  * An immutable typed Array class with a constrained API.

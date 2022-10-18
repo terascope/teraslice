@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'tjm <command> <job-file>',
     describe: 'Commands to manage jobs through job files',
     builder(yargs) {

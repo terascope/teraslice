@@ -2,9 +2,9 @@
 
 import util from 'util';
 import { ClusterContext } from 'terafoundation';
-import nodeMaster from './lib/cluster/node_master';
-import { getTerasliceConfig } from './lib/config';
-import { safeEncode, safeDecode } from './lib/utils/encoding_utils';
+import nodeMaster from './lib/cluster/node_master.js';
+import { getTerasliceConfig } from './lib/config.js';
+import { safeEncode, safeDecode } from './lib/utils/encoding_utils.js';
 
 const assignment = process.env.assignment || process.env.NODE_TYPE;
 

@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { Repository, InputType } from '../interfaces';
-import { isArray } from '../validations/field-validator';
+import { Repository, InputType } from '../interfaces.js';
+import { isArray } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     uniqueField: {

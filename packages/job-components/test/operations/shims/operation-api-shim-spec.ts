@@ -7,7 +7,7 @@ import {
     ExecutionContextAPI,
     TestContext,
     newTestExecutionConfig
-} from '../../../src';
+} from '../../../src/index.js';
 
 describe('Operation APIs Shim', () => {
     class HelloAPI extends OperationAPI {

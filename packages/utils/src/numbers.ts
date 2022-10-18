@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
-import { isArrayLike } from './arrays';
-import { getTypeOf } from './deps';
+import { isArrayLike } from './arrays.js';
+import { getTypeOf } from './deps.js';
 
 let supportsBigInt = true;
 try {

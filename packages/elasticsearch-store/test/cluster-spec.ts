@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { Cluster } from '../src';
-import { makeClient } from './helpers/elasticsearch';
+import { Cluster } from '../src/index.js';
+import { makeClient } from './helpers/elasticsearch.js';
 
 describe('Cluster', () => {
     let client: any;

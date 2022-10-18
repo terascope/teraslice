@@ -5,9 +5,9 @@ import {
     TSError, uniq, isString,
     toString, filterObject
 } from '@terascope/utils';
-import elasticsearchBackend from './backends/elasticsearch_store';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import { saveAsset } from '../utils/file_utils';
+import elasticsearchBackend from './backends/elasticsearch_store.js';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import { saveAsset } from '../utils/file_utils.js';
 import {
     findMatchingAsset, findSimilarAssets,
     toVersionQuery, getInCompatibilityReason

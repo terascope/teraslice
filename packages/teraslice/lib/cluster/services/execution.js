@@ -6,7 +6,7 @@ import {
     cloneDeep,
 } from '@terascope/utils';
 import { setInterval } from 'timers';
-import { makeLogger } from '../../workers/helpers/terafoundation';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
 
 /**
  * New execution result

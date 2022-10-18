@@ -7,7 +7,7 @@ import {
     TestContext,
     WorkerContext,
     newTestExecutionConfig
-} from '../../../src';
+} from '../../../src/index.js';
 
 describe('Legacy Slice Events Shim', () => {
     const workerShutdown = jest.fn();

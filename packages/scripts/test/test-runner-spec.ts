@@ -1,9 +1,9 @@
 import 'jest-extended';
-import { listPackages } from '../src/helpers/packages';
-import { filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
-import { PackageInfo } from '../src/helpers/interfaces';
-import { getAvailableTestSuites } from '../src/helpers/misc';
-import { TestOptions } from '../src/helpers/test-runner/interfaces';
+import { listPackages } from '../src/helpers/packages.js';
+import { filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils.js';
+import { PackageInfo } from '../src/helpers/interfaces.js';
+import { getAvailableTestSuites } from '../src/helpers/misc.js';
+import { TestOptions } from '../src/helpers/test-runner/interfaces.js';
 
 describe('Test Runner Helpers', () => {
     const availableSuites = getAvailableTestSuites();

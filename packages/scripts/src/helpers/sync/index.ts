@@ -1,11 +1,11 @@
 import { pMap } from '@terascope/utils';
-import { listPackages, updatePkgJSON } from '../packages';
-import { SyncOptions } from './interfaces';
-import { getRootInfo } from '../misc';
-import * as utils from './utils';
-import { generateTSConfig } from './configs';
-import { executeHook } from '../hooks';
-import { Hook } from '../interfaces';
+import { listPackages, updatePkgJSON } from '../packages.js';
+import { SyncOptions } from './interfaces.js';
+import { getRootInfo } from '../misc.js';
+import * as utils from './utils.js';
+import { generateTSConfig } from './configs.js';
+import { executeHook } from '../hooks.js';
+import { Hook } from '../interfaces.js';
 
 export async function syncAll(options: SyncOptions): Promise<void> {
     await utils.verifyCommitted(options);

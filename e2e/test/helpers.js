@@ -1,8 +1,8 @@
 import ms from 'ms';
 import { pDelay, uniq, toString } from '@terascope/utils';
-import signale from './signale';
-import misc from './misc';
-import wait from './wait';
+import signale from './signale.js';
+import misc from './misc.js';
+import wait from './wait.js';
 
 const { cluster, executions } = misc.teraslice();
 
@@ -120,4 +120,3 @@ export async function testJobLifeCycle(jobSpec, delay = 3000) {
     await waitForStatus('completed');
     return ex;
 }
-

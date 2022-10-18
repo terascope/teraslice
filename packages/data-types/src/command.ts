@@ -3,8 +3,8 @@ import path from 'path';
 import yargs from 'yargs';
 import { TSError, get, set } from '@terascope/utils';
 import { ESMapping } from '@terascope/types';
-import { DataType, DataTypeConfig } from './index';
-import { validateDataTypeConfig } from './utils';
+import { DataType, DataTypeConfig } from './index.js';
+import { validateDataTypeConfig } from './utils.js';
 
 // change pathing due to /dist/src issues
 const packagePath = path.join(__dirname, '../../package.json');

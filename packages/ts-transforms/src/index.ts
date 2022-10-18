@@ -1,13 +1,13 @@
 import {
     OperationsManager, OperationBase, TransformOpBase, ValidationOpBase
 } from './operations';
-import Transform from './transform';
-import Matcher from './matcher';
+import Transform from './transform.js';
+import Matcher from './matcher.js';
 
-export * from './loader';
+export * from './loader.js';
 
-export * from './interfaces';
-export * from './phases';
+export * from './interfaces.js';
+export * from './phases.js';
 
 export {
     Transform,

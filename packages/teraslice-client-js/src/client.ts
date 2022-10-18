@@ -10,7 +10,7 @@ import {
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
 import got, { Got } from 'got';
-import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
+import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
 
 export default class Client {
     private readonly _apiVersion: string;

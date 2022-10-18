@@ -1,6 +1,6 @@
 import path from 'path';
 import opHarness from '@terascope/teraslice-op-test-harness';
-import processor from '../../../lib/processors/script';
+import processor from '../../../lib/processors/script.js';
 
 const harness = opHarness(processor);
 

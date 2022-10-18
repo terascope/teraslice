@@ -1,15 +1,11 @@
 import path from 'path';
 import { EventEmitter } from 'events';
 import {
-    random,
-    isString,
-    getTypeOf,
-    isFunction,
-    debugLogger,
-    Logger,
+    random, isString, getTypeOf,
+    isFunction, debugLogger, Logger,
     makeISODate
 } from '@terascope/utils';
-import * as i from './interfaces';
+import * as i from './interfaces/index.js';
 
 function newId(prefix: string): string {
     return `${prefix}-${random(10000, 99999)}`;

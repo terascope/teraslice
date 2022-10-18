@@ -1,11 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { isLessThanOrEqualToFP } from '@terascope/utils';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface LessThanOrEqualToArgs {
     readonly value: number;

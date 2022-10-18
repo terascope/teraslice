@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import stats from '../../../src/cmds/controllers/stats';
+import stats from '../../../src/cmds/controllers/stats.js';
 
 describe('controller stats', () => {
     describe('-> parse', () => {

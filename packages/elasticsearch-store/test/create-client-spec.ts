@@ -1,10 +1,8 @@
 import { debugLogger, get } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import { createClient } from '../src';
+import { createClient } from '../src/index.js';
 import {
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST,
+    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
     OPENSEARCH_VERSION
 } from './helpers/config';
 
