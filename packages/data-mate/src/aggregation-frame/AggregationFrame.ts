@@ -3,13 +3,14 @@ import { BigMap } from '@terascope/utils';
 import {
     Column, KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg
-} from '../column';
+} from '../column/index.js';
 import { getCommonTupleType, isNumberLike, Vector } from '../vector/index.js';
 import { Builder } from '../builder/index.js';
 import { getBuilderForField, getMaxColumnSize } from './utils.js';
 import {
-    FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
-} from '../core';
+    FieldArg, flattenStringArg, freezeArray,
+    getFieldsFromArg
+} from '../core/index.js';
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils.js';
 
 /**

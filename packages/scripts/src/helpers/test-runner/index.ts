@@ -16,7 +16,7 @@ import signale from '../signale.js';
 import { getE2EDir } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { TestTracker } from './tracker.js';
-import { 
+import {
     MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E
 } from '../config.js';
 

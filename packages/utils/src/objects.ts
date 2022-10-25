@@ -6,7 +6,7 @@ import { isArrayLike, isArray } from './arrays.js';
 import { isBuffer } from './buffers.js';
 import { isString, trim } from './strings.js';
 import { toNumber } from './numbers.js';
-import { isPrimitiveValue } from '.';
+import { isPrimitiveValue } from './strings.js';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity

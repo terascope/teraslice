@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { makeLogger } from '../helpers/terafoundation.js';
 
 export default function _sliceAnalytics(context, executionContext) {

@@ -1,6 +1,4 @@
-import { 
-    addFormat, Format, addFormats as nativeAddFormats
-} from 'convict';
+import convict, { Format } from 'convict';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
@@ -10,6 +8,9 @@ import {
     startsWith, isValidDate, isString,
     isInteger, toInteger,
 } from '@terascope/utils';
+
+
+const { addFormat, addFormats: nativeAddFormats } = convict;
 
 nativeAddFormats(convict_format_with_validator);
 nativeAddFormats(convict_format_with_moment);

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster

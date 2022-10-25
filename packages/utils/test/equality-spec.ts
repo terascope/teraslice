@@ -2,9 +2,9 @@ import 'jest-extended';
 import {
     isDeepEqual,isGreaterThan, isGreaterThanFP,
     isLessThan, isLessThanFP, isGreaterThanOrEqualTo,
-    isGreaterThanOrEqualToFP, isLessThanOrEqualTo, 
+    isGreaterThanOrEqualToFP, isLessThanOrEqualTo,
     isLessThanOrEqualToFP
-} from '../src/equality';
+} from '../src/equality.js';
 import { DataEntity } from '../src/index.js';
 
 describe('Equality', () => {

@@ -3,7 +3,7 @@ import 'jest-extended';
 import {
     dockerRun, dockerStop, getContainerInfo,
     dockerPull
-} from '../src/helpers/scripts';
+} from '../src/helpers/scripts.js';
 
 describe('scripts', () => {
     describe('dockerRun', () => {

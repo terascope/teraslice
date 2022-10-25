@@ -11,7 +11,7 @@ import {
     getMinutes, getHours, getDate,
     getMonth, getYear, addToDate,
     subtractFromDate
-} from '../src/dates';
+} from '../src/dates.js';
 
 describe('date utils', () => {
     describe('isISO8601', () => {

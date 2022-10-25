@@ -1,18 +1,20 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { isCI } from '@terascope/utils';
+import { getJestAliases } from '@terascope/scripts';
 
-const fs = require('fs');
-const path = require('path');
-const { isCI } = require('@terascope/utils');
-const { getJestAliases } = require('@terascope/scripts');
+const dirname = fileURLToPath(new URL('.', import.meta.url));
 
-module.exports = (projectDir) => {
+
+export default (projectDir) => {
     let parentFolder;
     let workspaceName;
     let packageRoot;
     let rootDir;
 
     const name = path.basename(projectDir);
-    const runInDir = process.cwd() !== __dirname;
+    const runInDir = process.cwd() !== dirname;
 
     if (name === 'e2e') {
         parentFolder = name;
@@ -50,9 +52,9 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/*/dist`,
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
-        transformIgnorePatterns: ['^.+\\.js$'],
         moduleNameMapper: {
             ...getJestAliases(),
+            '^(\\.{1,2}/.*)\\.js$': '$1',
         },
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         collectCoverage: true,
@@ -60,7 +62,7 @@ module.exports = (projectDir) => {
         watchPathIgnorePatterns: [],
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
-        preset: 'ts-jest',
+        preset: 'ts-jest/presets/js-with-ts-esm',
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
         workerIdleMemoryLimit: '200MB'
     };
@@ -82,26 +84,30 @@ module.exports = (projectDir) => {
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts', '.mjs']
+        availableExtensions: ['.js', '.ts', '.mjs'],
+        'ts-jest': {
+            // this removes type checking, see if we can get this back
+            isolatedModules: true
+        }
     };
     config.transform = {};
 
-    if (isTypescript) {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    } else {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
-    }
+    // if (isTypescript) {
+    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+    //         isolatedModules: true,
+    //         tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
+    //         diagnostics: true,
+    //         pretty: true,
+    //         useESM: true
+    //     }];
+    // } else {
+    //     config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+    //         isolatedModules: true,
+    //         diagnostics: true,
+    //         pretty: true,
+    //         useESM: true
+    //     }];
+    // }
 
     config.roots = [`${packageRoot}/test`];
 

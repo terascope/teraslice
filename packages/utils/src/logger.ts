@@ -2,7 +2,7 @@ import debugFn from 'debug';
 import { EventEmitter } from 'events';
 import { isPlainObject } from './deps.js';
 import { toString, isString, trimAndToLower } from './strings.js';
-import { Logger } from './logger-interface.js';
+import type { Logger } from './logger-interface.js';
 import { uniq } from './arrays.js';
 import { isTest } from './env.js';
 
@@ -14,6 +14,7 @@ interface DebugParamObj {
 
 type DebugParam = DebugParamObj | string;
 let logLevel = process.env.DEBUG_LOG_LEVEL || 'debug';
+
 const levels = {
     trace: 10,
     debug: 20,

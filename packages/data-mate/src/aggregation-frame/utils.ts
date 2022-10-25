@@ -2,9 +2,7 @@ import { FieldType } from '@terascope/types';
 import { Builder } from '../builder/index.js';
 import { Column, ValueAggregation, KeyAggregation } from '../column/index.js';
 import { WritableData } from '../core/index.js';
-import {
-    isNumberLike, isFloatLike, getCommonTupleType
-} from '../vector';
+import { isNumberLike, isFloatLike, getCommonTupleType } from '../vector/index.js';
 
 export function getBuilderForField(
     col: Column<any, any>,

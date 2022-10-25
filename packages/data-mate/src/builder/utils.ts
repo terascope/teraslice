@@ -11,7 +11,7 @@ import {
     GeoBoundaryBuilder, GeoJSONBuilder, GeoPointBuilder,
     IPBuilder, IPRangeBuilder,
     ObjectBuilder, StringBuilder, TupleBuilder
-} from './types';
+} from './types/index.js';
 
 export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
     config: DataTypeConfig, size: number

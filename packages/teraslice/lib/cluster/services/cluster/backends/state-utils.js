@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 
 export function _iterateState(clusterState, cb) {
     // I clone here, because the code below accidentally modifies clusterState.

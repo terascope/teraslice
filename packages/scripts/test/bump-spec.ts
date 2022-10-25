@@ -1,12 +1,12 @@
 import 'jest-extended';
 import { cloneDeep } from '@terascope/utils';
-import { 
+import {
     BumpPackageOptions, BumpType, BumpPkgInfo
 } from '../src/helpers/bump/interfaces.js';
 import { PackageInfo } from '../src/helpers/interfaces.js';
 import {
     getPackagesToBump, bumpPackagesList, getBumpCommitMessages
-} from '../src/helpers/bump/utils';
+} from '../src/helpers/bump/utils.js';
 
 describe('Bump Utils', () => {
     const testPackages: PackageInfo[] = [

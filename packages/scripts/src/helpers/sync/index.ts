@@ -11,6 +11,7 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     await utils.verifyCommitted(options);
 
     let pkgInfos = listPackages();
+
     if (options.tsconfigOnly) {
         await generateTSConfig(pkgInfos, !options.quiet);
         return;

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import barbe from 'barbe';
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { isNumber } from '@terascope/utils';
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';

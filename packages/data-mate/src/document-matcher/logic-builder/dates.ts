@@ -1,7 +1,7 @@
-import isWithinInterval from 'date-fns/isWithinInterval';
-import isEqual from 'date-fns/isEqual';
-import subMilliseconds from 'date-fns/subMilliseconds';
-import addMilliseconds from 'date-fns/addMilliseconds';
+import {
+    isWithinInterval, isEqual, subMilliseconds,
+    addMilliseconds
+}  from 'date-fns';
 import { getValidDate } from '@terascope/utils';
 import {
     isInfiniteMax, isInfiniteMin, ParsedRange

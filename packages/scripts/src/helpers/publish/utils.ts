@@ -4,7 +4,7 @@ import { getCommitHash, dockerBuild } from '../scripts.js';
 import { PublishType } from './interfaces.js';
 import { PackageInfo } from '../interfaces.js';
 import signale from '../signale.js';
-import { 
+import {
     getRemotePackageVersion, getPublishTag, isMainPackage
 } from '../packages.js';
 import { getDevDockerImage } from '../misc.js';

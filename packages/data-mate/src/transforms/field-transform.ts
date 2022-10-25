@@ -1,14 +1,28 @@
-import * as ts from '@terascope/utils';
+import {
+    isNil, trim as _trim, isNotNil,
+    getTypeOf, toString as _toString,
+    toBoolean as _toBoolean, trimStart as _trimStart,
+    trimEnd as _trimEnd, isNumber as _isNumber,
+    isBooleanLike as _isBooleanLike, parseGeoPoint,
+    isString as _isString, getTime, getUnixTime,
+    isValidDateInstance, toCamelCase as _toCamelCase,
+    toPascalCase as _toPascalCase, toKebabCase as _toKebabCase,
+    toSnakeCase as _toSnakeCase, toTitleCase as _toTitleCase,
+    AnyObject, matchAll, TSError
+ } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import { format as dateFormat, parse } from 'date-fns';
-import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces.js';
+import {
+    ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig
+} from './interfaces.js';
 import {
     isString, isValidDate, isNumber,
     isArray, isNumberTuple
-} from '../validations/field-validator';
-import { Repository, InputType } from '../interfaces.js';
+} from '../validations/field-validator.js';
+import { Repository, InputType, RecordInput } from '../interfaces.js';
+import { jexl } from '../jexl/index.js'
 
 export const repository: Repository = {
     toString: {
@@ -317,8 +331,8 @@ type StringInput = string | string[] | null | undefined;
  */
 
 export function setDefault(input: unknown, _parentContext: unknown, args: { value: any }): any {
-    if (ts.isNil(input)) {
-        if (ts.isNil(args.value)) throw new Error('Parameter value cannot be set to undefined or null');
+    if (isNil(input)) {
+        if (isNil(args.value)) throw new Error('Parameter value cannot be set to undefined or null');
         return args.value;
     }
     return input;
@@ -342,9 +356,9 @@ export function setDefault(input: unknown, _parentContext: unknown, args: { valu
 export function map(
     input: any[], parentContext: any[], args: { fn: string; options?: any }
 ): any[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
-    if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
+    if (!isArray(input)) throw new Error(`Input must be an array, received ${getTypeOf(input)}`);
     const { fn, options } = args;
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform repository`);
@@ -382,10 +396,10 @@ export function setField(_input: unknown, _parentContext: unknown, args: { value
  */
 
 export function toString(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toString);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toString);
 
-    return ts.toString(input);
+    return _toString(input);
 }
 
 /**
@@ -402,10 +416,10 @@ export function toString(input: unknown, _parentContext?: unknown): string|strin
  */
 
 export function toBoolean(input: unknown, _parentContext?: unknown): boolean|boolean[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toBoolean);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toBoolean);
 
-    return ts.toBoolean(input);
+    return toBoolean(input);
 }
 
 /**
@@ -422,9 +436,9 @@ export function toBoolean(input: unknown, _parentContext?: unknown): boolean|boo
  */
 
 export function toUpperCase(input: StringInput, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toUpperCase());
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map((str: string) => str.toUpperCase());
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     return input.toUpperCase();
 }
@@ -443,9 +457,9 @@ export function toUpperCase(input: StringInput, _parentContext?: unknown): strin
  */
 
 export function toLowerCase(input: StringInput, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toLowerCase());
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map((str: string) => str.toLowerCase());
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     return input.toLowerCase();
 }
@@ -473,16 +487,16 @@ export function toLowerCase(input: StringInput, _parentContext?: unknown): strin
 export function trim(
     input: StringInput, parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     const char: string = (args?.char && isString(args.char)) ? args.char : ' ';
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
-            .map((str: string) => ts.trim(str, char));
+            .filter(isNotNil)
+            .map((str: string) => _trim(str, char));
     }
 
-    return ts.trim(input, char);
+    return _trim(input, char);
 }
 
 /**
@@ -504,18 +518,18 @@ export function trim(
 export function trimStart(
     input: StringInput, _parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
+    if (isNil(input)) return null;
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${getTypeOf(input)}`);
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
-            .map((str: any) => ts.trimStart(str, args?.char));
+            .filter(isNotNil)
+            .map((str: any) => _trimStart(str, args?.char));
     }
 
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
-    return ts.trimStart(input, args?.char);
+    return _trimStart(input, args?.char);
 }
 
 /**
@@ -536,18 +550,18 @@ export function trimStart(
 export function trimEnd(
     input: StringInput, _parentContext?: unknown, args?: { char: string }
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
+    if (isNil(input)) return null;
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${getTypeOf(input)}`);
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
-            .map((str: any) => ts.trimEnd(str, args?.char));
+            .filter(isNotNil)
+            .map((str: any) => _trimEnd(str, args?.char));
     }
 
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
-    return ts.trimEnd(input, args?.char);
+    return _trimEnd(input, args?.char);
 }
 
 /**
@@ -569,22 +583,22 @@ export function truncate(
 ): string|string[]|null {
     const { size } = args;
 
-    if (ts.isNil(input)) return null;
-    if (!size || !ts.isNumber(size) || size <= 0) throw new Error('Invalid size paramter for truncate');
+    if (isNil(input)) return null;
+    if (!size || !_isNumber(size) || size <= 0) throw new Error('Invalid size paramter for truncate');
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((str: any) => str.slice(0, size));
     }
 
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     return input.slice(0, size);
 }
 
 function parsePhoneNumber(str: any) {
-    let testNumber = ts.toString(str).trim();
+    let testNumber = _toString(str).trim();
     if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
 
     // needs to start with a +
@@ -612,8 +626,8 @@ function parsePhoneNumber(str: any) {
  */
 
 export function toISDN(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(parsePhoneNumber);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(parsePhoneNumber);
 
     return parsePhoneNumber(input);
 }
@@ -621,13 +635,13 @@ export function toISDN(input: unknown, _parentContext?: unknown): string|string[
 function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
     let result = input;
 
-    if (args?.booleanLike === true && ts.isBooleanLike(input)) {
-        result = ts.toNumber(toBoolean(result));
+    if (args?.booleanLike === true && _isBooleanLike(input)) {
+        result = _isNumber(toBoolean(result));
     }
 
-    result = ts.toNumber(result);
+    result = _isNumber(result);
 
-    if (Number.isNaN(result)) throw new Error(`Could not convert input of type ${ts.getTypeOf(input)} to a number`);
+    if (Number.isNaN(result)) throw new Error(`Could not convert input of type ${getTypeOf(input)} to a number`);
     return result;
 }
 
@@ -652,11 +666,11 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
 export function toNumber(
     input: unknown, _parentContext?: unknown, args?: { booleanLike?: boolean }
 ): number|number[]|null {
-    if (ts.isNil(input) && args?.booleanLike !== true) return null;
+    if (isNil(input) && args?.booleanLike !== true) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => convertToNumber(data, args));
     }
 
@@ -682,11 +696,11 @@ export function toNumber(
  */
 
 export function decodeBase64(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => Buffer.from(data, 'base64').toString('utf8'));
     }
 
@@ -709,11 +723,11 @@ export function decodeBase64(input: unknown, _parentContext?: unknown): string|s
  */
 
 export function encodeBase64(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => Buffer.from(data).toString('base64'));
     }
 
@@ -737,10 +751,10 @@ export function encodeBase64(input: unknown, _parentContext?: unknown): string|s
  */
 
 export function decodeURL(input: StringInput, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
-    if (isArray(input)) return input.filter(ts.isNotNil).map(decodeURIComponent);
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (isArray(input)) return input.filter(isNotNil).map(decodeURIComponent);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     return decodeURIComponent(input);
 }
@@ -762,10 +776,10 @@ export function decodeURL(input: StringInput, _parentContext?: unknown): string|
  */
 
 export function encodeURL(input: StringInput, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
-    if (isArray(input)) return input.filter(ts.isNotNil).map(encodeURIComponent);
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (isArray(input)) return input.filter(isNotNil).map(encodeURIComponent);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     return encodeURIComponent(input);
 }
@@ -787,11 +801,11 @@ export function encodeURL(input: StringInput, _parentContext?: unknown): string|
  */
 
 export function decodeHex(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => Buffer.from(data, 'hex').toString('utf8'));
     }
 
@@ -814,11 +828,11 @@ export function decodeHex(input: unknown, _parentContext?: unknown): string|stri
  */
 
 export function encodeHex(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => Buffer.from(data).toString('hex'));
     }
 
@@ -839,11 +853,11 @@ export function encodeHex(input: unknown, _parentContext?: unknown): string|stri
  */
 
 export function encodeMD5(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => crypto.createHash('md5').update(data).digest('hex'));
     }
 
@@ -871,7 +885,7 @@ export function encodeMD5(input: unknown, _parentContext?: unknown): string|stri
 export function encodeSHA(
     input: unknown, _parentContext?: unknown, { hash = 'sha256', digest = 'hex' } = {}
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) {
         throw new Error('Parameter digest is misconfigured');
@@ -879,7 +893,7 @@ export function encodeSHA(
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => crypto.createHash(hash).update(data).digest(digest as any));
     }
 
@@ -902,11 +916,11 @@ export function encodeSHA(
  */
 
 export function encodeSHA1(input: unknown, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => crypto.createHash('sha1').update(data).digest('hex'));
     }
 
@@ -931,11 +945,11 @@ export function encodeSHA1(input: unknown, _parentContext?: unknown): string|str
  */
 
 export function parseJSON(input: unknown, _parentContext?: unknown): any|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => JSON.parse(data));
     }
 
@@ -961,11 +975,11 @@ export function parseJSON(input: unknown, _parentContext?: unknown): any|null {
 export function toJSON(
     input: unknown, _parentContext?: unknown, { pretty = false } = {}
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => {
                 if (pretty) return JSON.stringify(data, null, 2);
                 return JSON.stringify(data);
@@ -998,16 +1012,16 @@ export function toJSON(
 export function toGeoPoint(
     input: unknown, _parentContext?: unknown
 ): { lat: number, lon: number }|({ lat: number, lon: number })[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     // a tuple of numbers is a form of geo-point, do not map it
     if (isArray(input) && !isNumberTuple(input)) {
         return input
-            .filter(ts.isNotNil)
-            .map((data: any) => ts.parseGeoPoint(data, true));
+            .filter(isNotNil)
+            .map((data: any) => parseGeoPoint(data, true));
     }
 
-    return ts.parseGeoPoint(input as any, true);
+    return parseGeoPoint(input as any, true);
 }
 
 /**
@@ -1047,12 +1061,96 @@ export function toGeoPoint(
  * results; // ['hello', 'world'];
  */
 
-// this will be overritten by extract in jexl folder
 export function extract(
-    _input: unknown,
-    _parentContext: ts.AnyObject,
-    _args: ExtractFieldConfig
-): any|null {}
+    input: any,
+    parentContext: AnyObject,
+    {
+        regex, isMultiValue = true, jexlExp, start, end
+    }: ExtractFieldConfig
+): RecordInput|null {
+    if (isNil(input)) return null;
+
+    function getSubslice() {
+        const indexStart = input.indexOf(start);
+        if (indexStart !== -1) {
+            const sliceStart = indexStart + start.length;
+            let endInd = input.indexOf(end, sliceStart);
+            if (endInd === -1) endInd = input.length;
+            const extractedSlice = input.slice(sliceStart, endInd);
+            if (extractedSlice) return input.slice(sliceStart, endInd);
+        }
+        return null;
+    }
+
+    type Cb = (data: any) => string|string[]|null;
+
+    function extractField(data: any, fn: Cb) {
+        if (typeof data === 'string') {
+            return fn(data);
+        }
+
+        if (isArray(data)) {
+            const results: string[] = [];
+
+            data.forEach((subData: any) => {
+                if (typeof subData === 'string') {
+                    const extractedSlice = fn(subData);
+                    if (extractedSlice) {
+                        if (Array.isArray(extractedSlice)) {
+                            results.push(...extractedSlice);
+                        } else {
+                            results.push(extractedSlice);
+                        }
+                    }
+                }
+            });
+
+            if (results.length > 0) {
+                if (isMultiValue) return results;
+                return results[0];
+            }
+        }
+
+        return null;
+    }
+
+    function matchRegex() {
+        const results = matchAll(regex as string, input);
+        if (isMultiValue) return results;
+        return results ? results[0] : results;
+    }
+
+    function callExpression() {
+        try {
+            return jexl.evalSync(jexlExp as string, parentContext);
+        } catch (err) {
+            throw new TSError(err, {
+                message: `Invalid jexl expression: ${jexlExp}`
+            });
+        }
+    }
+
+    function extractValue() {
+        let extractedResult;
+
+        if (regex) {
+            extractedResult = extractField(input, matchRegex);
+        } else if (start && end) {
+            extractedResult = extractField(input, getSubslice);
+        } else if (jexlExp) {
+            extractedResult = callExpression();
+        } else {
+            extractedResult = input;
+        }
+
+        return extractedResult;
+    }
+
+    const results = extractValue();
+    if (results == null) return null;
+
+    return results;
+}
 
 /**
  * This function replaces chars in a string based off the regex value provided
@@ -1087,21 +1185,21 @@ export function replaceRegex(
         regex, replace, ignoreCase, global
     }: ReplaceRegexConfig
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
     let options = '';
 
     if (ignoreCase) options += 'i';
     if (global) options += 'g';
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => {
-            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+        return input.filter(isNotNil).map((data: any) => {
+            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
             const re = new RegExp(regex, options);
             return data.replace(re, replace);
         });
     }
 
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     const re = new RegExp(regex, options);
     return input.replace(re, replace);
@@ -1131,16 +1229,16 @@ export function replaceLiteral(
     _parentContext: unknown,
     { search, replace }: ReplaceLiteralConfig
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => {
-            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+        return input.filter(isNotNil).map((data: any) => {
+            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(data)}`);
             return data.replace(search, replace);
         });
     }
 
-    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
+    if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
 
     try {
         return input.replace(search, replace);
@@ -1170,33 +1268,33 @@ export function splitString(
     _parentContext?: unknown,
     args?: { delimiter: string }
 ): string[]|(string[][])|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const delimiter = args ? args.delimiter : '';
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => {
-            if (!ts.isString(data)) {
-                throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+        return input.filter(isNotNil).map((data: any) => {
+            if (!_isString(data)) {
+                throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(data)}`);
             }
             return data.split(delimiter);
         });
     }
 
-    if (ts.isString(input)) {
+    if (_isString(input)) {
         return input.split(delimiter);
     }
 
-    throw new Error(`Input must be a string or an array, got ${ts.getTypeOf(input)}`);
+    throw new Error(`Input must be a string or an array, got ${getTypeOf(input)}`);
 }
 
 function _makeUnitTime(input: any, { ms = false } = {}) {
     let time: boolean | number;
 
     if (ms) {
-        time = ts.getTime(input);
+        time = getTime(input);
     } else {
-        time = ts.getUnixTime(input);
+        time = getUnixTime(input);
     }
 
     return time as number;
@@ -1224,10 +1322,10 @@ function _makeUnitTime(input: any, { ms = false } = {}) {
 export function toUnixTime(
     input: unknown, _parentContext?: unknown, { ms = false } = {}
 ): number|number[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => {
+        return input.filter(isNotNil).map((data: any) => {
             if (!isValidDate(data)) {
                 throw new Error(`Not a valid date, cannot transform ${data} to unix time`);
             }
@@ -1270,11 +1368,11 @@ function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }
 export function toISO8601(
     input: unknown, _parentContext?: unknown, args?: { resolution?: 'seconds' | 'milliseconds' }
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => {
                 if (!isValidDate(data)) {
                     throw new Error(`Input is not valid date, received ${data}`);
@@ -1304,7 +1402,7 @@ function _formatDate(input: any, args: FormatDateConfig) {
     let value = input;
     const { format, resolution } = args;
 
-    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, received ${ts.getTypeOf(input)}`);
+    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, received ${getTypeOf(input)}`);
 
     if (isString(value)) value = new Date(value);
     if (isNumber(value) && resolution === 'seconds') value *= 1000;
@@ -1341,11 +1439,11 @@ function _formatDate(input: any, args: FormatDateConfig) {
 export function formatDate(
     input: unknown, _parentContext: unknown, args: FormatDateConfig
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => _formatDate(data, args));
     }
 
@@ -1357,16 +1455,16 @@ interface ParseDateConfig {
 }
 
 function _parseDate(input: any, args: ParseDateConfig) {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const { format } = args;
     if (!isString(format)) {
-        throw new Error(`Invalid parameter format, must be a string, received ${ts.getTypeOf(input)}`);
+        throw new Error(`Invalid parameter format, must be a string, received ${getTypeOf(input)}`);
     }
 
     const parsed = parse(input, format, new Date());
 
-    if (!ts.isValidDateInstance(parsed)) {
+    if (!isValidDateInstance(parsed)) {
         throw new Error('Cannot parse date');
     }
 
@@ -1401,11 +1499,11 @@ function _parseDate(input: any, args: ParseDateConfig) {
 export function parseDate(
     input: unknown, _parentContext: unknown, args: ParseDateConfig
 ): Date|(Date|null)[]|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     if (isArray(input)) {
         return input
-            .filter(ts.isNotNil)
+            .filter(isNotNil)
             .map((data: any) => _parseDate(data, args));
     }
 
@@ -1430,10 +1528,10 @@ export function parseDate(
 export function toCamelCase(
     input: string, _parentContext?: unknown
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toCamelCase);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toCamelCase);
 
-    return ts.toCamelCase(input);
+    return _toCamelCase(input);
 }
 
 /**
@@ -1455,10 +1553,10 @@ export function toCamelCase(
 export function toKebabCase(
     input: string, _parentContext?: unknown
 ): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toKebabCase);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toKebabCase);
 
-    return ts.toKebabCase(input);
+    return _toKebabCase(input);
 }
 
 /**
@@ -1477,10 +1575,10 @@ export function toKebabCase(
  */
 
 export function toPascalCase(input: string, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toPascalCase);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toPascalCase);
 
-    return ts.toPascalCase(input);
+    return _toPascalCase(input);
 }
 
 /**
@@ -1498,10 +1596,10 @@ export function toPascalCase(input: string, _parentContext?: unknown): string|st
  */
 
 export function toSnakeCase(input: string, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toSnakeCase);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toSnakeCase);
 
-    return ts.toSnakeCase(input);
+    return _toSnakeCase(input);
 }
 
 /**
@@ -1516,8 +1614,8 @@ export function toSnakeCase(input: string, _parentContext?: unknown): string|str
  */
 
 export function toTitleCase(input: string, _parentContext?: unknown): string|string[]|null {
-    if (ts.isNil(input)) return null;
-    if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toTitleCase);
+    if (isNil(input)) return null;
+    if (isArray(input)) return input.filter(isNotNil).map(_toTitleCase);
 
-    return ts.toTitleCase(input);
+    return _toTitleCase(input);
 }

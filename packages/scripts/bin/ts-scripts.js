@@ -9,7 +9,7 @@ async function main() {
     try {
         await import('../dist/src/command.js')
     } catch(err) {
-        console.log('err from main', err)
+        console.error(`Could not execute command file, error: ${err}`)
     }
 }
 

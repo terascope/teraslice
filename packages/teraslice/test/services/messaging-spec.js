@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import events from 'events';
 import { debugLogger } from '@terascope/job-components';
 import messagingModule from '../../lib/cluster/services/cluster/backends/native/messaging.js';

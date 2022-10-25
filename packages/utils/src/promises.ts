@@ -1,11 +1,9 @@
 import { debugLogger } from './logger.js';
 import { toHumanTime } from './dates.js';
 import {
-    isRetryableError,
-    TSError,
-    parseError,
+    isRetryableError, TSError, parseError,
     isFatalError
-} from './errors';
+} from './errors.js';
 
 const logger = debugLogger('utils:promises');
 

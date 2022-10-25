@@ -1,5 +1,5 @@
 import ms from 'ms';
-import _ from 'lodash';
+import _ from 'lodash-es;
 import Messaging from '@terascope/teraslice-messaging';
 import {
     TSError, includes, get,

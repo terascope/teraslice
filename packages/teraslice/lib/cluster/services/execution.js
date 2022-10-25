@@ -1,9 +1,8 @@
-import sortBy from 'lodash/sortBy';
 import {
     Queue, TSError, getFullErrorStack,
     logError, get, withoutNil, isEmpty,
     isString, flatten, includes,
-    cloneDeep,
+    cloneDeep, lodashSortBy
 } from '@terascope/utils';
 import { setInterval } from 'timers';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -253,7 +252,7 @@ export default function executionService(context, { clusterMasterServer }) {
         });
 
         const results = await Promise.all(promises);
-        return sortBy(results, ['name', 'started']).reverse();
+        return lodashSortBy(results, ['name', 'started']).reverse();
     }
 
     /**

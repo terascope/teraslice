@@ -12,7 +12,7 @@ import {
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
-} from '../column';
+} from '../column/index.js';
 import { AggregationFrame } from '../aggregation-frame/index.js';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
@@ -21,12 +21,12 @@ import {
     isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter,
     splitOnNewLineIterator
-} from './utils';
+} from './utils.js';
 import { Builder, getBuildersForConfig } from '../builder/index.js';
 import {
     FieldArg, flattenStringArg, getFieldsFromArg,
     WritableData,
-} from '../core';
+} from '../core/index.js';
 import { getMaxColumnSize } from '../aggregation-frame/utils.js';
 import { SerializeOptions, Vector, VectorType } from '../vector/index.js';
 import { buildSearchMatcherForQuery } from './search/index.js';

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import _podsJobRunning from './files/job-running-v1-k8s-pods.json';
 import k8sState from '../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState.js';
 

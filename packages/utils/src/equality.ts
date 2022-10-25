@@ -1,5 +1,5 @@
-import _isEqualWith from 'lodash/isEqualWith';
-import { toBigIntOrThrow } from '.';
+import { isEqualWith as _isEqualWith } from 'lodash-es';
+import { toBigIntOrThrow } from './numbers.js';
 import { isDataEntity } from './entities/utils.js';
 
 /**

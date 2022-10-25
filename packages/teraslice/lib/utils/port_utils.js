@@ -1,7 +1,6 @@
-import shuffle from 'lodash/shuffle';
 import {
     get, times, pDelay,
-    toIntegerOrThrow,
+    toIntegerOrThrow, shuffle
 } from '@terascope/utils';
 import porty from 'porty';
 

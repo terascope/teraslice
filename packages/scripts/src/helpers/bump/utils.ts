@@ -3,10 +3,10 @@ import {
     get, chunk, isEmpty,
     joinList
 } from '@terascope/utils';
-import { 
+import {
     BumpPackageOptions, BumpPkgInfo, BumpType
 } from './interfaces.js';
-import { 
+import {
     isMainPackage, findPackageByName, getRemotePackageVersion
 } from '../packages.js';
 import { PackageInfo } from '../interfaces.js';

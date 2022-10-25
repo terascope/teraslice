@@ -1,10 +1,9 @@
 'use strict';
 
-const { times, random } = require('@terascope/utils');
+const { times, random, shuffle } = require('@terascope/utils');
 const { FieldType } = require('@terascope/types');
 const fs = require('fs');
 const path = require('path');
-const shuffle = require('lodash/shuffle');
 const Chance = require('chance');
 const util = require('util');
 const stream = require('stream');

@@ -42,7 +42,6 @@
         "@turf/helpers": "^6.2.0",
         "@turf/invariant": "^6.2.0",
         "@turf/line-to-polygon": "^6.4.0",
-        "@types/lodash": "^4.14.185",
         "@types/validator": "^13.7.7",
         "awesome-phonenumber": "^2.70.0",
         "date-fns": "^2.29.3",
@@ -59,7 +58,7 @@
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
-        "lodash": "^4.17.21",
+        "lodash-es": "^4.17.21",
         "mnemonist": "^0.39.3",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
@@ -68,6 +67,7 @@
     "devDependencies": {
         "@types/debug": "^4.1.6",
         "@types/js-string-escape": "^1.0.1",
+        "@types/lodash-es": "^4.17.6",
         "benchmark": "^2.1.4"
     },
     "engines": {

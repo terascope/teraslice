@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { pDelay, pDefer } from '@terascope/utils';
 
 export function makeShutdownEarlyFn({ exController, enabled = false }) {

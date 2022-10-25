@@ -2,7 +2,7 @@ import 'jest-extended'; // require for type definitions
 import {
     DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY, DataEntityMetadata,
-} from '../src/entities';
+} from '../src/entities/index.js';
 import {
     parseJSON, cloneDeep, fastCloneDeep,
     firstToLower,

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { v4 as uuidv4 } from 'uuid';
 import { pDelay } from '@terascope/utils';
 import TestContext from '../helpers/test-context.js';

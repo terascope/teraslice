@@ -4,7 +4,6 @@
         "outDir": "dist",
         "rootDir": ".",
         "esModuleInterop": true,
-        "moduleResolution": "node"
     },
     "include": ["src", "test"]
 }

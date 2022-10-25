@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { escapeString } from '../src/deps';
+import { escapeString } from '../src/deps.js';
 import {
     toSafeString, unescapeString, getWordParts,
     toCamelCase, toPascalCase, toSnakeCase,
@@ -10,7 +10,7 @@ import {
     isPort, isMIMEType, contains, trim,
     trimStart, trimEnd, isAlpha, toTitleCase,
     stringEntropy, StringEntropy, shannonEntropy
-} from '../src/strings';
+} from '../src/strings.js';
 
 describe('String Utils', () => {
     describe('isString', () => {

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 
 const defaultResults = _.times(10, () => ({ hello: true }));
 const defaultSlicerResults = [{ howdy: true }, null];

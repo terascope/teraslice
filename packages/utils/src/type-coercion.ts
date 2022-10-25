@@ -12,7 +12,7 @@ import {
     isValidateNumberType, toBigIntOrThrow,
     toNumberOrThrow, toIntegerOrThrow,
     toFloatOrThrow,
-} from './numbers';
+} from './numbers.js';
 import { toGeoJSONOrThrow, parseGeoPoint } from './geo.js';
 import { hasOwn } from './objects.js';
 import { isArrayLike, castArray } from './arrays.js';

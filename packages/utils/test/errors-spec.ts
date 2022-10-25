@@ -3,7 +3,7 @@ import {
     TSError, ElasticsearchError, isFatalError,
     isRetryableError, parseError, isTSError,
     stripErrorMessage
-} from '../src/errors';
+} from '../src/errors.js';
 import { times } from '../src/index.js';
 
 describe('Error Utils', () => {

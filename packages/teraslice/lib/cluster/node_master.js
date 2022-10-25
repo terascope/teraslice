@@ -1,5 +1,5 @@
 import ms from 'ms';
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { Mutex } from 'async-mutex';
 import { getFullErrorStack } from '@terascope/utils';
 import { makeLogger } from '../workers/helpers/terafoundation.js';

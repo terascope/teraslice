@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import _ from 'lodash';
+import { take } from 'lodash-es';
 import { BatchProcessor } from '@terascope/job-components';
 
 export default class Stdout extends BatchProcessor {
@@ -8,7 +8,7 @@ export default class Stdout extends BatchProcessor {
         if (this.opConfig.limit === 0) {
             console.log(data);
         } else {
-            console.log(_.take(data, this.opConfig.limit));
+            console.log(take(data, this.opConfig.limit));
         }
         return data;
     }

@@ -1,4 +1,4 @@
-import '../../formats'; // require to add the schema formats
+import '../../formats.js'; // require to add the schema formats
 import Core from './core.js';
 import {
     ExecutionConfig, WorkerOperationLifeCycle, OpAPI,

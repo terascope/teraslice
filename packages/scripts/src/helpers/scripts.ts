@@ -137,13 +137,17 @@ export async function yarnRun(
     });
 }
 
+// https://jestjs.io/docs/ecmascript-modules
+const NodeOptions = { NODE_OPTIONS : '--experimental-vm-modules' };
+
 export async function runJest(
     cwd: string,
     argsMap: ArgsMap,
-    env?: ExecEnv,
+    envArgs?: ExecEnv,
     extraArgs?: string[],
     debug?: boolean
 ): Promise<void> {
+    const env = envArgs ? { ...envArgs, ...NodeOptions } : { ...NodeOptions };
     const args = mapToArgs(argsMap);
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {

@@ -1,7 +1,6 @@
 'use strict';
 
-import { times, get } from '@terascope/utils';
-import defaultsDeep from 'lodash/defaultsDeep';
+import { times, get, defaultsDeep } from '@terascope/utils';
 import path from 'path';
 import fs from 'fs';
 

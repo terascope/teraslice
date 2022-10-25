@@ -1,8 +1,7 @@
-import defaultsDeep from 'lodash/defaultsDeep';
 import {
     TSError, uniq, get,
     cloneDeep, isEmpty, getTypeOf,
-    isString,
+    isString, defaultsDeep
 } from '@terascope/utils';
 import { JobValidator } from '@terascope/job-components';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import { DataEntity } from '../src/entities/index.js';
-import { getTypeOf, isPlainObject, cloneDeep } from '../src/deps';
+import { getTypeOf, isPlainObject, cloneDeep } from '../src/deps.js';
 
 describe('Dependency Utils', () => {
     class TestObj {

@@ -1,8 +1,10 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
-import { defaultsDeep } from 'lodash';
-import { isPlainObject, get, toTitleCase } from '@terascope/utils';
+import {
+    isPlainObject, get, toTitleCase,
+    defaultsDeep
+} from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces.js';
 import { NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE } from './config.js';

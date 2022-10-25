@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     getFirstKey, getFirstValue, withoutNil,
     filterObject, isObjectEntity, lookup
-} from '../src/objects';
+} from '../src/objects.js';
 import { DataEntity } from '../src/index.js';
 
 describe('Objects', () => {

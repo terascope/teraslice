@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import eventsModule from 'events';
 import { debugLogger } from '@terascope/job-components';
 import nodeModule from '../lib/cluster/node_master.js';

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 import { nanoid } from 'nanoid';
 import { pDelay, Queue } from '@terascope/utils';
 

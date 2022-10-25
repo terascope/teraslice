@@ -9,7 +9,7 @@ import {
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
     ObjectVector, StringVector, IPVector, IPRangeVector,
     TupleVector, GeoBoundaryVector,
-} from './types';
+} from './types/index.js';
 import { Vector, VectorOptions } from './Vector.js';
 import { DataBuckets } from './interfaces.js';
 

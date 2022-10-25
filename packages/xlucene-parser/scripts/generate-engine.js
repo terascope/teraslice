@@ -16,7 +16,7 @@ export default function generate() {
         optimize: 'speed',
         plugins: [tspegjs],
         parser: {},
-        format: 'commonjs',
+        format: 'es',
         tspegjs: {
             noTslint: true,
             customHeader: "import { makeContext } from './context';\nimport * as i from './interfaces.js';\nimport { xLuceneFieldType } from '@terascope/types';"

@@ -1,5 +1,5 @@
 import ms from 'ms';
-import got from 'got';
+import { default as got } from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'path';
@@ -18,8 +18,8 @@ const logger = ts.debugLogger('ts-scripts:cmd:test');
 
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
-const rabbitConfigPath = path.join(getRootDir(), '/.ts-test-config/rabbitmq.conf');
-const restrainedElasticsearchConfigPath = path.join(getRootDir(), '/.ts-test-config/elasticsearch.yml');
+const rabbitConfigPath = path.join(getRootDir(), '/.js-test-config/rabbitmq.conf');
+const restrainedElasticsearchConfigPath = path.join(getRootDir(), '/.js-test-config/elasticsearch.yml');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
@@ -326,6 +326,7 @@ async function checkRestrainedOpensearch(
             let body: any;
 
             try {
+                // @ts-expect-error
                 ({ body } = await got(host, {
                     username,
                     password,
@@ -394,6 +395,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             let body: any;
 
             try {
+                // @ts-expect-error
                 ({ body } = await got(host, {
                     username,
                     password,
@@ -462,6 +464,7 @@ async function checkRestrainedElasticsearch(
 
             let body: any;
             try {
+                // @ts-expect-error
                 ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
@@ -525,6 +528,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
 
             let body: any;
             try {
+                // @ts-expect-error
                 ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
@@ -589,6 +593,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
 
             let statusCode: number;
             try {
+                // @ts-expect-error
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
                     responseType: 'json',
@@ -640,6 +645,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             let statusCode: number;
 
             try {
+                // @ts-expect-error
                 ({ statusCode } = await got('api/overview', {
                     prefixUrl: managementEndpoint,
                     responseType: 'json',

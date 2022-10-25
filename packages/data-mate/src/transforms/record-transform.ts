@@ -1,7 +1,8 @@
 import { FieldType } from '@terascope/types';
 import * as ts from '@terascope/utils';
+import { jexl } from '../jexl/index.js';
 import { Repository, RecordInput, InputType } from '../interfaces.js';
-import { isString, isArray } from '../validations/field-validator.js';
+import { isString, isArray, isLength } from '../validations/field-validator.js';
 
 export const repository: Repository = {
     renameField: {
@@ -60,6 +61,15 @@ export const repository: Repository = {
         output_type: FieldType.Any,
         primary_input_type: InputType.Array
     },
+    transformRecord: {
+        fn: transformRecord,
+        config: {
+            jexlExp: { type: FieldType.String },
+            field: { type: FieldType.String },
+        },
+        output_type: FieldType.Object,
+        primary_input_type: InputType.Object
+    }
 };
 
 /**
@@ -275,13 +285,37 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
  * @returns object
  */
 
-// this will be overwritten by transformRecord in jexl folder
-export function transformRecord(
-    _input: RecordInput,
-    _parentContext: RecordInput,
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    _args: any
-): ts.AnyObject|null { return null; }
+ export function transformRecord(
+    input: RecordInput,
+    parentContext: RecordInput,
+    args: { jexlExp: string; field: string }
+): RecordInput|null {
+    if (ts.isNil(input)) return null;
+    if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
+    if (!isString(args.jexlExp) || !isLength(args.jexlExp, parentContext, { min: 1 })) {
+        throw new Error('Argument parameter jexlExp must must be provided and be a string value');
+    }
+    if (!isString(args.field) || !isLength(args.field, parentContext, { min: 1 })) {
+        throw new Error('Argument parameter field must must be provided and be a string value');
+    }
+
+    if (isArray(input)) {
+        return input
+            .map((data: any) => {
+                if (!ts.isObjectEntity(data)) return null;
+                const value = jexl.evalSync(args.jexlExp, data);
+                if (ts.isNotNil(value)) data[args.field] = value;
+                return data;
+            })
+            .filter(ts.isNotNil);
+    }
+
+    if (!ts.isObjectEntity(input)) return null;
+
+    const value = jexl.evalSync(args.jexlExp, input);
+    if (ts.isNotNil(value)) input[args.field] = value;
+    return input;
+}
 
 /**
  * returns an array with only unique values

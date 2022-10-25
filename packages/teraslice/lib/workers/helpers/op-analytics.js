@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es;
 
 function formatVal(value) {
     if (_.isString(value)) return `"${value}"`;

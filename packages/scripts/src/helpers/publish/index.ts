@@ -1,9 +1,9 @@
 import {
-    get, concat, pMap, 
+    get, concat, pMap,
     isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces.js';
-import { 
+import {
     listPackages, getMainPackageInfo, getPublishTag
 } from '../packages.js';
 import { PublishAction, PublishOptions, PublishType } from './interfaces.js';

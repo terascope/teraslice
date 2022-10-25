@@ -1,16 +1,13 @@
 import { DataFrame } from './data-frame/index.js';
-import {
-    jexl, extract, extractConfig, 
-    transformRecord, transformRecordConfig
-} from './jexl';
+import { jexl, setup } from './jexl/index.js';
+import { FieldValidator, RecordValidator } from './validations/index.js';
+
 import { FieldTransform, RecordTransform } from './transforms/index.js';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
 
-FieldTransform.repository.extract = extractConfig;
-FieldTransform.extract = extract;
-
-RecordTransform.repository.transformRecord = transformRecordConfig;
-RecordTransform.transformRecord = transformRecord;
+setup(FieldTransform);
+setup(FieldValidator);
+setup(RecordValidator);
 
 declare module './aggregation-frame/AggregationFrame' {
     interface AggregationFrame<T extends Record<string, any>> {
@@ -66,11 +63,12 @@ export * from './data-frame/index.js';
 export * from './document-matcher/index.js';
 export * from './interfaces.js';
 export * from './transforms/helpers.js';
-export * from './validations/index.js';
 export * from './vector/index.js';
 export {
     FieldTransform,
     RecordTransform,
+    FieldValidator,
+    RecordValidator,
     jexl
 };
 

@@ -7,7 +7,6 @@ import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
 import { FieldType, GeoShapePoint, MACDelimiter } from '@terascope/types';
-
 import {
     FQDNOptions,
     HashConfig,

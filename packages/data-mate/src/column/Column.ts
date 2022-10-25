@@ -4,9 +4,7 @@ import {
     DataTypeFields, FieldType, ReadonlyDataTypeFields
 } from '@terascope/types';
 import { Builder } from '../builder/index.js';
-import {
-    SerializeOptions, Vector
-} from '../vector';
+import { SerializeOptions, Vector } from '../vector/index.js';
 import { ColumnConfig, ColumnOptions } from './interfaces.js';
 import { runVectorAggregation, ValueAggregation } from './aggregations.js';
 import { getVectorId } from './utils.js';

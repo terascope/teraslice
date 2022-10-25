@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     matchAll, match, formatRegex,
     matchWildcard,
-} from '../src/regex';
+} from '../src/regex.js';
 
 describe('Regex Utils', () => {
     describe('formatRegex', () => {

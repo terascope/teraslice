@@ -1,5 +1,6 @@
 import _isIP from 'is-ip';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
+// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';

@@ -1,9 +1,11 @@
-import * as ts from '@terascope/utils';
+import {
+    defaultsDeep, isString, set,
+    startsWith
+} from '@terascope/utils';
 import {
     DataTypeConfig, DataTypeVersion, ESMapping,
     ESTypeMappings, ReadonlyDataTypeFields, xLuceneTypeConfig
 } from '@terascope/types';
-import defaultsDeep from 'lodash/defaultsDeep';
 import { formatSchema, formatGQLComment } from './graphql-helper.js';
 import * as i from './interfaces.js';
 import BaseType from './types/base-type.js';
@@ -41,7 +43,7 @@ export class DataType {
         const names: string[] = [];
 
         types.forEach((type) => {
-            if (!type.name || !ts.isString(type.name)) {
+            if (!type.name || !isString(type.name)) {
                 throw new Error('Unable to process DataType with missing type name');
             }
 
@@ -134,17 +136,17 @@ export class DataType {
                     const keyPath = version !== 6
                         ? ['mappings', 'properties', key]
                         : ['mappings', indexType, 'properties', key];
-                    ts.set(esMapping, keyPath, config);
+                    set(esMapping, keyPath, config);
                 }
             }
             if (analyzer) {
                 for (const [key, config] of Object.entries(analyzer)) {
-                    ts.set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
+                    set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
                 }
             }
             if (tokenizer) {
                 for (const [key, config] of Object.entries(tokenizer)) {
-                    ts.set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
+                    set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
                 }
             }
         }
@@ -189,7 +191,7 @@ export class DataType {
 
             if (createInputType) {
                 if (args.includeAllInputFields
-                    || !ts.startsWith(typeClass.field, '_')) {
+                    || !startsWith(typeClass.field, '_')) {
                     const inputResult = typeClass.toGraphQL({
                         typeName,
                         isInput: true,

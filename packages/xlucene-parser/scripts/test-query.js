@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 
-'use strict';
-
 import { xLuceneFieldType } from '@terascope/types';
 import { Parser } from '../dist/src/index.js';
 

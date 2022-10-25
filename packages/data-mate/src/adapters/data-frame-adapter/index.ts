@@ -5,7 +5,7 @@ import {
     getFieldTypesFromFieldConfigAndChildConfig,
     ColumnOptions, mapVectorEach, mapVectorEachValue,
     dynamicMapVectorEach, dynamicMapVectorEachValue
-} from '../../column';
+} from '../../column/index.js';
 import { DataFrame } from '../../data-frame/index.js';
 import {
     FieldTransformConfig, isFieldTransform, isFieldValidation,
