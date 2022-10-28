@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
+import type { Arguments } from 'yargs';
+import { hideBin } from 'yargs/helpers'
 import { TSError, get, set } from '@terascope/utils';
 import { ESMapping } from '@terascope/types';
 import { DataType, DataTypeConfig } from './index.js';
@@ -10,8 +12,9 @@ import { validateDataTypeConfig } from './utils.js';
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
-// eslint-disable-next-line
-yargs
+const y = yargs(hideBin(process.argv))
+
+y
     .command({
         command: 'es-mapping',
         aliases: ['es'],
@@ -79,16 +82,16 @@ yargs
     .version(version)
     .strict()
     .showHelpOnFail(false, 'Specify --help for available options')
-    .wrap(yargs.terminalWidth()).argv;
+    .wrap(y.terminalWidth()).argv;
 
 interface ESData {
     _source: Record<string, any>;
 }
 
-type CommandHandler = (data: DataType, argv: yargs.Arguments<any>) => any;
+type CommandHandler = (data: DataType, argv: Arguments<any>) => any;
 
 function wrapper(handler: CommandHandler) {
-    return async (argv: yargs.Arguments<any>) => {
+    return async (argv: Arguments<any>) => {
         try {
             const config = await getDataTypeConfigFromStdin();
             const dataType = new DataType(config, argv.name);
@@ -106,7 +109,7 @@ function wrapper(handler: CommandHandler) {
     };
 }
 
-function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
+function getESMapping(dataType: DataType, argv: Arguments<any>) {
     const overrides: Partial<ESMapping> = argv.overrides || {};
     if (argv.shards != null) {
         set(overrides, ['settings', 'index.number_of_shards'], argv.shards);
@@ -205,7 +208,7 @@ async function getDataTypeConfigFromStdin(): Promise<DataTypeConfig> {
 }
 
 function throwHelpError(msg: string): never {
-    yargs.showHelp('error');
+    y.showHelp('error');
     console.error(`\nERROR: ${msg}`);
     return process.exit(1);
 }

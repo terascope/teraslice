@@ -5,33 +5,21 @@ import {
     GeoShapePolygon, GeoShapeMultiPolygon, ESGeoShape,
     CoordinateTuple, GeoShapeRelation, GeoInput
 } from '@terascope/types';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import bbox from '@turf/bbox';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import bboxPolygon from '@turf/bbox-polygon';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import equal from '@turf/boolean-equal';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import createCircle from '@turf/circle';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import pointInPolygon from '@turf/boolean-point-in-polygon';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import within from '@turf/boolean-within';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import contains from '@turf/boolean-contains';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import disjoint from '@turf/boolean-disjoint';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import intersect from '@turf/boolean-intersects';
 import {
     lineString, multiPolygon, polygon as tPolygon,
     point as tPoint, MultiPolygon, Feature,
     Properties, Polygon, Position,
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 } from '@turf/helpers';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import lineToPolygon from '@turf/line-to-polygon';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import { getCoords } from '@turf/invariant';
 import { find as geoToTimezone } from 'geo-tz';
 import { isArrayLike } from './arrays.js';

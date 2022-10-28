@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import { isString, isNil } from '@terascope/utils';
-import validator from 'validator';
+import validator from 'validator';;
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory

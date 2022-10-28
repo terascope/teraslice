@@ -10,7 +10,6 @@ import { isArrayLike } from './arrays.js';
 import { getTypeOf } from './deps.js';
 import { bigIntToJSON } from './numbers.js';
 
-// const validator = _validator as any;
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {
@@ -489,12 +488,12 @@ export function isMACAddressFP(args?: MACDelimiter) {
 }
 
 export function isURL(input: unknown): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isURL(input);
 }
 
 export function isUUID(input: unknown): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isUUID(input);
 }
 
@@ -516,7 +515,7 @@ export function containsFP(substring: string) {
 
 export function isBase64(input: unknown): boolean {
     if (!isString(input)) return false;
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     const validatorValid = validator.isBase64(input);
 
     if (validatorValid) {
@@ -530,40 +529,39 @@ export function isBase64(input: unknown): boolean {
 }
 
 export function isFQDN(input: unknown): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isFQDN(input);
 }
 
 export function isCountryCode(input: unknown): boolean {
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isISO31661Alpha2(input);
 }
-
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+// @ts-ignore
 export function isPostalCode(input: unknown, locale: validator.PostalCodeLocale | 'any' = 'any'): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return validator.isPostalCode(toString(input), locale);
 }
 
 export function isPort(input: unknown): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return validator.isPort(toString(input));
 }
 
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+// @ts-ignore
 export function isAlpha(input: unknown, locale?: validator.AlphaLocale): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isAlpha(input, locale);
 }
 
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+// @ts-ignore
 export function isAlphaNumeric(input: unknown, locale?: validator.AlphanumericLocale): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return isString(input) && validator.isAlphanumeric(input, locale);
 }
 
 export function isMIMEType(input: unknown): boolean {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
+    // @ts-ignore
     return validator.isMimeType(toString(input));
 }
 

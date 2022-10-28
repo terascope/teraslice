@@ -1,6 +1,6 @@
 import { isAlphaNumeric, joinList, isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import validator from 'validator';
+import validator from 'validator';;
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionCategory,
     FunctionDefinitionType, FunctionDefinitionExample

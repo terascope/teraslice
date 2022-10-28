@@ -1,6 +1,6 @@
 import { isPostalCode, joinList, isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import validator from 'validator';
+import validator from 'validator';;
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample,

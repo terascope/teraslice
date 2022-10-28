@@ -1,5 +1,4 @@
 import validator from 'validator';
-// @ts-expect-error type errors
 import parser from 'datemath-parser';
 import {
     parse as parseDate, format as formatDate,

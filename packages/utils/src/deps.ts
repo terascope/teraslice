@@ -7,14 +7,10 @@ import {
     pickBy, shuffle, sortBy,
     defaultsDeep
 } from 'lodash-es';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import _clone from 'shallow-clone';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
-// @ts-ignore https://github.com/microsoft/TypeScript/issues/49160
 import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
 import { AnyObject } from './interfaces.js';
