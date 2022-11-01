@@ -8,7 +8,7 @@ import {
     isValidDateInstance, toCamelCase as _toCamelCase,
     toPascalCase as _toPascalCase, toKebabCase as _toKebabCase,
     toSnakeCase as _toSnakeCase, toTitleCase as _toTitleCase,
-    AnyObject, matchAll, TSError
+    toNumber as _toNumber, AnyObject, matchAll, TSError
  } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import crypto from 'crypto';
@@ -419,7 +419,7 @@ export function toBoolean(input: unknown, _parentContext?: unknown): boolean|boo
     if (isNil(input)) return null;
     if (isArray(input)) return input.filter(isNotNil).map(_toBoolean);
 
-    return toBoolean(input);
+    return _toBoolean(input);
 }
 
 /**
@@ -436,6 +436,7 @@ export function toBoolean(input: unknown, _parentContext?: unknown): boolean|boo
  */
 
 export function toUpperCase(input: StringInput, _parentContext?: unknown): string|string[]|null {
+    console.log('uppercase input', input)
     if (isNil(input)) return null;
     if (isArray(input)) return input.filter(isNotNil).map((str: string) => str.toUpperCase());
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${getTypeOf(input)}`);
@@ -603,7 +604,7 @@ function parsePhoneNumber(str: any) {
 
     // needs to start with a +
     if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
-
+    // @ts-ignore
     const fullNumber = new PhoneValidator(testNumber).getNumber();
     if (fullNumber) return String(fullNumber).slice(1);
 
@@ -636,10 +637,10 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
     let result = input;
 
     if (args?.booleanLike === true && _isBooleanLike(input)) {
-        result = _isNumber(toBoolean(result));
+        result = _toNumber(toBoolean(result));
     }
 
-    result = _isNumber(result);
+    result = _toNumber(result);
 
     if (Number.isNaN(result)) throw new Error(`Could not convert input of type ${getTypeOf(input)} to a number`);
     return result;
@@ -1066,7 +1067,7 @@ export function extract(
     parentContext: AnyObject,
     {
         regex, isMultiValue = true, jexlExp, start, end
-    }: ExtractFieldConfig
+    }: ExtractFieldConfig = {}
 ): RecordInput|null {
     if (isNil(input)) return null;
 
@@ -1147,6 +1148,7 @@ export function extract(
     }
 
     const results = extractValue();
+
     if (results == null) return null;
 
     return results;

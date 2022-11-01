@@ -15,33 +15,26 @@ class Jexl extends jexlCore.Jexl {
         }
 
         this._context = context;
+
         const exprObj = this.createExpression(expression);
+
         const results = exprObj.evalSync(context);
         this._context = {};
+
         return results;
     }
 }
 
 const jexl = new Jexl();
 
-const bridgeToJexl = (fn: any) => {
-    // @ts-expect-error
-    const jexlInstance = this ? this.jexl : undefined;
+export const bridgeToJexl = (fn: any) => {
     return (value: any, _context: AnyObject | undefined, _config: any) => {
-        let config;
-        let context;
-
-        if (isNil(config) && jexlInstance) {
-            context = jexlInstance._context;
-            config = _context;
-        } else {
-            config = _config;
-            context = _context;
-        }
+        const context = jexl._context;
+        const config = _context;
 
         return fn(value, context, config as any);
     };
-};
+}
 
 export function setup(operationClass: any) {
     for (const config of Object.values(operationClass.repository as Repository)) {

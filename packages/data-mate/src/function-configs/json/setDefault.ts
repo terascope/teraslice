@@ -45,7 +45,7 @@ export const setDefaultConfig: FieldTransformConfig<SetDefaultArgs> = {
             }
             if (isListValue) {
                 if (value == null) return [args.value];
-                const result = [];
+                const result: any[] = [];
                 for (const val of castArray(value)) {
                     result.push(val != null ? val : args.value);
                 }

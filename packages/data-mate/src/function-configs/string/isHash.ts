@@ -64,7 +64,9 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
         }
     ],
     create({ args: { algo } }) {
+        // @ts-ignore
         return (input: unknown) => isString(input) && validator.isHash(
+            // @ts-ignore
             input, algo as validator.HashAlgorithm
         );
     },

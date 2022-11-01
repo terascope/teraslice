@@ -1,5 +1,9 @@
 import { FieldType } from '@terascope/types';
-import * as ts from '@terascope/utils';
+import {
+    isNotNil, isNil, AnyObject,
+    isObjectEntity, isEmpty, isPlainObject,
+    sortKeys, getTypeOf
+} from '@terascope/utils';
 import { jexl } from '../jexl/index.js';
 import { Repository, RecordInput, InputType } from '../interfaces.js';
 import { isString, isArray, isLength } from '../validations/field-validator.js';
@@ -91,8 +95,8 @@ export function renameField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { from: string; to: string }
-): ts.AnyObject|null {
-    if (ts.isNil(input)) return null;
+): AnyObject|null {
+    if (isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
     const { from, to } = args;
@@ -101,15 +105,15 @@ export function renameField(
     if (isArray(input)) {
         return input
             .map((data: any) => _migrate(data, from, to))
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
         // we filter afterwards to remove nulls
     }
 
     return _migrate(input, from, to);
 }
 
-function _migrate(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isObjectEntity(doc)) return null;
+function _migrate(doc: AnyObject, from: string, to: string) {
+    if (!isObjectEntity(doc)) return null;
 
     doc[to] = doc[from];
     delete doc[from];
@@ -136,8 +140,8 @@ export function setField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { field: string; value: any }
-): ts.AnyObject|null {
-    if (ts.isNil(input)) return null;
+): AnyObject|null {
+    if (isNil(input)) return null;
     _validateArgs(args, ['field', 'value']);
 
     const { field, value } = args;
@@ -146,14 +150,14 @@ export function setField(
     if (isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectEntity(data)) return null;
+                if (!isObjectEntity(data)) return null;
                 data[field] = value;
                 return data;
             })
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
     }
 
-    if (!ts.isObjectEntity(input)) return null;
+    if (!isObjectEntity(input)) return null;
 
     input[field] = value;
     return input;
@@ -178,8 +182,8 @@ export function dropFields(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { fields: string[] }
-): ts.AnyObject|null {
-    if (ts.isNil(input)) return null;
+): AnyObject|null {
+    if (isNil(input)) return null;
     _validateArgs(args, ['fields']);
 
     const { fields } = args;
@@ -188,14 +192,14 @@ export function dropFields(
     if (isArray(input)) {
         return input
             .map((data: any) => _removeKeys(data, fields))
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
     }
 
     return _removeKeys(input, fields);
 }
 
-function _removeKeys(obj: ts.AnyObject, fields: string[]) {
-    if (!ts.isObjectEntity(obj)) return null;
+function _removeKeys(obj: AnyObject, fields: string[]) {
+    if (!isObjectEntity(obj)) return null;
 
     for (const field of fields) {
         delete obj[field];
@@ -224,8 +228,8 @@ export function copyField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { from: string; to: string }
-): ts.AnyObject|null {
-    if (ts.isNil(input)) return null;
+): AnyObject|null {
+    if (isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
     const { from, to } = args;
@@ -234,21 +238,21 @@ export function copyField(
     if (isArray(input)) {
         return input
             .map((data: any) => _copyField(data, from, to))
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
     }
 
     return _copyField(input, from, to);
 }
 
-function _copyField(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isObjectEntity(doc)) return null;
+function _copyField(doc: AnyObject, from: string, to: string) {
+    if (!isObjectEntity(doc)) return null;
 
     if (doc[from] !== undefined) doc[to] = doc[from];
     return doc;
 }
 
-function _validateArgs(args: ts.AnyObject, fields: string[]) {
-    if (ts.isNil(args)) throw new Error('Paramter args must be provided');
+function _validateArgs(args: AnyObject, fields: string[]) {
+    if (isNil(args)) throw new Error('Paramter args must be provided');
 
     for (const key of fields) {
         if (args[key] === undefined) throw new Error(`key ${key} was not provided on args, it is required`);
@@ -290,8 +294,8 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
     parentContext: RecordInput,
     args: { jexlExp: string; field: string }
 ): RecordInput|null {
-    if (ts.isNil(input)) return null;
-    if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
+    if (isNil(input)) return null;
+    if (isNil(args)) throw new Error('Argument parameters must be provided');
     if (!isString(args.jexlExp) || !isLength(args.jexlExp, parentContext, { min: 1 })) {
         throw new Error('Argument parameter jexlExp must must be provided and be a string value');
     }
@@ -302,18 +306,26 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
     if (isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectEntity(data)) return null;
+                if (!isObjectEntity(data)) {
+                    return null;
+                }
+
                 const value = jexl.evalSync(args.jexlExp, data);
-                if (ts.isNotNil(value)) data[args.field] = value;
+
+                if (isNotNil(value)) {
+                    data[args.field] = value;
+                }
+    
                 return data;
             })
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
     }
 
-    if (!ts.isObjectEntity(input)) return null;
+    if (!isObjectEntity(input)) return null;
 
     const value = jexl.evalSync(args.jexlExp, input);
-    if (ts.isNotNil(value)) input[args.field] = value;
+
+    if (isNotNil(value)) input[args.field] = value;
     return input;
 }
 
@@ -337,16 +349,16 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
  */
 
 export function dedupe<T = any>(input: any[], _parentContext?: unknown[]): T[] | null {
-    if (ts.isNil(input)) return null;
-    if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
+    if (isNil(input)) return null;
+    if (!isArray(input)) throw new Error(`Input must be an array, received ${getTypeOf(input)}`);
 
     const deduped = new Map<any, true>();
     const results: T[] = [];
 
     for (const value of input) {
-        if (ts.isNotNil(value)) {
-            if (ts.isPlainObject(value) && !ts.isEmpty(value)) {
-                const sorted = ts.sortKeys(value, { deep: true });
+        if (isNotNil(value)) {
+            if (isPlainObject(value) && !isEmpty(value)) {
+                const sorted = sortKeys(value, { deep: true });
                 const json = JSON.stringify(sorted);
 
                 if (!deduped.has(json)) {

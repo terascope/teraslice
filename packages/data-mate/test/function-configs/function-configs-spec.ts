@@ -1,12 +1,15 @@
 import 'jest-extended';
 import { promises as fsp } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { uniq } from '@terascope/utils';
 import {
     functionConfigRepository,
     FunctionDefinitionConfig,
 } from '../../src/index.js';
 import { functionTestHarness } from './functionTestHarness.js';
+
+const testDirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('function configs', () => {
     Object.entries(functionConfigRepository).forEach(([key, fnDef]) => {
@@ -28,7 +31,7 @@ describe('function configs', () => {
 
 describe('function registries', () => {
     it('should ensure that each config file is exported', async () => {
-        const dirPath = path.join(__dirname, '..', '..', 'src/index.js', 'function-configs');
+        const dirPath = path.join(testDirPath, '..', '..', 'src', 'function-configs');
         const configDirs = await fsp.readdir(dirPath);
 
         for (const item of configDirs) {
@@ -38,7 +41,6 @@ describe('function registries', () => {
             const functionPath = path.join(dirPath, item);
 
             const imports = await parseIndexFile(path.join(functionPath, 'index.ts'));
-
             const configFiles = await fsp.readdir(functionPath);
 
             for (const f of configFiles.filter((i) => !(i.endsWith('utils.ts') || i === 'index.ts'))) {
@@ -53,7 +55,11 @@ async function parseIndexFile(indexPath: string): Promise<string[]> {
 
     return indexFile.split('\n').reduce((imports: string[], line) => {
         if (line.includes('import')) {
-            imports.push(line.split('from', 2)[1].replace(/\W/g, ''));
+            const fileNameImported = line.split('from', 2)[1]
+            .replace('.js', '')
+            .replace(/\W/g, '');
+
+            imports.push(fileNameImported);
         }
 
         return imports;

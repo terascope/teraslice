@@ -1,15 +1,20 @@
 import { DataFrame } from './data-frame/index.js';
-import { jexl, setup } from './jexl/index.js';
+import { jexl, setup, bridgeToJexl } from './jexl/index.js';
 import { FieldValidator, RecordValidator } from './validations/index.js';
 
-import { FieldTransform, RecordTransform } from './transforms/index.js';
+import { FieldTransform, RecordTransform,  } from './transforms/index.js';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
 
 setup(FieldTransform);
 setup(FieldValidator);
 setup(RecordValidator);
 
-declare module './aggregation-frame/AggregationFrame' {
+const repoTransformRecord = RecordTransform.repository.transformRecord;
+const transformRecordName = repoTransformRecord.fn.name;
+
+jexl.addTransform(transformRecordName, bridgeToJexl(repoTransformRecord.fn.bind(jexl)))
+
+declare module './aggregation-frame/AggregationFrame.js' {
     interface AggregationFrame<T extends Record<string, any>> {
         /**
          * Run aggregations and flatten the grouped data into a DataFrame

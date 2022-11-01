@@ -7,6 +7,7 @@ import {
 } from '../interfaces.js';
 
 export interface IsPostalCodeArgs {
+    // @ts-ignore
     locale?: validator.PostalCodeLocale;
 }
 
@@ -77,6 +78,7 @@ export const isPostalCodeConfig: FieldValidateConfig<IsPostalCodeArgs> = {
     description: 'Returns the input if it is a valid postal code, otherwise returns null.',
     examples,
     create({ args: { locale } }) {
+        // @ts-ignore
         return (input: unknown) => isPostalCode(input, locale as validator.PostalCodeLocale);
     },
     argument_schema: {
@@ -92,10 +94,11 @@ export const isPostalCodeConfig: FieldValidateConfig<IsPostalCodeArgs> = {
     required_arguments: [],
     validate_arguments({ locale }: IsPostalCodeArgs) {
         if (locale == null || (isString(locale)
+        // @ts-ignore
             && validator.isPostalCodeLocales.includes(locale))) {
             return;
         }
-
+        // @ts-ignore
         throw new Error(`Invalid locale, locale options are ${joinList(validator.isPostalCodeLocales)}`);
     }
 };

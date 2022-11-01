@@ -90,6 +90,7 @@ function isLength(
 ): boolean {
     if (isString(input)) {
         if (size) return input.length === size;
+        // @ts-ignore
         if (min || max) return validator.isLength(input, { min, max });
     }
 

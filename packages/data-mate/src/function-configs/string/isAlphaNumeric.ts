@@ -7,6 +7,7 @@ import {
 } from '../interfaces.js';
 
 export interface IsAlphaNumericArgs {
+    // @ts-ignore
     locale?: validator.AlphanumericLocale;
 }
 
@@ -76,6 +77,7 @@ export const isAlphaNumericConfig: FieldValidateConfig<IsAlphaNumericArgs> = {
     category: FunctionDefinitionCategory.STRING,
     description: 'Returns the input if it is a string composed of only alpha-numeric characters, otherwise returns null.',
     create({ args: { locale } }) {
+        // @ts-ignore
         return (input: unknown) => isAlphaNumeric(input, locale as validator.AlphanumericLocale);
     },
     argument_schema: {
@@ -89,10 +91,11 @@ export const isAlphaNumericConfig: FieldValidateConfig<IsAlphaNumericArgs> = {
     required_arguments: [],
     validate_arguments({ locale }: IsAlphaNumericArgs) {
         if (locale == null || (isString(locale)
+            // @ts-ignore
             && validator.isAlphanumericLocales.includes(locale))) {
             return;
         }
-
+        // @ts-ignore
         throw new Error(`Invalid locale, locale options are ${joinList(validator.isAlphanumericLocales)}`);
     }
 };
