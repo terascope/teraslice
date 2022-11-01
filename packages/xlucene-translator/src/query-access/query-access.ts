@@ -251,8 +251,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (searchParams != null) { delete searchParams.q; }
 
-        console.log('search inside', searchParams);
-
         return searchParams;
     }
 

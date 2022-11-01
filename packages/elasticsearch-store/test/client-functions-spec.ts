@@ -1157,7 +1157,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             expect(resp._shards).toBeDefined();
             expect(resp._all).toBeDefined();
-            expect(resp._all.total.docs.count).toBe(5);
+            expect(resp._all.total.docs?.count).toBe(5);
         });
 
         it('should return stats on the index if types in params', async () => {
@@ -1167,7 +1167,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             expect(resp._shards).toBeDefined();
             expect(resp._all).toBeDefined();
-            expect(resp._all.total.docs.count).toBe(5);
+            expect(resp._all.total.docs?.count).toBe(5);
         });
     });
 

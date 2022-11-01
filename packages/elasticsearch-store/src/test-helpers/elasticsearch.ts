@@ -111,7 +111,7 @@ export async function populateIndex(
             client,
             {
                 index,
-                waitForActiveShards: 'all',
+                wait_for_active_shards: 'all',
                 body: mapping,
             },
             false

@@ -17,7 +17,7 @@ export function convertUpdateParams(
             } = params;
 
             return {
-                doc: body,
+                ...body,
                 ...parsedParams
             };
         }

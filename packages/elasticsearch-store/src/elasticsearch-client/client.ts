@@ -295,13 +295,10 @@ export class Client {
     async search<T = Record<string, unknown>>(
         params: ClientParams.SearchParams
     ): Promise<ClientResponse.SearchResponse<T>> {
-        // console.log('incoming', params);
         const parsedParams = methods.convertSearchParams(
             params as ClientParams.SearchParams,
             this.distributionMeta
         );
-
-        // console.log('parsed', parsedParams);
 
         const resp = await this.client.search(parsedParams);
 
@@ -383,7 +380,6 @@ export class Client {
                 );
 
                 const resp = await client.indices.create(parsedParams);
-
                 return _removeBody(resp);
             },
             /**

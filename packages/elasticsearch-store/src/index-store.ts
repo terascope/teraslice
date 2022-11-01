@@ -433,9 +433,9 @@ export class IndexStore<T extends ts.AnyObject> {
         utils.validateId(id, 'update');
 
         const defaults = {
-            refresh: this.refreshByDefault,
-            retryOnConflict: 3,
-        };
+            refresh: true,
+            retry_on_conflict: 3,
+        } as any;
 
         const _body = body as any;
 
