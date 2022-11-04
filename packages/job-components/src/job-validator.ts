@@ -1,5 +1,5 @@
 import convict from 'convict';
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep, pMap } from '@terascope/utils';
 import {
     Context, OpConfig, JobConfig,
     ValidatedJobConfig
@@ -25,7 +25,7 @@ export class JobValidator {
     }
 
     /** Validate the job configuration, including the Operations and APIs configuration */
-    validateConfig(jobSpec: JobConfig): ValidatedJobConfig {
+    async validateConfig(jobSpec: JobConfig): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
@@ -51,20 +51,22 @@ export class JobValidator {
             return schema.validate(opConfig);
         };
 
-        jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
+        jobConfig.operations = await pMap(jobConfig.operations, async (opConfig, index) => {
             if (index === 0) {
-                return handleModule(opConfig, this.opLoader.loadReader(opConfig._op, assetIds));
+                const reader = await this.opLoader.loadReader(opConfig._op, assetIds);
+                return handleModule(opConfig, reader);
             }
 
-            return handleModule(opConfig, this.opLoader.loadProcessor(opConfig._op, assetIds));
+            const processor = await this.opLoader.loadProcessor(opConfig._op, assetIds);
+            return handleModule(opConfig, processor);
         });
 
         validateJobFns.forEach((fn) => { fn(jobConfig); });
 
         validateJobFns = [];
 
-        jobConfig.apis = jobConfig.apis.map((apiConfig) => {
-            const { Schema } = this.opLoader.loadAPI(apiConfig._name, assetIds);
+        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig) => {
+            const { Schema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
             const schema = new Schema(this.context, 'api');
 
             validateJobFns.push((job) => {

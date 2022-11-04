@@ -16,7 +16,7 @@ export class AssetExampleFetcher extends Fetcher {
     }
 
     async fetch(): Promise<DataEntity[]> {
-        const result = [];
+        const result: Record<string, any>[] = [];
         for (let i = 0; i < 10; i++) {
             result.push({
                 id: i,

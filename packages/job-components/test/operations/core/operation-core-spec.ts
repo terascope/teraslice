@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { jest } from '@jest/globals';
 import OperationCore from '../../../src/operations/core/operation-core.js';
 import {
     OperationAPI, ExecutionContextAPI, OpAPIFn,
@@ -98,6 +98,7 @@ describe('OperationCore', () => {
             beforeAll(() => {
                 ogError = operation.logger.error;
                 operation.deadLetterAction = 'log';
+                // @ts-ignore
                 operation.logger.error = jest.fn();
             });
 
@@ -125,6 +126,7 @@ describe('OperationCore', () => {
         });
 
         describe('when the action is example', () => {
+            // @ts-ignore
             const deadLetterAPI = jest.fn();
 
             class ExampleDeadLetterAPI extends OperationAPI {
@@ -178,6 +180,7 @@ describe('OperationCore', () => {
         let ogReject: any;
         beforeEach(() => {
             ogReject = operation.rejectRecord;
+            // @ts-ignore
             operation.rejectRecord = jest.fn();
         });
 

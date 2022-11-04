@@ -16,7 +16,7 @@ export class SlicerExecutionContext
     extends BaseExecutionContext<SlicerOperationLifeCycle>
     implements SlicerOperationLifeCycle {
     // ...
-    private readonly _slicer: SlicerCore;
+    private readonly _slicer!: SlicerCore;
 
     constructor(config: ExecutionContextConfig) {
         super(config, 'slicer_context');
@@ -26,25 +26,6 @@ export class SlicerExecutionContext
         this._methodRegistry.set('onSliceEnqueued', new Set());
         this._methodRegistry.set('onExecutionStats', new Set());
 
-        // then register the apis specified in config.apis
-        for (const apiConfig of this.config.apis || []) {
-            const name = apiConfig._name;
-            const apiMod = this._loader.loadAPI(name, this.assetIds);
-
-            this.api.addToRegistry(name, apiMod.API);
-        }
-
-        const readerConfig = this.config.operations[0];
-        const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
-
-        if (mod.API) {
-            this.api.addToRegistry(readerConfig._op, mod.API);
-        }
-
-        const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
-        this._slicer = op;
-        this.addOperation(op);
-
         this._resetMethodRegistry();
     }
 
@@ -53,6 +34,26 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
+
+        // then register the apis specified in config.apis
+        for (const apiConfig of this.config.apis || []) {
+            const name = apiConfig._name;
+            const apiMod = await this._loader.loadAPI(name, this.assetIds);
+
+            this.api.addToRegistry(name, apiMod.API);
+        }
+
+        const readerConfig = this.config.operations[0];
+        const mod = await this._loader.loadReader(readerConfig._op, this.assetIds);
+
+        if (mod.API) {
+            this.api.addToRegistry(readerConfig._op, mod.API);
+        }
+
+        const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
+        // @ts-expect-error we set slicer here instead of constructor since its now async
+        this._slicer = op;
+        this.addOperation(op);
         return super.initialize(recoveryData);
     }
 

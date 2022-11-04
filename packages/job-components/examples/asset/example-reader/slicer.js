@@ -1,9 +1,7 @@
-'use strict';
+import { v4 as uuidv4 } from 'uuid';
+import { Slicer } from '@terascope/job-components';
 
-const { v4: uuidv4 } = require('uuid');
-const { Slicer } = require('@terascope/job-components');
-
-class ExampleSlicer extends Slicer {
+export default class ExampleSlicer extends Slicer {
     async slice() {
         return {
             id: uuidv4(),
@@ -11,5 +9,3 @@ class ExampleSlicer extends Slicer {
         };
     }
 }
-
-module.exports = ExampleSlicer;

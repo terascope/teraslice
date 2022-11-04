@@ -1,18 +1,21 @@
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { JobValidator, TestContext, JobConfig } from '../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = __dirname;
+    context.sysconfig.teraslice.assets_directory = dirPath;
 
-    const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
+    const terasliceOpPath = path.join(dirPath, '../../teraslice/lib');
     const api = new JobValidator(context, {
         terasliceOpPath,
     });
 
     describe('->validateConfig', () => {
-        it('returns a completed and valid jobConfig', () => {
+        it('returns a completed and valid jobConfig', async () => {
             const jobSpec: JobConfig = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
@@ -34,11 +37,11 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = api.validateConfig(jobSpec);
+            const validJob = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
-        it('will throw based off op validation errors', () => {
+        it('will throw based off op validation errors', async () => {
         // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {
                 name: 'test',
@@ -54,12 +57,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(() => {
+                return api.validateConfig(jobSpec);
+            }).rejects
         });
 
-        it('throws an error with faulty operation configuration', () => {
+        it('throws an error with faulty operation configuration', async () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
@@ -72,12 +75,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(() => {
+                return api.validateConfig(jobSpec);
+            }).rejects
         });
 
-        it('will properly read an operation', () => {
+        it('will properly read an operation', async () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 assets: ['fixtures'],
@@ -91,12 +94,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
+            await expect(() => {
+                return api.validateConfig(jobSpec);
+            }).resolves
         });
 
-        it('will throw based off opValition errors', () => {
+        it('will throw based off opValition errors', async () => {
             // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {
                 name: 'test',
@@ -112,12 +115,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(() => {
+                return api.validateConfig(jobSpec);
+            }).rejects
         });
 
-        it('will throw based off crossValidation errors', () => {
+        it('will throw based off crossValidation errors', async () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 lifecycle: 'persistent',
@@ -133,14 +136,14 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(() => {
+                return api.validateConfig(jobSpec);
+            }).rejects
         });
 
-        it('can instantiate with an array of asset_paths', () => {
+        it('can instantiate with an array of asset_paths', async () => {
             const testContext = new TestContext('teraslice-operations');
-            testContext.sysconfig.teraslice.assets_directory = [__dirname];
+            testContext.sysconfig.teraslice.assets_directory = [dirPath];
 
             const testApi = new JobValidator(context, {
                 terasliceOpPath,
@@ -167,7 +170,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = testApi.validateConfig(jobSpec);
+            const validJob = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
     });

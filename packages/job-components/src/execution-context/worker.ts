@@ -27,7 +27,7 @@ export class WorkerExecutionContext
     sliceState: WorkerSliceState | undefined;
     status: WorkerStatus = 'initializing';
 
-    private readonly _fetcher: FetcherCore;
+    private readonly _fetcher!: FetcherCore;
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
 
     constructor(config: ExecutionContextConfig) {
@@ -47,42 +47,8 @@ export class WorkerExecutionContext
         // register the job-observer first
         this.api.addToRegistry('job-observer', JobObserver);
 
-        // then register the apis specified in config.apis
-        for (const apiConfig of this.config.apis || []) {
-            const name = apiConfig._name;
-            const apiMod = this._loader.loadAPI(name, this.assetIds);
-
-            this.api.addToRegistry(name, apiMod.API);
-        }
-
-        // then register an api associated to a Reader
-        const [readerConfig, ...processorConfigs] = this.config.operations;
-        const readerMod = this._loader.loadReader(readerConfig._op, this.assetIds);
-        if (readerMod.API) {
-            this.api.addToRegistry(readerConfig._op, readerMod.API);
-        }
-
         // then register any apis associated to the processors
         this.processors = [];
-
-        for (const opConfig of processorConfigs) {
-            const name = opConfig._op;
-            const pMod = this._loader.loadProcessor(name, this.assetIds);
-            if (pMod.API) {
-                this.api.addToRegistry(name, pMod.API);
-            }
-
-            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
-            this.processors.push(pOp);
-        }
-
-        // Then add the processors / readers
-        const op = new readerMod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
-        this._fetcher = op;
-        this.addOperation(op);
-        for (const pOp of this.processors) {
-            this.addOperation(pOp);
-        }
 
         this._queue = [
             async (input: any) => {
@@ -101,6 +67,44 @@ export class WorkerExecutionContext
                 return input;
             },
         ];
+    }
+
+    async initialize(): Promise<void> {
+         // then register the apis specified in config.apis
+         for (const apiConfig of this.config.apis || []) {
+            const name = apiConfig._name;
+            const apiMod = await this._loader.loadAPI(name, this.assetIds);
+
+            this.api.addToRegistry(name, apiMod.API);
+        }
+
+        // then register an api associated to a Reader
+        const [readerConfig, ...processorConfigs] = this.config.operations;
+        const readerMod = await this._loader.loadReader(readerConfig._op, this.assetIds);
+        if (readerMod.API) {
+            this.api.addToRegistry(readerConfig._op, readerMod.API);
+        }
+
+
+        for (const opConfig of processorConfigs) {
+            const name = opConfig._op;
+            const pMod = await this._loader.loadProcessor(name, this.assetIds);
+            if (pMod.API) {
+                this.api.addToRegistry(name, pMod.API);
+            }
+
+            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
+            this.processors.push(pOp);
+        }
+
+        // Then add the processors / readers
+        const op = new readerMod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
+        // @ts-expect-error we set fetcher here instead of constructor since its now async
+        this._fetcher = op;
+        this.addOperation(op);
+        for (const pOp of this.processors) {
+            this.addOperation(pOp);
+        }
 
         let i = 0;
         for (const processor of this.processors) {
@@ -113,9 +117,8 @@ export class WorkerExecutionContext
                 return results;
             });
         }
-    }
 
-    async initialize(): Promise<void> {
+        // we call super here to allow apis to be set first
         await super.initialize();
         this.status = 'idle';
     }

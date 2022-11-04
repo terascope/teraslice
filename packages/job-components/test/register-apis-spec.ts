@@ -1,13 +1,16 @@
 import 'jest-extended'; // require for type definitions
 import path from 'path';
+import { fileURLToPath } from 'url';
 import {
     registerApis, OperationAPI, newTestJobConfig,
     TestContext, TestClientConfig, AnyObject
 } from '../src/index.js';
 
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(dirPath, 'fixtures');
     context.sysconfig.teraslice.assets_directory = [assetDir];
     const jobConfig = newTestJobConfig();
 
@@ -59,7 +62,7 @@ describe('registerApis', () => {
         const { getPath } = context.apis.assets;
 
         it('should return the given operation', () => {
-            const assetPath = path.join(__dirname, 'fixtures', 'asset');
+            const assetPath = path.join(dirPath, 'fixtures', 'asset');
             return expect(getPath('asset')).resolves.toEqual(assetPath);
         });
 

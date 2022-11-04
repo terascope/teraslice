@@ -1,9 +1,12 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
+import { fileURLToPath } from 'url';
 import {
     jobSchema, validateJobConfig, validateOpConfig,
     TestContext, validateAPIConfig
 } from '../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -95,7 +98,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known operation connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.teraslice.assets_directory = [__dirname];
+            context.sysconfig.teraslice.assets_directory = [dirPath];
             context.sysconfig.terafoundation = {
                 connectors: {
                     elasticsearch: {

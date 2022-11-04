@@ -1,8 +1,6 @@
-'use strict';
+import { BatchProcessor } from '@terascope/job-components';
 
-const { BatchProcessor } = require('@terascope/job-components');
-
-class ExampleBatchProcessor extends BatchProcessor {
+export default class ExampleBatchProcessor extends BatchProcessor {
     onBatch(batch) {
         return batch.map((data) => {
             data.batchedAt = new Date().toISOString();
@@ -10,5 +8,3 @@ class ExampleBatchProcessor extends BatchProcessor {
         });
     }
 }
-
-module.exports = ExampleBatchProcessor;

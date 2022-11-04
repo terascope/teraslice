@@ -1,4 +1,5 @@
 import 'jest-extended'; // require for type definitions
+import { jest } from '@jest/globals';
 import {
     Slicer, SlicerResult, newTestExecutionConfig,
     TestContext, WorkerContext

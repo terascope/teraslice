@@ -1,17 +1,12 @@
 /* eslint-disable max-classes-per-file */
 
 import 'jest-extended'; // require for type definitions
+import { jest } from '@jest/globals';
 import {
-    Fetcher,
-    Slicer,
-    ParallelSlicer,
-    ConvictSchema,
-    legacyReaderShim,
-    TestContext,
-    newTestExecutionConfig,
-    newTestExecutionContext,
-    OpConfig,
-    JobConfig,
+    Fetcher, Slicer, ParallelSlicer,
+    ConvictSchema, legacyReaderShim, TestContext,
+    newTestExecutionConfig, newTestExecutionContext,
+    OpConfig, JobConfig,
 } from '../../../src/index.js';
 
 describe('Legacy Reader Shim', () => {
