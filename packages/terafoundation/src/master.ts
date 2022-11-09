@@ -14,7 +14,7 @@ export default function masterModule<
     const cluster = context.cluster as i.Cluster;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
-    const events = context.foundation.getEventEmitter();
+    const events = context.apis.foundation.getSystemEvents();
 
     if (config.start_workers === false) {
         startWorkers = false;

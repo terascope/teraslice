@@ -1,9 +1,12 @@
 import 'jest-extended';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import {
     getDefaultConfigFile,
     parseConfigFile
-} from '../src/sysconfig';
+} from '../src/sysconfig.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 process.env.TERAFOUNDATION_CONFIG = '';
 
@@ -27,5 +30,5 @@ describe('sysconfig helpers', () => {
 });
 
 function getTestFile(fileName: any) {
-    return path.join(__dirname, 'fixtures', fileName);
+    return path.join(dirPath, 'fixtures', fileName);
 }

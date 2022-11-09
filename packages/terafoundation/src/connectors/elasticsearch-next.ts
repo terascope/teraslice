@@ -2,9 +2,6 @@ import { createClient } from 'elasticsearch-store';
 import { Logger } from '@terascope/utils';
 
 export default {
-    create() {
-        throw new Error('elasticsearch-next does not support the deprecated "create" method');
-    },
     async createClient(customConfig: Record<string, any>, logger: Logger) {
         return createClient(customConfig, logger);
     },

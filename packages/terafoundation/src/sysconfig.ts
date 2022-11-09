@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers'
 import yaml from 'js-yaml';
-import { cloneDeep } from '@terascope/utils';
 import * as i from './interfaces.js';
 
 export function getDefaultConfigFile(): string|undefined {
@@ -42,7 +42,8 @@ export function getDefaultConfigFile(): string|undefined {
 export function getArgs<S = Record<string, unknown>>(
     defaultConfigFile?: string,
 ): i.ParsedArgs<S> {
-    const { argv } = yargs.usage('Usage: $0 [options]')
+    return yargs(hideBin(process.argv))
+        .usage('Usage: $0 [options]')
         .version()
         .alias('v', 'version')
         .help()
@@ -57,9 +58,7 @@ export function getArgs<S = Record<string, unknown>>(
                 return parseConfigFile(arg || defaultConfigFile);
             }
         })
-        .wrap(yargs.terminalWidth());
-
-    return (argv as unknown) as i.ParsedArgs<S>;
+        .argv as any;
 }
 
 export function parseConfigFile(file: string): Record<string, any> {
@@ -72,5 +71,6 @@ export function parseConfigFile(file: string): Record<string, any> {
         return yaml.load(fs.readFileSync(configFile, 'utf8')) as any;
     }
 
-    return cloneDeep(require(configFile));
+    const jsonFile = fs.readFileSync(configFile, 'utf-8');
+    return JSON.parse(jsonFile);
 }

@@ -53,18 +53,7 @@ export interface FoundationAPIs {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
-}
-
-export interface LegacyFoundationApis {
-    /** Create a child logger */
-    makeLogger(metadata?: Record<string, string>): Logger;
-    /** Create the root logger (usually done automatically) */
-    makeLogger(name: string, filename: string): Logger;
-    getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
@@ -111,7 +100,6 @@ export type FoundationContext<
 > = {
     sysconfig: FoundationSysConfig<S>;
     apis: ContextAPIs & A;
-    foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
     arch: string;

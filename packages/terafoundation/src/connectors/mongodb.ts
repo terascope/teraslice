@@ -1,9 +1,11 @@
 import { Logger } from '@terascope/utils';
+import * as mongoose from 'mongoose';
+
+const { connect } = mongoose;
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
 } {
-    const mongoose = require('mongoose');
     // TODO: rework configuration to allow incoming config to be a full mongo config
     logger.info(`Using mongo connection string: ${customConfig.servers}`);
 
@@ -25,7 +27,7 @@ function create(customConfig: Record<string, any>, logger: Logger): {
         };
     }
 
-    mongoose.connect(customConfig.servers, serverConfig, (error: any) => {
+    connect(customConfig.servers, serverConfig, (error: any) => {
         if (error) {
             logger.error(error, 'Could not connect to Mongo DB:');
         }
@@ -37,7 +39,9 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             servers: {

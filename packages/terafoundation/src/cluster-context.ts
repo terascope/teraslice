@@ -1,7 +1,5 @@
 import _cluster from 'cluster';
-import * as ts from '@terascope/utils';
-import { getArgs } from './sysconfig.js';
-import validateConfigs from './validate-configs.js';
+import { isFunction, getFullErrorStack, get } from '@terascope/utils';
 import * as i from './interfaces.js';
 import { CoreContext, handleStdStreams } from './core-context.js';
 import master from './master.js';
@@ -19,54 +17,48 @@ export class ClusterContext<
     D extends string = string
 > extends CoreContext<S, A, D> {
     constructor(config: i.FoundationConfig<S, A, D>) {
-        const parsedArgs = getArgs<S>(
-            config.default_config_file
-        );
-
-        const sysconfig = validateConfigs(
-            cluster,
-            config,
-            parsedArgs.configfile
-        );
-
-        super(config, cluster, sysconfig);
+        super(config, cluster);
         this._errorHandler = this._errorHandler.bind(this);
-
         handleStdStreams();
         process.on('uncaughtException', this._errorHandler);
         process.on('unhandledRejection', this._errorHandler);
+    }
 
-        if (config.script) {
+    async init(): Promise<void> {
+        await super.init();
+        const { foundationConfig } = this;
+
+        if (foundationConfig.script) {
             /**
              * Run a script only
              */
-            config.script(this);
+             foundationConfig.script(this);
         } else if (this.cluster.isMaster) {
             /**
              * Use cluster to start multiple workers
              */
-            master(this, config);
-            if (ts.isFunction(config.master)) {
-                config.master(this, config);
+            master(this, foundationConfig);
+            if (isFunction(foundationConfig.master)) {
+                foundationConfig.master(this, foundationConfig);
             }
         } else {
             /**
              * Start a worker process
              */
             let keyFound = false;
-            if (config.descriptors) {
-                Object.keys(config.descriptors).forEach((key) => {
+            if (foundationConfig.descriptors) {
+                Object.keys(foundationConfig.descriptors).forEach((key) => {
                     if (this.assignment === key) {
                         keyFound = true;
-                        config[key](this);
+                        foundationConfig[key](this);
                     }
                 });
                 // if no key was explicitly set then default to worker
                 if (!keyFound) {
-                    config.worker!(this);
+                    foundationConfig.worker!(this);
                 }
             } else {
-                config.worker!(this);
+                foundationConfig.worker!(this);
             }
         }
     }
@@ -79,13 +71,13 @@ export class ClusterContext<
 
         if (cluster.isMaster) {
             logErr(
-                ts.getFullErrorStack(err),
+                getFullErrorStack(err),
                 `Error in master with pid: ${process.pid}`
             );
         } else {
             logErr(
-                ts.getFullErrorStack(err),
-                `Error in worker: ${ts.get(this.cluster, 'worker.id')} pid: ${process.pid}`
+                getFullErrorStack(err),
+                `Error in worker: ${get(this.cluster, 'worker.id')} pid: ${process.pid}`
             );
         }
 

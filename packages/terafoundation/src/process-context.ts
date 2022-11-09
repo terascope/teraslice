@@ -1,8 +1,6 @@
 import { nanoid } from 'nanoid';
-import validateConfigs from './validate-configs.js';
 import { CoreContext } from './core-context.js';
-import { getArgs } from './sysconfig.js';
-import * as i from './interfaces.js';
+import { FoundationConfig, Cluster } from './interfaces.js';
 
 /**
  * A Single Process Context, this should be used when running
@@ -19,26 +17,18 @@ export class ProcessContext<
     D extends string = string
 > extends CoreContext<S, A, D> {
     constructor(
-        config: i.FoundationConfig<S, A, D>,
-        overrideArgs?: i.ParsedArgs<S>
+        config: FoundationConfig<S, A, D>,
     ) {
-        const cluster: i.Cluster = {
+        const cluster: Cluster = {
             isMaster: false,
             worker: {
                 id: nanoid(8),
             }
         } as any;
 
-        const parsedArgs = overrideArgs || getArgs<S>(
-            config.default_config_file
-        );
-
-        const sysconfig = validateConfigs(cluster, config, parsedArgs.configfile);
-
         super(
             config,
             cluster,
-            sysconfig,
         );
     }
 }

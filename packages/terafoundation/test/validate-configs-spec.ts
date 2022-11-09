@@ -41,8 +41,8 @@ describe('Validate Configs', () => {
             ]
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(cluster, config as any, configFile as any);
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(cluster, config as any, configFile as any);
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
@@ -63,7 +63,7 @@ describe('Validate Configs', () => {
                     { console: 'warn' }
                 ],
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     hdfs_ha: {
@@ -88,25 +88,21 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
             );
+
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     log_level: [
                         { console: 'warn' }
                     ],
                     connectors: {
-                        elasticsearch: {
+                        'elasticsearch-next': {
                             default: {
-                                apiVersion: '6.5',
-                                deadTimeout: 30000,
-                                host: [
-                                    '127.0.0.1:9200'
-                                ],
                                 maxRetries: 3,
                                 requestTimeout: 120000,
                                 sniffOnConnectionFault: false,
@@ -172,7 +168,7 @@ describe('Validate Configs', () => {
         const configFile = {
             terafoundation: {
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     missing_connector: {},
@@ -180,8 +176,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -189,7 +185,7 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {
-                        elasticsearch: {},
+                        'elasticsearch-next': {},
                         missing_connector: {}
                     },
                 },
@@ -214,8 +210,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrowError('Error validating configuration');
         });
     });
 
@@ -235,8 +231,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrowError('Error validating configuration');
         });
     });
 });

@@ -1,9 +1,11 @@
 import { Logger } from '@terascope/utils';
+import * as client from 'node-webhdfs';
+
+const { WebHDFSClient: HdfsClient } = client;
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
 } {
-    const HdfsClient = require('node-webhdfs').WebHDFSClient;
     logger.info(`Using hdfs hosts: ${customConfig.host}`);
 
     // TODO: there's no error handling here at all???
@@ -15,7 +17,9 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             user: {

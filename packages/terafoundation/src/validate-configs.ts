@@ -1,16 +1,16 @@
 import os from 'os';
-import convict, { addFormats } from 'convict';
+import convict from 'convict';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, PartialDeep
 } from '@terascope/utils';
-// @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
-// @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchema } from './connector-utils.js';
 import foundationSchema from './schema.js';
 import * as i from './interfaces.js';
+
+const { addFormats } = convict
 
 addFormats(convict_format_with_validator);
 addFormats(convict_format_with_moment);
@@ -59,7 +59,7 @@ function extractSchema<S>(
  * @param config the config object passed to the library terafoundation
  * @param sysconfig unvalidated sysconfig
 */
-export default function validateConfigs<
+export default async function validateConfigs<
     S = Record<string, unknown>,
     A = Record<string, unknown>,
     D extends string = string
@@ -67,7 +67,7 @@ export default function validateConfigs<
     cluster: i.Cluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): i.FoundationSysConfig<S> {
+): Promise<i.FoundationSysConfig<S>> {
     if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');
     }
@@ -98,7 +98,7 @@ export default function validateConfigs<
 
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const connectorSchema = getConnectorSchema(connector);
+                const connectorSchema = await getConnectorSchema(connector);
                 result[schemaKey].connectors[connector] = {};
 
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
