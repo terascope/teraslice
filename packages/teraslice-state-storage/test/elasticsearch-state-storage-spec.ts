@@ -2,12 +2,9 @@ import 'jest-extended';
 import { DataEntity, debugLogger, times } from '@terascope/utils';
 import { ESCachedStateStorage, ESStateStorageConfig } from '../src/index.js';
 import {
-    ESBulkQuery,
-    ESMGetResponse,
-    ESGetResponse,
-    ESGetParams,
-    ESMGetParams,
-} from '../src/elasticsearch-state-storage';
+    ESBulkQuery, ESMGetResponse, ESGetResponse,
+    ESGetParams, ESMGetParams,
+} from '../src/elasticsearch-state-storage/index.js';
 
 // TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {
@@ -284,7 +281,7 @@ describe('elasticsearch-state-storage', () => {
                 const docArray = makeTestDocs();
                 await stateStorage.mset(docArray);
 
-                const saved = [];
+                const saved: any[] = [];
                 for (const doc of docArray) {
                     const savedDoc = await stateStorage.get(doc);
                     saved.push(savedDoc);

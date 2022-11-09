@@ -1,13 +1,12 @@
 import {
-    DataEntity,
-    Logger,
-    TSError,
-    chunk,
-    pMap
+    DataEntity, Logger, TSError,
+    chunk, pMap
 } from '@terascope/utils';
-import esApi, { Client, BulkRecord } from '@terascope/elasticsearch-api';
+import * as esApi from '@terascope/elasticsearch-api';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces.js';
-import CachedStateStorage from '../cached-state-storage.js';
+import CachedStateStorage from '../cached-state-storage/index.js';
+
+const { default: api } = esApi as any;
 
 export default class ESCachedStateStorage {
     private index: string;
@@ -17,11 +16,11 @@ export default class ESCachedStateStorage {
     private chunkSize: number;
     private persist: boolean;
     private metaKey: string;
-    private es: Client;
+    private es: esApi.Client;
     private logger: Logger;
     public cache: CachedStateStorage<DataEntity>;
 
-    constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
+    constructor(client: esApi.Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
         this.type = config.type;
         this.concurrency = config.concurrency;
@@ -31,7 +30,7 @@ export default class ESCachedStateStorage {
         this.metaKey = config.meta_key_field || '_key';
         this.cache = new CachedStateStorage(config);
         this.logger = logger;
-        this.es = esApi(client, logger);
+        this.es = api(client, logger);
     }
 
     async initialize(): Promise<void> {}
@@ -230,7 +229,7 @@ export default class ESCachedStateStorage {
         return this.es.mget(request);
     }
 
-    private _esBulkUpdatePrep(dataArray: DataEntity[]): BulkRecord[] {
+    private _esBulkUpdatePrep(dataArray: DataEntity[]): esApi.BulkRecord[] {
         return dataArray.map((doc) => ({
             action: {
                 index: {
