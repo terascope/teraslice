@@ -1,20 +1,18 @@
 import {
-    isString,
-    TSError,
-    isPlainObject,
-    isTest,
-    trimStart,
-    tryParseJSON,
+    isString, TSError, isPlainObject,
+    isTest, trimStart, tryParseJSON,
     withoutNil,
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
-import got, { Got } from 'got';
+import * as gotPkg from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
+
+const { default: got } = gotPkg;
 
 export default class Client {
     private readonly _apiVersion: string;
-    private readonly _request: Got;
+    private readonly _request: gotPkg.Got;
     protected readonly _config: ClientConfig;
 
     constructor(config: ClientConfig = {}) {
@@ -26,6 +24,7 @@ export default class Client {
 
         this._config = config;
         this._apiVersion = apiVersion;
+        // @ts-expect-error
         this._request = got.extend({
             prefixUrl,
             headers: {

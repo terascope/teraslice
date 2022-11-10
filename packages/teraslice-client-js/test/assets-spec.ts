@@ -1,8 +1,11 @@
 import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import Assets from '../src/assets.js';
 import { AssetIDResponse, Asset } from '../src/interfaces.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('Teraslice Assets', () => {
     let assets: Assets;
@@ -65,7 +68,7 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with a stream', () => {
-            const testFilePath = path.join(__dirname, 'fixtures', 'test.txt');
+            const testFilePath = path.join(dirPath, 'fixtures', 'test.txt');
             const contents = fs.readFileSync(testFilePath, 'utf-8');
             const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
 
