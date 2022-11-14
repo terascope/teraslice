@@ -32,6 +32,7 @@ const jexl = new Jexl();
 const bridgeToJexl = (fn: any) => {
     // @ts-expect-error
     const jexlInstance = this ? this.jexl : undefined;
+
     return (value: any, _context: ts.AnyObject | undefined, _config: any) => {
         let config;
         let context;
