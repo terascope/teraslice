@@ -81,7 +81,7 @@ export default class Jobs {
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
-        let controllers = [];
+        let controllers: any[] = [];
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
         const active = false;
         const parse = false;
@@ -116,7 +116,7 @@ export default class Jobs {
     }
 
     async statusCheck(statusList: string[]): Promise<any[]> {
-        let controllers = [];
+        let controllers: any[] = [];
         const jobs: any[] = [];
         try {
             controllers = await this.teraslice.client.cluster.controllers();

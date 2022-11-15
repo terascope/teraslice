@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import stop from '../../../src/cmds/jobs/stop.js';
 
 describe('jobs stop', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 stop.command,
                 stop.describe,
@@ -18,7 +20,7 @@ describe('jobs stop', () => {
         });
 
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 stop.command,
                 stop.describe,

@@ -1,8 +1,11 @@
 import 'jest-extended';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { createTempDirSync } from 'jest-fixtures';
 import Config from '../../src/helpers/config.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 const tmpDir = createTempDirSync();
 
@@ -14,7 +17,7 @@ describe('config', () => {
         cliArgs = {
             'cluster-manager-type': 'native',
             'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirPath, '../fixtures/config_dir'),
             'cluster-alias': 'localhost'
         };
         testConfig = new Config(cliArgs);
@@ -31,7 +34,7 @@ describe('config', () => {
 
     test('should throw an error if cluster-alias is specified, but not present', () => {
         cliArgs = {
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirPath, '../fixtures/config_dir'),
             'cluster-alias': 'ts-missing1'
         };
         expect(() => {
@@ -88,7 +91,7 @@ describe('config', () => {
 
     describe('-> clusterUrl', () => {
         const newTestConfig = new Config({
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirPath, '../fixtures/config_dir'),
             cluster_alias: 'localhost'
         });
 

@@ -1,11 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import nock from 'nock';
+import { fileURLToPath } from 'url';
+
 import elasticsearhReleaseJSON from '../fixtures/elasticsearch-assets-release.js';
 
-export const regAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/regularAsset.zip'));
-export const versionedAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/versionAsset.zip'));
-export const preReleaseAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/elasticsearch-v1.5.6.zip'));
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+
+export const regAsset = fs.readFileSync(path.resolve(dirPath, '../fixtures/regularAsset.zip'));
+export const versionedAsset = fs.readFileSync(path.resolve(dirPath, '../fixtures/versionAsset.zip'));
+export const preReleaseAsset = fs.readFileSync(path.resolve(dirPath, '../fixtures/elasticsearch-v1.5.6.zip'));
 
 const testReleaseId = 11111111;
 const preReleaseId = 19448406;

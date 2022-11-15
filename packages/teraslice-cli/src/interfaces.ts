@@ -1,4 +1,4 @@
-import yargs from 'yargs';
+import * as yargs from 'yargs';
 
 export type CMD = yargs.CommandModule;
 

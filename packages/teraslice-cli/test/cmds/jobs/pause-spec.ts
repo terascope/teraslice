@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import pause from '../../../src/cmds/jobs/pause.js';
 
 describe('jobs pause', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 pause.command,
                 pause.describe,
@@ -17,7 +19,7 @@ describe('jobs pause', () => {
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 pause.command,
                 pause.describe,

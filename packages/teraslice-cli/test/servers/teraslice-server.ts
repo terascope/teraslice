@@ -15,12 +15,7 @@ const postAssetResponse: AssetIDResponse = {
     _id: 'assset_test_id'
 };
 
-/**
- * @jsnoble FIXME: this is not a good way to test. This doesn't tests that the correct
- * data was sent and the api is too limiting.
- * Why not just nock directly? Also using `http://localhost:5678` is missleading and
- * can lead to requests hitting a local teraslice if misconfigured
-*/
+
 export default class TerasliceServer {
     init(): nock.Scope {
         const scope = nock('http://localhost:5678')

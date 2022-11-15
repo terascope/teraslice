@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import workers from '../../../src/cmds/jobs/workers.js';
 
 describe('jobs workers', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly with an id and add count', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 workers.command,
                 workers.describe,
@@ -20,7 +22,7 @@ describe('jobs workers', () => {
             expect(yargsResult.action).toEqual('add');
         });
         it('should parse properly with an id and remove count', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 workers.command,
                 workers.describe,

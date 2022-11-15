@@ -1,16 +1,17 @@
 import path from 'path';
 import fs from 'fs-extra';
 import yeoman from 'yeoman-environment';
+import { fileURLToPath } from 'url';
 import { CMD } from '../../interfaces.js';
-
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import reply from '../../helpers/reply.js';
-import newProcessor from '../../generators/new-processor.js';
-import newAsset from '../../generators/new-asset.js';
-import registry from '../../generators/registry.js';
+import newProcessor from '../../generators/new-processor/index.js';
+import newAsset from '../../generators/new-asset/index.js';
+import registry from '../../generators/registry/index.js';
 
 const yargsOptions = new YargsOptions();
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 const env = yeoman.createEnv();
 env.registerStub(newProcessor as any, 'new-processor');
@@ -19,7 +20,7 @@ env.registerStub(registry as any, 'registry');
 
 export default {
     command: 'init',
-    describe: 'Creates a new asset bundle or asset processor.  If called without --processor it builds the whole asset in the current directory.  Used with the --processor it adds an asset to the ./asset dir',
+    describe: '<DISABLED>Creates a new asset bundle or asset processor.  If called without --processor it builds the whole asset in the current directory.  Used with the --processor it adds an asset to the ./asset dir',
     builder(yargs) {
         yargs.option('processor', yargsOptions.buildOption('processor'));
         yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
@@ -40,38 +41,38 @@ export default {
         return yargs;
     },
     async handler(argv) {
-        const cliConfig = new Config(argv);
-        const assetBaseDir = cliConfig.args.baseDir;
+        // const cliConfig = new Config(argv);
+        // const assetBaseDir = cliConfig.args.baseDir;
 
-        try {
-            if (cliConfig.args.proc) {
-                // FIXME: manually verify that this check behaves the same after my change here.
-                // if just adding a new processor AssetBaseDir needs to have an asset dir
-                if (!fs.pathExistsSync(path.join(assetBaseDir, 'asset'))) {
-                    reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');
-                }
+        // try {
+        //     if (cliConfig.args.proc) {
+        //         // FIXME: manually verify that this check behaves the same after my change here.
+        //         // if just adding a new processor AssetBaseDir needs to have an asset dir
+        //         if (!fs.pathExistsSync(path.join(assetBaseDir, 'asset'))) {
+        //             reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');
+        //         }
 
-                // for pkg
-                path.join(__dirname, '../../generators/new-processor');
-                await env.run(`new-processor ${assetBaseDir} --new`, () => {
-                    reply.green('All done!');
-                });
-            } if (cliConfig.args.registry) {
-                path.join(__dirname, '../../generators/registry');
-                await env.run(`registry ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
-            } else {
-                // for pkg
-                path.join(__dirname, '../../generators/new-asset');
-                await env.run(`new-asset ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
-            }
-        } catch (e) {
-            reply.fatal(e);
-        }
-
-        process.exit(0);
+        //         // for pkg
+        //         path.join(dirPath, '../../generators/new-processor');
+        //         await env.run(`new-processor ${assetBaseDir} --new`, () => {
+        //             reply.green('All done!');
+        //         });
+        //     } if (cliConfig.args.registry) {
+        //         path.join(dirPath, '../../generators/registry');
+        //         await env.run(`registry ${assetBaseDir}`, () => {
+        //             reply.green('All done!');
+        //         });
+        //     } else {
+        //         // for pkg
+        //         path.join(dirPath, '../../generators/new-asset');
+        //         await env.run(`new-asset ${assetBaseDir}`, () => {
+        //             reply.green('All done!');
+        //         });
+        //     }
+        // } catch (e) {
+        //     reply.fatal(e);
+        // }
+        reply.fatal('This command is disabled')
+        process.exit(1);
     }
 } as CMD;

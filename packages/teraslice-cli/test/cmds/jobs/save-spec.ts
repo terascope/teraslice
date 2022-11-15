@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import save from '../../../src/cmds/jobs/save.js';
 
 describe('jobs save', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 save.command,
                 save.describe,

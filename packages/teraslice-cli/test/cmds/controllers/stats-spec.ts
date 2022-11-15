@@ -3,8 +3,10 @@ import stats from '../../../src/cmds/controllers/stats.js';
 
 describe('controller stats', () => {
     describe('-> parse', () => {
+        const y = yargs();
+
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 stats.command,
                 stats.describe,

@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import errors from '../../../src/cmds/jobs/errors.js';
 
 describe('jobs errors', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 errors.command,
                 errors.describe,
@@ -17,7 +19,7 @@ describe('jobs errors', () => {
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 errors.command,
                 errors.describe,

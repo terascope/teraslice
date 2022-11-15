@@ -1,8 +1,11 @@
 import path from 'path';
 import Generator from 'yeoman-generator';
-import ProcessorGenerator from '../new-processor.js';
+import { fileURLToPath } from 'url';
+import ProcessorGenerator from '../new-processor/index.js';
 import { getTemplatePath } from '../utils.js';
 import { kebabCase } from '../../helpers/utils.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 export default class extends Generator {
     answers!: any;
@@ -91,7 +94,7 @@ export default class extends Generator {
 
     addExampleProcessor(): void {
         const assetPath = path.join(this.options.new_asset_path, this.answers.name);
-        const processorPath = path.join(__dirname, '../new-processor');
+        const processorPath = path.join(dirPath, '../new-processor');
         this.composeWith({
             Generator: ProcessorGenerator,
             path: processorPath

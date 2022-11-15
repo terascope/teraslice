@@ -1,7 +1,9 @@
 import path from 'path';
 import nock from 'nock';
-
+import { fileURLToPath } from 'url';
 import Jobs from '../../src/helpers/jobs.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('jobs', () => {
     const id = '12341234';
@@ -9,7 +11,7 @@ describe('jobs', () => {
     const cliArgs = {
         'cluster-manager-type': 'native',
         'output-style': 'txt',
-        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'config-dir': path.join(dirPath, '../fixtures/config_dir'),
         'cluster-alias': 'localhost',
         args: {}
     };
@@ -36,7 +38,7 @@ describe('jobs.workers should', () => {
     const cliArgs = {
         'cluster-manager-type': 'native',
         'output-style': 'txt',
-        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'config-dir': path.join(dirPath, '../fixtures/config_dir'),
         'cluster-alias': 'localhost',
         args: {}
     };
@@ -89,7 +91,7 @@ describe('jobs.awaitStatus should', () => {
     const cliArgs = {
         'cluster-manager-type': 'native',
         'output-style': 'txt',
-        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'config-dir': path.join(dirPath, '../fixtures/config_dir'),
         'cluster-alias': 'localhost',
         args: {}
     };

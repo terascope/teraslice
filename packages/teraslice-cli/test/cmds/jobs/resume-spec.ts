@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import resume from '../../../src/cmds/jobs/resume.js';
 
 describe('jobs resume', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 resume.command,
                 resume.describe,

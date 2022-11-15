@@ -2,9 +2,11 @@ import yargs from 'yargs';
 import list from '../../../src/cmds/workers/list.js';
 
 describe('workers list', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 list.command,
                 list.describe,
@@ -18,7 +20,7 @@ describe('workers list', () => {
         });
 
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 list.command,
                 list.describe,
