@@ -2,7 +2,7 @@ import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     OperationsManager, PostProcessPhase, Loader, PostProcessingDict
-} from '../../src';
+} from '../../src/index.js';
 
 describe('post_process phase', () => {
     const logger = debugLogger('postProcessPhaseTest');

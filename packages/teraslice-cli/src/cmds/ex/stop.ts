@@ -1,13 +1,13 @@
 import { pDelay, includes } from '@terascope/utils';
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import TerasliceUtil from '../../helpers/teraslice-util';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import TerasliceUtil from '../../helpers/teraslice-util.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'stop <cluster-alias> <id>',
     describe: 'Stops ex_id that is running or failing on the cluster.\n',
     builder(yargs: any) {

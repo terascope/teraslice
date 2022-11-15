@@ -1,6 +1,6 @@
 'use strict';
 
-const { Slicer } = require('../../../dist/src');
+const { Slicer } = require('../../../dist/src/index.js');
 
 class SimpleSlicer extends Slicer {
     async slice() {

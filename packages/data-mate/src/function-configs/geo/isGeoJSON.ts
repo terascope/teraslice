@@ -1,11 +1,9 @@
 import { isGeoJSON } from '@terascope/utils';
 import { FieldType, GeoShapeType } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionCategory,
-    FunctionDefinitionType
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const isGeoJSONConfig: FieldValidateConfig = {
     name: 'isGeoJSON',

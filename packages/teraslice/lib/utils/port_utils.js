@@ -1,13 +1,8 @@
-'use strict';
-
-const shuffle = require('lodash/shuffle');
-const {
-    get,
-    times,
-    pDelay,
-    toIntegerOrThrow,
-} = require('@terascope/utils');
-const porty = require('porty');
+import {
+    get, times, pDelay,
+    toIntegerOrThrow, shuffle
+} from '@terascope/utils';
+import porty from 'porty';
 
 const _portLists = new Map();
 const listPorts = (start, end) => {
@@ -22,7 +17,7 @@ const listPorts = (start, end) => {
     return ports;
 };
 
-async function findPort(options = {}) {
+export async function findPort(options = {}) {
     const {
         start = 8002,
         end = 40000,
@@ -55,7 +50,7 @@ async function findPort(options = {}) {
     throw new Error(`No available port between ${start}-${end}`);
 }
 
-function getPorts(context) {
+export function getPorts(context) {
     const portConfig = get(context, 'sysconfig.teraslice.slicer_port_range');
     const dataArray = portConfig.split(':', 2);
     const assetsPort = toIntegerOrThrow(dataArray[0]);

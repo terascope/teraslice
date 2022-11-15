@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FieldType } from '@terascope/types';
 import { has, isNotNil } from '@terascope/utils';
-// import { RecordValidationConfig, FunctionDefinitionType } from '../interfaces';
+// import { RecordValidationConfig, FunctionDefinitionType } from '../interfaces.js';
 
 // export interface RequiredFieldsConfig {
 //     fields: string[];

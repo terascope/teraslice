@@ -1,18 +1,15 @@
 import {
-    ExecutionConfig,
-    Context,
-    OpConfig,
-    APIConfig,
-    WorkerContext
-} from '../interfaces';
-import FetcherCore from './core/fetcher-core';
-import SchemaCore, { OpType } from './core/schema-core';
-import SlicerCore from './core/slicer-core';
-import APICore from './core/api-core';
-import ProcessorCore from './core/processor-core';
-import Slicer from './slicer';
-import ParallelSlicer from './parallel-slicer';
-import OperationAPI from './operation-api';
+    ExecutionConfig, Context, OpConfig,
+    APIConfig, WorkerContext
+} from '../interfaces/index.js';
+import FetcherCore from './core/fetcher-core.js';
+import SchemaCore, { OpType } from './core/schema-core.js';
+import SlicerCore from './core/slicer-core.js';
+import APICore from './core/api-core.js';
+import ProcessorCore from './core/processor-core.js';
+import Slicer from './slicer.js';
+import ParallelSlicer from './parallel-slicer.js';
+import OperationAPI from './operation-api.js';
 
 export type APICoreConstructor<U> = {
     new (context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;

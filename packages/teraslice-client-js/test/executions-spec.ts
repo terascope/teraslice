@@ -1,6 +1,6 @@
 import nock from 'nock';
-import Ex from '../src/ex';
-import Executions from '../src/executions';
+import Ex from '../src/ex.js';
+import Executions from '../src/executions.js';
 
 describe('Teraslice Executions', () => {
     let executions: Executions;

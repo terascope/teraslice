@@ -1,12 +1,9 @@
 import { toGeoJSONOrThrow, isNil } from '@terascope/utils';
 import { FieldType, GeoShapeType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const toGeoJSONConfig: FieldTransformConfig = {
     name: 'toGeoJSON',

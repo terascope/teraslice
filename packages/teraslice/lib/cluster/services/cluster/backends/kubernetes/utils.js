@@ -1,12 +1,9 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import barbe from 'barbe';
+import { isTest } from '@terascope/utils';
 
-const fs = require('fs');
-const path = require('path');
-const barbe = require('barbe');
-
-const { isTest } = require('@terascope/utils');
-
-function makeTemplate(folder, fileName) {
+export function makeTemplate(folder, fileName) {
     const filePath = path.join(__dirname, folder, `${fileName}.hbs`);
     const templateData = fs.readFileSync(filePath, 'utf-8');
     const templateKeys = ['{{', '}}'];
@@ -18,11 +15,11 @@ function makeTemplate(folder, fileName) {
 }
 
 // Convert bytes to MB and reduce by 10%
-function getMaxOldSpace(memory) {
+export function getMaxOldSpace(memory) {
     return Math.round(0.9 * (memory / 1024 / 1024));
 }
 
-function setMaxOldSpaceViaEnv(envArr, jobEnv, memory) {
+export function setMaxOldSpaceViaEnv(envArr, jobEnv, memory) {
     const envObj = {};
     if (memory && memory > -1) {
         // Set NODE_OPTIONS to override max-old-space-size
@@ -43,16 +40,9 @@ function setMaxOldSpaceViaEnv(envArr, jobEnv, memory) {
 const MAX_RETRIES = isTest ? 2 : 3;
 const RETRY_DELAY = isTest ? 50 : 1000; // time in ms
 
-function getRetryConfig() {
+export function getRetryConfig() {
     return {
         retries: MAX_RETRIES,
         delay: RETRY_DELAY
     };
 }
-
-module.exports = {
-    getMaxOldSpace,
-    getRetryConfig,
-    makeTemplate,
-    setMaxOldSpaceViaEnv
-};

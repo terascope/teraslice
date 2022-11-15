@@ -1,17 +1,12 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity,
-    DataEncoding,
-    __IS_DATAENTITY_KEY,
-    __ENTITY_METADATA_KEY,
-    DataEntityMetadata,
-} from '../src/entities';
+    DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
+    __ENTITY_METADATA_KEY, DataEntityMetadata,
+} from '../src/entities/index.js';
 import {
-    parseJSON,
-    cloneDeep,
-    fastCloneDeep,
+    parseJSON, cloneDeep, fastCloneDeep,
     firstToLower,
-} from '../src';
+} from '../src/index.js';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [

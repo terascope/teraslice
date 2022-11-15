@@ -1,5 +1,5 @@
 import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import Integer from '../../../src/types/v1/integer';
+import Integer from '../../../src/types/v1/integer.js';
 
 describe('Integer V1', () => {
     const field = 'someField';

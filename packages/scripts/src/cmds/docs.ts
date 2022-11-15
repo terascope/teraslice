@@ -1,8 +1,8 @@
 import { CommandModule } from 'yargs';
-import { buildPackages } from '../helpers/doc-builder';
-import { coercePkgArg } from '../helpers/args';
-import { PackageInfo } from '../helpers/interfaces';
-import { listPackages } from '../helpers/packages';
+import { buildPackages } from '../helpers/doc-builder/index.js';
+import { coercePkgArg } from '../helpers/args.js';
+import { PackageInfo } from '../helpers/interfaces.js';
+import { listPackages } from '../helpers/packages.js';
 
 const cmd: CommandModule = {
     command: 'docs [packages..]',
@@ -25,4 +25,4 @@ const cmd: CommandModule = {
     },
 };
 
-export = cmd;
+export default cmd;

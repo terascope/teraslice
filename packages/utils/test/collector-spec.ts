@@ -1,10 +1,6 @@
 import 'jest-extended';
-import { Collector } from '../src/collector';
-import {
-    DataEntity,
-    times,
-    pDelay
-} from '../src';
+import { Collector } from '../src/collector.js';
+import { DataEntity, times, pDelay } from '../src/index.js';
 
 describe('Collector', () => {
     let collector: Collector<DataEntity>;

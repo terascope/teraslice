@@ -5,7 +5,7 @@ import os from 'os';
 import path from 'path';
 import decompress from 'decompress';
 import { newTestJobConfig, DataEntity, uniqBy } from '@terascope/job-components';
-import { WorkerTestHarness, DownloadExternalAsset } from '../src';
+import { WorkerTestHarness, DownloadExternalAsset } from '../src/index.js';
 
 describe('download-external-asset', () => {
     const build = `node-${process.version.split('.', 1)[0].slice(1)}-${os.platform()}-${os.arch()}`;

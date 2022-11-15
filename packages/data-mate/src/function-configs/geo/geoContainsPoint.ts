@@ -1,12 +1,9 @@
 import { geoContainsFP, isGeoPoint } from '@terascope/utils';
 import { FieldType, GeoShapeType, GeoPointInput } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample,
+} from '../interfaces.js';
 
 export interface GeoContainsPointArgs {
     point: GeoPointInput;

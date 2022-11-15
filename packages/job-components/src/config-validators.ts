@@ -1,6 +1,6 @@
 import convict from 'convict';
-import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces';
-import { opSchema, apiSchema } from './job-schemas';
+import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces/index.js';
+import { opSchema, apiSchema } from './job-schemas.js';
 
 const validateOptions: convict.ValidateOptions = {
     allowed: 'warn',

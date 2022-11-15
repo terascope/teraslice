@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = function clustering(context, { clusterMasterServer }) {
+export default function clustering(context, { clusterMasterServer }) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
 
     if (clusterType === 'native') {

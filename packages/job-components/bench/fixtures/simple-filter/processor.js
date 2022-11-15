@@ -1,6 +1,6 @@
 'use strict';
 
-const { FilterProcessor } = require('../../../dist/src');
+const { FilterProcessor } = require('../../../dist/src/index.js');
 
 class SimpleFilter extends FilterProcessor {
     filter(data) {

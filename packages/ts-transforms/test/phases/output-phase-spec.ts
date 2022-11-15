@@ -2,7 +2,7 @@ import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     OutputPhase, Loader, OperationsManager, OutputValidation
-} from '../../src';
+} from '../../src/index.js';
 
 describe('output phase', () => {
     const logger = debugLogger('outputPhaseTest');

@@ -1,2 +1,2 @@
-export * from './interfaces';
-export * from './data-entity';
+export * from './interfaces.js';
+export * from './data-entity.js';

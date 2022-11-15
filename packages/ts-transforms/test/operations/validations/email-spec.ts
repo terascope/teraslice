@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Email } from '../../../src/operations';
+import { Email } from '../../../src/operations.js';
 
 describe('email validation', () => {
     it('can instantiate', () => {

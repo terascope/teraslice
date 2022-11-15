@@ -1,4 +1,4 @@
-import { OperationAPI, AnyObject } from '../../../../src';
+import { OperationAPI, AnyObject } from '../../../../src/index.js';
 
 export default class ExampleAPI extends OperationAPI {
     _initialized = false;

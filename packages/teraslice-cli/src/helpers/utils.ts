@@ -1,14 +1,14 @@
 import signale from 'signale';
+import { fileURLToPath } from 'url';
 import {
-    has,
-    parseErrorInfo,
-    toKebabCase,
-    toSnakeCase,
-    toCamelCase
+    has, parseErrorInfo, toKebabCase,
+    toSnakeCase, toCamelCase
 } from '@terascope/utils';
 import TerasliceClient from 'teraslice-client-js';
 import fs from 'fs';
 import path from 'path';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 function sanitize(str: string) {
     return str.replace(/[?$#@_-]/g, ' ');
@@ -27,9 +27,9 @@ export function camelCase(str: string): string {
 }
 
 export function getPackage(filePath?: string): any {
-    let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
+    let dataPath = filePath || path.join(dirPath, '../..', 'package.json');
     if (!fs.existsSync(dataPath)) {
-        dataPath = path.join(__dirname, '../../../', 'package.json');
+        dataPath = path.join(dirPath, '../../../', 'package.json');
     }
     const file = fs.readFileSync(dataPath, 'utf8');
     return JSON.parse(file);

@@ -1,13 +1,15 @@
 import fs from 'fs';
 import https from 'https';
 import { Logger } from '@terascope/utils';
-import { promisifyAll } from 'bluebird';
+import bluebird from 'bluebird';
+// @ts-expect-error
+import * as S3 from 'aws-sdk/clients/s3';
+
+const { promisifyAll } = bluebird;
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
 } {
-    const S3 = require('aws-sdk/clients/s3');
-
     logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
 
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
@@ -37,7 +39,9 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             endpoint: {

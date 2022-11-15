@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import { Extraction } from '../../../src/operations';
+import { Extraction } from '../../../src/operations.js';
 
 describe('transform operator', () => {
     it('can instantiate', () => {

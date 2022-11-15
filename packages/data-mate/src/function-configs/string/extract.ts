@@ -1,13 +1,10 @@
 import { isNil, matchAll } from '@terascope/utils';
 import { FieldType, ReadonlyDataTypeConfig } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
     FunctionDefinitionExample,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface ExtractArgs {
     regex?: string;

@@ -1,8 +1,6 @@
-'use strict';
-
-const { waitForExStatus } = require('../../wait');
-const { resetState } = require('../../helpers');
-const misc = require('../../misc');
+import { waitForExStatus } from '../../wait.js';
+import { resetState } from '../../helpers.js';
+import misc from '../../misc.js';
 
 describe('job state', () => {
     beforeAll(() => resetState());

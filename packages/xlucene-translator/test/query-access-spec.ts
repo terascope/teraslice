@@ -2,7 +2,7 @@ import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { xLuceneFieldType } from '@terascope/types';
 import { TSError } from '@terascope/utils';
-import { QueryAccess } from '../src';
+import { QueryAccess } from '../src/index.js';
 
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {

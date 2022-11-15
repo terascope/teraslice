@@ -31,8 +31,8 @@ import {
     StopQuery,
     Execution,
     JobConfiguration
-} from './interfaces';
-import Client from './client';
+} from './interfaces.js';
+import Client from './client.js';
 
 /*
  * This is basically a wrapper around the job_id that acts as a proxy

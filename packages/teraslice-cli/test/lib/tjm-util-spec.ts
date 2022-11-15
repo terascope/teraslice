@@ -1,4 +1,4 @@
-import TjmUtil from '../../src/helpers/tjm-util';
+import TjmUtil from '../../src/helpers/tjm-util.js';
 
 let startResponse: any;
 let stopResponse: any;

@@ -1,11 +1,13 @@
-import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
+import { 
+    DataTypeFieldConfig, DataTypeFields, Maybe
+} from '@terascope/types';
 import { TSError, toString, getTypeOf } from '@terascope/utils';
 import {
     freezeObject, ReadableData, WritableData
-} from '../core';
+} from '../core/index.js';
 import {
     ListVector, Vector, VectorType
-} from '../vector';
+} from '../vector/index.js';
 
 /**
  * Since Vectors are immutable, a Builder can be to construct a

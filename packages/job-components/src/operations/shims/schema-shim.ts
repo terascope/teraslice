@@ -1,6 +1,6 @@
-import { Context, LegacyProcessor, ValidatedJobConfig } from '../../interfaces';
-import ConvictSchema from '../convict-schema';
-import { SchemaModule } from '../interfaces';
+import { Context, LegacyProcessor, ValidatedJobConfig } from '../../interfaces/index.js';
+import ConvictSchema from '../convict-schema.js';
+import { SchemaModule } from '../interfaces.js';
 
 export default function schemaShim<S extends Record<string, any>>(
     legacy: LegacyProcessor

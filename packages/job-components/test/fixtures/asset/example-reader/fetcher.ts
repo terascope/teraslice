@@ -1,4 +1,4 @@
-import { Fetcher, DataEntity } from '../../../../src';
+import { Fetcher, DataEntity } from '../../../../src/index.js';
 
 export default class ExampleFetcher extends Fetcher {
     _initialized = false;
@@ -15,7 +15,7 @@ export default class ExampleFetcher extends Fetcher {
     }
 
     async fetch(): Promise<DataEntity[]> {
-        const result = [];
+        const result: Record<string, any>[] = [];
         for (let i = 0; i < 10; i++) {
             result.push({
                 id: i,

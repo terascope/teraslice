@@ -1,12 +1,13 @@
 import { EventEmitter } from 'events';
 import {
-    isFunction, cloneDeep, pMap, Logger, toHumanTime
+    isFunction, cloneDeep, pMap,
+    Logger, toHumanTime
 } from '@terascope/utils';
-import { OperationLoader } from '../operation-loader';
-import { registerApis } from '../register-apis';
-import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
-import { EventHandlers, ExecutionContextConfig } from './interfaces';
-import { ExecutionContextAPI } from './api';
+import { OperationLoader } from '../operation-loader/index.js';
+import { registerApis } from '../register-apis.js';
+import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces/index.js';
+import { EventHandlers, ExecutionContextConfig } from './interfaces.js';
+import { ExecutionContextAPI } from './api.js';
 
 /**
  * A base class for an Execution Context
@@ -41,6 +42,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         this.events.on('execution:add-to-lifecycle', this._handlers['execution:add-to-lifecycle']);
 
         const executionConfig = cloneDeep(config.executionConfig);
+
         this._loader = new OperationLoader({
             terasliceOpPath: config.terasliceOpPath,
             assetPath: config.context.sysconfig.teraslice.assets_directory,

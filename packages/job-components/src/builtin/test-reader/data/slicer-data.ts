@@ -1,4 +1,4 @@
-export = [
+export default [
     {
         start: -6878940996019124,
         end: 4995595131465210

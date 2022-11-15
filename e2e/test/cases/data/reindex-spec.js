@@ -1,9 +1,7 @@
-'use strict';
-
-const { get, times } = require('@terascope/utils');
-const misc = require('../../misc');
-const { waitForExStatus } = require('../../wait');
-const { resetState, runEsJob, testJobLifeCycle } = require('../../helpers');
+import { get, times } from '@terascope/utils';
+import misc from '../../misc.js';
+import { waitForExStatus } from '../../wait.js';
+import { resetState, runEsJob, testJobLifeCycle } from '../../helpers.js';
 
 const teraslice = misc.teraslice();
 

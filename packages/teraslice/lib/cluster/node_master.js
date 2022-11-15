@@ -1,19 +1,18 @@
-'use strict';
-
-const ms = require('ms');
-const _ = require('lodash');
-const { Mutex } = require('async-mutex');
-const { getFullErrorStack } = require('@terascope/utils');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const messageModule = require('./services/cluster/backends/native/messaging');
-const spawnAssetLoader = require('../workers/assets/spawn');
-const { safeEncode } = require('../utils/encoding_utils');
-const { findPort, getPorts } = require('../utils/port_utils');
+import ms from 'ms';
+import _ from 'lodash-es;
+import { Mutex } from 'async-mutex';
+import { getFullErrorStack } from '@terascope/utils';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import messageModule from './services/cluster/backends/native/messaging.js';
+import spawnAssetLoader from '../workers/assets/spawn.js';
+import { safeEncode } from '../utils/encoding_utils.js';
+import { findPort, getPorts } from '../utils/port_utils.js';
 
 const nodeVersion = process.version;
-const terasliceVersion = require('../../package.json').version;
+import * as packageInfo from '../../../package.json';
+const terasliceVersion = packageInfo.version;
 
-module.exports = async function nodeMaster(context) {
+export default async function nodeMaster(context) {
     const logger = makeLogger(context, 'node_master');
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;

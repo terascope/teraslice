@@ -1,8 +1,6 @@
 import 'jest-extended';
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import {
-    DataType, LATEST_VERSION, formatSchema
-} from '../src';
+import { DataType, LATEST_VERSION, formatSchema } from '../src/index.js';
 
 describe('DataType (graphql)', () => {
     describe('->toGraphQL', () => {

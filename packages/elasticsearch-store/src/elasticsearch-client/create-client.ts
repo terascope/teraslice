@@ -6,8 +6,8 @@ import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
 import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
-import { logWrapper } from './log-wrapper';
-import { ClientConfig } from './interfaces';
+import { logWrapper } from './log-wrapper.js';
+import { ClientConfig } from './interfaces.js';
 
 const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 

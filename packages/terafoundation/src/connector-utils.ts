@@ -1,18 +1,24 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { TSError, parseError, Logger } from '@terascope/utils';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 type ErrorResult = {
     filePath: string;
     message: string;
 }
 
-function requireConnector(filePath: string, errors: ErrorResult[]) {
-    let mod = require(filePath);
+async function requireConnector(filePath: string, errors: ErrorResult[]) {
+    try{
+    let mod = await import(filePath);
 
     if (mod && mod.default) {
         mod = mod.default;
     }
+
     let valid = true;
+
     if (typeof mod !== 'object') {
         valid = false;
     }
@@ -25,7 +31,7 @@ function requireConnector(filePath: string, errors: ErrorResult[]) {
         valid = false;
     }
 
-    if (mod && typeof mod.create !== 'function') {
+    if (mod && typeof mod.createClient !== 'function') {
         errors.push({
             filePath,
             message: `Connector ${filePath} missing required create function`
@@ -35,9 +41,12 @@ function requireConnector(filePath: string, errors: ErrorResult[]) {
 
     if (valid) return mod;
     return null;
+} catch(err) {
+    return null
+}
 }
 
-function guardedRequire(filePath: string, errors: ErrorResult[]) {
+async function guardedRequire(filePath: string, errors: ErrorResult[]) {
     try {
         return requireConnector(filePath, errors);
     } catch (error) {
@@ -53,33 +62,38 @@ function guardedRequire(filePath: string, errors: ErrorResult[]) {
     }
 }
 
-export function getConnectorModule(name: string, reason: string): any {
+
+export async function getConnectorModule(
+    name: string,
+    reason: string
+): Promise<any> {
     let mod;
 
     // collect the errors
     const errors: ErrorResult[] = [];
+    // TODO: review if I can take away the dist part
+    const localPath = path.join(dirPath,'../dist/src', 'connectors', `${name}.js`);
 
-    const localPath = path.join(__dirname, 'connectors', name);
-    mod = guardedRequire(localPath, errors);
+    mod = await guardedRequire(localPath, errors);
 
     // check if its a node module
     if (!mod) {
-        mod = guardedRequire(name, errors);
+        mod = await guardedRequire(name, errors);
     }
 
     // Still not found check for a connector with underscores
     if (!mod) {
-        mod = guardedRequire(`terafoundation_${name}_connector`, errors);
+        mod = await guardedRequire(`terafoundation_${name}_connector`, errors);
     }
 
     // Still not found check for a connector with dashes
     if (!mod) {
-        mod = guardedRequire(`terafoundation-${name}-connector`, errors);
+        mod = await guardedRequire(`terafoundation-${name}-connector`, errors);
     }
 
     // Stil not found check for the @terascope namespace
     if (!mod) {
-        mod = guardedRequire(`@terascope/${name}`, errors);
+        mod = await guardedRequire(`@terascope/${name}`, errors);
     }
 
     if (mod) return mod;
@@ -94,31 +108,20 @@ export function getConnectorModule(name: string, reason: string): any {
             }
         });
     }
+
     return null;
 }
 
-export function getConnectorSchema(name: string): Record<string, any> {
+export async function getConnectorSchema(name: string): Promise<Record<string, any>> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
+    const mod = await getConnectorModule(name, reason);
 
-    const mod = getConnectorModule(name, reason);
     if (!mod) {
         console.warn(`[WARNING] ${reason}`);
         return {};
     }
+
     return mod.config_schema();
-}
-
-export function createConnection(
-    name: string, moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
-): any {
-    const reason = `Could not find connector implementation for: ${name}\n`;
-
-    const mod = getConnectorModule(name, reason);
-    if (!mod) {
-        throw new Error(reason);
-    }
-
-    return mod.create(moduleConfig, logger, options);
 }
 
 export async function createClient(
@@ -126,7 +129,7 @@ export async function createClient(
 ) {
     const reason = `Could not find connector implementation for: ${name}\n`;
 
-    const mod = getConnectorModule(name, reason);
+    const mod = await getConnectorModule(name, reason);
     if (!mod) {
         throw new Error(reason);
     }

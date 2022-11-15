@@ -1,9 +1,7 @@
-'use strict';
-
-const fs = require('fs');
-const misc = require('../../misc');
-const wait = require('../../wait');
-const { resetState, submitAndStart } = require('../../helpers');
+import fs from 'fs';
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import { resetState, submitAndStart } from '../../helpers.js';
 
 describe('assets', () => {
     beforeAll(() => resetState());

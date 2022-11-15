@@ -1,4 +1,4 @@
-import { OpConfig } from '../../interfaces';
+import { OpConfig } from '../../interfaces/index.js';
 
 export interface CollectConfig extends OpConfig {
     wait: number;

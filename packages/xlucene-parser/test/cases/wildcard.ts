@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Wildcard } from '../../src';
-import { TestCase } from './interfaces';
+import { NodeType, Wildcard } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

@@ -1,10 +1,12 @@
 import yargs from 'yargs';
-import recover from '../../../src/cmds/jobs/recover';
+import recover from '../../../src/cmds/jobs/recover.js';
 
 describe('jobs recover', () => {
+    const y = yargs();
+
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 recover.command,
                 recover.describe,

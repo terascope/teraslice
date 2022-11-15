@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Executions from '../../helpers/executions';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Executions from '../../helpers/executions.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'recover <cluster-alias> <id>',
     describe: 'Run recovery on cluster for specified execution id.\n',
     builder(yargs: any) {

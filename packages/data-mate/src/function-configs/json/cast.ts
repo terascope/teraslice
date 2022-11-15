@@ -3,12 +3,9 @@ import {
     FieldType, availableFieldTypes, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
 import {
-    FieldMetaTransform,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
-} from '../interfaces';
+    FieldMetaTransform, ProcessMode,FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
+} from '../interfaces.js';
 
 export type CastArgs = DataTypeFieldConfig & { child_config?: DataTypeFields }
 

@@ -1,16 +1,10 @@
-'use strict';
+import Table from 'easy-table';
+import {
+    parseErrorInfo, parseList, logError,
+    isString, get, toInteger,
+} from '@terascope/utils';
 
-const Table = require('easy-table');
-const {
-    parseErrorInfo,
-    parseList,
-    logError,
-    isString,
-    get,
-    toInteger,
-} = require('@terascope/utils');
-
-function makeTable(req, defaults, data, mappingFn) {
+export function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
     let emptyChar = 'N/A';
 
@@ -47,7 +41,7 @@ function fieldsQuery(query, defaults) {
     return results;
 }
 
-function handleRequest(req, res, defaultErrorMsg = 'Failure to process request', { errorCode = 500, successCode = 200 } = {}) {
+export function handleRequest(req, res, defaultErrorMsg = 'Failure to process request', { errorCode = 500, successCode = 200 } = {}) {
     logRequest(req);
     return async (fn) => {
         try {
@@ -74,7 +68,7 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
     };
 }
 
-function sendError(res, code, message, logger) {
+export function sendError(res, code, message, logger) {
     if (res.headersSent) {
         const error = new Error(message);
         error.statusCode = code;
@@ -93,7 +87,7 @@ function sendError(res, code, message, logger) {
 
 // NOTE: This only works for counters, if you're trying to extend this, you
 // should probably switch to using prom-client.
-function makePrometheus(stats, defaultLabels = {}) {
+export function makePrometheus(stats, defaultLabels = {}) {
     const metricMapping = {
         processed: 'teraslice_slices_processed',
         failed: 'teraslice_slices_failed',
@@ -129,7 +123,7 @@ function makePrometheusLabels(defaults, custom) {
     return `{${labelsStr}}`;
 }
 
-function isPrometheusRequest(req) {
+export function isPrometheusRequest(req) {
     const acceptHeader = get(req, 'headers.accept', '');
     return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
@@ -147,27 +141,17 @@ function parseQueryInt(req, prop, defaultVal) {
     return parsed;
 }
 
-function getSearchOptions(req, defaultSort = '_updated:desc') {
+export function getSearchOptions(req, defaultSort = '_updated:desc') {
     const sort = req.query.sort || defaultSort;
     const size = parseQueryInt(req, 'size', 100);
     const from = parseQueryInt(req, 'from', 0);
     return { size, from, sort };
 }
 
-function logRequest(req) {
+export function logRequest(req) {
     const queryInfo = Object.entries(req.query)
         .map(([key, val]) => `${key}: ${val}`)
         .join(', ');
     const { method, path } = req;
     req.logger.trace(`${method.toUpperCase()} ${path} endpoint has been called, ${queryInfo}`);
 }
-
-module.exports = {
-    isPrometheusRequest,
-    makePrometheus,
-    makeTable,
-    logRequest,
-    getSearchOptions,
-    handleRequest,
-    sendError
-};

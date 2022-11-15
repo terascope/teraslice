@@ -1,8 +1,6 @@
-'use strict';
-
 // Add a field with static value `foo`.
 
-function newProcessor(context, opConfig) {
+export function newProcessor(context, opConfig) {
     return function process(data) {
         const results = [];
         data.forEach((obj) => {
@@ -13,7 +11,7 @@ function newProcessor(context, opConfig) {
     };
 }
 
-function schema() {
+export function schema() {
     return {
         field: {
             doc: 'Name of field to foo up.',
@@ -22,5 +20,3 @@ function schema() {
         }
     };
 }
-
-module.exports = { newProcessor, schema };

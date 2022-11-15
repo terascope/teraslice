@@ -1,5 +1,6 @@
-'use strict';
+import { fileURLToPath } from 'url';
+import start from '../../utils/bench.js';
 
-const start = require('../../utils/bench');
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
-start('job-components', __dirname);
+start('job-components', dirPath);

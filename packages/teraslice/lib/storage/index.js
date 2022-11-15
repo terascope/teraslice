@@ -1,12 +1,10 @@
-'use strict';
+import makeAnalyticsStore from './analytics.js';
+import makeAssetStore from './assets.js';
+import makeExStore from './execution.js';
+import makeJobStore from './jobs.js';
+import makeStateStore from './state.js';
 
-const makeAnalyticsStore = require('./analytics');
-const makeAssetStore = require('./assets');
-const makeExStore = require('./execution');
-const makeJobStore = require('./jobs');
-const makeStateStore = require('./state');
-
-module.exports = {
+export default {
     SliceState: makeStateStore.SliceState,
     makeAnalyticsStore,
     makeAssetStore,

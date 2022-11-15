@@ -1,10 +1,12 @@
 import {
-    isBigInt, toBigInt, trimISODateSegment, getHashCodeFrom
+    isBigInt, toBigInt, trimISODateSegment,
+    getHashCodeFrom
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions
-} from '../vector';
+    Vector, VectorType, getNumericValues,
+    SerializeOptions
+} from '../vector/index.js';
 
 export enum ValueAggregation {
     avg = 'avg',

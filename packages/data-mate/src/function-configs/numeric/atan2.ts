@@ -1,11 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { getTypeOf, isNumberLike, toFloatOrThrow } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const atan2Config: FieldTransformConfig = {
     name: 'atan2',

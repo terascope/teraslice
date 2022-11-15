@@ -1,12 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    ConvictSchema,
-    TestContext,
-    OpConfig,
-    ValidatedJobConfig,
-    newTestJobConfig,
-    AnyObject
-} from '../../src';
+    ConvictSchema, TestContext, OpConfig,
+    ValidatedJobConfig, newTestJobConfig, AnyObject
+} from '../../src/index.js';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');

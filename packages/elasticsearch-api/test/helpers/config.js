@@ -1,5 +1,3 @@
-'use strict';
-
 const {
     TEST_INDEX_PREFIX = 'teratest_',
     ELASTICSEARCH_HOST = 'http://localhost:9200',
@@ -12,7 +10,7 @@ const {
     RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@http://localhost:${RESTRAINED_OPENSEARCH_PORT}`,
 } = process.env;
 
-module.exports = {
+export default {
     TEST_INDEX_PREFIX,
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,

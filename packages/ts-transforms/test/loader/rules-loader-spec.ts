@@ -1,6 +1,6 @@
 import path from 'path';
 import { debugLogger, isPlainObject, has } from '@terascope/utils';
-import { RulesLoader, OperationConfigInput } from '../../src';
+import { RulesLoader, OperationConfigInput } from '../../src/index.js';
 
 describe('rules-loader', () => {
     const logger = debugLogger('rules-loader-test');

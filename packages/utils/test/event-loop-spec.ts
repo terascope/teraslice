@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { EventLoop } from '../src';
+import { EventLoop } from '../src/index.js';
 
 describe('EventLoop', () => {
     describe('#wait', () => {

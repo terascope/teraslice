@@ -1,8 +1,6 @@
-'use strict';
+import { Fetcher } from '@terascope/job-components';
 
-const { Fetcher } = require('@terascope/job-components');
-
-class ExampleFetcher extends Fetcher {
+export default class ExampleFetcher extends Fetcher {
     async fetch() {
         const { countPerFetch } = this.opConfig;
 
@@ -22,5 +20,3 @@ class ExampleFetcher extends Fetcher {
         return result;
     }
 }
-
-module.exports = ExampleFetcher;

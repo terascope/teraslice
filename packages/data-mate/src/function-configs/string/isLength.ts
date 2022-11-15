@@ -1,10 +1,10 @@
 import { FieldType } from '@terascope/types';
 import { isString, isNil } from '@terascope/utils';
-import validator from 'validator';
+import validator from 'validator';;
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsLengthArgs {
     /** Check to see if it exactly matches size */
@@ -90,6 +90,7 @@ function isLength(
 ): boolean {
     if (isString(input)) {
         if (size) return input.length === size;
+        // @ts-ignore
         if (min || max) return validator.isLength(input, { min, max });
     }
 

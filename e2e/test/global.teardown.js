@@ -1,7 +1,5 @@
-'use strict';
+import { globalTeardown } from './misc.js';
 
-const { globalTeardown } = require('./misc');
-
-module.exports = async () => {
+export default async () => {
     await globalTeardown();
 };

@@ -1,10 +1,8 @@
 import 'jest-extended';
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import {
-    DataType, LATEST_VERSION
-} from '../src';
-import TupleType from '../src/types/tuple-type';
-import GroupType from '../src/types/group-type';
+import { DataType, LATEST_VERSION } from '../src/index.js';
+import TupleType from '../src/types/tuple-type.js';
+import GroupType from '../src/types/group-type.js';
 
 describe('DataType', () => {
     it('should not throw when given an empty object', () => {

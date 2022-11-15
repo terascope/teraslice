@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { DataEntity } from '@terascope/utils';
 import { RecordTransform } from '@terascope/data-mate';
-import { InjectMethod } from '../mixins';
-import TransformsOpBase from '../../lib/transforms/base';
-import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
+import { InjectMethod } from '../mixins.js';
+import TransformsOpBase from '../../lib/transforms/base.js';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces.js';
 
 const RecordTransformContainer = {} as any;
 

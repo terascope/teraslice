@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
-import { OpConfig } from '../interfaces';
-import ProcessorCore from './core/processor-core';
+import { OpConfig } from '../interfaces/index.js';
+import ProcessorCore from './core/processor-core.js';
 
 /**
  * A variation of "Processor" that deals with a batch of data at a time.

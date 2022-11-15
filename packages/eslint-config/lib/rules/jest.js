@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
     'jest/no-commented-out-tests': 'warn',
     'jest/no-disabled-tests': 'warn',
     'jest/no-focused-tests': 'warn',

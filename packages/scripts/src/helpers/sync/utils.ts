@@ -1,17 +1,19 @@
 import path from 'path';
 import semver from 'semver';
 import {
-    getFirstChar, uniq, trim, isCI, isString
+    getFirstChar, uniq, trim,
+    isCI, isString
 } from '@terascope/utils';
 import {
-    getDocPath, updatePkgJSON, fixDepPkgName, listPackages, isMainPackage
-} from '../packages';
-import { updateReadme, ensureOverview } from '../doc-builder/overview';
-import { PackageInfo, RootPackageInfo } from '../interfaces';
-import { formatList, getRootDir } from '../misc';
-import { getChangedFiles, gitDiff } from '../scripts';
-import { DepKey, SyncOptions } from './interfaces';
-import signale from '../signale';
+    getDocPath, updatePkgJSON, fixDepPkgName,
+    listPackages, isMainPackage
+} from '../packages.js';
+import { updateReadme, ensureOverview } from '../doc-builder/overview.js';
+import { PackageInfo, RootPackageInfo } from '../interfaces.js';
+import { formatList, getRootDir } from '../misc.js';
+import { getChangedFiles, gitDiff } from '../scripts.js';
+import { DepKey, SyncOptions } from './interfaces.js';
+import signale from '../signale.js';
 
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',

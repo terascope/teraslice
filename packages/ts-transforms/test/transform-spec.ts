@@ -2,9 +2,9 @@ import 'jest-extended';
 import path from 'path';
 import { DataEntity, get, cloneDeep } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import TestHarness from './test-harness';
-import { WatcherConfig } from '../src';
-import Plugins from './fixtures/plugins';
+import TestHarness from './test-harness.js';
+import { WatcherConfig } from '../src/index.js';
+import Plugins from './fixtures/plugins.js';
 
 describe('can transform matches', () => {
     let opTest: TestHarness;

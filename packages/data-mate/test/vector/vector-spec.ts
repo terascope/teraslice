@@ -12,7 +12,7 @@ import {
 } from '@terascope/types';
 import {
     Builder, ReadableData, Vector, WritableData
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Vector', () => {
     type Case = [

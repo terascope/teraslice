@@ -1,11 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity,
-    EachProcessor,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    DataEntity, EachProcessor, newTestExecutionConfig,
+    TestContext, WorkerContext
+} from '../../src/index.js';
 
 describe('EachProcessor', () => {
     let processedCount = 0;

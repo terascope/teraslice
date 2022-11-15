@@ -5,7 +5,7 @@ import {
     isInfiniteMin, isInfiniteMax, ParsedRange
 } from 'xlucene-parser';
 import { getTypeOf, isString } from '@terascope/utils';
-import { MatchValueFn } from './interfaces';
+import { MatchValueFn } from './interfaces.js';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';

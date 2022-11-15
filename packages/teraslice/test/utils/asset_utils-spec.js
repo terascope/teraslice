@@ -1,10 +1,8 @@
-'use strict';
-
-const {
+import {
     toSemverRange, findMatchingAsset,
     getMajorVersion, toVersionQuery,
     findSimilarAssets, getInCompatibilityReason,
-} = require('../../lib/utils/asset_utils');
+} from '../../lib/utils/asset_utils';
 
 describe('Asset Utils', () => {
     describe('->toSemverRange', () => {

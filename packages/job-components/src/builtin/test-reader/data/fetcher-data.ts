@@ -1,4 +1,4 @@
-export = [
+export default [
     {
         id: '7da04627-f786-5d1f-a18c-2735684efd3d',
         name: 'Belle Parsons',

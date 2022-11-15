@@ -1,11 +1,7 @@
 import { deprecate } from 'util';
 import {
-    DataEntity,
-    DataInput,
-    isPlainObject,
-    getFirst,
-    castArray,
-    isString
+    DataEntity, DataInput, isPlainObject,
+    getFirst, castArray, isString
 } from '@terascope/utils';
 
 const deprecateType = deprecate(

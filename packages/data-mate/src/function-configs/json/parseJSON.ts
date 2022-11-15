@@ -1,12 +1,9 @@
 import { parseJSON, isNil } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode,FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
+} from '../interfaces.js';
 
 export const parseJSONConfig: FieldTransformConfig = {
     name: 'parseJSON',

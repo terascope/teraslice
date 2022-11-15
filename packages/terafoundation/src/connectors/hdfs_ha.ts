@@ -1,11 +1,13 @@
-import { promisifyAll } from 'bluebird';
+import bluebird from 'bluebird';
 import { Logger } from '@terascope/utils';
+import * as client from 'node-webhdfs';
+
+const { WebHDFSClient: HdfsClient } = client;
+const { promisifyAll } = bluebird;
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
 } {
-    const HdfsClient = require('node-webhdfs').WebHDFSClient;
-
     let highAvailibility = false;
     let currentNameNode;
 
@@ -28,7 +30,9 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             user: {

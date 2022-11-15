@@ -1,7 +1,5 @@
-'use strict';
-
-const misc = require('../../misc');
-const { resetState } = require('../../helpers');
+import misc from '../../misc.js';
+import { resetState } from '../../helpers.js';
 
 describe('job validation', () => {
     beforeAll(() => resetState());

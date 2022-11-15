@@ -1,10 +1,9 @@
 import { inIPRange, isIP, isCIDR } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface InIPRangeArgs {
     min?: string;

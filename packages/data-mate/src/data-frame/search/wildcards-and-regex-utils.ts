@@ -1,11 +1,8 @@
 import {
-    wildCardToRegex,
-    matchWildcard,
-    match,
-    isString,
-    getTypeOf
+    wildCardToRegex, matchWildcard, match,
+    isString, getTypeOf
 } from '@terascope/utils';
-import { MatchValueFn } from './interfaces';
+import { MatchValueFn } from './interfaces.js';
 
 export function regexp(regexStr: unknown): MatchValueFn {
     if (!isString(regexStr)) {

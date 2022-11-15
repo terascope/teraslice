@@ -1,5 +1,5 @@
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import KeywordPathAnalyzer from '../../../src/types/v1/keyword-path-analyzer';
+import KeywordPathAnalyzer from '../../../src/types/v1/keyword-path-analyzer.js';
 
 describe('KeywordPathAnalyzer V1', () => {
     const field = 'someField';

@@ -1,9 +1,9 @@
 import { extractMappedIPv4 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType, FieldTransformConfig,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const extractMappedIPv4Config: FieldTransformConfig = {
     name: 'extractMappedIPv4',

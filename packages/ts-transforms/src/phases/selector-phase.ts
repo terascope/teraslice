@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
-import * as i from '../interfaces';
-import PhaseBase from './base';
-import { OperationsManager } from '../operations';
+import * as i from '../interfaces.js';
+import PhaseBase from './base.js';
+import { OperationsManager } from '../operations.js';
 
 export default class SelectionPhase extends PhaseBase {
     readonly selectionPhase: i.Operation[];

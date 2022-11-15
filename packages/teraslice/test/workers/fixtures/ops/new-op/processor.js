@@ -1,8 +1,6 @@
-'use strict';
+import { BatchProcessor } from '@terascope/job-components';
 
-const { BatchProcessor } = require('@terascope/job-components');
-
-class ExampleBatch extends BatchProcessor {
+export default class ExampleBatch extends BatchProcessor {
     async initialize() {
         this.initialized = true;
         this.logger.debug('example map initalized', this.opConfig);
@@ -31,5 +29,3 @@ class ExampleBatch extends BatchProcessor {
         }
     }
 }
-
-module.exports = ExampleBatch;

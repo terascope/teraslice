@@ -1,19 +1,9 @@
 import {
-    GeoDistanceUnit,
-    GEO_DISTANCE_UNITS,
-    GeoPointInput,
-    GeoShape,
-    GeoPoint,
-    GeoDistanceObj,
-    GeoShapeType,
-    ESGeoShapeType,
-    GeoShapePoint,
-    GeoShapePolygon,
-    GeoShapeMultiPolygon,
-    ESGeoShape,
-    CoordinateTuple,
-    GeoShapeRelation,
-    GeoInput
+    GeoDistanceUnit, GEO_DISTANCE_UNITS, GeoPointInput,
+    GeoShape, GeoPoint, GeoDistanceObj,
+    GeoShapeType, ESGeoShapeType, GeoShapePoint,
+    GeoShapePolygon, GeoShapeMultiPolygon, ESGeoShape,
+    CoordinateTuple, GeoShapeRelation, GeoInput
 } from '@terascope/types';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
@@ -25,23 +15,17 @@ import contains from '@turf/boolean-contains';
 import disjoint from '@turf/boolean-disjoint';
 import intersect from '@turf/boolean-intersects';
 import {
-    lineString,
-    multiPolygon,
-    polygon as tPolygon,
-    point as tPoint,
-    MultiPolygon,
-    Feature,
-    Properties,
-    Polygon,
-    Position,
+    lineString, multiPolygon, polygon as tPolygon,
+    point as tPoint, MultiPolygon, Feature,
+    Properties, Polygon, Position,
 } from '@turf/helpers';
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import { find as geoToTimezone } from 'geo-tz';
-import { isArrayLike } from './arrays';
-import { isPlainObject, geoHash, getTypeOf } from './deps';
-import { trim, toString } from './strings';
-import { parseNumberList, toNumber, isNumber } from './numbers';
+import { isArrayLike } from './arrays.js';
+import { isPlainObject, geoHash, getTypeOf } from './deps.js';
+import { trim, toString } from './strings.js';
+import { parseNumberList, toNumber, isNumber } from './numbers.js';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -417,7 +401,7 @@ function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
 
     if (inputFeature.geometry.type === 'MultiPolygon') {
         inputPolygons = inputCoords
-            .map((coords) => {
+            .map((coords:any[]) => {
                 if (coords.length > 1) {
                     const [polygon, ...holes] = coords.map(
                         (innerCords: Position[]) => tPolygon([innerCords])
@@ -432,7 +416,7 @@ function _featureToPolygonAndHoles(inputFeature: Feature<any>) {
         const [polyCoords, ...holeCords] = inputCoords;
         inputPolygons = [tPolygon([polyCoords])];
 
-        const holePolygons = holeCords.map((coords) => tPolygon([coords])) as Feature<any>[];
+        const holePolygons = holeCords.map((coords: any[]) => tPolygon([coords])) as Feature<any>[];
         inputHoles.push(...holePolygons);
     } else {
         throw new Error(`Cannot convert ${toString(inputFeature)} to a polygon`);
@@ -625,7 +609,7 @@ export function validateListCoords(coords: CoordinateTuple[]): any[] {
     }
     const line = lineString(coords);
     const polygon = lineToPolygon(line);
-    // @ts-expect-error
+
     return getCoords(polygon);
 }
 

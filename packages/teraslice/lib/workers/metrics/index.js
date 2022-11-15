@@ -1,13 +1,11 @@
 /* eslint-disable no-console */
 
-'use strict';
-
-const { EventEmitter } = require('events');
-const { pDelay, debugLogger, isTest } = require('@terascope/utils');
+import { EventEmitter } from 'events';
+import { pDelay, debugLogger, isTest } from '@terascope/utils';
 
 const _logger = debugLogger('metrics');
 
-class Metrics extends EventEmitter {
+export default class Metrics extends EventEmitter {
     constructor({ logger } = {}) {
         super();
 

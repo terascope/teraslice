@@ -1,7 +1,7 @@
 import { Logger } from '@terascope/utils';
+import { StatsD } from 'node-statsd';
 
 function create(customConfig: Record<string, any>, logger: Logger): { client: any; } {
-    const { StatsD } = require('node-statsd');
     logger.info(`Using statsd host: ${customConfig.host}`);
 
     const client = new StatsD(customConfig);
@@ -12,7 +12,9 @@ function create(customConfig: Record<string, any>, logger: Logger): { client: an
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             host: {

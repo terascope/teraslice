@@ -1,19 +1,12 @@
-'use strict';
-
-const defaultsDeep = require('lodash/defaultsDeep');
-const {
-    TSError,
-    uniq,
-    get,
-    cloneDeep,
-    isEmpty,
-    getTypeOf,
-    isString,
-} = require('@terascope/utils');
-const { JobValidator } = require('@terascope/job-components');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const spawnAssetsLoader = require('../../workers/assets/spawn');
-const { terasliceOpPath } = require('../../config');
+import {
+    TSError, uniq, get,
+    cloneDeep, isEmpty, getTypeOf,
+    isString, defaultsDeep
+} from '@terascope/utils';
+import { JobValidator } from '@terascope/job-components';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import spawnAssetsLoader from '../../workers/assets/spawn.js';
+import { terasliceOpPath } from '../../config.js';
 
 /**
  * New execution result
@@ -22,7 +15,7 @@ const { terasliceOpPath } = require('../../config');
  * @property {string} ex_id
  */
 
-module.exports = function jobsService(context) {
+export default function jobsService(context) {
     let executionService;
     let exStore;
     let jobStore;

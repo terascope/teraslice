@@ -1,4 +1,4 @@
-import Node from './node';
+import Node from './node.js';
 
 /** A basic FIFO queue */
 export class Queue<T> {

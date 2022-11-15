@@ -1,5 +1,5 @@
-import { QueryAccess } from './query-access';
-import { QueryAccessConfig, QueryAccessOptions } from './interfaces';
+import { QueryAccess } from './query-access.js';
+import { QueryAccessConfig, QueryAccessOptions } from './interfaces.js';
 
 type Cached = { [key: string]: QueryAccess<any> };
 const _cache = new WeakMap<CachedQueryAccess, Cached>();

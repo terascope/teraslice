@@ -1,8 +1,8 @@
 /* eslint-disable quotes */
 import { xLuceneFieldType } from '@terascope/types';
 import { escapeString } from '@terascope/utils';
-import { NodeType, Term } from '../../src';
-import { TestCase } from './interfaces';
+import { NodeType, Term } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

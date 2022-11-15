@@ -8,9 +8,9 @@ import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType
 } from './helpers/simple-index';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
-import { IndexStore, IndexConfig, __timeSeriesTest } from '../src';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
+import { IndexStore, IndexConfig, __timeSeriesTest } from '../src/index.js';
 
 describe('IndexStore (timeseries)', () => {
     const logger = debugLogger(__filename);

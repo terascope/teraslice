@@ -3,12 +3,9 @@ import {
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample
+} from '../interfaces.js';
 
 export interface TrimStartArgs {
     chars?: string;

@@ -1,10 +1,8 @@
-'use strict';
+import { spawn } from 'child_process';
+import path from 'path';
+import { TSError } from '@terascope/utils';
 
-const { spawn } = require('child_process');
-const path = require('path');
-const { TSError } = require('@terascope/utils');
-
-function newProcessor(context, opConfig) {
+export function newProcessor(context, opConfig) {
     const { args, options } = opConfig;
 
     let command = '';
@@ -96,7 +94,7 @@ function newProcessor(context, opConfig) {
     }
 }
 
-function schema() {
+export function schema() {
     return {
         command: {
             doc: 'what command to run',
@@ -123,8 +121,3 @@ function schema() {
         }
     };
 }
-
-module.exports = {
-    newProcessor,
-    schema
-};

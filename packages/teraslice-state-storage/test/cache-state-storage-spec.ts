@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
-import { CachedStateStorage, SetTuple, EvictedEvent } from '../src';
+import { CachedStateStorage, SetTuple, EvictedEvent } from '../src/index.js';
 
 describe('Cache Storage State', () => {
     const idField = '_key';

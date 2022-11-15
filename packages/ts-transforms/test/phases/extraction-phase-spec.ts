@@ -3,7 +3,7 @@ import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict
-} from '../../src';
+} from '../../src/index.js';
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');

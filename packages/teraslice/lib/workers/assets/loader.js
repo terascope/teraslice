@@ -1,18 +1,14 @@
-'use strict';
-
-const path = require('path');
-const fs = require('fs');
-const {
-    get,
-    isEmpty,
-    getFullErrorStack,
+import path from 'path';
+import fs from 'fs';
+import {
+    get, isEmpty, getFullErrorStack,
     pDelay
-} = require('@terascope/utils');
-const makeTerafoundationContext = require('../context/terafoundation-context');
-const makeAssetStore = require('../../storage/assets');
-const { safeDecode } = require('../../utils/encoding_utils');
-const { makeLogger } = require('../helpers/terafoundation');
-const { saveAsset } = require('../../utils/file_utils');
+} from '@terascope/utils';
+import makeTerafoundationContext from '../context/terafoundation-context.js';
+import makeAssetStore from '../../storage/assets.js';
+import { safeDecode } from '../../utils/encoding_utils.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { saveAsset } from '../../utils/file_utils.js';
 
 class AssetLoader {
     constructor(context, assets = []) {
@@ -77,7 +73,7 @@ class AssetLoader {
     }
 }
 
-async function loadAssets(context, assets) {
+export default async function loadAssets(context, assets) {
     const assetLoader = new AssetLoader(context, assets);
     return assetLoader.load();
 }
@@ -105,5 +101,4 @@ if (require.main === module) {
         }
     })();
 } else {
-    module.exports = loadAssets;
 }

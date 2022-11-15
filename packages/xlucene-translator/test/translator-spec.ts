@@ -1,11 +1,13 @@
 /* eslint-disable no-self-compare */
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
-import { ElasticsearchDistribution, xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
+import { 
+    ElasticsearchDistribution, xLuceneFieldType, xLuceneTypeConfig
+} from '@terascope/types';
 import { Parser } from 'xlucene-parser';
-import { translateQuery } from '../src/translator/utils';
-import { Translator } from '../src';
-import allTestCases from './cases/translator';
+import { translateQuery } from '../src/translator/utils.js';
+import { Translator } from '../src/index.js';
+import allTestCases from './cases/translator/index.js';
 
 const logger = debugLogger('translator-spec');
 

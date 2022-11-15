@@ -6,7 +6,7 @@ import {
     newTestExecutionConfig,
     WorkerContext,
     ValidatedJobConfig
-} from '../../../src';
+} from '../../../src/index.js';
 
 describe('Processor Shim', () => {
     const context = new TestContext('teraslice-operations');

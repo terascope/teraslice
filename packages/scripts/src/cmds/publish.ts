@@ -1,19 +1,19 @@
 import { CommandModule } from 'yargs';
 import { isCI } from '@terascope/utils';
-import { GlobalCMDOptions } from '../helpers/interfaces';
-import { PublishAction, PublishType } from '../helpers/publish/interfaces';
-import { publish } from '../helpers/publish';
-import { syncAll } from '../helpers/sync';
-import { getRootInfo } from '../helpers/misc';
+import { GlobalCMDOptions } from '../helpers/interfaces.js';
+import { PublishAction, PublishType } from '../helpers/publish/interfaces.js';
+import { publish } from '../helpers/publish/index.js';
+import { syncAll } from '../helpers/sync/index.js';
+import { getRootInfo } from '../helpers/misc.js';
 
-interface Options {
+export interface PublishOptions {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
     'publish-outdated-packages': boolean;
 }
 
-const cmd: CommandModule<GlobalCMDOptions, Options> = {
+const cmd: CommandModule<GlobalCMDOptions, PublishOptions> = {
     command: 'publish <action>',
     describe: 'Publish npm or docker releases',
     builder(yargs) {
@@ -63,4 +63,4 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
-export = cmd;
+export default cmd;

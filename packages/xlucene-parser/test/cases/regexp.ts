@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Regexp } from '../../src';
-import { TestCase } from './interfaces';
+import { NodeType, Regexp } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     ['example:/[a-z]+/', 'a basic regexp', {

@@ -1,4 +1,4 @@
-import { ConvictSchema, ValidatedJobConfig } from '../../../../src';
+import { ConvictSchema, ValidatedJobConfig } from '../../../../src/index.js';
 
 export class AssetReaderSchema extends ConvictSchema<any, any> {
     validateJob(job: ValidatedJobConfig): void {

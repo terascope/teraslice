@@ -1,8 +1,9 @@
 import { times, isFunction, pDelay } from '@terascope/utils';
 import {
-    SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData
-} from '../interfaces';
-import SlicerCore from './core/slicer-core';
+    SlicerFn, SlicerResult, OpConfig,
+    SlicerRecoveryData
+} from '../interfaces/index.js';
+import SlicerCore from './core/slicer-core.js';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.

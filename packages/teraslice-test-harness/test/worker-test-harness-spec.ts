@@ -8,7 +8,7 @@ import {
     BatchProcessor,
     NoopProcessor
 } from '@terascope/job-components';
-import { WorkerTestHarness } from '../src';
+import { WorkerTestHarness } from '../src/index.js';
 
 describe('WorkerTestHarness', () => {
     const clients = [

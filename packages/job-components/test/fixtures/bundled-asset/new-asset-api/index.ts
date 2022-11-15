@@ -1,2 +1,2 @@
-export * from './api';
-export * from './schema';
+export * from './api.js';
+export * from './schema.js';

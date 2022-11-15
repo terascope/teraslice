@@ -4,18 +4,18 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { has, TSError } from '@terascope/utils';
-import { AssetSrc } from '../../helpers/asset-src';
-import GithubAsset from '../../helpers/github-asset';
+import { AssetSrc } from '../../helpers/asset-src.js';
+import GithubAsset from '../../helpers/github-asset.js';
 
-import { CMD, GithubAssetConfig } from '../../interfaces';
-import reply from '../../helpers/reply';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
+import { CMD, GithubAssetConfig } from '../../interfaces.js';
+import reply from '../../helpers/reply.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { getTerasliceClient } from '../../helpers/utils.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'deploy <cluster-alias> [<asset>]',
     describe: 'Uploads asset from zipfile, github, or source to Teraslice\n',
     builder(yargs) {

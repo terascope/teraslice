@@ -1,10 +1,11 @@
-'use strict';
+import fs from 'fs';
+import path from'path';
+import { fileURLToPath } from 'url';
+import { isCI } from '@terascope/utils';
 
-const fs = require('fs');
-const path = require('path');
-const { isCI } = require('@terascope/utils');
+const dirname = fileURLToPath(new URL('.', import.meta.url));
+const packagesPath = path.join(dirname, 'packages');
 
-const packagesPath = path.join(__dirname, 'packages');
 const projects = fs
     .readdirSync(packagesPath)
     .filter((pkgName) => {
@@ -30,7 +31,7 @@ if (!isCI) {
     coverageReporters.push('text-summary');
 }
 
-module.exports = {
+export default {
     rootDir: '.',
     verbose: true,
     projects,

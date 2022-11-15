@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { FieldGroup, NodeType, Term } from '../../src';
-import { TestCase } from './interfaces';
+import { FieldGroup, NodeType, Term } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     ['count:(>=10 AND <=20 AND >=100)', 'a field group expression with ranges', {

@@ -1,14 +1,14 @@
 /* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import { debugLogger, get } from '@terascope/utils';
-import * as simple from './helpers/simple-index';
-import * as template from './helpers/template-index';
+import * as simple from './helpers/simple-index.js';
+import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
     __timeSeriesTest
-} from '../src';
-import { makeClient, cleanupIndex } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+} from '../src/index.js';
+import { makeClient, cleanupIndex } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');

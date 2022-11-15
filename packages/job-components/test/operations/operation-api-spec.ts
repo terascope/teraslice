@@ -1,7 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    OperationAPI, OpAPIInstance, ExecutionContextAPI, newTestExecutionConfig, TestContext
-} from '../../src';
+    OperationAPI, OpAPIInstance, ExecutionContextAPI,
+    newTestExecutionConfig, TestContext
+} from '../../src/index.js';
 
 describe('OperationAPI', () => {
     interface ExampleAPI extends OpAPIInstance {

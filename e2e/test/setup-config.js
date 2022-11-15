@@ -1,19 +1,13 @@
-'use strict';
-
-const { cloneDeep } = require('@terascope/utils');
-const path = require('path');
-const fse = require('fs-extra');
-const {
-    WORKERS_PER_NODE,
-    KAFKA_BROKER,
-    ELASTICSEARCH_HOST,
-    ELASTICSEARCH_API_VERSION,
-    CLUSTER_NAME,
-    HOST_IP,
+import { cloneDeep } from '@terascope/utils';
+import path from 'path';
+import fse from 'fs-extra';
+import {
+    WORKERS_PER_NODE,  KAFKA_BROKER, ELASTICSEARCH_HOST,
+    ELASTICSEARCH_API_VERSION, CLUSTER_NAME, HOST_IP,
     CONFIG_PATH,
-} = require('./misc');
+} from ('./misc');
 
-module.exports = async function setupTerasliceConfig() {
+export default async function setupTerasliceConfig() {
     const baseConfig = {
         terafoundation: {
             environment: 'development',

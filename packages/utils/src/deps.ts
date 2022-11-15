@@ -2,18 +2,19 @@
  * This file exports tiny facades over the external packages.
  * The behavior of a dependency can be overridden here
 */
-import has from 'lodash/has';
-import set from 'lodash/set';
-import get from 'lodash/get';
-import unset from 'lodash/unset';
+import {
+    has, set, get, unset,
+    pickBy, shuffle, sortBy,
+    defaultsDeep
+} from 'lodash-es';
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
-import { AnyObject } from './interfaces';
-import { DataEntity } from './entities';
+import { AnyObject } from './interfaces.js';
+import { DataEntity } from './entities/index.js';
 
 /**
  * Detect if an object created by Object.create(null)
@@ -116,4 +117,8 @@ export {
     has,
     geoHash,
     pMap,
+    pickBy,
+    shuffle,
+    sortBy as lodashSortBy,
+    defaultsDeep
 };

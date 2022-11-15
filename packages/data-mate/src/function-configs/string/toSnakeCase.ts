@@ -1,11 +1,9 @@
 import { toSnakeCase } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const toSnakeCaseConfig: FieldTransformConfig = {
     name: 'toSnakeCase',

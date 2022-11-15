@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import convict from 'convict';
-import { formats, addFormats } from '../src/formats';
+import { formats, addFormats } from '../src/formats.js';
 
 addFormats();
 

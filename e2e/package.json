@@ -3,6 +3,7 @@
     "displayName": "E2E Tests",
     "version": "0.1.1",
     "private": true,
+    "type": "module",
     "description": "Teraslice integration test suite",
     "keywords": [
         "docker-compose",

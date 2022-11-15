@@ -1,6 +1,4 @@
-'use strict';
-
-function bindThis(instance, cls) {
+export function bindThis(instance, cls) {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
         .filter((name) => {
             const method = instance[name];
@@ -10,7 +8,3 @@ function bindThis(instance, cls) {
             instance[mtd] = instance[mtd].bind(instance);
         });
 }
-
-module.exports = {
-    bindThis
-};

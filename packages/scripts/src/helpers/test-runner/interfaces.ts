@@ -1,4 +1,4 @@
-import { PackageInfo } from '../interfaces';
+import { PackageInfo } from '../interfaces.js';
 
 export type TestOptions = {
     bail: boolean;

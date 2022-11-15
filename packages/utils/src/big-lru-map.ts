@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
 import { TypedArray } from '@terascope/types';
-import LRUMap from 'mnemonist/lru-map';
-import { BigMap } from './big-map';
+import structures from 'mnemonist';
+import { BigMap } from './big-map.js';
 
 /**
 * This used to ignore the init size of
@@ -16,7 +16,7 @@ export class FlexibleArray {
     }
 }
 
-export class BigLRUMap<V> extends LRUMap<string|number, V> {
+export class BigLRUMap<V> extends structures.LRUMap<string|number, V> {
     constructor(
         mapSize: number,
         keyArray: FlexibleArray|TypedArray = FlexibleArray,

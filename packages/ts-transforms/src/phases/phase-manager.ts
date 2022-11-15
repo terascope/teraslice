@@ -1,12 +1,12 @@
 import { DataEntity, Logger, debugLogger } from '@terascope/utils';
-import { PhaseConfig, PluginList } from '../interfaces';
-import { Loader } from '../loader';
-import SelectionPhase from './selector-phase';
-import ExtractionPhase from './extraction-phase';
-import PostProcessPhase from './post-process-phase';
-import OutputPhase from './output-phase';
-import { OperationsManager } from '../operations';
-import PhaseBase from './base';
+import { PhaseConfig, PluginList } from '../interfaces.js';
+import { Loader } from '../loader.js';
+import SelectionPhase from './selector-phase.js';
+import ExtractionPhase from './extraction-phase.js';
+import PostProcessPhase from './post-process-phase.js';
+import OutputPhase from './output-phase.js';
+import { OperationsManager } from '../operations.js';
+import PhaseBase from './base.js';
 
 export default class PhaseManager {
     private opConfig: PhaseConfig;

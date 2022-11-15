@@ -1,8 +1,8 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
@@ -33,4 +33,4 @@ const cmd: CMD = {
     }
 };
 
-export = cmd;
+export default cmd;

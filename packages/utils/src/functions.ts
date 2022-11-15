@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { toString } from './strings';
+import { toString } from './strings.js';
 
 type ArgType<T> = T extends (...args: infer A) => any ? A : any;
 

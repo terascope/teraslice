@@ -2,16 +2,10 @@
 
 import 'jest-extended'; // require for type definitions
 import {
-    BatchProcessor,
-    MapProcessor,
-    ConvictSchema,
-    legacyProcessorShim,
-    DataEntity,
-    TestContext,
-    newTestExecutionConfig,
-    OpConfig,
-    JobConfig,
-} from '../../../src';
+    BatchProcessor, MapProcessor, ConvictSchema,
+    legacyProcessorShim, DataEntity, TestContext,
+    newTestExecutionConfig, OpConfig, JobConfig,
+} from '../../../src/index.js';
 
 describe('Legacy Processor Shim', () => {
     class ExampleProcessor extends MapProcessor<ExampleOpConfig> {

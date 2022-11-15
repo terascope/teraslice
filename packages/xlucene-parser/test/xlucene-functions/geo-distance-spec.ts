@@ -3,8 +3,8 @@ import {
     xLuceneFieldType, xLuceneTypeConfig, GeoShapeType,
 } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
-import { Parser, initFunction } from '../../src';
-import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
+import { Parser, initFunction } from '../../src/index.js';
+import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces.js';
 
 describe('geoDistance', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };

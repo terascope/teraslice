@@ -1,5 +1,3 @@
-'use strict';
-
 function schema() {
     return {
         hello: {
@@ -14,7 +12,7 @@ function newReader() {
     return (data) => data;
 }
 
-module.exports = {
+export default {
     schema,
     newReader,
 };

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Export of internal components and functions of teraslice.
  *
@@ -8,12 +6,12 @@
  *      For best results teraslice with an exact semver match, i.e "0.38.0".
 */
 
-const config = require('./lib/config');
-const stores = require('./lib/storage');
-const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
-const { initializeTestExecution } = require('./lib/workers/helpers/job');
+import config from './lib/config.js';
+import stores from './lib/storage.js';
+import makeTerafoundationContext from './lib/workers/context/terafoundation-context.js';
+import { initializeTestExecution } from './lib/workers/helpers/job.js';
 
-module.exports = {
+export default {
     initializeTestExecution,
     makeTerafoundationContext,
     config,

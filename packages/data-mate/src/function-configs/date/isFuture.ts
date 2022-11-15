@@ -1,8 +1,9 @@
 import { isFuture } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldValidateConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FieldValidateConfig
+} from '../interfaces.js';
 
 export const isFutureConfig: FieldValidateConfig = {
     name: 'isFuture',

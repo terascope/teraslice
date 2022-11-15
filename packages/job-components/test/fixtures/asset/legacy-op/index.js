@@ -1,5 +1,3 @@
-'use strict';
-
 function newProcessor(context, opConfig) {
     return function processor(data) {
         data.forEach((doc) => {
@@ -20,7 +18,7 @@ function schema() {
     };
 }
 
-module.exports = {
+export default {
     newProcessor,
     schema,
 };

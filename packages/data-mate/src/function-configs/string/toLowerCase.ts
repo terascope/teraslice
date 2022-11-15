@@ -1,10 +1,8 @@
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 function _toLowerCase(input: unknown): string {
     return String(input).toLowerCase();

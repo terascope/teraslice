@@ -1,6 +1,6 @@
 import { DataTypeConfig, DataTypeFields, FieldType } from '@terascope/types';
-import { DataTypeFieldAndChildren } from '../function-configs/interfaces';
-import { getChildDataTypeConfig } from '../core';
+import { DataTypeFieldAndChildren } from '../function-configs/interfaces.js';
+import { getChildDataTypeConfig } from '../core/index.js';
 
 export function getDataTypeFieldAndChildren(
     config: DataTypeConfig|undefined, field: string|undefined

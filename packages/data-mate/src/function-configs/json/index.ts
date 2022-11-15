@@ -1,7 +1,7 @@
-import { castConfig, CastArgs } from './cast';
-import { parseJSONConfig } from './parseJSON';
-import { setDefaultConfig, SetDefaultArgs } from './setDefault';
-import { toJSONConfig } from './toJSON';
+import { castConfig, CastArgs } from './cast.js';
+import { parseJSONConfig } from './parseJSON.js';
+import { setDefaultConfig, SetDefaultArgs } from './setDefault.js';
+import { toJSONConfig } from './toJSON.js';
 
 export const jsonRepository = {
     cast: castConfig,

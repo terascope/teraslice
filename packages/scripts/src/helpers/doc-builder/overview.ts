@@ -1,8 +1,8 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { PackageInfo } from '../interfaces';
-import { writeIfChanged, getRootInfo } from '../misc';
-import { getDocPath } from '../packages';
+import { PackageInfo } from '../interfaces.js';
+import { writeIfChanged, getRootInfo } from '../misc.js';
+import { getDocPath } from '../packages.js';
 
 export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
     const rootInfo = getRootInfo();

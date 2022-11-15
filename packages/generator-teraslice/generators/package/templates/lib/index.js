@@ -1,7 +1,5 @@
-'use strict';
+import Example from './example.js';
 
-const Example = require('./example');
-
-module.exports = {
+export default {
     Example,
 };

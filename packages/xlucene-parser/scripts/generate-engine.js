@@ -1,15 +1,15 @@
 #!/usr/bin/env node
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
+import peg from 'peggy';
+import tspegjs from 'ts-pegjs';
 
-'use strict';
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
-const fs = require('fs');
-const path = require('path');
-const peg = require('peggy');
-const tspegjs = require('ts-pegjs');
-
-function generate() {
-    const input = path.join(__dirname, '..', 'peg', 'lucene.pegjs');
-    const output = path.join(__dirname, '..', 'src', 'peg-engine.ts');
+export default function generateEngine() {
+    const input = path.join(dirPath, '..', 'peg', 'lucene.pegjs');
+    const output = path.join(dirPath, '..', 'src', 'peg-engine.ts');
 
     const current = fs.existsSync(output) && fs.readFileSync(output, 'utf8');
     const grammar = fs.readFileSync(input, 'utf8');
@@ -21,7 +21,7 @@ function generate() {
         format: 'commonjs',
         tspegjs: {
             noTslint: true,
-            customHeader: "import { makeContext } from './context';\nimport * as i from './interfaces';\nimport { xLuceneFieldType } from '@terascope/types';"
+            customHeader: "import { makeContext } from './context.js';\nimport * as i from './interfaces.js';\nimport { xLuceneFieldType } from '@terascope/types';"
         },
     });
 
@@ -30,11 +30,11 @@ function generate() {
     return output;
 }
 
-if (require.main === module) {
-    const outputFile = generate();
+// we execute if used as a script
+if (import.meta.url.startsWith('file:')) {
+    const outputFile = generateEngine();
+
     if (outputFile) {
         console.error(`* generated ${path.relative(process.cwd(), outputFile)}`);
     }
-} else {
-    module.exports = generate;
 }

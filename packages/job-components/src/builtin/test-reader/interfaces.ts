@@ -1,4 +1,4 @@
-import { OpConfig } from '../../interfaces';
+import { OpConfig } from '../../interfaces/index.js';
 
 export interface TestReaderConfig extends OpConfig {
     fetcher_data_file_path?: string;

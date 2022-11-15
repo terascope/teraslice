@@ -1,13 +1,10 @@
 import 'jest-extended'; // require for type definitions
 import { times } from '@terascope/utils';
+import { jest } from '@jest/globals';
 import {
-    EachProcessor,
-    legacySliceEventsShim,
-    DataEntity,
-    TestContext,
-    WorkerContext,
-    newTestExecutionConfig
-} from '../../../src';
+    EachProcessor, legacySliceEventsShim, DataEntity,
+    TestContext, WorkerContext, newTestExecutionConfig
+} from '../../../src/index.js';
 
 describe('Legacy Slice Events Shim', () => {
     const workerShutdown = jest.fn();

@@ -2,7 +2,7 @@ import { cpus } from 'os';
 
 const workerCount = cpus().length;
 
-export = {
+export default {
     environment: {
         doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
         default: 'development',

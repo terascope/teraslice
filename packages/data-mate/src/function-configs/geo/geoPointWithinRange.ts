@@ -4,11 +4,9 @@ import {
 } from '@terascope/utils';
 import { FieldType, GEO_DISTANCE_UNITS, GeoPointInput } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory
-} from '../interfaces';
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample,
+} from '../interfaces.js';
 
 export interface GeoPointWithinRangeArgs {
     point: GeoPointInput;

@@ -1,6 +1,4 @@
-'use strict';
-
-const utils = require('../../lib/utils/date_utils');
+import utils from '../../lib/utils/date_utils.js';
 
 describe('elastic_utils', () => {
     it('has methods dateOptions and processInterval', () => {

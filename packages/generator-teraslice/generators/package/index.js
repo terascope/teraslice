@@ -1,14 +1,14 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const chalk = require('chalk');
-const yosay = require('yosay');
-const { toKebabCase, trim } = require('@terascope/utils');
-const Generator = require('yeoman-generator');
-const genPackageJSON = require('./utils/package-json');
+import fs from 'fs';
+import path from 'path';
+import chalk from 'chalk';
+import yosay from 'yosay';
+import { toKebabCase, trim } from '@terascope/utils';
+import Generator from 'yeoman-generator';
+import genPackageJSON from './utils/package-json.js';
 
-module.exports = class extends Generator {
+export default class extends Generator {
     prompting() {
         this.log(
             yosay(`Welcome to the Teraslice ${chalk.cyan('Teraslice Package')} generator!`)
@@ -142,7 +142,7 @@ module.exports = class extends Generator {
             );
         }
 
-        const folderName = this.props.typescript ? 'src' : 'lib';
+        const folderName = this.props.typescript ? 'src/index.js' : 'lib';
         const ext = this.props.typescript ? '.ts' : '.js';
 
         if (!pathExists(folderName)) {

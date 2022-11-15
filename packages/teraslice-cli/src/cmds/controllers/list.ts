@@ -1,14 +1,14 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import Display from '../../helpers/display';
-import TerasliceUtil from '../../helpers/teraslice-util';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import Display from '../../helpers/display.js';
+import TerasliceUtil from '../../helpers/teraslice-util.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 const display = new Display();
 
-export = {
+export default {
     command: 'list <cluster-alias>',
     describe: 'List controller(s) on a cluster.\n',
     builder(yargs) {

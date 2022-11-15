@@ -1,10 +1,10 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeConfig, ReadonlyDataTypeConfig,
-    DataTypeFields, DataTypeVersion
+    DataTypeConfig, ReadonlyDataTypeConfig, DataTypeFields,
+    DataTypeVersion
 } from '@terascope/types';
-import { Builder, getBuildersForConfig } from '../builder';
-import { Column, KeyAggFn } from '../column';
+import { Builder, getBuildersForConfig } from '../builder/index.js';
+import { Column, KeyAggFn } from '../column/index.js';
 
 export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,

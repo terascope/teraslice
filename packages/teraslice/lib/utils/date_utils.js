@@ -1,8 +1,6 @@
-'use strict';
+import { makeISODate } from '@terascope/utils';
 
-const { makeISODate } = require('@terascope/utils');
-
-function dateOptions(value) {
+export function dateOptions(value) {
     const options = {
         year: 'y',
         years: 'y',
@@ -45,14 +43,9 @@ function dateOptions(value) {
     throw new Error(`the time descriptor of "${value}" for the interval is malformed`);
 }
 
-function timeseriesIndex(timeseriesFormat, index, dateStr) {
+export function timeseriesIndex(timeseriesFormat, index, dateStr) {
     const timestamp = makeISODate();
     const formatter = { daily: 10, monthly: 7, yearly: 4 };
     const dateString = dateStr || timestamp;
     return { index: `${index}-${dateString.slice(0, formatter[timeseriesFormat]).replace(/-/g, '.')}`, timestamp };
 }
-
-module.exports = {
-    dateOptions,
-    timeseriesIndex
-};

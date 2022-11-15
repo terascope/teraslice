@@ -3,7 +3,7 @@
 const { getGroupedFields } = require('@terascope/data-types');
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
-const { Column } = require('./src');
+const { Column } = require('./src/index.js');
 
 const run = async () => {
     const suite = Suite('Build Column');

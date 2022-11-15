@@ -1,12 +1,9 @@
 import { getTypeOf, isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-    FunctionDefinitionExample
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory, FunctionDefinitionExample
+} from '../interfaces.js';
 
 function _reverse(input: unknown): string|null {
     if (!isString(input)) {

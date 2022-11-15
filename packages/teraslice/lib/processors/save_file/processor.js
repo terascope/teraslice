@@ -1,9 +1,7 @@
-'use strict';
+import fs from 'fs';
+import { EachProcessor } from '@terascope/job-components';
 
-const fs = require('fs');
-const { EachProcessor } = require('@terascope/job-components');
-
-class SaveFile extends EachProcessor {
+export default class SaveFile extends EachProcessor {
     constructor(...args) {
         super(...args);
         this.filePath = this.opConfig.file_path;
@@ -13,5 +11,3 @@ class SaveFile extends EachProcessor {
         fs.appendFileSync(this.filePath, `${JSON.stringify(record)}\n`);
     }
 }
-
-module.exports = SaveFile;

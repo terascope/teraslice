@@ -1,14 +1,18 @@
-import * as ts from '@terascope/utils';
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
+    TSError, toIntegerOrThrow, getLast,
+    get, has
+} from '@terascope/utils';
+import {
+    DataTypeFieldConfig, DataTypeFields, DataTypeVersion,
+    FieldType
 } from '@terascope/types';
-import { mapping } from './mapping';
+import { mapping } from './mapping.js';
 import {
     GroupedFields
-} from '../interfaces';
-import GroupType, { NestedTypes } from './group-type';
-import BaseType, { IBaseType } from './base-type';
-import TupleType from './tuple-type';
+} from '../interfaces.js';
+import GroupType, { NestedTypes } from './group-type.js';
+import BaseType, { IBaseType } from './base-type.js';
+import TupleType from './tuple-type.js';
 
 export const LATEST_VERSION: DataTypeVersion = 1;
 
@@ -16,7 +20,11 @@ export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
     for (const field of Object.keys(fields)) {
         const [base] = field.split('.', 1);
-        groupFields[base] ??= [];
+
+        if (!has(groupFields, base)) {
+            groupFields[base] = [];
+        }
+
         if (field === base) {
             groupFields[base].push(field);
         }
@@ -96,14 +104,14 @@ function getTupleType({
     const nestedTypes: BaseType[] = [];
 
     if (!fields.length) {
-        throw new ts.TSError(`${FieldType.Tuple} field types require at least one field`, {
+        throw new TSError(`${FieldType.Tuple} field types require at least one field`, {
             context: { safe: true },
             statusCode: 400
         });
     }
 
     fields.forEach(({ field, config }) => {
-        const index = ts.toIntegerOrThrow(ts.getLast(field.split('.')));
+        const index = toIntegerOrThrow(getLast(field.split('.')));
         nestedTypes[index] = getType({
             field,
             config: config || { type: FieldType.Any },
@@ -123,7 +131,7 @@ export type GetTypeArg = {
 export function getType({
     field, config, version = LATEST_VERSION
 }: GetTypeArg): BaseType {
-    const TypeClass = ts.get(mapping, [version, config.type]) as IBaseType;
+    const TypeClass = get(mapping, [version, config.type]) as IBaseType;
     if (TypeClass == null) {
         throw new Error(`Type "${config.type}" was not found in version v${version}`);
     }

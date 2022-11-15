@@ -1,17 +1,20 @@
-import { DataFrame } from './data-frame';
-import {
-    jexl, extract, extractConfig, transformRecord, transformRecordConfig
-} from './jexl';
-import { FieldTransform, RecordTransform } from './transforms';
-import { AggregationFrame } from './aggregation-frame/AggregationFrame';
+import { DataFrame } from './data-frame/index.js';
+import { jexl, setup, bridgeToJexl } from './jexl/index.js';
+import { FieldValidator, RecordValidator } from './validations/index.js';
 
-FieldTransform.repository.extract = extractConfig;
-FieldTransform.extract = extract;
+import { FieldTransform, RecordTransform,  } from './transforms/index.js';
+import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
 
-RecordTransform.repository.transformRecord = transformRecordConfig;
-RecordTransform.transformRecord = transformRecord;
+setup(FieldTransform);
+setup(FieldValidator);
+setup(RecordValidator);
 
-declare module './aggregation-frame/AggregationFrame' {
+const repoTransformRecord = RecordTransform.repository.transformRecord;
+const transformRecordName = repoTransformRecord.fn.name;
+
+jexl.addTransform(transformRecordName, bridgeToJexl(repoTransformRecord.fn.bind(jexl)))
+
+declare module './aggregation-frame/AggregationFrame.js' {
     interface AggregationFrame<T extends Record<string, any>> {
         /**
          * Run aggregations and flatten the grouped data into a DataFrame
@@ -55,23 +58,24 @@ Use it before DataFrame.aggregate or after AggregationFrame.run()`
     }
 }
 
-export * from './aggregation-frame';
-export * from './aggregations';
-export * from './builder';
-export * from './column';
-export * from './core';
-export * from './core';
-export * from './data-frame';
-export * from './document-matcher';
-export * from './interfaces';
-export * from './transforms/helpers';
-export * from './validations';
-export * from './vector';
+export * from './aggregation-frame/index.js';
+export * from './aggregations/index.js';
+export * from './builder/index.js';
+export * from './column/index.js';
+export * from './core/index.js';
+export * from './core/index.js';
+export * from './data-frame/index.js';
+export * from './document-matcher/index.js';
+export * from './interfaces.js';
+export * from './transforms/helpers.js';
+export * from './vector/index.js';
 export {
     FieldTransform,
     RecordTransform,
+    FieldValidator,
+    RecordValidator,
     jexl
 };
 
-export * from './adapters';
-export * from './function-configs';
+export * from './adapters/index.js';
+export * from './function-configs/index.js';

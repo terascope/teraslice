@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'controllers <command>',
     describe: 'commands to manage controller',
     builder(yargs) {

@@ -1,4 +1,4 @@
-import { Overwrite } from './utility';
+import { Overwrite } from './utility.js';
 
 /**
  * The data type of a field

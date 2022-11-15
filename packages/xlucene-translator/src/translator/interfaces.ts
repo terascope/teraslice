@@ -1,11 +1,7 @@
 import { Logger } from '@terascope/utils';
 import {
-    SortOrder,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    GeoDistanceUnit,
-    GeoPoint,
-    ElasticsearchDistribution
+    SortOrder, xLuceneTypeConfig, xLuceneVariables,
+    GeoDistanceUnit, GeoPoint, ElasticsearchDistribution
 } from '@terascope/types';
 
 export type TranslatorOptions = {

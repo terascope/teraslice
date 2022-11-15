@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { has } from '@terascope/utils';
-import Aliases from './aliases';
-import { camelCase } from '../helpers/utils';
-import reply from './reply';
+import Aliases from './aliases.js';
+import { camelCase } from '../helpers/utils.js';
+import reply from './reply.js';
 
 /**
  * This is the top level config object, it manages the config directory and

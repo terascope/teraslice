@@ -1,6 +1,6 @@
 import { bigIntToJSON } from '@terascope/utils';
-import { Vector, VectorOptions } from '../Vector';
-import { VectorType, DataBuckets } from '../interfaces';
+import { Vector, VectorOptions } from '../Vector.js';
+import { VectorType, DataBuckets } from '../interfaces.js';
 
 export class BigIntVector extends Vector<bigint> {
     toJSONCompatibleValue = bigIntToJSON;

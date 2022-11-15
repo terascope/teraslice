@@ -1,12 +1,8 @@
 import type { SearchParams } from 'elasticsearch';
 import type { AnyObject } from '@terascope/utils';
 import {
-    SortOrder,
-    ElasticsearchDSLOptions,
-    xLuceneTypeConfig,
-    xLuceneVariables,
-    GeoDistanceUnit,
-    ElasticsearchDistribution
+    SortOrder, ElasticsearchDSLOptions, xLuceneTypeConfig,
+    xLuceneVariables, GeoDistanceUnit, ElasticsearchDistribution
 } from '@terascope/types';
 import { ParserOptions } from 'xlucene-parser';
 

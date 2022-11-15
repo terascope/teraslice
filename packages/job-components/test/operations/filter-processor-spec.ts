@@ -1,7 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity, FilterProcessor, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    DataEntity, FilterProcessor, newTestExecutionConfig,
+    TestContext, WorkerContext
+} from '../../src/index.js';
 
 describe('FilterProcessor', () => {
     class ExampleProcessor extends FilterProcessor<Record<string, any>> {

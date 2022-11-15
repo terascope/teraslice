@@ -1,6 +1,9 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig, WorkerContext } from '../../../src';
-import APICore from '../../../src/operations/core/api-core';
+import { jest } from '@jest/globals';
+import {
+    TestContext, newTestExecutionConfig, WorkerContext
+} from '../../../src/index.js';
+import APICore from '../../../src/operations/core/api-core.js';
 
 describe('APICore', () => {
     class ExampleAPI extends APICore {}
@@ -67,6 +70,7 @@ describe('APICore', () => {
             beforeAll(() => {
                 ogError = api.logger.error;
                 api.deadLetterAction = 'log';
+                // @ts-ignore
                 api.logger.error = jest.fn();
             });
 
@@ -101,6 +105,7 @@ describe('APICore', () => {
         let ogReject: any;
         beforeEach(() => {
             ogReject = api.rejectRecord;
+            // @ts-ignore
             api.rejectRecord = jest.fn();
         });
 

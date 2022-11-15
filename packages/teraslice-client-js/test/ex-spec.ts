@@ -1,11 +1,11 @@
 import nock from 'nock';
 import { RecoveryCleanupType } from '@terascope/job-components';
-import Ex from '../src/ex';
+import Ex from '../src/ex.js';
 import {
     ExecutionStatus,
     ClusterStateNative,
     WorkerJobProcesses
-} from '../src/interfaces';
+} from '../src/interfaces.js';
 
 describe('Teraslice Ex', () => {
     let scope: nock.Scope;

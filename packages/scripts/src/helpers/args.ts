@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import mm from 'micromatch';
 import { trim, uniq, isEmpty } from '@terascope/utils';
-import { listPackages, getPkgNames } from './packages';
-import { formatList } from './misc';
-import { PackageInfo } from './interfaces';
+import { listPackages, getPkgNames } from './packages.js';
+import { formatList } from './misc.js';
+import { PackageInfo } from './interfaces.js';
 
 export type CoercePkgInput = string | string[] | undefined;
 

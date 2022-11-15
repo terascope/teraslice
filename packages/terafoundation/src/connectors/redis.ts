@@ -1,13 +1,13 @@
 import { Logger } from '@terascope/utils';
+import * as redis from 'redis';
+
+const { createClient: redisCreateClient } = redis;
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
 } {
-    const redis = require('redis');
-
     logger.info(`Using redis host: ${customConfig.host}`);
-
-    const client = redis.createClient(customConfig.port, customConfig.host);
+    const client = redisCreateClient({ url: `${customConfig.host}:${customConfig.port}`});
 
     return {
         client
@@ -15,7 +15,9 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 }
 
 export default {
-    create,
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        return create(customConfig, logger);
+    },
     config_schema(): Record<string, any> {
         return {
             host: {

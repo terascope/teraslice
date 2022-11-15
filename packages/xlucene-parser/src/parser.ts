@@ -1,12 +1,8 @@
-import {
-    TSError,
-    trim,
-    isRegExpLike
-} from '@terascope/utils';
+import { TSError, trim, isRegExpLike } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
-import { parse } from './peg-engine';
-import * as i from './interfaces';
-import * as utils from './utils';
+import { parse } from './peg-engine.js';
+import * as i from './interfaces.js';
+import * as utils from './utils.js';
 
 const termTypes = new Set(utils.termTypes.filter((type) => (
     type !== i.NodeType.Range && type !== i.NodeType.Function

@@ -1,11 +1,9 @@
-'use strict';
+import { TSError, getTypeOf, logError } from '@terascope/utils';
+import { SliceState } from '../../storage.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { logOpStats } from '../helpers/op-analytics.js';
 
-const { TSError, getTypeOf, logError } = require('@terascope/utils');
-const { SliceState } = require('../../storage');
-const { makeLogger } = require('../helpers/terafoundation');
-const { logOpStats } = require('../helpers/op-analytics');
-
-class Slice {
+export default class Slice {
     constructor(context, executionContext) {
         this.context = context;
         this.events = context.apis.foundation.getSystemEvents();
@@ -139,5 +137,3 @@ class Slice {
         });
     }
 }
-
-module.exports = Slice;

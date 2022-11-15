@@ -1,10 +1,9 @@
 import { ipToInt } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const ipToIntConfig: FieldTransformConfig = {
     name: 'ipToInt',

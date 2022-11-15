@@ -2,6 +2,7 @@
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
     "version": "0.28.0",
+    "type": "module",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {

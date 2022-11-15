@@ -1,11 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity,
-    BatchProcessor,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    DataEntity, BatchProcessor, newTestExecutionConfig,
+    TestContext, WorkerContext
+} from '../../src/index.js';
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor<Record<string, any>> {

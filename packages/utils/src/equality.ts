@@ -1,6 +1,6 @@
-import _isEqualWith from 'lodash/isEqualWith';
-import { toBigIntOrThrow } from '.';
-import { isDataEntity } from './entities/utils';
+import { isEqualWith as _isEqualWith } from 'lodash-es';
+import { toBigIntOrThrow } from './numbers.js';
+import { isDataEntity } from './entities/utils.js';
 
 /**
  * Verify that two values are the same (uses a reference check).

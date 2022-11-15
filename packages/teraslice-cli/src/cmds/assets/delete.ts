@@ -1,13 +1,13 @@
 import { has } from '@terascope/utils';
-import { CMD } from '../../interfaces';
-import reply from '../../helpers/reply';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
+import { CMD } from '../../interfaces.js';
+import reply from '../../helpers/reply.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { getTerasliceClient } from '../../helpers/utils.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'delete <cluster-alias> <asset-id>',
     describe: 'Delete asset from cluster.\n',
     builder(yargs) {

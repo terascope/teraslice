@@ -1,6 +1,4 @@
-'use strict';
-
-const apiUtils = require('../../lib/utils/api_utils');
+import apiUtils from '../../lib/utils/api_utils.js';
 
 describe('apiUtils', () => {
     it('should be able make a prometheus text format', () => {

@@ -3,11 +3,9 @@ import {
     joinList, toISO8601, addToDateFP, AdjustDateArgs
 } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export type { AdjustDateArgs };
 

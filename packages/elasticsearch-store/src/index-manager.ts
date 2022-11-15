@@ -1,8 +1,8 @@
 import type * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
-import * as utils from './utils';
-import { IndexConfig, MigrateIndexOptions } from './interfaces';
+import * as utils from './utils/index.js';
+import { IndexConfig, MigrateIndexOptions } from './interfaces.js';
 
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 

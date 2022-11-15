@@ -1,11 +1,9 @@
 import 'jest-extended'; // require for type definitions
+import { jest } from '@jest/globals';
 import {
-    Slicer,
-    SlicerResult,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    Slicer, SlicerResult, newTestExecutionConfig,
+    TestContext, WorkerContext
+} from '../../src/index.js';
 
 describe('Slicer', () => {
     class ExampleSlicer<T = Record<string, any>> extends Slicer<T> {

@@ -1,5 +1,5 @@
 import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import DoubleType from '../../../src/types/v1/double';
+import DoubleType from '../../../src/types/v1/double.js';
 
 describe('Double V1', () => {
     const field = 'someField';

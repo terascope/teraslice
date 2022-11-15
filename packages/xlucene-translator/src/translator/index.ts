@@ -1,3 +1,3 @@
-export * from './interfaces';
-export * from './cached-translator';
-export * from './translator';
+export * from './interfaces.js';
+export * from './cached-translator.js';
+export * from './translator.js';

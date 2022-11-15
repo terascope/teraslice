@@ -1,5 +1,5 @@
 import { Client } from 'elasticsearch';
-import { IndexStore, createClient } from '../../src';
+import { IndexStore, createClient } from '../../src/index.js';
 import {
     ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION,
     OPENSEARCH_HOST,

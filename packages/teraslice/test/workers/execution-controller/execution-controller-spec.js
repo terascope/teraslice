@@ -1,9 +1,7 @@
-'use strict';
-
-const { pDelay } = require('@terascope/utils');
-const { TestContext } = require('../helpers');
-const { findPort } = require('../../../lib/utils/port_utils');
-const ExecutionController = require('../../../lib/workers/execution-controller');
+import { pDelay } from '@terascope/utils';
+import { TestContext } from '../helpers.js';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import ExecutionController from '../../../lib/workers/execution-controller.js';
 
 describe('ExecutionController', () => {
     describe('when the execution context is invalid', () => {

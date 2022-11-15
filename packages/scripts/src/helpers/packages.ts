@@ -4,14 +4,17 @@ import fse from 'fs-extra';
 import semver from 'semver';
 import globby from 'globby';
 import {
-    uniq, fastCloneDeep, get, trim
+    uniq, fastCloneDeep, get,
+    trim
 } from '@terascope/utils';
 import toposort from 'toposort';
-import MultiMap from 'mnemonist/multi-map';
+import dataStructures from 'mnemonist';
 import packageJson from 'package-json';
 import sortPackageJson from 'sort-package-json';
-import * as misc from './misc';
-import * as i from './interfaces';
+import * as misc from './misc.js';
+import * as i from './interfaces.js';
+
+const { MultiMap } = dataStructures;
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string|undefined;

@@ -1,7 +1,7 @@
 import { isString, JobConfig, TSError } from '@terascope/job-components';
 import autoBind from 'auto-bind';
-import Client from './client';
-import Job from './job';
+import Client from './client.js';
+import Job from './job.js';
 import {
     ClientConfig,
     JobConfiguration,
@@ -9,7 +9,7 @@ import {
     JobSearchParams,
     JobListStatusQuery,
     JobIDResponse
-} from './interfaces';
+} from './interfaces.js';
 
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {

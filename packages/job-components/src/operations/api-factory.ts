@@ -1,5 +1,5 @@
-import { APIFactoryRegistry } from '../interfaces';
-import OperationAPI from './operation-api';
+import { APIFactoryRegistry } from '../interfaces/index.js';
+import OperationAPI from './operation-api.js';
 
 export default abstract class APIFactory<T, C> extends OperationAPI {
     protected readonly _registry: Map<string, T> = new Map();

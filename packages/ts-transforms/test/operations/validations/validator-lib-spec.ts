@@ -1,7 +1,7 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
 import crypto from 'crypto';
-import { Validator, ValidatorPlugins } from '../../../src/operations/plugins/validator';
-import { PostProcessConfig } from '../../../src/interfaces';
+import { Validator, ValidatorPlugins } from '../../../src/operations/plugins/validator.js';
+import { PostProcessConfig } from '../../../src/interfaces.js';
 
 describe('validator lib', () => {
     const operationsClass = new ValidatorPlugins();

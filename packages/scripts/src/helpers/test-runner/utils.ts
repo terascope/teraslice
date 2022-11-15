@@ -1,24 +1,18 @@
 import path from 'path';
 import fse from 'fs-extra';
 import {
-    debugLogger,
-    get,
-    TSError,
-    isFunction,
-    flatten,
-    isCI
+    debugLogger, get, TSError,
+    isFunction, flatten, isCI
 } from '@terascope/utils';
 import {
-    ArgsMap,
-    ExecEnv,
-    exec,
+    ArgsMap, ExecEnv, exec,
     fork,
-} from '../scripts';
-import { TestOptions, GroupedPackages } from './interfaces';
-import { PackageInfo, Service } from '../interfaces';
-import { getServicesForSuite } from '../misc';
-import * as config from '../config';
-import signale from '../signale';
+} from '../scripts.js';
+import { TestOptions, GroupedPackages } from './interfaces.js';
+import { PackageInfo, Service } from '../interfaces.js';
+import { getServicesForSuite } from '../misc.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 

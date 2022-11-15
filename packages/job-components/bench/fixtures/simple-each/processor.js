@@ -1,6 +1,6 @@
 'use strict';
 
-const { EachProcessor } = require('../../../dist/src');
+const { EachProcessor } = require('../../../dist/src/index.js');
 
 class SimpleEach extends EachProcessor {
     constructor(...args) {

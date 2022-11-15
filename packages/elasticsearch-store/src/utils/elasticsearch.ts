@@ -1,10 +1,11 @@
 import type { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import {
-    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
+    ESFieldType, ESTypeMapping, ClientMetadata,
+    ElasticsearchDistribution
 } from '@terascope/types';
-import { getErrorType } from './errors';
-import * as i from '../interfaces';
+import { getErrorType } from './errors.js';
+import * as i from '../interfaces.js';
 
 export function getTimeByField(field = ''): (input: any) => number {
     return (input) => ts.getTime(ts.get(input, field)) || Date.now();

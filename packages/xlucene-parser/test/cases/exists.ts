@@ -1,5 +1,5 @@
-import { Exists, NodeType } from '../../src';
-import { TestCase } from './interfaces';
+import { Exists, NodeType } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     ['_exists_:hello', '_exists_ with a value', {

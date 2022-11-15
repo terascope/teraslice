@@ -1,12 +1,9 @@
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory
-} from '../interfaces';
-import { encodeURL } from './encode-utils';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory
+} from '../interfaces.js';
+import { encodeURL } from './encode-utils.js';
 
 export const encodeURLConfig: FieldTransformConfig = {
     name: 'encodeURL',

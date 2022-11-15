@@ -2,15 +2,12 @@ import type { SearchParams } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import {
-    SortOrder,
-    GeoDistanceUnit,
-    xLuceneVariables,
-    xLuceneTypeConfig,
-    xLuceneFieldType,
+    SortOrder, GeoDistanceUnit, xLuceneVariables,
+    xLuceneTypeConfig, xLuceneFieldType,
     ElasticsearchDistribution
 } from '@terascope/types';
-import { CachedTranslator } from '../translator';
-import * as i from './interfaces';
+import { CachedTranslator } from '../translator/index.js';
+import * as i from './interfaces.js';
 
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly excludes: (keyof T)[];

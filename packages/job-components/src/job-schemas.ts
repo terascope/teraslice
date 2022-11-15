@@ -1,18 +1,11 @@
 import os from 'os';
 import convict from 'convict';
 import {
-    DataEncoding,
-    dataEncodings,
-    flatten,
-    getField,
-    getTypeOf,
-    hasOwn,
-    isNotNil,
-    isNumber,
-    isPlainObject,
-    isString,
+    DataEncoding, dataEncodings, flatten,
+    getField, getTypeOf, hasOwn, isNotNil,
+    isNumber, isPlainObject, isString,
 } from '@terascope/utils';
-import { Context } from './interfaces';
+import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;

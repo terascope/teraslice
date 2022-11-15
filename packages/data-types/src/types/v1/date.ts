@@ -2,8 +2,8 @@ import {
     xLuceneFieldType, ESFieldType, xLuceneTypeConfig, DateFormat
 } from '@terascope/types';
 import { withoutNil } from '@terascope/utils';
-import BaseType from '../base-type';
-import { GraphQLType, TypeESMapping } from '../../interfaces';
+import BaseType from '../base-type.js';
+import { GraphQLType, TypeESMapping } from '../../interfaces.js';
 
 export default class DateType extends BaseType {
     toESMapping(_version?: number): TypeESMapping {

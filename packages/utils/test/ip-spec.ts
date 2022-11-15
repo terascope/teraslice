@@ -1,24 +1,13 @@
 import 'jest-extended';
 
 import {
-    isIP,
-    isIPv6,
-    isIPv4,
-    isCIDR,
-    inIPRange,
-    isRoutableIP,
-    isNonRoutableIP,
-    reverseIP,
-    isMappedIPv4,
-    extractMappedIPv4,
-    ipToInt,
-    intToIP,
-    getCIDRMin,
-    getCIDRMax,
-    getCIDRBroadcast,
-    getCIDRNetwork,
-    toCIDR
-} from '../src/ip';
+    isIP, isIPv6, isIPv4,
+    isCIDR, inIPRange, isRoutableIP,
+    isNonRoutableIP, reverseIP, isMappedIPv4,
+    extractMappedIPv4, ipToInt, intToIP,
+    getCIDRMin, getCIDRMax, getCIDRBroadcast,
+    getCIDRNetwork, toCIDR
+} from '../src/ip.js';
 
 describe('IP Utils', () => {
     describe('isIP', () => {

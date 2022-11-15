@@ -1,13 +1,11 @@
 import {
-    ESTypeMapping, ESMapping,
-    availableFieldTypes, DataTypeFieldConfig,
-    DataTypeVersion, dataTypeVersions,
-    DataTypeFields, DataTypeConfig,
-    DeprecatedFieldType,
+    ESTypeMapping, ESMapping, availableFieldTypes,
+    DataTypeFieldConfig, DataTypeVersion, dataTypeVersions,
+    DataTypeFields, DataTypeConfig, DeprecatedFieldType,
     FieldType,
 } from '@terascope/types';
 
-import BaseType from './types/base-type';
+import BaseType from './types/base-type.js';
 
 /** An object of base fields with their child fields */
 export type GroupedFields = Record<string, string[]>;

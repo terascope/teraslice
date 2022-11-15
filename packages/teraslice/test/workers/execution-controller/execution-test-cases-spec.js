@@ -1,12 +1,10 @@
-'use strict';
-
-const { pDelay, times, random } = require('@terascope/utils');
-const Messaging = require('@terascope/teraslice-messaging');
-const { TestContext } = require('../helpers');
-const { getTestCases } = require('../helpers/execution-controller-helper');
-const ExecutionController = require('../../../lib/workers/execution-controller');
-const { findPort } = require('../../../lib/utils/port_utils');
-const { newId } = require('../../../lib/utils/id_utils');
+import { pDelay, times, random } from '@terascope/utils';
+import Messaging from '@terascope/teraslice-messaging';
+import { TestContext } from '../helpers.js';
+import { getTestCases } from '../helpers/execution-controller-helper.js';
+import ExecutionController from '../../../lib/workers/execution-controller.js';
+import { findPort } from '../../../lib/utils/port_utils.js';
+import { newId } from '../../../lib/utils/id_utils.js';
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 

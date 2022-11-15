@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Stream from 'stream';
 import { EventEmitter } from 'events';
 

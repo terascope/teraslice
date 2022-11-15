@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import TerasliceUtil from '../../helpers/teraslice-util';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import TerasliceUtil from '../../helpers/teraslice-util.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     // TODO: is it [id] or <id>
     command: 'view <cluster-alias> <id>',
     describe: 'View the job definition',

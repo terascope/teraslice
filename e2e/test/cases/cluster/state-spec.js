@@ -1,13 +1,8 @@
-'use strict';
-
-const {
-    pDelay,
-    flatten
-} = require('@terascope/utils');
-const misc = require('../../misc');
-const wait = require('../../wait');
-const signale = require('../../signale');
-const { resetState, submitAndStart } = require('../../helpers');
+import { pDelay, flatten } from '@terascope/utils';
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import signale from '../../signale.js';
+import { resetState, submitAndStart } from '../../helpers.js';
 
 const { waitForExStatus, scaleWorkersAndWait } = wait;
 

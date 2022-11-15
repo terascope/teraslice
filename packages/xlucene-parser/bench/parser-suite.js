@@ -6,7 +6,7 @@ const { multiPolygon } = require('@turf/helpers');
 const { xLuceneFieldType } = require('@terascope/types');
 const { toXluceneQuery } = require('@terascope/data-mate');
 const { Suite } = require('./helpers');
-const { Parser } = require('../dist/src');
+const { Parser } = require('../dist/src/index.js');
 const greenlandGeoData = require('./fixtures/greenland.json');
 
 const featureCollection = turf.randomPolygon(1, { num_vertices: 800 });

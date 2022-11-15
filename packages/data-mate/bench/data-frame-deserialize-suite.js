@@ -4,7 +4,7 @@ const { timesIter } = require('@terascope/utils');
 const fs = require('fs');
 const path = require('path');
 const { Suite } = require('./helpers');
-const { DataFrame } = require('./src');
+const { DataFrame } = require('./src/index.js');
 
 const _dfJSON = fs.readFileSync(path.join(__dirname, './fixtures/data.dfjson'));
 

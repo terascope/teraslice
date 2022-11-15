@@ -1,5 +1,5 @@
 import 'jest-extended';
-import * as index from '../src';
+import * as index from '../src/index.js';
 
 describe('index', () => {
     it('should have the test harnesses', () => {

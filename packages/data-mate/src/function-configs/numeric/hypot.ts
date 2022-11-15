@@ -1,13 +1,9 @@
 import { FieldType } from '@terascope/types';
+import { toFloatOrThrow } from '@terascope/utils';
 import {
-    toFloatOrThrow
-} from '@terascope/utils';
-import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const hypotConfig: FieldTransformConfig = {
     name: 'hypot',

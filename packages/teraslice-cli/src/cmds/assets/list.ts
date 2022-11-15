@@ -1,15 +1,15 @@
-import { CMD } from '../../interfaces';
-import reply from '../../helpers/reply';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
-import Display from '../../helpers/display';
+import { CMD } from '../../interfaces.js';
+import reply from '../../helpers/reply.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { getTerasliceClient } from '../../helpers/utils.js';
+import Display from '../../helpers/display.js';
 
 const display = new Display();
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'list <cluster-alias>',
     describe: 'List assets on a cluster.\n',
     builder(yargs) {

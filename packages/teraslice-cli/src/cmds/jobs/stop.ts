@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
-import reply from '../../helpers/reply';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
+import reply from '../../helpers/reply.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     // TODO: is it [id] or <id>
     command: 'stop <cluster-alias> [id]',
     describe: 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n',

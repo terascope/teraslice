@@ -1,19 +1,18 @@
 import 'jest-extended';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { pDelay, DataEntity } from '@terascope/utils';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    FetcherCore,
-    ProcessorCore,
-    newTestSlice
-} from '../../src';
+    WorkerExecutionContext, TestContext, newTestExecutionConfig,
+    FetcherCore, ProcessorCore, newTestSlice
+} from '../../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname, '..');
+    const assetDir = path.join(dirPath, '..');
 
     const context = new TestContext('worker-execution-context');
 
@@ -169,6 +168,7 @@ describe('WorkerExecutionContext', () => {
             expect(executionContext).toHaveProperty('sliceState.status', 'starting');
 
             const { results, analytics, status } = await executionContext.runSlice();
+
             expect(status).toEqual('completed');
             expect(executionContext).toHaveProperty('sliceState.status', status);
             expect(executionContext.status).toEqual('running');

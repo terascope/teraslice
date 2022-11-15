@@ -1,7 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import {
     readerShim, TestContext, newTestExecutionConfig, WorkerContext, ValidatedJobConfig
-} from '../../../src';
+} from '../../../src/index.js';
 
 describe('Reader Shim', () => {
     const context = new TestContext('teraslice-operations');

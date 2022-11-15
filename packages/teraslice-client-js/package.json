@@ -2,6 +2,7 @@
     "name": "teraslice-client-js",
     "displayName": "Teraslice Client (JavaScript)",
     "version": "0.46.0",
+    "type": "module",
     "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "elasticsearch",

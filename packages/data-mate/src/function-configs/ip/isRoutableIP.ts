@@ -1,10 +1,9 @@
 import { isRoutableIP } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isRoutableIPConfig: FieldValidateConfig = {
     name: 'isRoutableIP',

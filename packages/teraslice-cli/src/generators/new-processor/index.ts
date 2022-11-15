@@ -1,8 +1,8 @@
 import path from 'path';
 import Generator from 'yeoman-generator';
 import { toPascalCase } from '@terascope/utils';
-import { getTemplatePath } from '../utils';
-import { snakeCase } from '../../helpers/utils';
+import { getTemplatePath } from '../utils.js';
+import { snakeCase } from '../../helpers/utils.js';
 
 export default class extends Generator {
     answers!: any;

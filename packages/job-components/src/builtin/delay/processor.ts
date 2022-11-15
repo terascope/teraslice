@@ -1,6 +1,6 @@
 import { DataEntity, pDelay } from '@terascope/utils';
-import { DelayConfig } from './interfaces';
-import { BatchProcessor } from '../../operations';
+import { DelayConfig } from './interfaces.js';
+import { BatchProcessor } from '../../operations/index.js';
 
 export default class Delay extends BatchProcessor<DelayConfig> {
     async onBatch(data: DataEntity[]): Promise<DataEntity[]> {

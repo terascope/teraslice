@@ -1,16 +1,12 @@
 import { v4 as uuid } from 'uuid';
 import { joinList, isArrayLike } from '@terascope/utils';
 import {
-    DataTypeFieldConfig,
-    DataTypeFields, FieldType, Maybe, ReadonlyDataTypeFields
+    DataTypeFieldConfig, DataTypeFields, FieldType,
+    Maybe, ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Builder, transformVectorToBuilder } from '../builder';
-import {
-    ListVector,
-    Vector,
-    VectorType
-} from '../vector';
-import { numericTypes, stringTypes, WritableData } from '../core';
+import { Builder, transformVectorToBuilder } from '../builder/index.js';
+import { ListVector, Vector, VectorType } from '../vector/index.js';
+import { numericTypes, stringTypes, WritableData } from '../core/index.js';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 

@@ -1,6 +1,6 @@
 import { isNumber, get, Queue } from '@terascope/utils';
-import * as core from '../messenger';
-import * as i from './interfaces';
+import * as core from '../messenger/index.js';
+import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 

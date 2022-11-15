@@ -3,9 +3,9 @@ import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, ElasticsearchDistribution } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
-import { IndexManager } from './index-manager';
-import * as i from './interfaces';
-import * as utils from './utils';
+import { IndexManager } from './index-manager.js';
+import * as i from './interfaces.js';
+import * as utils from './utils/index.js';
 
 /**
  * A single index elasticsearch-store with some specific requirements around

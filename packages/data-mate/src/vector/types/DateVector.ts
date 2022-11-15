@@ -1,7 +1,7 @@
 import { toISO8601 } from '@terascope/utils';
 import { DateTuple } from '@terascope/types';
-import { Vector, VectorOptions } from '../Vector';
-import { VectorType, DataBuckets } from '../interfaces';
+import { Vector, VectorOptions } from '../Vector.js';
+import { VectorType, DataBuckets } from '../interfaces.js';
 
 export class DateVector extends Vector<DateTuple|number> {
     referenceDate = new Date();

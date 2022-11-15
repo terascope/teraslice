@@ -3,8 +3,8 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 
 import { xLuceneFieldType } from '@terascope/types';
-import { WatcherConfig } from '../src';
-import TestHarness from './test-harness';
+import { WatcherConfig } from '../src/index.js';
+import TestHarness from './test-harness.js';
 
 describe('DataMate Plugin', () => {
     let opTest: TestHarness;

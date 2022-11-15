@@ -4,7 +4,7 @@
 
 const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
-const { DataEntity, times, fastCloneDeep } = require('../dist/src');
+const { DataEntity, times, fastCloneDeep } = require('../dist/src/index.js');
 
 const data = {};
 

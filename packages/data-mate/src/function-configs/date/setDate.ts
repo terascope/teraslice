@@ -1,11 +1,12 @@
 import { FieldType } from '@terascope/types';
 import {
-    setDate, isInteger, inNumberRange, toISO8601
+    setDate, isInteger, inNumberRange,
+    toISO8601
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface SetDateArgs {
     value: number

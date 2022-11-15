@@ -1,4 +1,4 @@
-import { getTypeOf } from './deps';
+import { getTypeOf } from './deps.js';
 /**
  * Convert any input into a boolean, this will work with stringified boolean
  *

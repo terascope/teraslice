@@ -1,5 +1,3 @@
-'use strict';
-
 function newSlicer() {
     return function slicer() {
         return { id: Math.random() };
@@ -21,7 +19,7 @@ const schema = {
     }
 };
 
-module.exports = {
+export default {
     newSlicer,
     newReader,
     schema

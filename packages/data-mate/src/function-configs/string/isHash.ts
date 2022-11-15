@@ -1,10 +1,10 @@
 import { FieldType } from '@terascope/types';
 import { isString, joinList } from '@terascope/utils';
-import validator from 'validator';
+import validator from 'validator';;
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsHashArgs {
     algo: string;
@@ -64,7 +64,9 @@ export const isHashConfig: FieldValidateConfig<IsHashArgs> = {
         }
     ],
     create({ args: { algo } }) {
+        // @ts-ignore
         return (input: unknown) => isString(input) && validator.isHash(
+            // @ts-ignore
             input, algo as validator.HashAlgorithm
         );
     },

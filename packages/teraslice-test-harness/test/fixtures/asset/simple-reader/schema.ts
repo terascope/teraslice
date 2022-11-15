@@ -1,5 +1,5 @@
 import { ConvictSchema, AnyObject } from '@terascope/job-components';
-import { SimpleReaderConfig } from './interfaces';
+import { SimpleReaderConfig } from './interfaces.js';
 
 export default class Schema extends ConvictSchema<SimpleReaderConfig> {
     build(): AnyObject {

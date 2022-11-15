@@ -2,15 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { parseJSON, castArray } from '@terascope/utils';
 import {
-    ConnectionConfig,
-    Context,
-    ValidatedJobConfig,
-    ExecutionConfig,
-    OpConfig,
-    GetClientConfig,
+    ConnectionConfig, Context, ValidatedJobConfig,
+    ExecutionConfig, OpConfig, GetClientConfig,
     WorkerContextAPIs
-} from './interfaces';
-import { ExecutionContextAPI } from './execution-context';
+} from './interfaces/index.js';
+import { ExecutionContextAPI } from './execution-context/index.js';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | undefined {

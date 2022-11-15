@@ -7,7 +7,7 @@ import {
     Fetcher,
     BatchProcessor
 } from '@terascope/job-components';
-import { JobTestHarness } from '../src';
+import { JobTestHarness } from '../src/index.js';
 
 describe('JobTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');

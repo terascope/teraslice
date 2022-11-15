@@ -1,6 +1,6 @@
 import { Parser } from 'xlucene-parser';
-import { BooleanCB, DocumentMatcherOptions } from './interfaces';
-import logicBuilder from './logic-builder';
+import { BooleanCB, DocumentMatcherOptions } from './interfaces.js';
+import logicBuilder from './logic-builder/index.js';
 
 export class DocumentMatcher {
     private filterFn: BooleanCB;

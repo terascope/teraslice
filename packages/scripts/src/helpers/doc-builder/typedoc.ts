@@ -1,9 +1,9 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { Application, TSConfigReader } from 'typedoc';
-import { PackageInfo } from '../interfaces';
-import { listMdFiles, getName, writeIfChanged } from '../misc';
-import signale from '../signale';
+import { PackageInfo } from '../interfaces.js';
+import { listMdFiles, getName, writeIfChanged } from '../misc.js';
+import signale from '../signale.js';
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
@@ -102,7 +102,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
             readme: 'none',
         });
 
-        app.options.setValue('entryPoints', './src');
+        app.options.setValue('entryPoints', './src/index.js');
         app.options.setValue('entryPointStrategy', 'expand');
 
         if (app.logger.hasErrors()) {

@@ -1,8 +1,6 @@
-'use strict';
-
-const times = require('lodash/times');
-const Slice = require('../../../lib/workers/worker/slice');
-const { TestContext } = require('../helpers');
+import times from 'lodash/times';
+import Slice from '../../../lib/workers/worker/slice.js';
+import { TestContext } from '../helpers.js';
 
 describe('Slice', () => {
     async function setupSlice(testContext, eventMocks = {}) {

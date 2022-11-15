@@ -3,7 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, FunctionDefinitionType,
     ProcessMode, DataTypeFieldAndChildren, FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 function divideValuesReducer(
     acc: number|null,

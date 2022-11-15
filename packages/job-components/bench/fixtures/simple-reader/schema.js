@@ -1,6 +1,6 @@
 'use strict';
 
-const { ConvictSchema } = require('../../../dist/src');
+const { ConvictSchema } = require('../../../dist/src/index.js');
 
 class Schema extends ConvictSchema {
     build() {

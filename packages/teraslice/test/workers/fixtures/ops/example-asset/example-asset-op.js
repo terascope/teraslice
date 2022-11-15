@@ -1,10 +1,8 @@
-'use strict';
-
-function newProcessor() {
+export function newProcessor() {
     return (data) => data.map(() => 'hello');
 }
 
-function schema() {
+export function schema() {
     return {
         exampleProp: {
             doc: 'Specify some example configuration',
@@ -13,8 +11,3 @@ function schema() {
         }
     };
 }
-
-module.exports = {
-    newProcessor,
-    schema,
-};

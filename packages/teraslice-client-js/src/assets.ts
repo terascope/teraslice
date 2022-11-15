@@ -1,7 +1,7 @@
 import { TSError, isEmpty, isString } from '@terascope/job-components';
 import path from 'path';
 import autoBind from 'auto-bind';
-import Client from './client';
+import Client from './client.js';
 import {
     SearchQuery,
     PostData,
@@ -11,7 +11,7 @@ import {
     TxtSearchParams,
     ClientConfig,
     Asset
-} from './interfaces';
+} from './interfaces.js';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {

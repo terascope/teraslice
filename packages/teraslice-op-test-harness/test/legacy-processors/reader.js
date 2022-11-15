@@ -1,6 +1,5 @@
-'use strict';
 
-async function newReader(context) {
+export async function newReader(context) {
     const clientConfig = { type: 'elasticsearch', endpoint: 'default', cached: true };
     const { client } = context.foundation.getConnection(clientConfig);
     return async (data) => {
@@ -9,7 +8,7 @@ async function newReader(context) {
     };
 }
 
-async function newSlicer(context) {
+export async function newSlicer(context) {
     const clientConfig = { type: 'elasticsearch', endpoint: 'default', cached: true };
     const { client } = context.foundation.getConnection(clientConfig);
     return [async () => {
@@ -18,7 +17,7 @@ async function newSlicer(context) {
     }];
 }
 
-function schema() {
+export function schema() {
     return {
         config: {
             doc: 'some random test config',
@@ -27,9 +26,3 @@ function schema() {
         }
     };
 }
-
-module.exports = {
-    schema,
-    newReader,
-    newSlicer
-};

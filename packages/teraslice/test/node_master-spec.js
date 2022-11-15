@@ -1,9 +1,7 @@
-'use strict';
-
-const _ = require('lodash');
-const eventsModule = require('events');
-const { debugLogger } = require('@terascope/job-components');
-const nodeModule = require('../lib/cluster/node_master');
+import _ from 'lodash-es;
+import eventsModule from 'events';
+import { debugLogger } from '@terascope/job-components';
+import nodeModule from '../lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
 

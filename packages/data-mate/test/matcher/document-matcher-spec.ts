@@ -1,8 +1,8 @@
 import 'jest-extended';
 import { cloneDeep } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
-import { DocumentMatcher } from '../../src';
-import allTestCases from './cases/document-matcher';
+import { DocumentMatcher } from '../../src/index.js';
+import allTestCases from './cases/document-matcher/index.js';
 
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {

@@ -1,5 +1,5 @@
-import { FunctionNode, NodeType } from '../../src';
-import { TestCase } from './interfaces';
+import { FunctionNode, NodeType } from '../../src/index.js';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

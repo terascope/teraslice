@@ -1,12 +1,12 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { createTempDirSync } from 'jest-fixtures';
-import JobSrc from '../../src/helpers/job-src';
-import { getPackage } from '../../src/helpers/utils';
+import JobSrc from '../../src/helpers/job-src.js';
+import { getPackage } from '../../src/helpers/utils.js';
 
 const { version } = getPackage();
 
-describe('JobSrc', () => {
+describe('Jobsrc/index.js', () => {
     let jobFile: any;
     let args: any;
     const jobPath = createTempDirSync();

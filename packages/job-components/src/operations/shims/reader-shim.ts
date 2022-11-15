@@ -1,23 +1,19 @@
 /* eslint-disable max-classes-per-file */
 
 import {
-    DataEntity, isInteger, isFunction, toString
+    DataEntity, isInteger, isFunction,
+    toString
 } from '@terascope/utils';
 import {
-    Context,
-    LegacyExecutionContext,
-    LegacyReader,
-    SliceRequest,
-    SlicerFns,
-    ReaderFn,
-    ValidatedJobConfig,
-    SlicerRecoveryData,
-} from '../../interfaces';
-import FetcherCore from '../core/fetcher-core';
-import ParallelSlicer from '../parallel-slicer';
-import ConvictSchema from '../convict-schema';
-import { ReaderModule } from '../interfaces';
-import { convertResult } from './shim-utils';
+    Context, LegacyExecutionContext, LegacyReader,
+    SliceRequest, SlicerFns, ReaderFn,
+    ValidatedJobConfig, SlicerRecoveryData,
+} from '../../interfaces/index.js';
+import FetcherCore from '../core/fetcher-core.js';
+import ParallelSlicer from '../parallel-slicer.js';
+import ConvictSchema from '../convict-schema.js';
+import { ReaderModule } from '../interfaces.js';
+import { convertResult } from './shim-utils.js';
 
 export default function readerShim<S extends Record<string, any>>(
     legacy: LegacyReader

@@ -1,17 +1,12 @@
-'use strict';
-
-const ms = require('ms');
-const {
-    castArray,
-    pDelay
-} = require('@terascope/utils');
-const fse = require('fs-extra');
-const signale = require('./signale');
-const { waitForClusterState, waitForExStatus } = require('./wait');
-const setupTerasliceConfig = require('./setup-config');
-const downloadAssets = require('./download-assets');
-const { resetState } = require('./helpers');
-const misc = require('./misc');
+import ms from 'ms';
+import { castArray, pDelay } from '@terascope/utils';
+import fse from 'fs-extra';
+import signale from './signale.js';
+import { waitForClusterState, waitForExStatus } from './wait.js';
+import setupTerasliceConfig from './setup-config.js';
+import downloadAssets from './download-assets.js';
+import { resetState } from './helpers.js';
+import misc from './misc.js';
 
 const { GENERATE_ONLY } = process.env;
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;

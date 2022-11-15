@@ -3,9 +3,9 @@ import * as ts from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { v4 as uuid } from 'uuid';
-import { IndexStore, AnyInput } from './index-store';
-import * as utils from './utils';
-import * as i from './interfaces';
+import { IndexStore, AnyInput } from './index-store.js';
+import * as utils from './utils/index.js';
+import * as i from './interfaces.js';
 
 /**
  * An high-level, opinionated, abstract class

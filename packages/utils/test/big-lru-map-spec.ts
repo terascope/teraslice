@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { BigLRUMap, FlexibleArray } from '../src/big-lru-map';
+import { BigLRUMap, FlexibleArray } from '../src/big-lru-map.js';
 
 describe('BigLRUMap', () => {
     const mapSize = 5;

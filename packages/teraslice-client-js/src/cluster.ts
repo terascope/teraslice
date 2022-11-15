@@ -1,14 +1,14 @@
 import { startsWith } from '@terascope/job-components';
 import util from 'util';
 import autoBind from 'auto-bind';
-import Client from './client';
+import Client from './client.js';
 import {
     TxtType,
     RootResponse,
     ClusterState,
     ClusterStats,
     ControllerState
-} from './interfaces';
+} from './interfaces.js';
 
 function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';

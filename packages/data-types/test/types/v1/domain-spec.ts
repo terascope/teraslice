@@ -1,5 +1,5 @@
 import { ESFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import Domain from '../../../src/types/v1/domain';
+import Domain from '../../../src/types/v1/domain.js';
 
 describe('Domain V1', () => {
     const field = 'someField';

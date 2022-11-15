@@ -1,6 +1,6 @@
 import { cpus } from 'os';
 import { times, once } from '@terascope/utils';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export default function masterModule<
     S = Record<string, any>,
@@ -14,7 +14,7 @@ export default function masterModule<
     const cluster = context.cluster as i.Cluster;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
-    const events = context.foundation.getEventEmitter();
+    const events = context.apis.foundation.getSystemEvents();
 
     if (config.start_workers === false) {
         startWorkers = false;

@@ -1,4 +1,4 @@
-import { RecordAggregator, BatchConfig } from '../src';
+import { RecordAggregator, BatchConfig } from '../src/index.js';
 
 describe('RecordAggregator', () => {
     let data: any;

@@ -1,8 +1,6 @@
-'use strict';
-
-const misc = require('../../misc');
-const wait = require('../../wait');
-const { resetState, submitAndStart } = require('../../helpers');
+import misc from '../../misc.js';
+import wait from '../../wait.js';
+import { resetState, submitAndStart } from '../../helpers.js';
 
 const { waitForExStatus } = wait;
 

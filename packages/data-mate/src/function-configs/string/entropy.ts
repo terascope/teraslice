@@ -1,12 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { stringEntropy, StringEntropy } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
+} from '../interfaces.js';
 
 export interface EntropyArgs {
     algo?: string;

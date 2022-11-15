@@ -1,6 +1,6 @@
 import { isString, withoutNil, isNumber } from '@terascope/utils';
-import * as core from '../messenger';
-import * as i from './interfaces';
+import * as core from '../messenger/index.js';
+import * as i from './interfaces.js';
 
 const ONE_MIN = 60 * 1000;
 

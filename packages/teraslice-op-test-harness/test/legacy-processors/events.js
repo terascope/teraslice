@@ -1,9 +1,7 @@
-'use strict';
-
-const Promise = require('bluebird');
+import Promise from 'bluebird';
 // Count the occurances of each event by name
 
-function newProcessor(context, opConfig) {
+export function newProcessor(context, opConfig) {
     const events = context.foundation.getEventEmitter();
     let count = 0;
     events.on(opConfig.eventName, () => {
@@ -14,7 +12,7 @@ function newProcessor(context, opConfig) {
     };
 }
 
-function schema() {
+export function schema() {
     return {
         eventName: {
             doc: 'Event name to aggregate for count.',
@@ -23,5 +21,3 @@ function schema() {
         }
     };
 }
-
-module.exports = { newProcessor, schema };

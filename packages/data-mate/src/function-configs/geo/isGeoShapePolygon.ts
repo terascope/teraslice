@@ -1,11 +1,9 @@
 import { isGeoShapePolygon } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldValidateConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export const isGeoShapePolygonConfig: FieldValidateConfig = {
     name: 'isGeoShapePolygon',

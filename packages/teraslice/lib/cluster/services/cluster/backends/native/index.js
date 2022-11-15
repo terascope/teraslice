@@ -1,12 +1,11 @@
-'use strict';
-
-const _ = require('lodash');
-const {
-    Queue, TSError, getFullErrorStack, pDelay, cloneDeep
-} = require('@terascope/utils');
-const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
-const stateUtils = require('../state-utils');
-const Messaging = require('./messaging');
+import _ from 'lodash-es;
+import {
+    Queue, TSError, getFullErrorStack,
+    pDelay, cloneDeep
+} from '@terascope/utils';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import stateUtils from '../state-utils.js';
+import Messaging from './messaging.js';
 
 /*
  Execution Life Cycle for _status
@@ -17,7 +16,7 @@ const Messaging = require('./messaging');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function nativeClustering(context, clusterMasterServer) {
+export default function nativeClustering(context, clusterMasterServer) {
     const events = context.apis.foundation.getSystemEvents();
     const logger = makeLogger(context, 'native_cluster_service');
     const pendingWorkerRequests = new Queue();

@@ -1,4 +1,4 @@
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 export default [
     [

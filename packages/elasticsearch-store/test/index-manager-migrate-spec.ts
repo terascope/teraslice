@@ -1,9 +1,9 @@
 import 'jest-extended';
 import { debugLogger, times } from '@terascope/utils';
-import * as simple from './helpers/simple-index';
-import { IndexManager, IndexConfig, isElasticsearch6 } from '../src';
-import { makeClient, cleanupIndex } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+import * as simple from './helpers/simple-index.js';
+import { IndexManager, IndexConfig, isElasticsearch6 } from '../src/index.js';
+import { makeClient, cleanupIndex } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 
 describe('IndexManager->migrateIndex()', () => {
     const logger = debugLogger('index-manager-migrate');

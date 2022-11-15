@@ -14,8 +14,8 @@ import { EventEmitter } from 'events';
 import {
     JobHarnessOptions,
     ExecutionContext,
-} from './interfaces';
-import { resolveAssetDir } from './utils';
+} from './interfaces.js';
+import { resolveAssetDir } from './utils.js';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses

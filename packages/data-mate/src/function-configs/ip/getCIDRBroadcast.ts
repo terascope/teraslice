@@ -1,9 +1,9 @@
 import { getCIDRBroadcast } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    ProcessMode, FunctionDefinitionType, FieldTransformConfig,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export const getCIDRBroadcastConfig: FieldTransformConfig = {
     name: 'getCIDRBroadcast',

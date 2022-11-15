@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { convertResult } from '../../../src/operations/shims/shim-utils';
-import { DataEntity } from '../../../src';
+import { convertResult } from '../../../src/operations/shims/shim-utils.js';
+import { DataEntity } from '../../../src/index.js';
 
 describe('Shim Utils', () => {
     describe('convertResult', () => {

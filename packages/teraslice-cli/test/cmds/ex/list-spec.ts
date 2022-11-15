@@ -1,10 +1,12 @@
 import yargs from 'yargs';
-import list from '../../../src/cmds/ex/list';
+import list from '../../../src/cmds/ex/list.js';
 
 describe('ex list', () => {
     describe('-> parse', () => {
+        const y = yargs();
+
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = y.command(
                 // @ts-expect-error
                 list.command,
                 list.describe,

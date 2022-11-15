@@ -1,3 +1,3 @@
-export * from './schema';
-export * from './fetcher';
-export * from './slicer';
+export * from './schema.js';
+export * from './fetcher.js';
+export * from './slicer.js';

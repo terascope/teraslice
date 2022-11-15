@@ -1,13 +1,10 @@
 import { parsePhoneNumber } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    DataTypeFieldAndChildren,
-    FunctionDefinitionCategory,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    DataTypeFieldAndChildren, FunctionDefinitionCategory,
     FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 const examples: FunctionDefinitionExample<Record<string, unknown>>[] = [
     {

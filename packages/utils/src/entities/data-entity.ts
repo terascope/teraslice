@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
-import { getValidDate, getTime } from '../dates';
-import { getTypeOf } from '../deps';
-import { isSimpleObject } from '../objects';
-import { ensureBuffer, isBuffer } from '../buffers';
-import { parseJSON } from '../json';
-import * as i from './interfaces';
-import * as utils from './utils';
-import { locked } from '../decorators';
+import { getValidDate, getTime } from '../dates.js';
+import { getTypeOf } from '../deps.js';
+import { isSimpleObject } from '../objects.js';
+import { ensureBuffer, isBuffer } from '../buffers.js';
+import { parseJSON } from '../json.js';
+import * as i from './interfaces.js';
+import * as utils from './utils.js';
+import { locked } from '../decorators.js';
 
 interface Metadata<M> {
     metadata: i._DataEntityMetadata<M>;

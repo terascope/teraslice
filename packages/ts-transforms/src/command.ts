@@ -5,8 +5,8 @@ import readline from 'readline';
 import {
     DataEntity, debugLogger, parseList, AnyObject, get
 } from '@terascope/utils';
-import { PhaseManager } from './index';
-import { PhaseConfig } from './interfaces';
+import { PhaseManager } from './index.js';
+import { PhaseConfig } from './interfaces.js';
 
 const logger = debugLogger('ts-transform-cli');
 // change pathing due to /dist/src issues

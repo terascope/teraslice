@@ -1,5 +1,7 @@
 import { DataTypeConfig } from '@terascope/types';
-import { FunctionContext, DynamicFunctionContext } from '../../function-configs/interfaces';
+import { 
+    FunctionContext, DynamicFunctionContext
+} from '../../function-configs/interfaces.js';
 
 export interface FunctionAdapterOptions<T extends Record<string, any>> {
     /**

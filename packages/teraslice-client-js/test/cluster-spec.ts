@@ -1,5 +1,5 @@
 import nock from 'nock';
-import Cluster from '../src/cluster';
+import Cluster from '../src/cluster.js';
 
 describe('Teraslice Cluster', () => {
     let cluster: Cluster;

@@ -1,35 +1,17 @@
 import 'jest-extended';
 import { DateFormat, ISO8601DateSegment, DateTuple } from '@terascope/types';
 import {
-    isISO8601,
-    toISO8601,
-    parseDateValue,
-    formatDateValue,
-    trimISODateSegment,
-    getTimeBetween,
-    setTimezone,
-    isBefore,
-    isAfter,
-    isBetween,
-    getTimezoneOffset,
-    getTimezoneOffsetFP,
-    setMilliseconds,
-    setSeconds,
-    setMinutes,
-    setHours,
-    setDate,
-    setMonth,
-    setYear,
-    getMilliseconds,
-    getSeconds,
-    getMinutes,
-    getHours,
-    getDate,
-    getMonth,
-    getYear,
-    addToDate,
+    isISO8601, toISO8601, parseDateValue,
+    formatDateValue, trimISODateSegment, getTimeBetween,
+    setTimezone, isBefore, isAfter,
+    isBetween, getTimezoneOffset, getTimezoneOffsetFP,
+    setMilliseconds, setSeconds, setMinutes,
+    setHours, setDate, setMonth,
+    setYear, getMilliseconds, getSeconds,
+    getMinutes, getHours, getDate,
+    getMonth, getYear, addToDate,
     subtractFromDate
-} from '../src/dates';
+} from '../src/dates.js';
 
 describe('date utils', () => {
     describe('isISO8601', () => {

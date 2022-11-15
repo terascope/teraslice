@@ -1,2 +1,2 @@
-export * from './processor';
-export * from './schema';
+export * from './processor.js';
+export * from './schema.js';

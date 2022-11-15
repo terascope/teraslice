@@ -1,11 +1,8 @@
-'use strict';
-
-const fs = require('fs');
-const { cloneDeep } = require('@terascope/utils');
-const misc = require('../../misc');
-const { resetState } = require('../../helpers');
-
-const { waitForExStatus } = require('../../wait');
+import fs from 'fs';
+import { cloneDeep } from '@terascope/utils';
+import misc from '../../misc.js';
+import { resetState } from '../../helpers.js';
+import { waitForExStatus } from '../../wait.js';
 
 describe('cluster api', () => {
     beforeAll(() => resetState());

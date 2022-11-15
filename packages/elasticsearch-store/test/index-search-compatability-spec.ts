@@ -3,10 +3,11 @@ import { Client } from 'elasticsearch';
 import { FieldType, GeoShape, GeoShapeType } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
-} from '../src';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+    IndexModel, IndexModelRecord, IndexModelConfig,
+    IndexModelOptions, makeRecordDataType
+} from '../src/index.js';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch.js';
+import { TEST_INDEX_PREFIX } from './helpers/config.js';
 
 describe('IndexSearchCompatability', () => {
     interface SearchRecord extends IndexModelRecord {

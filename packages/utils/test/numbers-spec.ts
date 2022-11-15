@@ -1,17 +1,10 @@
 import 'jest-extended';
 import {
-    parseNumberList,
-    toFloat,
-    toNumber,
-    toInteger,
-    toBigInt,
-    bigIntToJSON,
-    isBigInt,
-    inNumberRange,
-    setPrecision,
-    toFahrenheit,
-    toCelsius
-} from '../src/numbers';
+    parseNumberList, toFloat, toNumber,
+    toInteger, toBigInt, bigIntToJSON,
+    isBigInt, inNumberRange, setPrecision,
+    toFahrenheit, toCelsius
+} from '../src/numbers.js';
 
 describe('Numbers', () => {
     const bigNumber = BigInt(Number.MAX_SAFE_INTEGER) * BigInt(2);

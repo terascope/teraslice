@@ -6,15 +6,14 @@ import {
 } from '@terascope/types';
 import { Node as xLuceneNode } from 'xlucene-parser';
 import {
-    DataEntity, TSError,
-    getTypeOf, isFunction,
-    isPlainObject, trimFP,
+    DataEntity, TSError, getTypeOf,
+    isFunction, isPlainObject, trimFP,
     getHashCodeFrom,
 } from '@terascope/utils';
 import {
     Column, KeyAggFn, makeUniqueKeyAgg
-} from '../column';
-import { AggregationFrame } from '../aggregation-frame';
+} from '../column/index.js';
+import { AggregationFrame } from '../aggregation-frame/index.js';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
@@ -22,16 +21,17 @@ import {
     isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter,
     splitOnNewLineIterator
-} from './utils';
-import { Builder, getBuildersForConfig } from '../builder';
+} from './utils.js';
+import { Builder, getBuildersForConfig } from '../builder/index.js';
 import {
-    FieldArg, flattenStringArg, getFieldsFromArg, WritableData,
-} from '../core';
-import { getMaxColumnSize } from '../aggregation-frame/utils';
-import { SerializeOptions, Vector, VectorType } from '../vector';
-import { buildSearchMatcherForQuery } from './search';
-import { DataFrameHeaderConfig } from './interfaces';
-import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
+    FieldArg, flattenStringArg, getFieldsFromArg,
+    WritableData,
+} from '../core/index.js';
+import { getMaxColumnSize } from '../aggregation-frame/utils.js';
+import { SerializeOptions, Vector, VectorType } from '../vector/index.js';
+import { buildSearchMatcherForQuery } from './search/index.js';
+import { DataFrameHeaderConfig } from './interfaces.js';
+import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils.js';
 
 /**
  * An immutable columnar table with APIs for data pipelines.

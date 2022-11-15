@@ -6,7 +6,7 @@ const { pDelay } = require('@terascope/utils');
 const fs = require('fs');
 const path = require('path');
 // const heapdump = require('heapdump');
-const { DataFrame } = require('./src');
+const { DataFrame } = require('./src/index.js');
 
 async function readData() {
     console.time('readData');
