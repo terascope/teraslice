@@ -283,7 +283,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 if (type === 'excludes') {
                     return ts.uniq(restricted.concat(fields));
                 }
-
+                // reduce already restricted includes to the overrides
                 return restricted.filter((field) => fields.includes(field));
             }
 
