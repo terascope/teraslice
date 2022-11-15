@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from 'bluebird';
 import {
     validateJobConfig, validateOpConfig, jobSchema,
@@ -8,10 +6,12 @@ import {
 } from '@terascope/job-components';
 import { bindThis } from './lib/utils.js';
 import Operation from './lib/operation.js';
+import { createRequire } from "module";
 
+const require = createRequire(import.meta.url);
 // load data
-import sampleDataArrayLike from './data/sampleDataArrayLike.json';
-import sampleDataEsLike from './data/sampleDataEsLike.json';
+const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
+const sampleDataEsLike = require('./data/sampleDataEsLike.json');
 
 const simpleData = [
     { name: 'Skippy', age: 20 },

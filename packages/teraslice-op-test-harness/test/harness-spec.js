@@ -1,19 +1,17 @@
-'use strict';
-
-const opHarness = require('../index');
-const opFoo = require('./legacy-processors/foo');
-const opEvents = require('./legacy-processors/events');
-const reader = require('./legacy-processors/reader');
-const Processor = require('./operations/example-op/processor');
-const ProcessorSchema = require('./operations/example-op/schema');
-const Fetcher = require('./operations/example-reader/fetcher');
-const Slicer = require('./operations/example-reader/slicer');
-const ReaderSchema = require('./operations/example-reader/schema');
+import opHarness from '../index.js';
+import * as opFooModule from './legacy-processors/foo.js';
+import * as opEvents from './legacy-processors/events.js';
+import * as reader from './legacy-processors/reader.js';
+import Processor from './operations/example-op/processor.js';
+import ProcessorSchema from './operations/example-op/schema.js';
+import Fetcher from './operations/example-reader/fetcher.js';
+import Slicer from './operations/example-reader/slicer.js';
+import ReaderSchema from './operations/example-reader/schema.js';
 
 describe('Op Test Harness', () => {
     describe('With no op config', () => {
         it('should run successfully', () => {
-            const harness = opHarness(opFoo);
+            const harness = opHarness(opFooModule);
             const results = harness.run([{}]);
             expect(results.length).toEqual(1);
             expect(results[0].foo).toEqual('foo');
@@ -22,13 +20,13 @@ describe('Op Test Harness', () => {
 
     describe('With multiple jobs', () => {
         it('first job runs', () => {
-            const harness = opHarness(opFoo);
+            const harness = opHarness(opFooModule);
             const results = harness.run([{}], { field: 'yeee' });
             expect(results.length).toEqual(1);
             expect(results[0].yeee).toEqual('foo');
         });
         it('second job config not influenced by the first', () => {
-            const harness = opHarness(opFoo);
+            const harness = opHarness(opFooModule);
             const results = harness.run([{}], {});
             expect(results.length).toEqual(1);
             expect(results[0].foo).toEqual('foo');
@@ -51,7 +49,7 @@ describe('Op Test Harness', () => {
 
     describe('With multiple slices', () => {
         it('should run successfully', () => {
-            const harness = opHarness(opFoo);
+            const harness = opHarness(opFooModule) ;
             return harness
                 .runSlices([[{}], [{}]])
                 .then((results) => {
@@ -93,7 +91,7 @@ describe('Op Test Harness', () => {
         });
 
         it('can init and return a new instance of op', async () => {
-            const opTest = opHarness(opFoo);
+            const opTest = opHarness(opFooModule) ;
             const opConfig = { _op: 'foo', some: 'config' };
             const test = await opTest.init({ opConfig });
 
@@ -107,7 +105,7 @@ describe('Op Test Harness', () => {
         });
 
         it('has a shorthand to init and call data on ops', async () => {
-            const opTest = opHarness(opFoo);
+            const opTest = opHarness(opFooModule) ;
             const opConfig = { _op: 'foo', some: 'config' };
             const results = await opTest.processData(opConfig, [{}]);
             expect(results).toEqual([{ foo: 'foo' }]);

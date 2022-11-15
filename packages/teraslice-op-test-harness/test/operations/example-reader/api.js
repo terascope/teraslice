@@ -1,8 +1,6 @@
-'use strict';
+import { OperationAPI } from '@terascope/job-components';
 
-const { OperationAPI } = require('@terascope/job-components');
-
-class ExampleAPI extends OperationAPI {
+export default class ExampleAPI extends OperationAPI {
     async initialize() {
         this.initialized = true;
         return super.initialize();
@@ -26,5 +24,3 @@ class ExampleAPI extends OperationAPI {
         };
     }
 }
-
-module.exports = ExampleAPI;

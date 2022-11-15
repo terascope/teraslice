@@ -2,21 +2,11 @@
 // Project: @terascope/teraslice-op-test-harness
 
 import {
-    ReaderModule,
-    LegacyProcessor,
-    ProcessorModule,
-    OpConfig,
-    ExecutionConfig,
-    TestClientConfig,
-    SliceRequest,
-    SliceResult,
-    ProcessorFn,
-    CoreOperation,
-    LegacyReader,
-    DataEntity,
-    Slice,
-    TestContext,
-    TestClients,
+    ReaderModule, LegacyProcessor, ProcessorModule,
+    OpConfig, ExecutionConfig, TestClientConfig,
+    SliceRequest, SliceResult, ProcessorFn,
+    CoreOperation, LegacyReader, DataEntity,
+    Slice, TestContext, TestClients,
     DataInput,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';

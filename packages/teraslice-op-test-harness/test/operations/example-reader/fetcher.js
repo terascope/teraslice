@@ -1,8 +1,7 @@
-'use strict';
 
-const { Fetcher } = require('@terascope/job-components');
+import { Fetcher } from '@terascope/job-components';
 
-class ExampleFetcher extends Fetcher {
+export default class ExampleFetcher extends Fetcher {
     async initialize() {
         this.initialized = true;
         return super.initialize();
@@ -28,5 +27,3 @@ class ExampleFetcher extends Fetcher {
         return result;
     }
 }
-
-module.exports = ExampleFetcher;

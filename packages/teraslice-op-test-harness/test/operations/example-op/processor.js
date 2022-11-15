@@ -1,8 +1,6 @@
-'use strict';
+import { MapProcessor } from '@terascope/job-components';
 
-const { MapProcessor } = require('@terascope/job-components');
-
-class ExampleMap extends MapProcessor {
+export default class ExampleMap extends MapProcessor {
     async initialize() {
         this.initialized = true;
         return super.initialize();
@@ -18,5 +16,3 @@ class ExampleMap extends MapProcessor {
         return data;
     }
 }
-
-module.exports = ExampleMap;

@@ -1,6 +1,5 @@
-'use strict';
+import * as module from './legacy-processors/foo.js';
+import harnessPkg from '../index.js';
 
-const processor = require('./legacy-processors/foo');
-const harness = require('../index')();
-
-harness.runProcessorSpecs(processor);
+const harness = harnessPkg();
+harness.runProcessorSpecs(module);

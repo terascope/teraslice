@@ -1,8 +1,6 @@
-'use strict';
+import { Slicer } from '@terascope/job-components';
 
-const { Slicer } = require('@terascope/job-components');
-
-class ExampleSlicer extends Slicer {
+export default class ExampleSlicer extends Slicer {
     async initialize(recoveryData) {
         this.initialized = true;
         return super.initialize(recoveryData);
@@ -20,5 +18,3 @@ class ExampleSlicer extends Slicer {
         };
     }
 }
-
-module.exports = ExampleSlicer;
