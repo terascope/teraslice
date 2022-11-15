@@ -255,13 +255,22 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const all = Object.keys(this.parsedTypeConfig)
             .map((field) => field.split('.', 1)[0]) as (keyof T)[];
 
+        const _includes = this._getSourceFields('includes', this.includes, all, includes);
+        const _excludes = this._getSourceFields('excludes', this.excludes, all, excludes);
+
+        // if there's restricted includes fields (or if not but user requested included fields)
+        // then _includes should have length, if not we'd override original restrictions if we
+        // sent [] and expose all fields, so just exclude all since requested fields not found.
+        const invalid = (this.includes.length || includes?.length) ? !_includes?.length : false;
+
         return {
-            includes: this._getSourceFields(this.includes, all, includes),
-            excludes: this._getSourceFields(this.excludes, all, excludes),
+            includes: _includes,
+            excludes: invalid ? ['*'] : _excludes,
         };
     }
 
     private _getSourceFields(
+        type: 'includes'|'excludes',
         restricted: (keyof T)[],
         all: (keyof T)[],
         override?: (keyof T)[] | boolean | (keyof T),
@@ -270,6 +279,11 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (fields.length) {
             if (restricted.length) {
+                // combine already excluded fields with new ones
+                if (type === 'excludes') {
+                    return ts.uniq(restricted.concat(fields));
+                }
+                // reduce already restricted includes to the overrides
                 return restricted.filter((field) => fields.includes(field));
             }
 
