@@ -1,13 +1,10 @@
 import 'jest-extended';
+import { jest } from '@jest/globals'
 import { debugLogger, cloneDeep } from '@terascope/utils';
 import { isPrimaryConfig } from '../../src/loader/utils.js';
 import {
-    RulesValidator,
-    RulesParser,
-    OperationConfig,
-    OperationConfigInput,
-    OperationsManager,
-    PluginList
+    RulesValidator, RulesParser, OperationConfig,
+    OperationConfigInput, OperationsManager, PluginList
 } from '../../src/index.js';
 
 describe('rules-validator', () => {
@@ -535,6 +532,7 @@ describe('rules-validator', () => {
 
         it('will log warning if other_match_required is not paired with another extraction', () => {
             const logger = debugLogger('other_match_required');
+            // @ts-ignore
             logger.warn = jest.fn();
             const validator = constructValidator(matchRequiredError, [], logger);
             validator.validate();

@@ -1,5 +1,5 @@
 import { Logger, debugLogger } from '@terascope/utils';
-import { PhaseManager } from './phases.js';
+import { PhaseManager } from './phases/index.js';
 import { WatcherConfig } from './interfaces.js';
 
 export default class Matcher extends PhaseManager {

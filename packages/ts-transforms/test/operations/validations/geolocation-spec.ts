@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Geolocation } from '../../../src/operations.js';
+import { Geolocation } from '../../../src/operations/index.js';
 
 describe('geolocation validation', () => {
     it('can instantiate', () => {

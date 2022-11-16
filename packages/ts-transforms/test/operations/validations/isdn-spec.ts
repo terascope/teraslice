@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { ISDN } from '../../../src/operations.js';
+import { ISDN } from '../../../src/operations/index.js';
 
 describe('phone number validation', () => {
     it('can instantiate', () => {

@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Join } from '../../../src/operations.js';
+import { Join } from '../../../src/operations/index.js';
 
 describe('join operator', () => {
     it('can instantiate', () => {

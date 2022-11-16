@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { NumberValidation } from '../../../src/operations.js';
+import { NumberValidation } from '../../../src/operations/index.js';
 
 describe('number validation', () => {
     it('can instantiate', () => {

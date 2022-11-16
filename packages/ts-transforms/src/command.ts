@@ -2,19 +2,24 @@ import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
+import { fileURLToPath } from 'url';
 import {
-    DataEntity, debugLogger, parseList, AnyObject, get
+    DataEntity, debugLogger, parseList,
+    AnyObject, get
 } from '@terascope/utils';
+import { hideBin } from 'yargs/helpers'
 import { PhaseManager } from './index.js';
 import { PhaseConfig } from './interfaces.js';
 
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+
 const logger = debugLogger('ts-transform-cli');
 // change pathing due to /dist/src issues
-const packagePath = path.join(__dirname, '../../package.json');
+const packagePath = path.join(dirPath, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
-const command = yargs
+const command = yargs(hideBin(process.argv))
     .alias('t', 'types-fields')
     .alias('T', 'types-file')
     .alias('r', 'rules')
@@ -36,7 +41,7 @@ const command = yargs
     .demandOption(['r'])
     .choices('f', ['ldjson', 'json', 'teraserver', 'es'])
     .version(version)
-    .parseSync();
+    .parse() as any;
 
 const filePath = command.rules as string;
 const dataPath = command.data as string;
@@ -61,7 +66,12 @@ try {
         });
     }
     if (command.T) {
-        typesConfig = require(command.T as string);
+        typesConfig = JSON.parse(
+            fs.readFileSync(
+              new URL(command.T, import.meta.url),
+              { encoding: 'utf8'}
+            )
+          );
     }
 } catch (err) {
     console.error('could not load and parse types', err);
@@ -222,7 +232,7 @@ async function initCommand() {
             type_config: typesConfig,
             type,
         };
-        let plugins = [];
+        let plugins: any[] = [];
         if (command.p) {
             const pluginList = parseList(command.p as string);
             plugins = pluginList.map((pluginPath) => {
@@ -254,6 +264,7 @@ async function initCommand() {
 
             const results = manager.run(data);
             if (command.perf) console.timeEnd('execution-time');
+
             outputData(results);
         }
     } catch (err) {

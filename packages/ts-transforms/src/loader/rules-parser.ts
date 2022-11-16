@@ -1,7 +1,9 @@
 import { nanoid } from 'nanoid';
 import { Logger, set } from '@terascope/utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces.js';
-import { isDeprecatedCompactConfig, needsDefaultSelector, hasExtractions } from './utils.js';
+import {
+    isDeprecatedCompactConfig, needsDefaultSelector, hasExtractions
+} from './utils.js';
 
 export default class RulesParser {
     private configList: OperationConfigInput[];

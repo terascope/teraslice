@@ -1,13 +1,16 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { debugLogger, DataEntity } from '@terascope/utils';
 import { PhaseManager } from '../../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('phase manager', () => {
     const logger = debugLogger('phase_manager');
 
-    const matchRules1Path = path.join(__dirname, '../fixtures/matchRules1.txt');
-    const transformRules17Path = path.join(__dirname, '../fixtures/transformRules17.txt');
-    const transformRules16Path = path.join(__dirname, '../fixtures/transformRules16.txt');
+    const matchRules1Path = path.join(dirPath, '../fixtures/matchRules1.txt');
+    const transformRules17Path = path.join(dirPath, '../fixtures/transformRules17.txt');
+    const transformRules16Path = path.join(dirPath, '../fixtures/transformRules16.txt');
 
     it('can instantiate', async () => {
         const opConfig = { type: 'matcher', rules: [matchRules1Path] };

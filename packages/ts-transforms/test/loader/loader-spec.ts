@@ -1,13 +1,16 @@
 import 'jest-extended';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { debugLogger } from '@terascope/utils';
 import { Loader, PhaseConfig, OperationsManager } from '../../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('Loader', () => {
     const logger = debugLogger('loader-test');
     const opsManager = new OperationsManager();
-    const matchRules1Path = path.join(__dirname, '../fixtures/matchRules1.txt');
-    const transformRules2Path = path.join(__dirname, '../fixtures/transformRules2.txt');
+    const matchRules1Path = path.join(dirPath, '../fixtures/matchRules1.txt');
+    const transformRules2Path = path.join(dirPath, '../fixtures/transformRules2.txt');
 
     it('will not throw with a matcher config', async () => {
         const config: PhaseConfig = { rules: [matchRules1Path], type: 'matcher' };

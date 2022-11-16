@@ -1,12 +1,15 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { debugLogger, isPlainObject, has } from '@terascope/utils';
 import { RulesLoader, OperationConfigInput } from '../../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('rules-loader', () => {
     const logger = debugLogger('rules-loader-test');
 
     async function getConfigList(fileName: string): Promise<OperationConfigInput[]> {
-        const filePath = path.join(__dirname, `../fixtures/${fileName}`);
+        const filePath = path.join(dirPath, `../fixtures/${fileName}`);
         const myFileLoader = new RulesLoader({ rules: [filePath] }, logger);
         return myFileLoader.load();
     }

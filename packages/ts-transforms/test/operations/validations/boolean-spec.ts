@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { BooleanValidation } from '../../../src/operations.js';
+import { BooleanValidation } from '../../../src/operations/index.js';
 
 describe('boolean validation', () => {
     it('can instantiate', () => {

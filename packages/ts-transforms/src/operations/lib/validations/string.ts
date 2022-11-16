@@ -27,7 +27,8 @@ export default class StringValidation extends ValidationOpBase<any> {
         if (this.min || this.max) {
             const min = this.min || 1;
             const max = this.max || Infinity;
-            // wierd method name, it actually checks if it fits the range
+            // weird method name, it actually checks if it fits the range
+            // @ts-ignore
             if (!validator.isLength(data, { min, max })) return null;
         }
         return data;

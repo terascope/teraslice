@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import { Selector } from '../../../src/operations.js';
+import { Selector } from '../../../src/operations/index.js';
 
 describe('selector operator', () => {
     it('can instantiate', () => {

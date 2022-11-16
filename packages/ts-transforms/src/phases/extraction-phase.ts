@@ -1,12 +1,10 @@
 import { DataEntity } from '@terascope/utils';
 import { hasKeys } from './utils.js';
 import {
-    WatcherConfig,
-    ExtractionProcessingDict,
-    ExtractionPipline
+    WatcherConfig, ExtractionProcessingDict, ExtractionPipline
 } from '../interfaces.js';
 import PhaseBase from './base.js';
-import { OperationsManager, Extraction } from '../operations.js';
+import { OperationsManager, Extraction } from '../operations/index.js';
 
 export default class ExtractionPhase extends PhaseBase {
     constructor(

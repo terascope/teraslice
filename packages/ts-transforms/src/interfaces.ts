@@ -1,6 +1,6 @@
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { DataEntity } from '@terascope/utils';
-import { Extraction } from '../src/operations.js';
+import { Extraction } from '../src/operations/index.js';
 
 export type OperationConfigInput = Partial<OperationConfig> & {
     tag?: string;

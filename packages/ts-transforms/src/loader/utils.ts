@@ -2,16 +2,10 @@ import graphlib from 'graphlib';
 import { Logger, cloneDeep, has } from '@terascope/utils';
 import { nanoid } from 'nanoid';
 import { OperationsManager } from '../index.js';
-
 import {
-    OperationConfig,
-    ValidationResults,
-    ExtractionProcessingDict,
-    StateDict,
-    OperationConfigInput,
-    SelectorConfig,
-    ExtractionConfig,
-    PostProcessConfig,
+    OperationConfig, ValidationResults, ExtractionProcessingDict,
+    StateDict, OperationConfigInput, SelectorConfig,
+    ExtractionConfig, PostProcessConfig,
 } from '../interfaces.js';
 
 const {

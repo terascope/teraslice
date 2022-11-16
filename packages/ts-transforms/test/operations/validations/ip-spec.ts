@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Ip as IP } from '../../../src/operations.js';
+import { Ip as IP } from '../../../src/operations/index.js';
 
 describe('ip validation', () => {
     it('can instantiate', () => {

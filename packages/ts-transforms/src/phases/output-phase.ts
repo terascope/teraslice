@@ -4,7 +4,7 @@ import {
 import { hasKeys } from './utils.js';
 import { WatcherConfig, OutputValidation } from '../interfaces.js';
 import PhaseBase from './base.js';
-import { OperationsManager } from '../operations.js';
+import { OperationsManager } from '../operations/index.js';
 
 type Filter = (key: string) => boolean;
 

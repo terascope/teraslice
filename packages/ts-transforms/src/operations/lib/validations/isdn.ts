@@ -8,6 +8,7 @@ export default class ISDN extends ValidationOpBase<any> {
     }
 
     normalize(data: any) {
+        // @ts-ignore
         const phoneNumber = new PhoneValidator(`+${data}`);
         const fullNumber = phoneNumber.getNumber();
         if (fullNumber) return String(fullNumber).slice(1);
@@ -15,6 +16,7 @@ export default class ISDN extends ValidationOpBase<any> {
     }
 
     validate(value: string) {
+        // @ts-ignore
         if (!new PhoneValidator(`+${value}`).isValid()) return false;
         return true;
     }

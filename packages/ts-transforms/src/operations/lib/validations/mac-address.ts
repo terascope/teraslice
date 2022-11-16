@@ -25,6 +25,7 @@ export default class MacAddress extends ValidationOpBase<any> {
     validate(data: string): boolean {
         const options = { no_colons: !this.preserveColons };
         // TODO: fix the types for valdiator, it does not have the options listed
+        // @ts-ignore
         if (!validator.isMACAddress(data, options)) return false;
         return true;
     }

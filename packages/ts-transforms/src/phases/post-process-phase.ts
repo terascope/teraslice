@@ -1,12 +1,9 @@
 import { DataEntity } from '@terascope/utils';
 import { hasKeys } from './utils.js';
-import { OperationsManager } from '../operations.js';
+import { OperationsManager } from '../operations/index.js';
 import {
-    PostProcessConfig,
-    WatcherConfig,
-    PostProcessingDict,
-    OperationsPipline,
-    Operation
+    PostProcessConfig, WatcherConfig, PostProcessingDict,
+    OperationsPipline, Operation
 } from '../interfaces.js';
 import PhaseBase from './base.js';
 

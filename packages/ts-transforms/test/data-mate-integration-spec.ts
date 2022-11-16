@@ -1,7 +1,6 @@
 /* eslint-disable object-curly-newline */
 import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
-
 import { xLuceneFieldType } from '@terascope/types';
 import { WatcherConfig } from '../src/index.js';
 import TestHarness from './test-harness.js';

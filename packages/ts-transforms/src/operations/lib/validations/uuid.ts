@@ -19,6 +19,7 @@ export default class Uuid extends ValidationOpBase<any> {
     }
 
     validate(value: string) {
+        // @ts-ignore
         if (!validator.isUUID(value)) return false;
         return true;
     }

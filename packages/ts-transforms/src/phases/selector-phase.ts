@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
 import * as i from '../interfaces.js';
 import PhaseBase from './base.js';
-import { OperationsManager } from '../operations.js';
+import { OperationsManager } from '../operations/index.js';
 
 export default class SelectionPhase extends PhaseBase {
     readonly selectionPhase: i.Operation[];
@@ -26,7 +26,7 @@ export default class SelectionPhase extends PhaseBase {
 
     public run(data: DataEntity[]): DataEntity[] {
         if (this.selectionPhase.length > 0) {
-            const results = [];
+            const results: DataEntity[]  = [];
             for (const record of data) {
                 record.setMetadata('selectors', null);
                 for (const selector of this.selectionPhase) {

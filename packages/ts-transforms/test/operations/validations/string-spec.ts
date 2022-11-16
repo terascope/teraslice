@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { StringValidation } from '../../../src/operations.js';
+import { StringValidation } from '../../../src/operations/index.js';
 
 describe('string validation', () => {
     it('can instantiate', () => {

@@ -5,7 +5,6 @@ import OperationBase from '../base.js';
 
 export default abstract class ValidationOpBase<T> extends OperationBase {
     private invert: boolean;
-    // @ts-expect-error
     constructor(config) {
         super(config);
         this.invert = this.config.output === false;

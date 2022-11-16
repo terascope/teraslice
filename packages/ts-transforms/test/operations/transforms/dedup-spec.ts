@@ -1,5 +1,5 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Dedup } from '../../../src/operations.js';
+import { Dedup } from '../../../src/operations/index.js';
 
 describe('Dedup operator', () => {
     it('can instantiate', () => {

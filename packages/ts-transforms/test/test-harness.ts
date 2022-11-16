@@ -1,7 +1,8 @@
 import { debugLogger, DataEntity } from '@terascope/utils';
 import {
-    Matcher, Transform, PhaseManager, WatcherConfig, PluginList
-} from '../src/index';
+    Matcher, Transform, PhaseManager,
+    WatcherConfig, PluginList
+} from '../src/index.js';
 
 const logger = debugLogger('ts-transform');
 

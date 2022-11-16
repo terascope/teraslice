@@ -35,8 +35,8 @@ import Ip from './lib/validations/ip.js';
 import MacAddress from './lib/validations/mac-address.js';
 import Uuid from './lib/validations/uuid.js';
 import ISDN from './lib/validations/isdn.js';
-import { Validator, ValidatorPlugins } from './plugins/validator.js';
-import dataMapePlugin from './plugins/data-mate.js';
+import { Validator, ValidatorPlugins } from './plugins/validator/index.js';
+import dataMapePlugin from './plugins/data-mate/index.js';
 
 import {
     OperationsDict, PluginClassType, BaseOperationClass, PluginList
