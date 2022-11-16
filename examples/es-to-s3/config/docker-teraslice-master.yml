@@ -10,16 +10,19 @@ terafoundation:
             default:
                 node:
                     - "http://elasticsearch:9200"
-        kafka:
-            default:
-                brokers:
-                    - "kafka:9092"
+        s3:
+          minio:
+            endpoint: minio:9000
+            accessKeyId: testRoot
+            secretAccessKey: testPass
+            sslEnabled: false
+            s3ForcePathStyle: true
 
 teraslice:
     assets_directory: '/app/assets'
     autoload_directory: '/app/autoload'
     workers: 4
-    master: false
-    master_hostname: "teraslice-master"
+    master: true
+    master_hostname: "127.0.0.1"
     port: 5678
     name: "teracluster"
