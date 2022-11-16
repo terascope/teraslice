@@ -1,16 +1,8 @@
 import {
-    WorkerExecutionContext,
-    JobConfig,
-    Slice,
-    DataEntity,
-    RunSliceResult,
-    SliceRequest,
-    newTestSlice,
-    FetcherCore,
-    OperationCore,
-    APICore,
-    OpConfig,
-    newTestJobConfig,
+    WorkerExecutionContext, JobConfig, Slice,
+    DataEntity, RunSliceResult, SliceRequest,
+    newTestSlice, FetcherCore, OperationCore,
+    APICore, OpConfig, newTestJobConfig,
     OpAPI,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness.js';

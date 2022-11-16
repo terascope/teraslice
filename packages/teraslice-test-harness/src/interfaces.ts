@@ -1,12 +1,7 @@
 import {
-    WorkerContext,
-    WorkerExecutionContext,
-    SlicerExecutionContext,
-    TestClientConfig,
-    ProcessorConstructor,
-    SlicerConstructor,
-    Slice,
-    DataEntity
+    WorkerContext, WorkerExecutionContext, SlicerExecutionContext,
+    TestClientConfig, ProcessorConstructor, SlicerConstructor,
+    Slice, DataEntity
 } from '@terascope/job-components';
 
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;

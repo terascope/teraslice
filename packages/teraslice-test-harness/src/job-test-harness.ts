@@ -1,15 +1,8 @@
 import {
-    DataEntity,
-    JobConfig,
-    Slice,
-    RunSliceResult,
-    SliceAnalyticsData,
-    TestClientConfig,
-    FetcherCore,
-    SlicerCore,
-    SlicerRecoveryData,
-    pDelay,
-    flatten,
+    DataEntity, JobConfig, Slice,
+    RunSliceResult, SliceAnalyticsData, TestClientConfig,
+    FetcherCore, SlicerCore, SlicerRecoveryData,
+    pDelay, flatten,
 } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness.js';
 import WorkerTestHarness from './worker-test-harness.js';

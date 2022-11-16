@@ -1,17 +1,17 @@
 import 'jest-extended';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import {
-    newTestJobConfig,
-    DataEntity,
-    Slicer,
-    Fetcher,
-    BatchProcessor
+    newTestJobConfig, DataEntity, Slicer,
+    Fetcher, BatchProcessor
 } from '@terascope/job-components';
 import { JobTestHarness } from '../src/index.js';
 
-describe('JobTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
+describe('JobTestHarness', () => {
+    const assetDir = path.join(dirPath, 'fixtures');
+    console.log('my assetDir JobTestHarness', assetDir)
     const clients = [
         {
             type: 'example',
@@ -38,7 +38,7 @@ describe('JobTestHarness', () => {
         ];
 
         const jobHarness = new JobTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
+            assetDir: path.join(dirPath, 'fixtures'),
             clients,
         });
 

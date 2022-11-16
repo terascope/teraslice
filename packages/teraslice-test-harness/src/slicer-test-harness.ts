@@ -1,16 +1,8 @@
 import {
-    SlicerExecutionContext,
-    JobConfig,
-    Slice,
-    SliceRequest,
-    SliceResult,
-    ExecutionStats,
-    SlicerCore,
-    SlicerRecoveryData,
-    times,
-    isPlainObject,
-    APICore,
-    OpAPI
+    SlicerExecutionContext, JobConfig, Slice,
+    SliceRequest, SliceResult, ExecutionStats,
+    SlicerCore, SlicerRecoveryData, times,
+    isPlainObject, APICore, OpAPI
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness.js';
 import { JobHarnessOptions } from './interfaces.js';
@@ -39,11 +31,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');
-
-        const { config } = this.executionContext;
-        if (config.recovered_execution && !this.slicer().isRecoverable()) {
-            throw new Error('Slicer is not recoverable');
-        }
     }
 
     slicer<T extends SlicerCore = SlicerCore>(): T {
@@ -56,7 +43,12 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     */
     async initialize(recoveryData: SlicerRecoveryData[] = []): Promise<void> {
         await super.initialize();
-        // teraslice checks to see if slicer is recoverable
+
+        const { config } = this.executionContext;
+
+        await this.executionContext.initialize(recoveryData);
+
+         // teraslice checks to see if slicer is recoverable
         // should throw test recoveryData if slicer is not recoverable
         if (recoveryData.length > 0) {
             if (!this.executionContext.slicer().isRecoverable()) {
@@ -67,7 +59,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             }
         }
 
-        await this.executionContext.initialize(recoveryData);
+        if (config.recovered_execution && !this.slicer().isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
+
         this.executionContext.onExecutionStats(this.stats);
         this._emitInterval = setInterval(() => {
             this.executionContext.onExecutionStats(this.stats);

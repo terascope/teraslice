@@ -1,20 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {
-    ExecutionConfig,
-    JobValidator,
-    TestContext,
-    JobConfig,
-    ExecutionContextConfig,
-    Assignment,
-    makeExecutionContext,
-    TestClientConfig,
+    ExecutionConfig, JobValidator, TestContext,
+    JobConfig, ExecutionContextConfig, Assignment,
+    makeExecutionContext, TestClientConfig,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
-import {
-    JobHarnessOptions,
-    ExecutionContext,
-} from './interfaces.js';
+import { JobHarnessOptions, ExecutionContext } from './interfaces.js';
 import { resolveAssetDir } from './utils.js';
 
 /**
@@ -24,8 +16,10 @@ import { resolveAssetDir } from './utils.js';
 */
 export default class BaseTestHarness<U extends ExecutionContext> {
     readonly events: EventEmitter;
-    readonly executionContext: U;
+    readonly executionContext!: U;
     readonly context: TestContext;
+    readonly baseJobConfig: JobConfig;
+    readonly options: JobHarnessOptions;
 
     constructor(job: JobConfig, options: JobHarnessOptions, assignment: Assignment) {
         const testName = [assignment, job.name].filter((s) => s).join(':');
@@ -33,32 +27,35 @@ export default class BaseTestHarness<U extends ExecutionContext> {
             assignment,
             clients: options.clients,
         });
-
+        this.baseJobConfig = job;
         this.events = this.context.apis.foundation.getSystemEvents();
-        const config = this.makeContextConfig(job, this._getAssetDirs(options.assetDir));
-        this.executionContext = makeExecutionContext(config) as U;
+        this.options = options;
     }
 
     /**
      * Initialize any test cod
     */
     async initialize(): Promise<void> {
+        const config = await this.makeContextConfig(this.baseJobConfig, this._getAssetDirs(this.options.assetDir));
+        // @ts-expect-error
+        this.executionContext = makeExecutionContext(config) as U;
     }
 
     setClients(clients: TestClientConfig[]): void {
         this.context.apis.setTestClients(clients);
     }
 
-    protected makeContextConfig(
+    protected async makeContextConfig(
         job: JobConfig,
         assets: string[] = [process.cwd()]
-    ): ExecutionContextConfig {
+    ): Promise<ExecutionContextConfig> {
         const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
         this.context.sysconfig.teraslice.assets_directory = assets;
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
-        const executionConfig = jobValidator.validateConfig(job) as ExecutionConfig;
+        const executionConfig = await jobValidator.validateConfig(job) as ExecutionConfig;
+
         return {
             context: this.context,
             executionConfig,
@@ -67,25 +64,13 @@ export default class BaseTestHarness<U extends ExecutionContext> {
     }
 
     private _getAssetDirs(assetDir: string | string[] = [process.cwd()]) {
-        const assets = this._getExternalAssets();
+        const assets: string[] = [];
 
         if (Array.isArray(assetDir)) {
             return resolveAssetDir(assets.concat(assetDir));
         }
 
         return resolveAssetDir([...assets, assetDir]);
-    }
-
-    private _getExternalAssets(): string[] {
-        const externalAssetsPath = path.resolve('./test/.cache', 'assets');
-
-        if (fs.pathExistsSync(externalAssetsPath)) {
-            return fs.readdirSync(externalAssetsPath)
-                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
-                .map((dir) => path.join(externalAssetsPath, dir));
-        }
-
-        return [];
     }
 
     /**

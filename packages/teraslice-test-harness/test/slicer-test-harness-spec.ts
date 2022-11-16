@@ -1,17 +1,17 @@
 import 'jest-extended';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import {
-    newTestJobConfig,
-    Slicer,
-    uniq,
-    AnyObject,
-    LifeCycle
+    newTestJobConfig, Slicer, uniq,
+    AnyObject, LifeCycle
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src/index.js';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
 
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+
 describe('SlicerTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(dirPath, 'fixtures');
     const clients = [
         {
             type: 'example',
@@ -24,6 +24,7 @@ describe('SlicerTestHarness', () => {
             })
         }
     ];
+
     describe('when given a valid job config', () => {
         const job = newTestJobConfig();
         job.analytics = true;
@@ -36,12 +37,14 @@ describe('SlicerTestHarness', () => {
             }
         ];
 
-        const slicerHarness = new SlicerTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
-            clients,
-        });
+        let slicerHarness: SlicerTestHarness
 
-        it('should be able to call initialize', () => expect(slicerHarness.initialize()).resolves.toBeNil());
+        beforeEach(() => {
+            slicerHarness = new SlicerTestHarness(job, {
+                assetDir: path.join(dirPath, 'fixtures'),
+                clients,
+            });
+        });
 
         it('should throw if given recoveryData since slicer is not recoverable', async () => {
             expect.assertions(1);
@@ -57,11 +60,13 @@ describe('SlicerTestHarness', () => {
             }
         });
 
-        it('should have a slicer', () => {
+        it('should have a slicer', async () => {
+            await slicerHarness.initialize();
             expect(slicerHarness.slicer()).toBeInstanceOf(Slicer);
         });
 
         it('should be able to call createSlices', async () => {
+            await slicerHarness.initialize();
             const result = await slicerHarness.createSlices();
             expect(result).toBeArray();
 
@@ -71,14 +76,14 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call createSlices with fullResponse', async () => {
+            await slicerHarness.initialize();
+
             const result = await slicerHarness.createSlices({ fullResponse: true });
             expect(result).toBeArray();
             expect(result[0]).toHaveProperty('slice_id');
             expect(result[0]).toHaveProperty('slicer_id');
             expect(result[0]).toHaveProperty('slicer_order');
         });
-
-        it('should be able to call shutdown', () => expect(slicerHarness.shutdown()).resolves.toBeNil());
     });
 
     describe('when given a slicer that is recoverable', () => {
@@ -99,7 +104,7 @@ describe('SlicerTestHarness', () => {
             count: 25
         };
 
-        beforeEach(() => {
+        beforeEach(async() => {
             slicerHarness = new SlicerTestHarness(job, {
                 assetDir
             });

@@ -3,9 +3,13 @@ import nock from 'nock';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import decompress from 'decompress';
 import { newTestJobConfig, DataEntity, uniqBy } from '@terascope/job-components';
 import { WorkerTestHarness, DownloadExternalAsset } from '../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+const externalAssetsPath = path.resolve('./test/.cache', 'assets', 'jungle');
 
 describe('download-external-asset', () => {
     const build = `node-${process.version.split('.', 1)[0].slice(1)}-${os.platform()}-${os.arch()}`;
@@ -61,7 +65,7 @@ describe('download-external-asset', () => {
         }
     ];
 
-    const fileZip = fs.readFileSync(path.join(__dirname, 'fixtures', 'test-asset.zip'));
+    const fileZip = fs.readFileSync(path.join(dirPath, 'fixtures', 'test-asset.zip'));
 
     const gitHub = nock('https://api.github.com');
 
@@ -113,7 +117,7 @@ describe('download-external-asset', () => {
 
     it('should not download an asset if asset already exists', async () => {
         fs.ensureDirSync(path.join(externalPathLocation, 'downloads'));
-        fs.copyFileSync(path.join(__dirname, './fixtures', 'test-asset.zip'), path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`));
+        fs.copyFileSync(path.join(dirPath, './fixtures', 'test-asset.zip'), path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`));
 
         await decompress(
             path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`),
@@ -139,7 +143,8 @@ describe('download-external-asset', () => {
 
         const options = {
             assetDir: [
-                path.join(__dirname, 'fixtures')
+                path.join(dirPath, 'fixtures'),
+                externalAssetsPath
             ]
         };
 

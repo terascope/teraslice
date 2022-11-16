@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { DataEntity, OpConfig } from '@terascope/job-components';
 import { OpTestHarness } from '../src/index.js';
-import transformer from './fixtures/asset/transformer.js';
+import transformer from './fixtures/asset/transformer/index.js';
 
 describe('OpTestHarness', () => {
     const clients = [

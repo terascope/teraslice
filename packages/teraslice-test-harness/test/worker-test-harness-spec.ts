@@ -1,14 +1,14 @@
 import 'jest-extended';
 import path from 'path';
+import { jest } from '@jest/globals';
+import { fileURLToPath } from 'url';
 import {
-    newTestJobConfig,
-    newTestSlice,
-    DataEntity,
-    Fetcher,
-    BatchProcessor,
-    NoopProcessor
+    newTestJobConfig, newTestSlice, DataEntity,
+    Fetcher, BatchProcessor, NoopProcessor
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src/index.js';
+
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
 
 describe('WorkerTestHarness', () => {
     const clients = [
@@ -38,12 +38,17 @@ describe('WorkerTestHarness', () => {
             ],
         });
 
-        const workerHarness = new WorkerTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
-            clients,
-        });
+        let workerHarness: WorkerTestHarness;
 
-        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => data);
+        beforeEach(async() => {
+            workerHarness = new WorkerTestHarness(job, {
+                assetDir: path.join(dirPath, 'fixtures'),
+                clients,
+            });
+
+            await workerHarness.initialize();
+            workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => data);
+        })
 
         it('should be able to call initialize', () => expect(workerHarness.initialize()).resolves.toBeNil());
 
@@ -98,8 +103,8 @@ describe('WorkerTestHarness', () => {
     describe('when using assets and multiple assetDirs', () => {
         const options = {
             assetDir: [
-                path.join(__dirname, 'fixtures'),
-                path.join(__dirname, 'secondary-asset'),
+                path.join(dirPath, 'fixtures'),
+                path.join(dirPath, 'secondary-asset'),
             ]
         };
         let harness: WorkerTestHarness;
@@ -142,7 +147,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when using static method testProcessor', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(dirPath, 'fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -167,7 +172,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when using static method testFetcher', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(dirPath, 'fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -198,7 +203,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when testing flush', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(dirPath, 'fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -222,7 +227,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when testing flush with analytics', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(dirPath, 'fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -263,7 +268,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('harness preserves metadata of data passed in', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(dirPath, 'fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
