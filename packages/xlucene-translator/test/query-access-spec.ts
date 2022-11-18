@@ -566,8 +566,8 @@ describe('QueryAccess', () => {
                 params
             });
             expect(result).toMatchObject({
-                _sourceInclude: ['moo'],
-                _sourceExclude: queryAccessExcludes,
+                _source_includes: ['moo'],
+                _source_excludes: queryAccessExcludes,
             });
             expect(result).not.toHaveProperty('q', 'idk');
 
@@ -591,8 +591,8 @@ describe('QueryAccess', () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: queryAccessIncludes,
-                _sourceExclude: ['bar', 'baz', 'foo'], // original restrictions + params
+                _source_includes: queryAccessIncludes,
+                _source_excludes: ['bar', 'baz', 'foo'], // original restrictions + params
             });
         });
 
@@ -605,8 +605,8 @@ describe('QueryAccess', () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: ['foo'], // baz not allowed per original restrictions but foo is
-                _sourceExclude: queryAccessExcludes
+                _source_includes: ['foo'], // baz not allowed per original restrictions but foo is
+                _source_excludes: queryAccessExcludes
             });
         });
 
@@ -619,8 +619,8 @@ describe('QueryAccess', () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: [], // baz not allowed per original restrictions so exclude all
-                _sourceExclude: ['*'], // '*' excludes all
+                _source_includes: [], // baz not allowed per original restrictions so exclude all
+                _source_excludes: ['*'], // '*' excludes all
             });
         });
 
@@ -638,16 +638,16 @@ describe('QueryAccess', () => {
                         },
                     },
                 },
-                _sourceExclude: queryAccessExcludes,
-                _sourceInclude: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes,
+                _source_includes: queryAccessIncludes,
             });
         });
 
         it('should be able to return a restricted query without any params', async () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
-                _sourceExclude: queryAccessExcludes,
-                _sourceInclude: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes,
+                _source_includes: queryAccessIncludes,
             });
 
             expect(result).not.toHaveProperty('q', 'idk');
@@ -719,8 +719,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: queryAccessIncludes,
-                _sourceExclude: queryAccessExcludes
+                _source_includes: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes
             });
         });
     });
