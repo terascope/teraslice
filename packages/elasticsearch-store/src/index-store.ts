@@ -698,7 +698,7 @@ export class IndexStore<T extends ts.AnyObject> {
             ...params,
         });
 
-        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0)) as number;
         const results = this._toRecords(response.hits.hits, critical);
 
         return {
