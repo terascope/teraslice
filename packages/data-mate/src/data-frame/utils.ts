@@ -71,7 +71,7 @@ export function columnsToDataTypeConfig<T extends Record<string, unknown>>(
         // make sure we populate the nested fields
         if (col.vector.childConfig) {
             for (const nestedField of Object.keys(col.vector.childConfig)) {
-                fields[`${col.name}.${nestedField}`] = col.vector.childConfig[nestedField];
+                fields[`${String(col.name)}.${nestedField}`] = col.vector.childConfig[nestedField];
             }
         }
     }

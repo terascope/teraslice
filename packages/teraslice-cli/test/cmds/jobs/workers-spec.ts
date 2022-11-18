@@ -11,7 +11,7 @@ describe('jobs workers', () => {
                 workers.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'workers ts-test1 99999999-9999-9999-9999-999999999999 add 5', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
@@ -27,7 +27,7 @@ describe('jobs workers', () => {
                 workers.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'workers ts-test1 99999999-9999-9999-9999-999999999999 remove 5', {}
             );
 

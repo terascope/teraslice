@@ -154,6 +154,7 @@ describe('ExecutionController Test Cases', () => {
         let exStatus;
 
         beforeAll(async () => {
+            await TestContext.cleanupAll(true);
             await TestContext.waitForCleanup();
 
             slices = [];

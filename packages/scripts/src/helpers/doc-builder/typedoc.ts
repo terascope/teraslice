@@ -101,7 +101,9 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
             hideGenerator: true,
             readme: 'none',
         });
-        app.options.setValue('entryPoints', app.expandInputFiles(['src']));
+
+        app.options.setValue('entryPoints', './src');
+        app.options.setValue('entryPointStrategy', 'expand');
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);

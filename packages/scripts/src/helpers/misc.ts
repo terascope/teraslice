@@ -12,9 +12,11 @@ let rootDir: string | undefined;
 
 export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
+
     const rootPkgJSON = pkgUp.sync({ cwd });
+
     if (!rootPkgJSON) {
-        throw new Error('Unable to find root directory, run in the root of the repo');
+        throw new Error(`Unable to find root directory, run in the root of the repo. cwd is ${cwd}, rootPkgJSON is ${rootPkgJSON}`);
     }
 
     if (_getRootInfo(rootPkgJSON) != null) {
@@ -23,9 +25,11 @@ export function getRootDir(cwd: string = process.cwd()): string {
     }
 
     const upOne = path.join(path.dirname(rootPkgJSON), '..');
+
     if (!fse.existsSync(upOne) || !fse.statSync(upOne).isDirectory()) {
         throw new Error('Unable to find root directory');
     }
+
     return getRootDir(upOne);
 }
 
@@ -48,7 +52,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             url: '',
         },
         engines: {
-            node: '^12.22.0 || >=14.17.0',
+            node: '>=14.17.0',
             yarn: '>=1.16.0'
         },
         terascope: {

@@ -36,7 +36,7 @@ export function fieldTransformColumnExecution<
     };
 }
 
-function _processesTransform<T>(
+function _processesTransform<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: FunctionAdapterContext<T>,
 ) {
@@ -53,7 +53,7 @@ function _processesTransform<T>(
     return results;
 }
 
-function _processesTransformDynamic<T>(
+function _processesTransformDynamic<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: DynamicFunctionAdapterContext<T>,
 ) {

@@ -11,7 +11,7 @@ describe('jobs list', () => {
                 list.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'list ts-test1', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

@@ -1,0 +1,95 @@
+version: '2.4'
+services:
+  teraslice-master:
+    build:
+      context: .
+    scale: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5678:5678"
+    environment:
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yml
+    networks:
+      - cluster
+    volumes:
+      - teraslice-assets:/app/assets
+      - ./autoload:/app/autoload:delegated
+      - ./examples/es-to-s3/config:/app/config:delegated
+  teraslice-worker:
+    build:
+      context: .
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://teraslice-master:5678/"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    scale: 1
+    stop_grace_period: 60s
+    environment:
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-worker.yml
+    networks:
+      - cluster
+    volumes:
+      - teraslice-assets:/app/assets
+      - ./autoload:/app/autoload:delegated
+      - ./examples/es-to-s3/config:/app/config:delegated
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "network.host=0.0.0.0"
+      - "http.port=9200"
+      - "transport.tcp.port=9300"
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.ml.enabled=false"
+      - "xpack.watcher.enabled=false"
+      - "bootstrap.memory_lock=true"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - cluster
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+  minio:
+    image: minio/minio:RELEASE.2022-09-17T00-09-45Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - cluster
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: testRoot
+      MINIO_ROOT_PASSWORD: testPass
+    command: server --console-address ":9001" /data
+volumes:
+  teraslice-assets:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  minio_storage: {}
+networks:
+  cluster:

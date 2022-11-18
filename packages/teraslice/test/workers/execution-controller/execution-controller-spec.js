@@ -12,6 +12,7 @@ describe('ExecutionController', () => {
         let exStore;
 
         beforeEach(async () => {
+            await TestContext.cleanupAll(true);
             await TestContext.waitForCleanup();
 
             const port = await findPort();

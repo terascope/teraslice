@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import GeoPointType from '../../../src/types/v1/geo-point';
 

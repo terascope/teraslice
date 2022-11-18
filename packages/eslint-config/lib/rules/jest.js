@@ -6,7 +6,6 @@ module.exports = {
     'jest/no-focused-tests': 'warn',
     'jest/no-identical-title': 'warn',
     'jest/no-jasmine-globals': 'error',
-    'jest/no-jest-import': 'error',
     'jest/no-standalone-expect': 'error',
     'jest/prefer-to-contain': 'warn',
     'jest/prefer-todo': 'warn',

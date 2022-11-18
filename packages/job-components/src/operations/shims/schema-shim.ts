@@ -2,7 +2,9 @@ import { Context, LegacyProcessor, ValidatedJobConfig } from '../../interfaces';
 import ConvictSchema from '../convict-schema';
 import { SchemaModule } from '../interfaces';
 
-export default function schemaShim<S = any>(legacy: LegacyProcessor): SchemaModule {
+export default function schemaShim<S extends Record<string, any>>(
+    legacy: LegacyProcessor
+): SchemaModule {
     return {
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
             // @ts-expect-error

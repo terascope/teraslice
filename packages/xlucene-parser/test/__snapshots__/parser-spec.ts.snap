@@ -1,36 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Parser should be to iterate over all of the values 1`] = `
-Array [
-  Array [
-    Object {
+[
+  [
+    {
       "scoped": false,
       "type": "variable",
       "value": "foo",
     },
-    Object {
+    {
       "field": "a",
       "field_type": "integer",
       "type": "term",
-      "value": Object {
+      "value": {
         "scoped": false,
         "type": "variable",
         "value": "foo",
       },
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "type": "value",
       "value": 20,
     },
-    Object {
+    {
       "field": "b",
-      "left": Object {
+      "left": {
         "field_type": "integer",
         "operator": "gte",
         "type": "term",
-        "value": Object {
+        "value": {
           "type": "value",
           "value": 20,
         },
@@ -38,67 +38,67 @@ Array [
       "type": "range",
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "scoped": false,
       "type": "variable",
       "value": "foo",
     },
-    Object {
+    {
       "field": "a",
       "field_type": "integer",
       "type": "term",
-      "value": Object {
+      "value": {
         "scoped": false,
         "type": "variable",
         "value": "foo",
       },
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "scoped": true,
       "type": "variable",
       "value": "@bar",
     },
-    Object {
+    {
       "field": "a",
       "field_type": "integer",
       "type": "term",
-      "value": Object {
+      "value": {
         "scoped": true,
         "type": "variable",
         "value": "@bar",
       },
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "type": "value",
       "value": " 33.906320, -112.758421",
     },
-    Object {
+    {
       "field": "top_left",
       "field_type": "string",
       "quoted": true,
       "type": "term",
-      "value": Object {
+      "value": {
         "type": "value",
         "value": " 33.906320, -112.758421",
       },
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "scoped": false,
       "type": "variable",
       "value": "bottom_right",
     },
-    Object {
+    {
       "field": "bottom_right",
       "field_type": undefined,
       "type": "term",
-      "value": Object {
+      "value": {
         "scoped": false,
         "type": "variable",
         "value": "bottom_right",

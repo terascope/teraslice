@@ -537,13 +537,15 @@ describe('QueryAccess', () => {
     });
 
     describe('when converting to an elasticsearch search query', () => {
+        const queryAccessExcludes = ['bar', 'baz'];
+        const queryAccessIncludes = ['foo', 'moo'];
         const queryAccess = new QueryAccess({
             allow_implicit_queries: true,
             default_geo_field: 'moo',
             default_geo_sort_order: 'desc',
             default_geo_sort_unit: 'mm',
-            excludes: ['bar', 'baz'],
-            includes: ['foo', 'moo'],
+            excludes: queryAccessExcludes,
+            includes: queryAccessIncludes,
         }, {
             type_config: {
                 moo: xLuceneFieldType.GeoPoint,
@@ -564,8 +566,8 @@ describe('QueryAccess', () => {
                 params
             });
             expect(result).toMatchObject({
-                _source_includes: ['moo'],
-                _source_excludes: ['baz'],
+                _sourceInclude: ['moo'],
+                _sourceExclude: queryAccessExcludes,
             });
             expect(result).not.toHaveProperty('q', 'idk');
 
@@ -578,6 +580,48 @@ describe('QueryAccess', () => {
             });
 
             expect(params).toHaveProperty('q', 'idk');
+        });
+
+        it('should respect original query access excluded fields when excluding more', async () => {
+            const params: SearchParams = {
+                q: 'idk',
+                _sourceExclude: ['foo'],
+            };
+
+            const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
+
+            expect(result).toMatchObject({
+                _sourceInclude: queryAccessIncludes,
+                _sourceExclude: ['bar', 'baz', 'foo'], // original restrictions + params
+            });
+        });
+
+        it('should NOT include fields not permitted by original query access included fields', async () => {
+            const params: SearchParams = {
+                q: 'idk',
+                _sourceInclude: ['baz', 'foo'],
+            };
+
+            const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
+
+            expect(result).toMatchObject({
+                _sourceInclude: ['foo'], // baz not allowed per original restrictions but foo is
+                _sourceExclude: queryAccessExcludes
+            });
+        });
+
+        it('should exclude all fields if none of requested included fields are permitted by original query access included fields so user doesn\'t see restricted and/or non requested fields', async () => {
+            const params: SearchParams = {
+                q: 'idk',
+                _sourceInclude: ['baz'], // not allowed per original restrictions
+            };
+
+            const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
+
+            expect(result).toMatchObject({
+                _sourceInclude: [], // baz not allowed per original restrictions so exclude all
+                _sourceExclude: ['*'], // '*' excludes all
+            });
         });
 
         it('should be able to allow * queries', async () => {
@@ -594,16 +638,16 @@ describe('QueryAccess', () => {
                         },
                     },
                 },
-                _source_excludes: ['bar', 'baz'],
-                _source_includes: ['foo', 'moo'],
+                _sourceExclude: queryAccessExcludes,
+                _sourceInclude: queryAccessIncludes,
             });
         });
 
         it('should be able to return a restricted query without any params', async () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
-                _source_excludes: ['bar', 'baz'],
-                _source_includes: ['foo', 'moo'],
+                _sourceExclude: queryAccessExcludes,
+                _sourceInclude: queryAccessIncludes,
             });
 
             expect(result).not.toHaveProperty('q', 'idk');
@@ -675,14 +719,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _source_includes: [
-                    'foo',
-                    'moo'
-                ],
-                _source_excludes: [
-                    'bar',
-                    'baz'
-                ]
+                _sourceInclude: queryAccessIncludes,
+                _sourceExclude: queryAccessExcludes
             });
         });
     });

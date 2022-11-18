@@ -10,10 +10,13 @@ terafoundation:
             default:
                 node:
                     - "http://elasticsearch:9200"
-        kafka:
-            default:
-                brokers:
-                    - "kafka:9092"
+        s3:
+          minio:
+            endpoint: minio:9000
+            accessKeyId: testRoot
+            secretAccessKey: testPass
+            sslEnabled: false
+            s3ForcePathStyle: true
 
 teraslice:
     assets_directory: '/app/assets'

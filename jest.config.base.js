@@ -39,7 +39,6 @@ module.exports = (projectDir) => {
     }
     const config = {
         rootDir,
-        name: workspaceName,
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
@@ -52,15 +51,18 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: getJestAliases(),
-        moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs'],
+        moduleNameMapper: {
+            ...getJestAliases(),
+        },
+        moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
         coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
         preset: 'ts-jest',
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
+        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
+        workerIdleMemoryLimit: '200MB'
     };
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -80,22 +82,25 @@ module.exports = (projectDir) => {
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts']
+        availableExtensions: ['.js', '.ts', '.mjs']
     };
+    config.transform = {};
 
     if (isTypescript) {
-        config.globals['ts-jest'] = {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
-            pretty: true
-        };
+            pretty: true,
+            useESM: true
+        }];
     } else {
-        config.globals['ts-jest'] = {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
             isolatedModules: true,
             diagnostics: true,
-            pretty: true
-        };
+            pretty: true,
+            useESM: true
+        }];
     }
 
     config.roots = [`${packageRoot}/test`];

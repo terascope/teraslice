@@ -21,7 +21,9 @@ export async function shouldNPMPublish(
     const local = pkgInfo.version;
     const isMain = isMainPackage(pkgInfo) || pkgInfo.terascope?.linkToMain;
     const isPrerelease = getPublishTag(local) === 'prerelease';
-    const options: semver.Options = {};
+    // @ts-expect-error docs says its there, checked the code and its there
+    // but its missing in types
+    const options: semver.Options = { includePrerelease: true };
 
     if (semver.eq(local, remote, options)) return false;
 

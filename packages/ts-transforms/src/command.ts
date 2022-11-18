@@ -35,7 +35,8 @@ const command = yargs
     .describe('format', 'set this to type of incoming data, if set to ldjson then it will stream the input and output records')
     .demandOption(['r'])
     .choices('f', ['ldjson', 'json', 'teraserver', 'es'])
-    .version(version).argv;
+    .version(version)
+    .parseSync();
 
 const filePath = command.rules as string;
 const dataPath = command.data as string;

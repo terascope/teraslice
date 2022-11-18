@@ -12,6 +12,19 @@ export default class extends Generator {
         super(args, opts);
         this.argument('new_asset_path', { type: String, required: true });
         this.sourceRoot(getTemplatePath('new-asset'));
+        this.useYarn = false;
+
+        const yarnPath = this.spawnCommandSync('which', ['yarn'], {
+            stdio: [process.stdout],
+            encoding: 'utf8'
+        });
+
+        if (yarnPath.stdout) {
+            this.useYarn = true;
+        }
+
+        const packageManager = this.useYarn ? 'yarn' : 'npm';
+        this.env.options.nodePackageManager = packageManager;
     }
 
     async prompting(): Promise<void> {
@@ -83,26 +96,5 @@ export default class extends Generator {
             Generator: ProcessorGenerator,
             path: processorPath
         } as any, { arguments: [assetPath] });
-    }
-
-    install(): void {
-        this.useYarn = false;
-
-        // prefer yarn to install packages, check that yarn is on the machine
-        // TODO: teraslice-cli could use the global config for a package manager preference
-        const yarnPath = this.spawnCommandSync('which', ['yarn'], {
-            stdio: [process.stdout],
-            encoding: 'utf8'
-        });
-
-        if (yarnPath.stdout) {
-            this.useYarn = true;
-        }
-
-        return this.installDependencies({
-            npm: !this.useYarn,
-            bower: false,
-            yarn: this.useYarn
-        });
     }
 }
