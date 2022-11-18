@@ -41,6 +41,7 @@ export class Client {
             params as ClientParams.CreateParams,
             this.distributionMeta
         );
+
         const resp = await this.client.create(parsedParams);
 
         return this._removeBody(resp);
@@ -379,7 +380,6 @@ export class Client {
                 );
 
                 const resp = await client.indices.create(parsedParams);
-
                 return _removeBody(resp);
             },
             /**
@@ -652,7 +652,7 @@ export class Client {
              * Validates a query without executing it.
              * @param IndicesValidateQueryParams
              * @returns IndicesValidateQueryResponse
-             */
+            */
             async validateQuery(
                 params: ClientParams.IndicesValidateQueryParams
             ): Promise<ClientResponse.IndicesValidateQueryResponse> {
@@ -666,16 +666,20 @@ export class Client {
                 return _removeBody(resp);
             },
 
+            /**
+             * Returns statistics for one or more indices
+             * @param IndicesStatsParams
+             * @returns IndicesStatsResponse
+            */
             async stats(
-                params: ClientParams.IndicesStatsParams
+                params: ClientParams.IndicesStats
             ): Promise<ClientResponse.IndicesStatsResponse> {
                 const parsedParams = methods.convertIndicesStatsParams(
-                    params as ClientParams.IndicesStatsParams,
+                    params as ClientParams.IndicesStats,
                     distributionMeta
                 );
 
                 const resp = await client.indices.stats(parsedParams);
-
                 return _removeBody(resp);
             }
         };

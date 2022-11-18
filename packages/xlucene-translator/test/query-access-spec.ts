@@ -583,9 +583,9 @@ describe('QueryAccess', () => {
         });
 
         it('should respect original query access excluded fields when excluding more', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceExclude: ['foo'],
+                _source_excludes: ['foo'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
@@ -597,9 +597,9 @@ describe('QueryAccess', () => {
         });
 
         it('should NOT include fields not permitted by original query access included fields', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['baz', 'foo'],
+                _source_includes: ['baz', 'foo'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
@@ -611,9 +611,9 @@ describe('QueryAccess', () => {
         });
 
         it('should exclude all fields if none of requested included fields are permitted by original query access included fields so user doesn\'t see restricted and/or non requested fields', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['baz'], // not allowed per original restrictions
+                _source_includes: ['baz'], // not allowed per original restrictions
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });

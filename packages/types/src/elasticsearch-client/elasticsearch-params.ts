@@ -88,6 +88,21 @@ export interface IndexParams<TDocument = unknown> {
     body?: TDocument;
 }
 
+export interface IndicesStats {
+    metric?: string | string[];
+    index?: string | string[];
+    completion_fields?: string | string[];
+    fielddata_fields?: string | string[];
+    fields?: string | string[];
+    groups?: string | string[];
+    level?: i.Level;
+    types?: string | string[];
+    include_segment_file_sizes?: boolean;
+    include_unloaded_segments?: boolean;
+    expand_wildcards?: i.ExpandWildcards;
+    forbid_closed_indices?: boolean;
+}
+
 export interface IndicesCreateParams {
     index: string;
     include_type_name?: boolean;

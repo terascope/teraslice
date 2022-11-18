@@ -1,7 +1,5 @@
-import {
-    DataEntity, debugLogger, cloneDeep,
-    get
-} from '@terascope/utils';
+/* eslint-disable jest/no-focused-tests */
+import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
 import { ClientParams } from '@terascope/types';
 import {
     createClient, getBaseClient, Client,
@@ -1139,36 +1137,37 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         const testIndex = 'test-indices-stats';
 
         beforeAll(async () => {
+            const testData = data.slice(0, 5)
+                .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
+
             await cleanupIndex(client, testIndex);
-            await upload(client, { index: testIndex, type: docType }, data);
-            await waitForData(client, testIndex, 1000);
+
+            await upload(client, { index: testIndex, type: docType }, testData);
+            await waitForData(client, testIndex, 5);
         });
 
         afterAll(async () => {
             await cleanupIndex(client, testIndex);
         });
 
-        it('should return stats for indices', async () => {
-            const params = {
-                index: testIndex
-            };
+        it('should return stats on the index', async () => {
+            const params = { index: testIndex };
 
             const resp = await client.indices.stats(params);
 
-            expect(resp).toHaveProperty('_shards');
-            expect(resp._shards).toBeObject();
+            expect(resp._shards).toBeDefined();
+            expect(resp._all).toBeDefined();
+            expect(resp._all.total.docs?.count).toBe(5);
+        });
 
-            expect(resp).toHaveProperty('_all');
-            expect(resp._all).toBeObject();
+        it('should return stats on the index if types in params', async () => {
+            const params = { index: testIndex, types: '_doc' };
 
-            expect(resp).toHaveProperty('indices');
-            expect(resp.indices).toBeObject();
+            const resp = await client.indices.stats(params);
 
-            const totalIndexCount = get(resp, `indices.${testIndex}.total.docs.count`);
-            expect(totalIndexCount).toEqual(data.length);
-
-            const totalAllIndexCount = get(resp, '_all.total.docs.count');
-            expect(totalAllIndexCount).toEqual(data.length);
+            expect(resp._shards).toBeDefined();
+            expect(resp._all).toBeDefined();
+            expect(resp._all.total.docs?.count).toBe(5);
         });
     });
 

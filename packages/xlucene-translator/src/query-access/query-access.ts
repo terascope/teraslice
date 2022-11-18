@@ -249,9 +249,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             [includesKey]: includes,
         };
 
-        if (searchParams != null) {
-            delete searchParams.q;
-        }
+        if (searchParams != null) { delete searchParams.q; }
 
         return searchParams;
     }

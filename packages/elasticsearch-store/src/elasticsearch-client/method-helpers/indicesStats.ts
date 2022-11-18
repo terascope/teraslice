@@ -1,7 +1,7 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 
 export function convertIndicesStatsParams(
-    params: ClientParams.IndicesStatsParams,
+    params: ClientParams.IndicesStats,
     distributionMeta: ClientMetadata
 ) {
     const {
@@ -20,18 +20,7 @@ export function convertIndicesStatsParams(
             return parsedParams;
         }
 
-        if (majorVersion === 7) {
-            return params;
-        }
-
-        if (majorVersion === 6) {
-            const {
-                expand_wildcards,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
+        if ([6, 7].includes(majorVersion)) return params;
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {

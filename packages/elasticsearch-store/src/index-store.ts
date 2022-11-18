@@ -433,9 +433,9 @@ export class IndexStore<T extends ts.AnyObject> {
         utils.validateId(id, 'update');
 
         const defaults = {
-            refresh: this.refreshByDefault,
-            retryOnConflict: 3,
-        };
+            refresh: true,
+            retry_on_conflict: 3,
+        } as any;
 
         const _body = body as any;
 
@@ -698,7 +698,7 @@ export class IndexStore<T extends ts.AnyObject> {
             ...params,
         });
 
-        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0)) as number;
         const results = this._toRecords(response.hits.hits, critical);
 
         return {

@@ -174,9 +174,9 @@ export function fixMappingRequest(
     if (esVersion !== 6) {
         const typeMappings: Record<string, any> = ts.get(params.body, 'mappings', {});
         if (typeMappings.properties) {
-            defaultParams.includeTypeName = false;
+            defaultParams.include_type_name = false;
         } else {
-            defaultParams.includeTypeName = true;
+            defaultParams.include_type_name = true;
             Object.values(typeMappings).forEach((typeMapping) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;
@@ -187,7 +187,7 @@ export function fixMappingRequest(
     }
 
     if (isElasticsearch8(client)) {
-        delete defaultParams.includeTypeName;
+        delete defaultParams.include_type_name;
     }
 
     return Object.assign({}, defaultParams, params);

@@ -15,6 +15,7 @@ export function convertSearchParams(
         ...parsedParams
     } = params;
 
+    // includesExcludes(parsedParams);
     qDependentFieldsCheck(parsedParams);
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
