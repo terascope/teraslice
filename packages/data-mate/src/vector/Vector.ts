@@ -428,14 +428,14 @@ export abstract class Vector<T = unknown> {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    fork(data: ReadableData<T>[]|readonly ReadableData<T>[]): this {
+    fork(_data: ReadableData<T>[]|readonly ReadableData<T>[]): this {
         const Constructor = this.constructor as {
             new(
                 data: ReadableData<T>[]|readonly ReadableData<T>[],
                 config: VectorOptions
             ): Vector<T>;
         };
-        return new Constructor(data, {
+        return new Constructor(_data, {
             childConfig: this.childConfig,
             config: this.config,
             name: this.name,
