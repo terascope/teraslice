@@ -1,4 +1,4 @@
-/* eslint-disable jest/no-focused-tests */
+import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import * as services from '../src/helpers/test-runner/services';
 

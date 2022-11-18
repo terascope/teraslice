@@ -13,7 +13,9 @@ import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';
 import { convertResult } from './shim-utils';
 
-export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
+export default function processorShim<S extends Record<string, any>>(
+    legacy: LegacyProcessor
+): ProcessorModule {
     return {
         Processor: class LegacyProcessorShim<T = Record<string, any>> extends ProcessorCore<T> {
             private processorFn: ProcessorFn<DataEntity[]>|undefined;

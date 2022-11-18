@@ -11,7 +11,7 @@ describe('controller stats', () => {
                 stats.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'stats ts-test1', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

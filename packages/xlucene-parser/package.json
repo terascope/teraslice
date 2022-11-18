@@ -38,11 +38,11 @@
         "@turf/invariant": "^6.2.0",
         "@turf/random": "^6.4.0",
         "@types/netmask": "^1.0.30",
-        "peggy": "~1.2.0",
-        "ts-pegjs": "^1.2.2"
+        "peggy": "~2.0.1",
+        "ts-pegjs": "^2.1.0"
     },
     "engines": {
-        "node": "^12.22.0 || >=14.17.0",
+        "node": ">=14.17.0",
         "yarn": ">=1.16.0"
     },
     "publishConfig": {

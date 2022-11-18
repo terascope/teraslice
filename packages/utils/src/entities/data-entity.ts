@@ -9,6 +9,11 @@ import * as i from './interfaces';
 import * as utils from './utils';
 import { locked } from '../decorators';
 
+interface Metadata<M> {
+    metadata: i._DataEntityMetadata<M>;
+    rawData: Buffer|null;
+}
+
 /**
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations.
@@ -18,7 +23,7 @@ import { locked } from '../decorators';
  */
 export class DataEntity<
     T = Record<string, any>,
-    M = Record<string, any>
+    M = i._DataEntityMetadata<Record<string, any>>
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -169,10 +174,9 @@ export class DataEntity<
         return utils.isDataEntity(instance);
     }
 
-    private readonly [i.__ENTITY_METADATA_KEY]: {
-        metadata: i._DataEntityMetadata<M>;
-        rawData: Buffer|null;
-    };
+    // @ts-expect-error the initializer is set in defineEntityProperties
+    private readonly [i.__ENTITY_METADATA_KEY]: Metadata<M>;
+    // @ts-expect-error the initializer is set in defineEntityProperties
     private readonly [i.__IS_DATAENTITY_KEY]: true;
 
     constructor(data: T|null|undefined, metadata?: M) {
@@ -181,7 +185,9 @@ export class DataEntity<
         }
 
         utils.defineEntityProperties(this);
-        this[i.__ENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata);
+
+        // @ts-expect-error the initializer is set in defineEntityProperties
+        this[i.__ENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata as i._DataEntityMetadata<M>);
 
         if (data) {
             Object.assign(this, data);
@@ -214,9 +220,11 @@ export class DataEntity<
         if (field == null || field === '') {
             throw new Error('Missing field to set in metadata');
         }
+
         if (field === '_createTime') {
-            throw new Error(`Cannot set readonly metadata property ${field}`);
+            throw new Error(`Cannot set readonly metadata property ${String(field)}`);
         }
+
         this[i.__ENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 

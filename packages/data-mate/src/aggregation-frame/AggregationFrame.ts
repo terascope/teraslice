@@ -375,7 +375,7 @@ export class AggregationFrame<
     getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
         const column = this.getColumn(field);
         if (!column) {
-            throw new Error(`Unknown column ${field} in${
+            throw new Error(`Unknown column ${String(field)} in${
                 this.name ? ` ${this.name}` : ''
             } ${this.constructor.name}`);
         }
@@ -412,8 +412,8 @@ export class AggregationFrame<
         this._sortFields = this._sortFields ? Object.freeze(
             (this._sortFields as string[]).map((field) => {
                 if (field === name) return renameTo;
-                if (field.startsWith(`${name}:`)) {
-                    return field.replace(`${name}:`, `${renameTo}:`);
+                if (field.startsWith(`${String(name)}:`)) {
+                    return field.replace(`${String(name)}:`, `${renameTo}:`);
                 }
                 return field;
             }) as any[]
@@ -671,7 +671,7 @@ export class AggregationFrame<
                 if (agg.key) {
                     if (isInGroupBy) {
                         throw new Error(
-                            `Invalid to combination of groupBy and ${agg.key} for field ${col.name}`
+                            `Invalid to combination of groupBy and ${agg.key} for field ${String(col.name)}`
                         );
                     }
                     keyAggs.set(col.name, keyAggMap[agg.key](col.vector));

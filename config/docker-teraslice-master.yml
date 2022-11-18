@@ -9,7 +9,7 @@ terafoundation:
         elasticsearch-next:
             default:
                 node:
-                    - "http://localhost:9200"
+                    - "http://elasticsearch:9200"
         kafka:
             default:
                 brokers:

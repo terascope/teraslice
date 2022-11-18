@@ -175,7 +175,7 @@ export class DataFrame<
                 size = columns[i].size;
             } else if (columns[i].size !== size) {
                 throw new Error(
-                    `All columns in a DataFrame must have the same length of ${size}, column (index: ${i}, name: ${columns[i].name}) got length of ${columns[i].size}`
+                    `All columns in a DataFrame must have the same length of ${size}, column (index: ${i}, name: ${String(columns[i].name)}) got length of ${columns[i].size}`
                 );
             }
 
@@ -274,7 +274,7 @@ export class DataFrame<
         if (this.#id) return this.#id;
 
         const long = this.columns
-            .map((col) => `${col.name}(${col.id})`)
+            .map((col) => `${String(col.name)}(${col.id})`)
             .sort()
             .join(':');
 
@@ -394,7 +394,7 @@ export class DataFrame<
         const fields = flattenStringArg(fieldArgs);
         const sortBy = [...fields].map(
             (fieldArg): { field: keyof T; vector: Vector<any>; direction: SortOrder } => {
-                const [field, direction = 'asc'] = `${fieldArg}`.split(':').map(trimFP());
+                const [field, direction = 'asc'] = `${String(fieldArg)}`.split(':').map(trimFP());
                 if (direction !== 'asc' && direction !== 'desc') {
                     throw new TSError(
                         `Expected direction ("${direction}") for orderBy field ("${field}") to be either "asc" or "desc"`,
@@ -867,7 +867,7 @@ export class DataFrame<
 
                 const colIndex = indexLookup.get(column.name);
                 if (colIndex == null) {
-                    throw new Error(`Unknown column ${column.name} in DataFrame`);
+                    throw new Error(`Unknown column ${String(column.name)} in DataFrame`);
                 }
 
                 columns[colIndex] = columns[colIndex].fork(
@@ -975,7 +975,7 @@ export class DataFrame<
     getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
         const column = this.getColumn(field);
         if (!column) {
-            throw new Error(`Unknown column ${field} in${
+            throw new Error(`Unknown column ${String(field)} in${
                 this.name ? ` ${this.name}` : ''
             } ${this.constructor.name}`);
         }
@@ -1030,7 +1030,7 @@ export class DataFrame<
                     row.setKey(val as any);
                 } else if (col.vector.type === VectorType.Date && col.config.is_primary_date) {
                     // this should be iso string
-                    row.setEventTime(val as string);
+                    row.setEventTime(String(val));
                 }
             } else if (nilValue === null) {
                 row[field] = nilValue;

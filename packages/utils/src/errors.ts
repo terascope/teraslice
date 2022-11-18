@@ -45,7 +45,7 @@ export class TSError extends Error {
         const instance = _instance as Record<string, unknown>;
         if (instance.message == null || instance.stack == null) return false;
         if (instance.statusCode == null) return false;
-        if (typeof instance.cause !== 'function') return false;
+        if (typeof instance.getCause !== 'function') return false;
         return true;
     }
 
@@ -79,7 +79,7 @@ export class TSError extends Error {
         Error.captureStackTrace(this, TSError);
     }
 
-    cause(): any {
+    getCause(): any {
         return this.context._cause;
     }
 }
@@ -156,7 +156,7 @@ export function getFullErrorStack(err: unknown): string {
 
 function getCauseStack(err: any) {
     if (!err || !isFunction(err.cause)) return '';
-    const cause = err.cause();
+    const cause = err.getCause();
     if (!cause) return '';
     return `\nCaused by: ${getFullErrorStack(cause)}`;
 }

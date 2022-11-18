@@ -19,7 +19,9 @@ import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
 import { convertResult } from './shim-utils';
 
-export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
+export default function readerShim<S extends Record<string, any>>(
+    legacy: LegacyReader
+): ReaderModule {
     return {
         Slicer: class LegacySlicerShim<T = Record<string, any>> extends ParallelSlicer<T> {
             private _maxQueueLength = 10000;

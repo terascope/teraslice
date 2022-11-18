@@ -11,7 +11,7 @@ describe('workers list', () => {
                 list.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'list ts-test1 ', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
@@ -25,7 +25,7 @@ describe('workers list', () => {
                 list.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'list ts-test1 99999999-9999-9999-9999-999999999999', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

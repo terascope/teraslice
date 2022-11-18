@@ -1,47 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize when given the deepObjDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"size\\":2,\\"metadata\\":{},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"_key\\":{\\"type\\":\\"Keyword\\"},\\"config\\":{\\"type\\":\\"Object\\"},\\"config.id\\":{\\"type\\":\\"Keyword\\"},\\"config.name\\":{\\"type\\":\\"Keyword\\"},\\"config.owner\\":{\\"type\\":\\"Object\\"},\\"config.owner.name\\":{\\"type\\":\\"Keyword\\"},\\"config.owner.id\\":{\\"type\\":\\"Keyword\\"},\\"states\\":{\\"type\\":\\"Object\\",\\"array\\":true,\\"_allow_empty\\":true},\\"states.id\\":{\\"type\\":\\"Keyword\\"},\\"states.name\\":{\\"type\\":\\"Keyword\\"}}}}
-{\\"name\\":\\"_key\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\"},\\"values\\":[\\"id-1\\",\\"id-2\\"]}
-{\\"name\\":\\"config\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Object\\"},\\"childConfig\\":{\\"id\\":{\\"type\\":\\"Keyword\\"},\\"name\\":{\\"type\\":\\"Keyword\\"},\\"owner\\":{\\"type\\":\\"Object\\"},\\"owner.name\\":{\\"type\\":\\"Keyword\\"},\\"owner.id\\":{\\"type\\":\\"Keyword\\"}},\\"values\\":[{\\"id\\":\\"config-1\\",\\"name\\":\\"config-1\\",\\"owner\\":{\\"name\\":\\"config-owner-name-1\\",\\"id\\":\\"config-owner-1\\"}},{\\"id\\":\\"config-2\\",\\"name\\":\\"config-2\\",\\"owner\\":{\\"name\\":\\"config-owner-name-2\\",\\"id\\":\\"config-owner-2\\"}}]}
-{\\"name\\":\\"states\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Object\\",\\"array\\":true,\\"_allow_empty\\":true},\\"childConfig\\":{\\"id\\":{\\"type\\":\\"Keyword\\"},\\"name\\":{\\"type\\":\\"Keyword\\"}},\\"values\\":[[{\\"id\\":\\"state-1\\",\\"name\\":\\"state-1\\"},{\\"id\\":\\"state-2\\",\\"name\\":\\"state-2\\"}],[{\\"id\\":\\"state-3\\",\\"name\\":\\"state-3\\"},{\\"id\\":\\"state-4\\",\\"name\\":\\"state-4\\"}]]}"
+"{"v":1,"size":2,"metadata":{},"config":{"version":1,"fields":{"_key":{"type":"Keyword"},"config":{"type":"Object"},"config.id":{"type":"Keyword"},"config.name":{"type":"Keyword"},"config.owner":{"type":"Object"},"config.owner.name":{"type":"Keyword"},"config.owner.id":{"type":"Keyword"},"states":{"type":"Object","array":true,"_allow_empty":true},"states.id":{"type":"Keyword"},"states.name":{"type":"Keyword"}}}}
+{"name":"_key","size":2,"version":1,"config":{"type":"Keyword"},"values":["id-1","id-2"]}
+{"name":"config","size":2,"version":1,"config":{"type":"Object"},"childConfig":{"id":{"type":"Keyword"},"name":{"type":"Keyword"},"owner":{"type":"Object"},"owner.name":{"type":"Keyword"},"owner.id":{"type":"Keyword"}},"values":[{"id":"config-1","name":"config-1","owner":{"name":"config-owner-name-1","id":"config-owner-1"}},{"id":"config-2","name":"config-2","owner":{"name":"config-owner-name-2","id":"config-owner-2"}}]}
+{"name":"states","size":2,"version":1,"config":{"type":"Object","array":true,"_allow_empty":true},"childConfig":{"id":{"type":"Keyword"},"name":{"type":"Keyword"}},"values":[[{"id":"state-1","name":"state-1"},{"id":"state-2","name":"state-2"}],[{"id":"state-3","name":"state-3"},{"id":"state-4","name":"state-4"}]]}"
 `;
 
 exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize when given the peopleDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"size\\":5,\\"metadata\\":{},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"name\\":{\\"type\\":\\"Keyword\\"},\\"age\\":{\\"type\\":\\"Short\\"},\\"friends\\":{\\"type\\":\\"Keyword\\",\\"array\\":true}}}}
-{\\"name\\":\\"name\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\"},\\"values\\":[\\"Jill\\",\\"Billy\\",\\"Frank\\",\\"Jane\\",\\"Nancy\\"]}
-{\\"name\\":\\"age\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Short\\"},\\"values\\":[39,47,20,null,10]}
-{\\"name\\":\\"friends\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\",\\"array\\":true},\\"values\\":[[\\"Frank\\"],[\\"Jill\\"],[\\"Jill\\"],[\\"Jill\\"],null]}"
+"{"v":1,"size":5,"metadata":{},"config":{"version":1,"fields":{"name":{"type":"Keyword"},"age":{"type":"Short"},"friends":{"type":"Keyword","array":true}}}}
+{"name":"name","size":5,"version":1,"config":{"type":"Keyword"},"values":["Jill","Billy","Frank","Jane","Nancy"]}
+{"name":"age","size":5,"version":1,"config":{"type":"Short"},"values":[39,47,20,null,10]}
+{"name":"friends","size":5,"version":1,"config":{"type":"Keyword","array":true},"values":[["Frank"],["Jill"],["Jill"],["Jill"],null]}"
 `;
 
 exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize when given the specialDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"name\\":\\"special\\",\\"size\\":3,\\"metadata\\":{\\"foo\\":\\"bar\\",\\"__transformed_bigint_0\\":{\\"value\\":1,\\"field\\":\\"long\\"},\\"nested\\":{\\"__transformed_bigint_0\\":{\\"value\\":1,\\"field\\":\\"long\\"},\\"__transformed_bigint_1\\":{\\"value\\":[10,1,\\"1\\"],\\"field\\":\\"arr\\"}}},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"ip\\":{\\"type\\":\\"IP\\"},\\"long\\":{\\"type\\":\\"Long\\"},\\"date\\":{\\"type\\":\\"Date\\"},\\"location\\":{\\"type\\":\\"GeoPoint\\"},\\"geometry\\":{\\"type\\":\\"GeoJSON\\"}}}}
-{\\"name\\":\\"ip\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"IP\\"},\\"values\\":[\\"127.0.0.1\\",\\"10.0.0.2\\",\\"192.198.0.1\\"]}
-{\\"name\\":\\"long\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"Long\\"},\\"values\\":[10,null,\\"9007199254741000\\"]}
-{\\"name\\":\\"date\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"Date\\"},\\"values\\":[\\"2000-01-04T00:00:00.000Z\\",\\"2002-01-02T00:00:00.000Z\\",\\"1999-12-01T00:00:00.000Z\\"]}
-{\\"name\\":\\"location\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"GeoPoint\\"},\\"values\\":[{\\"lat\\":22.435967,\\"lon\\":-150.86771},null,{\\"lat\\":33.435967,\\"lon\\":-111.86771}]}
-{\\"name\\":\\"geometry\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"GeoJSON\\"},\\"values\\":[null,{\\"type\\":\\"Polygon\\",\\"coordinates\\":[[[140.43,70.43],[123.4,81.3],[154.4,89.3],[140.43,70.43]]]},null]}"
+"{"v":1,"name":"special","size":3,"metadata":{"foo":"bar","__transformed_bigint_0":{"value":1,"field":"long"},"nested":{"__transformed_bigint_0":{"value":1,"field":"long"},"__transformed_bigint_1":{"value":[10,1,"1"],"field":"arr"}}},"config":{"version":1,"fields":{"ip":{"type":"IP"},"long":{"type":"Long"},"date":{"type":"Date"},"location":{"type":"GeoPoint"},"geometry":{"type":"GeoJSON"}}}}
+{"name":"ip","size":3,"version":1,"config":{"type":"IP"},"values":["127.0.0.1","10.0.0.2","192.198.0.1"]}
+{"name":"long","size":3,"version":1,"config":{"type":"Long"},"values":[10,null,"9007199254741000"]}
+{"name":"date","size":3,"version":1,"config":{"type":"Date"},"values":["2000-01-04T00:00:00.000Z","2002-01-02T00:00:00.000Z","1999-12-01T00:00:00.000Z"]}
+{"name":"location","size":3,"version":1,"config":{"type":"GeoPoint"},"values":[{"lat":22.435967,"lon":-150.86771},null,{"lat":33.435967,"lon":-111.86771}]}
+{"name":"geometry","size":3,"version":1,"config":{"type":"GeoJSON"},"values":[null,{"type":"Polygon","coordinates":[[[140.43,70.43],[123.4,81.3],[154.4,89.3],[140.43,70.43]]]},null]}"
 `;
 
 exports[`DataFrame when manipulating a DataFrame ->serializeIterator/->deserializeIterator when given the deepObjDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"size\\":2,\\"metadata\\":{},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"_key\\":{\\"type\\":\\"Keyword\\"},\\"config\\":{\\"type\\":\\"Object\\"},\\"config.id\\":{\\"type\\":\\"Keyword\\"},\\"config.name\\":{\\"type\\":\\"Keyword\\"},\\"config.owner\\":{\\"type\\":\\"Object\\"},\\"config.owner.name\\":{\\"type\\":\\"Keyword\\"},\\"config.owner.id\\":{\\"type\\":\\"Keyword\\"},\\"states\\":{\\"type\\":\\"Object\\",\\"array\\":true,\\"_allow_empty\\":true},\\"states.id\\":{\\"type\\":\\"Keyword\\"},\\"states.name\\":{\\"type\\":\\"Keyword\\"}}}}
-{\\"name\\":\\"_key\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\"},\\"values\\":[\\"id-1\\",\\"id-2\\"]}
-{\\"name\\":\\"config\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Object\\"},\\"childConfig\\":{\\"id\\":{\\"type\\":\\"Keyword\\"},\\"name\\":{\\"type\\":\\"Keyword\\"},\\"owner\\":{\\"type\\":\\"Object\\"},\\"owner.name\\":{\\"type\\":\\"Keyword\\"},\\"owner.id\\":{\\"type\\":\\"Keyword\\"}},\\"values\\":[{\\"id\\":\\"config-1\\",\\"name\\":\\"config-1\\",\\"owner\\":{\\"name\\":\\"config-owner-name-1\\",\\"id\\":\\"config-owner-1\\"}},{\\"id\\":\\"config-2\\",\\"name\\":\\"config-2\\",\\"owner\\":{\\"name\\":\\"config-owner-name-2\\",\\"id\\":\\"config-owner-2\\"}}]}
-{\\"name\\":\\"states\\",\\"size\\":2,\\"version\\":1,\\"config\\":{\\"type\\":\\"Object\\",\\"array\\":true,\\"_allow_empty\\":true},\\"childConfig\\":{\\"id\\":{\\"type\\":\\"Keyword\\"},\\"name\\":{\\"type\\":\\"Keyword\\"}},\\"values\\":[[{\\"id\\":\\"state-1\\",\\"name\\":\\"state-1\\"},{\\"id\\":\\"state-2\\",\\"name\\":\\"state-2\\"}],[{\\"id\\":\\"state-3\\",\\"name\\":\\"state-3\\"},{\\"id\\":\\"state-4\\",\\"name\\":\\"state-4\\"}]]}"
+"{"v":1,"size":2,"metadata":{},"config":{"version":1,"fields":{"_key":{"type":"Keyword"},"config":{"type":"Object"},"config.id":{"type":"Keyword"},"config.name":{"type":"Keyword"},"config.owner":{"type":"Object"},"config.owner.name":{"type":"Keyword"},"config.owner.id":{"type":"Keyword"},"states":{"type":"Object","array":true,"_allow_empty":true},"states.id":{"type":"Keyword"},"states.name":{"type":"Keyword"}}}}
+{"name":"_key","size":2,"version":1,"config":{"type":"Keyword"},"values":["id-1","id-2"]}
+{"name":"config","size":2,"version":1,"config":{"type":"Object"},"childConfig":{"id":{"type":"Keyword"},"name":{"type":"Keyword"},"owner":{"type":"Object"},"owner.name":{"type":"Keyword"},"owner.id":{"type":"Keyword"}},"values":[{"id":"config-1","name":"config-1","owner":{"name":"config-owner-name-1","id":"config-owner-1"}},{"id":"config-2","name":"config-2","owner":{"name":"config-owner-name-2","id":"config-owner-2"}}]}
+{"name":"states","size":2,"version":1,"config":{"type":"Object","array":true,"_allow_empty":true},"childConfig":{"id":{"type":"Keyword"},"name":{"type":"Keyword"}},"values":[[{"id":"state-1","name":"state-1"},{"id":"state-2","name":"state-2"}],[{"id":"state-3","name":"state-3"},{"id":"state-4","name":"state-4"}]]}"
 `;
 
 exports[`DataFrame when manipulating a DataFrame ->serializeIterator/->deserializeIterator when given the peopleDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"size\\":5,\\"metadata\\":{},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"name\\":{\\"type\\":\\"Keyword\\"},\\"age\\":{\\"type\\":\\"Short\\"},\\"friends\\":{\\"type\\":\\"Keyword\\",\\"array\\":true}}}}
-{\\"name\\":\\"name\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\"},\\"values\\":[\\"Jill\\",\\"Billy\\",\\"Frank\\",\\"Jane\\",\\"Nancy\\"]}
-{\\"name\\":\\"age\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Short\\"},\\"values\\":[39,47,20,null,10]}
-{\\"name\\":\\"friends\\",\\"size\\":5,\\"version\\":1,\\"config\\":{\\"type\\":\\"Keyword\\",\\"array\\":true},\\"values\\":[[\\"Frank\\"],[\\"Jill\\"],[\\"Jill\\"],[\\"Jill\\"],null]}"
+"{"v":1,"size":5,"metadata":{},"config":{"version":1,"fields":{"name":{"type":"Keyword"},"age":{"type":"Short"},"friends":{"type":"Keyword","array":true}}}}
+{"name":"name","size":5,"version":1,"config":{"type":"Keyword"},"values":["Jill","Billy","Frank","Jane","Nancy"]}
+{"name":"age","size":5,"version":1,"config":{"type":"Short"},"values":[39,47,20,null,10]}
+{"name":"friends","size":5,"version":1,"config":{"type":"Keyword","array":true},"values":[["Frank"],["Jill"],["Jill"],["Jill"],null]}"
 `;
 
 exports[`DataFrame when manipulating a DataFrame ->serializeIterator/->deserializeIterator when given the specialDataFrame data frame should match the serialize to the correct output 1`] = `
-"{\\"v\\":1,\\"name\\":\\"special\\",\\"size\\":3,\\"metadata\\":{\\"foo\\":\\"bar\\",\\"__transformed_bigint_0\\":{\\"value\\":1,\\"field\\":\\"long\\"},\\"nested\\":{\\"__transformed_bigint_0\\":{\\"value\\":1,\\"field\\":\\"long\\"},\\"__transformed_bigint_1\\":{\\"value\\":[10,1,\\"1\\"],\\"field\\":\\"arr\\"}}},\\"config\\":{\\"version\\":1,\\"fields\\":{\\"ip\\":{\\"type\\":\\"IP\\"},\\"long\\":{\\"type\\":\\"Long\\"},\\"date\\":{\\"type\\":\\"Date\\"},\\"location\\":{\\"type\\":\\"GeoPoint\\"},\\"geometry\\":{\\"type\\":\\"GeoJSON\\"}}}}
-{\\"name\\":\\"ip\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"IP\\"},\\"values\\":[\\"127.0.0.1\\",\\"10.0.0.2\\",\\"192.198.0.1\\"]}
-{\\"name\\":\\"long\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"Long\\"},\\"values\\":[10,null,\\"9007199254741000\\"]}
-{\\"name\\":\\"date\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"Date\\"},\\"values\\":[\\"2000-01-04T00:00:00.000Z\\",\\"2002-01-02T00:00:00.000Z\\",\\"1999-12-01T00:00:00.000Z\\"]}
-{\\"name\\":\\"location\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"GeoPoint\\"},\\"values\\":[{\\"lat\\":22.435967,\\"lon\\":-150.86771},null,{\\"lat\\":33.435967,\\"lon\\":-111.86771}]}
-{\\"name\\":\\"geometry\\",\\"size\\":3,\\"version\\":1,\\"config\\":{\\"type\\":\\"GeoJSON\\"},\\"values\\":[null,{\\"type\\":\\"Polygon\\",\\"coordinates\\":[[[140.43,70.43],[123.4,81.3],[154.4,89.3],[140.43,70.43]]]},null]}"
+"{"v":1,"name":"special","size":3,"metadata":{"foo":"bar","__transformed_bigint_0":{"value":1,"field":"long"},"nested":{"__transformed_bigint_0":{"value":1,"field":"long"},"__transformed_bigint_1":{"value":[10,1,"1"],"field":"arr"}}},"config":{"version":1,"fields":{"ip":{"type":"IP"},"long":{"type":"Long"},"date":{"type":"Date"},"location":{"type":"GeoPoint"},"geometry":{"type":"GeoJSON"}}}}
+{"name":"ip","size":3,"version":1,"config":{"type":"IP"},"values":["127.0.0.1","10.0.0.2","192.198.0.1"]}
+{"name":"long","size":3,"version":1,"config":{"type":"Long"},"values":[10,null,"9007199254741000"]}
+{"name":"date","size":3,"version":1,"config":{"type":"Date"},"values":["2000-01-04T00:00:00.000Z","2002-01-02T00:00:00.000Z","1999-12-01T00:00:00.000Z"]}
+{"name":"location","size":3,"version":1,"config":{"type":"GeoPoint"},"values":[{"lat":22.435967,"lon":-150.86771},null,{"lat":33.435967,"lon":-111.86771}]}
+{"name":"geometry","size":3,"version":1,"config":{"type":"GeoJSON"},"values":[null,{"type":"Polygon","coordinates":[[[140.43,70.43],[123.4,81.3],[154.4,89.3],[140.43,70.43]]]},null]}"
 `;

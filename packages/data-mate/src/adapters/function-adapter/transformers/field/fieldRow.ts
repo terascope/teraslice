@@ -46,7 +46,7 @@ export function fieldTransformRowExecution<
     };
 }
 
-function _fieldTransformRowDynamic<T>(
+function _fieldTransformRowDynamic<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: DynamicFunctionAdapterContext<T>
 ) {
@@ -84,7 +84,7 @@ function _fieldTransformRowDynamic<T>(
     return results;
 }
 
-function _fieldTransformRow<T>(
+function _fieldTransformRow<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: FunctionAdapterContext<T>
 ) {

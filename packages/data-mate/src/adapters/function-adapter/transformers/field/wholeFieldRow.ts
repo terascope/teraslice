@@ -45,7 +45,7 @@ export function wholeFieldTransformRowExecution<
     };
 }
 
-function _wholeFieldTransformRow<T>(
+function _wholeFieldTransformRow<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: FunctionAdapterContext<T>
 ) {
@@ -74,7 +74,7 @@ function _wholeFieldTransformRow<T>(
     return results;
 }
 
-function _wholeFieldTransformRowDynamic<T>(
+function _wholeFieldTransformRowDynamic<T extends Record<string, any>>(
     fnDef: FieldTransformConfig<T>,
     configs: DynamicFunctionAdapterContext<T>,
 ) {

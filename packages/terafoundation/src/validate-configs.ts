@@ -1,11 +1,19 @@
 import os from 'os';
-import convict from 'convict';
+import convict, { addFormats } from 'convict';
 import {
-    TSError, isFunction, isPlainObject, isEmpty, concat, PartialDeep
+    TSError, isFunction, isPlainObject,
+    isEmpty, concat, PartialDeep
 } from '@terascope/utils';
+// @ts-expect-error no types
+import convict_format_with_validator from 'convict-format-with-validator';
+// @ts-expect-error no types
+import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchema } from './connector-utils';
 import foundationSchema from './schema';
 import * as i from './interfaces';
+
+addFormats(convict_format_with_validator);
+addFormats(convict_format_with_moment);
 
 function validateConfig(
     cluster: { isMaster: boolean },
@@ -81,7 +89,7 @@ export default function validateConfigs<
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
-        const subConfig = sysconfig[schemaKey] || {};
+        const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
 
         result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
 

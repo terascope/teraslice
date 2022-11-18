@@ -45,7 +45,7 @@ export function wholeFieldValidationRowExecution<T extends Record<string, any>>(
     };
 }
 
-function _wholeFieldValidationRow<T>(
+function _wholeFieldValidationRow<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
     configs: FunctionAdapterContext<T>
 ) {
@@ -74,7 +74,7 @@ function _wholeFieldValidationRow<T>(
     return results;
 }
 
-function _wholeFieldValidationRowDynamic<T>(
+function _wholeFieldValidationRowDynamic<T extends Record<string, any>>(
     fnDef: FieldValidateConfig<T>,
     configs: DynamicFunctionAdapterContext<T>,
 ) {

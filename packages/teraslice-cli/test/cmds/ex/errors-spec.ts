@@ -11,7 +11,7 @@ describe('ex errors', () => {
                 errors.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'errors ts-test1 99999999-9999-9999-9999-999999999999', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
@@ -25,7 +25,7 @@ describe('ex errors', () => {
                 errors.builder,
                 () => true
             );
-            const yargsResult = yargsCmd.parse(
+            const yargsResult = yargsCmd.parseSync(
                 'errors ts-test1 99999999-9999-9999-9999-999999999999 --from=5 --sort=ex_id:asc --size=10', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');

@@ -250,7 +250,7 @@ describe('Error Utils', () => {
             });
 
             it('should be able to return the cause', () => {
-                expect(tsError.cause()).toEqual(tsError.context._cause);
+                expect(tsError.getCause()).toEqual(tsError.context._cause);
             });
 
             if (expected.fatalError) {

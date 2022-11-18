@@ -36,10 +36,10 @@
         "got": "^11.8.3"
     },
     "devDependencies": {
-        "nock": "^13.2.4"
+        "nock": "^13.2.9"
     },
     "engines": {
-        "node": "^12.22.0 || >=14.17.0",
+        "node": ">=14.17.0",
         "yarn": ">=1.16.0"
     },
     "publishConfig": {
