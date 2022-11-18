@@ -205,12 +205,13 @@ export class IndexManager {
      * @todo add support for timeseries and templated indexes
      * @todo add support for complicated re-indexing behaviors
      */
-    async migrateIndex<T>(
+    async migrateIndex<T extends ts.AnyObject>(
         options: MigrateIndexOptions<T>
     ): Promise<ClientResponse.ReindexResponse | boolean> {
         const {
             timeout, config, previousVersion, previousName, previousNamespace
         } = options;
+
         utils.validateIndexConfig(config);
 
         const logger = this._logger(config);
