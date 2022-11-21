@@ -1,4 +1,5 @@
 /* eslint-disable jest/no-focused-tests */
+import 'jest-extended';
 import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
 import { ClientParams } from '@terascope/types';
 import {
