@@ -87,7 +87,8 @@
                     "kafka"
                 ],
                 "unit-a": [],
-                "unit-b": []
+                "unit-b": [],
+                "unit-c": []
             }
         },
         "docker": {
