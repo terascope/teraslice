@@ -69,17 +69,17 @@ jobs:
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a . -- -- --shard=4/4
 
-    - name: 'Unit Test Suite (node 14)'
+    - name: 'Unit Test Suite (node 14) shard 1'
       node_js: '14.17'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-b
+      script: yarn --silent test --suite unit-b . -- -- --shard=1/2
 
-    - name: 'Unit Test Suite (node 14) unit-c'
+    - name: 'Unit Test Suite (node 14) shard 2'
       node_js: '14.17'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-c
+      script: yarn --silent test --suite unit-b . -- -- --shard=2/2
 
     - name: 'ES Test Suite (elasticsearch 6) (node 16)'
       node_js: '16.17.1'
