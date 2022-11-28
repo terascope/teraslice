@@ -155,7 +155,7 @@ export function getFullErrorStack(err: unknown): string {
 }
 
 function getCauseStack(err: any) {
-    if (!err || !isFunction(err.cause)) return '';
+    if (!err || !isFunction(err.getCause)) return '';
     const cause = err.getCause();
     if (!cause) return '';
     return `\nCaused by: ${getFullErrorStack(cause)}`;
