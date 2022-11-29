@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+
 'use strict';
 
 // polyfill because opensearch has references to an api that won't exist
@@ -55,9 +57,13 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
     const { connection = 'unknown' } = config;
 
-    function count(query) {
+    async function count(query) {
         query.size = 0;
-        return _searchES(query).then((data) => get(data, 'hits.total.value', get(data, 'hits.total')));
+        const response = await _searchES(query);
+
+        const data = get(response, 'hits.total.value', get(response, 'hits.total'));
+
+        return data;
     }
 
     function convertDocToDataEntity(doc) {
@@ -80,18 +86,24 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function search(query) {
-        if (!isElasticsearch6()) {
-            if (query._sourceExclude) {
-                query._sourceExcludes = query._sourceExclude.slice();
-                delete query._sourceExclude;
-            }
-            if (query._sourceInclude) {
-                query._sourceIncludes = query._sourceInclude.slice();
-                delete query._sourceInclude;
-            }
+        const {
+            _sourceInclude, _source_includes,
+            _sourceExclude, _source_excludes,
+            ...safeQuery
+        } = query;
+
+        const sourceIncludes = _sourceInclude || _source_includes;
+        const sourceExcludes = _sourceExclude || _source_excludes;
+
+        if (sourceIncludes) {
+            safeQuery._source_includes = sourceIncludes;
         }
 
-        return _searchES(query).then((data) => {
+        if (sourceExcludes) {
+            safeQuery._source_excludes = sourceExcludes;
+        }
+
+        return _searchES(safeQuery).then((data) => {
             if (config.full_response) {
                 return data;
             }
@@ -906,8 +918,12 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
      * please use getClientMetadata
      * */
     function getESVersion() {
-        const newClientVersion = get(client, '__meta.version');
-        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
+        const newClientVersion = get(client, '__meta.majorVersion');
+
+        if (newClientVersion) return newClientVersion;
+
+        // legacy
+        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
 
         if (esVersion && isString(esVersion)) {
             const [majorVersion] = esVersion.split('.');
@@ -918,28 +934,30 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     }
 
     function getClientMetadata() {
-        const newClientVersion = get(client, '__meta.version');
-        const esVersion = newClientVersion || get(client, 'transport._config.apiVersion', '6.5');
-        const distribution = get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+        if (client.__meta) {
+            return client.__meta;
+        }
+
+        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
+        const distribution = ElasticsearchDistribution.elasticsearch;
+        const [majorVersion = 6, minorVersion = 5] = esVersion.split('.').map(toNumber);
 
         return {
             distribution,
-            version: esVersion
+            version: esVersion,
+            majorVersion,
+            minorVersion
         };
     }
 
     function isElasticsearch6() {
-        const { distribution, version: esVersion } = getClientMetadata();
-        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
-
-        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 6;
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 6;
     }
 
     function isElasticsearch8() {
-        const { distribution, version: esVersion } = getClientMetadata();
-        const parsedVersion = toNumber(esVersion.split('.', 1)[0]);
-
-        return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
     function _fixMappingRequest(_params, isTemplate) {
@@ -1245,6 +1263,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         validateGeoParameters,
         getClientMetadata,
         isElasticsearch6,
+        isElasticsearch8,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
         index_create: indexCreate,

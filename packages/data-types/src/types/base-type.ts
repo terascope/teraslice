@@ -1,4 +1,4 @@
-import { DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
+import { ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
 import * as ts from '@terascope/utils';
 import {
     GraphQLType, TypeESMapping
@@ -27,7 +27,7 @@ export default abstract class BaseType {
         this.config = config;
     }
 
-    abstract toESMapping(version?: number): TypeESMapping;
+    abstract toESMapping(config: ClientMetadata): TypeESMapping;
     abstract toGraphQL(options?: ToGraphQLOptions): GraphQLType;
     abstract toXlucene(): xLuceneTypeConfig;
 

@@ -8,11 +8,8 @@ const {
     makeTerafoundationContext
 } = require('teraslice');
 
-const misc = require('../../misc');
-const { waitForExStatus } = require('../../wait');
-const { resetState } = require('../../helpers');
-
-const teraslice = misc.teraslice();
+const { ASSETS_PATH, CONFIG_PATH } = require('../../config');
+const TerasliceHarness = require('../../teraslice-harness');
 
 describe('recovery', () => {
     const stores = {};
@@ -27,30 +24,39 @@ describe('recovery', () => {
      * @type {import('teraslice-client-js').Job}
     */
     let job;
+    let terasliceHarness;
+
+    beforeAll(async () => {
+        terasliceHarness = new TerasliceHarness();
+        await terasliceHarness.init();
+        await terasliceHarness.resetState();
+    });
 
     beforeAll(async () => {
         const sysconfig = await fse.readJSON(
-            path.join(misc.CONFIG_PATH, 'teraslice-master.json')
+            path.join(CONFIG_PATH, 'teraslice-master.json')
         );
-        sysconfig.teraslice.assets_directory = misc.ASSETS_PATH;
+        sysconfig.teraslice.assets_directory = ASSETS_PATH;
         context = makeTerafoundationContext({
             sysconfig
         });
-        await resetState();
+
+        terasliceHarness = new TerasliceHarness();
+        await terasliceHarness.init();
     });
 
     beforeEach(async () => {
-        const jobSpec = misc.newJob('generate-to-es');
+        const jobSpec = terasliceHarness.newJob('generate-to-es');
         jobSpec.name = 'test recovery job';
 
-        const files = await fse.readdir(misc.ASSETS_PATH);
+        const files = await fse.readdir(ASSETS_PATH);
         jobSpec.assets = files.filter((asset) => asset.length === 40);
 
-        specIndex = misc.newSpecIndex('test-recovery-job');
-        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
 
-        misc.injectDelay(jobSpec);
+        terasliceHarness.injectDelay(jobSpec);
 
         const { ex: exConfig } = await initializeTestExecution({
             context,
@@ -144,19 +150,19 @@ describe('recovery', () => {
         });
 
         recoverFromId = exConfig.ex_id;
-        recoverFromEx = teraslice.executions.wrap(recoverFromId);
-        job = teraslice.jobs.wrap(exConfig.job_id);
+        recoverFromEx = terasliceHarness.teraslice.executions.wrap(recoverFromId);
+        job = terasliceHarness.teraslice.jobs.wrap(exConfig.job_id);
     });
 
     it('can support different recovery mode cleanup=errors', async () => {
         const newEx = await recoverFromEx.recover({ cleanup: 'errors' });
         const [exConfig] = await Promise.all([
             newEx.config(),
-            waitForExStatus(newEx, 'recovering'),
-            waitForExStatus(newEx, 'completed')
+            terasliceHarness.waitForExStatus(newEx, 'recovering'),
+            terasliceHarness.waitForExStatus(newEx, 'completed')
         ]);
 
-        const stats = await misc.indexStats(specIndex);
+        const stats = await terasliceHarness.indexStats(specIndex);
         expect(stats.count).toEqual(200);
 
         expect(exConfig).toMatchObject({
@@ -171,11 +177,11 @@ describe('recovery', () => {
 
         const [exConfig] = await Promise.all([
             newEx.config(),
-            waitForExStatus(newEx, 'recovering'),
-            waitForExStatus(newEx, 'completed')
+            terasliceHarness.waitForExStatus(newEx, 'recovering'),
+            terasliceHarness.waitForExStatus(newEx, 'completed')
         ]);
 
-        const stats = await misc.indexStats(specIndex);
+        const stats = await terasliceHarness.indexStats(specIndex);
         expect(stats.count).toEqual(600);
 
         expect(exConfig).toMatchObject({
@@ -190,11 +196,11 @@ describe('recovery', () => {
 
         const [exConfig] = await Promise.all([
             newEx.config(),
-            waitForExStatus(newEx, 'recovering'),
-            waitForExStatus(newEx, 'completed')
+            terasliceHarness.waitForExStatus(newEx, 'recovering'),
+            terasliceHarness.waitForExStatus(newEx, 'completed')
         ]);
 
-        const stats = await misc.indexStats(specIndex);
+        const stats = await terasliceHarness.indexStats(specIndex);
         expect(stats.count).toEqual(200);
 
         expect(exConfig).toMatchObject({
@@ -209,30 +215,30 @@ describe('recovery', () => {
         const { ex_id: newExId } = await job.start();
         expect(newExId).not.toBe(recoverFromId);
 
-        const newEx = teraslice.executions.wrap(newExId);
+        const newEx = terasliceHarness.teraslice.executions.wrap(newExId);
         const [exConfig] = await Promise.all([
             job.execution(),
-            waitForExStatus(newEx, 'recovering'),
+            terasliceHarness.waitForExStatus(newEx, 'recovering'),
         ]);
 
-        await waitForExStatus(newEx, 'running');
+        await terasliceHarness.waitForExStatus(newEx, 'running');
 
         await job.stop({ blocking: true });
 
-        const { count } = await misc.indexStats(specIndex);
+        const { count } = await terasliceHarness.indexStats(specIndex);
         expect(count).toBeGreaterThan(200);
 
         const { ex_id: finalExId } = await job.start();
-        const finalEx = teraslice.executions.wrap(finalExId);
+        const finalEx = terasliceHarness.teraslice.executions.wrap(finalExId);
 
         const [finalExConfig] = await Promise.all([
             finalEx.config(),
-            waitForExStatus(finalEx, 'running')
+            terasliceHarness.waitForExStatus(finalEx, 'running')
         ]);
 
         await job.stop({ blocking: true });
 
-        const { count: finalCount } = await misc.indexStats(specIndex);
+        const { count: finalCount } = await terasliceHarness.indexStats(specIndex);
         expect(finalCount).toBeGreaterThan(count);
 
         expect(exConfig).toMatchObject({
@@ -254,26 +260,26 @@ describe('recovery', () => {
 
         const [exConfig] = await Promise.all([
             newEx.config(),
-            waitForExStatus(newEx, 'recovering'),
+            terasliceHarness.waitForExStatus(newEx, 'recovering'),
         ]);
-        await waitForExStatus(newEx, 'running');
+        await terasliceHarness.waitForExStatus(newEx, 'running');
 
         await newEx.stop({ blocking: true });
 
-        const { count } = await misc.indexStats(specIndex);
+        const { count } = await terasliceHarness.indexStats(specIndex);
         expect(count).toBeGreaterThan(600);
 
         const { ex_id: finalExId } = await job.recover();
-        const finalEx = teraslice.executions.wrap(finalExId);
+        const finalEx = terasliceHarness.teraslice.executions.wrap(finalExId);
 
         const [finalExConfig] = await Promise.all([
             finalEx.config(),
-            waitForExStatus(finalEx, 'running')
+            terasliceHarness.waitForExStatus(finalEx, 'running')
         ]);
 
         await finalEx.stop({ blocking: true });
 
-        const { count: finalCount } = await misc.indexStats(specIndex);
+        const { count: finalCount } = await terasliceHarness.indexStats(specIndex);
         expect(finalCount).toBeGreaterThan(count);
 
         expect(exConfig).toMatchObject({

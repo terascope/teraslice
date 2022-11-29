@@ -1,5 +1,5 @@
 import {
-    DataTypeFieldConfig, DataTypeVersion, Maybe,
+    DataTypeFieldConfig, Maybe,
     ReadonlyDataTypeFields
 } from '@terascope/types';
 
@@ -8,7 +8,7 @@ import {
  */
 export interface ColumnOptions<N extends (number|string|symbol) = string> {
     name: N;
-    version?: DataTypeVersion;
+    version?: number;
 }
 
 /**
@@ -23,7 +23,7 @@ export interface ColumnConfig<T> {
     /**
      * DataFrame version
     */
-    readonly version?: DataTypeVersion;
+    readonly version?: number;
 
     /**
      * The size of the column

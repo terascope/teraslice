@@ -1,8 +1,11 @@
-'use strict';
+import { DataEntity } from '@terascope/utils';
+import { DataType } from '@terascope/data-types';
+import type { Data } from './interfaces';
 
-const { cloneDeep } = require('@terascope/utils');
+export type EvenData = Data;
 
-const data = [
+// These records are converted to a DataEntity with its _id set to the uuid field
+export const data = [
     {
         ip: '120.67.248.156',
         userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 6.1) AppleWebKit/533.1.2 (KHTML, like Gecko) Chrome/35.0.894.0 Safari/533.1.2',
@@ -10003,21 +10006,17 @@ const data = [
         location: '33.01778, 11.92392',
         bytes: 3836982
     }
-];
+].map((record) => DataEntity.make(record, { _key: record.uuid }));
 
-const types = {
-    ip: { type: 'IP' },
-    userAgent: { type: 'Keyword' },
-    url: { type: 'Keyword' },
-    uuid: { type: 'Keyword' },
-    created: { type: 'Date' },
-    ipv6: { type: 'Keyword' },
-    location: { type: 'GeoPoint' },
-    bytes: { type: 'Integer' }
-};
-
-module.exports = {
-    data: cloneDeep(data),
-    types,
-    index: 'queue_test'
-};
+export const EvenDataType = new DataType({
+    fields: {
+        ip: { type: 'IP' },
+        userAgent: { type: 'Keyword' },
+        url: { type: 'Keyword' },
+        uuid: { type: 'Keyword' },
+        created: { type: 'Date' },
+        ipv6: { type: 'Keyword' },
+        location: { type: 'GeoPoint' },
+        bytes: { type: 'Integer' }
+    }
+});

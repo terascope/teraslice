@@ -1,7 +1,7 @@
 import { Logger } from '@terascope/utils';
 
 export function logWrapper(logger: Logger) {
-    return function _logger() {
+    return function _logger(): Logger {
         return {
             error: logger.error.bind(logger),
             warning: logger.warn.bind(logger),
@@ -23,6 +23,6 @@ export function logWrapper(logger: Logger) {
                 });
             },
             close() {}
-        };
+        } as unknown as Logger;
     };
 }

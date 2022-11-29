@@ -30,7 +30,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^0.10.3",
+        "@terascope/types": "^0.11.0",
         "@terascope/utils": "^0.45.1",
         "netmask": "^2.0.2"
     },

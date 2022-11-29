@@ -1,8 +1,8 @@
-import type { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import {
     ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
 } from '@terascope/types';
+import { Client } from '../elasticsearch-client';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -128,10 +128,14 @@ export function getClientMetadata(client: Client): ClientMetadata {
     const newClientVersion = ts.get(client, '__meta.version');
     const version = newClientVersion || ts.get(client, 'transport._config.apiVersion', '6.5');
     const distribution = ts.get(client, '__meta.distribution', ElasticsearchDistribution.elasticsearch);
+    // lowest Elasticsearch we run is 6.8.6
+    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(ts.toNumber);
 
     return {
         distribution,
-        version
+        version,
+        majorVersion,
+        minorVersion
     };
 }
 
@@ -170,9 +174,9 @@ export function fixMappingRequest(
     if (esVersion !== 6) {
         const typeMappings: Record<string, any> = ts.get(params.body, 'mappings', {});
         if (typeMappings.properties) {
-            defaultParams.includeTypeName = false;
+            defaultParams.include_type_name = false;
         } else {
-            defaultParams.includeTypeName = true;
+            defaultParams.include_type_name = true;
             Object.values(typeMappings).forEach((typeMapping) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;
@@ -183,7 +187,7 @@ export function fixMappingRequest(
     }
 
     if (isElasticsearch8(client)) {
-        delete defaultParams.includeTypeName;
+        delete defaultParams.include_type_name;
     }
 
     return Object.assign({}, defaultParams, params);

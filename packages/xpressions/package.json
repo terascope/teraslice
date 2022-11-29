@@ -26,7 +26,7 @@
         "@terascope/utils": "^0.45.1"
     },
     "devDependencies": {
-        "@terascope/types": "^0.10.3"
+        "@terascope/types": "^0.11.0"
     },
     "engines": {
         "node": ">=14.17.0",

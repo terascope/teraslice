@@ -1,6 +1,6 @@
 import * as ts from '@terascope/utils';
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
+    DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
 import { mapping } from './mapping';
 import {
@@ -10,7 +10,7 @@ import GroupType, { NestedTypes } from './group-type';
 import BaseType, { IBaseType } from './base-type';
 import TupleType from './tuple-type';
 
-export const LATEST_VERSION: DataTypeVersion = 1;
+export const LATEST_VERSION = 1;
 
 export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
@@ -65,7 +65,7 @@ type GetGroupTypeArg = {
     base: string;
     baseConfig: DataTypeFieldConfig;
     fields: { field: string; config?: DataTypeFieldConfig }[];
-    version?: DataTypeVersion;
+    version?: number;
 };
 
 function getGroupType({
@@ -117,7 +117,7 @@ function getTupleType({
 export type GetTypeArg = {
     field: string;
     config: DataTypeFieldConfig;
-    version?: DataTypeVersion;
+    version?: number;
 };
 
 export function getType({

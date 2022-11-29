@@ -93,6 +93,7 @@ module.exports = async function elasticsearchStorage(backendConfig) {
             index: indexArg,
             from: from != null ? from : 0,
             size: size != null ? size : 10000,
+            type: recordType,
             sort,
         };
 
@@ -190,6 +191,7 @@ module.exports = async function elasticsearchStorage(backendConfig) {
 
         const esQuery = {
             index: indexArg,
+            type: recordType,
             from,
             sort,
         };
@@ -200,7 +202,9 @@ module.exports = async function elasticsearchStorage(backendConfig) {
             esQuery.body = query;
         }
 
-        return elasticsearch.count(esQuery);
+        const response = await elasticsearch.count(esQuery);
+
+        return response;
     }
 
     async function update(recordId, updateSpec, indexArg = indexName) {

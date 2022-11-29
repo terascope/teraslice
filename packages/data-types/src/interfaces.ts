@@ -5,6 +5,7 @@ import {
     DataTypeFields, DataTypeConfig,
     DeprecatedFieldType,
     FieldType,
+    ClientMetadata,
 } from '@terascope/types';
 
 import BaseType from './types/base-type';
@@ -69,7 +70,7 @@ type ActualType = Record<FieldType, {
     new (field: string, config: DataTypeFieldConfig): BaseType;
 }>;
 
-export type DataTypeMapping = { [key in DataTypeVersion]: ActualType };
+export type DataTypeMapping = { [key: string]: ActualType };
 
 /**
  * @deprecated use `DataTypeFields` from `@terascope/types`
@@ -95,7 +96,7 @@ export interface TypeESMapping {
     };
 }
 
-export interface ESMappingOptions {
+export interface ESMappingOptions extends ClientMetadata {
     /**
      * The elasticsearch index type
      */
@@ -105,10 +106,4 @@ export interface ESMappingOptions {
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;
-
-    /**
-     * The version of the elasticsearch cluster
-     * @default 6
-     */
-    version?: number;
 }

@@ -1,14 +1,16 @@
 'use strict';
 
 const fs = require('fs');
-const misc = require('../../misc');
-const wait = require('../../wait');
-const { resetState, submitAndStart } = require('../../helpers');
+const TerasliceHarness = require('../../teraslice-harness');
 
 describe('assets', () => {
-    beforeAll(() => resetState());
+    let terasliceHarness;
 
-    const teraslice = misc.teraslice();
+    beforeAll(async () => {
+        terasliceHarness = new TerasliceHarness();
+        await terasliceHarness.init();
+        await terasliceHarness.resetState();
+    });
 
     /**
      * Uploads the specified asset file and then submits the specified job config
@@ -23,17 +25,20 @@ describe('assets', () => {
      */
     async function submitAndValidateAssetJob(jobSpecName, assetPath) {
         const fileStream = fs.createReadStream(assetPath);
-        const jobSpec = misc.newJob(jobSpecName);
+        const jobSpec = terasliceHarness.newJob(jobSpecName);
         const { workers } = jobSpec; // save for comparison
 
-        const result = await teraslice.assets.upload(fileStream, { blocking: true });
+        const result = await terasliceHarness.teraslice.assets.upload(
+            fileStream,
+            { blocking: true }
+        );
         // NOTE: In this case, the asset is referenced by the ID
         // assigned by teraslice and not it's name.
         jobSpec.assets = [result._id, 'standard', 'elasticsearch'];
 
-        const ex = await submitAndStart(jobSpec);
+        const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const r = await wait.forWorkersJoined(ex.id(), workers, 25);
+        const r = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
         expect(r).toEqual(workers);
 
         await ex.stop({ blocking: true });
@@ -42,11 +47,14 @@ describe('assets', () => {
     it('after uploading an asset, it can be deleted', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
 
-        const result = await teraslice.assets.upload(testStream, { blocking: true });
+        const result = await terasliceHarness.teraslice.assets.upload(
+            testStream,
+            { blocking: true }
+        );
 
         // save the asset ID that was submitted to terslice
         const assetId = result._id;
-        const response = await teraslice.assets.remove(assetId);
+        const response = await terasliceHarness.teraslice.assets.remove(assetId);
 
         // ensure the deleted asset's ID matches that of
         // the saved asset
@@ -62,7 +70,7 @@ describe('assets', () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
         try {
-            await teraslice.assets.upload(testStream, { blocking: true });
+            await terasliceHarness.teraslice.assets.upload(testStream, { blocking: true });
         } catch (err) {
             expect(err.message).toInclude('asset.json was not found');
             expect(err.code).toEqual(422);
@@ -95,17 +103,17 @@ describe('assets', () => {
 
         const fileStream = fs.createReadStream(assetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
-        const jobSpec = misc.newJob('generator-asset');
+        const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers } = jobSpec;
 
-        const assetResponse = await teraslice.assets.upload(fileStream, {
+        const assetResponse = await terasliceHarness.teraslice.assets.upload(fileStream, {
             blocking: true
         });
         const assetId = assetResponse._id;
 
-        const ex = await submitAndStart(jobSpec);
+        const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const waitResponse = await wait.forWorkersJoined(ex.id(), workers, 25);
+        const waitResponse = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
         const execution = await ex.config();
@@ -115,16 +123,16 @@ describe('assets', () => {
     });
 
     it('can directly ask for the new asset to be used', async () => {
-        const jobSpec = misc.newJob('generator-asset');
+        const jobSpec = terasliceHarness.newJob('generator-asset');
         jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;
 
-        const assetResponse = await teraslice.assets.getAsset('ex1', '0.1.1');
+        const assetResponse = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.1.1');
         const assetId = assetResponse[0].id;
 
-        const ex = await submitAndStart(jobSpec);
+        const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const waitResponse = await wait.forWorkersJoined(ex.id(), workers, 25);
+        const waitResponse = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
         const execution = await ex.config();

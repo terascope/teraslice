@@ -5,10 +5,15 @@ import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
-    __timeSeriesTest
+    __timeSeriesTest, ElasticsearchTestHelpers
 } from '../src';
-import { makeClient, cleanupIndex } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+
+const {
+    makeClient, cleanupIndex, TEST_INDEX_PREFIX,
+    getTestENVClientInfo
+} = ElasticsearchTestHelpers;
+
+const { host, ...clientMetadata } = getTestENVClientInfo();
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
@@ -47,8 +52,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanupIndex(client, index);
-
-            client.close();
         });
 
         it('should create the versioned index', async () => {
@@ -196,8 +199,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanup();
-
-            client.close();
         });
 
         it('should create the versioned index', async () => {
@@ -230,11 +231,9 @@ describe('IndexManager->indexSetup()', () => {
         it('should be able upsert the same template safely', async () => {
             const { version } = config.index_schema!;
 
-            const { mappings } = config.data_type.toESMapping(esVersion === 6 ? {
+            const { mappings } = config.data_type.toESMapping({
                 typeName: config.name,
-                version: esVersion,
-            } : {
-                version: esVersion,
+                ...clientMetadata
             });
 
             await indexManager.upsertTemplate({
@@ -317,8 +316,6 @@ describe('IndexManager->indexSetup()', () => {
 
         afterAll(async () => {
             await cleanupIndex(client, index, templateName);
-
-            client.close();
         });
 
         it('should create the timeseries index', async () => {

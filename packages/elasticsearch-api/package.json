@@ -18,7 +18,7 @@
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
         "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
-        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch": "TEST_OPENSEARCH='true' RESTRAINED_OPENSEARCH='true' yarn run test",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
@@ -27,9 +27,10 @@
         "setimmediate": "^1.0.5"
     },
     "devDependencies": {
-        "@opensearch-project/opensearch": "^1.0.2",
+        "@opensearch-project/opensearch": "^1.1.0",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
+        "elasticsearch-store": "^0.64.0",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"

@@ -1,20 +1,18 @@
 'use strict';
 
-const {
-    pDelay,
-    flatten
-} = require('@terascope/utils');
-const misc = require('../../misc');
-const wait = require('../../wait');
+const { pDelay, flatten } = require('@terascope/utils');
 const signale = require('../../signale');
-const { resetState, submitAndStart } = require('../../helpers');
-
-const { waitForExStatus, scaleWorkersAndWait } = wait;
+const TerasliceHarness = require('../../teraslice-harness');
+const { WORKERS_PER_NODE, DEFAULT_NODES } = require('../../config');
 
 describe('cluster state', () => {
-    beforeAll(() => resetState());
+    let terasliceHarness;
 
-    const teraslice = misc.teraslice();
+    beforeAll(async () => {
+        terasliceHarness = new TerasliceHarness();
+        await terasliceHarness.init();
+        await terasliceHarness.resetState();
+    });
 
     function findWorkers(nodes, type, exId) {
         return nodes.filter((worker) => {
@@ -58,15 +56,15 @@ describe('cluster state', () => {
     }
 
     function verifyClusterState(state, workersAdded = 0) {
-        expect(Object.values(state)).toBeArrayOfSize(misc.DEFAULT_NODES + workersAdded);
+        expect(Object.values(state)).toBeArrayOfSize(DEFAULT_NODES + workersAdded);
 
         // verify each node
         Object.values(state).forEach((node) => {
-            expect(node.total).toBe(misc.WORKERS_PER_NODE);
+            expect(node.total).toBe(WORKERS_PER_NODE);
             expect(node.node_id).toBeDefined();
             expect(node.hostname).toBeDefined();
 
-            expect(node.available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
+            expect(node.available).toBeWithin(0, WORKERS_PER_NODE + 1);
 
             const expectActiveLength = node.total - node.available;
             const actualLength = node.active.length;
@@ -84,37 +82,41 @@ describe('cluster state', () => {
     }
 
     it('should match default configuration', async () => {
-        const state = await teraslice.cluster.state();
+        const state = await terasliceHarness.teraslice.cluster.state();
         verifyClusterState(state);
     });
 
     it('should update after adding and removing a worker node', async () => {
-        verifyClusterState(await scaleWorkersAndWait(1), 1);
-        verifyClusterState(await scaleWorkersAndWait());
+        verifyClusterState(await terasliceHarness.scaleWorkersAndWait(1), 1);
+        verifyClusterState(await terasliceHarness.scaleWorkersAndWait());
     });
 
-    it('should be correct for running job with 1 worker', async () => {
-        const jobSpec = misc.newJob('reindex');
-        const specIndex = misc.newSpecIndex('state');
+    // eslint-disable-next-line jest/no-focused-tests
+    fit('should be correct for running job with 1 worker', async () => {
+        const jobSpec = terasliceHarness.newJob('reindex');
+        const specIndex = terasliceHarness.newSpecIndex('state');
+
         jobSpec.name = 'cluster state with 1 worker';
         jobSpec.workers = 1;
-        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
 
-        const ex = await submitAndStart(jobSpec, 5000);
+        const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
+
         await pDelay(1000);
         const exId = ex.id();
 
-        const state = await teraslice.cluster.state();
+        const state = await terasliceHarness.teraslice.cluster.state();
 
-        const complete = waitForExStatus(ex, 'completed');
+        const complete = terasliceHarness.waitForExStatus(ex, 'completed');
+
         const nodes = Object.keys(state);
 
         nodes.forEach((node) => {
-            expect(state[node].total).toBe(misc.WORKERS_PER_NODE);
+            expect(state[node].total).toBe(WORKERS_PER_NODE);
 
-            expect(state[node].available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
+            expect(state[node].available).toBeWithin(0, WORKERS_PER_NODE + 1);
 
             // The node with more than one worker should have the actual worker
             // and there should only be one.
@@ -125,33 +127,34 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const stats = await misc.indexStats(specIndex);
+
+        const stats = await terasliceHarness.indexStats(specIndex);
         expect(stats.count).toBe(1000);
     });
 
     it('should be correct for running job with 4 workers', async () => {
-        const jobSpec = misc.newJob('reindex');
-        const specIndex = misc.newSpecIndex('state');
+        const jobSpec = terasliceHarness.newJob('reindex');
+        const specIndex = terasliceHarness.newSpecIndex('state');
 
         jobSpec.name = 'cluster state with 4 workers';
         jobSpec.workers = 4;
-        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[0].size = 20;
         jobSpec.operations[1].index = specIndex;
 
-        const ex = await submitAndStart(jobSpec, 5000);
+        const ex = await terasliceHarness.submitAndStart(jobSpec, 5000);
         await pDelay(1000);
         const exId = ex.id();
 
-        const state = await teraslice.cluster.state();
+        const state = await terasliceHarness.teraslice.cluster.state();
         const nodes = Object.keys(state);
 
-        const complete = waitForExStatus(ex, 'completed');
+        const complete = terasliceHarness.waitForExStatus(ex, 'completed');
 
         nodes.forEach((node) => {
-            expect(state[node].total).toBe(misc.WORKERS_PER_NODE);
+            expect(state[node].total).toBe(WORKERS_PER_NODE);
 
-            expect(state[node].available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
+            expect(state[node].available).toBeWithin(0, WORKERS_PER_NODE + 1);
 
             // Both nodes should have at least one worker.
             expect(findWorkers(state[node].active, 'worker', exId).length).toBeGreaterThan(0);
@@ -160,7 +163,7 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const { count } = await misc.indexStats(specIndex);
+        const { count } = await terasliceHarness.indexStats(specIndex);
         expect(count).toBe(1000);
     });
 });

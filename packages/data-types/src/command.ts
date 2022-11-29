@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
-import { TSError, get, set } from '@terascope/utils';
-import { ESMapping } from '@terascope/types';
+import {
+    TSError, get, set, toNumber
+} from '@terascope/utils';
+import { ElasticsearchDistribution, ESMapping } from '@terascope/types';
 import { DataType, DataTypeConfig } from './index';
 import { validateDataTypeConfig } from './utils';
 
@@ -30,9 +32,14 @@ yargs
                 coerce: (arg) => JSON.parse(fs.readFileSync(arg, 'utf8')),
             },
             'es-version': {
-                number: true,
+                string: true,
                 describe: 'Specify the major version of elasticsearch needed for the mapping',
-                default: 6,
+                default: '6.8.6',
+            },
+            distribution: {
+                string: true,
+                describe: 'Specify the distrubtion being used, defaults to elasticsearch',
+                default: ElasticsearchDistribution.elasticsearch,
             },
             shards: {
                 number: true,
@@ -114,7 +121,18 @@ function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
     if (argv.replicas != null) {
         set(overrides, ['settings', 'index.number_of_replicas'], argv.replicas);
     }
-    return dataType.toESMapping({ overrides, version: argv['es-version'] });
+    const argVersion = argv['es-version'];
+    const argDistribution = argv.distribution;
+
+    const [majorVersion = 6, minorVersion = 8] = version.split('.').map(toNumber);
+
+    return dataType.toESMapping({
+        overrides,
+        version: argVersion,
+        majorVersion,
+        minorVersion,
+        distribution: argDistribution
+    });
 }
 
 function getGraphQlSchema(dataType: DataType) {

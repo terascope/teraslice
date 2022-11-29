@@ -1,9 +1,14 @@
-import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
+import {
+    xLuceneFieldType,
+    ESFieldType,
+    xLuceneTypeConfig,
+    ClientMetadata
+} from '@terascope/types';
 import BaseType from '../base-type';
 import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class GeoJSON extends BaseType {
-    toESMapping(_version?: number): TypeESMapping {
+    toESMapping(clientMetaData: ClientMetadata): TypeESMapping {
         if (this.config.indexed === false) {
             throw new Error(`${this.constructor.name} is required to be indexed`);
         }
@@ -13,8 +18,12 @@ export default class GeoJSON extends BaseType {
             mapping: {
                 [this.field]: {
                     type: 'geo_shape' as ESFieldType,
-                    tree: 'quadtree',
-                    strategy: 'recursive'
+                    ...((clientMetaData.distribution === 'opensearch')
+                    || (clientMetaData.distribution === 'elasticsearch'
+                        && clientMetaData.majorVersion < 8)) && {
+                        tree: 'quadtree',
+                        strategy: 'recursive'
+                    }
                 }
             }
         };

@@ -36,7 +36,7 @@
     },
     "dependencies": {
         "@terascope/data-mate": "^0.39.1",
-        "@terascope/types": "^0.10.3",
+        "@terascope/types": "^0.11.0",
         "@terascope/utils": "^0.45.1",
         "awesome-phonenumber": "^2.70.0",
         "graphlib": "^2.1.8",

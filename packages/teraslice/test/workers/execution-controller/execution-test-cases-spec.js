@@ -347,7 +347,7 @@ describe('ExecutionController Test Cases', () => {
         it('should have the correct number of slices', async () => {
             const { exId } = testContext.executionContext;
             const errorCount = await stateStore.count(`ex_id:${exId} AND state:error`, 0);
-            const completedCount = await stateStore.count(`ex_id:${exId} AND state:completed`, 0);
+            const completedCount = await stateStore.count(`ex_id:${exId}`, 0);
 
             if (sliceFails) {
                 expect(errorCount).toEqual(count);

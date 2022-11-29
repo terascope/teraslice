@@ -1,6 +1,5 @@
 import 'jest-extended';
-import { SearchParams } from 'elasticsearch';
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, ClientParams } from '@terascope/types';
 import { TSError } from '@terascope/utils';
 import { QueryAccess } from '../src';
 
@@ -512,9 +511,9 @@ describe('QueryAccess', () => {
 
     describe('when there is no field restrictions', () => {
         it('should be able to limit the source fields via params', async () => {
-            const params: SearchParams = {
-                _sourceInclude: ['foo'],
-                _sourceExclude: ['bar'],
+            const params: ClientParams.SearchParams = {
+                _source_includes: ['foo'],
+                _source_excludes: ['bar'],
             };
 
             const qa = new QueryAccess({
@@ -531,8 +530,8 @@ describe('QueryAccess', () => {
             });
 
             expect(result).toMatchObject({
-                _sourceInclude: ['foo'],
-                _sourceExclude: ['bar'],
+                _source_includes: ['foo'],
+                _source_excludes: ['bar'],
             });
         });
     });
@@ -557,71 +556,71 @@ describe('QueryAccess', () => {
         });
 
         it('should be able to return a restricted query', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['moo'],
-                _sourceExclude: ['baz'],
+                _source_includes: ['moo'],
+                _source_excludes: ['baz'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', {
                 params
             });
             expect(result).toMatchObject({
-                _sourceInclude: ['moo'],
-                _sourceExclude: queryAccessExcludes,
+                _source_includes: ['moo'],
+                _source_excludes: queryAccessExcludes,
             });
             expect(result).not.toHaveProperty('q', 'idk');
 
-            expect(params._sourceInclude).toBe(params._sourceInclude);
-            expect(params._sourceExclude).toBe(params._sourceExclude);
+            expect(params._source_includes).toBe(params._source_includes);
+            expect(params._source_excludes).toBe(params._source_excludes);
 
             expect(params).toMatchObject({
-                _sourceInclude: ['moo'],
-                _sourceExclude: ['baz'],
+                _source_includes: ['moo'],
+                _source_excludes: ['baz'],
             });
 
             expect(params).toHaveProperty('q', 'idk');
         });
 
         it('should respect original query access excluded fields when excluding more', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceExclude: ['foo'],
+                _source_excludes: ['foo'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: queryAccessIncludes,
-                _sourceExclude: ['bar', 'baz', 'foo'], // original restrictions + params
+                _source_includes: queryAccessIncludes,
+                _source_excludes: ['bar', 'baz', 'foo'], // original restrictions + params
             });
         });
 
         it('should NOT include fields not permitted by original query access included fields', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['baz', 'foo'],
+                _source_includes: ['baz', 'foo'],
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: ['foo'], // baz not allowed per original restrictions but foo is
-                _sourceExclude: queryAccessExcludes
+                _source_includes: ['foo'], // baz not allowed per original restrictions but foo is
+                _source_excludes: queryAccessExcludes
             });
         });
 
         it('should exclude all fields if none of requested included fields are permitted by original query access included fields so user doesn\'t see restricted and/or non requested fields', async () => {
-            const params: SearchParams = {
+            const params: ClientParams.SearchParams = {
                 q: 'idk',
-                _sourceInclude: ['baz'], // not allowed per original restrictions
+                _source_includes: ['baz'], // not allowed per original restrictions
             };
 
             const result = await queryAccess.restrictSearchQuery('foo:bar', { params });
 
             expect(result).toMatchObject({
-                _sourceInclude: [], // baz not allowed per original restrictions so exclude all
-                _sourceExclude: ['*'], // '*' excludes all
+                _source_includes: [], // baz not allowed per original restrictions so exclude all
+                _source_excludes: ['*'], // '*' excludes all
             });
         });
 
@@ -639,16 +638,16 @@ describe('QueryAccess', () => {
                         },
                     },
                 },
-                _sourceExclude: queryAccessExcludes,
-                _sourceInclude: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes,
+                _source_includes: queryAccessIncludes,
             });
         });
 
         it('should be able to return a restricted query without any params', async () => {
             const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
-                _sourceExclude: queryAccessExcludes,
-                _sourceInclude: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes,
+                _source_includes: queryAccessIncludes,
             });
 
             expect(result).not.toHaveProperty('q', 'idk');
@@ -720,8 +719,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: queryAccessIncludes,
-                _sourceExclude: queryAccessExcludes
+                _source_includes: queryAccessIncludes,
+                _source_excludes: queryAccessExcludes
             });
         });
     });
@@ -762,8 +761,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -812,8 +811,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -839,8 +838,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -866,8 +865,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
 
@@ -890,8 +889,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
 
             const variables = {
@@ -915,8 +914,8 @@ describe('QueryAccess', () => {
                         }
                     }
                 },
-                _sourceInclude: [],
-                _sourceExclude: []
+                _source_includes: [],
+                _source_excludes: []
             });
         });
     });

@@ -1,17 +1,35 @@
 'use strict';
 
 const { debugLogger, chunk, pMap } = require('@terascope/utils');
+const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const elasticsearchAPI = require('../index');
-const { data } = require('./helpers/data');
-const { TEST_INDEX_PREFIX } = require('./helpers/config');
+
 const {
-    makeClient, cleanupIndex,
-    waitForData, formatUploadData
-} = require('./helpers/elasticsearch');
+    makeClient, cleanupIndex, waitForData,
+    EvenDateData, TEST_INDEX_PREFIX
+} = ElasticsearchTestHelpers;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
 jest.setTimeout(THREE_MINUTES + 30000);
+
+function formatUploadData(
+    index, data, isES8ClientTest = false
+) {
+    const results = [];
+
+    data.forEach((record) => {
+        const meta = { _index: index };
+
+        if (!isES8ClientTest) {
+            meta._type = '_doc';
+        }
+
+        results.push({ action: { index: meta }, data: record });
+    });
+
+    return results;
+}
 
 describe('bulkSend can work with congested queues', () => {
     const logger = debugLogger('congested_test');
@@ -19,11 +37,13 @@ describe('bulkSend can work with congested queues', () => {
 
     let client;
     let api;
+    let isElasticsearch8 = false;
 
     beforeAll(async () => {
         client = await makeClient();
         await cleanupIndex(client, index);
         api = elasticsearchAPI(client, logger);
+        isElasticsearch8 = api.isElasticsearch8();
     });
 
     afterAll(async () => {
@@ -31,13 +51,13 @@ describe('bulkSend can work with congested queues', () => {
     });
 
     it('can get correct data even with congested queues', async () => {
-        const chunkedData = chunk(data, 50);
+        const chunkedData = chunk(EvenDateData.data, 50);
 
         await pMap(chunkedData, async (cData) => {
-            const formattedData = formatUploadData(index, cData);
+            const formattedData = formatUploadData(index, cData, isElasticsearch8);
             return api.bulkSend(formattedData);
         }, { concurrency: 9 });
 
-        await waitForData(client, index, data.length, logger, THREE_MINUTES);
+        await waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES);
     });
 });

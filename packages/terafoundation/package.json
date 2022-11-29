@@ -1,7 +1,7 @@
 {
     "name": "terafoundation",
     "displayName": "Terafoundation",
-    "version": "0.40.2",
+    "version": "0.41.0",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -35,7 +35,7 @@
         "convict-format-with-moment": "^6.2.0",
         "convict-format-with-validator": "^6.2.0",
         "elasticsearch": "^15.4.1",
-        "elasticsearch-store": "^0.63.2",
+        "elasticsearch-store": "^0.64.0",
         "js-yaml": "^4.1.0",
         "mongoose": "~6.6.5",
         "nanoid": "^3.3.4",

@@ -1,14 +1,15 @@
 /* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
-import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-translator';
 import { FieldType } from '@terascope/types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
+    IndexModel, IndexModelRecord, IndexModelConfig,
+    IndexModelOptions, makeRecordDataType, Client,
+    ElasticsearchTestHelpers
 } from '../src';
-import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { TEST_INDEX_PREFIX } from './helpers/config';
+
+const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {

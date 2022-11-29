@@ -1,7 +1,7 @@
 // Type definitions for elasticsearch-api
 // Project: @terascope/elasticsearch-api
 
-import * as es from 'elasticsearch';
+import { ClientParams, ClientResponse } from '@terascope/types';
 import { Logger } from '@terascope/utils';
 import { ClientMetadata } from '@terascope/types'
 
@@ -17,16 +17,16 @@ declare namespace elasticsearchAPI {
     }
 
     export interface Client {
-        search: (query: es.SearchParams) => Promise<es.SearchResponse | any[]>;
-        count: (query: es.CountParams) => Promise<number>;
-        get: (query: es.GetParams, fullResponse?: boolean) => Promise<any>;
-        mget: (query: es.MGetParams) => Promise<any>;
-        index: (query: es.IndexDocumentParams) => Promise<any>;
-        indexWithId: (query: es.IndexDocumentParams) => Promise<any>;
+        search: (query: ClientParams.SearchParams) => Promise<ClientResponse.SearchResponse | any[]>;
+        count: (query: ClientParams.CountParams) => Promise<number>;
+        get: (query: ClientParams.GetParams, fullResponse?: boolean) => Promise<any>;
+        mget: (query: ClientParams.MGetParams) => Promise<any>;
+        index: (query: ClientParams.IndexParams) => Promise<any>;
+        indexWithId: (query: ClientParams.IndexParams) => Promise<any>;
         isAvailable: (index: string, recordType?: string) => Promise<any>;
-        create: (query: es.CreateDocumentParams) => Promise<any>;
-        update: (query: es.UpdateDocumentParams) => Promise<any>;
-        remove: (query: es.DeleteDocumentParams) => Promise<es.DeleteDocumentResponse>;
+        create: (query: ClientParams.CreateParams) => Promise<any>;
+        update: (query: ClientParams.UpdateParams) => Promise<any>;
+        remove: (query: ClientParams.DeleteParams) => Promise<es.DeleteDocumentResponse>;
         version: () => Promise<boolean>;
         putTemplate: (template: any, name: string) => Promise<any>;
         /**
@@ -37,11 +37,11 @@ declare namespace elasticsearchAPI {
         bulkSend: (data: BulkRecord[]) => Promise<number>;
         nodeInfo: (query: any) => Promise<any>;
         nodeStats: (query: any) => Promise<any>;
-        buildQuery: (opConfig: Config, msg: any) => es.SearchParams;
-        indexExists: (query: es.ExistsParams) => Promise<boolean>;
-        indexCreate: (query: es.IndicesCreateParams) => Promise<any>;
-        indexRefresh: (query: es.IndicesRefreshParams) => Promise<any>;
-        indexRecovery: (query: es.IndicesRecoveryParams) => Promise<any>;
+        buildQuery: (opConfig: Config, msg: any) => ClientParams.SearchParams;
+        indexExists: (query: ClientParams.ExistsParams) => Promise<boolean>;
+        indexCreate: (query: ClientParams.IndicesCreateParams) => Promise<any>;
+        indexRefresh: (query: ClientParams.IndicesRefreshParams) => Promise<any>;
+        indexRecovery: (query: ClientParams.IndicesRecoveryParams) => Promise<any>;
         indexSetup: (clusterName, newIndex, migrantIndexName, mapping, recordType, clientName) => Promise<boolean>;
         verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;

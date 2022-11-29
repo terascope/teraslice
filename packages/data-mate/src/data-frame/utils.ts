@@ -63,7 +63,7 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
 export function columnsToDataTypeConfig<T extends Record<string, unknown>>(
     columns: readonly Column<unknown, keyof T>[]
 ): DataTypeConfig {
-    const versions = new Set<DataTypeVersion>();
+    const versions = new Set<number>();
     const fields: DataTypeFields = {};
     for (const col of columns) {
         versions.add(col.version);

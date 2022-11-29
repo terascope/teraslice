@@ -1,48 +1,50 @@
 'use strict';
 
 const { get, times } = require('@terascope/utils');
-const misc = require('../../misc');
-const { waitForExStatus } = require('../../wait');
-const { resetState, runEsJob, testJobLifeCycle } = require('../../helpers');
-
-const teraslice = misc.teraslice();
+const TerasliceHarness = require('../../teraslice-harness');
 
 describe('reindex', () => {
-    beforeAll(() => resetState());
+    let terasliceHarness;
+
+    beforeAll(async () => {
+        terasliceHarness = new TerasliceHarness();
+        await terasliceHarness.init();
+        await terasliceHarness.resetState();
+    });
 
     it('should work for simple case', async () => {
-        const jobSpec = misc.newJob('reindex');
+        const jobSpec = terasliceHarness.newJob('reindex');
         jobSpec.name = 'basic reindex';
-        const specIndex = misc.newSpecIndex('reindex');
+        const specIndex = terasliceHarness.newSpecIndex('reindex');
 
-        jobSpec.operations[0].index = misc.getExampleIndex(100);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        const count = await runEsJob(jobSpec, specIndex);
+        const count = await terasliceHarness.runEsJob(jobSpec, specIndex);
         expect(count).toBe(100);
     });
 
     it('should work when no data is returned with lucene query', async () => {
-        const jobSpec = misc.newJob('reindex');
+        const jobSpec = terasliceHarness.newJob('reindex');
         jobSpec.name = 'basic reindex';
-        const specIndex = misc.newSpecIndex('reindex');
+        const specIndex = terasliceHarness.newSpecIndex('reindex');
         jobSpec.operations[0].query = 'bytes:>=99999999';
-        jobSpec.operations[0].index = misc.getExampleIndex(100);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        const ex = await teraslice.executions.submit(jobSpec);
-        await waitForExStatus(ex, 'completed');
+        const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
+        await terasliceHarness.waitForExStatus(ex, 'completed');
 
         // the job should  be marked as completed but no new index
         // as there are no records
-        await misc.indexStats(specIndex).catch((errResponse) => {
+        await terasliceHarness.indexStats(specIndex).catch((errResponse) => {
             const reason = get(errResponse, 'body.error.reason');
             expect(reason).toEqual('no such index');
         });
     });
 
     it('should collect cluster level stats', async () => {
-        const stats = await teraslice.cluster.stats();
+        const stats = await terasliceHarness.teraslice.cluster.stats();
 
         expect(stats.controllers.processed).toBeGreaterThan(0);
         expect(stats.controllers.failed).toBe(0);
@@ -58,39 +60,39 @@ describe('reindex', () => {
     it('should support idempotency', async () => {
         const iterations = 3;
 
-        const jobSpec = misc.newJob('reindex');
-        const specIndex = misc.newSpecIndex('reindex');
+        const jobSpec = terasliceHarness.newJob('reindex');
+        const specIndex = terasliceHarness.newSpecIndex('reindex');
 
         jobSpec.name = `reindex ${iterations} times`;
-        jobSpec.operations[0].index = misc.getExampleIndex(100);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[0].interval = '1s';
         jobSpec.operations[1].index = specIndex;
 
         const promises = times(iterations, async () => {
-            const ex = await teraslice.executions.submit(jobSpec);
-            return waitForExStatus(ex, 'completed');
+            const ex = await terasliceHarness.teraslice.executions.submit(jobSpec);
+            return terasliceHarness.waitForExStatus(ex, 'completed');
         });
 
         await Promise.all(promises);
 
-        const stats = await misc.indexStats(specIndex);
+        const stats = await terasliceHarness.indexStats(specIndex);
 
         expect(stats.count).toBe(100);
     });
 
     it('should be able to recover and continue', async () => {
-        const jobSpec = misc.newJob('reindex');
+        const jobSpec = terasliceHarness.newJob('reindex');
         jobSpec.name = 'reindex (with recovery)';
 
-        const index = misc.newSpecIndex('reindex');
+        const index = terasliceHarness.newSpecIndex('reindex');
 
         // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = index;
 
-        await testJobLifeCycle(jobSpec);
+        await terasliceHarness.testJobLifeCycle(jobSpec);
 
-        const stats = await misc.indexStats(index);
+        const stats = await terasliceHarness.indexStats(index);
         expect(stats.count).toBe(1000);
     });
 });

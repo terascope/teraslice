@@ -1,5 +1,7 @@
 import { ConnectionOptions } from 'tls';
 
+export type Semver = [number, number, number];
+
 export interface AgentOptions {
     keepAlive?: boolean;
     keepAliveMsecs?: number;
@@ -59,4 +61,11 @@ interface ClientOptions {
 export interface ClientConfig extends ClientOptions {
     password?: string;
     username?: string;
+}
+
+export interface ClientOnlyParams {
+    ignore?: string | string[] | number | number[];
+    headers?: string | string [];
+    requestTimeout?: number | string;
+    maxRetries?: number
 }

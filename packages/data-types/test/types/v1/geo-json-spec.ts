@@ -1,9 +1,25 @@
-import { DataTypeFieldConfig, FieldType } from '@terascope/types';
+import {
+    DataTypeFieldConfig,
+    FieldType,
+    ClientMetadata,
+    ElasticsearchDistribution
+} from '@terascope/types';
 import GeoJSONType from '../../../src/types/v1/geo-json';
 
 describe('GeoJSON V1', () => {
     const field = 'someField';
     const typeConfig: DataTypeFieldConfig = { type: FieldType.GeoJSON };
+
+    let clientMetaData: ClientMetadata;
+
+    beforeEach(() => {
+        clientMetaData = {
+            distribution: ElasticsearchDistribution.elasticsearch,
+            majorVersion: 6,
+            minorVersion: 7,
+            version: '6.8.6'
+        };
+    });
 
     it('can requires a field and proper configs', () => {
         const type = new GeoJSONType(field, typeConfig);
@@ -13,8 +29,8 @@ describe('GeoJSON V1', () => {
         expect(type.toXlucene).toBeDefined();
     });
 
-    it('can get proper ES Mappings', () => {
-        const esMapping = new GeoJSONType(field, typeConfig).toESMapping();
+    it('can get proper ES Mappings for es 6', () => {
+        const esMapping = new GeoJSONType(field, typeConfig).toESMapping(clientMetaData);
         const results = {
             mapping: {
                 [field]: {
@@ -22,6 +38,62 @@ describe('GeoJSON V1', () => {
                     tree: 'quadtree',
                     strategy: 'recursive'
                 }
+            }
+        };
+
+        expect(esMapping).toEqual(results);
+    });
+
+    it('can get proper ES Mappings for es 7', () => {
+        clientMetaData.majorVersion = 7;
+        clientMetaData.minorVersion = 9;
+        clientMetaData.version = '7.9.2';
+
+        const esMapping = new GeoJSONType(field, typeConfig).toESMapping(clientMetaData);
+        const results = {
+            mapping: {
+                [field]: {
+                    type: 'geo_shape',
+                    tree: 'quadtree',
+                    strategy: 'recursive'
+                }
+            }
+        };
+
+        expect(esMapping).toEqual(results);
+    });
+
+    it('can get proper Index Mappings for es opensearch', () => {
+        clientMetaData = {
+            distribution: ElasticsearchDistribution.opensearch,
+            majorVersion: 1,
+            minorVersion: 0,
+            version: '1.0.0'
+        };
+
+        const esMapping = new GeoJSONType(field, typeConfig).toESMapping(clientMetaData);
+        const results = {
+            mapping: {
+                [field]: {
+                    type: 'geo_shape',
+                    tree: 'quadtree',
+                    strategy: 'recursive'
+                }
+            }
+        };
+
+        expect(esMapping).toEqual(results);
+    });
+
+    it('can get proper ES Mappings for es 8', () => {
+        clientMetaData.majorVersion = 8;
+        clientMetaData.minorVersion = 1;
+        clientMetaData.version = '8.1.0';
+
+        const esMapping = new GeoJSONType(field, typeConfig).toESMapping(clientMetaData);
+        const results = {
+            mapping: {
+                [field]: { type: 'geo_shape' }
             }
         };
 

@@ -5,25 +5,39 @@ import * as opensearch from '@opensearch-project/opensearch';
 import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
-import { ClientMetadata, ElasticsearchDistribution } from '@terascope/types';
+import { ElasticsearchDistribution, ClientMetadata } from '@terascope/types';
+import { Client } from './client';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig } from './interfaces';
 
-const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
+const clientList = [elasticsearch6];
 
-interface ServerMetadata extends ClientMetadata {
-    majorVersion: number;
-    minorVersion: number;
+export async function createClient(
+    config: ClientConfig,
+    logger = debugLogger('elasticsearch-client')
+): Promise<{ log: () => Logger, client: Client }> {
+    const distributionMetadata = await getClientMetadata(config, logger);
+
+    const baseClient = await getBaseClient(
+        distributionMetadata,
+        config,
+        logger
+    );
+
+    return {
+        client: new Client(baseClient, distributionMetadata),
+        log: logWrapper(logger)
+    };
 }
 
-async function findDistribution(
+async function getClientMetadata(
     config: Record<string, any>,
     logger: Logger
-): Promise<ServerMetadata> {
-    for (let i = 0; i < clientList.length - 1; i++) {
+): Promise<ClientMetadata> {
+    for (let i = 0; i <= clientList.length - 1; i++) {
         try {
             const client = new clientList[i].Client(config);
-            // @ts-expect-error
+
             const response = await client.info();
 
             if (response) {
@@ -45,6 +59,7 @@ async function findDistribution(
                 } else {
                     distribution = ElasticsearchDistribution.opensearch;
                 }
+
                 const [majorVersion, minorVersion] = version.split('.').map(toNumber);
 
                 return {
@@ -66,38 +81,43 @@ async function findDistribution(
     throw new Error(`Could not create a client with config ${JSON.stringify(config)}`);
 }
 
-export async function createClient(config: ClientConfig, logger = debugLogger('elasticsearch-client')) {
-    try {
-        const {
-            minorVersion,
-            majorVersion,
-            ...serverMetadata
-        } = await findDistribution(config, logger);
+/*
 
-        if (serverMetadata.distribution === ElasticsearchDistribution.opensearch) {
-            // TODO: clean this up
-            const openConfig = {
-                ...config,
-            };
-            const client = new opensearch.Client(openConfig as any);
-            // @ts-expect-error
-            client.__meta = serverMetadata;
+const config = {
+    "node": "http://127.0.0.1:49200",
+    "sniffOnStart":false,
+    "sniffOnConnectionFault":false,
+    "requestTimeout":120000,
+    "maxRetries":3
+}
+*/
+
+export async function getBaseClient(
+    clientMetadata: ClientMetadata,
+    config: ClientConfig,
+    logger = debugLogger('elasticsearch-client')
+) {
+    const {
+        distribution,
+        majorVersion,
+        minorVersion
+    } = clientMetadata;
+
+    try {
+        if (distribution === ElasticsearchDistribution.opensearch) {
+            const client = new opensearch.Client(config as any);
+
             logger.debug('Creating an opensearch client');
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+
+            return client;
         }
 
         if (majorVersion === 8) {
             const client = new elasticsearch8.Client(config as any);
-            // @ts-expect-error
-            client.__meta = serverMetadata;
+
             logger.debug('Creating an elasticsearch v8 client');
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+
+            return client;
         }
 
         if (majorVersion === 7) {
@@ -106,40 +126,29 @@ export async function createClient(config: ClientConfig, logger = debugLogger('e
             // throw if not their proprietary client
             if (minorVersion <= 13) {
                 const client = new opensearch.Client(config as any);
-                // @ts-expect-error
-                client.__meta = serverMetadata;
+
                 logger.debug('Creating an opensearch client for elasticsearch v7 for backwards compatibility');
-                return {
-                    client,
-                    log: logWrapper(logger),
-                };
+
+                return client;
             }
 
             const client = new elasticsearch7.Client(config as any);
-            // @ts-expect-error
-            client.__meta = serverMetadata;
+
             logger.debug('Creating an elasticsearch v7 client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         if (majorVersion === 6) {
             const client = new elasticsearch6.Client(config as any);
-            // @ts-expect-error
-            client.__meta = serverMetadata;
+
             logger.debug('Creating an elasticsearch v6 client');
 
-            return {
-                client,
-                log: logWrapper(logger),
-            };
+            return client;
         }
 
         throw new Error('no valid client available');
-    } catch (err) {
+    } catch (e) {
         throw new Error(`Could not create a client for config ${JSON.stringify(config, null, 4)}`);
     }
 }
