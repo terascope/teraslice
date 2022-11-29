@@ -17,7 +17,7 @@ install:
   - yarn setup
 
 env:
-  - MAX_PROJECTS_PER_BATCH=5
+  - MAX_PROJECTS_PER_BATCH=20
 
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)
