@@ -93,7 +93,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit-a",
+        "testSuite": "unit",
         "enableTypedoc": true
     }
 }

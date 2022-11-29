@@ -81,6 +81,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": false,
-        "testSuite": "unit-a"
+        "testSuite": "unit"
     }
 }
