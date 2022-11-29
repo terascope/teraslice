@@ -30,7 +30,7 @@
         "@opensearch-project/opensearch": "^1.1.0",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
-        "elasticsearch-store": "^0.63.1",
+        "elasticsearch-store": "^0.63.2",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
