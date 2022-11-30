@@ -35,6 +35,6 @@
         "registry": "https://registry.npmjs.org/"
     },
     "terascope": {
-        "testSuite": "unit-a"
+        "testSuite": "unit"
     }
 }

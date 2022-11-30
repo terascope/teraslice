@@ -40,6 +40,6 @@
     },
     "terascope": {
         "enableTypedoc": false,
-        "testSuite": "unit-b"
+        "testSuite": "unit"
     }
 }

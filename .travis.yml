@@ -46,40 +46,42 @@ jobs:
       node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-a . -- -- --shard=1/4
+      script: yarn --silent test --suite unit . -- -- --shard=1/6
 
     - stage: 'Tests'
       name: 'Unit Test Suite (node 16) shard 2'
       node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-a . -- -- --shard=2/4
+      script: yarn --silent test --suite unit . -- -- --shard=2/6
 
     - stage: 'Tests'
       name: 'Unit Test Suite (node 16) shard 3'
       node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-a . -- -- --shard=3/4
+      script: yarn --silent test --suite unit . -- -- --shard=3/6
 
     - stage: 'Tests'
       name: 'Unit Test Suite (node 16) shard 4'
       node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-a . -- -- --shard=4/4
+      script: yarn --silent test --suite unit . -- -- --shard=4/6
 
-    - name: 'Unit Test Suite (node 14) shard 1'
-      node_js: '14.17'
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 5'
+      node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-b . -- -- --shard=1/2
+      script: yarn --silent test --suite unit . -- -- --shard=5/6
 
-    - name: 'Unit Test Suite (node 14) shard 2'
-      node_js: '14.17'
+    - stage: 'Tests'
+      name: 'Unit Test Suite (node 16) shard 6'
+      node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit-b . -- -- --shard=2/2
+      script: yarn --silent test --suite unit . -- -- --shard=6/6
 
     - name: 'ES Test Suite (elasticsearch 6) (node 16)'
       node_js: '16.17.1'

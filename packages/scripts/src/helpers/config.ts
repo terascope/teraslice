@@ -102,7 +102,7 @@ export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?
 /**
  * jest or our tests have a memory leak, limiting this seems to help
  */
-export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 10);
+export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
 
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);

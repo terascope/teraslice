@@ -38,7 +38,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit-b",
+        "testSuite": "unit",
         "enableTypedoc": true
     }
 }
