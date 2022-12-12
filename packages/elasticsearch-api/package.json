@@ -22,8 +22,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.45.1",
         "@terascope/types": "^0.11.0",
+        "@terascope/utils": "^0.45.1",
         "bluebird": "^3.7.2",
         "setimmediate": "^1.0.5"
     },
