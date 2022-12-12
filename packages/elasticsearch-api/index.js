@@ -8,30 +8,14 @@ require('setimmediate');
 
 const Promise = require('bluebird');
 const {
-    isTest,
-    TSError,
-    isFatalError,
-    parseError,
-    getBackoffDelay,
-    isRetryableError,
-    get,
-    toNumber,
-    isString,
-    isSimpleObject,
-    castArray,
-    flatten,
-    toBoolean,
-    uniq,
-    random,
-    cloneDeep,
-    DataEntity,
-    isDeepEqual,
-    getTypeOf,
-    isProd
+    isTest, TSError, isFatalError,
+    parseError, getBackoffDelay, isRetryableError,
+    get, toNumber, isString, isSimpleObject,
+    castArray, flatten, toBoolean,
+    uniq, random, cloneDeep, DataEntity,
+    isDeepEqual, getTypeOf, isProd
 } = require('@terascope/utils');
 const { ElasticsearchDistribution } = require('@terascope/types');
-
-const { inspect } = require('util');
 
 const DOCUMENT_EXISTS = 409;
 const TOO_MANY_REQUESTS = 429;
@@ -354,7 +338,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             if (record.action == null) {
                 let dbg = '';
                 if (!isProd) {
-                    dbg = `, dbg: ${inspect({ record, index })}`;
+                    dbg = `, dbg: ${JSON.stringify({ record, index })}`;
                 }
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
