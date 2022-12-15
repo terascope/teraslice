@@ -1,5 +1,10 @@
 import 'jest-extended';
 import yargs from 'yargs';
+import path from 'path';
+import fs from 'fs-extra';
+import assert from 'yeoman-assert';
+// @ts-expect-error
+import helpers from 'yeoman-test';
 import init from '../../../src/cmds/assets/init';
 
 jest.setTimeout(10000);
@@ -40,6 +45,40 @@ describe('assets deploy', () => {
             );
 
             expect(yargsResult.processor).toBeTrue();
+        });
+    });
+
+    describe('-> handler', () => {
+        const testAssetBasePath = path.join(__dirname, '..', '..', 'fixtures', 'generate-new-asset');
+        const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');
+
+        const deps = [
+            [helpers.createDummyGenerator(), 'addExampleProcessor: app']
+        ];
+
+        beforeAll(() => helpers.run(path.join(__dirname, '..', '..', '..', 'src', 'generators', 'new-asset'))
+            .inDir(testAssetBasePath)
+            .withGenerators(deps)
+            .withArguments(['generated-asset'])
+            .withPrompts({
+                name: 'new_asset',
+                description: 'this is a new asset'
+            }));
+
+        afterAll(() => {
+            fs.removeSync(rootAssetPath);
+        });
+
+        it('should create new asset from cmd', async () => {
+            const { handler } = init;
+            const argv = yargsCmd.parseSync('init');
+
+            argv.registry = true;
+            argv.baseDir = rootAssetPath;
+
+            await handler(argv);
+
+            assert.file([path.join(rootAssetPath, 'package.json')]);
         });
     });
 });
