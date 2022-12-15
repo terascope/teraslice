@@ -53,25 +53,20 @@ export = {
 
                 // for pkg
                 path.join(__dirname, '../../generators/new-processor');
-                await env.run(`new-processor ${assetBaseDir} --new`, () => {
-                    reply.green('All done!');
-                });
+                await env.run(`new-processor ${assetBaseDir} --new`);
             } if (cliConfig.args.registry) {
                 path.join(__dirname, '../../generators/registry');
-                await env.run(`registry ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
+                await env.run(`registry ${assetBaseDir}`);
             } else {
                 // for pkg
                 path.join(__dirname, '../../generators/new-asset');
-                await env.run(`new-asset ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
+                await env.run(`new-asset ${assetBaseDir}`);
             }
         } catch (e) {
             reply.fatal(e);
         }
 
+        reply.green('All done!');
         process.exit(0);
     }
 } as CMD;
