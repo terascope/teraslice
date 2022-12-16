@@ -141,7 +141,7 @@ export default class Options {
         registry: () => ({
             describe: 'Generate or update the registry for an asset',
             type: 'boolean',
-            default: 'false'
+            default: false
         }),
         start: () => ({
             describe: 'Option to start job ',

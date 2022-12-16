@@ -51,27 +51,16 @@ export = {
                     reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');
                 }
 
-                // for pkg
-                path.join(__dirname, '../../generators/new-processor');
-                await env.run(`new-processor ${assetBaseDir} --new`, () => {
-                    reply.green('All done!');
-                });
-            } if (cliConfig.args.registry) {
-                path.join(__dirname, '../../generators/registry');
-                await env.run(`registry ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
+                await env.run(`new-processor ${assetBaseDir} --new`);
+            } else if (cliConfig.args.registry) {
+                await env.run(`registry ${assetBaseDir}`);
             } else {
-                // for pkg
-                path.join(__dirname, '../../generators/new-asset');
-                await env.run(`new-asset ${assetBaseDir}`, () => {
-                    reply.green('All done!');
-                });
+                await env.run(`new-asset ${assetBaseDir}`);
             }
         } catch (e) {
             reply.fatal(e);
         }
 
-        process.exit(0);
+        reply.green('All done!');
     }
 } as CMD;

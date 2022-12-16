@@ -15,15 +15,15 @@ function sanitize(str: string) {
 }
 
 export function kebabCase(str: string): string {
-    return sanitize(toKebabCase(str));
+    return toKebabCase(sanitize(str));
 }
 
 export function snakeCase(str: string): string {
-    return sanitize(toSnakeCase(str));
+    return toSnakeCase(sanitize(str));
 }
 
 export function camelCase(str: string): string {
-    return sanitize(toCamelCase(str));
+    return toCamelCase(sanitize(str));
 }
 
 export function getPackage(filePath?: string): any {
