@@ -6,10 +6,22 @@ terafoundation:
             default:
                 host:
                     - "elasticsearch:9200"
+            es_data1:
+                host:
+                    - "elasticsearch-data1:9200"
+            os_data2:
+                host:
+                    - "opensearch-data2:9200"
         elasticsearch-next:
             default:
                 node:
                     - "http://elasticsearch:9200"
+            es_data1:
+                node:
+                    - "http://elasticsearch-data1:9200"
+            os_data2:
+                node:
+                    - "http://opensearch-data2:9200"
         kafka:
             default:
                 brokers:

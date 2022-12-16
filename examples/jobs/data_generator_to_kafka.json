@@ -1,0 +1,22 @@
+{
+    "name": "Data Generator To Kafka",
+    "lifecycle": "once",
+    "workers": 1,
+    "assets": [
+        "elasticsearch",
+        "standard",
+        "kafka"
+    ],
+    "operations": [
+        {
+            "_op": "data_generator",
+            "size": 500000
+        },
+        {
+            "_op": "kafka_sender",
+            "connection": "default",
+            "topic": "test1",
+            "size": 25000
+        }
+    ]
+}

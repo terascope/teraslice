@@ -1,0 +1,39 @@
+{
+    "name": "Kafka To OS",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "assets": [
+        "elasticsearch:3.3.0",
+        "standard",
+        "kafka",
+        "general_datatypes"
+    ],
+    "operations": [
+        {
+            "_op": "kafka_reader",
+            "connection": "default",
+            "topic": "test1",
+            "group": "testroll-os-1",
+            "rollback_on_failure": true,
+            "size": 10000,
+            "wait": 5000
+        },
+        {
+            "_op": "rekey_base64Url",
+            "key_name": "_key",
+            "key_fields": [
+                "uuid",
+                "ip",
+                "location"
+            ]
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "index": "testroll-os-1",
+            "type": "_doc",
+            "upsert": true,
+            "size": 10000,
+            "connection": "os_data2"
+        }
+    ]
+}
