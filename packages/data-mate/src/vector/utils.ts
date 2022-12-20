@@ -3,8 +3,9 @@ import {
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf, isArrayLike, TSError
+    isNumber, isBigInt, getTypeOf, isArrayLike, TSError, ipToInt
 } from '@terascope/utils';
+import { isIP } from 'net';
 import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
@@ -106,26 +107,34 @@ export function getNumericValues(value: unknown): NumericValuesResult {
  * An interval function for doing recursion recursion, made for getNumericValues
 */
 function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValuesResult {
-    if (v == null) return curr;
+    let val = v;
+    if (val == null) return curr;
 
-    if (isArrayLike(v)) {
+    if (isArrayLike(val)) {
         let res: NumericValuesResult = curr;
-        for (const nested of v) {
+        for (const nested of val) {
             res = _getNumericValues(res, nested);
         }
         return res;
     }
 
-    if (!isNumber(v) && !isBigInt(v)) {
-        if (!Number.isNaN(v)) {
-            throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+    if (typeof val === 'string') {
+        const valIsIP = isIP(val);
+        if (valIsIP) {
+            val = ipToInt(val);
         }
     }
 
-    const changesToBigInt = curr.type === 'number' && isBigInt(v);
+    if (!isNumber(val) && !isBigInt(val)) {
+        if (!Number.isNaN(val)) {
+            throw new Error(`Invalid to numeric values in ${val} (${getTypeOf(val)})`);
+        }
+    }
+
+    const changesToBigInt = curr.type === 'number' && isBigInt(val);
 
     // add the typescript hacks so will stop complaining
-    (curr.values as number[]).push(v as number);
+    (curr.values as number[]).push(val as number);
 
     return {
         type: changesToBigInt ? 'bigint' : curr.type,
@@ -135,6 +144,7 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
 
 export function isNumberLike(type: FieldType): boolean {
     if (type === FieldType.Long) return true;
+    if (type === FieldType.IP) return true;
     return isFloatLike(type) || isIntLike(type);
 }
 

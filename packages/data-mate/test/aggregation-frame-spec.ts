@@ -10,6 +10,7 @@ describe('AggregationFrame', () => {
         age: number;
         scores: number[],
         date: string;
+        ip_address: string;
     };
     let dataFrame: DataFrame<Person>;
 
@@ -33,6 +34,9 @@ describe('AggregationFrame', () => {
                 date: {
                     type: FieldType.Date,
                 },
+                ip_address: {
+                    type: FieldType.IP
+                }
             }
         }, [
             {
@@ -41,6 +45,7 @@ describe('AggregationFrame', () => {
                 gender: 'M',
                 scores: [4, 9, 3],
                 date: '2020-09-15T17:39:11.195Z', // base
+                ip_address: '247.255.255.255'
             },
             {
                 name: 'Frank',
@@ -48,6 +53,7 @@ describe('AggregationFrame', () => {
                 gender: 'M',
                 scores: [2, 4, 19],
                 date: '2020-09-15T16:39:11.195Z', // minus one hour
+                ip_address: '127.255.255.255'
             },
             {
                 name: 'Jill',
@@ -55,6 +61,7 @@ describe('AggregationFrame', () => {
                 gender: 'F',
                 scores: [2, 2, 2],
                 date: '2020-09-15T15:39:11.195Z', // minus two hours
+                ip_address: '191.255.255.254'
             },
             {
                 name: 'Anne',
@@ -62,6 +69,7 @@ describe('AggregationFrame', () => {
                 gender: 'F',
                 scores: [20, 4, 19],
                 date: '2020-09-15T15:39:11.195Z', // minus two hours
+                ip_address: '239.255.255.255'
             },
             {
                 name: 'Joey',
@@ -69,6 +77,7 @@ describe('AggregationFrame', () => {
                 gender: 'M',
                 scores: [50, 4, 19],
                 date: '2020-09-13T17:39:11.195Z', // minus two days
+                ip_address: '192.0.0.0'
             },
             {
                 name: 'Nancy',
@@ -76,6 +85,7 @@ describe('AggregationFrame', () => {
                 gender: 'F',
                 scores: [1, 0, 0],
                 date: '2019-09-15T17:39:11.195Z', // minus one year
+                ip_address: '1.0.0.0'
             },
             {
                 name: 'Frank',
@@ -83,6 +93,7 @@ describe('AggregationFrame', () => {
                 gender: 'M',
                 scores: [1, 0, 0],
                 date: '2020-07-15T16:39:11.195Z', // minus two months
+                ip_address: '128.0.0.1'
             },
             {
                 name: 'Nick',
@@ -90,6 +101,7 @@ describe('AggregationFrame', () => {
                 gender: null as any,
                 scores: [1, 1, 10, null as any],
                 date: '2018-01-15T10:39:11.195Z', // minus 2 years
+                ip_address: '128.101.240.190'
             },
         ]);
     });
@@ -348,6 +360,24 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: 50,
                     date: '2020-09-13T17:39:11.195Z'
+                }
+            ]);
+        });
+    });
+
+    // eslint-disable-next-line jest/no-disabled-tests
+    xdescribe('->max(ip_address)', () => {
+        it('should get the right result when using aggregate()', async () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = await grouped.max('ip_address').run();
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    gender: 'M',
+                    scores: [4, 9, 3],
+                    date: '2020-09-15T17:39:11.195Z', // base
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
