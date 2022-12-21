@@ -1,5 +1,5 @@
 import {
-    isBigInt, toBigInt, trimISODateSegment, getHashCodeFrom
+    isBigInt, toBigInt, trimISODateSegment, getHashCodeFrom,
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
@@ -69,7 +69,7 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
         adjustsSelectedRow: false,
         push(value) {
             const res = getNumericValues(value);
-            const sum = add(0, res.values);
+            const sum = add(0, res.values as (number|bigint)[]);
             agg.value = add(agg.value, [sum]);
         },
         flush() {
@@ -96,7 +96,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
         push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
-                const sum = add(0, res.values);
+                const sum = add(0, res.values as (number|bigint)[]);
                 agg.value = agg.value != null ? add(sum, [agg.value]) : sum;
             }
             agg.total += res.values.length;
@@ -126,7 +126,7 @@ function makeMinAgg(): FieldAgg {
             const res = getNumericValues(value);
             for (const num of res.values) {
                 if (agg.value == null || num < agg.value) {
-                    agg.value = num;
+                    agg.value = num as any;
                     agg.index = index;
                 }
             }
@@ -143,6 +143,7 @@ function makeMaxAgg(): FieldAgg {
     let agg: {
         index: number;
         value?: number|bigint,
+        original?: string;
     } = { index: -1 };
 
     return {
@@ -150,14 +151,21 @@ function makeMaxAgg(): FieldAgg {
         push(value, index) {
             const res = getNumericValues(value);
             for (const num of res.values) {
-                if (agg.value == null || num > agg.value) {
-                    agg.value = num;
+                // i.e. res has parsed IP int & original IP string
+                // since no way to know which ip version to convert back to
+                const isObject = typeof num === 'object';
+                const _num = isObject ? num.parsed : num;
+                if (agg.value == null || _num > agg.value) {
+                    agg.value = _num;
                     agg.index = index;
+                    if (isObject) {
+                        agg.original = num.original;
+                    }
                 }
             }
         },
         flush() {
-            const result = { value: agg.value, index: agg.index };
+            const result = { value: agg.original || agg.value, index: agg.index };
             agg = { index: -1 };
             return result;
         },

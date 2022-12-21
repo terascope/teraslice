@@ -3,9 +3,8 @@ import {
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf, isArrayLike, TSError, ipToInt
+    isNumber, isBigInt, getTypeOf, isArrayLike, TSError, ipToInt, isIP
 } from '@terascope/utils';
-import { isIP } from 'net';
 import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
@@ -85,12 +84,16 @@ function _newVectorForType(
     }
 }
 
+type NumberObject = { original: string; parsed: bigint; }
 type NumericValuesResult = {
     readonly values: number[],
-    readonly type: 'number'
+    readonly type: 'number',
 }|{
     readonly values: bigint[],
-    readonly type: 'bigint'
+    readonly type: 'bigint',
+}|{
+    readonly values: { original: string; parsed: bigint; }[],
+    readonly type: 'bigint',
 };
 
 /**
@@ -118,9 +121,10 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
         return res;
     }
 
+    let valueIsIP = false;
     if (typeof val === 'string') {
-        const valIsIP = isIP(val);
-        if (valIsIP) {
+        valueIsIP = isIP(val);
+        if (valueIsIP) {
             val = ipToInt(val);
         }
     }
@@ -133,8 +137,11 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
 
     const changesToBigInt = curr.type === 'number' && isBigInt(val);
 
-    // add the typescript hacks so will stop complaining
-    (curr.values as number[]).push(val as number);
+    if (valueIsIP) {
+        (curr.values as NumberObject[]).push({ parsed: val, original: v } as NumberObject);
+    } else {
+        (curr.values as (number|bigint)[]).push(val as number|bigint);
+    }
 
     return {
         type: changesToBigInt ? 'bigint' : curr.type,

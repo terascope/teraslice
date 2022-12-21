@@ -93,7 +93,7 @@ describe('AggregationFrame', () => {
                 gender: 'M',
                 scores: [1, 0, 0],
                 date: '2020-07-15T16:39:11.195Z', // minus two months
-                ip_address: '128.0.0.1'
+                ip_address: '127.255.255.255'
             },
             {
                 name: 'Nick',
@@ -120,14 +120,16 @@ describe('AggregationFrame', () => {
                     age: 154,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Jill',
                     age: 156,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z'
+                    date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254'
                 }
             ]);
         });
@@ -144,7 +146,8 @@ describe('AggregationFrame', () => {
                     age: 310,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -159,7 +162,8 @@ describe('AggregationFrame', () => {
                     age_tuple: 310,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -175,7 +179,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: 177,
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -190,7 +195,8 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [4, 9, 3],
                     score_tuple: 177,
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -210,14 +216,16 @@ describe('AggregationFrame', () => {
                     age: 38.5,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Jill',
                     age: 52,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z'
+                    date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254'
                 }
             ]);
         });
@@ -231,7 +239,8 @@ describe('AggregationFrame', () => {
                     age: 44.285714285714285,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -247,7 +256,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: 7.375,
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 }
             ]);
         });
@@ -266,14 +276,16 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z'
+                    date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 },
                 {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
                     scores: [20, 4, 19],
-                    date: '2020-09-15T15:39:11.195Z'
+                    date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '239.255.255.255'
                 }
             ]);
         });
@@ -287,7 +299,8 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z'
+                    date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 }
             ]);
         });
@@ -304,6 +317,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: 0,
                     date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 }
             ]);
         });
@@ -322,7 +336,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Nancy',
@@ -330,6 +345,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 }
             ]);
         });
@@ -344,6 +360,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 }
             ]);
         });
@@ -359,14 +376,14 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: 50,
-                    date: '2020-09-13T17:39:11.195Z'
+                    date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 }
             ]);
         });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    xdescribe('->max(ip_address)', () => {
+    describe('->max(ip_address)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = await grouped.max('ip_address').run();
@@ -377,7 +394,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [4, 9, 3],
                     date: '2020-09-15T17:39:11.195Z', // base
-                    ip_address: '247.255.255.255'
+                    ip_address: '247.255.255.255',
                 }
             ]);
         });
@@ -385,8 +402,7 @@ describe('AggregationFrame', () => {
 
     describe('->count(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const resultFrame = await dataFrame
-                .aggregate()
+            const resultFrame = await dataFrame.aggregate()
                 .groupBy('gender')
                 .count('name')
                 .run();
@@ -394,17 +410,19 @@ describe('AggregationFrame', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 4,
-                    age: 64,
                     gender: 'M',
+                    age: 64,
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 3,
-                    age: 40,
                     gender: 'F',
+                    age: 40,
                     scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z'
+                    date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254'
                 }
             ]);
         });
@@ -418,7 +436,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255',
                 }
             ]);
         });
@@ -437,6 +456,7 @@ describe('AggregationFrame', () => {
                     gender: 2,
                     scores: [4, 9, 3],
                     date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
             ]);
         });
@@ -453,6 +473,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [4, 9, 3],
                     date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Frank',
@@ -460,6 +481,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [2, 4, 19],
                     date: '2020-09-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255'
                 },
                 {
                     name: 'Jill',
@@ -467,6 +489,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [2, 2, 2],
                     date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254'
                 },
                 {
                     name: 'Anne',
@@ -474,6 +497,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [20, 4, 19],
                     date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '239.255.255.255'
                 },
                 {
                     name: 'Joey',
@@ -481,6 +505,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [50, 4, 19],
                     date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 },
                 {
                     name: 'Nancy',
@@ -488,11 +513,13 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 },
                 {
                     name: 'Nick',
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190'
                 }
             ]);
         });
@@ -508,6 +535,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [4, 9, 3],
                     date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Frank',
@@ -515,6 +543,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [2, 4, 19],
                     date: '2020-09-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255'
                 },
                 {
                     name: 'Jill',
@@ -522,6 +551,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [2, 2, 2],
                     date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254'
                 },
                 {
                     name: 'Anne',
@@ -529,6 +559,7 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [20, 4, 19],
                     date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '239.255.255.255'
                 },
                 {
                     name: 'Joey',
@@ -536,6 +567,7 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [50, 4, 19],
                     date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 },
                 {
                     name: 'Nancy',
@@ -543,11 +575,13 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 },
                 {
                     name: 'Nick',
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190'
                 }
             ]);
         });
@@ -563,47 +597,54 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255',
                 },
                 {
                     name: 1,
                     age: 25,
                     gender: 'M',
                     scores: [2, 4, 19],
-                    date: '2020-09-15T16:39:11.195Z'
+                    date: '2020-09-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255',
                 },
                 {
                     name: 2,
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z'
+                    date: '2020-09-15T15:39:11.195Z',
+                    ip_address: '191.255.255.254',
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z'
+                    date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0',
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z'
+                    date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0',
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: '2020-07-15T16:39:11.195Z'
+                    date: '2020-07-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255',
                 },
                 {
                     name: 1,
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190',
                 }
             ]);
         });
@@ -620,7 +661,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Joey',
@@ -628,7 +670,8 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z'
+                    date: '2020-09-13T17:39:11.195Z',
+                    ip_address: '192.0.0.0'
                 },
                 {
                     name: 'Nancy',
@@ -636,7 +679,8 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z'
+                    date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 },
                 {
                     name: 'Frank',
@@ -644,13 +688,15 @@ describe('AggregationFrame', () => {
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: '2020-07-15T16:39:11.195Z'
+                    date: '2020-07-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255'
                 },
                 {
                     name: 'Nick',
                     count: 1,
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190'
                 }
             ]);
         });
@@ -666,26 +712,30 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z'
+                    date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: '2020-07-15T16:39:11.195Z'
+                    date: '2020-07-15T16:39:11.195Z',
+                    ip_address: '127.255.255.255'
                 },
                 {
                     name: 1,
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190'
                 }
             ]);
         });
@@ -702,7 +752,8 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z'
+                    date: '2020-09-15T17:39:11.195Z',
+                    ip_address: '247.255.255.255'
                 },
                 {
                     name: 'Nancy',
@@ -710,13 +761,15 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z'
+                    date: '2019-09-15T17:39:11.195Z',
+                    ip_address: '1.0.0.0'
                 },
                 {
                     name: 'Nick',
                     count: 1,
                     scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
+                    ip_address: '128.101.240.190'
                 }
             ]);
         });
@@ -787,14 +840,16 @@ describe('AggregationFrame', () => {
                 age: 64,
                 gender: 'M',
                 scores: [4, 9, 3],
-                date: '2020-09-15T17:39:11.195Z'
+                date: '2020-09-15T17:39:11.195Z',
+                ip_address: '247.255.255.255'
             },
             {
                 name: 'Jill',
                 age: 40,
                 gender: 'F',
                 scores: [2, 2, 2],
-                date: '2020-09-15T15:39:11.195Z'
+                date: '2020-09-15T15:39:11.195Z',
+                ip_address: '191.255.255.254'
             }
         ]);
     });

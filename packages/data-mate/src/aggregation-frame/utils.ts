@@ -54,14 +54,8 @@ export function getBuilderForField(
         if (isNumberLike(currentType)) {
             type = currentType;
         }
-        if (currentType === FieldType.IP) {
-            type = FieldType.Integer;
-        }
     } else if (valueAgg === ValueAggregation.count) {
         type = FieldType.Integer;
-        if (currentType === FieldType.IP) {
-            type = FieldType.Integer;
-        }
     }
 
     if (!type) {
