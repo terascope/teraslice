@@ -1,35 +1,29 @@
 {
-    "name": "Kafka To ES",
+    "name": "Kafka To ES 3.3.0",
     "lifecycle": "persistent",
     "workers": 1,
     "assets": [
         "elasticsearch:3.3.0",
-        "standard",
-        "kafka",
-        "general_datatypes"
+        "standard:0.14.2",
+        "kafka"
     ],
     "operations": [
         {
             "_op": "kafka_reader",
             "connection": "default",
             "topic": "test1",
-            "group": "testroll-es-1",
+            "group": "testroll-es-3-3-0",
             "rollback_on_failure": true,
             "size": 10000,
             "wait": 5000
         },
         {
-            "_op": "rekey_base64Url",
-            "key_name": "_key",
-            "key_fields": [
-                "uuid",
-                "ip",
-                "location"
-            ]
+            "_op": "set_key",
+            "field": "uuid"
         },
         {
             "_op": "elasticsearch_bulk",
-            "index": "testroll-es-1",
+            "index": "testroll-es-3-3-0",
             "type": "_doc",
             "upsert": true,
             "size": 10000,

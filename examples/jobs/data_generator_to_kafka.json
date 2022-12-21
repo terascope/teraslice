@@ -1,9 +1,8 @@
 {
     "name": "Data Generator To Kafka",
-    "lifecycle": "once",
+    "lifecycle": "persistent",
     "workers": 1,
     "assets": [
-        "elasticsearch",
         "standard",
         "kafka"
     ],
