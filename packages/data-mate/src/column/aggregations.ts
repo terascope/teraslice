@@ -3,7 +3,7 @@ import {
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions
+    Vector, VectorType, getNumericValues, SerializeOptions, ParsedNumericObject
 } from '../vector';
 
 export enum ValueAggregation {
@@ -114,25 +114,33 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     };
 }
 
+function numericValueToObject(value: number | bigint | ParsedNumericObject) {
+    if (typeof value === 'object') return value;
+    return { parsed: value };
+}
+
 function makeMinAgg(): FieldAgg {
     let agg: {
         index: number;
-        value?: number|bigint,
+        value?: number|bigint;
+        original?: string;
     } = { index: -1 };
 
     return {
         adjustsSelectedRow: true,
         push(value, index) {
-            const res = getNumericValues(value);
+            const res = getNumericValues(value, true);
             for (const num of res.values) {
-                if (agg.value == null || num < agg.value) {
-                    agg.value = num as any;
+                const { parsed, original } = numericValueToObject(num);
+                if (agg.value == null || parsed < agg.value) {
+                    agg.value = parsed;
                     agg.index = index;
+                    agg.original = original;
                 }
             }
         },
         flush() {
-            const result = { value: agg.value, index: agg.index };
+            const result = { value: agg.original || agg.value, index: agg.index };
             agg = { index: -1 };
             return result;
         },
@@ -149,18 +157,13 @@ function makeMaxAgg(): FieldAgg {
     return {
         adjustsSelectedRow: true,
         push(value, index) {
-            const res = getNumericValues(value);
+            const res = getNumericValues(value, true);
             for (const num of res.values) {
-                // i.e. res has parsed IP int & original IP string
-                // since no way to know which ip version to convert back to
-                const isObject = typeof num === 'object';
-                const _num = isObject ? num.parsed : num;
-                if (agg.value == null || _num > agg.value) {
-                    agg.value = _num;
+                const { parsed, original } = numericValueToObject(num);
+                if (agg.value == null || parsed > agg.value) {
+                    agg.value = parsed;
                     agg.index = index;
-                    if (isObject) {
-                        agg.original = num.original;
-                    }
+                    agg.original = original;
                 }
             }
         },

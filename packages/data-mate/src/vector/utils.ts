@@ -84,7 +84,7 @@ function _newVectorForType(
     }
 }
 
-type NumberObject = { original: string; parsed: bigint; }
+export type ParsedNumericObject = { original?: string; parsed: number|bigint; }
 type NumericValuesResult = {
     readonly values: number[],
     readonly type: 'number',
@@ -92,31 +92,36 @@ type NumericValuesResult = {
     readonly values: bigint[],
     readonly type: 'bigint',
 }|{
-    readonly values: { original: string; parsed: bigint; }[],
+    readonly values: ParsedNumericObject[],
     readonly type: 'bigint',
 };
 
 /**
- * Get all of the numeric values from a value or Vector
+ * Get all of the numeric values from a value or Vector.
+ * Will return as (number|bigint)[] UNLESS allowing IP and value is IP,
+ * then will return object with original value and parsed to number
 */
-export function getNumericValues(value: unknown): NumericValuesResult {
-    return _getNumericValues({
-        type: 'number',
-        values: []
-    }, value);
+export function getNumericValues(value: unknown, allowIP = false): NumericValuesResult {
+    return _getNumericValues(
+        { type: 'number', values: [] },
+        value,
+        allowIP
+    );
 }
 
 /**
  * An interval function for doing recursion recursion, made for getNumericValues
 */
-function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValuesResult {
+function _getNumericValues(
+    curr: NumericValuesResult, v: unknown, allowIP: boolean
+): NumericValuesResult {
     let val = v;
     if (val == null) return curr;
 
     if (isArrayLike(val)) {
         let res: NumericValuesResult = curr;
         for (const nested of val) {
-            res = _getNumericValues(res, nested);
+            res = _getNumericValues(res, nested, allowIP);
         }
         return res;
     }
@@ -125,6 +130,9 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
     if (typeof val === 'string') {
         valueIsIP = isIP(val);
         if (valueIsIP) {
+            if (!allowIP) {
+                throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+            }
             val = ipToInt(val);
         }
     }
@@ -138,7 +146,9 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
     const changesToBigInt = curr.type === 'number' && isBigInt(val);
 
     if (valueIsIP) {
-        (curr.values as NumberObject[]).push({ parsed: val, original: v } as NumberObject);
+        (curr.values as ParsedNumericObject[]).push({
+            parsed: val as bigint|number, original: v as string
+        });
     } else {
         (curr.values as (number|bigint)[]).push(val as number|bigint);
     }
