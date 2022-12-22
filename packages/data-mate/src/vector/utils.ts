@@ -87,19 +87,19 @@ function _newVectorForType(
 export type ParsedNumericObject = { original?: string; parsed: number|bigint; }
 type NumericValuesResult = {
     readonly values: number[],
-    readonly type: 'number',
+    readonly type: 'number'
 }|{
     readonly values: bigint[],
-    readonly type: 'bigint',
+    readonly type: 'bigint'
 }|{
     readonly values: ParsedNumericObject[],
-    readonly type: 'bigint',
+    readonly type: 'bigint'
 };
 
 /**
- * Get all of the numeric values from a value or Vector.
- * Will return as (number|bigint)[] UNLESS allowing IP and value is IP,
- * then will return object with original value and parsed to number
+ * Get all of the numeric values from a value or Vector
+ * (will return as [] of number|bigint UNLESS allowing IP and value is IP,
+ * then will return object with original value and parsed to number)
 */
 export function getNumericValues(value: unknown, allowIP = false): NumericValuesResult {
     return _getNumericValues(
