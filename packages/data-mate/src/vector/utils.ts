@@ -110,7 +110,7 @@ export function getNumericValues(value: unknown, allowIP = false): NumericValues
 }
 
 /**
- * An interval function for doing recursion recursion, made for getNumericValues
+ * An interval function for doing recursion, made for getNumericValues
 */
 function _getNumericValues(
     curr: NumericValuesResult, v: unknown, allowIP: boolean
