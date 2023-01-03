@@ -3,7 +3,7 @@ import {
 } from '@terascope/utils';
 import { Maybe, ISO8601DateSegment } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions
+    Vector, VectorType, getNumericValues, SerializeOptions, ParsedNumericObject
 } from '../vector';
 
 export enum ValueAggregation {
@@ -69,7 +69,7 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
         adjustsSelectedRow: false,
         push(value) {
             const res = getNumericValues(value);
-            const sum = add(0, res.values);
+            const sum = add(0, res.values as (number|bigint)[]);
             agg.value = add(agg.value, [sum]);
         },
         flush() {
@@ -96,7 +96,7 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
         push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
-                const sum = add(0, res.values);
+                const sum = add(0, res.values as (number|bigint)[]);
                 agg.value = agg.value != null ? add(sum, [agg.value]) : sum;
             }
             agg.total += res.values.length;
@@ -114,25 +114,33 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     };
 }
 
+function numericValueToObject(value: number | bigint | ParsedNumericObject) {
+    if (typeof value === 'object') return value;
+    return { parsed: value };
+}
+
 function makeMinAgg(): FieldAgg {
     let agg: {
         index: number;
-        value?: number|bigint,
+        value?: number|bigint;
+        original?: string;
     } = { index: -1 };
 
     return {
         adjustsSelectedRow: true,
         push(value, index) {
-            const res = getNumericValues(value);
+            const res = getNumericValues(value, true);
             for (const num of res.values) {
-                if (agg.value == null || num < agg.value) {
-                    agg.value = num;
+                const { parsed, original } = numericValueToObject(num);
+                if (agg.value == null || parsed < agg.value) {
+                    agg.value = parsed;
                     agg.index = index;
+                    agg.original = original;
                 }
             }
         },
         flush() {
-            const result = { value: agg.value, index: agg.index };
+            const result = { value: agg.original || agg.value, index: agg.index };
             agg = { index: -1 };
             return result;
         },
@@ -143,21 +151,24 @@ function makeMaxAgg(): FieldAgg {
     let agg: {
         index: number;
         value?: number|bigint,
+        original?: string;
     } = { index: -1 };
 
     return {
         adjustsSelectedRow: true,
         push(value, index) {
-            const res = getNumericValues(value);
+            const res = getNumericValues(value, true);
             for (const num of res.values) {
-                if (agg.value == null || num > agg.value) {
-                    agg.value = num;
+                const { parsed, original } = numericValueToObject(num);
+                if (agg.value == null || parsed > agg.value) {
+                    agg.value = parsed;
                     agg.index = index;
+                    agg.original = original;
                 }
             }
         },
         flush() {
-            const result = { value: agg.value, index: agg.index };
+            const result = { value: agg.original || agg.value, index: agg.index };
             agg = { index: -1 };
             return result;
         },

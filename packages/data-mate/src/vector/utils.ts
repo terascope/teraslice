@@ -3,7 +3,7 @@ import {
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf, isArrayLike, TSError
+    isNumber, isBigInt, getTypeOf, isArrayLike, TSError, ipToInt, isIP
 } from '@terascope/utils';
 import { ListVector } from './ListVector';
 import {
@@ -84,48 +84,74 @@ function _newVectorForType(
     }
 }
 
+export type ParsedNumericObject = { original?: string; parsed: number|bigint; }
 type NumericValuesResult = {
     readonly values: number[],
     readonly type: 'number'
 }|{
     readonly values: bigint[],
     readonly type: 'bigint'
+}|{
+    readonly values: ParsedNumericObject[],
+    readonly type: 'bigint'
 };
 
 /**
  * Get all of the numeric values from a value or Vector
+ * (will return as [] of number|bigint UNLESS allowing IP and value is IP,
+ * then will return object with original value and parsed to number)
 */
-export function getNumericValues(value: unknown): NumericValuesResult {
-    return _getNumericValues({
-        type: 'number',
-        values: []
-    }, value);
+export function getNumericValues(value: unknown, allowIP = false): NumericValuesResult {
+    return _getNumericValues(
+        { type: 'number', values: [] },
+        value,
+        allowIP
+    );
 }
 
 /**
- * An interval function for doing recursion recursion, made for getNumericValues
+ * An interval function for doing recursion, made for getNumericValues
 */
-function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValuesResult {
-    if (v == null) return curr;
+function _getNumericValues(
+    curr: NumericValuesResult, v: unknown, allowIP: boolean
+): NumericValuesResult {
+    let val = v;
+    if (val == null) return curr;
 
-    if (isArrayLike(v)) {
+    if (isArrayLike(val)) {
         let res: NumericValuesResult = curr;
-        for (const nested of v) {
-            res = _getNumericValues(res, nested);
+        for (const nested of val) {
+            res = _getNumericValues(res, nested, allowIP);
         }
         return res;
     }
 
-    if (!isNumber(v) && !isBigInt(v)) {
-        if (!Number.isNaN(v)) {
-            throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+    let valueIsIP = false;
+    if (typeof val === 'string') {
+        valueIsIP = isIP(val);
+        if (valueIsIP) {
+            if (!allowIP) {
+                throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+            }
+            val = ipToInt(val);
         }
     }
 
-    const changesToBigInt = curr.type === 'number' && isBigInt(v);
+    if (!isNumber(val) && !isBigInt(val)) {
+        if (!Number.isNaN(val)) {
+            throw new Error(`Invalid to numeric values in ${val} (${getTypeOf(val)})`);
+        }
+    }
 
-    // add the typescript hacks so will stop complaining
-    (curr.values as number[]).push(v as number);
+    const changesToBigInt = curr.type === 'number' && isBigInt(val);
+
+    if (valueIsIP) {
+        (curr.values as ParsedNumericObject[]).push({
+            parsed: val as bigint|number, original: v as string
+        });
+    } else {
+        (curr.values as (number|bigint)[]).push(val as number|bigint);
+    }
 
     return {
         type: changesToBigInt ? 'bigint' : curr.type,
@@ -135,6 +161,7 @@ function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValues
 
 export function isNumberLike(type: FieldType): boolean {
     if (type === FieldType.Long) return true;
+    if (type === FieldType.IP) return true;
     return isFloatLike(type) || isIntLike(type);
 }
 

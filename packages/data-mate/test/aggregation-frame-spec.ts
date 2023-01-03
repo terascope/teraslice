@@ -895,4 +895,61 @@ describe('AggregationFrame', () => {
             ]);
         });
     });
+
+    describe('when there are string to numeric conversions (i.e. IP)', () => {
+        type Device = {
+            ip_address: string;
+        };
+        let ipDataFrame: DataFrame<Device>;
+
+        beforeAll(() => {
+            ipDataFrame = DataFrame.fromJSON<Device>({
+                version: LATEST_VERSION,
+                fields: {
+                    ip_address: {
+                        type: FieldType.IP
+                    }
+                }
+            }, [
+                // ipv4
+                { ip_address: '247.255.255.255' },
+                { ip_address: '127.255.255.255' },
+                { ip_address: '191.255.255.254' },
+                { ip_address: '239.255.255.255' },
+                { ip_address: '192.0.0.0' },
+                { ip_address: '1.0.0.0' },
+                { ip_address: '127.255.255.255' },
+                { ip_address: '128.101.240.190' },
+                // ipv6
+                { ip_address: 'FE80:CD00:0000:0CDE:1257:0000:211E:729C' },
+                { ip_address: 'A:B:C:D:E:F:0:0' },
+            ]);
+        });
+
+        describe('->max(ip_address)', () => {
+            it('should get the right result when using aggregate()', async () => {
+                const grouped = ipDataFrame.aggregate();
+                const resultFrame = await grouped
+                    .max('ip_address')
+                    .run();
+
+                expect(resultFrame.toJSON()).toEqual([
+                    { ip_address: 'FE80:CD00:0000:0CDE:1257:0000:211E:729C' }
+                ]);
+            });
+        });
+
+        describe('->min(ip_address)', () => {
+            it('should get the right result when using aggregate()', async () => {
+                const grouped = ipDataFrame.aggregate();
+                const resultFrame = await grouped
+                    .min('ip_address')
+                    .run();
+
+                expect(resultFrame.toJSON()).toEqual([
+                    { ip_address: '1.0.0.0' }
+                ]);
+            });
+        });
+    });
 });
