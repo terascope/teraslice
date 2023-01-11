@@ -792,19 +792,33 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         });
     }
 
+    function isConnectionErrorMessage(err) {
+        const msg = get(err, 'message', '');
+        return msg.includes('No Living connections') || msg.includes('ECONNREFUSED');
+    }
+
+    function isErrorRetryable(err) {
+        const checkErrorMsg = isRetryableError(err);
+
+        if (checkErrorMsg) {
+            return true;
+        }
+
+        const isRejectedError = get(err, 'body.error.type') === 'es_rejected_execution_exception';
+        const isConnectionError = isConnectionErrorMessage(err);
+
+        if (isRejectedError || isConnectionError) {
+            return true;
+        }
+
+        return false;
+    }
+
     function _errorHandler(fn, data, reject, fnName = '->unknown()') {
         const retry = _retryFn(fn, data, reject);
+
         return function _errorHandlerFn(err) {
-            let retryable = false;
-            if (isRetryableError(err)) {
-                retryable = true;
-            } else {
-                const isRejectedError = get(err, 'body.error.type') === 'es_rejected_execution_exception';
-                const isConnectionError = get(err, 'message', '').includes('No Living connections');
-                if (isRejectedError || isConnectionError) {
-                    retryable = true;
-                }
-            }
+            const retryable = isErrorRetryable(err);
 
             if (retryable) {
                 retry();
@@ -1254,5 +1268,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         index_refresh: indexRefresh,
         index_recovery: indexRecovery,
         getESVersion,
+        isErrorRetryable
     };
 };
