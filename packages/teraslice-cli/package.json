@@ -45,7 +45,7 @@
         "execa": "^5.1.0",
         "fs-extra": "^10.1.0",
         "glob": "^8.0.3",
-        "glob-promise": "^5.0.0",
+        "glob-promise": "5.0.0",
         "got": "^11.8.3",
         "js-yaml": "^4.1.0",
         "pretty-bytes": "^5.6.0",
