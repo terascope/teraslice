@@ -10,7 +10,7 @@ import { Client } from './client';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig } from './interfaces';
 
-const clientList = [elasticsearch6];
+const clientList = [opensearch, elasticsearch8, elasticsearch7, elasticsearch6];
 
 export async function createClient(
     config: ClientConfig,
@@ -36,7 +36,7 @@ async function getClientMetadata(
 ): Promise<ClientMetadata> {
     for (let i = 0; i <= clientList.length - 1; i++) {
         try {
-            const client = new clientList[i].Client(config);
+            const client = new clientList[i].Client(config) as any;
 
             const response = await client.info();
 
@@ -67,7 +67,7 @@ async function getClientMetadata(
                     distribution,
                     majorVersion,
                     minorVersion
-                };
+                } as any;
             }
         } catch (err) {
             if (logger.level() === 10) {
@@ -81,17 +81,6 @@ async function getClientMetadata(
     throw new Error(`Could not create a client with config ${JSON.stringify(config)}`);
 }
 
-/*
-
-const config = {
-    "node": "http://127.0.0.1:49200",
-    "sniffOnStart":false,
-    "sniffOnConnectionFault":false,
-    "requestTimeout":120000,
-    "maxRetries":3
-}
-*/
-
 export async function getBaseClient(
     clientMetadata: ClientMetadata,
     config: ClientConfig,
@@ -101,7 +90,7 @@ export async function getBaseClient(
         distribution,
         majorVersion,
         minorVersion
-    } = clientMetadata;
+    } = clientMetadata as any;
 
     try {
         if (distribution === ElasticsearchDistribution.opensearch) {
