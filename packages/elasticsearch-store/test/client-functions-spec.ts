@@ -1576,6 +1576,19 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         });
     });
 
+    // TODO: make tests for these
+    describe('indices.getMapping', () => {});
+    describe('indices.putMapping', () => {});
+    describe('indices.getFieldMapping', () => {});
+    describe('indices.getSettings', () => {});
+    describe('indices.putSettings', () => {});
+    describe('indices.refresh', () => {});
+    describe('indices.recovery', () => {});
+    describe('indices.validateQuery', () => {});
+
+    describe('tasks.cancel', () => {});
+    describe('tasks.get', () => {});
+
     describe('tasks.list', () => {
         it('should return tasks', async () => {
             const params: ClientParams.TasksListParams = {

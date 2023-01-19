@@ -585,6 +585,7 @@ export interface IndicesIndexState {
     aliases?: Record<string, IndicesAlias>;
     mappings?: MappingTypeMapping;
     settings: IndicesIndexSettings | IndicesIndexStatePrefixedSettings;
+    defaults?: IndicesIndexSettings | IndicesIndexStatePrefixedSettings;
 }
 
 export interface MappingTypeMapping {

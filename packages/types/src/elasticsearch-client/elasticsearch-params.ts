@@ -65,7 +65,7 @@ export interface GetParams {
     realtime?: boolean;
     refresh?: boolean;
     routing?: string;
-    _source?: string | string[];
+    _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
     version?: number;
@@ -298,7 +298,7 @@ export interface MGetParams {
     realtime?: boolean;
     refresh?: boolean;
     routing?: string;
-    _source?: string | string[];
+    _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
     body: i.MGetBody
@@ -379,13 +379,13 @@ export interface SearchParams {
     q?: string;
     request_cache?: boolean;
     rest_total_hits_as_int?: boolean;
-    routing?: string;
+    routing?: string | string[];
     scroll?: i.TimeSpan;
     search_type?: i.SearchTypes;
     seq_no_primary_term?: boolean;
     size?: number;
     sort?: string;
-    _source?: boolean | string;
+    _source?: boolean | string | string[];
     _source_excludes?: string | string[];
     _source_includes?: string | string[];
     stats?: string | string[];
