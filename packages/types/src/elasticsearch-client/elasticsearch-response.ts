@@ -188,7 +188,7 @@ export interface IndicesPutMappingResponse extends i.IndicesResponseBase {
     _shards: i.ShardStatistics
 }
 
-export interface IndicesPutSettingsResponse {
+export interface IndicesPutSettingsResponse extends i.IndicesResponseBase {
     _shards: i.ShardStatistics
 }
 
@@ -213,7 +213,7 @@ export interface NodesStatsResponse {
     _nodes?: i.NodeStatistics;
 }
 
-export interface ReindexResponse {
+export interface ReindexCompletedResponse {
     took: number;
     timed_out: boolean;
     total: number;
@@ -232,5 +232,11 @@ export interface ReindexResponse {
     throttled_until_millis: number;
     failures: any[]
 }
+
+export interface ReindexTaskResponse {
+    task: string
+}
+
+export type ReindexResponse = ReindexCompletedResponse | ReindexTaskResponse
 
 export interface SearchResponse<T = Record<string, unknown>> extends i.SearchRecordResponse<T> {}

@@ -89,6 +89,18 @@ export async function upload(
     return client.bulk(query);
 }
 
+export function createMappingFromDatatype(
+    client: Client,
+    dataType: DataType,
+    type = '_doc',
+    overrides = {}
+) {
+    const metaData = getClientMetadata(client);
+    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
+
+    return fixMappingRequest(client, { body: mapping }, false);
+}
+
 export async function populateIndex(
     client: Client,
     index: string,
@@ -103,20 +115,11 @@ export async function populateIndex(
         },
     };
 
-    const metaData = getClientMetadata(client);
-    const mapping = dataType.toESMapping({ typeName: type, overrides, ...metaData });
-
-    await client.indices.create(
-        fixMappingRequest(
-            client,
-            {
-                index,
-                wait_for_active_shards: 'all',
-                body: mapping,
-            },
-            false
-        )
+    const mapping = createMappingFromDatatype(
+        client, dataType, type, overrides
     );
+
+    await client.indices.create(mapping);
 
     const body = formatUploadData(index, records);
 
