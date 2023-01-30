@@ -56,6 +56,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "elasticsearch"
+        "testSuite": "search"
     }
 }
