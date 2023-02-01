@@ -569,7 +569,7 @@ export class Client {
                     distributionMeta
                 );
 
-                const resp = await client.indices.getSettings(parsedParams);
+                const resp = await client.indices.getFieldMapping(parsedParams);
 
                 return _removeBody(resp);
             },
@@ -580,7 +580,7 @@ export class Client {
              * @returns IndicesGetSettingsResponse
              */
             async getSettings(
-                params: ClientParams.IndicesGetSettingsParams
+                params: ClientParams.IndicesGetSettingsParams = {}
             ): Promise<ClientResponse.IndicesGetSettingsResponse> {
                 const parsedParams = methods.convertIndicesGetSettingsParams(
                     params as ClientParams.IndicesGetSettingsParams,
@@ -617,7 +617,7 @@ export class Client {
              * can be an empty query
             */
             async refresh(
-                params: ClientParams.IndicesRefreshParams
+                params: ClientParams.IndicesRefreshParams = {}
             ): Promise<ClientResponse.IndicesRefreshResponse> {
                 const parsedParams = methods.convertIndicesRefreshParams(
                     params as ClientParams.IndicesRefreshParams,
@@ -636,7 +636,7 @@ export class Client {
              * can be an empty query
             */
             async recovery(
-                params: ClientParams.IndicesRecoveryParams
+                params: ClientParams.IndicesRecoveryParams = {}
             ): Promise<ClientResponse.IndicesRecoveryResponse> {
                 const parsedParams = methods.convertIndicesRecoveryParams(
                     params as ClientParams.IndicesRecoveryParams,

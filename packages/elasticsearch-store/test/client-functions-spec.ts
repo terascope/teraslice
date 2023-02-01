@@ -1,10 +1,13 @@
 /* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
-import { DataEntity, debugLogger, cloneDeep } from '@terascope/utils';
-import { ClientParams } from '@terascope/types';
+import {
+    DataEntity, debugLogger, cloneDeep, get
+} from '@terascope/utils';
+import { ClientParams, ClientResponse } from '@terascope/types';
 import {
     createClient, getBaseClient, Client,
-    ElasticsearchTestHelpers
+    ElasticsearchTestHelpers,
+    isElasticsearch6,
 } from '../src';
 
 const {
@@ -17,6 +20,7 @@ const { data } = EvenDateData;
 
 describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
+    const taskIndex = 'task_index_test';
     const docType = '_doc';
 
     const testLogger = debugLogger('create-client-test');
@@ -33,7 +37,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
     beforeAll(async () => {
         ({ client } = await createClient(config, testLogger));
 
-        await cleanupIndex(client, index);
+        Promise.all([
+            cleanupIndex(client, index),
+            cleanupIndex(client, taskIndex)
+        ]);
 
         if (clientMetadata.version.split('.').length !== 3) {
             throw new Error(`Expected version to follow semver format (major.minor.patch) got ${clientMetadata.version}`);
@@ -41,7 +48,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
         await upload(client, { index, type: docType }, data);
         await waitForData(client, index, 1000);
-    });
+    }, 15000);
 
     describe('info', () => {
         it('should return info about the cluster', async () => {
@@ -804,7 +811,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 }
             };
 
-            const resp = await client.reindex(params);
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -824,7 +831,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 }
             };
 
-            const resp = await client.reindex(params);
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -848,7 +855,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 }
             };
 
-            const resp = await client.reindex(params);
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             expect(resp.total).toBe(10);
             expect(resp.created).toBe(10);
@@ -869,7 +876,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 }
             };
 
-            const resp = await client.reindex(params);
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             expect(resp.total).toBe(1);
             expect(resp.created).toBe(1);
@@ -896,7 +903,7 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 }
             };
 
-            const resp = await client.reindex(params);
+            const resp = await client.reindex(params) as ClientResponse.ReindexCompletedResponse;
 
             if (clientMetadata.distribution === 'elasticsearch') {
                 if (clientMetadata.majorVersion === 6) {
@@ -1576,18 +1583,114 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
         });
     });
 
-    // TODO: make tests for these
-    describe('indices.getMapping', () => {});
-    describe('indices.putMapping', () => {});
-    describe('indices.getFieldMapping', () => {});
-    describe('indices.getSettings', () => {});
-    describe('indices.putSettings', () => {});
-    describe('indices.refresh', () => {});
-    describe('indices.recovery', () => {});
-    describe('indices.validateQuery', () => {});
+    describe('indices.getMapping', () => {
+        it('should get a mapping from an index', async () => {
+            const resp = await client.indices.getMapping({ index });
+            const expectedKeys = Object.keys(data[0]);
 
-    describe('tasks.cancel', () => {});
-    describe('tasks.get', () => {});
+            let pathToProperties: string;
+
+            if (isElasticsearch6(client)) {
+                pathToProperties = `${index}.mappings.${docType}.properties`;
+            } else {
+                pathToProperties = `${index}.mappings.properties`;
+            }
+            const keys = Object.keys(get(resp, pathToProperties, {}));
+
+            expectedKeys.forEach((key) => {
+                expect(keys).toInclude(key);
+            });
+        });
+    });
+
+    describe('indices.getFieldMapping', () => {
+        it('should get the mapping for a field', async () => {
+            const field = 'uuid';
+            const resp = await client.indices.getFieldMapping({
+                index,
+                fields: [field]
+            });
+
+            expect(resp).toBeDefined();
+        });
+    });
+
+    describe('indices.putMapping', () => {
+        it('should update a mapping to an index', async () => {
+            const query: ClientParams.IndicesPutMappingParams = {
+                index,
+                body: {
+                    properties: {
+                        test: { type: 'keyword' }
+                    }
+                }
+            };
+            // NOTE: this mutates the fields
+            const resp = await client.indices.putMapping(query);
+
+            expect(resp.acknowledged).toBeTrue();
+        });
+    });
+
+    describe('indices.getSettings', () => {
+        it('should fetch settings', async () => {
+            const resp = await client.indices.getSettings({ index });
+            const settings = get(resp, `${index}.settings.index`) as any;
+
+            expect(settings).toBeDefined();
+            expect(settings.uuid).toBeString();
+        });
+    });
+
+    describe('indices.putSettings', () => {
+        it('can add settings', async () => {
+            const resp = await client.indices.putSettings({
+                index,
+                body: {
+                    settings: {
+                        'index.max_result_window': 100000
+                    }
+                }
+            });
+
+            expect(resp.acknowledged).toBeTrue();
+        });
+    });
+
+    describe('indices.refresh', () => {
+        it('can refresh an index', async () => {
+            const resp = await client.indices.refresh({ index });
+            expect(resp._shards).toBeDefined();
+        });
+    });
+
+    describe('indices.recovery', () => {
+        it('can do something', async () => {
+            const resp = await client.indices.recovery({ index });
+            expect(resp[index].shards).toBeArray();
+        });
+    });
+
+    describe('indices.validateQuery', () => {
+        it('can verify a query', async () => {
+            const goodQuery = {
+                index,
+                q: '_exists_:uuid'
+            };
+            const badQuery = {
+                index,
+                body: { foo: 'bar' }
+            };
+
+            const [goodResp, badResp] = await Promise.all([
+                client.indices.validateQuery(goodQuery),
+                client.indices.validateQuery(badQuery)
+            ]);
+
+            expect(badResp.valid).toBeFalse();
+            expect(goodResp.valid).toBeTrue();
+        });
+    });
 
     describe('tasks.list', () => {
         it('should return tasks', async () => {
@@ -1611,6 +1714,38 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             const resp = await client.tasks.list(params);
 
             expect(resp.tasks).toBeDefined();
+        });
+    });
+
+    // we are combining as we need an action that is slow enough to persist
+    // reliably to make tests pass, and we don't want multiple scenarios of these
+    describe('tasks.get and tasks.cancel', () => {
+        it('should get and cancel a task', async () => {
+            const { task } = await client.reindex({
+                requests_per_second: 1,
+                wait_for_completion: false,
+                body: {
+                    source: {
+                        index,
+                        size: 10
+                    },
+                    dest: {
+                        index: taskIndex
+                    }
+                }
+            }) as ClientResponse.ReindexTaskResponse;
+
+            const taskResp = await client.tasks.get({ task_id: task });
+
+            expect(taskResp.completed).toBeFalse();
+            expect(taskResp.task).toBeDefined();
+            expect(taskResp.task.action).toInclude('reindex');
+
+            const canceledTaskResp = await client.tasks.cancel({
+                task_id: task
+            });
+
+            expect(canceledTaskResp.nodes).toBeDefined();
         });
     });
 });

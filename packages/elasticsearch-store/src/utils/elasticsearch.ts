@@ -153,6 +153,7 @@ export function isElasticsearch8(client: Client): boolean {
     return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
 }
 
+// TODO: move this logic over to datatype
 export function fixMappingRequest(
     client: Client, _params: Record<string, any>, isTemplate: boolean
 ): any {
