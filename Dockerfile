@@ -1,4 +1,4 @@
-FROM terascope/node-base:14.17.6
+FROM terascope/node-base:16.19.1-core
 
 ENV NODE_ENV production
 
@@ -23,9 +23,6 @@ RUN yarn --prod=false --frozen-lockfile \
 
 
 COPY service.js /app/source/
-
-# verify node-rdkafka is installed right
-RUN node -e "require('node-rdkafka')"
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
