@@ -24,6 +24,9 @@ RUN yarn --prod=false --frozen-lockfile \
 
 COPY service.js /app/source/
 
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
+
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
 
