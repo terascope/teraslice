@@ -1,14 +1,16 @@
+const defaultMaxSize = 2 ** 24;
+
 /**
  * Avoid v8 maximum size for Map by spreading the cache across multiple Maps.
  * This class has the same API as Map but minus more differences in ->set and ->forEach
  */
 export class BigMap<K, V> {
     /**
-     * in some caching scenarios key evictions may not be able to keep up with the addition
-     * of new keys. Setting the max size at 10M keys solves this issue
-     * with a minimal impact on big map performance
+     * in some cache settings key evictions may not be able to keep up with the addition
+     * of new keys, setting the max size at 8.7M keys solves this issue
+     * with a minimally impacting performance
      */
-    static DEFAULT_MAX_SIZE = 10_000_000;
+    static DEFAULT_MAX_SIZE = Math.floor(defaultMaxSize / 2);
 
     readonly maxMapSize: number;
     private _maps: Map<K, V>[];
