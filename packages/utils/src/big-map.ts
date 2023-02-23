@@ -6,7 +6,7 @@ const defaultMaxSize = 2 ** 24;
  */
 export class BigMap<K, V> {
     /**
-     * in some cache settings key evictions may not be able to keep up with the addition
+     * In some cache settings key evictions may not be able to keep up with the addition
      * of new keys, setting the max size at 8.7M keys solves this issue
      */
     static DEFAULT_MAX_SIZE = Math.floor(defaultMaxSize / 2);
