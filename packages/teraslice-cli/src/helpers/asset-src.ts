@@ -55,10 +55,14 @@ export class AssetSrc {
         srcDir: string,
         devMode = false,
         debug = false,
-        bundle = false,
-        bundleTarget = undefined,
+        bundle = true,
+        bundleTarget = 'node14',
         overwrite = false
     ) {
+        if (bundle === false) {
+            throw new Error('bundle must be set to true');
+        }
+
         this.bundle = bundle;
         this.bundleTarget = bundleTarget;
         this.debug = debug;
@@ -86,15 +90,9 @@ export class AssetSrc {
     }
 
     get zipFileName(): string {
-        let zipName;
-        let nodeVersion;
-        if (this.bundle) {
-            nodeVersion = this.bundleTarget?.replace('node', '');
-            zipName = `${this.name}-v${this.version}-node-${nodeVersion}-bundle.zip`;
-        } else {
-            nodeVersion = process.version.split('.', 1)[0].substr(1);
-            zipName = `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
-        }
+        const nodeVersion = this.bundleTarget?.replace('node', '');
+        const zipName = `${this.name}-v${this.version}-node-${nodeVersion}-bundle.zip`;
+
         return zipName;
     }
 
@@ -183,23 +181,20 @@ export class AssetSrc {
         if (!this.devMode) {
             const restrictions:string[] = [];
             if (assetJSON.node_version === undefined) {
-                if (this.bundle) {
-                    assetJSON.node_version = toInteger(this.bundleTarget?.replace('node', ''));
-                } else {
-                    assetJSON.node_version = toInteger(process.version.split('.', 1)[0].substr(1));
-                }
+                assetJSON.node_version = toInteger(this.bundleTarget?.replace('node', ''));
                 restrictions.push('node_version');
             }
 
             if (assetJSON.platform === undefined) {
-                assetJSON.platform = (this.bundle ? false : process.platform);
+                assetJSON.platform = false;
                 restrictions.push('platform');
             }
 
             if (assetJSON.arch === undefined) {
-                assetJSON.arch = (this.bundle ? false : process.arch);
+                assetJSON.arch = false;
                 restrictions.push('arch');
             }
+
             if (restrictions.length && !isCI) {
                 reply.info(
                     `[NOTE] Automatically added ${restrictions.join(', ')} restrictions for the asset`
@@ -214,123 +209,86 @@ export class AssetSrc {
             spaces: 4,
         });
 
-        if (this.bundle) {
-            const bundleDir = tmp.dirSync();
-            reply.info(`* making tmp bundle directory "${bundleDir.name}"`);
+        const bundleDir = tmp.dirSync();
+        reply.info(`* making tmp bundle directory "${bundleDir.name}"`);
 
-            // write asset.json into bundleDir
-            await fs.writeJSON(path.join(bundleDir.name, 'asset.json'), assetJSON, {
-                spaces: 4,
-            });
+        // write asset.json into bundleDir
+        await fs.writeJSON(path.join(bundleDir.name, 'asset.json'), assetJSON, {
+            spaces: 4,
+        });
 
-            // run npm --cwd srcDir/asset --prod --silent --no-progress
-            reply.info('* running yarn --prod --no-progress');
-            await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+        // run npm --cwd srcDir/asset --prod --silent --no-progress
+        reply.info('* running yarn --prod --no-progress');
+        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
-            // Since we now require bundled assets to implement a registry, we
-            // require that Javascript assets place it at `asset/index.js` and
-            // TypeScript assets place it at `asset/src/index.ts`
-            let entryPoint = '';
+        // Since we now require bundled assets to implement a registry, we
+        // require that Javascript assets place it at `asset/index.js` and
+        // TypeScript assets place it at `asset/src/index.ts`
+        let entryPoint = '';
+        try {
+            if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'index.js'))) {
+                entryPoint = path.join(tmpDir.name, 'asset', 'index.js');
+            } else if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'src', 'index.ts'))) {
+                entryPoint = path.join(tmpDir.name, 'asset', 'src', 'index.ts');
+            } else {
+                reply.fatal('Bundled assets require an asset registry at either asset/index.js or asset/src/index.ts');
+            }
+            reply.warning(`* entryPoint: ${entryPoint}`);
+        } catch (err) {
+            reply.fatal(`Unable to resolve entry point due to error: ${err}`);
+        }
+
+        const result = await build({
+            bundle: true,
+            entryPoints: [entryPoint],
+            outdir: bundleDir.name,
+            platform: 'node',
+            sourcemap: false,
+            target: this.bundleTarget,
+            plugins: [wasmPlugin],
+            keepNames: true
+        });
+
+        // Test require the asset to make sure it loads, if the process node
+        // version is the same as the buildTarget
+        if (this.bundleTarget?.replace('node', '') === process.version.split('.', 1)[0].substr(1)) {
             try {
-                if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'index.js'))) {
-                    entryPoint = path.join(tmpDir.name, 'asset', 'index.js');
-                } else if (await fs.pathExists(path.join(tmpDir.name, 'asset', 'src', 'index.ts'))) {
-                    entryPoint = path.join(tmpDir.name, 'asset', 'src', 'index.ts');
-                } else {
-                    reply.fatal('Bundled assets require an asset registry at either asset/index.js or asset/src/index.ts');
+                const modulePath = require.resolve(bundleDir.name);
+                reply.info(`* doing a test require of ${modulePath}`);
+                const requireOut = require(modulePath).ASSETS;
+                if (this.debug) {
+                    reply.warning(JSON.stringify(requireOut, null, 2));
                 }
-                reply.warning(`* entryPoint: ${entryPoint}`);
             } catch (err) {
-                reply.fatal(`Unable to resolve entry point due to error: ${err}`);
-            }
-            const result = await build({
-                bundle: true,
-                entryPoints: [entryPoint],
-                outdir: bundleDir.name,
-                platform: 'node',
-                sourcemap: false,
-                target: this.bundleTarget,
-                plugins: [wasmPlugin],
-                keepNames: true
-            });
-
-            // Test require the asset to make sure it loads, if the process node
-            // version is the same as the buildTarget
-            if (this.bundleTarget?.replace('node', '') === process.version.split('.', 1)[0].substr(1)) {
-                try {
-                    const modulePath = require.resolve(bundleDir.name);
-                    reply.info(`* doing a test require of ${modulePath}`);
-                    const requireOut = require(modulePath).ASSETS;
-                    if (this.debug) {
-                        reply.warning(JSON.stringify(requireOut, null, 2));
-                    }
-                } catch (err) {
-                    reply.fatal(`Bundled asset failed to require: ${err}`);
-                }
-            }
-
-            if (result.warnings.length > 0) {
-                reply.warning(result.warnings);
-            }
-
-            try {
-                if (this.overwrite && fs.pathExistsSync(this.outputFileName)) {
-                    reply.info(`* overwriting ${this.outputFileName}`);
-                    await fs.remove(this.outputFileName);
-                }
-
-                await this._copyStaticAssets(tmpDir.name, bundleDir.name);
-
-                reply.info('* zipping the asset bundle');
-                // create zipfile
-                // cp include files that are not required, should require as much as possible
-                zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
-                // remove temp directories
-                await fs.remove(tmpDir.name);
-                await fs.remove(bundleDir.name);
-            } catch (err) {
-                throw new TSError(err, {
-                    reason: 'Failure creating asset zipfile'
-                });
-            }
-        } else {
-            // run yarn --cwd srcDir --prod --silent --no-progress asset:build
-            if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
-                reply.info('* running yarn asset:build');
-                await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
-            }
-
-            if (await fs.pathExists(path.join(tmpDir.name, '.yarnclean'))) {
-                reply.info('* running yarn autoclean --force');
-                await this._yarnCmd(tmpDir.name, ['autoclean', '--force']);
-            }
-
-            // run npm --cwd srcDir/asset --prod --silent --no-progress
-            reply.info('* running yarn --prod --no-progress');
-            await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
-
-            // run yarn --cwd srcDir --prod --silent --no-progress asset:post-build
-            if (this.packageJson?.scripts && this.packageJson.scripts['asset:post-build']) {
-                reply.info('* running yarn asset:post-build');
-                await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
-            }
-            try {
-                if (this.overwrite && fs.pathExistsSync(this.outputFileName)) {
-                    reply.info(`* overwriting ${this.outputFileName}`);
-                    await fs.remove(this.outputFileName);
-                }
-
-                reply.info('* zipping the asset bundle');
-                // create zipfile
-                zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), this.outputFileName);
-                // remove temp directory
-                await fs.remove(tmpDir.name);
-            } catch (err) {
-                throw new TSError(err, {
-                    reason: 'Failure creating asset zipfile'
-                });
+                reply.fatal(`Bundled asset failed to require: ${err}`);
             }
         }
+
+        if (result.warnings.length > 0) {
+            reply.warning(result.warnings);
+        }
+
+        try {
+            if (this.overwrite && fs.pathExistsSync(this.outputFileName)) {
+                reply.info(`* overwriting ${this.outputFileName}`);
+                await fs.remove(this.outputFileName);
+            }
+
+            await this._copyStaticAssets(tmpDir.name, bundleDir.name);
+
+            reply.info('* zipping the asset bundle');
+            // create zipfile
+            // cp include files that are not required, should require as much as possible
+            zipOutput = await AssetSrc.zip(path.join(bundleDir.name), this.outputFileName);
+            // remove temp directories
+            await fs.remove(tmpDir.name);
+            await fs.remove(bundleDir.name);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Failure creating asset zipfile'
+            });
+        }
+
         return zipOutput;
     }
 

@@ -93,7 +93,7 @@ export async function getBaseClient(
     } = clientMetadata as any;
 
     try {
-        if (distribution === ElasticsearchDistribution.opensearch) {
+        if (distribution === ElasticsearchDistribution.opensearch && majorVersion === 1) {
             const client = new opensearch.Client(config as any);
 
             logger.debug('Creating an opensearch client');

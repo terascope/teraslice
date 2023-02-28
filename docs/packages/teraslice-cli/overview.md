@@ -103,7 +103,7 @@ $ teraslice-cli assets build
 # or by specifying the path
 # teraslice-cli assets build --src-dir /path/to/asset
 Asset created:
-        /dir/path/new_asset-v0.0.01-node-version-platform-architecture.zip
+        /dir/path/new_asset-v0.0.01-node-version-bundle.zip
 ```
 
 ### assets deploy
