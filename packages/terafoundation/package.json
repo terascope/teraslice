@@ -28,10 +28,10 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.45.3",
-        "aws-sdk": "^2.1229.0",
+        "aws-sdk": "^2.1324.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.15",
-        "convict": "^6.2.3",
+        "convict": "^6.2.4",
         "convict-format-with-moment": "^6.2.0",
         "convict-format-with-validator": "^6.2.0",
         "elasticsearch": "^15.4.1",
@@ -42,7 +42,7 @@
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^4.3.1",
-        "yargs": "^17.6.0"
+        "yargs": "^17.7.1"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",

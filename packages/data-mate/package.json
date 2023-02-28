@@ -32,7 +32,7 @@
         "@terascope/data-types": "^0.36.3",
         "@terascope/types": "^0.11.2",
         "@terascope/utils": "^0.45.3",
-        "@types/validator": "^13.7.7",
+        "@types/validator": "^13.7.12",
         "awesome-phonenumber": "^2.70.0",
         "date-fns": "^2.29.3",
         "ip-bigint": "^3.0.3",
@@ -42,17 +42,17 @@
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
         "lodash": "^4.17.21",
-        "mnemonist": "^0.39.3",
+        "mnemonist": "^0.39.5",
         "uuid": "^9.0.0",
         "valid-url": "^1.0.9",
-        "validator": "^13.7.0",
+        "validator": "^13.9.0",
         "xlucene-parser": "^0.43.3"
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.2",
         "@types/uuid": "^8.3.4",
         "benchmark": "^2.1.4",
-        "chance": "^1.1.8",
+        "chance": "^1.1.10",
         "lodash": "^4.17.21"
     },
     "engines": {
