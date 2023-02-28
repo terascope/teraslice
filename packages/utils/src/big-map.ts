@@ -5,7 +5,11 @@ const defaultMaxSize = 2 ** 24;
  * This class has the same API as Map but minus more differences in ->set and ->forEach
  */
 export class BigMap<K, V> {
-    static DEFAULT_MAX_SIZE = defaultMaxSize;
+    /**
+     * In some cache settings key evictions may not be able to keep up with the addition
+     * of new keys, setting the max size at 8.7M keys solves this issue
+     */
+    static DEFAULT_MAX_SIZE = Math.floor(defaultMaxSize / 2);
 
     readonly maxMapSize: number;
     private _maps: Map<K, V>[];

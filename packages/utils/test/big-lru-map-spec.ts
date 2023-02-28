@@ -69,7 +69,7 @@ describe('BigLRUMap', () => {
         expect(map.get('aaa')).toBe(2);
     });
 
-    it('should evict oldest key after execeding size', async () => {
+    it('should evict oldest key after exceeding size', async () => {
         const map = new BigLRUMap(mapSize);
         map.set('aaa', 1);
         map.set('aab', 2);
@@ -83,11 +83,11 @@ describe('BigLRUMap', () => {
         expect(map.get('aaf')).toBe(6);
     });
     // only run this test to test with a large cache, takes 70+ seconds to run
-    // eslint-disable-next-line jest/no-disabled-tests
-    xit('should not error with a cache size larger than 11.8 million', async () => {
+    // eslint-disable-next-line jest/no-disabled-tests, jest/no-focused-tests
+    it('should not error with a cache size larger than 11.8M and when processing more than 16.7M records', async () => {
         const mapSizeBig = 12000000;
         const map = new BigLRUMap(mapSizeBig);
-        const MAX = 12000000;
+        const MAX = 20000000;
         for (let i = 0; i < MAX; i++) {
             map.set(`X-${i}-A9998`, i);
         }

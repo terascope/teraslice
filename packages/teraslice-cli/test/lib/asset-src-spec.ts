@@ -26,7 +26,6 @@ describe('AssetSrc', () => {
 
     it('should generate correct name with zipFileName()', () => {
         const testAsset = new AssetSrc(buildAssetDir);
-        console.log(testAsset.zipFileName)
         expect(testAsset.zipFileName).toMatch(/testAssetWithBuild-v0.0.1-node-.*.zip/);
     });
 
