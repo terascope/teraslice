@@ -55,7 +55,7 @@ export default class Options {
         }),
         bundle: () => ({
             describe: 'Build the new smaller esbuild asset bundle style asset',
-            default: false,
+            default: true,
             type: 'boolean'
         }),
         'bundle-target': () => ({
@@ -63,10 +63,9 @@ export default class Options {
                     + ' Defaults to current major node version',
             default: `node${process.version.split('.', 1)[0].substr(1)}`,
             choices: [
-                'node10',
-                'node12',
                 'node14',
-                'node16'
+                'node16',
+                'node18'
             ],
             // I have disabled this because for some reason this requirement was
             // being enforced even when `bundle-target` wasn't specified.
