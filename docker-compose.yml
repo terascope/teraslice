@@ -73,7 +73,7 @@ services:
     cap_add:
       - IPC_LOCK
   elasticsearch-data1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    image: opensearchproject/opensearch:1.3.6
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 15s
@@ -84,17 +84,15 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
       - "network.host=0.0.0.0"
       - "http.port=9200"
-      - "transport.tcp.port=9300"
+      - "transport.port=9300"
       - "discovery.type=single-node"
-      - "xpack.security.enabled=false"
-      - "xpack.ml.enabled=false"
-      - "xpack.watcher.enabled=false"
       - "bootstrap.memory_lock=true"
+      - "plugins.security.disabled=true"
     volumes:
-      - elasticsearch-data1-data:/usr/share/elasticsearch/data
+      - elasticsearch-data1-data:/usr/share/opensearch/data
     networks:
       - cluster
     ulimits:
