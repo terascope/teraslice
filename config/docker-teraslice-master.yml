@@ -7,8 +7,14 @@ terafoundation:
                 host:
                     - "elasticsearch:9200"
             es_data1:
+                apiVersion: "7.0"
+                suggestCompression: false
+                sniffOnStart: false
+                sniffOnConnectionFault: false
+                # 10s in milliseconds
+                sniffInterval: 10000
                 host:
-                    - "elasticsearch-data1:9200"
+                    - "elasticsearch-data1-1:9200"
             os_data2:
                 host:
                     - "opensearch-data2:9200"
@@ -17,8 +23,14 @@ terafoundation:
                 node:
                     - "http://elasticsearch:9200"
             es_data1:
+                apiVersion: "7.0"
+                suggestCompression: false
+                sniffOnStart: false
+                sniffOnConnectionFault: true
+                # 10s in milliseconds
+                sniffInterval: 10000
                 node:
-                    - "http://elasticsearch-data1:9200"
+                    - "http://elasticsearch-data1-1:9200"
             os_data2:
                 node:
                     - "http://opensearch-data2:9200"

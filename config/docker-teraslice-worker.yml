@@ -11,10 +11,10 @@ terafoundation:
                 suggestCompression: false
                 sniffOnStart: false
                 sniffOnConnectionFault: false
-                # 1m in milliseconds
-                sniffInterval: 60000
+                # 10s in milliseconds
+                sniffInterval: 10000
                 host:
-                    - "elasticsearch-data1:9200"
+                    - "elasticsearch-data1-1:9200"
             os_data2:
                 host:
                     - "opensearch-data2:9200"
@@ -25,11 +25,11 @@ terafoundation:
             es_data1:
                 suggestCompression: false
                 sniffOnStart: false
-                sniffOnConnectionFault: false
-                # 1m in milliseconds
-                sniffInterval: 60000
+                sniffOnConnectionFault: true
+                # 10s in milliseconds
+                sniffInterval: 10000
                 node:
-                    - "http://elasticsearch-data1:9200"
+                    - "http://elasticsearch-data1-1:9200"
             os_data2:
                 node:
                     - "http://opensearch-data2:9200"

@@ -1,19 +1,30 @@
 {
     "name": "Kafka To ES 3.4.1",
     "lifecycle": "persistent",
-    "workers": 1,
+    "workers": 5,
     "assets": [
         "elasticsearch:3.4.1",
         "standard:0.14.2",
         "kafka"
+    ],
+    "apis": [
+        {
+            "_name": "elasticsearch_sender_api",
+            "index": "testroll-es-3-4-1",
+            "_op": "elasticsearch_bulk",
+            "type": "_doc",
+            "upsert": true,
+            "script": "ctx._source.new_field = 'test1';",
+            "preserve_id": true,
+            "size": 10000
+        }
     ],
     "operations": [
         {
             "_op": "kafka_reader",
             "connection": "default",
             "topic": "test1",
-            "group": "testroll-es-3-4-1",
-            "rollback_on_failure": true,
+            "group": "testroll-es-3-4-1-v8",
             "size": 10000,
             "wait": 5000
         },
@@ -22,12 +33,26 @@
             "field": "uuid"
         },
         {
-            "_op": "elasticsearch_bulk",
-            "index": "testroll-es-3-4-1",
-            "type": "_doc",
-            "upsert": true,
-            "size": 10000,
-            "connection": "es_data1"
+            "_op": "key_router",
+            "use": 1,
+            "from": "beginning",
+            "case": "lower"
+        },
+        {
+            "_op": "routed_sender",
+            "api_name": "elasticsearch_sender_api",
+            "routing": {
+                "**": "es_data1"
+            },
+            "size": 10000
         }
-    ]
+    ],
+    "__metadata": {
+        "cli": {
+            "cluster": "http://localhost:5678",
+            "version": "0.48.3",
+            "job_id": "5a3488d4-1361-463c-99ab-756e8b684d90",
+            "updated": "2023-03-09T23:30:05.480Z"
+        }
+    }
 }

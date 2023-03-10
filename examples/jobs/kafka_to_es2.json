@@ -29,5 +29,13 @@
             "size": 10000,
             "connection": "es_data1"
         }
-    ]
+    ],
+    "__metadata": {
+        "cli": {
+            "cluster": "http://localhost:5678",
+            "version": "0.48.3",
+            "job_id": "03f675b6-08d9-4e38-9e6a-6e6989466e89",
+            "updated": "2023-03-09T20:49:24.877Z"
+        }
+    }
 }
