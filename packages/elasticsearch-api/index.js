@@ -278,6 +278,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     */
     function _filterRetryRecords(actionRecords, result) {
         const retry = [];
+        const deadLetter = [];
         const { items } = result;
 
         let nonRetriableError = false;
@@ -309,6 +310,16 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 ) {
                     nonRetriableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
+
+                    // caused by is not always present in error reply, but is useful if it is
+                    if (item.error.caused_by) {
+                        reason += `${item.error.caused_by.type}: ${item.error.caused_by.reason}`;
+                    }
+
+                    if (config._dead_letter_action === 'kafka_dead_letter') {
+                        deadLetter.push({ doc: actionRecords[i], reason });
+                        continue;
+                    }
                     break;
                 }
             } else if (item.status == null || item.status < 400) {
@@ -316,9 +327,26 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             }
         }
 
+        /**
+            item {
+                "_index": "generated-data-v1",
+                "_type": "_doc",
+                "_id": "Hwwwwwwww",
+                "status": 400,
+                "error": {
+                    "type": "mapper_parsing_exception",
+        "reason": "failed to parse field [bytes] of type [long] in document with id 'Hwwwwwwww'",
+                    "caused_by": {
+                        "type": "illegal_argument_exception",
+                        "reason": "For input string: \"oogahboogah\""
+                    }
+                }
+            }
+         */
+
         if (nonRetriableError) {
             return {
-                retry: [], successful, error: true, reason
+                retry: [], successful, error: true, reason, deadLetter
             };
         }
 
@@ -373,15 +401,24 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         const {
-            retry, successful, error, reason
+            retry, successful, error, reason, deadLetter
         } = _filterRetryRecords(actionRecords, results);
 
         if (error) {
+            if (config._dead_letter_action === 'kafka_dead_letter') {
+                return {
+                    count: previousCount + successful,
+                    deadLetter
+                };
+            }
+
             throw new Error(`bulk send error: ${reason}`);
         }
 
         if (retry.length === 0) {
-            return previousCount + successful;
+            return {
+                count: previousCount + successful
+            };
         }
 
         warning();

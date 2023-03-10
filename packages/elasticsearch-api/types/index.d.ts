@@ -32,9 +32,9 @@ declare namespace elasticsearchAPI {
         /**
          * The new and improved bulk send with proper retry support
          *
-         * @returns the number of affected rows
+         * @returns the number of affected rows, and deadLetter records if config is set
         */
-        bulkSend: (data: BulkRecord[]) => Promise<number>;
+        bulkSend: (data: BulkRecord[]) => Promise<{ count: number; deadLetter?: any[]; }>;
         nodeInfo: (query: any) => Promise<any>;
         nodeStats: (query: any) => Promise<any>;
         buildQuery: (opConfig: Config, msg: any) => ClientParams.SearchParams;
