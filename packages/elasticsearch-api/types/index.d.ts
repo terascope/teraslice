@@ -34,7 +34,7 @@ declare namespace elasticsearchAPI {
          *
          * @returns the number of affected rows, and deadLetter records if config is set
         */
-        bulkSend: (data: BulkRecord[]) => Promise<{ count: number; deadLetter?: any[]; }>;
+        bulkSend: (data: BulkRecord[]) => Promise<{ recordCount: number; deadLetter?: any[]; }>;
         nodeInfo: (query: any) => Promise<any>;
         nodeStats: (query: any) => Promise<any>;
         buildQuery: (opConfig: Config, msg: any) => ClientParams.SearchParams;

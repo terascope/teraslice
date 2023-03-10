@@ -13,7 +13,7 @@ const {
     get, toNumber, isString, isSimpleObject,
     castArray, flatten, toBoolean,
     uniq, random, cloneDeep, DataEntity,
-    isDeepEqual, getTypeOf, isProd
+    isDeepEqual, getTypeOf, isProd, has
 } = require('@terascope/utils');
 const { ElasticsearchDistribution } = require('@terascope/types');
 
@@ -311,13 +311,11 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     nonRetriableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
 
-                    // caused by is not always present in error reply, but is useful if it is
-                    if (item.error.caused_by) {
-                        reason += `${item.error.caused_by.type}: ${item.error.caused_by.reason}`;
-                    }
+                    // caused_by is not always present in error msg, but useful if it is there
+                    if (has(item.error, 'caused_by.reason')) reason += `--${item.error.caused_by.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
-                        deadLetter.push({ doc: actionRecords[i], reason });
+                        deadLetter.push({ doc: actionRecords[i].data, reason });
                         continue;
                     }
                     break;
@@ -326,23 +324,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 successful++;
             }
         }
-
-        /**
-            item {
-                "_index": "generated-data-v1",
-                "_type": "_doc",
-                "_id": "Hwwwwwwww",
-                "status": 400,
-                "error": {
-                    "type": "mapper_parsing_exception",
-        "reason": "failed to parse field [bytes] of type [long] in document with id 'Hwwwwwwww'",
-                    "caused_by": {
-                        "type": "illegal_argument_exception",
-                        "reason": "For input string: \"oogahboogah\""
-                    }
-                }
-            }
-         */
 
         if (nonRetriableError) {
             return {
@@ -392,12 +373,14 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         const results = response.body ? response.body : response;
 
         if (!results.errors) {
-            return results.items.reduce((c, item) => {
-                const [value] = Object.values(item);
-                // ignore non-successful status codes
-                if (value.status != null && value.status >= 400) return c;
-                return c + 1;
-            }, 0);
+            return {
+                recordCount: results.items.reduce((c, item) => {
+                    const [value] = Object.values(item);
+                    // ignore non-successful status codes
+                    if (value.status != null && value.status >= 400) return c;
+                    return c + 1;
+                }, 0)
+            };
         }
 
         const {
@@ -407,7 +390,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         if (error) {
             if (config._dead_letter_action === 'kafka_dead_letter') {
                 return {
-                    count: previousCount + successful,
+                    recordCount: previousCount + successful,
                     deadLetter
                 };
             }
@@ -417,7 +400,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
         if (retry.length === 0) {
             return {
-                count: previousCount + successful
+                recordCount: previousCount + successful
             };
         }
 
