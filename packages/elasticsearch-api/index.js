@@ -352,9 +352,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (!isElasticsearch6()) {
-                return _removeTypeFromAction(record);
-            }
+            if (!isElasticsearch6()) return _es6Prep(record);
 
             // if data is specified return both
             return record.data ? [record.action, record.data] : [record.action];
@@ -390,17 +388,17 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return _bulkSend(retry, previousCount + successful, nextRetryDelay);
     }
 
-    function _removeTypeFromAction(record) {
+    function _es6Prep(record) {
         const actionKey = getFirstKey(record.action);
 
         const { _type, ...withoutTypeAction } = record.action[actionKey];
         // if data is specified return both
 
-        if (record.data == null) {
-            return [{ ...record.action, [actionKey]: withoutTypeAction }];
-        }
+        const body = [{ ...record.action, [actionKey]: withoutTypeAction }];
 
-        return [{ ...record.action, [actionKey]: withoutTypeAction }, record.data];
+        if (record.data != null) body.push(record.data);
+
+        return body;
     }
 
     /**
