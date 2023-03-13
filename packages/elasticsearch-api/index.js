@@ -13,7 +13,7 @@ const {
     get, toNumber, isString, isSimpleObject,
     castArray, flatten, toBoolean,
     uniq, random, cloneDeep, DataEntity,
-    isDeepEqual, getTypeOf, isProd, has
+    isDeepEqual, getTypeOf, isProd
 } = require('@terascope/utils');
 const { ElasticsearchDistribution } = require('@terascope/types');
 
@@ -310,9 +310,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 ) {
                     nonRetriableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
-
-                    // caused_by is not always present in error msg, but useful if it is there
-                    if (has(item.error, 'caused_by.reason')) reason += `--${item.error.caused_by.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
                         deadLetter.push({ doc: actionRecords[i].data, reason });
