@@ -475,7 +475,6 @@ export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
 export TERASLICE_MODE=minikube
 minikube start --memory 4096 --cpus 4
-eval $(minikube docker-env)
 make build
 make setup-all
 make show
