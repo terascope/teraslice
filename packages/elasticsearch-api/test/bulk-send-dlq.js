@@ -72,7 +72,7 @@ describe('bulkSend', () => {
             await cleanupIndex(client, index);
         });
 
-        it('returns records that cannot be tried again and the reason', async () => {
+        it('returns records that cannot be tried again if dlq config is set', async () => {
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
             docs[0].bytes = 'this is a bad value';
