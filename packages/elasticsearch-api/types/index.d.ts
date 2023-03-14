@@ -62,7 +62,7 @@ declare namespace elasticsearchAPI {
     /**
      * This is used for improved bulk sending function
     */
-    export interface AnyBulkAction  {
+    export interface AnyBulkAction {
         update?: Partial<BulkActionMetadata>;
         index?: Partial<BulkActionMetadata>;
         create?: Partial<BulkActionMetadata>;
