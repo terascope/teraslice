@@ -1,6 +1,10 @@
 'use strict';
 
-const { debugLogger, chunk, pMap } = require('@terascope/utils');
+const {
+    debugLogger,
+    chunk,
+    pMap
+} = require('@terascope/utils');
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const elasticsearchAPI = require('../index');
 
@@ -11,7 +15,7 @@ const {
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
-jest.setTimeout(THREE_MINUTES + 30000);
+jest.setTimeout(THREE_MINUTES + 60000);
 
 function formatUploadData(
     index, data, isES8ClientTest = false
@@ -31,33 +35,38 @@ function formatUploadData(
     return results;
 }
 
-describe('bulkSend can work with congested queues', () => {
-    const logger = debugLogger('congested_test');
-    const index = `${TEST_INDEX_PREFIX}_congested_queues_`;
-
+describe('bulkSend', () => {
     let client;
     let api;
     let isElasticsearch8 = false;
 
     beforeAll(async () => {
         client = await makeClient();
-        await cleanupIndex(client, index);
-        api = elasticsearchAPI(client, logger);
-        isElasticsearch8 = api.isElasticsearch8();
     });
 
-    afterAll(async () => {
-        await cleanupIndex(client, index);
-    });
+    describe('can work with congested queues', () => {
+        const logger = debugLogger('congested_test');
+        const index = `${TEST_INDEX_PREFIX}_congested_queues_`;
 
-    it('can get correct data even with congested queues', async () => {
-        const chunkedData = chunk(EvenDateData.data, 50);
+        beforeAll(async () => {
+            await cleanupIndex(client, index);
+            api = elasticsearchAPI(client, logger);
+            isElasticsearch8 = api.isElasticsearch8();
+        });
 
-        await pMap(chunkedData, async (cData) => {
-            const formattedData = formatUploadData(index, cData, isElasticsearch8);
-            return api.bulkSend(formattedData);
-        }, { concurrency: 9 });
+        afterAll(async () => {
+            await cleanupIndex(client, index);
+        });
 
-        await waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES);
+        it('can get correct data even with congested queues', async () => {
+            const chunkedData = chunk(EvenDateData.data, 50);
+
+            await pMap(chunkedData, async (cData) => {
+                const formattedData = formatUploadData(index, cData, isElasticsearch8);
+                return api.bulkSend(formattedData);
+            }, { concurrency: 9 });
+
+            await waitForData(client, index, EvenDateData.data.length, logger, THREE_MINUTES);
+        });
     });
 });

@@ -37,7 +37,7 @@
         "ms": "^2.1.3"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^3.3.7",
+        "@terascope/elasticsearch-api": "^3.4.0",
         "@terascope/job-components": "^0.58.5",
         "@terascope/teraslice-messaging": "^0.28.5",
         "@terascope/utils": "^0.45.5",
