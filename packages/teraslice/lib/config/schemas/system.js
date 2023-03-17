@@ -295,6 +295,11 @@ const schema = {
         default: 'default',
         format: 'optional_String'
     },
+    kubernetes_overrides_enabled: {
+        doc: '',
+        default: false,
+        format: Boolean
+    },
     kubernetes_priority_class_name: {
         doc: 'Priority class that the Teraslice master, execution controller, and stateful workers should run with',
         default: undefined,

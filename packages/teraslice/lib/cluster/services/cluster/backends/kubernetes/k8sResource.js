@@ -22,10 +22,11 @@ class K8sResource {
      * @param {Object} terasliceConfig - teraslice cluster config from context
      * @param {Object} execution - teraslice execution
      */
-    constructor(resourceType, resourceName, terasliceConfig, execution) {
+    constructor(resourceType, resourceName, terasliceConfig, execution, logger) {
         this.execution = execution;
         this.jobLabelPrefix = 'job.teraslice.terascope.io';
         this.jobPropertyLabelPrefix = 'job-property.teraslice.terascope.io';
+        this.logger = logger;
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
 
@@ -68,6 +69,8 @@ class K8sResource {
         if (resourceName === 'execution_controller') {
             this._setExecutionControllerTargets();
         }
+
+        this._mergePodSpecOverlay();
     }
 
     _makeConfig() {
@@ -411,6 +414,27 @@ class K8sResource {
             value: target.value,
             effect: 'NoSchedule'
         });
+    }
+
+    /**
+     * _mergePodSpecOverlay - allows the author of the job to override anything
+     * in the pod .spec for both the execution controller and the worker pods
+     * created in Kubernetes.  This can be useful in many ways including these:
+     *
+     *   * add `initContainers` to the pods
+     *   * add `hostAliases` to the pods
+     *
+     * Note that this happens at the end of the process, so anything added by
+     * this overlay will overwrite any other setting set on the job or by the
+     * config.
+     *
+     * Job setting: `pod_spec_override`
+     */
+    _mergePodSpecOverlay() {
+        this.resource.spec.template.spec = _.merge(
+            this.resource.spec.template.spec,
+            this.execution.pod_spec_override
+        );
     }
 }
 

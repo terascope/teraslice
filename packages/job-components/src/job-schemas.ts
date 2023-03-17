@@ -308,6 +308,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: 'Number',
         };
 
+        schemas.pod_spec_override = {
+            doc: 'foo',
+            default: {},
+            format(obj: any[]) {
+                if (!isPlainObject(obj)) {
+                    throw new Error('must be object');
+                }
+            }
+        };
+
         schemas.resources_requests_cpu = {
             doc: 'kubernetes CPU request, in cores, to set on Teraslice workers',
             default: undefined,
