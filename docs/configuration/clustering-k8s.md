@@ -95,7 +95,7 @@ The table below shows the Teraslice Master configuration settings added to
 support k8s based Teraslice deployments.
 
 |         Configuration          |                                                                        Description                                                                         |  Type   |  Notes   |
-| :----------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----: | :------: |
+|:------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------:|:--------:|
 |         assets_volume          |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String  | optional |
 |    cpu_execution_controller    |                                           CPU resources to use for Execution Controller request and limit values                                           | Number  | optional |
 |  execution_controller_targets  |                                       array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                       | String  | optional |
@@ -103,7 +103,8 @@ support k8s based Teraslice deployments.
 |  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String  | optional |
 |   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String  | optional |
 |      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String  | optional |
-| kubernetes_priority_class_name |                       Priority class that the Teraslice master, execution controller, and stateful workers should run with                                 | String  | optional |
+|  kubernetes_overrides_enabled  |                                       Enable the `pod_spec_override` feature on job definitions, `false` by default.                                       | Boolean | optional |
+| kubernetes_priority_class_name |                            Priority class that the Teraslice master, execution controller, and stateful workers should run with                            | String  | optional |
 | kubernetes_worker_antiaffinity |                                   If `true`, pod antiaffinity will be enabled for Teraslice workers, `false` by default                                    | Boolean | optional |
 |  memory_execution_controller   |                                         Memory resources to use for Execution Controller request and limit values                                          | Number  | optional |
 
@@ -422,7 +423,7 @@ targets:
           effect: NoSchedule
 ```
 
-## Attach existing volumes
+### Attach existing volumes
 
 One or more volumes can be specified on your job and these volumes will be
 attached to your worker and execution controller pods at runtime.  The volumes
@@ -435,6 +436,39 @@ property should be the name of the Kubernetes `persistentVolumeClaim`.  The
     {"name": "teraslice-data1", "path": "/data"}
 ],
 ```
+
+### Pod `.spec` Overrides
+
+Teraslice provides the `pod_spec_override` job property which allows the user to
+specify any arbitrary Kubernetes configuration to be overlaid on the
+[pod](https://kubernetes.io/docs/concepts/workloads/pods/) `.spec` for both the
+execution controller and worker pods.  This allows users to "sneak" in
+functionality that we have not yet explicitly implemented.
+
+For instance, this feature can be used to add `initContainers` or `hostAliases`.
+A `pod_spec_override` must be in the form of JSON that maps directly to the
+appropriate YAML for the Kubernetes resource.  And example of a
+`pod_spec_override` that could be added to a job is shown below:
+
+```json
+    "pod_spec_override": {
+        "initContainers": [
+            {
+                "name": "init-hello-world",
+                "image": "busybox:1.28",
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo 'HELLO WORLD'"
+                ]
+            }
+        ]
+    },
+```
+
+**NOTE:** In certain circumstances, this feature could be abused by a malicious
+job author, so it is off by default.  It can be enabled by setting
+`kubernetes_overrides_enabled: true`.
 
 ## Kubernetes Labels
 

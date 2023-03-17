@@ -205,6 +205,7 @@ register: ## creates asset and registers job
 	earl tjm register ${TERASLICE_ALIAS} example-job-stateful.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-targets.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-with-pod-spec-override.json
 
 deregister: ## resets jobs
 	earl tjm reset example-job.json || echo '* it is okay'
@@ -214,6 +215,7 @@ deregister: ## resets jobs
 	earl tjm reset example-job-stateful.json || echo '* it is okay'
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
+	earl tjm reset example-job-with-pod-spec-override.json || echo '* it is okay'
 
 start: ## starts example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
