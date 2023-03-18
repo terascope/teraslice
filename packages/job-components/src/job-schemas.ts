@@ -1,6 +1,7 @@
 import os from 'os';
 import convict from 'convict';
 import {
+    AnyObject,
     DataEncoding,
     dataEncodings,
     flatten,
@@ -311,11 +312,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.pod_spec_override = {
             doc: 'foo',
             default: {},
-            format(obj: any[]) {
+            format(obj: AnyObject) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');
                 }
-                if (!context.sysconfig.teraslice.kubernetes_overrides_enabled) {
+                if ((Object.keys(obj).length !== 0)
+                    && (!context.sysconfig.teraslice.kubernetes_overrides_enabled)) {
                     throw new Error('The Teraslice master must set \'kubernetes_overrides_enabled: true\' to use pod_spec_override in a job.');
                 }
             }
