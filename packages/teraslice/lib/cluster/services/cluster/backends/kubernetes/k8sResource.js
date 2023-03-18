@@ -70,7 +70,9 @@ class K8sResource {
             this._setExecutionControllerTargets();
         }
 
-        this._mergePodSpecOverlay();
+        if (this.terasliceConfig.kubernetes_overrides_enabled) {
+            this._mergePodSpecOverlay();
+        }
     }
 
     _makeConfig() {

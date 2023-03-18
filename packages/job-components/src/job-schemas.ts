@@ -315,6 +315,9 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');
                 }
+                if (!context.sysconfig.teraslice.kubernetes_overrides_enabled) {
+                    throw new Error('The Teraslice master must set \'kubernetes_overrides_enabled: true\' to use pod_spec_override in a job.');
+                }
             }
         };
 
