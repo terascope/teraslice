@@ -377,7 +377,7 @@ module.exports = async function elasticsearchStorage(backendConfig) {
         bulkQueue = [];
 
         try {
-            const { recordCount } = await bulkSend(bulkRequest);
+            const recordCount = await bulkSend(bulkRequest);
             const extraMsg = shuttingDown ? ', on shutdown' : '';
             logger.debug(`flushed ${recordCount}${extraMsg} records to index ${indexName}`);
         } finally {

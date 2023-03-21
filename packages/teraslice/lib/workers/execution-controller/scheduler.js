@@ -393,9 +393,9 @@ class Scheduler {
         this._creating += slices.length;
 
         try {
-            const { recordCount } = await this.stateStore.createSlices(this.exId, slices);
+            const count = await this.stateStore.createSlices(this.exId, slices);
             this.enqueueSlices(slices);
-            this._creating -= recordCount;
+            this._creating -= count;
         } catch (err) {
             const { lifecycle } = this.executionContext.config;
             if (lifecycle === 'once') {

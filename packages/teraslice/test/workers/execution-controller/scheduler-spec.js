@@ -60,7 +60,7 @@ describe('Scheduler', () => {
                     throw new Error(`Got invalid ex_id ${exId}`);
                 }
                 await pDelay(0);
-                return { recordCount: slices.length };
+                return slices.length;
             }
         };
 

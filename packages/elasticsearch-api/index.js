@@ -311,9 +311,10 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
-                        
+                        actionRecords[i].data.setMetadata('_dlq_reason', reason);
                         continue;
                     }
+
                     break;
                 }
             } else if (item.status == null || item.status < 400) {
@@ -322,7 +323,9 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         if (nonRetriableError) {
-            return { retry: [], successful, error: true, reason };
+            return {
+                retry: [], successful, error: true, reason
+            };
         }
 
         return { retry, successful, error: false };
@@ -334,7 +337,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
 
     /**
      * @param data {Array<{ action: data }>}
-     * @returns {Promise<{ recordCount: number, deadLetter: record[] }>}
+     * @returns {Promise<number>}
     */
     async function _bulkSend(actionRecords, previousCount = 0, previousRetryDelay = 0) {
         const body = actionRecords.flatMap((record, index) => {
@@ -346,7 +349,18 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                 throw new Error(`Bulk send record is missing the action property${dbg}`);
             }
 
-            if (!isElasticsearch6()) return _nonEs6Prep(record);
+            if (!isElasticsearch6()) {
+                const actionKey = getFirstKey(record.action);
+                const { _type, ...withoutTypeAction } = record.action[actionKey];
+                // if data is specified return both
+                return record.data ? [{
+                    ...record.action,
+                    [actionKey]: withoutTypeAction
+                }, record.data] : [{
+                    ...record.action,
+                    [actionKey]: withoutTypeAction
+                }];
+            }
 
             // if data is specified return both
             return record.data ? [record.action, record.data] : [record.action];
@@ -355,51 +369,50 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         const response = await _clientRequest('bulk', { body });
         const results = response.body ? response.body : response;
 
-        if (!results.errors) return { recordCount: _affectedRowsCount(results) };
+        if (!results.errors) {
+            return results.items.reduce((c, item) => {
+                const [value] = Object.values(item);
+                // ignore non-successful status codes
+                if (value.status != null && value.status >= 400) return c;
+                return c + 1;
+            }, 0);
+        }
 
         const {
-            retry, successful, error, reason, deadLetter
+            retry, successful, error, reason
         } = _filterRetryRecords(actionRecords, results);
 
         if (error) {
             if (config._dead_letter_action === 'kafka_dead_letter') {
-                return {
-                    recordCount: previousCount + successful,
-                    deadLetter
-                };
+                // may still have retries even if kafka_dead_letter is active
+                if (retry.length > 0) {
+                    return _handleRetries(retry, previousCount + successful, previousRetryDelay);
+                }
+
+                return previousCount + successful;
             }
 
             throw new Error(`bulk send error: ${reason}`);
         }
 
         if (retry.length === 0) {
-            return { recordCount: previousCount + successful };
+            return previousCount + successful;
         }
 
+        return _handleRetries(retry, previousCount + successful, previousRetryDelay);
+    }
+
+    async function _handleRetries(retry, affectedCount, previousRetryDelay) {
         warning();
 
         const nextRetryDelay = await _awaitRetry(previousRetryDelay);
-        return _bulkSend(retry, previousCount + successful, nextRetryDelay);
-    }
-
-    function _nonEs6Prep(record) {
-        const actionKey = getFirstKey(record.action);
-
-        const { _type, ...withoutTypeAction } = record.action[actionKey];
-        // if data is specified return both
-
-        const body = [{ ...record.action, [actionKey]: withoutTypeAction }];
-
-        if (record.data != null) body.push(record.data);
-
-        return body;
+        return _bulkSend(retry, affectedCount, nextRetryDelay);
     }
 
     /**
      * The new and improved bulk send with proper retry support
      *
-     * @returns {Promise<{ recordCount: number, deadLetter: record[] }>}
-     * the number of affected rows and records for kafka dead letter queue
+     * @returns {Promise<number>} the number of affected rows
     */
     function bulkSend(data) {
         if (!Array.isArray(data)) {
@@ -407,15 +420,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         return Promise.resolve(_bulkSend(data));
-    }
-
-    function _affectedRowsCount(results) {
-        return results.items.reduce((c, item) => {
-            const [value] = Object.values(item);
-            // ignore non-successful status codes
-            if (value.status != null && value.status >= 400) return c;
-            return c + 1;
-        }, 0);
     }
 
     function _warn(warnLogger, msg) {
