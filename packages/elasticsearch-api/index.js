@@ -278,7 +278,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
     */
     function _filterRetryRecords(actionRecords, result) {
         const retry = [];
-        const deadLetter = [];
         const { items } = result;
 
         let nonRetriableError = false;
@@ -312,7 +311,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
-                        deadLetter.push({ doc: actionRecords[i].data, reason });
+                        
                         continue;
                     }
                     break;
@@ -323,9 +322,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         if (nonRetriableError) {
-            return {
-                retry: [], successful, error: true, reason, deadLetter
-            };
+            return { retry: [], successful, error: true, reason };
         }
 
         return { retry, successful, error: false };
