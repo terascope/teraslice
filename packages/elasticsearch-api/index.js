@@ -323,8 +323,11 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         }
 
         if (nonRetriableError) {
+            // if dlq active still attempt the retries
+            const retryOnError = config._dead_letter_action === 'kafka_dead_letter' ? retry : [];
+
             return {
-                retry: [], successful, error: true, reason
+                retry: retryOnError, successful, error: true, reason
             };
         }
 
@@ -382,16 +385,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             retry, successful, error, reason
         } = _filterRetryRecords(actionRecords, results);
 
-        if (error) {
-            if (config._dead_letter_action === 'kafka_dead_letter') {
-                // may still have retries even if kafka_dead_letter is active
-                if (retry.length > 0) {
-                    return _handleRetries(retry, previousCount + successful, previousRetryDelay);
-                }
-
-                return previousCount + successful;
-            }
-
+        if (error && config._dead_letter_action !== 'kafka_dead_letter') {
             throw new Error(`bulk send error: ${reason}`);
         }
 
