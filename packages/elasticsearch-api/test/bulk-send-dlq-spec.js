@@ -72,35 +72,48 @@ describe('bulkSend', () => {
             await cleanupIndex(client, index);
         });
 
-        it('returns records that cannot be tried again if dlq config is set', async () => {
+        it('should send records if no issues and dlq not set', async () => {
+            const diffApi = elasticsearchAPI(client, logger);
+
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
+
+            const result = await diffApi.bulkSend(formatUploadData(index, docs, isElasticsearch8));
+
+            expect(result).toBe(2);
+        });
+
+        it('should throw an error if dlq is not set', async () => {
+            const diffApi = elasticsearchAPI(client, logger);
+
+            const docs = cloneDeep(EvenDateData.data.slice(0, 2));
+
+            docs[0].bytes = 'this is a bad value';
+
+            await expect(diffApi.bulkSend(formatUploadData(index, docs, isElasticsearch8)))
+                .rejects.toThrow();
+        });
+
+        it('should update metadata for records that are not retryable and return results for successful updates if dlq is set', async () => {
+            const docs = cloneDeep(EvenDateData.data.slice(0, 2))
+                .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
 
             docs[0].bytes = 'this is a bad value';
 
             const result = await api.bulkSend(formatUploadData(index, docs, isElasticsearch8));
 
-            expect(result.recordCount).toBe(1);
+            // 1 good doc  - so only 1 row affected
+            expect(result).toBe(1);
 
-            expect(result.deadLetter[0].doc).toEqual(DataEntity.make({
-                ip: '120.67.248.156',
-                userAgent: 'Mozilla/5.0 (Windows; U; Windows NT 6.1) AppleWebKit/533.1.2 (KHTML, like Gecko) Chrome/35.0.894.0 Safari/533.1.2',
-                url: 'http://lucious.biz',
-                uuid: 'b23a8550-0081-453f-9e80-93a90782a5bd',
-                created: '2019-04-26T15:00:23.225+00:00',
-                ipv6: '9e79:7798:585a:b847:f1c4:81eb:0c3d:7eb8',
-                location: '50.15003, -94.89355',
-                bytes: 'this is a bad value'
-            }));
-
-            expect(result.deadLetter[0].reason).toBeDefined();
+            expect(docs[0].getMetadata('_bulk_sender_rejection')).toInclude('mapper_parsing_exception--failed to parse field [bytes]');
+            expect(docs[1].getMetadata('_bulk_sender_rejection')).toBeUndefined();
         });
 
-        it('should return a count if not un-retryable records', async () => {
+        it('should return a count if not un-retryable records if dlq is set', async () => {
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
             const result = await api.bulkSend(formatUploadData(index, docs, isElasticsearch8));
 
-            expect(result).toEqual({ recordCount: 2 });
+            expect(result).toBe(2);
         });
     });
 });

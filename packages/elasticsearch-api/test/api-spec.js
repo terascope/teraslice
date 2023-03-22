@@ -768,7 +768,7 @@ describe('elasticsearch-api', () => {
                 { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
             ]
         });
-        return expect(result).toEqual({ recordCount: 2 });
+        return expect(result).toBe(2);
     });
 
     it('can remove type from bulkSend', async () => {
@@ -877,7 +877,7 @@ describe('elasticsearch-api', () => {
         });
         const result = await api.bulkSend(myBulkData);
 
-        expect(result).toEqual({ recordCount: 2 });
+        expect(result).toBe(2);
 
         bulkError = ['some_thing_else', 'some_thing_else'];
 
