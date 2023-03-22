@@ -311,7 +311,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
                     reason = `${item.error.type}--${item.error.reason}`;
 
                     if (config._dead_letter_action === 'kafka_dead_letter') {
-                        actionRecords[i].data.setMetadata('_send_to_dlq', reason);
+                        actionRecords[i].data.setMetadata('_bulk_sender_rejection', reason);
                         continue;
                     }
 
