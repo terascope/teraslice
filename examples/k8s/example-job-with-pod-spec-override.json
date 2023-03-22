@@ -1,0 +1,43 @@
+{
+    "name": "example-data-generator-job-with-override",
+    "lifecycle": "once",
+    "workers": 2,
+    "assets": [
+        "example",
+        "elasticsearch",
+        "standard"
+    ],
+    "ephemeral_storage": true,
+    "operations": [
+        {
+            "_op": "data_generator",
+            "size": 5000000
+        },
+        {
+            "_op": "example-op"
+        },
+        {
+            "_op": "delay",
+            "ms": 30000
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "index": "terak8s-example-data",
+            "type": "events",
+            "size": 5000
+        }
+    ],
+    "pod_spec_override": {
+        "initContainers": [
+            {
+                "name": "init-hello-world",
+                "image": "busybox:1.28",
+                "command": [
+                    "sh",
+                    "-c",
+                    "echo 'HELLO WORLD'"
+                ]
+            }
+        ]
+    }
+}

@@ -918,4 +918,24 @@ describe('k8sResource', () => {
             expect(krExporter.resource.spec.template.metadata.labels['job-property.teraslice.terascope.io/stateful']).toEqual('true');
         });
     });
+
+    describe('teraslice config with kubernetes_overrides_enabled set false', () => {
+        it('generates pods without overlay in pod .spec', () => {
+            execution.pod_spec_override = { initContainers: [] };
+            terasliceConfig.kubernetes_overrides_enabled = false;
+
+            const krWorker = new K8sResource('deployments', 'worker', terasliceConfig, execution);
+            expect(krWorker.resource.spec.template.spec).not.toHaveProperty('initContainers');
+        });
+    });
+
+    describe('teraslice config with kubernetes_overrides_enabled set true', () => {
+        it('generates pods with overlay in pod .spec', () => {
+            execution.pod_spec_override = { initContainers: [] };
+            terasliceConfig.kubernetes_overrides_enabled = true;
+
+            const krWorker = new K8sResource('deployments', 'worker', terasliceConfig, execution);
+            expect(krWorker.resource.spec.template.spec).toHaveProperty('initContainers');
+        });
+    });
 });
