@@ -94,7 +94,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         execution.slicer_port = 45680;
         const exJobResource = new K8sResource(
-            'jobs', 'execution_controller', context.sysconfig.teraslice, execution
+            'jobs', 'execution_controller', context.sysconfig.teraslice, execution, logger
         );
         const exJob = exJobResource.resource;
 
@@ -135,7 +135,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         execution.k8sUid = jobs.items[0].metadata.uid;
 
         const kr = new K8sResource(
-            'deployments', 'worker', context.sysconfig.teraslice, execution
+            'deployments', 'worker', context.sysconfig.teraslice, execution, logger
         );
 
         const workerDeployment = kr.resource;

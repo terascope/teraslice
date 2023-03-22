@@ -145,10 +145,10 @@ showpriority:  ## Show Kubernetes Priority Class
 
 configs: ## create the configmaps
 ifeq ($(TERASLICE_MODE),minikube)
-	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
+	yq eval ".teraslice.kubernetes_image = \"docker.io/library/$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
 	rm teraslice.yaml
-	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
+	yq eval ".teraslice.kubernetes_image = \"docker.io/library/$(TERASLICE_K8S_IMAGE)\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-master --from-file=teraslice.yaml
 	rm teraslice.yaml
 else
@@ -164,7 +164,7 @@ else
 endif
 
 build: ## builds docker images
-	docker build -t $(TERASLICE_K8S_IMAGE) ../..
+	minikube image build -t $(TERASLICE_K8S_IMAGE) ../..
 
 push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
@@ -184,7 +184,7 @@ destroy: deregister ## delete k8s deployments and services
 	curl -fsS -XDELETE "$(ES_URL)/terak8s-example-data" || echo '* it is okay'
 
 destroy-img: destroy
-	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
+	minikube image rm docker.io/library/$(TERASLICE_K8S_IMAGE) || echo "* it is okay..."
 
 destroy-all: destroy-img deauth deelasticsearch delete-namespace master-stop ## delete ALL things including the namespace
 	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
@@ -205,6 +205,7 @@ register: ## creates asset and registers job
 	earl tjm register ${TERASLICE_ALIAS} example-job-stateful.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-targets.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-with-pod-spec-override.json
 
 deregister: ## resets jobs
 	earl tjm reset example-job.json || echo '* it is okay'
@@ -214,6 +215,7 @@ deregister: ## resets jobs
 	earl tjm reset example-job-stateful.json || echo '* it is okay'
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
+	earl tjm reset example-job-with-pod-spec-override.json || echo '* it is okay'
 
 start: ## starts example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'

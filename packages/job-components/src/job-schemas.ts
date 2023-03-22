@@ -1,6 +1,7 @@
 import os from 'os';
 import convict from 'convict';
 import {
+    AnyObject,
     DataEncoding,
     dataEncodings,
     flatten,
@@ -306,6 +307,20 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'memory, in bytes, to reserve per teraslice execution controller in kubernetes',
             default: undefined,
             format: 'Number',
+        };
+
+        schemas.pod_spec_override = {
+            doc: 'foo',
+            default: {},
+            format(obj: AnyObject) {
+                if (!isPlainObject(obj)) {
+                    throw new Error('must be object');
+                }
+                if ((Object.keys(obj).length !== 0)
+                    && (!context.sysconfig.teraslice.kubernetes_overrides_enabled)) {
+                    throw new Error('The Teraslice master must set \'kubernetes_overrides_enabled: true\' to use pod_spec_override in a job.');
+                }
+            }
         };
 
         schemas.resources_requests_cpu = {

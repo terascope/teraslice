@@ -113,6 +113,8 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     memory_execution_controller?: number;
     /** This will only be available in the context of k8s */
+    pod_spec_override?: AnyObject;
+    /** This will only be available in the context of k8s */
     resources_requests_cpu?: number;
     /** This will only be available in the context of k8s */
     resources_requests_memory?: number;
