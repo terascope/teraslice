@@ -447,7 +447,7 @@ functionality that we have not yet explicitly implemented.
 
 For instance, this feature can be used to add `initContainers` or `hostAliases`.
 A `pod_spec_override` must be in the form of JSON that maps directly to the
-appropriate YAML for the Kubernetes resource.  And example of a
+appropriate YAML for the Kubernetes resource.  An example of a
 `pod_spec_override` that could be added to a job is shown below:
 
 ```json
