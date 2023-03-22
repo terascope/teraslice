@@ -104,8 +104,8 @@ describe('bulkSend', () => {
             // 1 good doc  - so only 1 row affected
             expect(result).toBe(1);
 
-            expect(docs[0].getMetadata('_send_to_dlq')).toInclude('mapper_parsing_exception--failed to parse field [bytes]');
-            expect(docs[1].getMetadata('_send_to_dlq')).toBeUndefined();
+            expect(docs[0].getMetadata('_bulk_sender_rejection')).toInclude('mapper_parsing_exception--failed to parse field [bytes]');
+            expect(docs[1].getMetadata('_bulk_sender_rejection')).toBeUndefined();
         });
 
         it('should return a count if not un-retryable records if dlq is set', async () => {
