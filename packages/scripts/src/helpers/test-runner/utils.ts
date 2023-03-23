@@ -1,17 +1,11 @@
 import path from 'path';
 import fse from 'fs-extra';
 import {
-    debugLogger,
-    get,
-    TSError,
-    isFunction,
-    flatten,
-    isCI
+    debugLogger, get, TSError,
+    isFunction, flatten, isCI
 } from '@terascope/utils';
 import {
-    ArgsMap,
-    ExecEnv,
-    exec,
+    ArgsMap, ExecEnv, exec,
     fork,
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
@@ -24,7 +18,9 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
-    args.forceExit = '';
+    if (!config.USE_VITE) {
+        args.forceExit = '';
+    }
     args.coverage = 'true';
     if (config.FORCE_COLOR === '1') {
         args.color = '';

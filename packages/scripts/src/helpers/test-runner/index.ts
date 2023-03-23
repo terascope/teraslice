@@ -1,25 +1,15 @@
 import {
-    debugLogger,
-    chunk,
-    TSError,
-    isCI,
-    pMap
+    debugLogger, chunk, TSError,
+    isCI, pMap
 } from '@terascope/utils';
 import {
-    writePkgHeader,
-    writeHeader,
-    getRootDir,
-    getRootInfo,
-    getAvailableTestSuites,
-    getDevDockerImage,
+    writePkgHeader, writeHeader, getRootDir,
+    getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
-import {
-    runJest,
-    dockerTag,
-} from '../scripts';
+import { runJest, dockerTag, runVite } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
@@ -27,7 +17,8 @@ import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
 import {
     MAX_PROJECTS_PER_BATCH,
-    SKIP_DOCKER_BUILD_IN_E2E
+    SKIP_DOCKER_BUILD_IN_E2E,
+    USE_VITE
 } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -36,7 +27,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): P
     const tracker = new TestTracker(options);
 
     logger.info('running tests with options', options);
-
+    signale.warn({ options })
     try {
         await _runTests(pkgInfos, options, tracker);
     } catch (err) {
@@ -140,9 +131,18 @@ async function runTestSuite(
 
         tracker.started += pkgs.length;
         try {
-            await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
+            signale.info('USE_VITE', USE_VITE)
+            if (USE_VITE) {
+                await runVite(getRootDir(), args, env, options.jestArgs, options.debug);
+            } else {
+                throw new Error('should dnot be here')
+                await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
+            }
+
             tracker.ended += pkgs.length;
         } catch (err) {
+            throw err
+            signale.error('the error', err.message)
             tracker.ended += pkgs.length;
             tracker.addError(err.message);
 

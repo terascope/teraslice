@@ -173,6 +173,45 @@ export async function runJest(
     });
 }
 
+export async function runVite(
+    cwd: string,
+    argsMap: ArgsMap,
+    env?: ExecEnv,
+    extraArgs?: string[],
+    debug?: boolean
+): Promise<void> {
+    signale.debug({ extraArgs, argsMap });
+
+    const args = mapToArgs(argsMap);
+    if (extraArgs) {
+        extraArgs.forEach((extraArg) => {
+            if (extraArg.startsWith('-') && args.includes(extraArg)) {
+                if (debug) {
+                    logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+                }
+                return;
+            }
+            args.push(extraArg);
+        });
+    }
+
+    if (debug) {
+        signale.debug(`executing: jest ${args.join(' ')}`);
+    }
+    signale.debug({ cwd, args, env });
+    try {
+        return await fork({
+            cmd: 'vitest run',
+            cwd,
+            args,
+            env,
+        });
+    } catch (err) {
+        console.log('err', err)
+        signale.error('err', err.message);
+    }
+}
+
 export async function dockerPull(image: string, timeout = 0): Promise<void> {
     try {
         await exec({

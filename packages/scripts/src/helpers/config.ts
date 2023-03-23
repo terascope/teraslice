@@ -112,3 +112,8 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+/*
+Temporary flag to determine if we should run a jest or vite test
+*/
+export const USE_VITE = toBoolean(process.env.USE_VITE);

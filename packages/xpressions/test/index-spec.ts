@@ -1,16 +1,16 @@
-import 'jest-extended';
+import { expectTypeOf } from 'vitest';
 import * as index from '../src';
 
 describe('index', () => {
     it('should export evaluate', () => {
-        expect(index.evaluate).toBeFunction();
+        expectTypeOf(index.evaluate).toBeFunction();
     });
 
     it('should export transform', () => {
-        expect(index.transform).toBeFunction();
+        expectTypeOf(index.transform).toBeFunction();
     });
 
     it('should export parse', () => {
-        expect(index.parse).toBeFunction();
+        expectTypeOf(index.parse).toBeFunction();
     });
 });
