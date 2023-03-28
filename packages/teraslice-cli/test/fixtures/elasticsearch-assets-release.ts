@@ -640,7 +640,7 @@ export = [
                 url: 'https://api.github.com/repos/terascope/elasticsearch-assets/releases/assets/2',
                 id: 2,
                 node_id: 'MDEyOlJlbGVhc2VBc3NldDE0NDU4Mzcx',
-                name: 'elasticsearch-v9.9.9-node-10-linux-x64.zip',
+                name: 'elasticsearch-v9.9.9-node-10-bundle.zip',
                 label: '',
                 uploader: {
                     login: 'terascope-ci',
