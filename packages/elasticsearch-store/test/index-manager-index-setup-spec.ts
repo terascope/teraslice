@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import { debugLogger, get } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
