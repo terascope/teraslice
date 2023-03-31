@@ -398,7 +398,7 @@ describe('Example Asset (Op)', () => {
 
 ### DownloadExternalAssets
 
-Used to test processors in separate asset bundles.  It downloads a zipped asset bundle to ./test/.cache/downloads and unzips the asset to ./test/.cache/assets.  Assets in the ./test/.cache/assets directory are automatically picked up by the test harness.   At this point assets must be in a github repository to be downloaded.
+Used to test processors in separate asset bundles.  It downloads a zipped asset bundle to ./test/.cache/downloads and unzips the asset to ./test/.cache/assets.  At this point assets must be in a github repository to be downloaded.
 
 Since this is downloading additional files to the asset be sure to add `./test/.cache` to the .gitignore file in the asset bundle.
 
