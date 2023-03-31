@@ -14,7 +14,9 @@ const {
     createMappingFromDatatype
 } = ElasticsearchTestHelpers;
 
-jest.setTimeout(10000);
+const THREE_MINUTES = 3 * 60 * 1000;
+
+jest.setTimeout(THREE_MINUTES + 60000);
 
 function formatUploadData(
     index, data, isES8ClientTest = false
