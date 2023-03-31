@@ -1,17 +1,14 @@
 import 'jest-extended';
 import path from 'path';
 import {
-    newTestJobConfig,
-    Slicer,
-    uniq,
-    AnyObject,
-    LifeCycle
+    newTestJobConfig, Slicer, uniq,
+    AnyObject, LifeCycle
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
 
 describe('SlicerTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(__filename, '../fixtures');
     const clients = [
         {
             type: 'example',

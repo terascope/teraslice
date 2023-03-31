@@ -3,7 +3,8 @@ import path from 'path';
 import { DataEntity, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
-    JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness
+    JobTestHarness, newTestJobConfig, newTestSlice,
+    SlicerTestHarness, WorkerTestHarness
 } from '../src';
 import SimpleAPIClass from './fixtures/asset/simple-api/api';
 import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
@@ -11,7 +12,8 @@ import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
 jest.mock('./fixtures/asset/simple-connector/client');
 
 describe('Example Asset', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(__filename, '../fixtures');
+
     const apiName = 'simple-api';
     const simpleClient = new SimpleClient();
     const clientConfig: TestClientConfig = {
@@ -199,6 +201,10 @@ describe('Example Asset', () => {
             });
 
             await harness.initialize();
+            const mockedSliceRequest = jest.fn()
+                .mockImplementation((count: number) => ({ count }));
+
+            simpleClient.sliceRequest = mockedSliceRequest;
         });
 
         afterEach(async () => {

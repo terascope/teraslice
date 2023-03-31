@@ -39,7 +39,7 @@ describe('WorkerTestHarness', () => {
         });
 
         const workerHarness = new WorkerTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
+            assetDir: path.join(__filename, '../fixtures'),
             clients,
         });
 
@@ -98,8 +98,8 @@ describe('WorkerTestHarness', () => {
     describe('when using assets and multiple assetDirs', () => {
         const options = {
             assetDir: [
-                path.join(__dirname, 'fixtures'),
-                path.join(__dirname, 'secondary-asset'),
+                path.join(__filename, '../fixtures'),
+                path.join(__filename, '../secondary-asset'),
             ]
         };
         let harness: WorkerTestHarness;
@@ -142,7 +142,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when using static method testProcessor', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(__filename, '../fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -167,7 +167,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when using static method testFetcher', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(__filename, '../fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -198,7 +198,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when testing flush', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(__filename, '../fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -222,7 +222,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('when testing flush with analytics', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(__filename, '../fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
@@ -263,7 +263,7 @@ describe('WorkerTestHarness', () => {
     });
 
     describe('harness preserves metadata of data passed in', () => {
-        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        const options = { assetDir: path.join(__filename, '../fixtures') };
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {

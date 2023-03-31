@@ -10,7 +10,7 @@ import {
 import { JobTestHarness } from '../src';
 
 describe('JobTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(__filename, '../fixtures');
 
     const clients = [
         {
@@ -38,7 +38,7 @@ describe('JobTestHarness', () => {
         ];
 
         const jobHarness = new JobTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
+            assetDir: path.join(__filename, '../fixtures'),
             clients,
         });
 
