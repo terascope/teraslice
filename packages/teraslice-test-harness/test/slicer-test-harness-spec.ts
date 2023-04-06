@@ -8,7 +8,7 @@ import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
 
 describe('SlicerTestHarness', () => {
-    const assetDir = path.join(__filename, '../fixtures');
+    const assetDir = path.join(__dirname, 'fixtures');
     const clients = [
         {
             type: 'example',

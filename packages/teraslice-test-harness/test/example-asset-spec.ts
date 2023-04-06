@@ -12,7 +12,7 @@ import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
 jest.mock('./fixtures/asset/simple-connector/client');
 
 describe('Example Asset', () => {
-    const assetDir = path.join(__filename, '../fixtures');
+    const assetDir = path.join(__dirname, 'fixtures');
 
     const apiName = 'simple-api';
     const simpleClient = new SimpleClient();
