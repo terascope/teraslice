@@ -1,14 +1,7 @@
-import fs from 'fs-extra';
-import path from 'path';
 import {
-    ExecutionConfig,
-    JobValidator,
-    TestContext,
-    JobConfig,
-    ExecutionContextConfig,
-    Assignment,
-    makeExecutionContext,
-    TestClientConfig,
+    ExecutionConfig, JobValidator, TestContext,
+    JobConfig, ExecutionContextConfig, Assignment,
+    makeExecutionContext, TestClientConfig,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
 import {
@@ -67,25 +60,11 @@ export default class BaseTestHarness<U extends ExecutionContext> {
     }
 
     private _getAssetDirs(assetDir: string | string[] = [process.cwd()]) {
-        const assets = this._getExternalAssets();
-
         if (Array.isArray(assetDir)) {
-            return resolveAssetDir(assets.concat(assetDir));
+            return resolveAssetDir(assetDir);
         }
 
-        return resolveAssetDir([...assets, assetDir]);
-    }
-
-    private _getExternalAssets(): string[] {
-        const externalAssetsPath = path.resolve('./test/.cache', 'assets');
-
-        if (fs.pathExistsSync(externalAssetsPath)) {
-            return fs.readdirSync(externalAssetsPath)
-                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
-                .map((dir) => path.join(externalAssetsPath, dir));
-        }
-
-        return [];
+        return resolveAssetDir([assetDir]);
     }
 
     /**

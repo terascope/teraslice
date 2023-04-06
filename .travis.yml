@@ -42,46 +42,11 @@ jobs:
         - yarn sync --verify
 
     - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 1'
+      name: 'Unit Test Suite (node 16)'
       node_js: '16.17.1'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=1/6
-
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 2'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=2/6
-
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 3'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=3/6
-
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 4'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=4/6
-
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 5'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=5/6
-
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16) shard 6'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit . -- -- --shard=6/6
+      script: MAX_PROJECTS_PER_BATCH=2 TZ=utc yarn --silent test -- --suite unit --
 
     - name: 'ES Test Suite (elasticsearch 6) (node 16)'
       node_js: '16.17.1'
@@ -155,7 +120,7 @@ jobs:
         # publish to NPM first
         - yarn ts-scripts publish -t latest npm
         # run the tests with coverage coverage
-        - yarn test
+        - MAX_PROJECTS_PER_BATCH=2 TZ=utc yarn test
         # Publish to dev docker image
         - yarn ts-scripts publish -t dev docker
         # do this last

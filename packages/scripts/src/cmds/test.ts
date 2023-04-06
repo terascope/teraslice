@@ -30,7 +30,6 @@ type Options = {
 
 const jestArgs = getExtraArgs();
 const testSuites = getAvailableTestSuites();
-
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'test [packages..]',
     describe: 'Run monorepo tests',

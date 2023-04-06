@@ -1,26 +1,20 @@
 import {
-    debugLogger,
-    chunk,
-    TSError,
-    isCI,
-    pMap
+    debugLogger, chunk, TSError,
+    isCI, pMap
 } from '@terascope/utils';
 import {
-    writePkgHeader,
-    writeHeader,
-    getRootDir,
-    getRootInfo,
-    getAvailableTestSuites,
-    getDevDockerImage,
+    writePkgHeader, writeHeader, getRootDir,
+    getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
+import { runJest, dockerTag } from '../scripts';
 import {
-    runJest,
-    dockerTag,
-} from '../scripts';
-import * as utils from './utils';
+    getArgs, filterBySuite, globalTeardown,
+    reportCoverage, logE2E, getEnv,
+    groupBySuite
+} from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
@@ -53,7 +47,8 @@ async function _runTests(
         await runE2ETest(options, tracker);
         return;
     }
-    const filtered = utils.filterBySuite(pkgInfos, options);
+
+    const filtered = filterBySuite(pkgInfos, options);
 
     if (!filtered.length) {
         signale.warn('No tests found.');
@@ -61,7 +56,7 @@ async function _runTests(
     }
 
     const availableSuites = getAvailableTestSuites();
-    const grouped = utils.groupBySuite(filtered, availableSuites, options);
+    const grouped = groupBySuite(filtered, availableSuites, options);
 
     for (const [suite, pkgs] of Object.entries(grouped)) {
         if (!pkgs.length || suite === 'e2e') continue;
@@ -127,7 +122,7 @@ async function runTestSuite(
             writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
-        const args = utils.getArgs(options);
+        const args = getArgs(options);
 
         args.projects = pkgs.map(
             (pkgInfo) => {
@@ -156,7 +151,7 @@ async function runTestSuite(
             cleanupKeys.push(cleanupKey);
             tracker.addCleanup(cleanupKey, async () => {
                 options.keepOpen = false;
-                await utils.globalTeardown(options, teardownPkgs);
+                await globalTeardown(options, teardownPkgs);
             });
 
             if (options.bail || isCI) {
@@ -165,7 +160,7 @@ async function runTestSuite(
             }
         } finally {
             if (options.reportCoverage) {
-                await utils.reportCoverage(suite, chunkIndex);
+                await reportCoverage(suite, chunkIndex);
             }
         }
     }
@@ -230,7 +225,7 @@ async function runE2ETest(
         try {
             await runJest(
                 e2eDir,
-                utils.getArgs(options),
+                getArgs(options),
                 env,
                 options.jestArgs,
                 options.debug
@@ -248,7 +243,7 @@ async function runE2ETest(
 
     if (!options.keepOpen) {
         try {
-            await utils.logE2E(e2eDir, tracker.hasErrors());
+            await logE2E(e2eDir, tracker.hasErrors());
         } catch (err) {
             signale.error(
                 new TSError(err, {
@@ -261,7 +256,7 @@ async function runE2ETest(
     if (tracker.hasErrors()) {
         tracker.addCleanup('e2e:teardown', async () => {
             options.keepOpen = false;
-            await utils.globalTeardown(options, [{
+            await globalTeardown(options, [{
                 name: suite,
                 dir: e2eDir,
                 suite,
@@ -271,7 +266,7 @@ async function runE2ETest(
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {
-    const env = utils.getEnv(options, suite);
+    const env = getEnv(options, suite);
     if (options.debug || options.trace || isCI) {
         const envStr = Object
             .entries(env)

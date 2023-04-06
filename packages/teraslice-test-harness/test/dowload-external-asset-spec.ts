@@ -68,6 +68,7 @@ describe('download-external-asset', () => {
     const externalAsset = new DownloadExternalAsset();
 
     const externalPathLocation = path.resolve('./test/.cache');
+    const externalAssetName = `${externalPathLocation}/assets/jungle`;
 
     beforeEach(async () => {
         await fs.remove(externalPathLocation);
@@ -139,7 +140,8 @@ describe('download-external-asset', () => {
 
         const options = {
             assetDir: [
-                path.join(__dirname, 'fixtures')
+                path.join(__dirname, 'fixtures'),
+                externalAssetName
             ]
         };
 

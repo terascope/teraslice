@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-focused-tests */
 import 'jest-extended';
 import {
     DataEntity, debugLogger, cloneDeep, get

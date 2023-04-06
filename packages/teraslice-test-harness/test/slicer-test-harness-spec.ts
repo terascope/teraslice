@@ -1,11 +1,8 @@
 import 'jest-extended';
 import path from 'path';
 import {
-    newTestJobConfig,
-    Slicer,
-    uniq,
-    AnyObject,
-    LifeCycle
+    newTestJobConfig, Slicer, uniq,
+    AnyObject, LifeCycle
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
