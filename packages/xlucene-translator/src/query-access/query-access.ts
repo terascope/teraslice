@@ -25,6 +25,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly typeConfig: xLuceneTypeConfig;
     readonly parsedTypeConfig: xLuceneTypeConfig;
     readonly variables: xLuceneVariables;
+    private readonly loose: boolean;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
@@ -54,6 +55,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
         this.parsedTypeConfig = this._restrictTypeConfig();
         this.variables = variables;
+        this.loose = !!options.loose;
     }
 
     clearCache(): void {
@@ -80,6 +82,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const parserOptions: p.ParserOptions = {
             type_config: this.typeConfig,
+            variables: this.variables,
+            loose: this.loose
         };
 
         try {
@@ -218,6 +222,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
             variables,
+            loose: this.loose
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);
