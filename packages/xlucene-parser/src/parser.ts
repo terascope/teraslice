@@ -1,8 +1,4 @@
-import {
-    TSError,
-    trim,
-    isRegExpLike
-} from '@terascope/utils';
+import { TSError, trim, isRegExpLike } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
 import * as i from './interfaces';
@@ -20,12 +16,17 @@ export class Parser {
     readonly query: string;
     readonly typeConfig: xLuceneTypeConfig;
 
+    // think of better name maybe
+    // for filtering out nodes with undefined variables
+    readonly loose: boolean;
+
     constructor(
         query: string,
         options?: i.ParserOptions,
         _overrideNode?: i.Node
     ) {
         this.query = trim(query || '');
+        this.loose = !!options?.loose;
 
         this.typeConfig = { ...options?.type_config };
         if (_overrideNode) {
@@ -40,6 +41,18 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
+            if (options?.loose) {
+                // NOTE can't do here because we don't have the variables until resolveVariables
+                // OR guess could just pass variables into the parser options
+                // this.ast = this.filterNodes(this.ast, (node: any) => {
+                //     if (node.type === 'variable') { // prob be a type somewhere
+                //         if (node.value === undefined) return true;
+                //         return false;
+                //     }
+                //     return false;
+                // });
+            }
+
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
                 utils.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
@@ -53,6 +66,10 @@ export class Parser {
                 reason: `Failure to parse xLucene query "${this.query}"`,
             });
         }
+    }
+
+    filterNodes(_ast: i.Node, _fn: (node: i.Node, parent?: i.Node) => boolean): void {
+        // FIXME
     }
 
     /**
@@ -209,14 +226,16 @@ export class Parser {
 
         const ast = this.mapNode((node, parent) => {
             if (utils.isTermList(node)) {
-                return coerceTermList(node, validatedVariables);
+                // FIXME add a test
+                return coerceTermList(node, validatedVariables, this.loose);
             }
             if ('value' in node) {
                 return coerceNodeValue(
                     node as i.Term | i.Regexp | i.Wildcard,
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
-                    parent?.type === i.NodeType.Conjunction
+                    parent?.type === i.NodeType.Conjunction,
+                    this.loose
                 );
             }
 
@@ -225,18 +244,19 @@ export class Parser {
 
         return new Parser(this.query, {
             type_config: this.typeConfig,
+            loose: this.loose
         }, ast);
     }
 
     /**
      * Map the Node and return a new Node
     */
-    mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node): i.Node {
-        const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
+    mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node|undefined): i.Node|undefined {
+        const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node|undefined => {
             const node = fn({ ...ogNode }, parent);
 
             if (utils.isNegation(node)) {
-                node.node = mapNode(node.node, node);
+                node.node = mapNode(node.node, node) as i.Node;
             } else if (utils.isFunctionNode(node)) {
                 node.params = node.params.map((conj) => {
                     const newNode = mapNode(conj, node);
@@ -247,18 +267,24 @@ export class Parser {
                     }
                     return newNode;
                 });
-            } else if (utils.isGroupLike(node)) {
+            } else if (node && utils.isGroupLike(node)) {
                 node.flow = node.flow.map((conj) => {
                     const newNode = mapNode(conj, node);
-                    if (!utils.isConjunction(newNode)) {
+                    if (newNode && !utils.isConjunction(newNode)) {
                         throw new Error(
                             `Only a ${i.NodeType.Conjunction} node type can be returned, got ${newNode.type}`
                         );
                     }
                     return newNode;
-                });
+                }) as i.Conjunction[];
+                if (this.loose) {
+                    node.flow = node.flow.filter((el) => el !== undefined);
+                }
             } else if (utils.isConjunction(node)) {
-                node.nodes = node.nodes.map((conj) => mapNode(conj, node));
+                node.nodes = node.nodes.map((conj) => mapNode(conj, node)) as i.Node[];
+                if (this.loose) {
+                    node.nodes = node.nodes.filter((el) => el !== undefined);
+                }
             }
             return node;
         };
@@ -267,8 +293,20 @@ export class Parser {
     }
 }
 
-function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
-    const values = utils.getFieldValue<any>(node.value, variables);
+function coerceTermList(
+    node: i.TermList,
+    variables: xLuceneVariables,
+    skipUndefinedNodes?: boolean
+) {
+    let values = utils.getFieldValue<any>(node.value, variables);
+
+    if (skipUndefinedNodes) {
+        values = values.filter((el) => ![null, undefined].includes(el));
+        if (!values.length) {
+            return undefined;
+        }
+    }
+
     return {
         ...node,
         values: values.map((value) => ({
@@ -282,11 +320,17 @@ function coerceNodeValue(
     node: i.Term|i.Regexp|i.Wildcard,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
-    allowNil?: boolean
-): i.Node {
+    allowNil?: boolean,
+    skipUndefinedNodes?: boolean
+): i.Node|undefined {
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
+
+    if (value === undefined && skipUndefinedNodes) {
+        return undefined;
+    }
+
     const coerceFn = allowNil && value == null
         ? () => null
         : utils.makeCoerceFn(node.field_type);

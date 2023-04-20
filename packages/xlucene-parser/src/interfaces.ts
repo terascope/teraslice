@@ -3,6 +3,9 @@ import * as t from '@terascope/types';
 
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
+    /** whether or not to remove nodes that have undefined variables  */
+    loose?: boolean;
+    variables?: Record<string, any>
 }
 
 export interface ContextArg {
