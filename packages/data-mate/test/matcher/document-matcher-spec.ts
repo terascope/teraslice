@@ -44,4 +44,42 @@ describe('Document-Matcher', () => {
         expect(documentMatcher.match(data)).toBeTrue();
         expect(data).toStrictEqual(clone);
     });
+
+    it('should be able to match on query in loose mode', () => {
+        const data = [
+            {
+                name: 'Billy',
+                age: 105
+            },
+            {
+                name: 'Jill',
+                age: 20,
+            },
+            {
+                name: 'Jane',
+                age: 10
+            },
+            {
+                name: 'Nancy',
+                age: 10,
+            },
+        ];
+
+        const clone = cloneDeep(data);
+        const typeConfig: xLuceneTypeConfig = {
+            name: xLuceneFieldType.String,
+            age: xLuceneFieldType.Integer,
+        };
+
+        // FIXME OR works but AND doesn't
+        const query = 'name:$name AND age:$age';
+        const documentMatcher = new DocumentMatcher(query, {
+            type_config: typeConfig,
+            loose: true,
+            variables: { age: 20 }
+        });
+
+        expect(documentMatcher.match(data)).toBeTrue();
+        expect(data).toStrictEqual(clone);
+    });
 });

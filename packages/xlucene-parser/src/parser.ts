@@ -1,4 +1,6 @@
-import { TSError, trim, isRegExpLike } from '@terascope/utils';
+import {
+    TSError, trim, isRegExpLike, cloneDeep
+} from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
 import * as i from './interfaces';
@@ -44,13 +46,13 @@ export class Parser {
             if (options?.loose) {
                 // NOTE can't do here because we don't have the variables until resolveVariables
                 // OR guess could just pass variables into the parser options
-                // this.ast = this.filterNodes(this.ast, (node: any) => {
-                //     if (node.type === 'variable') { // prob be a type somewhere
-                //         if (node.value === undefined) return true;
-                //         return false;
-                //     }
-                //     return false;
-                // });
+                this.ast = this.filterNodes(this.ast, (node: any) => {
+                    if (node?.value?.type === 'variable') { // prob be a type somewhere
+                        if (node.field in (options.variables || {})) return false;
+                        return true;
+                    }
+                    return false;
+                });
             }
 
             if (utils.logger.level() === 10) {
@@ -68,8 +70,37 @@ export class Parser {
         }
     }
 
-    filterNodes(_ast: i.Node, _fn: (node: i.Node, parent?: i.Node) => boolean): void {
+    filterNodes(ast: i.Node, fn: (node: i.Node, parent?: i.Node) => boolean): i.Node {
         // FIXME
+
+        const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
+            const clone = cloneDeep(ogNode);
+            if (fn({ ...ogNode }, parent)) { return ogNode; }
+
+            if (utils.isLogicalGroup(clone)) {
+                const filtered: any[] = [];
+                clone.flow.forEach((f) => {
+                    const nodes = f.nodes.filter((n) => (fn({ ...n }, parent)));
+                    if (nodes.length) {
+                        filtered.push({ type: f.type, nodes });
+                    }
+                });
+                clone.flow = filtered;
+                if (!filtered.length) {
+                    // FIXME
+                }
+                if (filtered.length === 1) {
+                    // FIXME switching from logical to term doesn't work
+                    return filtered[0].nodes[0];
+                }
+
+                return clone;
+            }
+
+            return clone;
+        };
+
+        return filterNode(this.ast);
     }
 
     /**
