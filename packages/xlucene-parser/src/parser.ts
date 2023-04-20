@@ -43,14 +43,11 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
-            if (options?.loose) {
-                // NOTE can't do here because we don't have the variables until resolveVariables
-                // OR guess could just pass variables into the parser options
+            if (options?.loose && options.variables) {
+                // would have to pass variables to get here
                 this.ast = this.filterNodes(this.ast, (node: any) => {
-                    if (node?.value?.type === 'variable') { // prob be a type somewhere
-                        if (node.field in (options.variables || {})) return false;
-                        return true;
-                    }
+                    if (node?.value?.type !== 'variable') return true;
+                    if (node.field in (options.variables || {})) return true;
                     return false;
                 });
             }
@@ -75,23 +72,23 @@ export class Parser {
 
         const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const clone = cloneDeep(ogNode);
-            if (fn({ ...ogNode }, parent)) { return ogNode; }
 
             if (utils.isLogicalGroup(clone)) {
-                const filtered: any[] = [];
-                clone.flow.forEach((f) => {
+                const filtered = clone.flow.flatMap((f) => {
                     const nodes = f.nodes.filter((n) => (fn({ ...n }, parent)));
                     if (nodes.length) {
-                        filtered.push({ type: f.type, nodes });
+                        return { ...f, nodes };
                     }
-                });
-                clone.flow = filtered;
-                if (!filtered.length) {
+                    return;
+                }).filter((f) => !!f?.nodes.length);
+
+                clone.flow = filtered as i.Conjunction[];
+
+                if (!clone.flow.length) {
                     // FIXME
                 }
-                if (filtered.length === 1) {
-                    // FIXME switching from logical to term doesn't work
-                    return filtered[0].nodes[0];
+                if (clone.flow.length === 1) {
+                    return clone.flow[0].nodes[0];
                 }
 
                 return clone;

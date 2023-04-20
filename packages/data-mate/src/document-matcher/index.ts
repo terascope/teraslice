@@ -1,5 +1,5 @@
 import { Parser } from 'xlucene-parser';
-import { BooleanCB, DocumentMatcherOptions } from './interfaces';
+import type { BooleanCB, DocumentMatcherOptions } from './interfaces';
 import logicBuilder from './logic-builder';
 
 export class DocumentMatcher {

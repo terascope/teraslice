@@ -45,7 +45,7 @@ describe('Document-Matcher', () => {
         expect(data).toStrictEqual(clone);
     });
 
-    it('should be able to match on query in loose mode', () => {
+    describe('loose mode', () => {
         const data = [
             {
                 name: 'Billy',
@@ -65,21 +65,40 @@ describe('Document-Matcher', () => {
             },
         ];
 
-        const clone = cloneDeep(data);
-        const typeConfig: xLuceneTypeConfig = {
-            name: xLuceneFieldType.String,
-            age: xLuceneFieldType.Integer,
-        };
+        it('should filter undefined nodes for an OR query', () => {
+            const clone = cloneDeep(data);
+            const typeConfig: xLuceneTypeConfig = {
+                name: xLuceneFieldType.String,
+                age: xLuceneFieldType.Integer,
+            };
 
-        // FIXME OR works but AND doesn't
-        const query = 'name:$name AND age:$age';
-        const documentMatcher = new DocumentMatcher(query, {
-            type_config: typeConfig,
-            loose: true,
-            variables: { age: 20 }
+            const query = 'name:$name OR age:$age';
+            const documentMatcher = new DocumentMatcher(query, {
+                type_config: typeConfig,
+                loose: true,
+                variables: { age: 20 }
+            });
+
+            expect(documentMatcher.match(data)).toBeTrue();
+            expect(data).toStrictEqual(clone);
         });
 
-        expect(documentMatcher.match(data)).toBeTrue();
-        expect(data).toStrictEqual(clone);
+        it('should filter undefined nodes for an AND query', () => {
+            const clone = cloneDeep(data);
+            const typeConfig: xLuceneTypeConfig = {
+                name: xLuceneFieldType.String,
+                age: xLuceneFieldType.Integer,
+            };
+
+            const query = 'name:$name OR age:$age';
+            const documentMatcher = new DocumentMatcher(query, {
+                type_config: typeConfig,
+                loose: true,
+                variables: { age: 20 }
+            });
+
+            expect(documentMatcher.match(data)).toBeTrue();
+            expect(data).toStrictEqual(clone);
+        });
     });
 });

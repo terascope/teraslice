@@ -3,7 +3,7 @@ import * as p from 'xlucene-parser';
 import {
     isWildCardString, get, isEqual,
     and, isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP
+    isLessThanOrEqualToFP, isLessThanFP, isArray
 } from '@terascope/utils';
 import { compareTermDates, dateRange } from './dates';
 import {
@@ -24,6 +24,10 @@ function makeGetFn(field?: string): (data: any) => unknown {
     if (field.includes('.')) return (obj) => get(obj, field);
 
     return function getProp(obj) {
+        if (isArray(obj)) {
+            const mapped = obj.map((el) => el[field]).filter((el) => el !== undefined);
+            if (mapped.length) return mapped;
+        }
         return obj[field];
     };
 }
