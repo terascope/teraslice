@@ -25,8 +25,7 @@ function makeGetFn(field?: string): (data: any) => unknown {
 
     return function getProp(obj) {
         if (isArray(obj)) {
-            const mapped = obj.map((el) => el[field]).filter((el) => el !== undefined);
-            if (mapped.length) return mapped;
+            return obj.map((el) => el[field]).filter((el) => el !== undefined);
         }
         return obj[field];
     };
