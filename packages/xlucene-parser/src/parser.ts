@@ -47,7 +47,7 @@ export class Parser {
                 // would have to pass variables to get here
                 this.ast = this.filterNodes(this.ast, (node: any) => {
                     if (node?.value?.type !== 'variable') return true;
-                    if (node.field in (options.variables || {})) return true;
+                    if (node?.value?.value in (options.variables || {})) return true;
                     return false;
                 });
             }
@@ -73,7 +73,7 @@ export class Parser {
         const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const clone = cloneDeep(ogNode);
 
-            if (utils.isLogicalGroup(clone)) {
+            if (utils.isLogicalGroup(clone) || utils.isFieldGroup(clone)) {
                 const filtered = clone.flow.flatMap((f) => {
                     const nodes = f.nodes.filter((n) => (fn({ ...n }, parent)));
                     if (nodes.length) {
@@ -87,16 +87,16 @@ export class Parser {
                 if (!clone.flow.length) {
                     // FIXME
                 }
-                if (clone.flow.length === 1) {
-                    return clone.flow[0].nodes[0];
-                }
+                // FIXME if node has 1, not flow, then skip the group and return the node
+                // if (clone.flow.length === 1) {
+                //     return clone.flow[0].nodes[0];
+                // }
 
                 return clone;
             }
 
             return clone;
         };
-
         return filterNode(this.ast);
     }
 
@@ -290,7 +290,7 @@ export class Parser {
                     const newNode = mapNode(conj, node);
                     if (!utils.isTerm(newNode) && !utils.isTermList(newNode)) {
                         throw new Error(
-                            `Only a ${i.NodeType.Term} or ${i.NodeType.TermList} node type can be returned, got ${newNode.type}`
+                            `Only a ${i.NodeType.Term} or ${i.NodeType.TermList} node type can be returned, got ${newNode?.type}`
                         );
                     }
                     return newNode;

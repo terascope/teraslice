@@ -1,6 +1,6 @@
 import empty from './empty';
 import exists from './exists';
-import fieldGroup from './field-group';
+import fieldGroup, { looseFieldGroup } from './field-group';
 import logicalGroup from './logical-group';
 import negation from './negation';
 import range from './range';
@@ -21,4 +21,10 @@ export default {
     logical_group: logicalGroup,
     negation,
     geo,
+};
+
+export const looseTestCases = {
+    empty,
+    exists,
+    looseFieldGroup
 };
