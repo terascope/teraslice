@@ -1,5 +1,5 @@
 import {
-    TSError, trim, isRegExpLike, cloneDeep
+    TSError, trim, isRegExpLike, cloneDeep, unset
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
@@ -45,12 +45,39 @@ export class Parser {
 
             if (options?.loose && options.variables) {
                 // would have to pass variables to get here
-                this.ast = this.filterNodes(this.ast, (node: any) => {
-                    if (node?.value?.type !== 'variable') return true;
-                    if (node?.value?.value in (options.variables || {})) return true;
-                    return false;
+                this.ast = this.filterNodes(this.ast, (_node: any) => {
+                    let type = '';
+                    let value: any = '';
+                    let node = _node;
+                    if (utils.isNegation(node)) {
+                        node = _node.node;
+                    }
+                    if (utils.isTerm(node)) {
+                        type = node.value.type;
+                        value = node.value.value;
+                    }
+                    if (utils.isRange(node)) {
+                        type = node.left.value.type ?? node.right?.value.type;
+                        value = node.left.value.value ?? node.right?.value.value;
+                        // if (node.right) {
+                        //     return keep(type, value)
+                        //     || keep(node.right.value.type, node.right.value.value as string);
+                        // }
+                    }
+
+                    // if (utils.isConjunction(node) || utils.isLogicalGroup(node)) {
+                    // }
+
+                    function keep(nodeType: string, nodeVariable: string) {
+                        if (nodeType !== 'variable') return true;
+                        if (nodeVariable in (options?.variables || {})) return true;
+
+                        return false;
+                    }
+                    return keep(type, value);
                 });
             }
+            console.log('++ast2', JSON.stringify(this.ast, null, 4));
 
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
@@ -68,35 +95,72 @@ export class Parser {
     }
 
     filterNodes(ast: i.Node, fn: (node: i.Node, parent?: i.Node) => boolean): i.Node {
-        // FIXME
-
         const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const clone = cloneDeep(ogNode);
 
             if (utils.isLogicalGroup(clone) || utils.isFieldGroup(clone)) {
-                const filtered = clone.flow.flatMap((f) => {
-                    const nodes = f.nodes.filter((n) => (fn({ ...n }, parent)));
-                    if (nodes.length) {
-                        return { ...f, nodes };
-                    }
-                    return;
-                }).filter((f) => !!f?.nodes.length);
+                const filtered = clone.flow
+                    .map((f) => {
+                        const nodes = f.nodes
+                            .map((n) => {
+                                if (utils.isConjunction(n) || utils.isLogicalGroup(n)) {
+                                    // if grouping recurse to filter the inner nodes
+                                    return filterNode(n, clone);
+                                }
+                                // if filter fn returns true, keep the node
+                                if (fn({ ...n }, parent)) return n;
+                                return;
+                            })
+                            .filter(Boolean); // filter out undefined flow nodes
+
+                        if (nodes.length) {
+                            return { ...f, nodes };
+                        }
+                        return;
+                    })
+                    .filter( // filter out flows with zero nodes
+                        (f) => !!f?.nodes.filter(Boolean).length
+                    );
+                console.log('==filtered', JSON.stringify(filtered, null, 4));
 
                 clone.flow = filtered as i.Conjunction[];
 
-                if (!clone.flow.length) {
-                    // FIXME
+                // if only 1 flow and 1 node, don't need conjunction anymore
+                if (clone.flow.length === 1 && clone.flow[0].nodes.length === 1) {
+                    return clone.flow[0].nodes[0];
                 }
-                // FIXME if node has 1, not flow, then skip the group and return the node
-                // if (clone.flow.length === 1) {
-                //     return clone.flow[0].nodes[0];
-                // }
 
+                return clone;
+            } if (utils.isRange(clone)) {
+                const keepLeft = fn(clone.left as any, clone);
+
+                let keepRight = false;
+                if (clone.right) {
+                    keepRight = fn(clone.right as any, clone);
+                    if (!keepRight) {
+                        unset(clone, 'right');
+                    }
+                }
+
+                if (!keepLeft) {
+                    unset(clone, 'left');
+                    if (keepRight && clone.right) {
+                        clone.left = { ...clone.right, };
+                    }
+                }
+
+                if (clone.left) {
+                    return clone;
+                }
+            } else if (fn(ogNode, parent)) {
                 return clone;
             }
 
-            return clone;
+            return {
+                type: i.NodeType.Empty
+            };
         };
+
         return filterNode(this.ast);
     }
 

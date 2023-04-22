@@ -277,3 +277,104 @@ export default [
         { ip_range: xLuceneFieldType.IPRange },
     ],
 ] as TestCase[];
+
+export const looseRange = [
+    [
+        'count: >=$foo',
+        'gte ranges with variables',
+        {
+            type: NodeType.Empty,
+        },
+        { count: xLuceneFieldType.Integer },
+        { }
+    ],
+    [
+        'count:[$foo TO $bar]',
+        'inclusive ranges with integers with variables (missing left variable)',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'bar', }
+            }
+        },
+        { count: xLuceneFieldType.Integer },
+        { bar: 5 }
+    ],
+    [
+        'count:{$foo TO $bar}',
+        'exclusive ranges with integers with variables (missing right variable)',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gt',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', }
+            },
+        },
+        { count: xLuceneFieldType.Integer },
+        { foo: 1 }
+    ],
+    [
+        'count:[$foo TO $bar]',
+        'inclusive/exclusive ranges with integers with variables (missing both variable)',
+        {
+            type: NodeType.Empty,
+        },
+        { count: xLuceneFieldType.Integer },
+        { }
+    ],
+    [
+        'val:[$foo TO omega]',
+        'inclusive range of strings',
+        {
+            type: NodeType.Range,
+            field: 'val',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.String,
+                restricted: true,
+                value: { type: 'value', value: 'omega', }
+            }
+        },
+        {},
+        {}
+    ],
+    [
+        'val:[$foo TO 2012-01-01]',
+        'inclusive date range',
+        {
+            type: NodeType.Range,
+            field: 'val',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.String,
+                restricted: true,
+                value: { type: 'value', value: '2012-01-01', }
+            },
+        },
+        {},
+        {}
+    ],
+    // [
+    //     'ip_range:"1.2.3.0/24"',
+    //     'ip range', {
+    //         type: NodeType.Range,
+    //         field: 'ip_range',
+    //         left: {
+    //             field_type: xLuceneFieldType.IP,
+    //             value: { type: 'value', value: '1.2.3.0' },
+    //             operator: 'gte'
+    //         },
+    //         right: {
+    //             operator: 'lte',
+    //             field_type: xLuceneFieldType.IP,
+    //             value: { type: 'value', value: '1.2.3.255' }
+    //         }
+    //     } as Range,
+    //     { ip_range: xLuceneFieldType.IPRange },
+    // ],
+] as TestCase[];

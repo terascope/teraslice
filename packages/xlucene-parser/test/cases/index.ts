@@ -3,9 +3,9 @@ import exists from './exists';
 import fieldGroup, { looseFieldGroup } from './field-group';
 import logicalGroup from './logical-group';
 import negation from './negation';
-import range from './range';
+import range, { looseRange } from './range';
 import regexp from './regexp';
-import term from './term';
+import term, { looseTerm } from './term';
 import wildcard from './wildcard';
 import geo from './geo';
 
@@ -26,5 +26,12 @@ export default {
 export const looseTestCases = {
     empty,
     exists,
-    looseFieldGroup
+    looseFieldGroup,
+    // geo,
+    // logical
+    // negation
+    looseRange,
+    // regexp
+    looseTerm,
+    // wildcard - maybe add a wildcard to field or logical group
 };

@@ -490,7 +490,7 @@ export default [
     ],
     [
         `id:${escapeString('some\\"thing\\"else')}`,
-        'an unquoted string with qoutes inside',
+        'an unquoted string with quotes inside',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -512,7 +512,7 @@ export default [
     ],
     [
         `id:"${escapeString('some \\"thing\\" else')}"`,
-        'a double quoted value with escaped double qoutes',
+        'a double quoted value with escaped double quotes',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -523,7 +523,7 @@ export default [
     ],
     [
         `id:'${escapeString('some\\ \\"thing\\" else')}'`,
-        'a single quoted value with escaped double qoutes and spaces',
+        'a single quoted value with escaped double quotes and spaces',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -765,4 +765,40 @@ export default [
             value: { type: 'value', value: '3.3.com', },
         },
     ],
+] as TestCase[];
+
+export const looseTerm: TestCase[] = [
+    [
+        `field:$bar_val`,
+        'variable with value is a string',
+        {
+            type: NodeType.Empty,
+        },
+        { field: xLuceneFieldType.String },
+        {}
+    ],
+    [
+        `field:@bar2`,
+        'a scoped variable',
+        {
+            type: NodeType.Empty,
+        },
+        {
+            field: xLuceneFieldType.Integer,
+        },
+        {}
+    ],
+    // [
+    //     `field:@example.foo`,
+    //     'a nested scoped variable',
+    //     {
+    //         value: { type: 'variable', value: '@example.foo', scoped: true },
+    //         field: 'field',
+    //         type: NodeType.Term,
+    //         field_type: xLuceneFieldType.String,
+    //     },
+    //     {
+    //         field: xLuceneFieldType.String,
+    //     }, {}
+    // ],
 ] as TestCase[];

@@ -574,151 +574,100 @@ export default [
     ],
 ] as TestCase[];
 
-// FIXME
 export const looseFieldGroup: TestCase[] = [
-    // [
-    //     'count:(>=$foo AND <=$bar AND >=$baz)',
-    //     'a field group expression with ranges with variables',
-    //     {
-    //         type: NodeType.FieldGroup,
-    //         field: 'count',
-    //         flow: [
-    //             {
-    //                 type: NodeType.Conjunction,
-    //                 nodes: [
-    //                     {
-    //                         type: NodeType.Range,
-    //                         field: 'count',
-    //                         left: {
-    //                             operator: 'gte',
-    //                             field_type: xLuceneFieldType.Integer,
-    //                             value: { type: 'variable', value: 'foo', },
-    //                         }
-    //                     },
-    //                     {
-    //                         type: NodeType.Range,
-    //                         field: 'count',
-    //                         left: {
-    //                             operator: 'lte',
-    //                             field_type: xLuceneFieldType.Integer,
-    //                             value: { type: 'variable', value: 'bar', },
-    //                         }
-    //                     },
-    //                     {
-    //                         type: NodeType.Range,
-    //                         field: 'count',
-    //                         left: {
-    //                             operator: 'gte',
-    //                             field_type: xLuceneFieldType.Integer,
-    //                             value: { type: 'variable', value: 'baz', },
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     { count: xLuceneFieldType.Integer },
-    //     { foo: 20 }
-    // ],
+    [
+        'count:(>=$foo AND <=$bar AND >=$baz)',
+        'AND grouping expression with ranges with variables',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', },
+            }
+        },
+        { count: xLuceneFieldType.Integer },
+        { foo: 20 }
+    ],
     [
         'count:($foo OR $bar)',
-        'OR grouping with quoted and unquoted integers with variables',
+        'OR grouping with integers with variables',
         {
-            // type: NodeType.FieldGroup,
-            // field: 'count',
-            // flow: [
-            //     {
             type: NodeType.Term,
             field: 'count',
             field_type: xLuceneFieldType.Integer,
             value: { type: 'variable', value: 'bar' },
-            //     }
-            // ]
         },
-        {
-            count: xLuceneFieldType.Integer
-        },
-        {
-            bar: 20
-        }
+        { count: xLuceneFieldType.Integer },
+        { bar: 20 }
     ],
-    // [
-    //     'example:("foo" AND ("bar" OR "baz"))',
-    //     'implicit or grouping',
-    //     {
-    //         type: NodeType.FieldGroup,
-    //         field: 'example',
-    //         flow: [
-    //             {
-    //                 type: NodeType.Conjunction,
-    //                 nodes: [
-    //                     {
-    //                         type: NodeType.Term,
-    //                         field: 'example',
-    //                         field_type: xLuceneFieldType.String,
-    //                         value: { type: 'value', value: 'foo' },
-    //                     },
-    //                     {
-    //                         type: NodeType.LogicalGroup,
-    //                         flow: [
-    //                             {
-    //                                 type: NodeType.Conjunction,
-    //                                 nodes: [
-    //                                     {
-    //                                         type: NodeType.Term,
-    //                                         field: 'example',
-    //                                         field_type: xLuceneFieldType.String,
-    //                                         value: { type: 'value', value: 'bar' },
-    //                                     },
-    //                                 ]
-    //                             },
-    //                             {
-    //                                 type: NodeType.Conjunction,
-    //                                 nodes: [
-    //                                     {
-    //                                         type: NodeType.Term,
-    //                                         field: 'example',
-    //                                         field_type: xLuceneFieldType.String,
-    //                                         value: { type: 'value', value: 'baz' },
-    //                                     },
-    //                                 ]
-    //                             }
-    //                         ]
-    //                     }
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     { example: xLuceneFieldType.String },
-    //     { baz: 'something' }
-    // ],
-    // [
-    //     'example:("foo" AND other:"bar")',
-    //     'implicit or grouping',
-    //     {
-    //         type: NodeType.FieldGroup,
-    //         field: 'example',
-    //         flow: [
-    //             {
-    //                 type: NodeType.Conjunction,
-    //                 nodes: [
-    //                     {
-    //                         type: NodeType.Term,
-    //                         field_type: xLuceneFieldType.String,
-    //                         field: 'example',
-    //                         value: { type: 'value', value: 'foo' },
-    //                     },
-    //                     {
-    //                         type: NodeType.Term,
-    //                         field: 'other',
-    //                         field_type: xLuceneFieldType.String,
-    //                         value: { type: 'value', value: 'bar' },
-    //                     },
-    //                 ]
-    //             }
-    //         ]
-    //     },
-    //     { example: xLuceneFieldType.String },
-    //     { bar: 'bar' }
-    // ],
+    [
+        'bool:($foo OR $bar)',
+        'OR grouping with booleans and variables',
+        {
+            type: NodeType.Term,
+            field: 'bool',
+            field_type: xLuceneFieldType.Boolean,
+            value: { type: 'variable', value: 'bar' },
+        },
+        {
+            bool: xLuceneFieldType.Boolean
+        },
+        { bar: false }
+    ],
+    [
+        'example:("foo" AND ("bar" OR $baz))',
+        'implicit or grouping', {
+            type: NodeType.FieldGroup,
+            field: 'example',
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'example',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'value', value: 'foo' },
+                        },
+                        {
+                            type: NodeType.Term,
+                            field: 'example',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'value', value: 'bar' },
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            example: xLuceneFieldType.String
+        },
+        { }
+    ],
+    [
+        'val:(NOT $foo AND $bar)',
+        'negated field group with variables',
+        {
+            type: NodeType.Term,
+            field: 'val',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'variable', value: 'bar' },
+        },
+        { val: xLuceneFieldType.Integer },
+        { bar: 'test' }
+    ],
+    [
+        'foo:(@bar OR @baz)',
+        'multi-value field group with no quotes and @',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            field_type: xLuceneFieldType.String,
+            value: { type: 'variable', scoped: true, value: '@baz' },
+        } as Term,
+        { foo: xLuceneFieldType.String },
+        { '@baz': 'test' }
+    ],
 ] as TestCase[];
