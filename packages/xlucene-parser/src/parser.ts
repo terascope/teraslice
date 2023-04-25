@@ -43,7 +43,7 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
-            if (options?.loose && options.variables) {
+            if (options?.loose) {
                 // would have to pass variables to get here
                 this.ast = this.filterNodes(this.ast, (_node: any) => {
                     let type = '';
@@ -77,7 +77,6 @@ export class Parser {
                     return keep(type, value);
                 });
             }
-            console.log('++ast2', JSON.stringify(this.ast, null, 4));
 
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
@@ -107,6 +106,16 @@ export class Parser {
                                     // if grouping recurse to filter the inner nodes
                                     return filterNode(n, clone);
                                 }
+                                if (utils.isNegation(n)
+                                && (utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))) {
+                                    const _node = filterNode(n.node, clone);
+                                    if (utils.isEmptyNode(_node)) return;
+                                    return {
+                                        ...n,
+                                        node: _node
+                                    };
+                                }
+
                                 // if filter fn returns true, keep the node
                                 if (fn({ ...n }, parent)) return n;
                                 return;
@@ -114,6 +123,7 @@ export class Parser {
                             .filter(Boolean); // filter out undefined flow nodes
 
                         if (nodes.length) {
+                            console.log('===nodes.len', nodes);
                             return { ...f, nodes };
                         }
                         return;
@@ -121,7 +131,12 @@ export class Parser {
                     .filter( // filter out flows with zero nodes
                         (f) => !!f?.nodes.filter(Boolean).length
                     );
-                console.log('==filtered', JSON.stringify(filtered, null, 4));
+
+                if (!filtered.length) {
+                    return {
+                        type: i.NodeType.Empty
+                    };
+                }
 
                 clone.flow = filtered as i.Conjunction[];
 
@@ -155,7 +170,6 @@ export class Parser {
             } else if (fn(ogNode, parent)) {
                 return clone;
             }
-
             return {
                 type: i.NodeType.Empty
             };

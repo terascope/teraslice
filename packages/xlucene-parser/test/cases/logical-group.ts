@@ -1,5 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { FunctionNode, LogicalGroup, NodeType } from '../../src';
+import {
+    FunctionNode, LogicalGroup, NodeType, Term, Wildcard
+} from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -775,3 +777,335 @@ export default [
         } as LogicalGroup,
     ],
 ] as TestCase[];
+
+export const looseLogical: TestCase[] = [
+    [
+        'a:1 AND b:$foo',
+        'a simple AND conjunction (var right missing)',
+        {
+            type: NodeType.Term,
+            field: 'a',
+            value: { type: 'value', value: 1, }
+        } as Term,
+    ],
+    [
+        'a:$foo AND b:2',
+        'a simple AND conjunction (var left missing)',
+        {
+            type: NodeType.Term,
+            field: 'b',
+            value: { type: 'value', value: 2, },
+        } as Term,
+        { a: xLuceneFieldType.Integer, b: xLuceneFieldType.Integer },
+    ],
+    [
+        'a:$foo AND b:$bar',
+        'a simple AND conjunction (both vars missing)',
+        {
+            type: NodeType.Empty,
+        },
+        { a: xLuceneFieldType.Integer, b: xLuceneFieldType.Integer },
+    ],
+    [
+        '(a:1 AND b:$foo)',
+        'a simple AND conjunction parens',
+        {
+            type: NodeType.Term,
+            field: 'a',
+            value: { type: 'value', value: 1, }
+        } as Term,
+    ],
+    [
+        'a:$foo && b:1',
+        'a simple && conjunction',
+        {
+            type: NodeType.Term,
+            field: 'b',
+            value: { type: 'value', value: 1, },
+        } as Term,
+    ],
+    [
+        'a:1 OR b:$foo',
+        'a simple OR conjunction',
+        {
+            type: NodeType.Term,
+            field: 'a',
+            value: { type: 'value', value: 1, },
+        } as Term,
+    ],
+    [
+        'foo:$bar',
+        'variable array substitution',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'variable', scoped: false, value: 'bar' },
+        } as Term,
+        {
+            foo: xLuceneFieldType.Integer
+        },
+        {
+            bar: [1, 2, 3]
+        }
+    ],
+    [
+        'foo:$foo fo?',
+        'a implicit OR with wildcard',
+        {
+            type: NodeType.Wildcard,
+            field: null,
+            value: { type: 'value', value: 'fo?', },
+        } as Wildcard,
+    ],
+    [
+        'a:$bar || b:1',
+        'a simple || conjunction',
+        {
+            type: NodeType.Term,
+            field: 'b',
+            value: { type: 'value', value: 1, },
+        } as Term,
+    ],
+    [
+        'a:1 OR b:$foo OR c:1',
+        'a chained OR conjunction',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'a',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                    ],
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'c',
+                            value: { type: 'value', value: 1, },
+                        },
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+    [
+        'a:1 AND b:1 AND c:$bar',
+        'a double chained AND conjunction',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'a',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                        {
+                            type: NodeType.Term,
+                            field: 'b',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+    [
+        'a:$foo AND b:1 AND c:$bar',
+        'a double chained AND conjunction',
+        {
+            type: NodeType.Term,
+            field: 'b',
+            value: { type: 'value', value: 1, },
+        } as Term,
+    ],
+    [
+        'AqMvPMCS76u0 OR $foo',
+        'OR with unquoted strings',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            value: { type: 'value', value: 'AqMvPMCS76u0', },
+        } as Term,
+    ],
+    [
+        'a:1 OR b:$foo OR c:1 AND d:$bar AND e:1',
+        'a chained AND/OR conjunctions',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'a',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                    ],
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'c',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                        {
+                            type: NodeType.Term,
+                            field: 'e',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+    [
+        '$foo "bar"',
+        'implicit OR conjunction',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            field: null,
+            quoted: true,
+            value: { type: 'value', value: 'bar', }
+        } as Term,
+    ],
+    [
+        '"foo" bar:$baz',
+        'implicit OR conjunction',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            field: null,
+            quoted: true,
+            value: { type: 'value', value: 'foo', },
+        } as Term,
+    ],
+    [
+        'a:1 AND (b:$bar OR c:1) AND d:1',
+        'AND/OR conjunction with parens',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'a',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                        {
+                            type: NodeType.Term,
+                            field: 'c',
+                            value: { type: 'value', value: 1, },
+                        },
+                        {
+                            type: NodeType.Term,
+                            field: 'd',
+                            value: { type: 'value', value: 1, },
+                        },
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+    [
+        '(a:1 OR b:1) AND (c:$foo OR d:1)',
+        'AND/OR conjunction with two parens',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.LogicalGroup,
+                            flow: [
+                                {
+                                    type: NodeType.Conjunction,
+                                    nodes: [
+                                        {
+                                            field_type: xLuceneFieldType.Integer,
+                                            field: 'a',
+                                            value: { type: 'value', value: 1, },
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: NodeType.Conjunction,
+                                    nodes: [
+                                        {
+                                            field_type: xLuceneFieldType.Integer,
+                                            field: 'b',
+                                            value: { type: 'value', value: 1, },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            type: NodeType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            field: 'd',
+                            value: { type: 'value', value: 1, },
+
+                        } as Term,
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+    [
+        '(a:1) AND (b:$foo)',
+        'a simple AND with parens conjunction',
+        {
+            type: NodeType.Term,
+            field: 'a',
+            value: { type: 'value', value: 1, },
+        } as Term,
+    ],
+    [
+        '((field: value OR field2:$foo))',
+        'double parens expression',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            restricted: true,
+            quoted: false,
+            value: { type: 'value', value: 'value', },
+            field: 'field'
+        } as Term,
+    ],
+    [
+        '((a:1) AND (b:$foo))',
+        'double parens AND with parens conjunction',
+        {
+            type: NodeType.Term,
+            field: 'a',
+            value: { type: 'value', value: 1, }
+        } as Term,
+    ],
+    [
+        'a:$foo AND location:geoDistance(point:"33.435518,-111.873616" distance:5000m)',
+        'a simple AND with geoDistance function',
+        {
+            type: NodeType.Function,
+            field: 'location',
+            name: 'geoDistance'
+        } as FunctionNode,
+    ],
+];

@@ -278,15 +278,14 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseRange = [
+export const looseRange: TestCase[] = [
     [
         'count: >=$foo',
         'gte ranges with variables',
         {
             type: NodeType.Empty,
         },
-        { count: xLuceneFieldType.Integer },
-        { }
+        { count: xLuceneFieldType.Integer }
     ],
     [
         'count:[$foo TO $bar]',
@@ -324,8 +323,7 @@ export const looseRange = [
         {
             type: NodeType.Empty,
         },
-        { count: xLuceneFieldType.Integer },
-        { }
+        { count: xLuceneFieldType.Integer }
     ],
     [
         'val:[$foo TO omega]',
@@ -339,9 +337,7 @@ export const looseRange = [
                 restricted: true,
                 value: { type: 'value', value: 'omega', }
             }
-        },
-        {},
-        {}
+        }
     ],
     [
         'val:[$foo TO 2012-01-01]',
@@ -355,9 +351,7 @@ export const looseRange = [
                 restricted: true,
                 value: { type: 'value', value: '2012-01-01', }
             },
-        },
-        {},
-        {}
+        }
     ],
     // [
     //     'ip_range:"1.2.3.0/24"',

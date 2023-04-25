@@ -1,5 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { FieldGroup, NodeType, Term } from '../../src';
+import {
+    FieldGroup, GroupLikeNode, NodeType, Range, Term
+} from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -586,7 +588,7 @@ export const looseFieldGroup: TestCase[] = [
                 field_type: xLuceneFieldType.Integer,
                 value: { type: 'variable', value: 'foo', },
             }
-        },
+        } as Range,
         { count: xLuceneFieldType.Integer },
         { foo: 20 }
     ],
@@ -598,7 +600,7 @@ export const looseFieldGroup: TestCase[] = [
             field: 'count',
             field_type: xLuceneFieldType.Integer,
             value: { type: 'variable', value: 'bar' },
-        },
+        } as Term,
         { count: xLuceneFieldType.Integer },
         { bar: 20 }
     ],
@@ -610,7 +612,7 @@ export const looseFieldGroup: TestCase[] = [
             field: 'bool',
             field_type: xLuceneFieldType.Boolean,
             value: { type: 'variable', value: 'bar' },
-        },
+        } as Term,
         {
             bool: xLuceneFieldType.Boolean
         },
@@ -630,7 +632,7 @@ export const looseFieldGroup: TestCase[] = [
                             field: 'example',
                             field_type: xLuceneFieldType.String,
                             value: { type: 'value', value: 'foo' },
-                        },
+                        } as Term,
                         {
                             type: NodeType.Term,
                             field: 'example',
@@ -640,11 +642,10 @@ export const looseFieldGroup: TestCase[] = [
                     ]
                 }
             ]
-        },
+        } as GroupLikeNode,
         {
             example: xLuceneFieldType.String
-        },
-        { }
+        }
     ],
     [
         'val:(NOT $foo AND $bar)',
@@ -654,7 +655,7 @@ export const looseFieldGroup: TestCase[] = [
             field: 'val',
             field_type: xLuceneFieldType.Integer,
             value: { type: 'variable', value: 'bar' },
-        },
+        } as Term,
         { val: xLuceneFieldType.Integer },
         { bar: 'test' }
     ],
@@ -670,4 +671,4 @@ export const looseFieldGroup: TestCase[] = [
         { foo: xLuceneFieldType.String },
         { '@baz': 'test' }
     ],
-] as TestCase[];
+];

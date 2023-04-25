@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Regexp } from '../../src';
+import { NodeType, Regexp, Term } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -29,27 +29,23 @@ export default [
     } as Regexp],
 ] as TestCase[];
 
-export const looseRegex = [
+export const looseRegex: TestCase[] = [
     [
         'example: $foo',
         'a basic regexp with variables',
         {
             type: NodeType.Empty,
         },
-        { example: xLuceneFieldType.String },
-        { }
+        { example: xLuceneFieldType.String }
     ],
     [
         'example: $bar OR $foo',
         'a basic regexp with variables',
         {
             type: NodeType.Term,
-            // TODO fix parser filter to add the parent field/type
-            // field_type: xLuceneFieldType.String,
-            // field: 'example',
             value: { type: 'variable', scoped: false, value: 'foo' },
-        },
+        } as Term,
         { example: xLuceneFieldType.String },
         { foo: /[a-z]+/ }
     ],
-] as TestCase[];
+];

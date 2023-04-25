@@ -303,3 +303,109 @@ export default [
         } as LogicalGroup,
     ],
 ] as TestCase[];
+
+export const looseNegation: TestCase[] = [
+    [
+        'NOT name:$foo',
+        'negate a single field/value',
+        {
+            type: NodeType.Empty,
+
+        },
+        { name: xLuceneFieldType.String },
+    ],
+    [
+        '(NOT name:$bar)',
+        'negate with parens and a single field/value',
+        {
+            type: NodeType.Empty,
+        }
+    ],
+    [
+        '!name:$foo',
+        'negate a single field/value',
+        {
+            type: NodeType.Empty,
+        }
+    ],
+    [
+        '!(name:$foo)',
+        'parens negate a single field/value',
+        {
+            type: NodeType.Empty,
+        },
+        { name: xLuceneFieldType.String }
+    ],
+    [
+        'foo:bar NOT name:$foo',
+        'simple NOT conjunction',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            value: { type: 'value', value: 'bar', },
+        } as Term
+    ],
+    [
+        'foo:bar ! name:$foo',
+        'an implicit OR with ! negation',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            value: { type: 'value', value: 'bar', },
+        } as Term
+    ],
+    [
+        'foo:bar AND NOT name:$foo',
+        'simple AND NOT conjunction',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            value: { type: 'value', value: 'bar', },
+        } as Term
+    ],
+    [
+        'foo:bar OR NOT name:$foo',
+        'simple OR NOT conjunction',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            value: { type: 'value', value: 'bar', },
+        } as Term
+    ],
+    [
+        'foo:bar OR !name:$bar',
+        'simple OR ! conjunction',
+        {
+            type: NodeType.Term,
+            field: 'foo',
+            value: { type: 'value', value: 'bar', },
+        } as Term
+    ],
+    [
+        'a:1 AND !(b:1 OR c:$foo)',
+        'a parens negation conjunction',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'a',
+                            value: { type: 'value', value: 1, },
+                        },
+                        {
+                            type: NodeType.Negation,
+                            node: {
+                                type: NodeType.Term,
+                                field: 'b',
+                                value: { type: 'value', value: 1, },
+                            },
+                        } as Negation,
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+];

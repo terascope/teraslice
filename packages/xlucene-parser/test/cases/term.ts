@@ -774,8 +774,7 @@ export const looseTerm: TestCase[] = [
         {
             type: NodeType.Empty,
         },
-        { field: xLuceneFieldType.String },
-        {}
+        { field: xLuceneFieldType.String }
     ],
     [
         `field:@bar2`,
@@ -785,8 +784,7 @@ export const looseTerm: TestCase[] = [
         },
         {
             field: xLuceneFieldType.Integer,
-        },
-        {}
+        }
     ],
     // [
     //     `field:@example.foo`,
@@ -799,6 +797,6 @@ export const looseTerm: TestCase[] = [
     //     },
     //     {
     //         field: xLuceneFieldType.String,
-    //     }, {}
+    //     }
     // ],
-] as TestCase[];
+];
