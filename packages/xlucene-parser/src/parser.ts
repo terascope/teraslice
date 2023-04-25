@@ -167,6 +167,32 @@ export class Parser {
                 if (clone.left) {
                     return clone;
                 }
+            } else if (utils.isFunctionNode(clone)) {
+                const filtered = clone.params.map((n) => {
+                    if (utils.isTermList(n)) {
+                        const value = n.value.map((v) => {
+                            const keep = fn({
+                                ...n,
+                                type: i.NodeType.Term,
+                                value: { ...v }
+                            } as i.Term, ogNode);
+                            if (keep) return v;
+                            return;
+                        }).filter(Boolean) as i.FieldValue<any>[];
+                        if (!value.length) return;
+                        n.value = value;
+                        return n;
+                    }
+                    const keep = fn(n, ogNode);
+                    if (keep) return n;
+                    return;
+                }).filter(Boolean) as (i.Term | i.TermList)[];
+
+                if (!filtered.length) {
+                    return { type: i.NodeType.Empty };
+                }
+                clone.params = filtered;
+                return clone;
             } else if (fn(ogNode, parent)) {
                 return clone;
             }

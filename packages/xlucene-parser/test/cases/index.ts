@@ -7,7 +7,7 @@ import range, { looseRange } from './range';
 import regexp, { looseRegex } from './regexp';
 import term, { looseTerm } from './term';
 import wildcard from './wildcard';
-import geo from './geo';
+import geo, { looseGeo } from './geo';
 
 export * from './interfaces';
 export default {
@@ -27,7 +27,7 @@ export const looseTestCases = {
     empty,
     exists,
     looseFieldGroup,
-    // geo,
+    looseGeo,
     looseLogical,
     looseNegation,
     looseRange,
