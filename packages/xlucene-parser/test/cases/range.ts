@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Range } from '../../src';
+import { NodeType, Range, RangeNode } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -298,7 +298,7 @@ export const looseRange: TestCase[] = [
                 field_type: xLuceneFieldType.Integer,
                 value: { type: 'variable', value: 'bar', }
             }
-        },
+        } as Range,
         { count: xLuceneFieldType.Integer },
         { bar: 5 }
     ],
@@ -313,7 +313,7 @@ export const looseRange: TestCase[] = [
                 field_type: xLuceneFieldType.Integer,
                 value: { type: 'variable', value: 'foo', }
             },
-        },
+        } as Range,
         { count: xLuceneFieldType.Integer },
         { foo: 1 }
     ],
@@ -336,8 +336,8 @@ export const looseRange: TestCase[] = [
                 field_type: xLuceneFieldType.String,
                 restricted: true,
                 value: { type: 'value', value: 'omega', }
-            }
-        }
+            } as RangeNode
+        } as Range
     ],
     [
         'val:[$foo TO 2012-01-01]',
@@ -350,25 +350,14 @@ export const looseRange: TestCase[] = [
                 field_type: xLuceneFieldType.String,
                 restricted: true,
                 value: { type: 'value', value: '2012-01-01', }
-            },
-        }
+            } as RangeNode,
+        } as Range
     ],
-    // [
-    //     'ip_range:"1.2.3.0/24"',
-    //     'ip range', {
-    //         type: NodeType.Range,
-    //         field: 'ip_range',
-    //         left: {
-    //             field_type: xLuceneFieldType.IP,
-    //             value: { type: 'value', value: '1.2.3.0' },
-    //             operator: 'gte'
-    //         },
-    //         right: {
-    //             operator: 'lte',
-    //             field_type: xLuceneFieldType.IP,
-    //             value: { type: 'value', value: '1.2.3.255' }
-    //         }
-    //     } as Range,
-    //     { ip_range: xLuceneFieldType.IPRange },
-    // ],
-] as TestCase[];
+    [
+        'ip_range:$foo',
+        'ip range', {
+            type: NodeType.Empty,
+        },
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+];
