@@ -31,16 +31,19 @@ export default [
 
 export const looseRegex: TestCase[] = [
     [
-        'example: $foo',
-        'a basic regexp with variables',
+        'example:/[a-z]+/ OR $bar AND $foo',
+        'a basic regexp',
         {
-            type: NodeType.Empty,
-        },
+            type: NodeType.Regexp,
+            field_type: xLuceneFieldType.String,
+            field: 'example',
+            value: { type: 'value', value: '[a-z]+' }
+        } as Regexp,
         { example: xLuceneFieldType.String }
     ],
     [
         'example: $bar OR $foo',
-        'a basic regexp with variables',
+        'a basic regexp as variable',
         {
             type: NodeType.Term,
             value: { type: 'variable', scoped: false, value: 'foo' },

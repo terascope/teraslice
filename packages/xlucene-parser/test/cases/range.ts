@@ -281,7 +281,7 @@ export default [
 export const looseRange: TestCase[] = [
     [
         'count: >=$foo',
-        'gte ranges with variables',
+        'gte ranges',
         {
             type: NodeType.Empty,
         },
@@ -289,7 +289,7 @@ export const looseRange: TestCase[] = [
     ],
     [
         'count:[$foo TO $bar]',
-        'inclusive ranges with integers with variables (missing left variable)',
+        'inclusive ranges with integers',
         {
             type: NodeType.Range,
             field: 'count',
@@ -304,7 +304,7 @@ export const looseRange: TestCase[] = [
     ],
     [
         'count:{$foo TO $bar}',
-        'exclusive ranges with integers with variables (missing right variable)',
+        'exclusive ranges with integers',
         {
             type: NodeType.Range,
             field: 'count',
@@ -319,7 +319,7 @@ export const looseRange: TestCase[] = [
     ],
     [
         'count:[$foo TO $bar]',
-        'inclusive/exclusive ranges with integers with variables (missing both variable)',
+        'inclusive/exclusive ranges with integers',
         {
             type: NodeType.Empty,
         },
@@ -355,7 +355,8 @@ export const looseRange: TestCase[] = [
     ],
     [
         'ip_range:$foo',
-        'ip range', {
+        'ip range',
+        {
             type: NodeType.Empty,
         },
         { ip_range: xLuceneFieldType.IPRange },

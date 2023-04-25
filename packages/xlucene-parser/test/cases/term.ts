@@ -770,7 +770,7 @@ export default [
 export const looseTerm: TestCase[] = [
     [
         `field:$bar_val`,
-        'variable with value is a string',
+        'returns empty node if variable not defined',
         {
             type: NodeType.Empty,
         },
@@ -778,25 +778,28 @@ export const looseTerm: TestCase[] = [
     ],
     [
         `field:@bar2`,
-        'a scoped variable',
+        'doesn\'t filter scoped variable',
         {
-            type: NodeType.Empty,
-        },
+            value: { type: 'variable', value: '@bar2', scoped: true },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.Integer,
+        } as Term,
         {
             field: xLuceneFieldType.Integer,
+        },
+    ],
+    [
+        `field:@example.foo`,
+        'doesn\'t filter nested scoped variable',
+        {
+            value: { type: 'variable', value: '@example.foo', scoped: true },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+        {
+            field: xLuceneFieldType.String,
         }
     ],
-    // [
-    //     `field:@example.foo`,
-    //     'a nested scoped variable',
-    //     {
-    //         value: { type: 'variable', value: '@example.foo', scoped: true },
-    //         field: 'field',
-    //         type: NodeType.Term,
-    //         field_type: xLuceneFieldType.String,
-    //     },
-    //     {
-    //         field: xLuceneFieldType.String,
-    //     }
-    // ],
 ];

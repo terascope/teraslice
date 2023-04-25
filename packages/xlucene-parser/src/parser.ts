@@ -53,6 +53,7 @@ export class Parser {
                         node = _node.node;
                     }
                     if (utils.isTerm(node)) {
+                        if ((node.value as i.FieldValueVariable).scoped) return true;
                         type = node.value.type;
                         value = node.value.value;
                     }

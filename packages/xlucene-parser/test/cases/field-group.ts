@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
 import {
-    FieldGroup, GroupLikeNode, NodeType, Range, Term
+    FieldGroup, GroupLikeNode, NodeType, Range, Term, Wildcard
 } from '../../src';
 import { TestCase } from './interfaces';
 
@@ -579,7 +579,7 @@ export default [
 export const looseFieldGroup: TestCase[] = [
     [
         'count:(>=$foo AND <=$bar AND >=$baz)',
-        'AND grouping expression with ranges with variables',
+        'AND grouping expression with ranges',
         {
             type: NodeType.Range,
             field: 'count',
@@ -594,7 +594,7 @@ export const looseFieldGroup: TestCase[] = [
     ],
     [
         'count:($foo OR $bar)',
-        'OR grouping with integers with variables',
+        'OR grouping with integers',
         {
             type: NodeType.Term,
             field: 'count',
@@ -606,7 +606,7 @@ export const looseFieldGroup: TestCase[] = [
     ],
     [
         'bool:($foo OR $bar)',
-        'OR grouping with booleans and variables',
+        'OR grouping with booleans',
         {
             type: NodeType.Term,
             field: 'bool',
@@ -620,7 +620,8 @@ export const looseFieldGroup: TestCase[] = [
     ],
     [
         'example:("foo" AND ("bar" OR $baz))',
-        'implicit or grouping', {
+        'implicit OR grouping',
+        {
             type: NodeType.FieldGroup,
             field: 'example',
             flow: [
@@ -649,7 +650,7 @@ export const looseFieldGroup: TestCase[] = [
     ],
     [
         'val:(NOT $foo AND $bar)',
-        'negated field group with variables',
+        'negated field group',
         {
             type: NodeType.Term,
             field: 'val',
@@ -661,14 +662,21 @@ export const looseFieldGroup: TestCase[] = [
     ],
     [
         'foo:(@bar OR @baz)',
-        'multi-value field group with no quotes and @',
+        'multi-value field group with no quotes and @ (should not remove scoped variable nodes)',
         {
             type: NodeType.Term,
             field: 'foo',
             field_type: xLuceneFieldType.String,
             value: { type: 'variable', scoped: true, value: '@baz' },
         } as Term,
-        { foo: xLuceneFieldType.String },
-        { '@baz': 'test' }
+        { foo: xLuceneFieldType.String }
+    ],
+    [
+        'name:(Bob* OR $foo)',
+        'chained OR with wildcards',
+        {
+            type: NodeType.Wildcard,
+            value: { type: 'value', value: 'Bob*', },
+        } as Wildcard
     ],
 ];

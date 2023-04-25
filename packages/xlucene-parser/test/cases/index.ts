@@ -1,12 +1,12 @@
 import empty from './empty';
-import exists from './exists';
+import exists, { looseExists } from './exists';
 import fieldGroup, { looseFieldGroup } from './field-group';
 import logicalGroup, { looseLogical } from './logical-group';
 import negation, { looseNegation } from './negation';
 import range, { looseRange } from './range';
 import regexp, { looseRegex } from './regexp';
 import term, { looseTerm } from './term';
-import wildcard from './wildcard';
+import wildcard, { looseWildcard } from './wildcard';
 import geo, { looseGeo } from './geo';
 
 export * from './interfaces';
@@ -25,7 +25,7 @@ export default {
 
 export const looseTestCases = {
     empty,
-    exists,
+    looseExists,
     looseFieldGroup,
     looseGeo,
     looseLogical,
@@ -33,5 +33,5 @@ export const looseTestCases = {
     looseRange,
     looseRegex,
     looseTerm,
-    // wildcard - maybe add a wildcard to field or logical group
+    looseWildcard
 };

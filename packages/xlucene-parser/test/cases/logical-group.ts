@@ -842,12 +842,8 @@ export const looseLogical: TestCase[] = [
             field_type: xLuceneFieldType.Integer,
             value: { type: 'variable', scoped: false, value: 'bar' },
         } as Term,
-        {
-            foo: xLuceneFieldType.Integer
-        },
-        {
-            bar: [1, 2, 3]
-        }
+        { foo: xLuceneFieldType.Integer },
+        { bar: [1, 2, 3] }
     ],
     [
         'foo:$foo fo?',
