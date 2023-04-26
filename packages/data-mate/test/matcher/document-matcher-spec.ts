@@ -4,18 +4,23 @@ import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src';
 import allTestCases from './cases/document-matcher';
 
+const modes: ('loose'|'normal')[] = ['normal', 'loose'];
+
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
-        describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
-            describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig, variables) => {
-                it(`should be able to match on query ${query}`, () => {
-                    const documentMatcher = new DocumentMatcher(query, {
-                        type_config: typeConfig,
-                        variables
-                    });
+        describe.each(modes)('%s mode', (mode) => {
+            describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
+                describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig, variables) => {
+                    it(`should be able to match on query ${query}`, () => {
+                        const documentMatcher = new DocumentMatcher(query, {
+                            type_config: typeConfig,
+                            variables,
+                            ...mode === 'loose' && { loose: true }
+                        });
 
-                    const results = data.map((obj: any) => documentMatcher.match(obj));
-                    expect(results).toStrictEqual(testResults);
+                        const results = data.map((obj: any) => documentMatcher.match(obj));
+                        expect(results).toStrictEqual(testResults);
+                    });
                 });
             });
         });
@@ -43,62 +48,5 @@ describe('Document-Matcher', () => {
 
         expect(documentMatcher.match(data)).toBeTrue();
         expect(data).toStrictEqual(clone);
-    });
-
-    describe('loose mode', () => {
-        const data = [
-            {
-                name: 'Billy',
-                age: 105
-            },
-            {
-                name: 'Jill',
-                age: 20,
-            },
-            {
-                name: 'Jane',
-                age: 10
-            },
-            {
-                name: 'Nancy',
-                age: 10,
-            },
-        ];
-
-        it('should filter undefined nodes for an OR query', () => {
-            const clone = cloneDeep(data);
-            const typeConfig: xLuceneTypeConfig = {
-                name: xLuceneFieldType.String,
-                age: xLuceneFieldType.Integer,
-            };
-
-            const query = 'name:$name OR age:$age';
-            const documentMatcher = new DocumentMatcher(query, {
-                type_config: typeConfig,
-                loose: true,
-                variables: { age: 20 }
-            });
-
-            expect(documentMatcher.match(data)).toBeTrue();
-            expect(data).toStrictEqual(clone);
-        });
-
-        it('should filter undefined nodes for an AND query', () => {
-            const clone = cloneDeep(data);
-            const typeConfig: xLuceneTypeConfig = {
-                name: xLuceneFieldType.String,
-                age: xLuceneFieldType.Integer,
-            };
-
-            const query = 'name:$name OR age:$age';
-            const documentMatcher = new DocumentMatcher(query, {
-                type_config: typeConfig,
-                loose: true,
-                variables: { age: 20 }
-            });
-
-            expect(documentMatcher.match(data)).toBeTrue();
-            expect(data).toStrictEqual(clone);
-        });
     });
 });

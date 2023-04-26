@@ -47,7 +47,8 @@ export class Parser {
                 if (!options.variables) {
                     utils.logger.warn('Parser filtering out undefined variables but no variables were found. Consider adding variables or not run in "loose" mode.');
                 }
-                // would have to pass variables to get here
+                // would have to pass variables to get here, wondering if in future should
+                // change spaces to resolveVariables and filter there instead
                 this.ast = this.filterNodes(this.ast, (_node: any) => {
                     let type = '';
                     let value: any = '';
@@ -355,8 +356,7 @@ export class Parser {
 
         const ast = this.mapNode((node, parent) => {
             if (utils.isTermList(node)) {
-                // FIXME add a test
-                return coerceTermList(node, validatedVariables, this.loose);
+                return coerceTermList(node, validatedVariables);
             }
             if ('value' in node) {
                 return coerceNodeValue(
@@ -364,7 +364,6 @@ export class Parser {
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
                     parent?.type === i.NodeType.Conjunction,
-                    this.loose
                 );
             }
 
@@ -422,19 +421,8 @@ export class Parser {
     }
 }
 
-function coerceTermList(
-    node: i.TermList,
-    variables: xLuceneVariables,
-    skipUndefinedNodes?: boolean
-) {
-    let values = utils.getFieldValue<any>(node.value, variables);
-
-    if (skipUndefinedNodes) {
-        values = values.filter((el) => ![null, undefined].includes(el));
-        if (!values.length) {
-            return undefined;
-        }
-    }
+function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
+    const values = utils.getFieldValue<any>(node.value, variables);
 
     return {
         ...node,
@@ -449,16 +437,11 @@ function coerceNodeValue(
     node: i.Term|i.Regexp|i.Wildcard,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
-    allowNil?: boolean,
-    skipUndefinedNodes?: boolean
+    allowNil?: boolean
 ): i.Node|undefined {
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
-
-    if (value === undefined && skipUndefinedNodes) {
-        return undefined;
-    }
 
     const coerceFn = allowNil && value == null
         ? () => null
