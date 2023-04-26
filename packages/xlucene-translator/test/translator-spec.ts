@@ -188,11 +188,11 @@ describe('Translator', () => {
         });
     });
 
-    describe('when parser is in loose mode', () => {
+    describe('when parser has filterNilVariables true', () => {
         it('should only translate provided variables', () => {
             const query = 'name:$name OR age:$age';
             const translator = new Translator(query, {
-                loose: true,
+                filterNilVariables: true,
                 variables: { age: 20 },
                 type_config: {
                     name: xLuceneFieldType.String,

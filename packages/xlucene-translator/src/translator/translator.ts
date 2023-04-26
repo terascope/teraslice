@@ -32,7 +32,7 @@ export class Translator {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
                 variables: options.variables,
-                loose: options.loose
+                filterNilVariables: options.filterNilVariables
             });
         } else {
             this._parser = input;

@@ -8,7 +8,7 @@ export class DocumentMatcher {
     constructor(query: string, options: DocumentMatcherOptions = {}) {
         let parser = new Parser(query, {
             type_config: options.type_config,
-            loose: options.loose,
+            filterNilVariables: options.filterNilVariables,
             variables: options.variables
         });
 

@@ -34,5 +34,5 @@ export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
 
 export interface QueryAccessOptions extends ParserOptions {
     variables?: xLuceneVariables;
-    loose?: boolean;
+    filterNilVariables?: boolean;
 }

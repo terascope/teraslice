@@ -1,10 +1,13 @@
 import { Logger } from '@terascope/utils';
 import * as t from '@terascope/types';
 
+/**
+ * @param filterNilVariables CAUTION: Filters out variable nodes that don't have
+ * a variable provided in the variables object. Make sure to pass in variables.
+ */
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
-    /** whether or not to remove nodes that have undefined variables  */
-    loose?: boolean;
+    filterNilVariables?: boolean;
     variables?: t.xLuceneVariables;
 }
 

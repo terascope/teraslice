@@ -17,10 +17,7 @@ export class Parser {
     readonly ast: i.Node;
     readonly query: string;
     readonly typeConfig: xLuceneTypeConfig;
-
-    // think of better name maybe
-    // for filtering out nodes with undefined variables
-    readonly loose: boolean;
+    readonly filterNilVariables: boolean;
 
     constructor(
         query: string,
@@ -28,7 +25,7 @@ export class Parser {
         _overrideNode?: i.Node
     ) {
         this.query = trim(query || '');
-        this.loose = !!options?.loose;
+        this.filterNilVariables = !!options?.filterNilVariables;
 
         this.typeConfig = { ...options?.type_config };
         if (_overrideNode) {
@@ -43,12 +40,11 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
-            if (options?.loose) {
+            if (options?.filterNilVariables) {
                 if (!options.variables) {
                     utils.logger.warn('Parser filtering out undefined variables but no variables were found. Consider adding variables or not run in "loose" mode.');
                 }
-                // would have to pass variables to get here, wondering if in future should
-                // change spaces to resolveVariables and filter there instead
+                // wondering if in future should change to filter in resolveVariables instead
                 this.ast = this.filterNodes(this.ast, (_node: any) => {
                     let type = '';
                     let value: any = '';
@@ -121,7 +117,6 @@ export class Parser {
                             .filter(Boolean); // filter out undefined flow nodes
 
                         if (nodes.length) {
-                            console.log('===nodes.len', nodes);
                             return { ...f, nodes };
                         }
                         return;
@@ -372,7 +367,7 @@ export class Parser {
 
         return new Parser(this.query, {
             type_config: this.typeConfig,
-            loose: this.loose
+            filterNilVariables: this.filterNilVariables
         }, ast);
     }
 
@@ -405,12 +400,12 @@ export class Parser {
                     }
                     return newNode;
                 }) as i.Conjunction[];
-                if (this.loose) {
+                if (this.filterNilVariables) {
                     node.flow = node.flow.filter((el) => el !== undefined);
                 }
             } else if (utils.isConjunction(node)) {
                 node.nodes = node.nodes.map((conj) => mapNode(conj, node)) as i.Node[];
-                if (this.loose) {
+                if (this.filterNilVariables) {
                     node.nodes = node.nodes.filter((el) => el !== undefined);
                 }
             }

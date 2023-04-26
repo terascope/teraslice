@@ -11,7 +11,7 @@ export type TranslatorOptions = {
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
     variables?: xLuceneVariables;
-    loose?: boolean;
+    filterNilVariables?: boolean;
 };
 
 /**

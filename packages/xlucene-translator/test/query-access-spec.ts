@@ -920,7 +920,7 @@ describe('QueryAccess', () => {
         });
     });
 
-    describe('can work with loose variables', () => {
+    describe('can work with filterNilVariables set true', () => {
         it('should filter out undefined variables', async () => {
             const queryAccess = new QueryAccess({
                 allow_implicit_queries: true,
@@ -934,7 +934,7 @@ describe('QueryAccess', () => {
                 variables: {
                     age: 20,
                 },
-                loose: true
+                filterNilVariables: true
             });
 
             const q = 'name:$name AND age:$age';
