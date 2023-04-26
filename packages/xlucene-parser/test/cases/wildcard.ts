@@ -123,7 +123,13 @@ export const looseWildcard: TestCase[] = [
             value: { type: 'variable', value: 'foo' },
         } as Term,
         { foo: xLuceneFieldType.String },
-        { foo: 'ba*' }
+        { foo: 'ba*' },
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            field: 'foo',
+            value: { type: 'value', value: 'ba*' },
+        } as Term,
     ],
     [
         '* AND $foo',

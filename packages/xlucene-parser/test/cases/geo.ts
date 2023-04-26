@@ -115,6 +115,11 @@ export const looseGeo: TestCase[] = [
             name: 'geoPolygon'
         } as FunctionNode,
         {},
-        { points: ['60.43,111.43', '70.3,123.4', '65.23,118.34'] }
+        { points: ['60.43,111.43', '70.3,123.4', '65.23,118.34'] },
+        {
+            type: NodeType.Function,
+            field: 'location',
+            name: 'geoPolygon'
+        } as FunctionNode,
     ]
 ];

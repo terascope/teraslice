@@ -1,69 +1,34 @@
 import 'jest-extended';
 import { toString } from '@terascope/utils';
-// import { xLuceneFieldType } from '@terascope/types';
-import {
-    Parser, // NodeType,
-} from '../src';
+import { Parser } from '../src';
 import { looseTestCases } from './cases';
 
-/**
- * TODO add a case for all cases - see cases folder
- * but do a simple data mate > doc matcher test first
- * and also simple translator and queryAccess tests too
- */
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(looseTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables) => {
-                it(`should be able to parse ${msg} with variables ${toString(variables)}`, () => {
+            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables, resolved) => {
+                it(`should be able to parse ${msg} ${variables ? `with variables ${toString(variables)}` : ''}`, () => {
                     const parser = new Parser(query, {
                         type_config: typeConfig,
                         loose: true,
                         variables
-                    });// .resolveVariables(variables);
+                    });
 
                     expect(parser.ast).toMatchObject(ast);
                 });
+
+                if (variables && resolved) {
+                    it(`should be able to resolve variables ${toString(variables)}`, () => {
+                        const parser = new Parser(query, {
+                            type_config: typeConfig,
+                            loose: true,
+                            variables
+                        }).resolveVariables(variables);
+
+                        expect(parser.ast).toMatchObject(resolved);
+                    });
+                }
             });
         });
     }
-
-    // it('should be able to resolve variables in loose mode', () => {
-    //     const parser = new Parser('a:$foo AND b:$bar AND c:$buz', {
-    //         type_config: {
-    //             a: xLuceneFieldType.String,
-    //             b: xLuceneFieldType.String,
-    //             c: xLuceneFieldType.String
-    //         },
-    //         loose: true,
-    //         variables: { foo: 'aaa', bar: 'bbb' }
-    //     }).resolveVariables({ foo: 'aaa', bar: 'bbb' });
-
-    //     expect(parser.ast).toMatchObject(
-    //         {
-    //             type: NodeType.LogicalGroup,
-    //             flow: [
-    //                 {
-    //                     type: NodeType.Conjunction,
-    //                     nodes: [
-    //                         {
-    //                             type: NodeType.Term,
-    //                             field: 'a',
-    //                             // NOT RESOLVED
-    //                             // value: { type: 'variable', value: 'foo', },
-    //                             value: { type: 'value', value: 'aaa' },
-    //                         },
-    //                         {
-    //                             type: NodeType.Term,
-    //                             field: 'b',
-    //                             // NOT RESOLVED
-    //                             // value: { type: 'variable', value: 'bar', },
-    //                             value: { type: 'value', value: 'bbb' },
-    //                         },
-    //                     ],
-    //                 },
-    //             ],
-    //         },
-    //     );
-    // });
 });

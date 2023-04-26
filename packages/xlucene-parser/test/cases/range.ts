@@ -300,7 +300,16 @@ export const looseRange: TestCase[] = [
             }
         } as Range,
         { count: xLuceneFieldType.Integer },
-        { bar: 5 }
+        { bar: 5 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'bar', }
+            }
+        } as Range,
     ],
     [
         'count:{$foo TO $bar}',
@@ -315,7 +324,16 @@ export const looseRange: TestCase[] = [
             },
         } as Range,
         { count: xLuceneFieldType.Integer },
-        { foo: 1 }
+        { foo: 1 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gt',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', }
+            },
+        } as Range,
     ],
     [
         'count:[$foo TO $bar]',

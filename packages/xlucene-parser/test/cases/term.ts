@@ -802,4 +802,22 @@ export const looseTerm: TestCase[] = [
             field: xLuceneFieldType.String,
         }
     ],
+    [
+        `field:$bar OR $foo`,
+        'resolves variables',
+        {
+            value: { type: 'variable', value: 'bar', scoped: false },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+        { field: xLuceneFieldType.String },
+        { bar: "test" },
+        {
+            value: { type: 'value', value: 'test' },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+    ],
 ];

@@ -44,6 +44,9 @@ export class Parser {
             this.ast = parse(this.query, { contextArg });
 
             if (options?.loose) {
+                if (!options.variables) {
+                    utils.logger.warn('Parser filtering out undefined variables but no variables were found. Consider adding variables or not run in "loose" mode.');
+                }
                 // would have to pass variables to get here
                 this.ast = this.filterNodes(this.ast, (_node: any) => {
                     let type = '';
@@ -60,14 +63,7 @@ export class Parser {
                     if (utils.isRange(node)) {
                         type = node.left.value.type ?? node.right?.value.type;
                         value = node.left.value.value ?? node.right?.value.value;
-                        // if (node.right) {
-                        //     return keep(type, value)
-                        //     || keep(node.right.value.type, node.right.value.value as string);
-                        // }
                     }
-
-                    // if (utils.isConjunction(node) || utils.isLogicalGroup(node)) {
-                    // }
 
                     function keep(nodeType: string, nodeVariable: string) {
                         if (nodeType !== 'variable') return true;

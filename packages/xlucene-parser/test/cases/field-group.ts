@@ -590,7 +590,16 @@ export const looseFieldGroup: TestCase[] = [
             }
         } as Range,
         { count: xLuceneFieldType.Integer },
-        { foo: 20 }
+        { foo: 20 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', },
+            }
+        } as Range,
     ],
     [
         'count:($foo OR $bar)',
@@ -602,7 +611,13 @@ export const looseFieldGroup: TestCase[] = [
             value: { type: 'variable', value: 'bar' },
         } as Term,
         { count: xLuceneFieldType.Integer },
-        { bar: 20 }
+        { bar: 20 },
+        {
+            type: NodeType.Term,
+            field: 'count',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: 20 },
+        } as Term,
     ],
     [
         'bool:($foo OR $bar)',
@@ -616,7 +631,13 @@ export const looseFieldGroup: TestCase[] = [
         {
             bool: xLuceneFieldType.Boolean
         },
-        { bar: false }
+        { bar: false },
+        {
+            type: NodeType.Term,
+            field: 'bool',
+            field_type: xLuceneFieldType.Boolean,
+            value: { type: 'value', value: false },
+        } as Term,
     ],
     [
         'example:("foo" AND ("bar" OR $baz))',
@@ -658,17 +679,45 @@ export const looseFieldGroup: TestCase[] = [
             value: { type: 'variable', value: 'bar' },
         } as Term,
         { val: xLuceneFieldType.Integer },
-        { bar: 'test' }
+        { bar: 55 },
+        {
+            type: NodeType.Term,
+            field: 'val',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: 55 },
+        } as Term,
     ],
     [
         'foo:(@bar OR @baz)',
         'multi-value field group with no quotes and @ (should not remove scoped variable nodes)',
         {
-            type: NodeType.Term,
+            type: NodeType.FieldGroup,
             field: 'foo',
-            field_type: xLuceneFieldType.String,
-            value: { type: 'variable', scoped: true, value: '@baz' },
-        } as Term,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'foo',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'variable', scoped: true, value: '@bar', },
+                        } as Term,
+                    ],
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'foo',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'variable', scoped: true, value: '@baz' },
+                        } as Term
+                    ]
+                }
+            ],
+        } as GroupLikeNode,
         { foo: xLuceneFieldType.String }
     ],
     [

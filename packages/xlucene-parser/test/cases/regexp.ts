@@ -49,6 +49,10 @@ export const looseRegex: TestCase[] = [
             value: { type: 'variable', scoped: false, value: 'foo' },
         } as Term,
         { example: xLuceneFieldType.String },
-        { foo: /[a-z]+/ }
+        { foo: /[a-z]+/ },
+        {
+            type: NodeType.Regexp,
+            value: { type: 'value', value: '[a-z]+' },
+        } as Regexp,
     ],
 ];

@@ -1,6 +1,6 @@
 import { xLuceneFieldType } from '@terascope/types';
 import {
-    FunctionNode, LogicalGroup, NodeType, Term, Wildcard
+    FunctionNode, GroupLikeNode, LogicalGroup, NodeType, Term, Wildcard
 } from '../../src';
 import { TestCase } from './interfaces';
 
@@ -843,7 +843,44 @@ export const looseLogical: TestCase[] = [
             value: { type: 'variable', scoped: false, value: 'bar' },
         } as Term,
         { foo: xLuceneFieldType.Integer },
-        { bar: [1, 2, 3] }
+        { bar: [1, 2, 3] },
+        {
+            type: NodeType.FieldGroup,
+            field: 'foo',
+            field_type: xLuceneFieldType.Integer,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 1 },
+                        } as Term
+                    ]
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 2 },
+                        }
+                    ]
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 3 },
+                        }
+                    ]
+                }
+            ]
+        } as GroupLikeNode,
     ],
     [
         'foo:$foo fo?',
