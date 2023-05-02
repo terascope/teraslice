@@ -1,43 +1,14 @@
-import fs from 'fs';
-import https from 'https';
 import { Logger } from '@terascope/utils';
-import { promisifyAll } from 'bluebird';
-
-function create(customConfig: Record<string, any>, logger: Logger): {
-    client: any;
-} {
-    const S3 = require('aws-sdk/clients/s3');
-
-    logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
-
-    // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
-    // Instead of updating the client, we can just update the config before creating the client
-    if (customConfig.sslEnabled) {
-        if (customConfig.certLocation.length === 0) {
-            throw new Error(
-                `Must provide a certificate for S3 endpoint ${customConfig.endpoint} since SSL is enabled`
-            );
-        }
-        // Assumes all certs needed are in a single bundle
-        const certs = [
-            fs.readFileSync(customConfig.certLocation)
-        ];
-        if (!customConfig.httpOptions) customConfig.httpOptions = {};
-        customConfig.httpOptions.agent = new https.Agent({
-            rejectUnauthorized: true,
-            ca: certs
-        });
-    }
-
-    const client = new S3(customConfig);
-
-    return {
-        client: promisifyAll(client, { suffix: '_Async' })
-    };
-}
+import { createS3Client } from '@terascope/file-asset-apis';
 
 export default {
-    create,
+    create() {
+        throw new Error('s3 does not support the deprecated "create" method, please use file-assets >= v2.4.0');
+    },
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        const client = await createS3Client(customConfig, logger);
+        return { client, logger };
+    },
     config_schema(): Record<string, any> {
         return {
             endpoint: {
