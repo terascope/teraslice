@@ -3,7 +3,7 @@ import * as p from 'xlucene-parser';
 import {
     isWildCardString, get, isEqual, isArray,
     and, isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP
+    isLessThanOrEqualToFP, isLessThanFP,
 } from '@terascope/utils';
 import { compareTermDates, dateRange } from './dates';
 import {
