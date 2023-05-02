@@ -200,7 +200,7 @@ export class Parser {
             };
         };
 
-        return filterNode(this.ast);
+        return filterNode(ast);
     }
 
     /**
