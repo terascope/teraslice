@@ -112,7 +112,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseWildcard: TestCase[] = [
+export const filterNilWildcard: TestCase[] = [
     [
         'foo: $foo OR $bar',
         'variable with * wildcard',

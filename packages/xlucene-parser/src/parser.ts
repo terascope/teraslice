@@ -42,9 +42,8 @@ export class Parser {
 
             if (options?.filterNilVariables) {
                 if (!options.variables) {
-                    utils.logger.warn('Parser filtering out undefined variables but no variables were found. Consider adding variables or not run in "loose" mode.');
+                    utils.logger.warn('Parser filtering out undefined variables but no variables were provided. Consider adding variables or not running in "filterNilVariables" mode.');
                 }
-                // wondering if in future should change to filter in resolveVariables instead
                 this.ast = this.filterNodes(this.ast, (_node: any) => {
                     let type = '';
                     let value: any = '';
@@ -65,7 +64,6 @@ export class Parser {
                     function keep(nodeType: string, nodeVariable: string) {
                         if (nodeType !== 'variable') return true;
                         if (nodeVariable in (options?.variables || {})) return true;
-
                         return false;
                     }
                     return keep(type, value);
@@ -139,7 +137,9 @@ export class Parser {
                 }
 
                 return clone;
-            } if (utils.isRange(clone)) {
+            }
+
+            if (utils.isRange(clone)) {
                 const keepLeft = fn(clone.left as any, clone);
 
                 let keepRight = false;
@@ -160,7 +160,10 @@ export class Parser {
                 if (clone.left) {
                     return clone;
                 }
-            } else if (utils.isFunctionNode(clone)) {
+                // fall through to end empty node if no left range
+            }
+
+            if (utils.isFunctionNode(clone)) {
                 const filtered = clone.params.map((n) => {
                     if (utils.isTermList(n)) {
                         const value = n.value.map((v) => {
@@ -186,9 +189,12 @@ export class Parser {
                 }
                 clone.params = filtered;
                 return clone;
-            } else if (fn(ogNode, parent)) {
+            }
+
+            if (fn(ogNode, parent)) {
                 return clone;
             }
+
             return {
                 type: i.NodeType.Empty
             };
@@ -358,7 +364,7 @@ export class Parser {
                     node as i.Term | i.Regexp | i.Wildcard,
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
-                    parent?.type === i.NodeType.Conjunction,
+                    parent?.type === i.NodeType.Conjunction
                 );
             }
 
@@ -374,40 +380,34 @@ export class Parser {
     /**
      * Map the Node and return a new Node
     */
-    mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node|undefined): i.Node|undefined {
-        const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node|undefined => {
+    mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node): i.Node {
+        const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const node = fn({ ...ogNode }, parent);
 
             if (utils.isNegation(node)) {
-                node.node = mapNode(node.node, node) as i.Node;
+                node.node = mapNode(node.node, node);
             } else if (utils.isFunctionNode(node)) {
                 node.params = node.params.map((conj) => {
                     const newNode = mapNode(conj, node);
                     if (!utils.isTerm(newNode) && !utils.isTermList(newNode)) {
                         throw new Error(
-                            `Only a ${i.NodeType.Term} or ${i.NodeType.TermList} node type can be returned, got ${newNode?.type}`
+                            `Only a ${i.NodeType.Term} or ${i.NodeType.TermList} node type can be returned, got ${newNode.type}`
                         );
                     }
                     return newNode;
                 });
-            } else if (node && utils.isGroupLike(node)) {
+            } else if (utils.isGroupLike(node)) {
                 node.flow = node.flow.map((conj) => {
                     const newNode = mapNode(conj, node);
-                    if (newNode && !utils.isConjunction(newNode)) {
+                    if (!utils.isConjunction(newNode)) {
                         throw new Error(
                             `Only a ${i.NodeType.Conjunction} node type can be returned, got ${newNode.type}`
                         );
                     }
                     return newNode;
-                }) as i.Conjunction[];
-                if (this.filterNilVariables) {
-                    node.flow = node.flow.filter((el) => el !== undefined);
-                }
+                });
             } else if (utils.isConjunction(node)) {
-                node.nodes = node.nodes.map((conj) => mapNode(conj, node)) as i.Node[];
-                if (this.filterNilVariables) {
-                    node.nodes = node.nodes.filter((el) => el !== undefined);
-                }
+                node.nodes = node.nodes.map((conj) => mapNode(conj, node));
             }
             return node;
         };
@@ -418,7 +418,6 @@ export class Parser {
 
 function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
     const values = utils.getFieldValue<any>(node.value, variables);
-
     return {
         ...node,
         values: values.map((value) => ({
@@ -433,11 +432,10 @@ function coerceNodeValue(
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
     allowNil?: boolean
-): i.Node|undefined {
+): i.Node {
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
-
     const coerceFn = allowNil && value == null
         ? () => null
         : utils.makeCoerceFn(node.field_type);

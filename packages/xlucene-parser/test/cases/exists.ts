@@ -8,7 +8,7 @@ export default [
     } as Exists]
 ] as TestCase[];
 
-export const looseExists: TestCase[] = [
+export const filterNilExists: TestCase[] = [
     [
         '_exists_:hello',
         '_exists_', {

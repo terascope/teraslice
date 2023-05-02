@@ -767,7 +767,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseTerm: TestCase[] = [
+export const filterNilTerm: TestCase[] = [
     [
         `field:$bar_val`,
         'returns empty node if variable not defined',

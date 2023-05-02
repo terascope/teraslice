@@ -778,7 +778,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseLogical: TestCase[] = [
+export const filterNilLogical: TestCase[] = [
     [
         'a:1 AND b:$foo',
         'a simple AND conjunction (var right missing)',

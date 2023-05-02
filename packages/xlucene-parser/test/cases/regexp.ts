@@ -29,7 +29,7 @@ export default [
     } as Regexp],
 ] as TestCase[];
 
-export const looseRegex: TestCase[] = [
+export const filterNilRegex: TestCase[] = [
     [
         'example:/[a-z]+/ OR $bar AND $foo',
         'a basic regexp',

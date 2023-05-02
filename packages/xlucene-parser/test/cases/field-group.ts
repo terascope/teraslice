@@ -576,7 +576,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseFieldGroup: TestCase[] = [
+export const filterNilFieldGroup: TestCase[] = [
     [
         'count:(>=$foo AND <=$bar AND >=$baz)',
         'AND grouping expression with ranges',

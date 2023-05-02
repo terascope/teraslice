@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases, { looseTestCases } from './cases';
+import allTestCases, { filterNilTestCases } from './cases';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';
@@ -31,7 +31,7 @@ describe('Parser', () => {
     }
 
     describe('when parser has filterNilVariables set true', () => {
-        for (const [key, testCases] of Object.entries(looseTestCases)) {
+        for (const [key, testCases] of Object.entries(filterNilTestCases)) {
             describe(`when testing ${key.replace('_', ' ')} queries`, () => {
                 describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables, resolved) => {
                     it(`should be able to parse ${msg} ${variables ? `with variables ${toString(variables)}` : ''}`, () => {

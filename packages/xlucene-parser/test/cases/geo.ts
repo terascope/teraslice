@@ -54,7 +54,7 @@ export default [
 ] as TestCase[];
 
 /** NOTE: ASTs are correct but that doesn't mean all the queries will pass */
-export const looseGeo: TestCase[] = [
+export const filterNilGeo: TestCase[] = [
     [
         'location:geoDistance(point:"33.435518,-111.873616", distance:$foo, third: "data")',
         'a geo distance query with point double quoted & distance variable undefined', {

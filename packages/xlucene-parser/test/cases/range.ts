@@ -278,7 +278,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseRange: TestCase[] = [
+export const filterNilRange: TestCase[] = [
     [
         'count: >=$foo',
         'gte ranges',

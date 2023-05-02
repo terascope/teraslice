@@ -6,7 +6,7 @@ import { debugLogger } from '@terascope/utils';
 import { Parser, initFunction } from '../../src';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
 
-const modes: ('normal'|'filterNilVariables')[] = ['normal', 'filterNilVariables'];
+const modes: ('normal'|'filterNil')[] = ['normal', 'filterNil'];
 
 describe('geoDistance', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
@@ -22,7 +22,7 @@ describe('geoDistance', () => {
             const query = 'location:geoDistance(point:"33.435518,-111.873616" distance:"5000m")';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                ...key === 'filterNilVariables' && { filterNilVariables: true }
+                ...key === 'filterNil' && { filterNilVariables: true }
             });
             const { name, type, field } = ast as FunctionNode;
 
@@ -49,7 +49,7 @@ describe('geoDistance', () => {
             const query = 'location:geoDistance(point:$point1 distance: $distance1)';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                ...key === 'filterNilVariables' && { filterNilVariables: true, variables }
+                ...key === 'filterNil' && { filterNilVariables: true, variables }
             }).resolveVariables(variables);
 
             const { name, type, field } = ast as FunctionNode;
@@ -121,7 +121,7 @@ describe('geoDistance', () => {
                 const astResults = queries
                     .map((query) => new Parser(query, {
                         type_config: typeConfig,
-                        ...(key === 'filterNilVariables') && { filterNilVariables: true, variables }
+                        ...(key === 'filterNil') && { filterNilVariables: true, variables }
                     }))
                     .map((parser) => initFunction({
                         node: (parser.ast as FunctionNode),
@@ -144,7 +144,7 @@ describe('geoDistance', () => {
 
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
-                    ...key === 'filterNilVariables' && { filterNilVariables: true }
+                    ...key === 'filterNil' && { filterNilVariables: true }
                 });
                 const { match } = initFunction({
                     node: ast as FunctionNode,
@@ -167,7 +167,7 @@ describe('geoDistance', () => {
                 const query = 'location:geoDistance(point:$point1 distance: $distance1)';
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
-                    ...key === 'filterNilVariables' && { filterNilVariables: true }
+                    ...key === 'filterNil' && { filterNilVariables: true, variables }
                 }).resolveVariables(variables);
 
                 const { match } = initFunction({

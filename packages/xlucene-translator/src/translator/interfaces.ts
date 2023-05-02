@@ -3,16 +3,14 @@ import {
     SortOrder, xLuceneTypeConfig, xLuceneVariables,
     GeoDistanceUnit, GeoPoint, ClientMetadata
 } from '@terascope/types';
+import { ParserOptions } from 'packages/xlucene-parser/dist/src';
 
-export type TranslatorOptions = {
+export interface TranslatorOptions extends ParserOptions {
     logger?: Logger;
-    type_config?: xLuceneTypeConfig;
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
-    variables?: xLuceneVariables;
-    filterNilVariables?: boolean;
-};
+}
 
 /**
  * @internal

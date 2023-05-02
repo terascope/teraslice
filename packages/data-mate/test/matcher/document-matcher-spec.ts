@@ -4,7 +4,7 @@ import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src';
 import allTestCases from './cases/document-matcher';
 
-const modes: ('loose'|'normal')[] = ['normal', 'loose'];
+const modes: ('normal'|'filterNil')[] = ['normal', 'filterNil'];
 
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
@@ -15,7 +15,7 @@ describe('Document-Matcher', () => {
                         const documentMatcher = new DocumentMatcher(query, {
                             type_config: typeConfig,
                             variables,
-                            ...mode === 'loose' && { loose: true }
+                            ...mode === 'filterNil' && { filterNilVariables: true }
                         });
 
                         const results = data.map((obj: any) => documentMatcher.match(obj));

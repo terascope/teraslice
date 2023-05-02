@@ -304,7 +304,7 @@ export default [
     ],
 ] as TestCase[];
 
-export const looseNegation: TestCase[] = [
+export const filterNilNegation: TestCase[] = [
     [
         'NOT name:$foo',
         'negate a single field/value',

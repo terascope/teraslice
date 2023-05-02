@@ -1,13 +1,13 @@
 import empty from './empty';
-import exists, { looseExists } from './exists';
-import fieldGroup, { looseFieldGroup } from './field-group';
-import logicalGroup, { looseLogical } from './logical-group';
-import negation, { looseNegation } from './negation';
-import range, { looseRange } from './range';
-import regexp, { looseRegex } from './regexp';
-import term, { looseTerm } from './term';
-import wildcard, { looseWildcard } from './wildcard';
-import geo, { looseGeo } from './geo';
+import exists, { filterNilExists } from './exists';
+import fieldGroup, { filterNilFieldGroup } from './field-group';
+import logicalGroup, { filterNilLogical } from './logical-group';
+import negation, { filterNilNegation } from './negation';
+import range, { filterNilRange } from './range';
+import regexp, { filterNilRegex } from './regexp';
+import term, { filterNilTerm } from './term';
+import wildcard, { filterNilWildcard } from './wildcard';
+import geo, { filterNilGeo } from './geo';
 
 export * from './interfaces';
 export default {
@@ -23,15 +23,16 @@ export default {
     geo,
 };
 
-export const looseTestCases = {
+/** filtering out nodes with undefined variables */
+export const filterNilTestCases = {
     empty,
-    looseExists,
-    looseFieldGroup,
-    looseGeo,
-    looseLogical,
-    looseNegation,
-    looseRange,
-    looseRegex,
-    looseTerm,
-    looseWildcard
+    filterNilExists,
+    filterNilFieldGroup,
+    filterNilGeo,
+    filterNilLogical,
+    filterNilNegation,
+    filterNilRange,
+    filterNilRegex,
+    filterNilTerm,
+    filterNilWildcard
 };
