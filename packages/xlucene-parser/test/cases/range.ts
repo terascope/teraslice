@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Range } from '../../src';
+import { NodeType, Range, RangeNode } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -277,3 +277,106 @@ export default [
         { ip_range: xLuceneFieldType.IPRange },
     ],
 ] as TestCase[];
+
+export const filterNilRange: TestCase[] = [
+    [
+        'count: >=$foo',
+        'gte ranges',
+        {
+            type: NodeType.Empty,
+        },
+        { count: xLuceneFieldType.Integer }
+    ],
+    [
+        'count:[$foo TO $bar]',
+        'inclusive ranges with integers',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'bar', }
+            }
+        } as Range,
+        { count: xLuceneFieldType.Integer },
+        { bar: 5 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'bar', }
+            }
+        } as Range,
+    ],
+    [
+        'count:{$foo TO $bar}',
+        'exclusive ranges with integers',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gt',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', }
+            },
+        } as Range,
+        { count: xLuceneFieldType.Integer },
+        { foo: 1 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gt',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', }
+            },
+        } as Range,
+    ],
+    [
+        'count:[$foo TO $bar]',
+        'inclusive/exclusive ranges with integers',
+        {
+            type: NodeType.Empty,
+        },
+        { count: xLuceneFieldType.Integer }
+    ],
+    [
+        'val:[$foo TO omega]',
+        'inclusive range of strings',
+        {
+            type: NodeType.Range,
+            field: 'val',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.String,
+                restricted: true,
+                value: { type: 'value', value: 'omega', }
+            } as RangeNode
+        } as Range
+    ],
+    [
+        'val:[$foo TO 2012-01-01]',
+        'inclusive date range',
+        {
+            type: NodeType.Range,
+            field: 'val',
+            left: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.String,
+                restricted: true,
+                value: { type: 'value', value: '2012-01-01', }
+            } as RangeNode,
+        } as Range
+    ],
+    [
+        'ip_range:$foo',
+        'ip range',
+        {
+            type: NodeType.Empty,
+        },
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+];

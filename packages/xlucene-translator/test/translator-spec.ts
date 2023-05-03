@@ -17,7 +17,7 @@ describe('Translator', () => {
         expect(translator).toHaveProperty('query', query);
     });
 
-    it('should return a empty filter query when given an invalid query', () => {
+    it('should return an empty filter query when given an invalid query', () => {
         const parser = new Parser('');
         // @ts-expect-error
         parser.ast = { type: 'idk', field: 'a', val: true } as any;
@@ -184,6 +184,33 @@ describe('Translator', () => {
                 query: {
                     match_all: {},
                 },
+            });
+        });
+    });
+
+    describe('when parser has filterNilVariables true', () => {
+        it('should only translate provided variables', () => {
+            const query = 'name:$name OR age:$age';
+            const translator = new Translator(query, {
+                filterNilVariables: true,
+                variables: { age: 20 },
+                type_config: {
+                    name: xLuceneFieldType.String,
+                    age: xLuceneFieldType.Integer
+                }
+            });
+
+            const result = translator.toElasticsearchDSL();
+            expect(result).toStrictEqual({
+                query: {
+                    constant_score: {
+                        filter: {
+                            term: {
+                                age: 20
+                            }
+                        }
+                    }
+                }
             });
         });
     });

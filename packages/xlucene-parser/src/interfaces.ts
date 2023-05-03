@@ -1,8 +1,14 @@
 import { Logger } from '@terascope/utils';
 import * as t from '@terascope/types';
 
+/**
+ * @param filterNilVariables CAUTION: Filters out variable nodes that don't have
+ * a variable provided in the variables object so make sure to pass in variables.
+ */
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
+    filterNilVariables?: boolean;
+    variables?: t.xLuceneVariables;
 }
 
 export interface ContextArg {
@@ -57,14 +63,17 @@ export interface EmptyNode extends Node {
 
 export type Field = string|null;
 
-export type FieldValue<T> = {
+export type FieldValueValue<T> = {
     type: 'value';
     value: T;
-}|{
+}
+export type FieldValueVariable = {
     type: 'variable';
     scoped: boolean;
     value: string;
-};
+}
+
+export type FieldValue<T> = FieldValueValue<T>|FieldValueVariable;
 
 export interface TermList extends TermLikeNode {
     type: NodeType.TermList;

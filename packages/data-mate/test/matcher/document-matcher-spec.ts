@@ -4,18 +4,23 @@ import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src';
 import allTestCases from './cases/document-matcher';
 
+const modes: ('normal'|'filterNil')[] = ['normal', 'filterNil'];
+
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
-        describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
-            describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig, variables) => {
-                it(`should be able to match on query ${query}`, () => {
-                    const documentMatcher = new DocumentMatcher(query, {
-                        type_config: typeConfig,
-                        variables
-                    });
+        describe.each(modes)('%s mode', (mode) => {
+            describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
+                describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig, variables) => {
+                    it(`should be able to match on query ${query}`, () => {
+                        const documentMatcher = new DocumentMatcher(query, {
+                            type_config: typeConfig,
+                            variables,
+                            ...mode === 'filterNil' && { filterNilVariables: true }
+                        });
 
-                    const results = data.map((obj: any) => documentMatcher.match(obj));
-                    expect(results).toStrictEqual(testResults);
+                        const results = data.map((obj: any) => documentMatcher.match(obj));
+                        expect(results).toStrictEqual(testResults);
+                    });
                 });
             });
         });

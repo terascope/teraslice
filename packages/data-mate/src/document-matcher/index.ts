@@ -1,5 +1,5 @@
 import { Parser } from 'xlucene-parser';
-import { BooleanCB, DocumentMatcherOptions } from './interfaces';
+import type { BooleanCB, DocumentMatcherOptions } from './interfaces';
 import logicBuilder from './logic-builder';
 
 export class DocumentMatcher {
@@ -7,7 +7,9 @@ export class DocumentMatcher {
 
     constructor(query: string, options: DocumentMatcherOptions = {}) {
         let parser = new Parser(query, {
-            type_config: options.type_config
+            type_config: options.type_config,
+            filterNilVariables: options.filterNilVariables,
+            variables: options.variables
         });
 
         if (options.variables) {

@@ -1,5 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { FieldGroup, NodeType, Term } from '../../src';
+import {
+    FieldGroup, GroupLikeNode, NodeType, Range, Term, Wildcard
+} from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -573,3 +575,157 @@ export default [
         },
     ],
 ] as TestCase[];
+
+export const filterNilFieldGroup: TestCase[] = [
+    [
+        'count:(>=$foo AND <=$bar AND >=$baz)',
+        'AND grouping expression with ranges',
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', },
+            }
+        } as Range,
+        { count: xLuceneFieldType.Integer },
+        { foo: 20 },
+        {
+            type: NodeType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: xLuceneFieldType.Integer,
+                value: { type: 'variable', value: 'foo', },
+            }
+        } as Range,
+    ],
+    [
+        'count:($foo OR $bar)',
+        'OR grouping with integers',
+        {
+            type: NodeType.Term,
+            field: 'count',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'variable', value: 'bar' },
+        } as Term,
+        { count: xLuceneFieldType.Integer },
+        { bar: 20 },
+        {
+            type: NodeType.Term,
+            field: 'count',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: 20 },
+        } as Term,
+    ],
+    [
+        'bool:($foo OR $bar)',
+        'OR grouping with booleans',
+        {
+            type: NodeType.Term,
+            field: 'bool',
+            field_type: xLuceneFieldType.Boolean,
+            value: { type: 'variable', value: 'bar' },
+        } as Term,
+        {
+            bool: xLuceneFieldType.Boolean
+        },
+        { bar: false },
+        {
+            type: NodeType.Term,
+            field: 'bool',
+            field_type: xLuceneFieldType.Boolean,
+            value: { type: 'value', value: false },
+        } as Term,
+    ],
+    [
+        'example:("foo" AND ("bar" OR $baz))',
+        'implicit OR grouping',
+        {
+            type: NodeType.FieldGroup,
+            field: 'example',
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'example',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'value', value: 'foo' },
+                        } as Term,
+                        {
+                            type: NodeType.Term,
+                            field: 'example',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'value', value: 'bar' },
+                        }
+                    ]
+                }
+            ]
+        } as GroupLikeNode,
+        {
+            example: xLuceneFieldType.String
+        }
+    ],
+    [
+        'val:(NOT $foo AND $bar)',
+        'negated field group',
+        {
+            type: NodeType.Term,
+            field: 'val',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'variable', value: 'bar' },
+        } as Term,
+        { val: xLuceneFieldType.Integer },
+        { bar: 55 },
+        {
+            type: NodeType.Term,
+            field: 'val',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: 55 },
+        } as Term,
+    ],
+    [
+        'foo:(@bar OR @baz)',
+        'multi-value field group with no quotes and @ (should not remove scoped variable nodes)',
+        {
+            type: NodeType.FieldGroup,
+            field: 'foo',
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'foo',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'variable', scoped: true, value: '@bar', },
+                        } as Term,
+                    ],
+                },
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: NodeType.Term,
+                            field: 'foo',
+                            field_type: xLuceneFieldType.String,
+                            value: { type: 'variable', scoped: true, value: '@baz' },
+                        } as Term
+                    ]
+                }
+            ],
+        } as GroupLikeNode,
+        { foo: xLuceneFieldType.String }
+    ],
+    [
+        'name:(Bob* OR $foo)',
+        'chained OR with wildcards',
+        {
+            type: NodeType.Wildcard,
+            value: { type: 'value', value: 'Bob*', },
+        } as Wildcard
+    ],
+];

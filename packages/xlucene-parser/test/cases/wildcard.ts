@@ -1,5 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { NodeType, Wildcard } from '../../src';
+import {
+    LogicalGroup, NodeType, Term, Wildcard
+} from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -109,3 +111,62 @@ export default [
         },
     ],
 ] as TestCase[];
+
+export const filterNilWildcard: TestCase[] = [
+    [
+        'foo: $foo OR $bar',
+        'variable with * wildcard',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            field: 'foo',
+            value: { type: 'variable', value: 'foo' },
+        } as Term,
+        { foo: xLuceneFieldType.String },
+        { foo: 'ba*' },
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+            field: 'foo',
+            value: { type: 'value', value: 'ba*' },
+        } as Term,
+    ],
+    [
+        '* AND $foo',
+        'a field-less * query',
+        {
+            type: NodeType.Wildcard,
+            field_type: xLuceneFieldType.String,
+            field: null,
+            value: { type: 'value', value: '*', },
+        } as Wildcard,
+    ],
+    [
+        'ba* AND $foo AND b:1',
+        'a simple AND conjunction',
+        {
+            type: NodeType.LogicalGroup,
+            flow: [
+                {
+                    type: NodeType.Conjunction,
+                    nodes: [
+                        {
+                            type: 'wildcard',
+                            field_type: 'string',
+                            value: {
+                                type: 'value',
+                                value: 'ba*'
+                            },
+                            field: null
+                        } as Wildcard,
+                        {
+                            type: NodeType.Term,
+                            field: 'b',
+                            value: { type: 'value', value: 1, },
+                        } as Term,
+                    ],
+                },
+            ],
+        } as LogicalGroup,
+    ],
+];

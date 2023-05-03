@@ -31,6 +31,8 @@ export class Translator {
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
+                variables: options.variables,
+                filterNilVariables: options.filterNilVariables
             });
         } else {
             this._parser = input;

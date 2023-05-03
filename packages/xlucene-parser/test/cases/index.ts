@@ -1,13 +1,13 @@
 import empty from './empty';
-import exists from './exists';
-import fieldGroup from './field-group';
-import logicalGroup from './logical-group';
-import negation from './negation';
-import range from './range';
-import regexp from './regexp';
-import term from './term';
-import wildcard from './wildcard';
-import geo from './geo';
+import exists, { filterNilExists } from './exists';
+import fieldGroup, { filterNilFieldGroup } from './field-group';
+import logicalGroup, { filterNilLogical } from './logical-group';
+import negation, { filterNilNegation } from './negation';
+import range, { filterNilRange } from './range';
+import regexp, { filterNilRegex } from './regexp';
+import term, { filterNilTerm } from './term';
+import wildcard, { filterNilWildcard } from './wildcard';
+import geo, { filterNilGeo } from './geo';
 
 export * from './interfaces';
 export default {
@@ -21,4 +21,18 @@ export default {
     logical_group: logicalGroup,
     negation,
     geo,
+};
+
+/** filtering out nodes with undefined variables */
+export const filterNilTestCases = {
+    empty,
+    filterNilExists,
+    filterNilFieldGroup,
+    filterNilGeo,
+    filterNilLogical,
+    filterNilNegation,
+    filterNilRange,
+    filterNilRegex,
+    filterNilTerm,
+    filterNilWildcard
 };

@@ -490,7 +490,7 @@ export default [
     ],
     [
         `id:${escapeString('some\\"thing\\"else')}`,
-        'an unquoted string with qoutes inside',
+        'an unquoted string with quotes inside',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -512,7 +512,7 @@ export default [
     ],
     [
         `id:"${escapeString('some \\"thing\\" else')}"`,
-        'a double quoted value with escaped double qoutes',
+        'a double quoted value with escaped double quotes',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -523,7 +523,7 @@ export default [
     ],
     [
         `id:'${escapeString('some\\ \\"thing\\" else')}'`,
-        'a single quoted value with escaped double qoutes and spaces',
+        'a single quoted value with escaped double quotes and spaces',
         {
             type: NodeType.Term,
             field_type: xLuceneFieldType.String,
@@ -766,3 +766,58 @@ export default [
         },
     ],
 ] as TestCase[];
+
+export const filterNilTerm: TestCase[] = [
+    [
+        `field:$bar_val`,
+        'returns empty node if variable not defined',
+        {
+            type: NodeType.Empty,
+        },
+        { field: xLuceneFieldType.String }
+    ],
+    [
+        `field:@bar2`,
+        'doesn\'t filter scoped variable',
+        {
+            value: { type: 'variable', value: '@bar2', scoped: true },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.Integer,
+        } as Term,
+        {
+            field: xLuceneFieldType.Integer,
+        },
+    ],
+    [
+        `field:@example.foo`,
+        'doesn\'t filter nested scoped variable',
+        {
+            value: { type: 'variable', value: '@example.foo', scoped: true },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+        {
+            field: xLuceneFieldType.String,
+        }
+    ],
+    [
+        `field:$bar OR $foo`,
+        'resolves variables',
+        {
+            value: { type: 'variable', value: 'bar', scoped: false },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+        { field: xLuceneFieldType.String },
+        { bar: "test" },
+        {
+            value: { type: 'value', value: 'test' },
+            field: 'field',
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.String,
+        } as Term,
+    ],
+];

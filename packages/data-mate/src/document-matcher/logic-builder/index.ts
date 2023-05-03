@@ -1,9 +1,9 @@
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
 import {
-    isWildCardString, get, isEqual,
+    isWildCardString, get, isEqual, isArray,
     and, isGreaterThanFP, isGreaterThanOrEqualToFP,
-    isLessThanOrEqualToFP, isLessThanFP
+    isLessThanOrEqualToFP, isLessThanFP,
 } from '@terascope/utils';
 import { compareTermDates, dateRange } from './dates';
 import {
@@ -24,6 +24,9 @@ function makeGetFn(field?: string): (data: any) => unknown {
     if (field.includes('.')) return (obj) => get(obj, field);
 
     return function getProp(obj) {
+        if (isArray(obj)) {
+            return obj.map((el) => el[field]).filter((el) => el !== undefined);
+        }
         return obj[field];
     };
 }

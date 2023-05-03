@@ -919,4 +919,42 @@ describe('QueryAccess', () => {
             });
         });
     });
+
+    describe('can work with filterNilVariables set true', () => {
+        it('should filter out undefined variables', async () => {
+            const queryAccess = new QueryAccess({
+                allow_implicit_queries: true,
+                excludes: [],
+                includes: [],
+            }, {
+                type_config: {
+                    name: xLuceneFieldType.String,
+                    age: xLuceneFieldType.Integer,
+                },
+                variables: {
+                    age: 20,
+                },
+                filterNilVariables: true
+            });
+
+            const q = 'name:$name AND age:$age';
+            const result = await queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                term: {
+                                    age: 20
+                                }
+                            }
+                        }
+                    }
+                },
+                _source_includes: [],
+                _source_excludes: []
+            });
+        });
+    });
 });

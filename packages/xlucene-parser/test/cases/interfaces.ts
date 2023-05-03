@@ -11,5 +11,7 @@ export type TestCase = [
     Partial<Node>,
     // Type config to pass in
     xLuceneTypeConfig?,
-    xLuceneVariables?
+    xLuceneVariables?,
+    // to test resolveVariables separately
+    Partial<Node>?
 ];

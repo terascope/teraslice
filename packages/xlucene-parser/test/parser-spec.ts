@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases from './cases';
+import allTestCases, { filterNilTestCases } from './cases';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';
@@ -29,6 +29,36 @@ describe('Parser', () => {
             });
         });
     }
+
+    describe('when parser has filterNilVariables set true', () => {
+        for (const [key, testCases] of Object.entries(filterNilTestCases)) {
+            describe(`when testing ${key.replace('_', ' ')} queries`, () => {
+                describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables, resolved) => {
+                    it(`should be able to parse ${msg} ${variables ? `with variables ${toString(variables)}` : ''}`, () => {
+                        const parser = new Parser(query, {
+                            type_config: typeConfig,
+                            filterNilVariables: true,
+                            variables
+                        });
+
+                        expect(parser.ast).toMatchObject(ast);
+                    });
+
+                    if (variables && resolved) {
+                        it(`should be able to resolve variables ${toString(variables)}`, () => {
+                            const parser = new Parser(query, {
+                                type_config: typeConfig,
+                                filterNilVariables: true,
+                                variables
+                            }).resolveVariables(variables);
+
+                            expect(parser.ast).toMatchObject(resolved);
+                        });
+                    }
+                });
+            });
+        }
+    });
 
     describe('when testing edge cases', () => {
         describe('given a gigantic query', () => {

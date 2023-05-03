@@ -1,7 +1,5 @@
 import {
-    TSError,
-    trim,
-    isRegExpLike
+    TSError, trim, isRegExpLike, cloneDeep, unset
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
@@ -19,6 +17,7 @@ export class Parser {
     readonly ast: i.Node;
     readonly query: string;
     readonly typeConfig: xLuceneTypeConfig;
+    readonly filterNilVariables: boolean;
 
     constructor(
         query: string,
@@ -26,6 +25,7 @@ export class Parser {
         _overrideNode?: i.Node
     ) {
         this.query = trim(query || '');
+        this.filterNilVariables = !!options?.filterNilVariables;
 
         this.typeConfig = { ...options?.type_config };
         if (_overrideNode) {
@@ -40,6 +40,36 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
+            if (options?.filterNilVariables) {
+                if (!options.variables) {
+                    utils.logger.warn('Parser filtering out undefined variables but no variables were provided. Consider adding variables or not running in "filterNilVariables" mode.');
+                }
+                this.ast = this.filterNodes(this.ast, (_node: any) => {
+                    let type = '';
+                    let value: any = '';
+                    let node = _node;
+                    if (utils.isNegation(node)) {
+                        node = _node.node;
+                    }
+                    if (utils.isTerm(node)) {
+                        if ((node.value as i.FieldValueVariable).scoped) return true;
+                        type = node.value.type;
+                        value = node.value.value;
+                    }
+                    if (utils.isRange(node)) {
+                        type = node.left.value.type ?? node.right?.value.type;
+                        value = node.left.value.value ?? node.right?.value.value;
+                    }
+
+                    function keep(nodeType: string, nodeVariable: string) {
+                        if (nodeType !== 'variable') return true;
+                        if (nodeVariable in (options?.variables || {})) return true;
+                        return false;
+                    }
+                    return keep(type, value);
+                });
+            }
+
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
                 utils.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
@@ -53,6 +83,124 @@ export class Parser {
                 reason: `Failure to parse xLucene query "${this.query}"`,
             });
         }
+    }
+
+    filterNodes(ast: i.Node, fn: (node: i.Node, parent?: i.Node) => boolean): i.Node {
+        const filterNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
+            const clone = cloneDeep(ogNode);
+
+            if (utils.isLogicalGroup(clone) || utils.isFieldGroup(clone)) {
+                const filtered = clone.flow
+                    .map((f) => {
+                        const nodes = f.nodes
+                            .map((n) => {
+                                if (utils.isConjunction(n) || utils.isLogicalGroup(n)) {
+                                    // if grouping recurse to filter the inner nodes
+                                    return filterNode(n, clone);
+                                }
+                                if (utils.isNegation(n)
+                                && (utils.isConjunction(n.node) || utils.isLogicalGroup(n.node))) {
+                                    const _node = filterNode(n.node, clone);
+                                    if (utils.isEmptyNode(_node)) return;
+                                    return {
+                                        ...n,
+                                        node: _node
+                                    };
+                                }
+
+                                // if filter fn returns true, keep the node
+                                if (fn({ ...n }, parent)) return n;
+                                return;
+                            })
+                            .filter(Boolean); // filter out undefined flow nodes
+
+                        if (nodes.length) {
+                            return { ...f, nodes };
+                        }
+                        return;
+                    })
+                    .filter( // filter out flows with zero nodes
+                        (f) => !!f?.nodes.filter(Boolean).length
+                    );
+
+                if (!filtered.length) {
+                    return {
+                        type: i.NodeType.Empty
+                    };
+                }
+
+                clone.flow = filtered as i.Conjunction[];
+
+                // if only 1 flow and 1 node, don't need conjunction anymore
+                if (clone.flow.length === 1 && clone.flow[0].nodes.length === 1) {
+                    return clone.flow[0].nodes[0];
+                }
+
+                return clone;
+            }
+
+            if (utils.isRange(clone)) {
+                const keepLeft = fn(clone.left as any, clone);
+
+                let keepRight = false;
+                if (clone.right) {
+                    keepRight = fn(clone.right as any, clone);
+                    if (!keepRight) {
+                        unset(clone, 'right');
+                    }
+                }
+
+                if (!keepLeft) {
+                    unset(clone, 'left');
+                    if (keepRight && clone.right) {
+                        clone.left = { ...clone.right, };
+                    }
+                }
+
+                if (clone.left) {
+                    return clone;
+                }
+                // fall through to end empty node if no left range
+            }
+
+            if (utils.isFunctionNode(clone)) {
+                const filtered = clone.params.map((n) => {
+                    if (utils.isTermList(n)) {
+                        const value = n.value.map((v) => {
+                            const keep = fn({
+                                ...n,
+                                type: i.NodeType.Term,
+                                value: { ...v }
+                            } as i.Term, ogNode);
+                            if (keep) return v;
+                            return;
+                        }).filter(Boolean) as i.FieldValue<any>[];
+                        if (!value.length) return;
+                        n.value = value;
+                        return n;
+                    }
+                    const keep = fn(n, ogNode);
+                    if (keep) return n;
+                    return;
+                }).filter(Boolean) as (i.Term | i.TermList)[];
+
+                if (!filtered.length) {
+                    return { type: i.NodeType.Empty };
+                }
+                clone.params = filtered;
+                return clone;
+            }
+
+            if (fn(ogNode, parent)) {
+                return clone;
+            }
+
+            return {
+                type: i.NodeType.Empty
+            };
+        };
+
+        return filterNode(ast);
     }
 
     /**
@@ -225,6 +373,7 @@ export class Parser {
 
         return new Parser(this.query, {
             type_config: this.typeConfig,
+            filterNilVariables: this.filterNilVariables
         }, ast);
     }
 
