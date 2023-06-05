@@ -6113,10 +6113,8 @@ gensync@^1.0.0-beta.2:
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==
 
-geo-tz@^7.0.6:
-  version "7.0.6"
-  resolved "https://registry.yarnpkg.com/geo-tz/-/geo-tz-7.0.6.tgz#ff8bf298fc8383b46c34ad840e0f8eefed16f936"
-  integrity sha512-ePRC6rj2alq0ciZtjNeZUD7gUqOZQxTBBkI8mIwaZg3Ogwvk8MZslcROtMRaFFwwGvB+24vHi4uJsw2GRtxKlg==
+"geo-tz@file:../../data_processing/projects/node-geo-tz":
+  version "0.0.0-semantically-released"
   dependencies:
     "@turf/boolean-point-in-polygon" "^6.5.0"
     "@turf/helpers" "^6.5.0"
