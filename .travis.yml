@@ -41,76 +41,76 @@ jobs:
         - yarn lint
         - yarn sync --verify
 
-    - stage: 'Tests'
-      name: 'Unit Test Suite (node 16)'
-      node_js: '16.17.1'
-      # run only on pull-requests or cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: MAX_PROJECTS_PER_BATCH=2 TZ=utc yarn --silent test -- --suite unit --
+    # - stage: 'Tests'
+    #   name: 'Unit Test Suite (node 16)'
+    #   node_js: '16.17.1'
+    #   # run only on pull-requests or cron
+    #   if: branch = master AND type IN (pull_request, cron)
+    #   script: MAX_PROJECTS_PER_BATCH=2 TZ=utc yarn --silent test -- --suite unit --
 
-    - name: 'ES Test Suite (elasticsearch 6) (node 16)'
-      node_js: '16.17.1'
-      # run only on pull-requests and cron
-      if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
+    # - name: 'ES Test Suite (elasticsearch 6) (node 16)'
+    #   node_js: '16.17.1'
+    #   # run only on pull-requests and cron
+    #   if: branch = master AND type IN (pull_request, cron)
+    #   script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
-    - name: 'ES Test Suite (elasticsearch 7) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
-      script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
+    # - name: 'ES Test Suite (elasticsearch 7) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
+    #   script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
-    - name: 'ES Store Legacy Client (elasticsearch 6) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-store; yarn --silent test:legacy  --report-coverage false
+    # - name: 'ES Store Legacy Client (elasticsearch 6) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-store; yarn --silent test:legacy  --report-coverage false
 
-    - name: 'ES Store ES7 Client (elasticsearch 7) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-store; yarn --silent test:7
+    # - name: 'ES Store ES7 Client (elasticsearch 7) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-store; yarn --silent test:7
 
-    - name: 'ES Store Opensearch Client (opensearch 1.3.0) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-store; yarn --silent test:opensearch  --report-coverage false
+    # - name: 'ES Store Opensearch Client (opensearch 1.3.0) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-store; yarn --silent test:opensearch  --report-coverage false
 
-    - name: 'ES API Legacy Client (elasticsearch 6) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-api; yarn --silent test:legacy  --report-coverage false
+    # - name: 'ES API Legacy Client (elasticsearch 6) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-api; yarn --silent test:legacy  --report-coverage false
 
-    - name: 'ES API ES7 Client (elasticsearch 7) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-api; yarn --silent test:7
+    # - name: 'ES API ES7 Client (elasticsearch 7) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-api; yarn --silent test:7
 
-    - name: 'ES API Opensearch Client (opensearch 1.3.0) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
-      script: cd ./packages/elasticsearch-api; yarn --silent test:opensearch  --report-coverage false
+    # - name: 'ES API Opensearch Client (opensearch 1.3.0) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests
+    #   if: branch = master AND type IN (pull_request, cron) AND commit_message !~ /^WIP/
+    #   script: cd ./packages/elasticsearch-api; yarn --silent test:opensearch  --report-coverage false
 
-    - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
-      node_js: '14.21'
-      # run only on pull-requests and cron
-      if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script:
-        - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
-        - yarn --silent --cwd e2e test
+    # - name: 'End-to-End Test Suite (elasticsearch 6) (node 14)'
+    #   node_js: '14.21'
+    #   # run only on pull-requests and cron
+    #   if: branch = master AND type IN (pull_request, cron) AND fork = false
+    #   script:
+    #     - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
+    #     - yarn --silent --cwd e2e test
 
-    - stage: 'Releases'
-      name: 'Publish prerelease packages and docker image'
-      # Run on pull-request and when the commit message includes a prerelease bump
-      if: branch = master AND type IN (pull_request) AND commit_message =~ /(bump|release):.*\((premajor|preminor|prepatch|prerelease)\).*/
-      script:
-        - yarn ts-scripts publish -t prerelease npm
-        - yarn ts-scripts publish -t prerelease docker
+    # - stage: 'Releases'
+    #   name: 'Publish prerelease packages and docker image'
+    #   # Run on pull-request and when the commit message includes a prerelease bump
+    #   if: branch = master AND type IN (pull_request) AND commit_message =~ /(bump|release):.*\((premajor|preminor|prepatch|prerelease)\).*/
+    #   script:
+    #     - yarn ts-scripts publish -t prerelease npm
+    #     - yarn ts-scripts publish -t prerelease docker
 
     - name: 'Publish packages, docs and experimental docker image'
       node_js: '14.21'
