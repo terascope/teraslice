@@ -53,6 +53,7 @@ export default class Jobs {
 
     async restart(): Promise<void> {
         await this.stop();
+
         if (this.allJobsStopped) {
             await this.start();
         }
@@ -118,6 +119,7 @@ export default class Jobs {
     async statusCheck(statusList: string[]): Promise<any[]> {
         let controllers = [];
         const jobs: any[] = [];
+
         try {
             controllers = await this.teraslice.client.cluster.controllers();
         } catch (e) {
@@ -125,12 +127,17 @@ export default class Jobs {
         }
 
         for (const jobStatus of statusList) {
+            // get executions with the job status
             const exResult = await this.teraslice.client.executions.list(jobStatus);
+
+            // adds controller/ slicer info to job config
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
+
             jobsTemp.forEach((job) => {
                 jobs.push(job);
             });
         }
+
         return jobs;
     }
 
@@ -138,6 +145,7 @@ export default class Jobs {
         // start job with job file
         if (!this.config.args.all) {
             const id: any = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
+
             if (id != null) {
                 id.slicer = {};
                 id.slicer.workers_active = id.workers;
@@ -164,6 +172,7 @@ export default class Jobs {
             const waitMax = 10;
             let allWorkersStarted = false;
             this.jobsListInitial = this.jobsListChecked;
+
             reply.info('> Waiting for workers to start');
             while (!allWorkersStarted || waitCount < waitMax) {
                 await this.status(false, false);
@@ -173,10 +182,12 @@ export default class Jobs {
             }
 
             let allAddedWorkersStarted = false;
+
             if (allWorkersStarted) {
                 // add extra workers
                 waitCount = 0;
                 await this.addWorkers(this.jobsListInitial, this.jobsListChecked);
+
                 while (!allAddedWorkersStarted || waitCount < waitMax) {
                     await this.status(false, false);
                     waitCount += 1;
@@ -201,10 +212,14 @@ export default class Jobs {
         const waitMaxStop = 10;
         let stopTimedOut = false;
 
+        console.log('configs', this.config.args);
+
         if (this.config.args.all) {
             await this.save();
         } else {
+            // this is the entire job config not just the ID
             const id: any = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
+
             if (id != null) {
                 id.slicer = {};
                 id.slicer.workers_active = id.workers;
@@ -213,6 +228,7 @@ export default class Jobs {
         }
 
         await this.checkJobsStop(this.activeStatus);
+
         if (this.jobsListChecked.length === 0) {
             if (this.config.args.all) {
                 reply.error(`No jobs to ${action}`);
@@ -245,6 +261,7 @@ export default class Jobs {
             let waitCount = 0;
             const waitMax = 15;
             while (!this.allJobsStopped) {
+                console.log('waiting for all jobs to stop', this.jobsList.length, waitCount);
                 await this.status(false, false);
                 await pDelay(50);
                 if (this.jobsList.length === 0) {
@@ -338,6 +355,7 @@ export default class Jobs {
 
     async checkJobsStop(statusList: any[]): Promise<void> {
         const activeJobs = await this.statusCheck(statusList);
+
         for (const job of this.jobsList) {
             for (const cjob of activeJobs) {
                 if (job.job_id === cjob.job_id) {

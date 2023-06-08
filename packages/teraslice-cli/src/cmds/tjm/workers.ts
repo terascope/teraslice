@@ -24,13 +24,16 @@ const cmd: CMD = {
     },
     async handler(argv): Promise <void> {
         const job = new JobSrc(argv);
+
         job.init();
 
         const cliConfig = new Config({ ...job, ...argv });
+
         const jobs = new Jobs(cliConfig);
 
         try {
             const resp = await jobs.workers();
+
             reply.green(`${resp}, job_id: ${job.id}, cluster: ${job.clusterUrl}`);
         } catch (e) {
             reply.fatal(`could not adjust workers for job: ${job.id}, ${e.message}`);
