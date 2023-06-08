@@ -18,6 +18,11 @@ jobs:
         node-version: 14.21.3
         cache: 'yarn'
 
+    - name: Install and build packages
+      run: yarn setup
+      env:
+        YARN_SETUP_ARGS: "--prod=false --silent"
+
     - name: Lint codebase
       run: yarn lint
 
@@ -107,17 +112,17 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Switch to elasticsearch-store
-        run: cd ./packages/elasticsearch-store;
-
       - name: Test elasticsearch 6
         run: yarn --silent test  --report-coverage false
+        working-directory: ./packages/elasticsearch-store
 
       - name: Test elasticsearch 7
         run: yarn --silent test:7 --report-coverage false
+        working-directory: ./packages/elasticsearch-store
 
       - name: Test opensearch 1.3
         run: yarn --silent test:opensearch --report-coverage false
+        working-directory: ./packages/elasticsearch-store
 
   # This is for backwards compatability, should be removed in the future
   elasticsearch-store-legacy:
@@ -145,7 +150,8 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
-        run: cd ./packages/elasticsearch-store; yarn --silent test:legacy  --report-coverage false
+        run: yarn --silent test:legacy  --report-coverage false
+        working-directory: ./packages/elasticsearch-store
 
   elasticsearch-api-tests:
     runs-on: ubuntu-latest
@@ -174,17 +180,17 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Switch to elasticsearch-api
-        run: cd ./packages/elasticsearch-api;
-
       - name: Test elasticsearch 6
         run: yarn --silent test  --report-coverage false
+        working-directory: ./packages/elasticsearch-api
 
       - name: Test elasticsearch 7
         run: yarn --silent test:7 --report-coverage false
+        working-directory: ./packages/elasticsearch-api
 
       - name: Test opensearch
         run: yarn --silent test:opensearch --report-coverage false
+        working-directory: ./packages/elasticsearch-api
 
 
   # This is for backwards compatability, should be removed in the future
@@ -213,7 +219,8 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
-        run: cd ./packages/elasticsearch-api; yarn --silent test:legacy  --report-coverage false
+        run: yarn --silent test:legacy  --report-coverage false
+        working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -242,8 +249,6 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Move to E2E
-        run: cd ./e2e
-
       - name: Test
         run: yarn --silent test
+        working-directory: ./e2e
