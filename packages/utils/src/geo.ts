@@ -45,11 +45,8 @@ import { parseNumberList, toNumber, isNumber } from './numbers';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
-const tzCache = new Map();
-
-setCache({ preload: true, store: tzCache });
-
-console.log('cached tz', tzCache.size);
+// allows for better access and control over tz-geo cache
+const TZ_GEO_CACHE = new Map();
 
 export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
     if (!isPlainObject(input)) return false;
@@ -649,7 +646,15 @@ export function polyHasHoles(input: GeoShape): boolean {
 
 /** Takes in a geo point like entity and returns the timezone of its location */
 export function lookupTimezone(input: unknown): string {
+    if (!tzCacheLoaded()) {
+        setCache({ preload: true, store: TZ_GEO_CACHE });
+    }
+
     const { lat, lon } = parseGeoPoint(input as GeoPointInput);
     // it returns an array, return the first one
     return geoToTimezone(lat, lon)[0];
+}
+
+export function tzCacheLoaded(): boolean {
+    return TZ_GEO_CACHE.size > 0;
 }
