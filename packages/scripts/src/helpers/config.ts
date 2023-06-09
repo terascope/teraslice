@@ -104,7 +104,7 @@ export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?
  */
 export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
 
-const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
+const reportCov = process.env.REPORT_COVERAGE || 'false';
 export const REPORT_COVERAGE = toBoolean(reportCov);
 
 export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
