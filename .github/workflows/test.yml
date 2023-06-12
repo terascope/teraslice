@@ -53,6 +53,7 @@ jobs:
         run: TZ=utc yarn --silent test -- --suite unit --
 
   teraslice-elasticsearch-tests:
+    needs: [verify-build,  linux-unit-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -86,6 +87,7 @@ jobs:
         run: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
   elasticsearch-store-tests:
+    needs: [verify-build,  linux-unit-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -126,6 +128,7 @@ jobs:
 
   # This is for backwards compatability, should be removed in the future
   elasticsearch-store-legacy:
+    needs: [verify-build,  linux-unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -154,6 +157,7 @@ jobs:
         working-directory: ./packages/elasticsearch-store
 
   elasticsearch-api-tests:
+    needs: [verify-build,  linux-unit-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -195,6 +199,7 @@ jobs:
 
   # This is for backwards compatability, should be removed in the future
   elasticsearch-api-legacy:
+    needs: [verify-build,  linux-unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -223,7 +228,7 @@ jobs:
         working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
-    needs: [elasticsearch-api-tests, elasticsearch-api-legacy, elasticsearch-store-legacy, teraslice-elasticsearch-tests]
+    needs: [elasticsearch-api-tests, elasticsearch-api-legacy, elasticsearch-store-legacy, teraslice-elasticsearch-tests, elasticsearch-store-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
