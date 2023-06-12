@@ -102,8 +102,5 @@
             "yarn": ">=1.16.0"
         },
         "version": 1
-    },
-    "dependencies": {
-        "geo-tz": "file:/Users/ciorg/Scope/data_processing/projects/node-geo-tz"
     }
 }
