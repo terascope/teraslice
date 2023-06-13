@@ -154,7 +154,6 @@ jobs:
         working-directory: ./packages/elasticsearch-store
 
   elasticsearch-api-tests:
-    needs: [verify-build,  linux-unit-tests, elasticsearch-store-legacy, elasticsearch-store-tests, teraslice-elasticsearch-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -196,7 +195,6 @@ jobs:
 
   # This is for backwards compatability, should be removed in the future
   elasticsearch-api-legacy:
-    needs: [verify-build,  linux-unit-tests, elasticsearch-store-legacy, elasticsearch-store-tests, teraslice-elasticsearch-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -225,7 +223,6 @@ jobs:
         working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
-    needs: [elasticsearch-api-tests]
     runs-on: ubuntu-latest
     strategy:
       matrix:
