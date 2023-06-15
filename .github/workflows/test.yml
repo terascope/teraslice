@@ -1,5 +1,4 @@
 name: Teraslice CI Tests
-run-name: Teraslice Tests
 # this will technically run again on merge to master, should limit it
 on:
   pull_request:
