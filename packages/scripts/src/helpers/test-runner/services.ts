@@ -332,7 +332,7 @@ async function checkRestrainedOpensearch(
                 ({ body } = await got(host, {
                     username,
                     password,
-                    rejectUnauthorized: false,
+                    https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
                     retry: 0,
@@ -400,7 +400,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
                 ({ body } = await got(host, {
                     username,
                     password,
-                    rejectUnauthorized: false,
+                    https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
                     retry: 0,
