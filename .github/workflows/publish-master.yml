@@ -38,8 +38,9 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Build documentation
-        run: ./scripts/publish-documentation.sh
+      # TODO: Jared is working on this
+      # - name: Build documentation
+      #   run: ./scripts/publish-documentation.sh
 
       - name: Publish to npm
         run: yarn ts-scripts publish -t latest npm
