@@ -31,8 +31,8 @@ main() {
         yarn install \
             --prod \
             --no-default-rc &&
-        GIT_USER="${GITHUB_NAME}" \
-            CURRENT_BRANCH="${TRAVIS_BRANCH:-master}" \
+        GIT_USER="Terascope CI" \
+            CURRENT_BRANCH="master" \
             yarn run publish-gh-pages &&
         git checkout ../docs
 }
