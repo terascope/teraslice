@@ -1,4 +1,4 @@
-name: Publish Teraslice NPM Packages and Docker Image
+name: Publish Release Teraslice NPM Packages and Docker Image
 
 on:
   release:
@@ -34,9 +34,6 @@ jobs:
         run: yarn setup
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
-
-      - name: Build documentation
-        run: ./scripts/publish-documentation.sh
 
       - name: Publish to npm
         run: yarn ts-scripts publish -t tag npm
