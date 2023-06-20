@@ -36,7 +36,7 @@
         "got": "^11.8.3"
     },
     "devDependencies": {
-        "nock": "^13.3.0"
+        "nock": "^13.3.1"
     },
     "engines": {
         "node": ">=14.17.0",

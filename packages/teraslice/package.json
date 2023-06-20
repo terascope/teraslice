@@ -68,12 +68,12 @@
         "@terascope/teraslice-op-test-harness": "^1.24.1",
         "archiver": "^5.3.1",
         "bufferstreams": "^3.0.0",
-        "chance": "^1.1.10",
+        "chance": "^1.1.11",
         "elasticsearch": "^15.4.1",
         "got": "^11.8.3",
         "jest-fixtures": "^0.6.0",
         "js-yaml": "^4.1.0",
-        "nock": "^13.3.0"
+        "nock": "^13.3.1"
     },
     "engines": {
         "node": ">=14.17.0",

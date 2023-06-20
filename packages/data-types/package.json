@@ -30,11 +30,11 @@
         "@terascope/utils": "^0.45.6",
         "graphql": "^14.7.0",
         "lodash": "^4.17.21",
-        "yargs": "^17.7.1"
+        "yargs": "^17.7.2"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.191",
-        "@types/yargs": "^17.0.22"
+        "@types/lodash": "^4.14.195",
+        "@types/yargs": "^17.0.24"
     },
     "engines": {
         "node": ">=14.17.0",
