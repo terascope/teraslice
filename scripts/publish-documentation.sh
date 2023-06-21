@@ -28,13 +28,8 @@ main() {
     yarn setup &&
         yarn docs &&
         cd website &&
-        yarn install \
-            --prod \
-            --no-default-rc &&
-        GIT_USER="Terascope CI" \
-            CURRENT_BRANCH="master" \
-            yarn run publish-gh-pages &&
-        git checkout ../docs
+        yarn install --prod --no-default-rc &&
+        yarn run build
 }
 
 main "$@"
