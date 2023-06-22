@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.84.0",
+    "version": "1.22.19",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -99,7 +99,7 @@
         },
         "engines": {
             "node": ">=14.17.0",
-            "yarn": ">=1.16.0"
+            "yarn": ">=1.22.19"
         },
         "version": 1
     }
