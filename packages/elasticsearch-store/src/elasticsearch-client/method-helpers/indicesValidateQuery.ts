@@ -16,7 +16,9 @@ export function convertIndicesValidateQueryParams(
     } = params;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8 || majorVersion === 7) return parsedParams;
+        if (majorVersion === 8 || majorVersion === 7) {
+            return parsedParams;
+        }
 
         if (majorVersion === 6) {
             return {
@@ -27,7 +29,9 @@ export function convertIndicesValidateQueryParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) return parsedParams;
+        if (majorVersion === 1 || majorVersion === 2) {
+            return parsedParams;
+        }
     }
 
     throw new Error(`Unsupported ${distribution} version ${version}`);

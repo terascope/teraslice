@@ -26,7 +26,8 @@ export function convertCatIndicesParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        // No major changes between the two as provided below
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams

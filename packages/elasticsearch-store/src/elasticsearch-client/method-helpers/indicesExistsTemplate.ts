@@ -18,6 +18,15 @@ export function convertIndicesExistsTemplateParams(
         if (majorVersion === 1) {
             return params;
         }
+
+        if (majorVersion === 2) {
+            const { master_timeout, ...parsedParams } = params;
+
+            return {
+                cluster_manager_timeout: master_timeout,
+                ...parsedParams
+            };
+        }
     }
 
     throw new Error(`unsupported ${distribution} version: ${version}`);

@@ -12,7 +12,7 @@ export function convertIndicesPutMappingParams(
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         const {
-            include_type_name,
+            include_type_name = true,
             type = '_doc',
             ...parsedParams
         } = params;
@@ -24,13 +24,14 @@ export function convertIndicesPutMappingParams(
         if (majorVersion === 6) {
             return {
                 type,
+                include_type_name,
                 ...parsedParams
             };
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 include_type_name,
                 type,

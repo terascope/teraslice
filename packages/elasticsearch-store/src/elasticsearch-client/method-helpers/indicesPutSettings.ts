@@ -29,7 +29,7 @@ export function convertIndicesPutSettingsParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams

@@ -11,11 +11,7 @@ export function convertNodeInfoParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            return params;
-        }
-
-        if (majorVersion === 7) {
+        if (majorVersion === 7 || majorVersion === 8) {
             return params;
         }
 
@@ -30,7 +26,7 @@ export function convertNodeInfoParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams

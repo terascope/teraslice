@@ -24,11 +24,12 @@
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
         "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
-        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch1": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn run test:debug",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@opensearch-project/opensearch": "^1.1.0",
+        "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
         "@terascope/data-mate": "^0.41.1",
         "@terascope/data-types": "^0.36.6",
         "@terascope/types": "^0.11.2",

@@ -11,12 +11,23 @@ export function convertIndicesDeleteTemplateParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if ([6, 7, 8].includes(majorVersion)) return params;
+        if ([6, 7, 8].includes(majorVersion)) {
+            return params;
+        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;
+        }
+
+        if (majorVersion === 2) {
+            const { master_timeout, ...parsedParams } = params;
+
+            return {
+                cluster_manager_timeout: master_timeout,
+                ...parsedParams
+            };
         }
     }
 
