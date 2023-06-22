@@ -28,7 +28,7 @@
         "setimmediate": "^1.0.5"
     },
     "devDependencies": {
-        "@opensearch-project/opensearch": "^1.1.0",
+        "@opensearch-project/opensearch": "^1.2.0",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
         "elasticsearch-store": "^0.66.1",
