@@ -18,7 +18,7 @@ jobs:
         cache: 'yarn'
 
     - name: Install and build packages
-      run: yarn setup
+      run: yarn setupgit sta
       env:
         YARN_SETUP_ARGS: "--prod=false --silent"
 
@@ -116,7 +116,7 @@ jobs:
         working-directory: ./packages/elasticsearch-store
 
       - name: Test elasticsearch 7
-        run: yarn --silent test:7 
+        run: yarn --silent test:7
         working-directory: ./packages/elasticsearch-store
 
       - name: Test opensearch 1.3
