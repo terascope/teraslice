@@ -2,7 +2,7 @@ import {
     debugLogger, get, toNumber, Logger
 } from '@terascope/utils';
 import * as opensearch1 from 'opensearch1';
-// import * as opensearch2 from 'opensearch2';
+import * as opensearch2 from 'opensearch2';
 import * as elasticsearch6 from 'elasticsearch6';
 import * as elasticsearch7 from 'elasticsearch7';
 import * as elasticsearch8 from 'elasticsearch8';
@@ -104,7 +104,7 @@ export async function getBaseClient(
             }
 
             if (majorVersion === 2) {
-                const client = new opensearch1.Client(config as any);
+                const client = new opensearch2.Client(config as any);
 
                 logger.debug('Creating an opensearch client v2');
 

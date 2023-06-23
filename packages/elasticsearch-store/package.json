@@ -30,6 +30,7 @@
     },
     "dependencies": {
         "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
+        "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "@terascope/data-mate": "^0.41.1",
         "@terascope/data-types": "^0.36.6",
         "@terascope/types": "^0.11.2",
