@@ -18,7 +18,7 @@ jobs:
         cache: 'yarn'
 
     - name: Install and build packages
-      run: yarn setupgit sta
+      run: yarn setup
       env:
         YARN_SETUP_ARGS: "--prod=false --silent"
 
