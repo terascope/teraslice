@@ -29,8 +29,6 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
-        "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "@terascope/data-mate": "^0.41.1",
         "@terascope/data-types": "^0.36.6",
         "@terascope/types": "^0.11.2",
@@ -40,6 +38,8 @@
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
+        "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
+        "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "setimmediate": "^1.0.5",
         "uuid": "^9.0.0",
         "xlucene-translator": "^0.29.1"
