@@ -258,7 +258,7 @@ export default class Display {
         if (action === 'pause' && tense === 'past') {
             return 'paused';
         }
-        if (action === 'stop' && tense === 'present') {
+        if (action === 'pause' && tense === 'present') {
             return 'pausing';
         }
         if (action === 'restart' && tense === 'past') {

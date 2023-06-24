@@ -59,6 +59,7 @@ export default class TjmUtil {
 
         try {
             const status = await this.client.jobs.wrap(this.job.id).status();
+
             if (status === 'stopped') {
                 reply.info(`> job: ${this.job.name}, job id: ${this.job.id}, is already stopped running on cluster: ${this.job.clusterUrl}`);
                 return;

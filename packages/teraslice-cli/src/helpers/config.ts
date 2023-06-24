@@ -25,6 +25,7 @@ export default class Config {
         Object.entries(cliArgs).forEach(([key, value]) => {
             this.args[camelCase(key)] = value;
         });
+        this.addJobAction();
         this.configDir = this.args.configDir;
         this._setupConfigDir();
         this.aliases = new Aliases(this.aliasesFile);
@@ -100,5 +101,13 @@ export default class Config {
                 fs.mkdirSync(dir);
             }
         });
+    }
+
+    private addJobAction() {
+        if (this.args[''].includes('jobs')) {
+            const [, action] = this.args[''];
+
+            if (action != null) this.args._action = action;
+        }
     }
 }

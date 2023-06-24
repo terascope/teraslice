@@ -182,7 +182,8 @@ export default class Options {
         }),
         'jobs-status': () => ({
             describe: 'list of job status to include',
-            default: 'running,failing'
+            array: true,
+            default: []
         }),
         'jobs-size': () => ({
             describe: 'size of job error list to return',
@@ -201,11 +202,6 @@ export default class Options {
             describe: 'Answer \'Yes\' or \'Y\' to all prompts',
             default: false
         }),
-        'jobs-all': () => ({
-            alias: 'a',
-            describe: 'stop all running/failing jobs',
-            default: false
-        }),
         quiet: () => ({
             alias: 'q',
             describe: 'Silence non-error logging.',
@@ -222,6 +218,11 @@ export default class Options {
         'job-file': () => ({
             describe: 'Job file that tjm will read to execute command on job, e.g: jobFile.json',
             nargs: 1,
+            type: 'string'
+        }),
+        'job-id': () => ({
+            describe: 'Id of teraslice job to run the command on. Accepts a single job id or multiple. Use "all" to run the command on all the jobs on the cluster',
+            array: true,
             type: 'string'
         }),
         'asset-name': () => ({

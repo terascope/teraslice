@@ -1,0 +1,3 @@
+clusters:
+  testerTest:
+    host: http://test-host
