@@ -1,4 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
+import { has } from '@terascope/utils';
 
 export function convertReIndexParams(
     params: ClientParams.ReindexParams,
@@ -45,6 +46,9 @@ export function convertReIndexParams(
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1 || majorVersion === 2) {
+            if (has(params, 'body.dest.type')) {
+                delete params.body.dest.type;
+            }
             return params;
         }
     }

@@ -56,13 +56,35 @@ export function convertMSearchParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1 || majorVersion === 2) {
+        if (majorVersion === 1) {
             const {
                 type,
                 ...parsedParams
             } = params;
 
             return parsedParams;
+        }
+
+        if (majorVersion === 2) {
+            const {
+                type,
+                body,
+                ...parsedParams
+            } = params;
+
+            return {
+                ...parsedParams,
+                body: body.map((doc) => {
+                    // @ts-expect-error type only exists on one type, not the other
+                    // hence th error
+                    const { type: _type, ...docArgs } = doc;
+
+                    return {
+                        ...docArgs
+                    };
+                })
+
+            };
         }
     }
 

@@ -40,8 +40,8 @@ export function convertIndicesGetIndexTemplateParams(
             } = params;
 
             return {
-                cluster_manager_timeout: master_timeout,
-                ...parsedParams
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
             };
         }
     }

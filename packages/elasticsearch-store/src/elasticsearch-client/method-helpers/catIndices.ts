@@ -33,12 +33,10 @@ export function convertCatIndicesParams(
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error, master_timeout is deprecated
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

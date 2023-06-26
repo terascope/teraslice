@@ -70,10 +70,9 @@ export function convertIndicesCreateParams(
             };
 
             return {
-                cluster_manager_timeout: master_timeout,
-                // ensure no type in mapping
+                ...parsedParams,
                 body: newBody,
-                ...parsedParams
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
             };
         }
     }

@@ -25,7 +25,12 @@ export function convertIndicesStatsParams(
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1 || majorVersion === 2) {
-            return params;
+            const {
+                types,
+                ...parsedParams
+            } = params;
+
+            return parsedParams;
         }
     }
 

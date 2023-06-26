@@ -23,8 +23,8 @@ export function convertIndicesExistsTemplateParams(
             const { master_timeout, ...parsedParams } = params;
 
             return {
-                cluster_manager_timeout: master_timeout,
-                ...parsedParams
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
             };
         }
     }

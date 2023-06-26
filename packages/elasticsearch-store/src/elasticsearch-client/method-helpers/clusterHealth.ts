@@ -30,12 +30,10 @@ export function convertClusterHealthParams(
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error, master_timeout is deprecated
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
 
         // future version will have master_timeout gone, renamed to cluster_manager_timeout

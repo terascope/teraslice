@@ -35,12 +35,10 @@ export function convertIndicesPutSettingsParams(
                 ...parsedParams
             } = params;
 
-            // they are renaming their parameters
-            if (master_timeout) {
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 
