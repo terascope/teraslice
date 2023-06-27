@@ -38,12 +38,45 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      # TODO: Jared is working on this
-      # - name: Build documentation
-      #   run: ./scripts/publish-documentation.sh
-
       - name: Publish to npm
         run: yarn ts-scripts publish -t latest npm
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t dev docker
+
+  # WIP: The publish step doesn't work yet, see:
+  # https://github.com/terascope/teraslice/issues/3366
+  # build-docs:
+  #   runs-on: ubuntu-latest
+  #   needs: build-release
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
+
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version:  18.16.0
+  #         registry-url: 'https://registry.npmjs.org'
+  #         cache: 'yarn'
+
+  #     - name: Build documentation
+  #       run: ./scripts/build-documentation.sh  # output in website/build
+  #     - name: Upload artifact
+  #       uses: actions/upload-pages-artifact@v1
+  #       with:
+  #         path: ./website/build
+
+  # publish-docs:
+  #   runs-on: ubuntu-latest
+  #   needs: build-docs
+  #   permissions:
+  #     pages: write      # to deploy to Pages
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v2
