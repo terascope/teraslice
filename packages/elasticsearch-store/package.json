@@ -25,7 +25,7 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
         "test:opensearch1": "TEST_OPENSEARCH='true' yarn run test",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn run test:debug",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn run test",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {

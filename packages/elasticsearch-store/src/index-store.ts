@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import {
     xLuceneTypeConfig, ClientMetadata, ESTypes,
-    ClientParams, ClientResponse,
+    ClientParams, ClientResponse, ElasticsearchDistribution,
 } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
 import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
@@ -10,6 +10,7 @@ import { IndexManager } from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
 
+const OPENSEARCH = ElasticsearchDistribution.opensearch;
 /**
  * A single index elasticsearch-store with some specific requirements around
  * the index name, and record data
@@ -35,6 +36,7 @@ export class IndexStore<T extends ts.AnyObject> {
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
     private readonly _translator = new CachedTranslator();
+    private readonly isOpensearch: boolean;
 
     constructor(client: Client, config: i.IndexConfig<T>) {
         if (!utils.isValidClient(client)) {
@@ -50,7 +52,7 @@ export class IndexStore<T extends ts.AnyObject> {
         this.name = utils.toInstanceName(this.config.name);
         this.manager = new IndexManager(client, config.enable_index_mutations);
         this.clientMetadata = this.manager.clientMetadata;
-
+        this.isOpensearch = this.clientMetadata.distribution === OPENSEARCH;
         if (this.config.bulk_max_size != null) {
             this._bulkMaxSize = this.config.bulk_max_size;
         }
@@ -880,7 +882,7 @@ export class IndexStore<T extends ts.AnyObject> {
             _ingestTime: this._getIngestTime(result._source as any),
             _eventTime: this._getEventTime(result._source as any),
             _index: result._index,
-            _type: result._type,
+            _type: this.isOpensearch ? undefined : result._type,
             _version: result._version,
             _seq_no: result._seq_no,
             _primary_term: result._primary_term
