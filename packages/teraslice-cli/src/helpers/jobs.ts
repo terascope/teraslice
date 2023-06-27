@@ -6,6 +6,7 @@ import {
     Job,
     ExecutionStatus,
     JobConfiguration,
+    SlicerAnalytics
 } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
@@ -199,22 +200,26 @@ export default class Jobs {
 
         await pMap(
             this.jobs,
-            (job) => this._start(job),
+            (job) => this._startJob(job),
             { concurrency: 1 }
         );
 
-        // confirm all jobs started
-        // if watch option verify job has successfullyy started
+        if (this.config.args.watch > 0) {
+            for (const job of this.config.args.jobs) {
+                await this.watchJob(job);
+            }
+        }
     }
 
-    async _start(job: JobMetadata): Promise<void> {
+    async _startJob(job: JobMetadata): Promise<void> {
         const { name } = job.config;
         const { id, status } = job;
-
         const alias = this.config.args.clusterAlias;
 
+        let newStatus = status;
+
         if (this.terminalStatuses.includes(status)) {
-            reply.warning(`> attempting to start ${name}: ${id} on ${alias}`);
+            reply.warning(`attempting to start ${name}: ${id} on ${alias}`);
 
             try {
                 await job.api.start();
@@ -227,25 +232,63 @@ export default class Jobs {
                 ExecutionStatus.running
             );
 
-            job.status = statusUpdate.newStatus!;
+            newStatus = statusUpdate.newStatus! as ExecutionStatus;
+
+            job.status = newStatus;
 
             if (statusUpdate.error === true) {
                 throw new Error(statusUpdate.errorMessage?.message);
-                return;
             }
 
-            if (statusUpdate.newStatus === ExecutionStatus.running) {
-                reply.green(`> job: ${name}, id: ${id} is running on ${alias}`);
-            } else {
-                reply.fatal(`> Could not start job ${name}, id: ${id} on ${alias}, current job status is ${statusUpdate.newStatus}`);
+            if (newStatus === ExecutionStatus.running) {
+                reply.green(`job: ${name}, id: ${id} is running on ${alias}`);
+                return;
             }
+        }
+
+        if (status === ExecutionStatus.running) {
+            reply.green(`job: ${name}, id: ${id} is already running on ${alias}`);
+            return;
+        }
+
+        reply.fatal(`Could not start job ${name}, id: ${id} on ${alias}, current job status is ${newStatus}`);
+    }
+
+    private async watchJob(job: JobMetadata) {
+        let checkAgain = true;
+        const requestedWorkers = job.config.workers;
+
+        const startCheck = new Date().getTime();
+
+        await pDelay(3_000);
+
+        while (checkAgain) {
+            const [slicerStats] = await job.api.controller();
+
+            console.log('stats', slicerStats);
+
+            if (
+                this.checkWorkers(slicerStats as unknown as SlicerAnalytics, requestedWorkers)
+                && slicerStats.failed === 0
+            ) {
+                return true;
+            }
+
+            if (slicerStats.failed > 0) return false;
+
+            if (startCheck - new Date().getTime() > this.config.args.watch) {
+                return false;
+            }
+
+            // wait 10 seconds and try again
+            await pDelay(10_000);
         }
     }
 
     async stop(): Promise<void> {
         await pMap(
             this.jobs,
-            (job) => this._stop(job),
+            (job) => this._stopJob(job),
             { concurrency: 4 }
         );
 
@@ -260,30 +303,30 @@ export default class Jobs {
             });
 
             reply.fatal(`Jobs: ${msg.join('and')} were not stopped`);
-            process.exit(1);
         }
 
         reply.green('All jobs stopped');
     }
 
-    async _stop(job: JobMetadata): Promise<void> {
+    async _stopJob(job: JobMetadata): Promise<void> {
         const { name } = job.config;
         const { id, status } = job;
         const alias = this.config.args.clusterAlias;
 
         if (job.status === 'stopped') {
-            reply.warning(`> job: ${name}, job id: ${id}, is already stopped on cluster: ${alias}`);
+            reply.warning(`job: ${name}, job id: ${id}, is already stopped on cluster: ${alias}`);
             return;
         }
 
         if (this.terminalStatuses.includes(status)) {
-            reply.warning(`> job: ${name}, job id: ${id}, is not running. Current status is ${job.status} on cluster: ${alias}`);
+            reply.warning(`job: ${name}, job id: ${id}, is not running. Current status is ${job.status} on cluster: ${alias}`);
             return;
         }
 
-        reply.warning(`> attempting to stop job: ${name}, job id: ${id}, on cluster ${alias}`);
+        reply.warning(`attempting to stop job: ${name}, job id: ${id}, on cluster ${alias}`);
 
-        job.api.stop();
+        job.api.stop()
+            .catch((e) => new Error(e));
 
         const statusUpdate = await this.waitStatusChange(job, ExecutionStatus.stopped);
 
@@ -291,11 +334,10 @@ export default class Jobs {
 
         if (statusUpdate.error === true) {
             throw new Error(statusUpdate.errorMessage?.message);
-            return;
         }
 
         if (statusUpdate.newStatus === ExecutionStatus.stopped) {
-            reply.green(`> job: ${name}, id: ${id} is stopped on ${alias}`);
+            reply.green(`job: ${name}, id: ${id} is stopped on ${alias}`);
         } else {
             reply.fatal(`Could not stop job ${name}, id: ${id} on ${alias}, current job status is ${statusUpdate.newStatus}`);
         }
@@ -325,88 +367,13 @@ export default class Jobs {
         }
     }
 
-    async checkWorkerCount(
-        expectedJobs: any[], actualJobs: any[], addedWorkers = false
-    ) {
-        // let allWorkersStartedCount = 0;
-        // let allWorkers = false;
-        // let expectedWorkers = 0;
-        // let activeWorkers = 0;
-        // for (const job of actualJobs) {
-        //     for (const expectedJob of expectedJobs) {
-        //         if (expectedJob.job_id === job.job_id) {
-        //             if (addedWorkers) {
-        //                 if (expectedJob.slicer?.workers_active != null) {
-        //                     expectedWorkers = job.slicer.workers_active;
-        //                 } else {
-        //                     reply.fatal('no expected workers');
-        //                 }
-        //             } else {
-        //                 expectedWorkers = expectedJob.workers;
-        //             }
-        //             if (job.slicer?.workers_active != null) {
-        //                 activeWorkers = job.slicer.workers_active;
-        //             }
-        //             if (expectedWorkers === activeWorkers) {
-        //                 allWorkersStartedCount += 1;
-        //             }
-        //         }
-        //     }
-        // }
-        // if (allWorkersStartedCount === expectedJobs.length) {
-        //     allWorkers = true;
-        // }
-        // return allWorkers;
+    checkWorkers(slicerStats: SlicerAnalytics, requestedWorkers: number): boolean {
+        const workers = slicerStats.workers_active + slicerStats.workers_available;
+
+        const workerDiff = Math.abs(workers - requestedWorkers);
+
+        return workerDiff < Math.round(requestedWorkers / 10) + 1;
     }
-
-    async controllerStatus(
-        result: any[], jobStatus: string, controllerList: any[]
-    ) {
-        // const jobs: any[] = [];
-        // for (const item of result) {
-        //     // TODO, use args instead of hardcoding
-        //     if (jobStatus === 'running' || jobStatus === 'failing') {
-        //         set(item, 'slicer', controllerList.find((slicer: any) => slicer.job_id === `${item.job_id}`));
-        //     } else {
-        //         item.slicer = 0;
-        //     }
-        //     jobs.push(item);
-        // }
-        // return jobs;
-    }
-
-    // async checkJobsStop(statusList: any[]): Promise<void> {
-    //     // returns jobs running or failing
-    //     const activeJobs = await this.statusCheck(statusList);
-
-    //     // ensures jobs that are supposed to be stopped are active
-    //     for (const job of this.jobsList) {
-    //         for (const cjob of activeJobs) {
-    //             if (job.job_id === cjob.job_id) {
-    //                 reply.info(`job: ${job.job_id} ${statusList}`);
-    //                 this.jobsListChecked.push(job);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // async checkJobsStart(statusList: any[]): Promise<void> {
-    //     const activeJobs = await this.statusCheck(statusList);
-
-    //     for (const job of this.jobsList) {
-    //         let found = false;
-    //         for (const cjob of activeJobs) {
-    //             if (job.job_id === cjob.job_id) {
-    //                 reply.info(`job: ${job.job_id} ${statusList}`);
-    //                 found = true;
-    //             }
-    //         }
-    //         if (!found) {
-    //             this.jobsListChecked.push(job);
-    //         }
-    //     }
-    // }
-    // }
 
     private async waitStatusChange(
         job: JobMetadata,
@@ -419,6 +386,7 @@ export default class Jobs {
 
         try {
             const newStatus = await job.api.waitForStatus(action, interval, timeout);
+
             statusUpdate.newStatus = newStatus;
         } catch (e: unknown) {
             reply.warning(e);
@@ -430,22 +398,30 @@ export default class Jobs {
         return statusUpdate;
     }
 
-    async getJobMetadata() {
-        if (this.config.args.jobId.includes('all')) {
-            console.log('here');
-            await display.showPrompt(
-                this.config.args._action,
-                `all jobs on ${this.config.args.clusterAlias}`
-            );
-
-            this.config.args.jobId = await this.getActiveJobIds();
-        }
+    private async getJobMetadata() {
+        const jobIds = await this.getJobIds();
 
         await pMap(
-            this.config.args.jobId as string[],
+            jobIds as string[],
             (jobId) => this.addJobs(jobId),
             { concurrency: 5 }
         );
+
+        if (this.jobs.length === 0) this.noJobsWithStatus();
+    }
+
+    private async getJobIds(): Promise<string[]> {
+        if (this.config.args.jobId.includes('all')) {
+            if (this.config.args.yes || await display.showPrompt(
+                this.config.args._action,
+                `all jobs on ${this.config.args.clusterAlias}`
+            )) return this.getActiveJobIds();
+
+            reply.warning('bye!');
+            process.exit(0);
+        }
+
+        return this.config.args.jobId;
     }
 
     private async getActiveJobIds(): Promise<string[]> {
@@ -472,8 +448,6 @@ export default class Jobs {
 
             this.jobs.push(jobMetadata as JobMetadata);
         }
-
-        if (this.jobs.length === 0) this.noJobsWithStatus();
     }
 
     statusCheck(statusList: ExecutionStatus[], status: ExecutionStatus): boolean {
@@ -489,13 +463,10 @@ export default class Jobs {
         const targetedStatus = `${this.config.args.status.join(' or ')}`;
 
         if (this.config.args.jobId.includes('all')) {
-            reply.warning(`No jobs on ${cluster} with status ${targetedStatus}`);
-        } else {
-            reply.warning(`Jobs: ${this.config.args.jobId.join(', ')} on ${cluster} do not have status ${targetedStatus}`);
+            reply.fatal(`No jobs on ${cluster} with status ${targetedStatus}`);
         }
 
-        reply.warning('exiting');
-        process.exit();
+        reply.fatal(`Jobs: ${this.config.args.jobId.join(', ')} on ${cluster} do not have status ${targetedStatus}`);
     }
 
     async getClusterControllers() {

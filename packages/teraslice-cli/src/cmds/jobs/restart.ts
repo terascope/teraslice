@@ -16,6 +16,7 @@ export = {
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
+        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
             .example('$0 jobs restart cluster1 JOB_ID')
             .example('$0 jobs restart cluster1 JOB_ID1 JOB_ID2')

@@ -322,7 +322,7 @@ export interface ChangeWorkerResponse {
     Slicer/Controller Response
 */
 
-export interface SlicerStats extends SliceAccumulationStats {
+export interface SlicerStats extends SlicerAnalytics {
     ex_id: string;
     job_id: string;
 }
