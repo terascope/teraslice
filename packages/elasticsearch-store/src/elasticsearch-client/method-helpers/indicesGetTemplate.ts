@@ -11,12 +11,38 @@ export function convertIndicesGetTemplateParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if ([6, 7, 8].includes(majorVersion)) return params;
+        if (majorVersion === 8) {
+            const {
+                include_type_name,
+                ...parsedParams
+            } = params;
+
+            return {
+                ...parsedParams
+            };
+        }
+
+        if ([6, 7].includes(majorVersion)) {
+            return params;
+        }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
         if (majorVersion === 1) {
             return params;
+        }
+
+        if (majorVersion === 2) {
+            const {
+                master_timeout,
+                include_type_name,
+                ...parsedParams
+            } = params;
+
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

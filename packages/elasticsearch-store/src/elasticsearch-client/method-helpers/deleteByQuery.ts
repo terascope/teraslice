@@ -36,7 +36,7 @@ export function convertDeleteByQueryParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             return {
                 body,
                 ...parsedParams

@@ -29,18 +29,16 @@ export function convertIndicesPutSettingsParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams
             } = params;
 
-            // they are renaming their parameters
-            if (master_timeout) {
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

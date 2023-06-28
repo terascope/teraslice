@@ -33,6 +33,15 @@ export function convertBulkParams(
         if (majorVersion === 1) {
             return params;
         }
+
+        if (majorVersion === 2) {
+            const {
+                type,
+                ...parsedParams
+            } = params;
+
+            return parsedParams;
+        }
     }
 
     throw new Error(`Unsupported ${distribution} version ${version}`);

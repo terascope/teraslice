@@ -12,7 +12,7 @@ export function convertIndicesPutMappingParams(
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
         const {
-            include_type_name,
+            include_type_name = true,
             type = '_doc',
             ...parsedParams
         } = params;
@@ -24,13 +24,14 @@ export function convertIndicesPutMappingParams(
         if (majorVersion === 6) {
             return {
                 type,
+                include_type_name,
                 ...parsedParams
             };
         }
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 include_type_name,
                 type,
@@ -38,12 +39,10 @@ export function convertIndicesPutMappingParams(
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

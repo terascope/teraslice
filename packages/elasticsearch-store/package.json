@@ -1,7 +1,7 @@
 {
     "name": "elasticsearch-store",
     "displayName": "Elasticsearch Store",
-    "version": "0.66.1",
+    "version": "0.67.0",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -24,23 +24,25 @@
         "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
         "test:debug": "ts-scripts test --debug . --",
         "test:legacy": "LEGACY_CLIENT=true yarn run test",
-        "test:opensearch": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch1": "TEST_OPENSEARCH='true' yarn run test",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' yarn run test",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@opensearch-project/opensearch": "^1.1.0",
-        "@terascope/data-mate": "^0.41.1",
-        "@terascope/data-types": "^0.36.6",
+        "@terascope/data-mate": "^0.42.0",
+        "@terascope/data-types": "^0.37.0",
         "@terascope/types": "^0.11.2",
-        "@terascope/utils": "^0.45.6",
+        "@terascope/utils": "^0.46.0",
         "ajv": "^6.12.6",
         "elasticsearch": "^15.4.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",
+        "opensearch1": "npm:@opensearch-project/opensearch@^1.2.0",
+        "opensearch2": "npm:@opensearch-project/opensearch@^2.2.1",
         "setimmediate": "^1.0.5",
         "uuid": "^9.0.0",
-        "xlucene-translator": "^0.29.1"
+        "xlucene-translator": "^0.30.0"
     },
     "devDependencies": {
         "@types/uuid": "^8.3.4"

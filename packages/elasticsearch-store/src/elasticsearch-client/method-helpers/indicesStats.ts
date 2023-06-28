@@ -24,7 +24,14 @@ export function convertIndicesStatsParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) return params;
+        if (majorVersion === 1 || majorVersion === 2) {
+            const {
+                types,
+                ...parsedParams
+            } = params;
+
+            return parsedParams;
+        }
     }
 
     throw new Error(`unsupported ${distribution} version: ${version}`);

@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, Omit, TSError,
-    debugLogger, get
+    times, pDelay, DataEntity, Omit,
+    TSError, debugLogger, get
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
 import { ElasticsearchDistribution } from '@terascope/types';
@@ -13,7 +13,24 @@ import {
     UpsertWithScript, ElasticsearchTestHelpers
 } from '../src';
 
-const { makeClient, cleanupIndexStore, TEST_INDEX_PREFIX } = ElasticsearchTestHelpers;
+const {
+    makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,
+    removeTypeTest
+} = ElasticsearchTestHelpers;
+
+function expectedStoreType(store: IndexStore<any>): undefined | string {
+    if (removeTypeTest) {
+        return undefined;
+    }
+
+    if (store.clientMetadata.majorVersion === 6) {
+        return store.config.name;
+    } if (store.clientMetadata.majorVersion === 7) {
+        return '_doc';
+    }
+
+    return undefined;
+}
 
 describe('IndexStore', () => {
     const logger = debugLogger('index-store-spec');
@@ -267,14 +284,13 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
-                // eslint-disable-next-line max-len
-                const isOpenSearch = indexStore.clientMetadata.distribution === ElasticsearchDistribution.opensearch;
+
                 const metadata = r.getMetadata();
-                // TODO: fix this when tests are switched to use new client
+
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: isOpenSearch || indexStore.clientMetadata.majorVersion >= 7 ? '_doc' : indexStore.config.name,
+                    _type: expectedStoreType(indexStore)
                 });
 
                 expect(metadata._processTime).toBeNumber();

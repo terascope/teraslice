@@ -55,6 +55,26 @@ export function convertIndicesCreateParams(
         if (majorVersion === 1) {
             return params;
         }
+
+        if (majorVersion === 2) {
+            const {
+                include_type_name,
+                master_timeout,
+                body,
+                ...parsedParams
+            } = params;
+
+            const newBody = {
+                ...body,
+                mappings: ensureNoTypeInMapping(body?.mappings),
+            };
+
+            return {
+                ...parsedParams,
+                body: newBody,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
+        }
     }
 
     throw new Error(`unsupported ${distribution} version: ${version}`);

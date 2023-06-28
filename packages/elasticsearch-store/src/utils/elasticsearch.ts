@@ -153,6 +153,25 @@ export function isElasticsearch8(client: Client): boolean {
     return distribution === ElasticsearchDistribution.elasticsearch && parsedVersion === 8;
 }
 
+export function isOpensearch(client: Client): boolean {
+    const { distribution } = getClientMetadata(client);
+    return distribution === ElasticsearchDistribution.opensearch;
+}
+
+export function isOpensearch1(client: Client): boolean {
+    const { distribution, version: esVersion } = getClientMetadata(client);
+    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+
+    return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 1;
+}
+
+export function isOpensearch2(client: Client): boolean {
+    const { distribution, version: esVersion } = getClientMetadata(client);
+    const parsedVersion = ts.toNumber(esVersion.split('.', 1)[0]);
+
+    return distribution === ElasticsearchDistribution.opensearch && parsedVersion === 2;
+}
+
 // TODO: move this logic over to datatype
 export function fixMappingRequest(
     client: Client, _params: Record<string, any>, isTemplate: boolean
@@ -187,7 +206,7 @@ export function fixMappingRequest(
         }
     }
 
-    if (isElasticsearch8(client)) {
+    if (isElasticsearch8(client) || isOpensearch(client)) {
         delete defaultParams.include_type_name;
     }
 

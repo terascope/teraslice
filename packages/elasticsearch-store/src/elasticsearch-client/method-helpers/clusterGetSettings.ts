@@ -16,8 +16,9 @@ export function convertClusterSettingsParams(
         }
     }
 
+    // No major changes between the two as provided below
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             return params;
         }
     }

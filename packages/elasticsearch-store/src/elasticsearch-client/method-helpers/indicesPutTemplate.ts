@@ -52,6 +52,19 @@ export function convertIndicesPutTemplateParams(
         if (majorVersion === 1) {
             return params;
         }
+
+        if (majorVersion === 2) {
+            const {
+                include_type_name,
+                master_timeout,
+                ...parsedParams
+            } = params;
+
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
+        }
     }
 
     throw new Error(`unsupported ${distribution} version: ${version}`);

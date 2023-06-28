@@ -19,10 +19,13 @@ function validDistributionAndVersion(
     majorVersion: number
 ): boolean {
     const supportedEsVersions = [6, 7, 8];
+    const supportedOpenVersions = [1, 2];
 
     return (distribution === ElasticsearchDistribution.elasticsearch
         && supportedEsVersions.includes(majorVersion))
-        || (distribution === ElasticsearchDistribution.opensearch && majorVersion === 1);
+        || (distribution === ElasticsearchDistribution.opensearch
+         && supportedOpenVersions.includes(majorVersion)
+        );
 }
 
 export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined) {
