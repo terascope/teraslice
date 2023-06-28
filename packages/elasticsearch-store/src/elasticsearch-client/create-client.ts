@@ -11,7 +11,7 @@ import { Client } from './client';
 import { logWrapper } from './log-wrapper';
 import { ClientConfig } from './interfaces';
 
-const clientList = [opensearch1, elasticsearch7, elasticsearch6, elasticsearch8];
+const clientList = [opensearch1, opensearch2, elasticsearch7, elasticsearch6, elasticsearch8];
 
 export async function createClient(
     config: ClientConfig,
