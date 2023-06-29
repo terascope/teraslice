@@ -7,10 +7,10 @@ import reply from '../../helpers/reply';
 const yargsOptions = new YargsOptions();
 
 export = {
-    // TODO: is it [id] or <id>
-    command: 'stop <cluster-alias> [id]',
+    command: 'stop <cluster-alias> <job-id...>',
     describe: 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
@@ -25,6 +25,8 @@ export = {
     async handler(argv: any) {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
 
         try {
             await jobs.stop();

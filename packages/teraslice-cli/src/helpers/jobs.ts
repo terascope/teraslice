@@ -204,9 +204,9 @@ export default class Jobs {
             { concurrency: 1 }
         );
 
-        if (this.config.args.watch > 0) {
-            for (const job of this.config.args.jobs) {
-                await this.watchJob(job);
+        if (this.config.args.watch != null) {
+            for (const job of this.jobs) {
+                await this.watchJob(job, this.config.args.watch || 50);
             }
         }
     }
@@ -254,35 +254,52 @@ export default class Jobs {
         reply.fatal(`Could not start job ${name}, id: ${id} on ${alias}, current job status is ${newStatus}`);
     }
 
-    private async watchJob(job: JobMetadata) {
-        let checkAgain = true;
-        const requestedWorkers = job.config.workers;
+    private async watchJob(job: JobMetadata, slices: number) {
+        const { name } = job.config;
+        const { id } = job;
+        const alias = this.config.args.clusterAlias;
 
         const startCheck = new Date().getTime();
+        let slicesCompleted = 0;
+        let runTime = 0;
+        const maxRunTime = 300_000; // 5 minute max wait time to watch job
 
+        // allow job to initialize before checking
         await pDelay(3_000);
 
-        while (checkAgain) {
-            const [slicerStats] = await job.api.controller();
+        let [jobStats] = await job.api.controller();
 
-            console.log('stats', slicerStats);
+        while (slices > slicesCompleted && runTime < maxRunTime) {
+            ([jobStats] = await job.api.controller());
 
-            if (
-                this.checkWorkers(slicerStats as unknown as SlicerAnalytics, requestedWorkers)
-                && slicerStats.failed === 0
-            ) {
-                return true;
-            }
 
-            if (slicerStats.failed > 0) return false;
-
-            if (startCheck - new Date().getTime() > this.config.args.watch) {
-                return false;
-            }
+            slicesCompleted = jobStats.processed;
+            runTime = startCheck - new Date().getTime();
 
             // wait 10 seconds and try again
             await pDelay(10_000);
         }
+
+        if (jobStats == null) {
+            reply.fatal(`Could not get controller information for job ${name}, id: ${id} on cluster ${alias}`);
+        }
+
+        reply.green(`Completed watch for ${name}, id: ${id}, on cluster ${alias} after ${jobStats.processed} slices`);
+
+        if (jobStats.failed > 0) {
+            reply.fatal(`Job ${name} had ${jobStats.failed} failed slices`);
+        }
+
+        const requestedWorkers = job.config.workers;
+        const currentWorkers = jobStats.workers_active + jobStats.workers_available;
+
+        // should this fail? or try to add workers?
+        if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
+            reply.fatal(`Job ${name} only has ${currentWorkers} workers, expecting ${requestedWorkers}`);
+            return;
+        }
+
+        reply.green(`Job: ${name} successfully completed ${jobStats.processed} slices with no failures using ${currentWorkers} workers`);
     }
 
     async stop(): Promise<void> {
@@ -367,12 +384,10 @@ export default class Jobs {
         }
     }
 
-    checkWorkers(slicerStats: SlicerAnalytics, requestedWorkers: number): boolean {
-        const workers = slicerStats.workers_active + slicerStats.workers_available;
-
-        const workerDiff = Math.abs(workers - requestedWorkers);
-
-        return workerDiff < Math.round(requestedWorkers / 10) + 1;
+    private correctNumberWorkers(currentWorkers: number, requestedWorkers: number): boolean {
+        // difference between current workers and requested
+        // should be less than 10% of requested workers + 1
+        return Math.abs(currentWorkers - requestedWorkers) < Math.round(requestedWorkers / 10) + 1;
     }
 
     private async waitStatusChange(

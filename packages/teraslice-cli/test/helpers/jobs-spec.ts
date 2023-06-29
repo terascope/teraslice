@@ -460,5 +460,158 @@ describe('Job helper class', () => {
 
             await expect(job.start()).rejects.toThrow('Job cannot reach the target status, "running", because it is in the terminal state, "failed"');
         });
+
+        it('should check workers and slice failures if watch flag is provided', async () => {
+            const [jobId] = makeJobIds(1);
+            const jobController = clusterControllers([jobId]);
+            const jobConfig = testJobConfig(jobId);
+
+            jobConfig.workers = 10;
+            jobController[0].workers_active = 3;
+            jobController[0].workers_available = 7;
+            jobController[0].processed = 100;
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, jobConfig)
+                .post(`/v1/jobs/${jobId}/_start`)
+                .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve({ _status: 'running' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController));
+
+            const config = buildCLIConfig(action, {
+                'job-id': [jobId],
+                jobId: [jobId],
+                watch: 50
+            });
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await job.start();
+
+            expect(job.jobs[0].status).toBe('running');
+        });
+
+        it('should pass job even if worker count is not exact but close enough', async () => {
+            const [jobId] = makeJobIds(1);
+            const jobController = clusterControllers([jobId]);
+            const jobConfig = testJobConfig(jobId);
+
+            jobConfig.workers = 45;
+            jobController[0].workers_active = 38;
+            jobController[0].workers_available = 9;
+            jobController[0].processed = 100;
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, jobConfig)
+                .post(`/v1/jobs/${jobId}/_start`)
+                .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve({ _status: 'running' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController));
+
+            const config = buildCLIConfig(action, {
+                'job-id': [jobId],
+                jobId: [jobId],
+                watch: 50
+            });
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await job.start();
+
+            expect(job.jobs[0].status).toBe('running');
+        });
+
+        it('should throw an error if less then requested workers', async () => {
+            const [jobId] = makeJobIds(1);
+            const jobController = clusterControllers([jobId]);
+            const jobConfig = testJobConfig(jobId);
+
+            jobConfig.workers = 10;
+            jobController[0].workers_active = 3;
+            jobController[0].workers_available = 0;
+            jobController[0].processed = 100;
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, jobConfig)
+                .post(`/v1/jobs/${jobId}/_start`)
+                .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve({ _status: 'running' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController));
+
+            const config = buildCLIConfig(action, {
+                'job-id': [jobId],
+                jobId: [jobId],
+                watch: 50
+            });
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await expect(job.start()).rejects.toThrow('Job test-job only has 3 workers, expecting 10');
+        });
+
+        it('should throw an error if failed slices', async () => {
+            const [jobId] = makeJobIds(1);
+            const jobController = clusterControllers([jobId]);
+            const jobConfig = testJobConfig(jobId);
+
+            jobConfig.workers = 10;
+            jobController[0].workers_active = 3;
+            jobController[0].workers_available = 7;
+            jobController[0].processed = 100;
+            jobController[0].failed = 100;
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, jobConfig)
+                .post(`/v1/jobs/${jobId}/_start`)
+                .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve({ _status: 'running' }))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController));
+
+            const config = buildCLIConfig(action, {
+                'job-id': [jobId],
+                jobId: [jobId],
+                watch: 50
+            });
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await expect(job.start()).rejects.toThrow('Job test-job had 100 failed slices');
+        });
     });
 });

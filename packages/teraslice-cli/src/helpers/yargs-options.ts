@@ -197,6 +197,16 @@ export default class Options {
             describe: 'sort method for job errors',
             default: '_updated:desc'
         }),
+        'jobs-all': () => ({
+            alias: 'a',
+            describe: 'stop all running/failing jobs',
+            default: false
+        }),
+        'jobs-watch': () => ({
+            alias: 'watch',
+            describe: 'watches job for n number of slices, ensures correct number of workers and no failed slices.',
+            type: 'number'
+        }),
         yes: () => ({
             alias: 'y',
             describe: 'Answer \'Yes\' or \'Y\' to all prompts',
