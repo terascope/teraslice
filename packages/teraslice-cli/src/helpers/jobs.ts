@@ -144,42 +144,42 @@ export default class Jobs {
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
-        // let controllers = [];
+        let controllers = [];
 
-        // const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-        // const active = false;
-        // const parse = false;
+        const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+        const active = false;
+        const parse = false;
 
-        // this.jobsList = [];
+        this.jobsList = [];
 
-        // const format = `${this.config.args.output}Horizontal`;
+        const format = `${this.config.args.output}Horizontal`;
 
-        // try {
-        //     controllers = await this.teraslice.client.cluster.controllers();
-        // } catch (e) {
-        //     controllers = await this.teraslice.client.cluster.slicers();
-        // }
+        try {
+            controllers = await this.teraslice.client.cluster.controllers();
+        } catch (e) {
+            controllers = await this.teraslice.client.cluster.slicers();
+        }
 
-        // const statusList = this.config.args.status.split(',');
+        const statusList = this.config.args.status.split(',');
 
-        // for (const jobStatus of statusList) {
-        //     const exResult = await this.teraslice.client.executions.list(jobStatus);
-        //     const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
-        //     jobsTemp.forEach((job) => {
-        //         this.jobsList.push(job);
-        //     });
-        // }
+        for (const jobStatus of statusList) {
+            const exResult = await this.teraslice.client.executions.list(jobStatus);
+            const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
+            jobsTemp.forEach((job) => {
+                this.jobsList.push(job);
+            });
+        }
 
-        // if (this.jobsList.length > 0) {
-        //     if (showJobs) {
-        //         const rows = await display.parseResponse(header, this.jobsList, active);
-        //         await display.display(header, rows, format, active, parse);
-        //     }
-        //     if (saveState) {
-        //         reply.green(`\n> saved state to ${this.config.jobStateFile}`);
-        //         await fs.writeJson(this.config.jobStateFile, this.jobsList, { spaces: 4 });
-        //     }
-        // }
+        if (this.jobsList.length > 0) {
+            if (showJobs) {
+                const rows = await display.parseResponse(header, this.jobsList, active);
+                await display.display(header, rows, format, active, parse);
+            }
+            if (saveState) {
+                reply.green(`\n> saved state to ${this.config.jobStateFile}`);
+                await fs.writeJson(this.config.jobStateFile, this.jobsList, { spaces: 4 });
+            }
+        }
     }
 
     async start(): Promise<void> {
@@ -204,9 +204,11 @@ export default class Jobs {
             { concurrency: 1 }
         );
 
-        if (this.config.args.watch != null) {
+        if ('watch' in this.config.args) {
+            const slices = this.config.args.watch ?? 50;
+
             for (const job of this.jobs) {
-                await this.watchJob(job, this.config.args.watch || 50);
+                await this.watchJob(job, slices);
             }
         }
     }
@@ -259,47 +261,58 @@ export default class Jobs {
         const { id } = job;
         const alias = this.config.args.clusterAlias;
 
+        const jobInfo = `${name}, id: ${id}, on cluster ${alias}`;
+
+        reply.green(`Watching ${jobInfo} for ${slices} slices`);
+
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
-        let runTime = 0;
-        const maxRunTime = 300_000; // 5 minute max wait time to watch job
+        let failedSlices = 0;
+        let watchTime = 0;
+        let currentWorkers = 0;
+
+        const maxWatchTime = 300_000; // 5 minute max wait time to watch job
 
         // allow job to initialize before checking
         await pDelay(3_000);
 
-        let [jobStats] = await job.api.controller();
+        while (slices > slicesCompleted && watchTime < maxWatchTime) {
+            const [jobStats] = await job.api.controller();
+            console.log(jobStats);
 
-        while (slices > slicesCompleted && runTime < maxRunTime) {
-            ([jobStats] = await job.api.controller());
-
+            if (jobStats == null) {
+                reply.fatal(`Could not get controller information for job ${name}, id: ${id} on cluster ${alias}`);
+            }
 
             slicesCompleted = jobStats.processed;
-            runTime = startCheck - new Date().getTime();
+            failedSlices = jobStats.failed;
+            currentWorkers = jobStats.workers_active + jobStats.workers_available;
+
+            watchTime = startCheck - new Date().getTime();
 
             // wait 10 seconds and try again
             await pDelay(10_000);
         }
 
-        if (jobStats == null) {
-            reply.fatal(`Could not get controller information for job ${name}, id: ${id} on cluster ${alias}`);
-        }
+        reply.green(`Completed watch for ${jobInfo}`);
 
-        reply.green(`Completed watch for ${name}, id: ${id}, on cluster ${alias} after ${jobStats.processed} slices`);
-
-        if (jobStats.failed > 0) {
-            reply.fatal(`Job ${name} had ${jobStats.failed} failed slices`);
+        if (failedSlices > 0) {
+            reply.fatal(`${jobInfo} had ${failedSlices} failed slices and completed ${slicesCompleted} slices`);
         }
 
         const requestedWorkers = job.config.workers;
-        const currentWorkers = jobStats.workers_active + jobStats.workers_available;
 
         // should this fail? or try to add workers?
         if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
-            reply.fatal(`Job ${name} only has ${currentWorkers} workers, expecting ${requestedWorkers}`);
+            reply.fatal(`${jobInfo} only has ${currentWorkers} workers, expecting ${requestedWorkers}`);
             return;
         }
 
-        reply.green(`Job: ${name} successfully completed ${jobStats.processed} slices with no failures using ${currentWorkers} workers`);
+        if (watchTime > maxWatchTime) {
+            reply.fatal(`Watch for ${jobInfo} timed out after 5 minutes.  Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers`);
+        }
+
+        reply.green(`Job: ${name} successfully completed ${slicesCompleted} slices with ${currentWorkers} workers`);
     }
 
     async stop(): Promise<void> {
@@ -414,6 +427,7 @@ export default class Jobs {
     }
 
     private async getJobMetadata() {
+        console.log('args', this.config.args);
         const jobIds = await this.getJobIds();
 
         await pMap(
