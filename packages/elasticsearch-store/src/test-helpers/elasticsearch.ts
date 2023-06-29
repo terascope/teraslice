@@ -119,7 +119,11 @@ export async function populateIndex(
         client, dataType, type, overrides
     );
 
-    await client.indices.create(mapping);
+    await client.indices.create({
+        index,
+        waitForActiveShards: 'all',
+        ...mapping
+    });
 
     const body = formatUploadData(index, records);
 
