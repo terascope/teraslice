@@ -7,9 +7,10 @@ import { CMD } from '../../interfaces';
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'await <cluster-alias> <id>',
+    command: 'await <cluster-alias>  <job-id...>',
     describe: 'cli waits until job reaches a specified status or timeout expires',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
@@ -24,11 +25,10 @@ const cmd: CMD = {
 
         const jobs = new Jobs(cliConfig);
 
-        reply.info(`> job: ${jobs.config.args.id} waiting for status ${jobs.config.args.status.join(' or ')}`);
+        await jobs.initialize();
 
         try {
-            const newStatus = await jobs.awaitStatus();
-            reply.info(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
+            await jobs.awaitStatus();
         } catch (e) {
             reply.fatal(e.message);
         }

@@ -7,7 +7,6 @@ import reply from '../../helpers/reply';
 const yargsOptions = new YargsOptions();
 
 export = {
-    // TODO: is it [id] or <id>
     command: 'restart <cluster-alias> <job-id...>',
     describe: 'Restart job id on the specified cluster.\n',
     builder(yargs: any) {

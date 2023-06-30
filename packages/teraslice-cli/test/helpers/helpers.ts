@@ -7,6 +7,55 @@ export function makeJobIds(n: number): string[] {
     return [...new Array(n)].map(() => uuidV4());
 }
 
+export function getJobExecution(jobId: string) {
+    return {
+        active: true,
+        analytics: true,
+        performance_metrics: false,
+        assets: [
+            '35c4b4a3ae68c422d8fd98f1228cd461d2087c1c',
+            '4bb1c4e6fa29c74de2a97b5b9d0f20a7ce6745b2'
+        ],
+        autorecover: false,
+        lifecycle: 'persistent',
+        max_retries: 3,
+        name: 'test-job',
+        operations: [
+            {
+                _op: 'read_data',
+                start: '2020-01-01',
+                format: 'isoBetween',
+                size: 100000
+            },
+            {
+                _op: 'noop'
+            }
+        ],
+        apis: [],
+        probation_window: 300000,
+        slicers: 1,
+        workers: 2,
+        stateful: false,
+        labels: null,
+        env_vars: {},
+        ephemeral_storage: false,
+        pod_spec_override: {},
+        volumes: [],
+        _created: new Date().toISOString(),
+        job_id: jobId,
+        _context: 'ex',
+        _updated: new Date().toISOString(),
+        ex_id: jobId,
+        metadata: {},
+        _status: 'running',
+        _has_errors: false,
+        _slicer_stats: {},
+        _failureReason: '',
+        slicer_port: 45680,
+        slicer_hostname: '10.33.194.86'
+    };
+}
+
 export function clusterControllers(jobIds: string[]): ControllerState {
     return jobIds.map((id) => {
         const slicerStats = {

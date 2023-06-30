@@ -1,33 +1,29 @@
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import TerasliceUtil from '../../helpers/teraslice-util';
+import Jobs from '../../helpers/jobs';
 
 const yargsOptions = new YargsOptions();
 
 export = {
     // TODO: is it [id] or <id>
-    command: 'view <cluster-alias> <id>',
+    command: 'view <cluster-alias> <job-id...>',
     describe: 'View the job definition',
     builder(yargs: any) {
+        yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
             .example('$0 jobs view cluster1 99999999-9999-9999-9999-999999999999');
         return yargs;
     },
     async handler(argv: any) {
-        let response;
         const cliConfig = new Config(argv);
-        const teraslice = new TerasliceUtil(cliConfig);
 
-        try {
-            response = await teraslice.client.jobs.wrap(cliConfig.args.id).config();
-        } catch (err) {
-            reply.fatal(`> job_id:${cliConfig.args.id} not found on ${cliConfig.args.clusterAlias}`);
-        }
+        const jobs = new Jobs(cliConfig);
 
-        // eslint-disable-next-line no-console
-        console.log(JSON.stringify(response, null, 4));
+        await jobs.initialize();
+
+        await jobs.view();
     }
 } as CMD;

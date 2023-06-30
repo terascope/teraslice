@@ -1,0 +1,68 @@
+{
+  "jobId": {
+    "controller": [
+      {
+        "ex_id": "773f76d2-d682-49fa-9dbd-85c3d2ef5d03-ex-id",
+        "job_id": "773f76d2-d682-49fa-9dbd-85c3d2ef5d03",
+        "processed": 22,
+        "failed": 0,
+        "queued": 43,
+        "job_duration": 10000,
+        "name": "test-job",
+        "workers_joined": 5,
+        "workers_disconnected": 0,
+        "workers_reconnected": 0,
+        "workers_available": 0,
+        "workers_active": 2,
+        "slicers": 1,
+        "queuing_complete": ""
+      }
+    ],
+    "execution": {
+      "active": true,
+      "analytics": true,
+      "performance_metrics": false,
+      "assets": [
+        "35c4b4a3ae68c422d8fd98f1228cd461d2087c1c",
+        "4bb1c4e6fa29c74de2a97b5b9d0f20a7ce6745b2"
+      ],
+      "autorecover": false,
+      "lifecycle": "persistent",
+      "max_retries": 3,
+      "name": "test-job",
+      "operations": [
+        {
+          "_op": "read_data",
+          "start": "2020-01-01",
+          "format": "isoBetween",
+          "size": 100000
+        },
+        {
+          "_op": "noop"
+        }
+      ],
+      "apis": [],
+      "probation_window": 300000,
+      "slicers": 1,
+      "workers": 2,
+      "stateful": false,
+      "labels": null,
+      "env_vars": {},
+      "ephemeral_storage": false,
+      "pod_spec_override": {},
+      "volumes": [],
+      "_created": "2023-06-29T23:17:13.875Z",
+      "job_id": "773f76d2-d682-49fa-9dbd-85c3d2ef5d03",
+      "_context": "ex",
+      "_updated": "2023-06-29T23:17:13.875Z",
+      "ex_id": "773f76d2-d682-49fa-9dbd-85c3d2ef5d03",
+      "metadata": {},
+      "_status": "running",
+      "_has_errors": false,
+      "_slicer_stats": {},
+      "_failureReason": "",
+      "slicer_port": 45680,
+      "slicer_hostname": "10.33.194.86"
+    }
+  }
+}

@@ -7,10 +7,10 @@ import reply from '../../helpers/reply';
 const yargsOptions = new YargsOptions();
 
 export = {
-    // TODO: is it [id] or <id>
-    command: 'save <cluster-alias>',
-    describe: 'Saves all running job on the specified cluster to a json file.\n',
+    command: 'save <cluster-alias> <job-id...>',
+    describe: 'Saves specified or all jobs on the specified cluster to a json file.\n',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
@@ -23,6 +23,7 @@ export = {
         const jobs = new Jobs(cliConfig);
 
         try {
+            await jobs.initialize();
             await jobs.save();
         } catch (e) {
             reply.fatal(e);

@@ -14,7 +14,7 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
-        yargs.options('all', yargsOptions.buildOption('jobs-all'));
+        yargs.options('save', yargsOptions.buildOption('jobs-save'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()

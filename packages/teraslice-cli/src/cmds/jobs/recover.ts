@@ -7,9 +7,10 @@ import reply from '../../helpers/reply';
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'recover <cluster-alias> <id>',
+    command: 'recover <cluster-alias> <job-id...>',
     describe: 'Run recovery on cluster for specified job id.\n',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()
@@ -18,7 +19,10 @@ export = {
     },
     async handler(argv: any) {
         const cliConfig = new Config(argv);
+
         const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
 
         try {
             await jobs.recover();

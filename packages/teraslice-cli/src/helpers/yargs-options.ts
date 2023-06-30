@@ -197,10 +197,10 @@ export default class Options {
             describe: 'sort method for job errors',
             default: '_updated:desc'
         }),
-        'jobs-all': () => ({
-            alias: 'a',
-            describe: 'stop all running/failing jobs',
-            default: false
+        'jobs-save': () => ({
+            describe: 'saves controller and execution state a job or jobs locally after running command or uses a saved state file and applies commands to saved jobs',
+            default: false,
+            type: 'boolean'
         }),
         'jobs-watch': () => ({
             alias: 'watch',

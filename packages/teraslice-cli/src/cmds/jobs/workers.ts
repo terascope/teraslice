@@ -7,13 +7,14 @@ import Jobs from '../../helpers/jobs';
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    // TODO: is it [id] or <id>
-    command: 'workers <cluster-alias> <id> <action> <number>',
+    command: 'workers <cluster-alias> <action> <number> <job-id...>',
     describe: 'Manage workers in job\n',
     builder(yargs: any) {
         yargs.positional('action', yargsOptions.buildPositional('worker-action'));
         yargs.positional('number', yargsOptions.buildPositional('worker-number'));
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()
             .example('$0 jobs workers cluster1 99999999-9999-9999-9999-999999999999 add 5')
@@ -22,11 +23,13 @@ const cmd: CMD = {
     },
     async handler(argv: any): Promise <void> {
         const cliConfig = new Config(argv);
+
         const jobs = new Jobs(cliConfig);
 
+        await jobs.initialize();
+
         try {
-            const response = await jobs.workers();
-            reply.info(`> job: ${jobs.config.args.id}, ${response}`);
+            await jobs.workers();
         } catch (e) {
             reply.fatal(e);
         }

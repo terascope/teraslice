@@ -1,11 +1,14 @@
 /* eslint-disable jest/no-focused-tests */
 import nock from 'nock';
+import path from 'path';
+import fs from 'fs-extra';
 import Jobs from '../../src/helpers/jobs';
 import {
     makeJobIds,
     testJobConfig,
     buildCLIConfig,
-    clusterControllers
+    clusterControllers,
+    getJobExecution
 } from './helpers';
 
 // args, cli config, teraslice server
@@ -38,7 +41,7 @@ describe('Job helper class', () => {
             expect(jobs[0].config).toEqual(testJobConfig(jobId));
         });
 
-        it('should add multiple job metdata to jobs property', async () => {
+        it('should add multiple job metadata to jobs property', async () => {
             const [job1, job2] = makeJobIds(2);
 
             tsClient
@@ -573,7 +576,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow('Job test-job only has 3 workers, expecting 10');
+            await expect(job.start()).rejects.toThrow(`test-job, id: ${jobId}, on cluster testerTest only has 3 workers, expecting 10`);
         });
 
         it('should throw an error if failed slices', async () => {
@@ -611,7 +614,205 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow('Job test-job had 100 failed slices');
+            await expect(job.start()).rejects.toThrow(`test-job, id: ${jobId}, on cluster testerTest had 100 failed slices and completed 100 slices`);
+        });
+
+        it('should start a job based on locally saved state file', async () => {
+            const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves', 'job_state_files', 'testerTest.json');
+
+            const [jobId] = makeJobIds(1);
+
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            fs.writeJsonSync(
+                localStatePath,
+                { [jobId]: { controller: jobController, execution: jobExecution } },
+                { spaces: 2 }
+            );
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'stopped' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId))
+                .post(`/v1/jobs/${jobId}/_start`)
+                .reply(200, () => Promise.resolve({ _status: 'initializing' }))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve({ _status: 'running' }));
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': ['all'],
+                    jobId: ['all'],
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            expect(job.jobs[0].status).toBe('stopped');
+
+            await job.start();
+
+            expect(job.jobs[0].status).toBe('running');
+        });
+
+        it('should batch jobs by worker count before starting jobs', () => {
+            const jobIds = makeJobIds(5);
+
+            const jobs = jobIds.map((id) => ({ config: testJobConfig(id), id }));
+
+            jobs[0].config.workers = 12;
+            jobs[1].config.workers = 22;
+            jobs[2].config.workers = 10;
+            jobs[3].config.workers = 120;
+            jobs[4].config.workers = 14;
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': ['all'],
+                    jobId: ['all'],
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            job.jobs = jobs as any;
+
+            const batched = job.batchJobsBeforeStart();
+
+            expect(batched[0].length).toBe(3);
+            expect(batched[1].length).toBe(1);
+            expect(batched[2].length).toBe(1);
+        });
+    });
+
+    describe('save', () => {
+        const action = 'save';
+
+        const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves');
+
+        afterAll(async () => {
+            await fs.remove(path.join(localStatePath, 'job_state_files'));
+        });
+
+        it('should save the job state for a single job', async () => {
+            const [jobId] = makeJobIds(1);
+
+            const jobController = clusterControllers([jobId]);
+            const jobExecution = getJobExecution(jobId);
+
+            tsClient
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${jobId}`)
+                .reply(200, testJobConfig(jobId))
+                .get(`/v1/jobs/${jobId}/controller`)
+                .reply(200, () => Promise.resolve(jobController))
+                .get(`/v1/jobs/${jobId}/ex`)
+                .reply(200, () => Promise.resolve(jobExecution));
+
+            const alias = 'save_jobs1';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': [jobId],
+                    jobId: [jobId],
+                    configDir: localStatePath,
+                    d: localStatePath,
+                    clusterAlias: alias
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            await job.save();
+
+            const state = fs.readJsonSync(path.join(localStatePath, 'job_state_files', `${alias}.json`));
+
+            expect(state[jobId].execution.job_id).toBe(jobId);
+            expect(state[jobId].controller.job_id).toBe(jobId);
+        });
+
+        it('should save the job state all running jobs on a cluster', async () => {
+            const jobIds = makeJobIds(3);
+            const jobControllers = clusterControllers(jobIds);
+
+            const [job1, job2, job3] = jobIds;
+            const [jobC1, jobC2, jobC3] = jobControllers;
+
+            const jobEx1 = getJobExecution(job1);
+            const jobEx2 = getJobExecution(job2);
+            const jobEx3 = getJobExecution(job3);
+
+            tsClient
+                .get('/v1/cluster/controllers')
+                .reply(200, () => Promise.resolve(jobControllers))
+                .get(`/v1/jobs/${job1}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job2}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job3}/ex`)
+                .reply(200, { _status: 'running' })
+                .get(`/v1/jobs/${job1}`)
+                .reply(200, testJobConfig(job1))
+                .get(`/v1/jobs/${job2}`)
+                .reply(200, testJobConfig(job2))
+                .get(`/v1/jobs/${job3}`)
+                .reply(200, testJobConfig(job3))
+                .get(`/v1/jobs/${job1}/controller`)
+                .reply(200, () => Promise.resolve([jobC1]))
+                .get(`/v1/jobs/${job1}/ex`)
+                .reply(200, () => Promise.resolve(jobEx1))
+                .get(`/v1/jobs/${job2}/controller`)
+                .reply(200, () => Promise.resolve([jobC2]))
+                .get(`/v1/jobs/${job2}/ex`)
+                .reply(200, () => Promise.resolve(jobEx2))
+                .get(`/v1/jobs/${job3}/controller`)
+                .reply(200, () => Promise.resolve([jobC3]))
+                .get(`/v1/jobs/${job3}/ex`)
+                .reply(200, () => Promise.resolve(jobEx3));
+
+            const alias = 'save_jobs2';
+
+            const config = buildCLIConfig(
+                action,
+                {
+                    'job-id': ['all'],
+                    jobId: ['all'],
+                    configDir: localStatePath,
+                    d: localStatePath,
+                    clusterAlias: alias,
+                    yes: true,
+                    y: true
+                }
+            );
+
+            const job = new Jobs(config);
+
+            await job.initialize();
+
+            await job.save();
+
+            const state = fs.readJsonSync(path.join(localStatePath, 'job_state_files', `${alias}.json`));
+
+            expect(state[job1].execution.job_id).toBe(job1);
+            expect(state[job1].controller.job_id).toBe(job1);
+            expect(state[job2].execution.job_id).toBe(job2);
+            expect(state[job2].controller.job_id).toBe(job2);
+            expect(state[job3].execution.job_id).toBe(job3);
+            expect(state[job3].controller.job_id).toBe(job3);
         });
     });
 });
