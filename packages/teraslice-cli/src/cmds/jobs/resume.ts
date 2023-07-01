@@ -8,7 +8,7 @@ const yargsOptions = new YargsOptions();
 
 export = {
     command: 'resume <cluster-alias> <job-id...>',
-    describe: 'Resume job(s) on cluster.\n',
+    describe: 'Resume job(s) on cluster.  They must be in the paused state\n',
     builder(yargs: any) {
         yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
@@ -18,9 +18,9 @@ export = {
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
-            .example('$0 jobs resume cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 jobs resume cluster1 99999999-9999-9999-9999-999999999999 --yes')
-            .example('$0 jobs resume cluster1 --all');
+            .example('$0 jobs resume CLUSTER_ALIAS JOB_ID1', 'resumes job on the cluster')
+            .example('$0 jobs resume CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'resumes two jobs on the cluster')
+            .example('$0 jobs resume CLUSTER_ALIAS all', 'resumes all jobs on the cluster');
         return yargs;
     },
     async handler(argv: any) {

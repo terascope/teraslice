@@ -17,10 +17,10 @@ export = {
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
-            .example('$0 jobs restart cluster1 JOB_ID')
-            .example('$0 jobs restart cluster1 JOB_ID1 JOB_ID2')
-            .example('$0 jobs restart cluster1 JOB_ID --yes')
-            .example('$0 jobs restart cluster1 all');
+            .example('$0 jobs restart CLUSTER_ALIAS JOB_ID', 'restarts job on the cluster')
+            .example('$0 jobs restart CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'restarts two jobs on the cluster')
+            .example('$0 jobs restart CLUSTER_ALIAS JOB_ID all --status failing', 'restarts all failing jobs on the cluster')
+            .example('$0 jobs restart CLUSTER_ALIAS all', 'restarts all jobs on the cluster');
         return yargs;
     },
     async handler(argv: any) {

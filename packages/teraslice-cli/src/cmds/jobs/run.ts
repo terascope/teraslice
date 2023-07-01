@@ -18,9 +18,9 @@ export = {
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
-            .example('$0 jobs run cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 jobs run cluster1 99999999-9999-9999-9999-999999999999 --yes')
-            .example('$0 jobs run cluster1 --all');
+            .example('$0 jobs run CLUSTER_ALIAS JOB_ID', 'starts job on cluster')
+            .example('$0 jobs run CLUSTER_ALIAS JOB_ID1 JOB_ID2 JOB_ID3', 'starts multiple jobs on a cluster')
+            .example('$0 jobs run CLUSTER_ALIAS all', 'starts all jobs on a cluster from the state file');
         return yargs;
     },
     async handler(argv: any) {

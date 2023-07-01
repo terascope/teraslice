@@ -210,7 +210,6 @@ export default class Options {
         yes: () => ({
             alias: 'y',
             describe: 'Answer \'Yes\' or \'Y\' to all prompts',
-            default: false
         }),
         quiet: () => ({
             alias: 'q',

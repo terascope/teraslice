@@ -78,6 +78,10 @@ export default class Jobs {
 
     async view(): Promise<void> {
         for (const job of this.jobs) {
+            const { jobInfoString } = this.getJobIdentifiers(job);
+
+            reply.green(`${jobInfoString} config:\n`);
+
             // eslint-disable-next-line no-console
             console.log(JSON.stringify(job.config, null, 4));
         }
@@ -85,6 +89,13 @@ export default class Jobs {
 
     async workers(): Promise<void> {
         for (const job of this.jobs) {
+            const { jobInfoString, status } = this.getJobIdentifiers(job);
+
+            if (this.terminalStatuses.includes(status)) {
+                reply.warning(`Cannot adjust workers for ${jobInfoString} because job status is ${status}`);
+                return;
+            }
+
             const response = await job.api.changeWorkers(
                 this.config.args.action,
                 this.config.args.number
@@ -92,13 +103,18 @@ export default class Jobs {
 
             const msg = typeof response === 'string' ? response : response.message;
 
-            reply.info(`> job: ${job.id}, ${msg}`);
+            reply.info(`${jobInfoString}, ${msg}`);
         }
     }
 
     async recover(): Promise<void> {
         for (const job of this.jobs) {
-            const { jobInfoString } = this.getJobIdentifiers(job);
+            const { jobInfoString, status } = this.getJobIdentifiers(job);
+
+            if (status !== ExecutionStatus.failed) {
+                reply.warning(`${jobInfoString} status is ${status}, no need to recover`);
+                continue;
+            }
 
             try {
                 const response = await job.api.recover();
@@ -530,30 +546,6 @@ export default class Jobs {
         }
     }
 
-    // TODO: fixme
-    async addWorkers(expectedJobs: any[], actualJobs: any[]): Promise<void> {
-        for (const job of actualJobs) {
-            for (const expectedJob of expectedJobs) {
-                let addWorkersOnce = true;
-
-                if (expectedJob.job_id === job.job_id) {
-                    if (addWorkersOnce) {
-                        let workers2add = 0;
-                        if (has(expectedJob, 'slicer.workers_active')) {
-                            workers2add = expectedJob.slicer.workers_active - expectedJob.workers;
-                        }
-                        if (workers2add > 0) {
-                            reply.info(`> Adding ${workers2add} worker(s) to ${job.job_id}`);
-                            await this.teraslice.client.jobs.wrap(job.job_id).changeWorkers('add', workers2add);
-                            await pDelay(50);
-                        }
-                        addWorkersOnce = false;
-                    }
-                }
-            }
-        }
-    }
-
     private correctNumberWorkers(currentWorkers: number, requestedWorkers: number): boolean {
         // difference between current workers and requested
         // should be less than 10% of requested workers + 1
@@ -687,7 +679,7 @@ export default class Jobs {
             id,
             status,
             alias,
-            jobInfoString: `${name}, id: ${id}, on cluster ${alias}`
+            jobInfoString: `job: ${name}, id: ${id}`
         };
     }
 

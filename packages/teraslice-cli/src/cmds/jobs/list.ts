@@ -16,7 +16,7 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()
-            .example('$0 jobs list cluster1');
+            .example('$0 jobs list CLUSTER_ALIAS');
         return yargs;
     },
     async handler(argv: any) {

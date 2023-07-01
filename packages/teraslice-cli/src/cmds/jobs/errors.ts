@@ -16,10 +16,10 @@ export = {
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --from=500')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --size=10')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc');
+            .example('$0 job errors CLUSTER_ALIAS JOB_ID1')
+            .example('$0 job errors CLUSTER_ALIAS JOB_ID1 --from=500')
+            .example('$0 job errors CLUSTER_ALIAS JOB_ID1 --size=10')
+            .example('$0 job errors CLUSTER_ALIAS JOB_ID1 --sort=slicer_order:asc');
         return yargs;
     },
     async handler(argv: any) {

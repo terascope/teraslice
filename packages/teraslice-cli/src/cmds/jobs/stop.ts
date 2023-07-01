@@ -8,7 +8,7 @@ const yargsOptions = new YargsOptions();
 
 export = {
     command: 'stop <cluster-alias> <job-id...>',
-    describe: 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n',
+    describe: 'stops job(s) on the cluster, option to save running job(s) to a json file.\n',
     builder(yargs: any) {
         yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
@@ -17,9 +17,10 @@ export = {
         yargs.options('save', yargsOptions.buildOption('jobs-save'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
-            .example('$0 jobs stop cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 jobs stop cluster1 99999999-9999-9999-9999-999999999999 --yes')
-            .example('$0 jobs stop cluster1 --all');
+            .example('$0 jobs stop CLUSTER_ALIAS JOB_ID1', 'stops job on the cluster')
+            .example('$0 jobs stop CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'stops two jobs on the cluster')
+            .example('$0 jobs stop CLUSTER_ALIAS all --yes', 'stops all the jobs on the cluster bypasses the prompt to continue')
+            .example('$0 jobs stop CLUSTER_ALIAS all', 'stops all jobs on the cluster and saves jobs locally to a json file in the .teraslice dir');
         return yargs;
     },
     async handler(argv: any) {
