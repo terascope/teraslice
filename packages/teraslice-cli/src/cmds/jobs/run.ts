@@ -20,6 +20,7 @@ export = {
         yargs.strict()
             .example('$0 jobs run CLUSTER_ALIAS JOB_ID', 'starts job on cluster')
             .example('$0 jobs run CLUSTER_ALIAS JOB_ID1 JOB_ID2 JOB_ID3', 'starts multiple jobs on a cluster')
+            .example('$0 jobs run CLUSTER_ALIAS JOB_ID1 --watch 100', 'starts job on cluster and watches for 100 slices')
             .example('$0 jobs run CLUSTER_ALIAS all', 'starts all jobs on a cluster from the state file');
         return yargs;
     },
