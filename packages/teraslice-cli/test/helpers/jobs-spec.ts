@@ -255,7 +255,7 @@ describe('Job helper class', () => {
             expect(jobs[0].status).toBe('stopped');
         });
 
-        it('should throw error if job is already in terminal status and cannot be stopped', async () => {
+        it('should not throw error if job is already in terminal status', async () => {
             const [jobId] = makeJobIds(1);
 
             tsClient
@@ -272,7 +272,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('failed');
 
-            await expect(job.stop()).rejects.toThrow();
+            await expect(job.stop()).resolves.toBeUndefined();
         });
 
         it('should throw error if error on stop command', async () => {
@@ -576,7 +576,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`test-job, id: ${jobId}, on cluster testerTest only has 3 workers, expecting 10`);
+            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} only has 3 workers, expecting 10`);
         });
 
         it('should throw an error if failed slices', async () => {
@@ -614,7 +614,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`test-job, id: ${jobId}, on cluster testerTest had 100 failed slices and completed 100 slices`);
+            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} had 100 failed slices and completed 100 slices`);
         });
 
         it('should start a job based on locally saved state file', async () => {

@@ -3,30 +3,20 @@ import {
     has, toString, pDelay, pMap
 } from '@terascope/utils';
 import {
-    Job,
     ExecutionStatus,
-    JobConfiguration,
-    ControllerState,
-    Execution
+    Execution,
+    ControllerState
 } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
 import reply from '../helpers/reply';
 
+import {
+    JobMetadata,
+    StatusUpdate
+} from '../interfaces';
+
 const display = new Display();
-
-interface JobMetadata {
-    id: string;
-    api: Job;
-    config: JobConfiguration;
-    status: ExecutionStatus;
-}
-
-interface StatusUpdate {
-    newStatus?: ExecutionStatus,
-    error: boolean,
-    errorMessage?: Error
-}
 
 export default class Jobs {
     /**
@@ -42,6 +32,7 @@ export default class Jobs {
     activeStatus: string[];
     jobsListChecked: string[];
     terminalStatuses: ExecutionStatus[];
+    concurrency: number; // this should probably come from a config file?
 
     constructor(cliConfig: Record<string, any>) {
         this.config = cliConfig;
@@ -51,6 +42,7 @@ export default class Jobs {
         this.allJobsStopped = false;
         this.activeStatus = ['running', 'failing'];
         this.jobsListChecked = [];
+        this.concurrency = 4;
         this.terminalStatuses = [
             ExecutionStatus.stopped,
             ExecutionStatus.completed,
@@ -197,7 +189,7 @@ export default class Jobs {
         await pMap(
             this.jobs,
             (job) => this.addJobState(job, state),
-            { concurrency: 5 }
+            { concurrency: this.concurrency }
         );
 
         await fs.writeJson(this.config.jobStateFile, state, { spaces: 4 });
@@ -255,7 +247,7 @@ export default class Jobs {
             await pMap(
                 this.jobs,
                 (job) => this.watchJob(job, slices),
-                { concurrency: 4 }
+                { concurrency: this.concurrency }
             );
         }
     }
@@ -433,7 +425,7 @@ export default class Jobs {
         await pMap(
             this.jobs,
             (job) => this._pause(job),
-            { concurrency: 4 }
+            { concurrency: this.concurrency }
         );
 
         this.allPausedOrStoppedCheck(ExecutionStatus.paused);
@@ -456,7 +448,7 @@ export default class Jobs {
         await pMap(
             this.jobs,
             (job) => this._stop(job),
-            { concurrency: 4 }
+            { concurrency: this.concurrency }
         );
 
         this.allPausedOrStoppedCheck(ExecutionStatus.stopped);
@@ -494,7 +486,7 @@ export default class Jobs {
         reply.warning(`Attempting to stop ${jobInfoString}`);
 
         job.api.stop()
-            .catch((e) => new Error(e));
+            .catch((e) => reply.fatal(e));
 
         await this.postStoppedOrPausedCheck(job, ExecutionStatus.stopped);
     }
@@ -581,7 +573,7 @@ export default class Jobs {
         await pMap(
             jobIds as string[],
             (jobId) => this.addJobs(jobId),
-            { concurrency: 5 }
+            { concurrency: this.concurrency }
         );
 
         if (this.jobs.length === 0) this.noJobsWithStatus();
