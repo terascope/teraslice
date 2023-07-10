@@ -971,6 +971,11 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return distribution === ElasticsearchDistribution.elasticsearch && majorVersion === 8;
     }
 
+    function isOpensearch2() {
+        const { distribution, majorVersion } = getClientMetadata();
+        return distribution === ElasticsearchDistribution.opensearch && majorVersion === 2;
+    }
+
     function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
@@ -1000,7 +1005,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             }
         }
 
-        if (isElasticsearch8(client)) {
+        if (isElasticsearch8(client) || isOpensearch2(client)) {
             delete defaultParams.includeTypeName;
         }
 
