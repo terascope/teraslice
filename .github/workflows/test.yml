@@ -252,6 +252,14 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test
-        run: yarn --silent test
+      - name: Test Elasticsearch 6
+        run: yarn --silent test:elasticsearch6
+        working-directory: ./e2e
+
+      - name: Test Elasticsearch 7
+        run: yarn --silent test:elasticsearch7
+        working-directory: ./e2e
+
+      - name: Test Opensearch v2
+        run: yarn --silent test:opensearch2
         working-directory: ./e2e

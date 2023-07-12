@@ -70,6 +70,7 @@
             "suites": {
                 "e2e": [
                     "elasticsearch",
+                    "opensearch",
                     "kafka"
                 ],
                 "elasticsearch": [

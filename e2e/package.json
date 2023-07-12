@@ -24,7 +24,10 @@
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn --silent",
-        "test": "ts-scripts test --suite e2e --",
+        "test": "yarn run test:elasticsearch:6",
+        "test:elasticsearch6": "ts-scripts test --suite e2e --",
+        "test:elasticsearch7": "ELASTICSEARCH_VERSION='7.9.3 ts-scripts test --suite e2e --",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test --suite e2e --",
         "test:debug": "ts-scripts test --suite e2e --debug --",
         "test:watch": "ts-scripts test --suite e2e --watch --"
     },

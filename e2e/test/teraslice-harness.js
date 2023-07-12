@@ -10,7 +10,7 @@ const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
 const fse = require('fs-extra');
 const {
-    ELASTICSEARCH_HOST, HOST_IP, SPEC_INDEX_PREFIX,
+    TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX
 } = require('./config');
@@ -23,7 +23,7 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
 module.exports = class TerasliceHarness {
     async init() {
-        const { client } = await createClient({ node: ELASTICSEARCH_HOST });
+        const { client } = await createClient({ node: TEST_HOST });
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:45678`,
