@@ -28,9 +28,9 @@
     ],
     "scripts": {
         "start": "node service.js",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
+        "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
+        "test:watch": "TEST_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "resolutions": {
         "debug": "^4.3.4",

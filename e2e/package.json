@@ -24,9 +24,9 @@
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn --silent",
-        "test": "ts-scripts test --suite e2e --",
-        "test:debug": "ts-scripts test --suite e2e --debug --",
-        "test:watch": "ts-scripts test --suite e2e --watch --"
+        "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
+        "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
+        "test:watch": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --watch --"
     },
     "resolutions": {
         "ms": "^2.1.3"

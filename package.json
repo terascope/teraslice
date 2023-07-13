@@ -68,24 +68,10 @@
         "target": "es2019",
         "tests": {
             "suites": {
-                "e2e": [
-                    "elasticsearch",
-                    "kafka"
-                ],
-                "elasticsearch": [
-                    "elasticsearch"
-                ],
-                "search": [
-                    "elasticsearch",
-                    "opensearch"
-                ],
-                "restrained": [
-                    "restrained_elasticsearch",
-                    "restrained_opensearch"
-                ],
-                "kafka": [
-                    "kafka"
-                ],
+                "e2e": [],
+                "elasticsearch": [],
+                "search": [],
+                "restrained": [],
                 "unit": []
             }
         },

@@ -5,7 +5,10 @@ import defaultsDeep from 'lodash/defaultsDeep';
 import { isPlainObject, get, toTitleCase } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces';
-import { NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE } from './config';
+import {
+    NPM_DEFAULT_REGISTRY, DEV_TAG, DEV_DOCKER_IMAGE,
+    ENV_SERVICES
+} from './config';
 import signale from './signale';
 
 let rootDir: string | undefined;
@@ -87,6 +90,11 @@ export function getAvailableTestSuites(): string[] {
 
 export function getServicesForSuite(suite: string): Service[] {
     const services = getRootInfo().terascope.tests.suites[suite] || [];
+
+    if (ENV_SERVICES.length) {
+        services.push(...ENV_SERVICES);
+    }
+
     const invalidServices = services.filter((name) => !Object.values(Service).includes(name));
     if (invalidServices.length) {
         const actual = invalidServices.join(', ');

@@ -2,6 +2,7 @@ import { address } from 'ip';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
+import { Service } from './interfaces.js';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -112,3 +113,24 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+const {
+    TEST_OPENSEARCH = undefined,
+    TEST_ELASTICSEARCH = undefined,
+    TEST_KAFKA = undefined,
+    TEST_MINIO = undefined,
+    TEST_RESTRAINED_OPENSEARCH = undefined,
+    TEST_RESTRAINED_ELASTICSEARCH = undefined,
+    TEST_RABBITMQ = undefined
+} = process.env;
+
+export const ENV_SERVICES = [
+    toBoolean(TEST_OPENSEARCH) ? Service.Opensearch : undefined,
+    toBoolean(TEST_ELASTICSEARCH) ? Service.Elasticsearch : undefined,
+    toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
+    toBoolean(TEST_MINIO) ? Service.Minio : undefined,
+    toBoolean(TEST_RESTRAINED_OPENSEARCH) ? Service.RestrainedOpensearch : undefined,
+    toBoolean(TEST_RESTRAINED_ELASTICSEARCH) ? Service.RestrainedElasticsearch : undefined,
+    toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+]
+    .filter(Boolean);

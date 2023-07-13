@@ -25,7 +25,7 @@ export async function makeClient(): Promise<Client> {
         host = OPENSEARCH_HOST;
     }
 
-    if (process.env.RESTRAINED_OPENSEARCH) {
+    if (process.env.TEST_RESTRAINED_OPENSEARCH) {
         host = RESTRAINED_OPENSEARCH_HOST;
     }
 
@@ -223,6 +223,19 @@ export function getTestENVClientInfo()
 
         return {
             host: OPENSEARCH_HOST,
+            distribution: ElasticsearchDistribution.opensearch,
+            version,
+            majorVersion,
+            minorVersion
+        };
+    }
+
+    if (process.env.TEST_RESTRAINED_OPENSEARCH != null) {
+        const version = OPENSEARCH_VERSION;
+        const [majorVersion, minorVersion] = parseVersion(version);
+
+        return {
+            host: RESTRAINED_OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,

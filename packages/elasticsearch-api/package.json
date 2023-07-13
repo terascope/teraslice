@@ -13,13 +13,13 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "test": "ts-scripts test . --",
-        "test:7": "ELASTICSEARCH_VERSION='7.9.3' yarn run test",
-        "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:legacy": "LEGACY_CLIENT=true yarn run test:debug",
-        "test:opensearch": "TEST_OPENSEARCH='true' RESTRAINED_OPENSEARCH='true' yarn run test",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test . --",
+        "test:7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' yarn run test",
+        "test:8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' yarn run test",
+        "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --debug . --",
+        "test:legacy": "TEST_RESTRAINED_ELASTICSEARCH='true' LEGACY_CLIENT=true yarn run test:debug",
+        "test:opensearch": "TEST_RESTRAINED_OPENSEARCH='true' RESTRAINED_OPENSEARCH='true' yarn run test",
+        "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/types": "^0.11.2",
