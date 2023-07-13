@@ -1,10 +1,10 @@
 /* eslint-disable import/no-import-module-exports */
+import { CMD } from '../../interfaces';
+import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
-import YargsOptions from '../../helpers/yargs-options';
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import reply from '../../helpers/reply';
+import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+
 
 const yargsOptions = new YargsOptions();
 

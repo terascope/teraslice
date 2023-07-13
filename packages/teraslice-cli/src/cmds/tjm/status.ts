@@ -1,39 +1,33 @@
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
-import reply from '../../helpers/reply';
+import Config from '../../helpers/config';
+import Jobs from '../../helpers/jobs';
+import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'status <job-file>',
+    command: 'status <job-file...>',
     describe: 'View status of a job by referencing the job file',
-    aliases: ['run'],
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         // @ts-expect-error
         yargs.example('$0 tjm status jobFile.json');
         return yargs;
     },
     async handler(argv): Promise <void> {
-        const job = new JobSrc(argv);
-        job.init();
-        const client = getTerasliceClient(job);
+        const cliConfig = new Config(argv);
 
-        try {
-            const response = await client.jobs.wrap(job.id).status();
+        validateJobFileAndAddToCliConfig(cliConfig);
 
-            if (!response) {
-                reply.fatal(`Could not get status for job ${job.name} on ${job.clusterUrl}`);
-            }
+        const jobs = new Jobs(cliConfig);
 
-            reply.green(`${job.name} is ${response} on ${job.clusterUrl}`);
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        await jobs.initialize();
+
+        await jobs.status();
     }
 };
 
