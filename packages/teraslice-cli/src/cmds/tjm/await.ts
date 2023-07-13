@@ -5,11 +5,10 @@ import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
 import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
 
-
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'await <job-file>',
+    command: 'await <job-file...>',
     describe: 'cli waits until the job reaches a specified status or timeout expires',
     builder(yargs: any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
@@ -17,26 +16,22 @@ const cmd: CMD = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.example('$0 tjm await FILE.JSON');
         yargs.example('$0 tjm await FILE.JSON --status completed --timeout 10000');
         yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
         return yargs;
     },
     async handler(argv: any): Promise<void> {
-        const jobFile = new JobSrc(argv);
-        jobFile.init();
+        const cliConfig = new Config(argv);
 
-        const cliConfig = new Config({ ...jobFile, ...argv });
+        validateJobFileAndAddToCliConfig(cliConfig);
+
         const jobs = new Jobs(cliConfig);
 
-        reply.green(`> job: ${jobFile.id} waiting for status ${argv.status.join(' or ')}`);
+        await jobs.initialize();
 
-        try {
-            const status = await jobs.awaitStatus();
-            reply.green(`> job: ${jobFile.id} reached status: ${status}`);
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        await jobs.awaitStatus();
     }
 };
 

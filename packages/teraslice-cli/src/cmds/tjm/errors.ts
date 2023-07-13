@@ -1,39 +1,33 @@
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import { getTerasliceClient } from '../../helpers/utils';
+import Config from '../../helpers/config';
+import Jobs from '../../helpers/jobs';
+import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'errors <job-file>',
+    command: 'errors <job-file...>',
     describe: 'View errors of a job by referencing the job file',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         // @ts-expect-error
         yargs.example('$0 tjm errors jobFile.json');
         return yargs;
     },
     async handler(argv): Promise <void> {
-        const job = new JobSrc(argv);
-        job.init();
-        const client = getTerasliceClient(job);
+        const cliConfig = new Config(argv);
 
-        try {
-            const response = await client.jobs.wrap(job.id).errors();
+        validateJobFileAndAddToCliConfig(cliConfig);
 
-            if (response.length === 0) {
-                reply.green(`No errors for ${job.name} on ${job.clusterUrl}`);
-            } else {
-                reply.yellow(`Errors for ${job.name} on ${job.clusterUrl}:\n`);
-                response.forEach((error: any) => reply.yellow(JSON.stringify(error, null, 4)));
-            }
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
+
+        await jobs.error();
     }
 };
 

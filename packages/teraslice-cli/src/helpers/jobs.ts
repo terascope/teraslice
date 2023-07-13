@@ -5,7 +5,8 @@ import {
 import {
     ExecutionStatus,
     Execution,
-    ControllerState
+    ControllerState,
+    JobConfig
 } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
@@ -54,6 +55,14 @@ export default class Jobs {
 
     get list(): JobMetadata[] {
         return this.jobs;
+    }
+
+    async submitJobConfig(jobConfig: JobConfig) {
+        try {
+            return this.teraslice.client.jobs.submit(jobConfig, true);
+        } catch (e) {
+            reply.fatal(e);
+        }
     }
 
     async status() {

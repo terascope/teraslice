@@ -1,16 +1,13 @@
-import { get } from '@terascope/utils';
 import Config from '../../helpers/config';
-import TjmUtil from '../../helpers/tjm-util';
-import { getTerasliceClient } from '../../helpers/utils';
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import Jobs from '../../helpers/jobs';
+import { registerJobToCluster, validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'register <cluster-alias> <job-file>',
+    command: 'register <cluster-alias> <job-file...>',
     describe: 'Register a job to a cluster from a job file',
     aliases: ['reg'],
     builder(yargs) {
@@ -19,6 +16,8 @@ export = {
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         // @ts-expect-error
         yargs.example('$0 tjm register localhost new-job.json');
         // @ts-expect-error
@@ -29,37 +28,17 @@ export = {
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
-        const job = new JobSrc(argv);
-        const client = getTerasliceClient(cliConfig);
 
-        if (job.hasMetaData) {
-            const regCluster = get(job.content, '__metadata.cli.cluster');
-            reply.fatal(`job has already been registered on ${regCluster}`);
-        }
-        job.readFile();
-        job.validateJob();
-        try {
-            const registeredResponse = await client.jobs
-                .submit(job.content, true);
-
-            const jobId = registeredResponse.id();
-
-            if (registeredResponse) {
-                reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
-            } else {
-                reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
-            }
-
-            job.addMetaData(jobId, cliConfig.clusterUrl);
-            job.overwrite();
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        await registerJobToCluster(cliConfig);
 
         if (argv.start) {
-            job.init();
-            const tjmUtil = new TjmUtil(client, job);
-            tjmUtil.start();
+            validateJobFileAndAddToCliConfig(cliConfig);
+
+            const jobs = new Jobs(cliConfig);
+
+            await jobs.initialize();
+
+            await jobs.start();
         }
     }
 } as CMD;
