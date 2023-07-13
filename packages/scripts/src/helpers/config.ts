@@ -2,7 +2,7 @@ import { address } from 'ip';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
-import { Service } from './interfaces.js';
+import { Service } from './interfaces';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
