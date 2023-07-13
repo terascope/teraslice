@@ -95,9 +95,11 @@ export async function registerJobToCluster(cliConfig: Record<string, any>) {
 
             addMetaData(jobConfig, jobId, cliConfig.clusterUrl);
             saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
-        } else {
-            reply.fatal(`Failed to register ${jobConfig.name} on ${cliConfig.clusterUrl}`);
+
+            return job;
         }
+
+        reply.fatal(`Failed to register ${jobConfig.name} on ${cliConfig.clusterUrl}`);
     }
 }
 

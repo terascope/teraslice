@@ -1,7 +1,6 @@
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
 import { registerJobToCluster, validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
@@ -29,12 +28,10 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        await registerJobToCluster(cliConfig);
+        const jobs = await registerJobToCluster(cliConfig);
 
-        if (argv.start) {
+        if (argv.start && jobs) {
             validateJobFileAndAddToCliConfig(cliConfig);
-
-            const jobs = new Jobs(cliConfig);
 
             await jobs.initialize();
 
