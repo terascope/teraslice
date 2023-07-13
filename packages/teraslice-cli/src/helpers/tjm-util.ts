@@ -1,5 +1,66 @@
+import path from 'path';
+import fs from 'fs-extra';
+import { has, set } from '@terascope/utils';
 import { TerasliceClient } from 'teraslice-client-js';
+import Config from './config';
+import { JobConfigFile } from '../interfaces';
+
 import reply from '../helpers/reply';
+
+/**
+ * Functions to handle job config files
+*/
+
+export function validateJobFile(filePath: string, fileName: string): JobConfigFile {
+    let jobConfig: any;
+
+    const fullPath = path.join(filePath, fileName);
+
+    try {
+        jobConfig = fs.readJsonSync(fullPath);
+    } catch (e) {
+        if (e.message.includes('no such file or directory')) {
+            reply.fatal(`Cannot find ${fullPath}, check your path and file name and try again`);
+        }
+
+        reply.fatal(e.message);
+    }
+
+    if (!(
+        has(jobConfig, 'name')
+        && has(jobConfig, 'workers')
+        && has(jobConfig, 'lifecycle')
+        && has(jobConfig, 'assets')
+        && has(jobConfig, 'operations')
+        && jobConfig.operations.length >= 2
+    )) {
+        reply.fatal('Job config file is invalid');
+    }
+
+    return jobConfig as JobConfigFile;
+}
+
+export function validateJobFileAndAddToCliConfig(cliConfig: Config) {
+    let tsCluster: string | undefined;
+
+    for (const jobFile of cliConfig.args.jobFile) {
+        const jobConfigFile = validateJobFile(cliConfig.args.srcDir, jobFile);
+
+        if (cliConfig.args.jobId) {
+            cliConfig.args.jobId.push(jobConfigFile.__metadata.cli.job_id);
+        } else {
+            cliConfig.args.jobId = [jobConfigFile.__metadata.cli.job_id];
+        }
+
+        if (tsCluster == null) {
+            tsCluster = jobConfigFile.__metadata.cli.cluster;
+        } else if (tsCluster !== jobConfigFile.__metadata.cli.cluster) {
+            reply.fatal('If starting multiple jobs they must be on the same cluster');
+        }
+    }
+
+    cliConfig.args.clusterUrl = tsCluster;
+}
 
 export default class TjmUtil {
     client: TerasliceClient;

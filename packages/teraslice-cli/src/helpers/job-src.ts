@@ -4,9 +4,9 @@ import { has, set } from '@terascope/utils';
 import reply from '../helpers/reply';
 import { getPackage } from '../../src/helpers/utils';
 
-const { version } = getPackage();
-
-// TODO: relook into this use
+/**
+ * Functions to handle job config files that are stored locally
+ */
 
 export default class JobFile {
     /**
@@ -26,6 +26,8 @@ export default class JobFile {
         } catch (e) {
             reply.fatal('The job file or source directory are missing');
         }
+        const { version } = getPackage();
+
         this.version = version;
     }
 
@@ -44,8 +46,6 @@ export default class JobFile {
     }
 
     validateJob(): void {
-        // TODO: use @teraslice/job-components job-validator to validate job file
-        // this minimum requirement will work for now
         if (!(
             has(this.content, 'name')
             && has(this.content, 'workers')

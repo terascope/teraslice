@@ -104,7 +104,7 @@ export default class Config {
     }
 
     private addJobAction() {
-        if (this.args[''].includes('jobs')) {
+        if (this.args[''].includes('jobs') || this.args[''].includes('tjm')) {
             const [, action] = this.args[''];
 
             if (action != null) this.args._action = action;

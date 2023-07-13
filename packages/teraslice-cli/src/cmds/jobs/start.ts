@@ -26,14 +26,18 @@ export = {
     },
     async handler(argv: any) {
         const cliConfig = new Config(argv);
+
+        console.log(cliConfig);
+        console.log(cliConfig.clusterUrl);
+
         const jobs = new Jobs(cliConfig);
 
-        await jobs.initialize();
+        // await jobs.initialize();
 
-        try {
-            await jobs.start();
-        } catch (e) {
-            reply.fatal(e);
-        }
+        // try {
+        //     await jobs.start();
+        // } catch (e) {
+        //     reply.fatal(e);
+        // }
     }
 } as CMD;

@@ -4,6 +4,7 @@ import {
     ExecutionStatus,
     JobConfiguration,
 } from 'teraslice-client-js';
+import { JobConfig } from '@terascope/job-components';
 
 export type CMD = yargs.CommandModule;
 
@@ -26,4 +27,15 @@ export interface StatusUpdate {
     newStatus?: ExecutionStatus,
     error: boolean,
     errorMessage?: Error
+}
+
+export interface JobConfigFile extends JobConfig {
+    __metadata: {
+        cli: {
+            cluster: string;
+            version: string;
+            job_id: string;
+            updated: string;
+        }
+    }
 }

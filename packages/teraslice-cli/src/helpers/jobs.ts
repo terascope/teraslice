@@ -664,14 +664,14 @@ export default class Jobs {
     private getJobIdentifiers(job: JobMetadata) {
         const { name } = job.config;
         const { id, status } = job;
-        const alias = this.config.args.clusterAlias;
+        const url = this.config.args.clusterUrl;
 
         return {
             name,
             id,
             status,
-            alias,
-            jobInfoString: `job: ${name}, id: ${id}`
+            url,
+            jobInfoString: `job: ${name}, id: ${id} on cluster: ${url}`
         };
     }
 

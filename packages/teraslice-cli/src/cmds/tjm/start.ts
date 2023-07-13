@@ -1,30 +1,35 @@
-import TjmUtil from '../../helpers/tjm-util';
-import JobSrc from '../../helpers/job-src';
+import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
+import Jobs from '../../helpers/jobs';
 import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
 
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'start <job-file>',
+    command: 'start <job-file...>',
     describe: 'Start a job by referencing the job file',
     aliases: ['run'],
-    builder(yargs) {
+    builder(yargs: any) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-expect-error
-        yargs.example('$0 tjm start jobFile.json');
-        // @ts-expect-error
-        yargs.example('$0 tjm run jobFile.json');
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
+        yargs.strict()
+            .example('$0 tjm start jobFile.json');
+
         return yargs;
     },
     async handler(argv) {
-        const job = new JobSrc(argv);
-        job.init();
-        const client = getTerasliceClient(job);
-        const tjmUtil = new TjmUtil(client, job);
-        await tjmUtil.start();
+        const cliConfig = new Config(argv);
+
+        validateJobFileAndAddToCliConfig(cliConfig);
+
+        const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
+
+        await jobs.start();
     }
 } as CMD;
