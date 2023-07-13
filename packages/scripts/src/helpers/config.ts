@@ -133,4 +133,4 @@ export const ENV_SERVICES = [
     toBoolean(TEST_RESTRAINED_ELASTICSEARCH) ? Service.RestrainedElasticsearch : undefined,
     toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
 ]
-    .filter(Boolean);
+    .filter(Boolean) as Service[];
