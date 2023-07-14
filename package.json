@@ -72,7 +72,10 @@
                 "elasticsearch": [],
                 "search": [],
                 "restrained": [],
-                "unit": []
+                "unit": [],
+                "_for_testing_": [
+                    "elasticsearch"
+                ]
             }
         },
         "docker": {
