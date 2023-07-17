@@ -5,9 +5,9 @@ import {
 import {
     ExecutionStatus,
     Execution,
-    ControllerState,
-    JobConfig
+    ControllerState
 } from 'teraslice-client-js';
+import { JobConfig } from '@terascope/job-components';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
 import reply from '../helpers/reply';

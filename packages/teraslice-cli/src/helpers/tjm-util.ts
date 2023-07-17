@@ -71,6 +71,39 @@ export function validateJobFileAndAddToCliConfig(cliConfig: Config) {
     cliConfig.args.clusterUrl = tsCluster;
 }
 
+export async function updateJobConfig(cliConfig: Config) {
+    for (const jobFile of cliConfig.args.jobFile) {
+        const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
+
+        validateJobFile(jobConfig);
+
+        const jobId = jobConfig.__metadata.cli.job_id;
+        const tsCluster = jobConfig.__metadata.cli.cluster;
+
+        // remove metadata from the jobConfig before posting to the cluster
+        unset(jobConfig, '__metadata');
+
+        const job = new Jobs(cliConfig);
+
+        try {
+            const update = await job.teraslice.client.cluster.put(`/jobs/${jobId}`, jobConfig);
+
+            if (get(update, 'job_id') !== jobId) {
+                reply.fatal(`Could not be updated job ${jobId} on ${tsCluster}`);
+            }
+
+            addMetaData(jobConfig, jobId, tsCluster);
+            saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
+
+            reply.green(`Updated job ${jobId} config on ${tsCluster}`);
+
+            return job;
+        } catch (e) {
+            reply.fatal(e.message);
+        }
+    }
+}
+
 export async function registerJobToCluster(cliConfig: Record<string, any>) {
     for (const jobFile of cliConfig.args.jobFile) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
@@ -126,6 +159,20 @@ export function convertOldTJMFiles(cliConfig: Record<string, any>) {
 
             reply.green(`${jobFile} converted to be compatible with teraslice-cli`);
         }
+    }
+}
+
+export function resetConfigFile(cliConfig: Record<string, any>) {
+    for (const jobFile of cliConfig.args.jobFile) {
+        const jobConfig = getJobConfigFromFile(
+            cliConfig.args.srcDir,
+            jobFile
+        ) as JobConfigFile;
+
+        validateJobFile(jobConfig);
+        unset(jobConfig, '__metadata');
+        saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
+        reply.green(`Reset ${jobFile}, job is ready to be registered on a cluster`);
     }
 }
 

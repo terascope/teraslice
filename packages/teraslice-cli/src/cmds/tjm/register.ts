@@ -28,14 +28,18 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
 
+        validateJobFileAndAddToCliConfig(cliConfig);
+
         const jobs = await registerJobToCluster(cliConfig);
 
-        if (argv.start && jobs) {
-            validateJobFileAndAddToCliConfig(cliConfig);
-
+        if (jobs) {
             await jobs.initialize();
 
-            await jobs.start();
+            await jobs.view();
+
+            if (argv.start) {
+                await jobs.start();
+            }
         }
     }
 } as CMD;

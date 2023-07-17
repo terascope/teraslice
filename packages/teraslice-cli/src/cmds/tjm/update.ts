@@ -1,61 +1,38 @@
-import { unset, get } from '@terascope/utils';
-import TjmUtil from '../../helpers/tjm-util';
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
+import { updateJobConfig, validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
-import reply from '../../helpers/reply';
 
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'update <job-file>',
+    command: 'update <job-file...>',
     describe: 'Update a job by referencing the job file',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         // @ts-expect-error
         yargs.example('$0 tjm update jobFile.json');
         return yargs;
     },
     async handler(argv): Promise <void> {
-        const job = new JobSrc(argv);
-        job.init();
+        const cliConfig = new Config(argv);
 
-        const client = getTerasliceClient(job);
+        validateJobFileAndAddToCliConfig(cliConfig);
 
-        const jobJson = job.content;
+        const jobs = await updateJobConfig(cliConfig);
 
-        // remove metadata from the jobJson before sending it to the cluster
-        unset(jobJson, '__metadata');
+        if (jobs) {
+            await jobs.initialize();
+            await jobs.view();
 
-        try {
-            const update = await client.cluster.put(`/jobs/${job.id}`, jobJson);
-            if (get(update, 'job_id') !== job.id) {
-                reply.fatal(`Could not be updated job ${job.id} on ${job.clusterUrl}`);
+            if (argv.start) {
+                await jobs.restart();
             }
-        } catch (e) {
-            reply.fatal(e.message);
-        }
-
-        job.addMetaData(job.id, job.clusterUrl);
-        job.overwrite();
-        reply.green(`Updated job ${job.id} config on ${job.clusterUrl}`);
-
-        try {
-            const view = await client.jobs.wrap(job.id).config();
-            reply.yellow(`${job.name} on ${job.clusterUrl}:`);
-            reply.green(JSON.stringify(view, null, 4));
-        } catch (e) {
-            reply.fatal(e.message);
-        }
-
-        if (argv.start) {
-            const tjmUtil = new TjmUtil(client, job);
-            await tjmUtil.stop();
-            await tjmUtil.start();
         }
     }
 };
