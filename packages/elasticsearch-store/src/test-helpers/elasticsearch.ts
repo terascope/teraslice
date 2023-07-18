@@ -145,7 +145,7 @@ export async function populateIndex(
 }
 
 export function formatUploadData(
-    index: string, data: any[]
+    index: string, data: any[], apiCompatibility = false
 ): Record<string, any>[] {
     const results: any[] = [];
 
@@ -159,8 +159,13 @@ export function formatUploadData(
         if (DataEntity.isDataEntity(record) && record.getKey()) {
             meta._id = record.getKey();
         }
-
-        results.push({ index: meta }, record);
+        // This format is used by elasticsearch-api and elasticsearch-assets
+        if (apiCompatibility) {
+            results.push({ action: { index: meta }, data: record });
+        } else {
+            // this is used for raw elasticsearch bulk queries
+            results.push({ index: meta }, record);
+        }
     });
 
     return results;
