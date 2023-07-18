@@ -72,8 +72,6 @@ async function getClientMetadata(
                 } as any;
             }
         } catch (err) {
-            console.log('\n\n err', err.message, '\n\n', config)
-            logger.error(err)
             if (logger.level() === 10) {
                 logger.error(err);
             }
@@ -100,7 +98,7 @@ export async function getBaseClient(
         if (distribution === ElasticsearchDistribution.opensearch) {
             if (majorVersion === 1) {
                 const client = new opensearch1.Client(config as any);
-                client.indices.create
+
                 logger.debug('Creating an opensearch client v1');
 
                 return client;
