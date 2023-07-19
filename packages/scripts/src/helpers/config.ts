@@ -124,13 +124,32 @@ const {
     TEST_RABBITMQ = undefined
 } = process.env;
 
+const testOpensearch = toBoolean(TEST_OPENSEARCH);
+const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
+const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
+const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
+
 export const ENV_SERVICES = [
-    toBoolean(TEST_OPENSEARCH) ? Service.Opensearch : undefined,
-    toBoolean(TEST_ELASTICSEARCH) ? Service.Elasticsearch : undefined,
+    testOpensearch ? Service.Opensearch : undefined,
+    testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
-    toBoolean(TEST_RESTRAINED_OPENSEARCH) ? Service.RestrainedOpensearch : undefined,
-    toBoolean(TEST_RESTRAINED_ELASTICSEARCH) ? Service.RestrainedElasticsearch : undefined,
+    testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
+    testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
     toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
 ]
     .filter(Boolean) as Service[];
+
+let testHost;
+
+if (testElasticsearch) {
+    testHost = ELASTICSEARCH_HOST;
+} else if (testOpensearch) {
+    testHost = OPENSEARCH_HOST;
+} else if (testRestrainedOpensearch) {
+    testHost = RESTRAINED_OPENSEARCH_HOST;
+} else if (testRestrainedElasticsearch) {
+    testHost = RESTRAINED_ELASTICSEARCH_HOST;
+}
+
+export const SEARCH_TEST_HOST = testHost;
