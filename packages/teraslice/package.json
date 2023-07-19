@@ -30,10 +30,10 @@
         "start": "node service.js",
         "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
-        "test:watch": "TEST_ELASTICSEARCH='true' ts-scripts test --watch . --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --"
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --",
+        "test:watch": "TEST_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "resolutions": {
         "debug": "^4.3.4",
