@@ -43,6 +43,51 @@
                 "_slicer_stats": {
                     "type": "object"
                 },
+                "_slicer_stats.workers_available": {
+                    "type": "integer"
+                },
+                "_slicer_stats.workers_active": {
+                    "type": "integer"
+                },
+                "_slicer_stats.workers_joined": {
+                    "type": "integer"
+                },
+                "_slicer_stats.workers_reconnected": {
+                    "type": "integer"
+                },
+                "_slicer_stats.workers_disconnected": {
+                    "type": "integer"
+                },
+                "_slicer_stats.job_duration": {
+                    "type": "integer"
+                },
+                "_slicer_stats.failed": {
+                    "type": "integer"
+                },
+                "_slicer_stats.subslices": {
+                    "type": "integer"
+                },
+                "_slicer_stats.queued": {
+                    "type": "integer"
+                },
+                "_slicer_stats.slice_range_expansion": {
+                    "type": "integer"
+                },
+                "_slicer_stats.processed": {
+                    "type": "integer"
+                },
+                "_slicer_stats.slicers": {
+                    "type": "integer"
+                },
+                "_slicer_stats.subslice_by_key": {
+                    "type": "integer"
+                },
+                "_slicer_stats.started": {
+                    "type": "date"
+                },
+                "_slicer_stats.queuing_complete": {
+                    "type": "date"
+                },
                 "_created": {
                     "type": "date"
                 },

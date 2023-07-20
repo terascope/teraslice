@@ -33,6 +33,7 @@ describe('ExecutionController', () => {
             exController.isExecutionFinished = true;
 
             await testContext.addExStore();
+
             ({ exStore } = testContext.stores);
 
             testContext.attachCleanup(() => exController.shutdown().catch(() => {

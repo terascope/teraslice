@@ -47,8 +47,8 @@ class ExecutionAnalytics {
             processed: 0,
             slicers: 0,
             subslice_by_key: 0,
-            started: '',
-            queuing_complete: ''
+            started: undefined,
+            queuing_complete: undefined
         };
 
         this.pushedAnalytics = {

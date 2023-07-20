@@ -10,35 +10,16 @@ const elasticsearchAPI = require('../index');
 
 const {
     makeClient, cleanupIndex, waitForData,
-    EvenDateData, TEST_INDEX_PREFIX
+    EvenDateData, TEST_INDEX_PREFIX, formatUploadData
 } = ElasticsearchTestHelpers;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
 jest.setTimeout(THREE_MINUTES + 60000);
 
-function formatUploadData(
-    index, data, isES8ClientTest = false
-) {
-    const results = [];
-
-    data.forEach((record) => {
-        const meta = { _index: index };
-
-        if (!isES8ClientTest) {
-            meta._type = '_doc';
-        }
-
-        results.push({ action: { index: meta }, data: record });
-    });
-
-    return results;
-}
-
 describe('bulkSend', () => {
     let client;
     let api;
-    let isElasticsearch8 = false;
 
     beforeAll(async () => {
         client = await makeClient();
@@ -51,7 +32,6 @@ describe('bulkSend', () => {
         beforeAll(async () => {
             await cleanupIndex(client, index);
             api = elasticsearchAPI(client, logger);
-            isElasticsearch8 = api.isElasticsearch8();
         });
 
         afterAll(async () => {
@@ -62,7 +42,7 @@ describe('bulkSend', () => {
             const chunkedData = chunk(EvenDateData.data, 50);
 
             await pMap(chunkedData, async (cData) => {
-                const formattedData = formatUploadData(index, cData, isElasticsearch8);
+                const formattedData = formatUploadData(index, cData, true);
                 return api.bulkSend(formattedData);
             }, { concurrency: 9 });
 

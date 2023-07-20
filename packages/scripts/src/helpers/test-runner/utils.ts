@@ -83,6 +83,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 
@@ -92,6 +93,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 
@@ -132,6 +134,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             OPENSEARCH_HOST: config.OPENSEARCH_HOST,
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
+
         });
     }
 
@@ -145,6 +149,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             RESTRAINED_OPENSEARCH_HOST: config.RESTRAINED_OPENSEARCH_HOST,
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 

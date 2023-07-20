@@ -9,37 +9,18 @@ const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const elasticsearchAPI = require('../index');
 
 const {
-    makeClient, cleanupIndex,
-    EvenDateData, TEST_INDEX_PREFIX,
-    createMappingFromDatatype
+    makeClient, cleanupIndex, EvenDateData,
+    TEST_INDEX_PREFIX, createMappingFromDatatype,
+    formatUploadData
 } = ElasticsearchTestHelpers;
 
 const THREE_MINUTES = 3 * 60 * 1000;
 
 jest.setTimeout(THREE_MINUTES + 60000);
 
-function formatUploadData(
-    index, data, isES8ClientTest = false
-) {
-    const results = [];
-
-    data.forEach((record, i) => {
-        const meta = { _index: index, _id: i + 1 };
-
-        if (!isES8ClientTest) {
-            meta._type = '_doc';
-        }
-
-        results.push({ action: { index: meta }, data: record });
-    });
-
-    return results;
-}
-
 describe('bulkSend', () => {
     let client;
     let api;
-    let isElasticsearch8 = false;
 
     beforeAll(async () => {
         client = await makeClient();
@@ -52,7 +33,6 @@ describe('bulkSend', () => {
         beforeAll(async () => {
             await cleanupIndex(client, index);
             api = elasticsearchAPI(client, logger, { _dead_letter_action: 'kafka_dead_letter' });
-            isElasticsearch8 = api.isElasticsearch8();
 
             const overrides = {
                 settings: {
@@ -79,7 +59,7 @@ describe('bulkSend', () => {
 
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
-            const result = await diffApi.bulkSend(formatUploadData(index, docs, isElasticsearch8));
+            const result = await diffApi.bulkSend(formatUploadData(index, docs, true));
 
             expect(result).toBe(2);
         });
@@ -91,7 +71,7 @@ describe('bulkSend', () => {
 
             docs[0].bytes = 'this is a bad value';
 
-            await expect(diffApi.bulkSend(formatUploadData(index, docs, isElasticsearch8)))
+            await expect(diffApi.bulkSend(formatUploadData(index, docs, true)))
                 .rejects.toThrow();
         });
 
@@ -101,7 +81,7 @@ describe('bulkSend', () => {
 
             docs[0].bytes = 'this is a bad value';
 
-            const result = await api.bulkSend(formatUploadData(index, docs, isElasticsearch8));
+            const result = await api.bulkSend(formatUploadData(index, docs, true));
 
             // 1 good doc  - so only 1 row affected
             expect(result).toBe(1);
@@ -113,7 +93,7 @@ describe('bulkSend', () => {
         it('should return a count if not un-retryable records if dlq is set', async () => {
             const docs = cloneDeep(EvenDateData.data.slice(0, 2));
 
-            const result = await api.bulkSend(formatUploadData(index, docs, isElasticsearch8));
+            const result = await api.bulkSend(formatUploadData(index, docs, true));
 
             expect(result).toBe(2);
         });
