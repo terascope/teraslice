@@ -2,6 +2,7 @@ import { address } from 'ip';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
+import { Service } from './interfaces';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -112,3 +113,43 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+const {
+    TEST_OPENSEARCH = undefined,
+    TEST_ELASTICSEARCH = undefined,
+    TEST_KAFKA = undefined,
+    TEST_MINIO = undefined,
+    TEST_RESTRAINED_OPENSEARCH = undefined,
+    TEST_RESTRAINED_ELASTICSEARCH = undefined,
+    TEST_RABBITMQ = undefined
+} = process.env;
+
+const testOpensearch = toBoolean(TEST_OPENSEARCH);
+const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
+const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
+const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
+
+export const ENV_SERVICES = [
+    testOpensearch ? Service.Opensearch : undefined,
+    testElasticsearch ? Service.Elasticsearch : undefined,
+    toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
+    toBoolean(TEST_MINIO) ? Service.Minio : undefined,
+    testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
+    testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
+    toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+]
+    .filter(Boolean) as Service[];
+
+let testHost;
+
+if (testElasticsearch) {
+    testHost = ELASTICSEARCH_HOST;
+} else if (testOpensearch) {
+    testHost = OPENSEARCH_HOST;
+} else if (testRestrainedOpensearch) {
+    testHost = RESTRAINED_OPENSEARCH_HOST;
+} else if (testRestrainedElasticsearch) {
+    testHost = RESTRAINED_ELASTICSEARCH_HOST;
+}
+
+export const SEARCH_TEST_HOST = testHost;

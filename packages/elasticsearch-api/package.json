@@ -1,7 +1,7 @@
 {
     "name": "@terascope/elasticsearch-api",
     "displayName": "Elasticsearch API",
-    "version": "3.6.1",
+    "version": "3.6.2",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -13,13 +13,13 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "test": "ts-scripts test . --",
-        "test:7": "ELASTICSEARCH_VERSION='7.9.3' yarn run test",
-        "test:8": "ELASTICSEARCH_VERSION='8.1.2' yarn run test",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:legacy": "LEGACY_CLIENT=true yarn run test:debug",
-        "test:opensearch": "TEST_OPENSEARCH='true' RESTRAINED_OPENSEARCH='true' yarn run test",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test . --",
+        "test:7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
+        "test:8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
+        "test:debug": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --debug . --",
+        "test:legacy": "TEST_RESTRAINED_ELASTICSEARCH='true' LEGACY_CLIENT=true ts-scripts test . --",
+        "test:opensearch": "TEST_RESTRAINED_OPENSEARCH='true' ts-scripts test --debug . --",
+        "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/types": "^0.11.2",
@@ -31,7 +31,7 @@
         "@opensearch-project/opensearch": "^1.2.0",
         "@types/elasticsearch": "^5.0.40",
         "elasticsearch": "^15.4.1",
-        "elasticsearch-store": "^0.67.2",
+        "elasticsearch-store": "^0.67.3",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"

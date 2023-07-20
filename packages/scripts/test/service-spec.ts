@@ -23,14 +23,14 @@ describe('services', () => {
 
     describe('pullServices', () => {
         it('should throw error if service image is invalid', async () => {
-            await expect(services.pullServices('e2e', options))
+            await expect(services.pullServices('_for_testing_', options))
                 .rejects.toThrowWithMessage(TSError, /w*Failed to pull services for test suite*\w/);
         });
     });
 
     describe('ensureServices', () => {
         it('should throw if service has an incorrect setting', async () => {
-            await expect(services.ensureServices('e2e', options))
+            await expect(services.ensureServices('_for_testing_', options))
                 .rejects.toThrowWithMessage(TSError, /w*Unable to find image*\w/);
         });
 

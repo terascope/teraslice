@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.86.0",
+    "version": "0.86.1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -68,25 +68,14 @@
         "target": "es2019",
         "tests": {
             "suites": {
-                "e2e": [
-                    "opensearch",
-                    "kafka"
-                ],
-                "elasticsearch": [
+                "e2e": [],
+                "elasticsearch": [],
+                "search": [],
+                "restrained": [],
+                "unit": [],
+                "_for_testing_": [
                     "elasticsearch"
-                ],
-                "search": [
-                    "elasticsearch",
-                    "opensearch"
-                ],
-                "restrained": [
-                    "restrained_elasticsearch",
-                    "restrained_opensearch"
-                ],
-                "kafka": [
-                    "kafka"
-                ],
-                "unit": []
+                ]
             }
         },
         "docker": {
