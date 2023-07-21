@@ -26,6 +26,7 @@
         "setup": "yarn --silent",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch1": "TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
