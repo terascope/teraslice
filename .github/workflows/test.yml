@@ -202,9 +202,12 @@ jobs:
         working-directory: ./packages/elasticsearch-api
 
       - name: Test opensearch
-        run: yarn --silent test:opensearch
+        run: yarn --silent test:opensearch1
         working-directory: ./packages/elasticsearch-api
 
+      - name: Test opensearch 2
+        run: yarn --silent test:opensearch2
+        working-directory: ./packages/elasticsearch-api
 
   # This is for backwards compatability, should be removed in the future
   elasticsearch-api-legacy:
