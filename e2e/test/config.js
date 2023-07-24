@@ -33,8 +33,11 @@ const WORKERS_PER_NODE = 8;
 const {
     KAFKA_BROKER = 'locahost:9092',
     HOST_IP = '127.0.0.1',
-    GENERATE_ONLY
+    GENERATE_ONLY,
+    TEST_OPENSEARCH = false
 } = process.env;
+
+const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
 
 function newId(prefix, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -73,4 +76,5 @@ module.exports = {
     OPENSEARCH_VERSION,
     GENERATE_ONLY,
     newId,
+    TEST_HOST
 };

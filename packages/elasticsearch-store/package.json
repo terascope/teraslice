@@ -21,6 +21,7 @@
         "build:watch": "yarn build --watch",
         "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
         "test:legacy": "TEST_ELASTICSEARCH='true' LEGACY_CLIENT=true ts-scripts test . --",

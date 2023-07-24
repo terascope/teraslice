@@ -7,6 +7,7 @@ const {
     WORKERS_PER_NODE,
     KAFKA_BROKER,
     ELASTICSEARCH_HOST,
+    TEST_HOST,
     ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
     HOST_IP,
@@ -40,7 +41,7 @@ module.exports = async function setupTerasliceConfig() {
                 },
                 'elasticsearch-next': {
                     default: {
-                        node: [ELASTICSEARCH_HOST],
+                        node: [TEST_HOST],
                         requestTimeout: '1 minute',
                         sniffOnStart: false,
                         sniffOnConnectionFault: false,
