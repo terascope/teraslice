@@ -54,6 +54,8 @@ jobs:
   teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
     strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
       matrix:
         node-version: [14.21.3, 16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
@@ -86,6 +88,8 @@ jobs:
   elasticsearch-store-tests:
     runs-on: ubuntu-latest
     strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
       matrix:
         node-version: [14.21.3, 16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
@@ -147,6 +151,8 @@ jobs:
   elasticsearch-api-tests:
     runs-on: ubuntu-latest
     strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
       matrix:
         node-version: [14.21.3, 16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
@@ -209,6 +215,8 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
       matrix:
         node-version: [14.21.3, 16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
