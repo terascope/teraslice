@@ -50,12 +50,12 @@ export default {
                 default: '',
                 format: String
             },
-            s3ForcePathStyle: {
+            forcePathStyle: {
                 doc: '',
                 default: false,
                 format: Boolean
             },
-            s3BucketEndpoint: {
+            bucketEndpoint: {
                 doc: '',
                 default: false,
                 format: Boolean
