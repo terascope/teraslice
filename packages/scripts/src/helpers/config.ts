@@ -34,7 +34,7 @@ export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
 export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.2';
+export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
 
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
