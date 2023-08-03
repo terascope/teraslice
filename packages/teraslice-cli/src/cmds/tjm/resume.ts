@@ -8,16 +8,14 @@ const yargsOptions = new YargsOptions();
 
 export = {
     command: 'resume <job-file...>',
-    describe: 'resume a job by referencing the job file',
+    describe: 'Resume a job by referencing the job file, job must be paused to resume',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
-        // @ts-expect-error
-        yargs.example('$0 tjm start jobFile.json');
-        // @ts-expect-error
-        yargs.example('$0 tjm run jobFile.json');
+        yargs
+            .example('$0 tjm resume JOB_FILE.json', 'resumes a paused job')
+            .example('$0 tjm resume JOB_FILE.json JOB_FILE2.json', 'resumes multiple jobs');
         return yargs;
     },
     async handler(argv) {

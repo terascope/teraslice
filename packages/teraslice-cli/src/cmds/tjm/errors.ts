@@ -14,8 +14,7 @@ const cmd: CMD = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
-        // @ts-expect-error
-        yargs.example('$0 tjm errors jobFile.json');
+        yargs.example('$0 tjm errors JOB_FILE.json', 'Displays errors for the job');
         return yargs;
     },
     async handler(argv): Promise <void> {

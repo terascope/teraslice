@@ -14,10 +14,13 @@ export = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
+        yargs.options('max-workers', yargsOptions.buildOption('max-workers'));
         yargs.strict()
-            .example('$0 tjm start jobFile.json', 'starts teraslice job')
-            .example('$0 tjm start jobFile1 jobFile2 --watch 1000', 'start multiple teraslice jobs');
+            .example('$0 tjm start JOB_FILE.json', 'starts teraslice job')
+            .example('$0 tjm start JOB_FILE.json JOB_FILE.json --watch 1000', 'start multiple teraslice jobs and watch for 1000 successful slices');
 
         return yargs;
     },

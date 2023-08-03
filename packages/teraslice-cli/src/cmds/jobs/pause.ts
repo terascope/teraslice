@@ -19,7 +19,7 @@ export = {
         yargs.strict()
             .example('$0 jobs pause CLUSTER_ALIAS JOB_ID1', 'pauses job on the cluster')
             .example('$0 jobs pause CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'pauses two jobs on the cluster')
-            .example('$0 jobs pause CLUSTER_ALIAS all', 'pauses all jobs on the cluster');
+            .example('$0 jobs pause CLUSTER_ALIAS all --status failed', 'pauses all failed jobs on the cluster');
         return yargs;
     },
     async handler(argv: any) {

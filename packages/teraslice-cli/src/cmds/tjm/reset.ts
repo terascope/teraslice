@@ -13,8 +13,8 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs
-            .example('$0 tjm reset JOBFILE.json', 'removes __metadata from job file and allows it to be re-registered')
-            .example('$0 tjm reset JOBFILE1.json JOBFILE2.json', 'removes __metadata from multiple jobs file');
+            .example('$0 tjm reset JOB_FILE.json', 'removes __metadata from job file and allows it to be re-registered')
+            .example('$0 tjm reset JOB_FILE1.json JOB_FILE2.json', 'removes __metadata from multiple jobs file');
 
         return yargs;
     },

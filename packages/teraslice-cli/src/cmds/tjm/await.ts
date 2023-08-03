@@ -9,16 +9,17 @@ const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
     command: 'await <job-file...>',
-    describe: 'cli waits until the job reaches a specified status or timeout expires',
+    describe: 'Waits until a job or jobs reach a specified status or timeout expires',
     builder(yargs: any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
-        yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.example('$0 tjm await FILE.JSON');
-        yargs.example('$0 tjm await FILE.JSON --status completed --timeout 10000');
-        yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
+        yargs.example('$0 tjm await JOB_FILE.json');
+        yargs.example('$0 tjm await JOB_FILE.json --status completed --timeout 10000');
+        yargs.example('$0 tjm await JOB_FILE.json --status failing stopping terminated rejected --timeout 600000 ');
         return yargs;
     },
     async handler(argv: any): Promise<void> {

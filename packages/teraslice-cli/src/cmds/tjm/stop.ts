@@ -15,8 +15,8 @@ export = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs
-            .example('$0 tjm stop JOBFILE.json', 'stops job')
-            .example('$0 tjm stop JOBFILE.json JOBFILE2.json', 'stops multiple jobs');
+            .example('$0 tjm stop JOB_FILE.json', 'stops job')
+            .example('$0 tjm stop JOB_FILE.json JOB_FILE2.json', 'stops multiple jobs');
         return yargs;
     },
     async handler(argv) {

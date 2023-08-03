@@ -12,7 +12,8 @@ const cmd: CMD = {
     builder(yargs: any) {
         yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('status', yargsOptions.buildOption('await-status'));
-        yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
             .example('$0 jobs await CLUSTER_ALIAS JOB_ID --status completed', 'wait until job is completed')

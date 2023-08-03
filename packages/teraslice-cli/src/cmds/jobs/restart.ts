@@ -14,8 +14,10 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
-        yargs.options('yes', yargsOptions.buildOption('yes'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
+        yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
             .example('$0 jobs restart CLUSTER_ALIAS JOB_ID', 'restarts job on the cluster')
             .example('$0 jobs restart CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'restarts two jobs on the cluster')

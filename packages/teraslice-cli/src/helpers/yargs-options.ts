@@ -16,7 +16,7 @@ export default class Options {
             type: 'string'
         }),
         'await-status': () => ({
-            describe: 'desired status to wait for, exits once status is reached',
+            describe: 'Desired status to wait for, exits once status is reached',
             type: 'array',
             choices: [
                 'pending',
@@ -35,10 +35,15 @@ export default class Options {
             ],
             default: ['completed', 'stopped']
         }),
-        'await-timeout': () => ({
-            describe: 'time in milliseconds to wait for status, exits if timeout expires',
+        timeout: () => ({
+            describe: 'Time, in milliseconds, to wait before timing out',
             type: 'number',
-            default: 0
+            default: 120_0000 // 2 minutes
+        }),
+        interval: () => ({
+            describe: 'Interval, in milliseconds, to wait before checking task status',
+            type: 'number',
+            default: 10_000 // 10 seconds
         }),
         'base-dir': () => ({
             describe: 'The base directory to work in, defaults to cwd',
@@ -98,7 +103,7 @@ export default class Options {
             default: false
         }),
         'new-cluster-url': () => ({
-            describe: 'new cluster url',
+            describe: 'New cluster url',
             type: 'string'
         }),
         'node-version': () => ({
@@ -165,47 +170,53 @@ export default class Options {
             type: 'string'
         }),
         'ex-status': () => ({
-            describe: 'list of ex status to include',
+            describe: 'List of ex status to include',
             default: ''
         }),
         'ex-size': () => ({
-            describe: 'size of ex error list to return',
+            describe: 'Size of ex error list to return',
             default: 100
         }),
         'ex-from': () => ({
-            describe: 'ex error to start from',
+            describe: 'Ex error to start from',
             default: 0
         }),
         'ex-sort': () => ({
-            describe: 'sort method for ex errors',
+            describe: 'Sort method for ex errors',
             default: '_updated:desc'
         }),
         'jobs-status': () => ({
-            describe: 'list of job status to include',
+            describe: 'List of job status to include',
             array: true,
             default: []
         }),
         'jobs-size': () => ({
-            describe: 'size of job error list to return',
+            describe: 'Size of job error list to return',
             default: 100
         }),
         'jobs-from': () => ({
-            describe: 'jobs error to start from',
+            describe: 'Jobs error to start from',
             default: 0
         }),
         'jobs-sort': () => ({
-            describe: 'sort method for job errors',
+            describe: 'Sort method for job errors',
             default: '_updated:desc'
         }),
         'jobs-save': () => ({
-            describe: 'saves controller and execution state a job or jobs locally after running command or uses a saved state file and applies commands to saved jobs',
+            describe: 'Saves controller and execution state a job or jobs locally after running command or uses a saved state file and applies commands to saved jobs',
             default: false,
             type: 'boolean'
         }),
         'jobs-watch': () => ({
             alias: 'watch',
-            describe: 'watches job for n number of slices, ensures correct number of workers and no failed slices.',
-            type: 'number'
+            describe: 'Watches job for n number of slices, ensures correct number of workers and no failed slices.',
+            type: 'number',
+            default: 0
+        }),
+        'max-workers': () => ({
+            describe: 'Used to group jobs in batches when starting multiple jobs at once, the groups total workers will not exceed this number',
+            type: 'number',
+            default: 50
         }),
         yes: () => ({
             alias: 'y',

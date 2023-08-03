@@ -15,8 +15,8 @@ const cmd: CMD = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs
-            .example('$0 tjm view jobFile.json', 'displays job config on job cluster')
-            .example('$0 tjm view jobFile1.json jobFile2,.json', 'displays config for multiple job files');
+            .example('$0 tjm view JOB_FILE.json', 'displays job config on job cluster')
+            .example('$0 tjm view JOB_FILE1.json JOB_FILE2.json', 'displays config for multiple job files');
         return yargs;
     },
     async handler(argv): Promise <void> {

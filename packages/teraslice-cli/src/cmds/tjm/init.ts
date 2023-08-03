@@ -8,13 +8,13 @@ const yargsOptions = new YargsOptions();
 
 export = {
     command: 'init <job-file...>',
-    describe: 'Create a new job file with example job definitions',
+    describe: 'Create a new job config file with example job definitions',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-expect-error
-        yargs.example('$0 tjm init newJob.json');
+        yargs.example('$0 tjm init NEW_JOB_FILE.json');
         return yargs;
     },
     async handler(argv) {

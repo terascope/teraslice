@@ -166,22 +166,24 @@ export default class Jobs {
     async awaitStatus(): Promise<void> {
         const wantedStatus = this.config.args.status;
 
-        for (const job of this.jobs) {
-            const { jobInfoString } = this.getJobIdentifiers(job);
+        await Promise.all(this.jobs.map((job) => this.await(job, wantedStatus)));
+    }
 
-            const statusUpdate = await this.waitStatusChange(job, wantedStatus);
+    private async await(job: JobMetadata, wantedStatus: ExecutionStatus[]) {
+        const { jobInfoString } = this.getJobIdentifiers(job);
 
-            const newStatus = statusUpdate.newStatus!;
+        const statusUpdate = await this.waitStatusChange(job, wantedStatus);
 
-            if (statusUpdate.error === true) {
-                reply.fatal(new Error(statusUpdate.errorMessage?.message));
-            }
+        const newStatus = statusUpdate.newStatus!;
 
-            if (wantedStatus.includes(newStatus)) {
-                reply.green(`${jobInfoString} reached status: ${newStatus}`);
-            } else {
-                reply.fatal(`${jobInfoString} could not reach status ${wantedStatus.join(' or ')}`);
-            }
+        if (statusUpdate.error === true) {
+            reply.fatal(new Error(statusUpdate.errorMessage?.message));
+        }
+
+        if (wantedStatus.includes(newStatus)) {
+            reply.green(`${jobInfoString} reached status: ${newStatus}`);
+        } else {
+            reply.fatal(`${jobInfoString} could not reach status ${wantedStatus.join(' or ')}`);
         }
     }
 
@@ -247,12 +249,10 @@ export default class Jobs {
             );
         }
 
-        if ('watch' in this.config.args) {
-            const slices = this.config.args.watch ?? 50;
-
+        if (this.config.args.watch > 0) {
             await pMap(
                 this.jobs,
-                (job) => this.watchJob(job, slices),
+                (job) => this.watchJob(job),
                 { concurrency: this.concurrency }
             );
         }
@@ -307,8 +307,7 @@ export default class Jobs {
     }
 
     batchJobsBeforeStart(): JobMetadata[][] {
-        // This should be a config setting
-        const maxWorkersInBatch = 50;
+        const maxWorkersInBatch = this.config.args.max_workers;
 
         const batches: JobMetadata[][] = [];
 
@@ -372,7 +371,9 @@ export default class Jobs {
         }
     }
 
-    private async watchJob(job: JobMetadata, slices: number) {
+    private async watchJob(job: JobMetadata) {
+        const { timeout, interval, watch: slices } = this.config.args;
+
         const { jobInfoString } = this.getJobIdentifiers(job);
 
         reply.yellow(`Watching ${jobInfoString} for ${slices} slices`);
@@ -383,12 +384,10 @@ export default class Jobs {
         let watchTime = 0;
         let currentWorkers = 0;
 
-        const maxWatchTime = 300_000; // 5 minute max wait time to watch job
-
         // give job time to initialize before checking status
-        await pDelay(3_000);
+        await pDelay(interval);
 
-        while (slices > slicesCompleted && watchTime < maxWatchTime) {
+        while (slices > slicesCompleted && watchTime < timeout) {
             const [jobStats] = await job.api.controller();
 
             if (jobStats == null) {
@@ -403,8 +402,8 @@ export default class Jobs {
 
             watchTime = startCheck - new Date().getTime();
 
-            // wait 10 seconds and check again
-            await pDelay(10_000);
+            // wait and check again
+            await pDelay(interval);
         }
 
         reply.green(`Completed watch for ${jobInfoString}`);
@@ -421,8 +420,8 @@ export default class Jobs {
             return;
         }
 
-        if (watchTime > maxWatchTime) {
-            reply.fatal(`Watch for ${jobInfoString} timed out after 5 minutes.  Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers`);
+        if (watchTime > timeout) {
+            reply.fatal(`Watch for ${jobInfoString} timed out.  Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers`);
         }
 
         reply.green(`${jobInfoString} successfully completed ${slicesCompleted} slices with ${currentWorkers} workers`);
@@ -557,10 +556,9 @@ export default class Jobs {
 
     private async waitStatusChange(
         job: JobMetadata,
-        action: ExecutionStatus
+        action: ExecutionStatus | ExecutionStatus[]
     ): Promise<StatusUpdate> {
-        const timeout = this.config.args.timeout ?? 300_000;
-        const interval = this.config.args.interval ?? 10_000;
+        const { timeout, interval } = this.config.args;
 
         const statusUpdate: StatusUpdate = { error: false };
 

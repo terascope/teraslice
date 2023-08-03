@@ -16,6 +16,8 @@ export = {
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('save', yargsOptions.buildOption('jobs-save'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
             .example('$0 jobs run CLUSTER_ALIAS JOB_ID', 'starts job on cluster')

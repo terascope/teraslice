@@ -13,7 +13,7 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-expect-error
-        yargs.example('$0 tjm convert jobFile.json');
+        yargs.example('$0 tjm convert JOB_FILE.json');
         return yargs;
     },
     async handler(argv) {

@@ -15,8 +15,8 @@ const cmd: CMD = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs
-            .example('$0 tjm status JOBFILE.json', 'show current job status')
-            .example('$0 tjm status JOBFILE.json JOBFILE2.json', 'show current status of multiple jobs');
+            .example('$0 tjm status JOB_FILE.json', 'show current job status')
+            .example('$0 tjm status JOB_FILE.json JOB_FILE2.json', 'show current status of multiple jobs');
         return yargs;
     },
     async handler(argv): Promise <void> {
