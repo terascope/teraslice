@@ -5,7 +5,8 @@ import {
 import {
     ExecutionStatus,
     Execution,
-    ControllerState
+    ControllerState,
+    Job
 } from 'teraslice-client-js';
 import { JobConfig } from '@terascope/job-components';
 import TerasliceUtil from './teraslice-util';
@@ -14,7 +15,8 @@ import reply from '../helpers/reply';
 
 import {
     JobMetadata,
-    StatusUpdate
+    StatusUpdate,
+    RegisteredStatus
 } from '../interfaces';
 
 const display = new Display();
@@ -32,7 +34,7 @@ export default class Jobs {
     allJobsStopped: boolean;
     activeStatus: string[];
     jobsListChecked: string[];
-    terminalStatuses: ExecutionStatus[];
+    terminalStatuses: (ExecutionStatus | RegisteredStatus)[];
     concurrency: number; // this should probably come from a config file?
 
     constructor(cliConfig: Record<string, any>) {
@@ -50,6 +52,7 @@ export default class Jobs {
             ExecutionStatus.terminated,
             ExecutionStatus.failed,
             ExecutionStatus.rejected,
+            RegisteredStatus.no_execution
         ];
     }
 
@@ -83,8 +86,7 @@ export default class Jobs {
 
             reply.green(`${jobInfoString} config:\n`);
 
-            // eslint-disable-next-line no-console
-            console.log(JSON.stringify(job.config, null, 4));
+            reply.yellow(JSON.stringify(job.config, null, 4));
         }
     }
 
@@ -92,7 +94,7 @@ export default class Jobs {
         for (const job of this.jobs) {
             const { jobInfoString, status } = this.getJobIdentifiers(job);
 
-            if (this.terminalStatuses.includes(status)) {
+            if (this.terminalStatuses.includes(status as ExecutionStatus)) {
                 reply.warning(`Cannot adjust workers for ${jobInfoString} because job status is ${status}`);
                 return;
             }
@@ -104,7 +106,7 @@ export default class Jobs {
 
             const msg = typeof response === 'string' ? response : response.message;
 
-            reply.info(`${jobInfoString}, ${msg}`);
+            reply.green(`${jobInfoString}, ${msg}`);
         }
     }
 
@@ -165,12 +167,7 @@ export default class Jobs {
         const wantedStatus = this.config.args.status;
 
         for (const job of this.jobs) {
-            const { jobInfoString, status } = this.getJobIdentifiers(job);
-
-            if (wantedStatus.includes(status)) {
-                reply.info(`${jobInfoString} already has status: ${status}`);
-                return;
-            }
+            const { jobInfoString } = this.getJobIdentifiers(job);
 
             const statusUpdate = await this.waitStatusChange(job, wantedStatus);
 
@@ -181,7 +178,7 @@ export default class Jobs {
             }
 
             if (wantedStatus.includes(newStatus)) {
-                reply.info(`${jobInfoString} reached status: ${newStatus}`);
+                reply.green(`${jobInfoString} reached status: ${newStatus}`);
             } else {
                 reply.fatal(`${jobInfoString} could not reach status ${wantedStatus.join(' or ')}`);
             }
@@ -265,7 +262,7 @@ export default class Jobs {
         const { jobInfoString, status } = this.getJobIdentifiers(job);
 
         if (status === 'paused') {
-            reply.green(`Attempting to resume ${jobInfoString}`);
+            reply.yellow(`Resuming ${jobInfoString}`);
 
             try {
                 await job.api.resume();
@@ -288,8 +285,8 @@ export default class Jobs {
     async _start(job: JobMetadata): Promise<void> {
         const { jobInfoString, status } = this.getJobIdentifiers(job);
 
-        if (this.terminalStatuses.includes(status)) {
-            reply.green(`Attempting to start ${jobInfoString}`);
+        if (this.terminalStatuses.includes(status as ExecutionStatus)) {
+            reply.yellow(`${display.setAction('start', 'present')} ${jobInfoString}`);
 
             try {
                 await job.api.start();
@@ -310,6 +307,7 @@ export default class Jobs {
     }
 
     batchJobsBeforeStart(): JobMetadata[][] {
+        // This should be a config setting
         const maxWorkersInBatch = 50;
 
         const batches: JobMetadata[][] = [];
@@ -377,7 +375,7 @@ export default class Jobs {
     private async watchJob(job: JobMetadata, slices: number) {
         const { jobInfoString } = this.getJobIdentifiers(job);
 
-        reply.green(`Watching ${jobInfoString} for ${slices} slices`);
+        reply.yellow(`Watching ${jobInfoString} for ${slices} slices`);
 
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
@@ -469,15 +467,19 @@ export default class Jobs {
         const actionVerb = expectedStatus === ExecutionStatus.paused ? 'pause' : 'stop';
 
         const notAtStatus = this.jobs
-            .filter((jobs) => jobs.status !== expectedStatus);
+            .filter((job) => {
+                if (expectedStatus === ExecutionStatus.paused) {
+                    return job.status !== expectedStatus;
+                }
+
+                return !this.terminalStatuses.includes(job.status);
+            });
 
         if (notAtStatus.length) {
             const msg = notAtStatus.map((job) => `${job.config.name}, id: ${job.id}`);
 
             reply.fatal(`Jobs: ${msg.join('and')} were not ${display.setAction(actionVerb, 'past')} on ${this.config.args.clusterAlias}`);
         }
-
-        reply.green(`All jobs ${display.setAction(actionVerb, 'past')}`);
 
         if (
             (this.config.args.jobId.includes('all') && this.config.args._action !== 'restart')
@@ -492,7 +494,7 @@ export default class Jobs {
 
         if (this.preStoppedOrPausedCheck(job, ExecutionStatus.stopped)) return;
 
-        reply.warning(`Attempting to stop ${jobInfoString}`);
+        reply.yellow(`${display.setAction('stop', 'present')} ${jobInfoString}`);
 
         job.api.stop()
             .catch((e) => reply.fatal(e));
@@ -516,7 +518,7 @@ export default class Jobs {
             return true;
         }
 
-        if (this.terminalStatuses.includes(status)) {
+        if (this.terminalStatuses.includes(status as ExecutionStatus)) {
             reply.warning(`${jobInfoString} is not running. Current status is ${job.status}`);
             return true;
         }
@@ -634,7 +636,7 @@ export default class Jobs {
     private async addJobs(jobId: string) {
         const jobApi = this.teraslice.client.jobs.wrap(jobId);
 
-        const status = await jobApi.status();
+        const status = await this.getStatus(jobApi);
 
         if (this.statusCheck(this.config.args.status, status)) {
             const jobMetadata: Partial<JobMetadata> = {
@@ -651,8 +653,28 @@ export default class Jobs {
         }
     }
 
-    statusCheck(statusList: ExecutionStatus[], status: ExecutionStatus): boolean {
-        if (this.config.args._action !== 'await' && statusList != null && statusList.length) {
+    async getStatus(jobApi: Job) {
+        let status: ExecutionStatus | RegisteredStatus = RegisteredStatus.no_execution;
+
+        try {
+            status = await jobApi.status();
+        } catch (e) {
+            if (e.message.includes('No execution was found for job')) {
+                // Indicates that job is registered but not ran yet
+                status = RegisteredStatus.no_execution;
+            } else {
+                reply.fatal(e);
+            }
+        }
+
+        return status;
+    }
+
+    statusCheck(
+        statusList: (ExecutionStatus | RegisteredStatus)[] | undefined,
+        status: ExecutionStatus | RegisteredStatus
+    ): boolean {
+        if (statusList && statusList.length) {
             return statusList.includes(status);
         }
 
@@ -660,7 +682,7 @@ export default class Jobs {
     }
 
     noJobsWithStatus() {
-        const cluster = `cluster: ${this.config.args.clusterAlias}`;
+        const cluster = `cluster: ${this.config.args.clusterUrl}`;
         const targetedStatus = `${this.config.args.status.join(' or ')}`;
 
         if (this.config.args.jobId.includes('all')) {
@@ -673,7 +695,7 @@ export default class Jobs {
     private getJobIdentifiers(job: JobMetadata) {
         const { name } = job.config;
         const { id, status } = job;
-        const url = this.config.args.clusterUrl;
+        const url = this.config.clusterUrl;
 
         return {
             name,

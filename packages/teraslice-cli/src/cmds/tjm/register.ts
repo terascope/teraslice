@@ -1,7 +1,7 @@
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import { registerJobToCluster, validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { registerJobToCluster } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
@@ -15,31 +15,24 @@ export = {
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
-        // @ts-expect-error
-        yargs.example('$0 tjm register localhost new-job.json');
-        // @ts-expect-error
-        yargs.example('$0 tjm register localhost new-job.json --start');
-        // @ts-expect-error
-        yargs.example('$0 tjm reg localhost new-job.json --start');
+        yargs.example('$0 tjm register CLUSTER JOBFILE.json', 'registers job on cluster')
+            .example('$0 tjm register CLUSTER JOBFILE.json --start', 'registers and starts job')
+            .example('$0 tjm register CLUSTER JOBFILE1.json JOBFILE2.json --start', 'registers and starts multiple jobs')
+            .example('$0 tjm register CLUSTER JOBFILE1.json JOBFILE2.json --start --watch 1000', 'registers and starts multiple jobs, watches for 1000 successful slices')
+            .example('$0 tjm reg CLUSTER new-job.json', 'reg alias for register');
+
         return yargs;
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
-
         const jobs = await registerJobToCluster(cliConfig);
 
-        if (jobs) {
+        if (jobs && argv.start) {
             await jobs.initialize();
 
-            await jobs.view();
-
-            if (argv.start) {
-                await jobs.start();
-            }
+            await jobs.start();
         }
     }
 } as CMD;

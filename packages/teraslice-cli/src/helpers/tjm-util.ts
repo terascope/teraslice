@@ -47,43 +47,40 @@ export function getJobConfigFromFile(
     }
 }
 
-export function validateJobFileAndAddToCliConfig(cliConfig: Config) {
-    let tsCluster: string | undefined;
-
+export function validateAndUpdateCliConfig(cliConfig: Config) {
     for (const jobFile of cliConfig.args.jobFile) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
 
         validateJobFile(jobConfig);
+        fileMetadataToCliArgs(cliConfig, jobConfig);
+    }
+}
 
-        if (cliConfig.args.jobId) {
-            cliConfig.args.jobId.push(jobConfig.__metadata.cli.job_id);
-        } else {
-            cliConfig.args.jobId = [jobConfig.__metadata.cli.job_id];
-        }
-
-        if (tsCluster == null) {
-            tsCluster = jobConfig.__metadata.cli.cluster;
-        } else if (tsCluster !== jobConfig.__metadata.cli.cluster) {
-            reply.fatal('If starting multiple jobs they must be on the same cluster');
-        }
+function fileMetadataToCliArgs(cliConfig: Config, jobConfig: JobConfigFile) {
+    if (cliConfig.args.jobId) {
+        cliConfig.args.jobId.push(jobConfig.__metadata.cli.job_id);
+    } else {
+        cliConfig.args.jobId = [jobConfig.__metadata.cli.job_id];
     }
 
-    cliConfig.args.clusterUrl = tsCluster;
+    if (cliConfig.args.clusterUrl == null) {
+        cliConfig.args.clusterUrl = jobConfig.__metadata.cli.cluster;
+    } else if (cliConfig.args.clusterUrl !== jobConfig.__metadata.cli.cluster) {
+        reply.fatal('If working with multiple jobs they must be on the same cluster');
+    }
 }
 
 export async function updateJobConfig(cliConfig: Config) {
+    const job = new Jobs(cliConfig);
+
     for (const jobFile of cliConfig.args.jobFile) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
-
-        validateJobFile(jobConfig);
 
         const jobId = jobConfig.__metadata.cli.job_id;
         const tsCluster = jobConfig.__metadata.cli.cluster;
 
         // remove metadata from the jobConfig before posting to the cluster
         unset(jobConfig, '__metadata');
-
-        const job = new Jobs(cliConfig);
 
         try {
             const update = await job.teraslice.client.cluster.put(`/jobs/${jobId}`, jobConfig);
@@ -96,15 +93,17 @@ export async function updateJobConfig(cliConfig: Config) {
             saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
 
             reply.green(`Updated job ${jobId} config on ${tsCluster}`);
-
-            return job;
         } catch (e) {
             reply.fatal(e.message);
         }
     }
+
+    return job;
 }
 
-export async function registerJobToCluster(cliConfig: Record<string, any>) {
+export async function registerJobToCluster(cliConfig: Config) {
+    const job = new Jobs(cliConfig);
+
     for (const jobFile of cliConfig.args.jobFile) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
 
@@ -117,8 +116,6 @@ export async function registerJobToCluster(cliConfig: Record<string, any>) {
             continue;
         }
 
-        const job = new Jobs(cliConfig);
-
         const resp = await job.submitJobConfig(jobConfig);
 
         if (resp) {
@@ -128,12 +125,15 @@ export async function registerJobToCluster(cliConfig: Record<string, any>) {
 
             addMetaData(jobConfig, jobId, cliConfig.clusterUrl);
             saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
+            fileMetadataToCliArgs(cliConfig, jobConfig);
 
-            return job;
+            continue;
         }
 
         reply.fatal(`Failed to register ${jobConfig.name} on ${cliConfig.clusterUrl}`);
     }
+
+    return job;
 }
 
 export function convertOldTJMFiles(cliConfig: Record<string, any>) {
@@ -172,7 +172,7 @@ export function resetConfigFile(cliConfig: Record<string, any>) {
         validateJobFile(jobConfig);
         unset(jobConfig, '__metadata');
         saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
-        reply.green(`Reset ${jobFile}, job is ready to be registered on a cluster`);
+        reply.green(`Reset ${jobFile}, all __metadata removed`);
     }
 }
 

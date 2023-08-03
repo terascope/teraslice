@@ -20,7 +20,7 @@ export interface JobMetadata {
     id: string;
     api: Job;
     config: JobConfiguration;
-    status: ExecutionStatus;
+    status: ExecutionStatus | RegisteredStatus;
 }
 
 export interface StatusUpdate {
@@ -38,4 +38,8 @@ export interface JobConfigFile extends JobConfig {
             updated: string;
         }
     }
+}
+
+export enum RegisteredStatus {
+    no_execution = 'no_execution'
 }

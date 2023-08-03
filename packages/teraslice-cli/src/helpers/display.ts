@@ -252,7 +252,7 @@ export default class Display {
         if (action === 'start' && tense === 'past') {
             return 'started';
         }
-        if (action === 'stop' && tense === 'present') {
+        if (action === 'start' && tense === 'present') {
             return 'starting';
         }
         if (action === 'pause' && tense === 'past') {

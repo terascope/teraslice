@@ -3,7 +3,7 @@ import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
-import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
@@ -16,7 +16,6 @@ const cmd: CMD = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.example('$0 tjm await FILE.JSON');
         yargs.example('$0 tjm await FILE.JSON --status completed --timeout 10000');
         yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
@@ -25,7 +24,7 @@ const cmd: CMD = {
     async handler(argv: any): Promise<void> {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
 
         const jobs = new Jobs(cliConfig);
 

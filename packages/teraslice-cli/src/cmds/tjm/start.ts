@@ -1,4 +1,4 @@
-import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import Jobs from '../../helpers/jobs';
@@ -14,17 +14,17 @@ export = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
         yargs.strict()
-            .example('$0 tjm start jobFile.json');
+            .example('$0 tjm start jobFile.json', 'starts teraslice job')
+            .example('$0 tjm start jobFile1 jobFile2 --watch 1000', 'start multiple teraslice jobs');
 
         return yargs;
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
 
         const jobs = new Jobs(cliConfig);
 

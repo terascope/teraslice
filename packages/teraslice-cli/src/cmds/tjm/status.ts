@@ -2,7 +2,7 @@ import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
-import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
@@ -14,14 +14,15 @@ const cmd: CMD = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
-        // @ts-expect-error
-        yargs.example('$0 tjm status jobFile.json');
+        yargs
+            .example('$0 tjm status JOBFILE.json', 'show current job status')
+            .example('$0 tjm status JOBFILE.json JOBFILE2.json', 'show current status of multiple jobs');
         return yargs;
     },
     async handler(argv): Promise <void> {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
 
         const jobs = new Jobs(cliConfig);
 

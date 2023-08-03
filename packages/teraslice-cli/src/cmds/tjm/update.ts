@@ -1,5 +1,5 @@
 import { CMD } from '../../interfaces';
-import { updateJobConfig, validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { updateJobConfig, validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 
@@ -13,16 +13,18 @@ const cmd: CMD = {
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
-        // @ts-expect-error
-        yargs.example('$0 tjm update jobFile.json');
+        yargs
+            .example('$0 tjm update JOBFILE.json', 'updates job config')
+            .example('$0 tjm update JOBFILE.json --restart', 'updates job config and restarts job')
+            .example('$0 tjm update JOBFILE.json --restart --watch 100', 'updates job config, restarts, and watches for 100 slices')
+            .example('$0 tjm update JOBFILE.json JOBFILE2.json --restart', 'updates job config, and restarts multiple jobs');
         return yargs;
     },
     async handler(argv): Promise <void> {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
 
         const jobs = await updateJobConfig(cliConfig);
 

@@ -12,8 +12,10 @@ export = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-expect-error
-        yargs.example('$0 tjm reset jobFile.json');
+        yargs
+            .example('$0 tjm reset JOBFILE.json', 'removes __metadata from job file and allows it to be re-registered')
+            .example('$0 tjm reset JOBFILE1.json JOBFILE2.json', 'removes __metadata from multiple jobs file');
+
         return yargs;
     },
     async handler(argv) {

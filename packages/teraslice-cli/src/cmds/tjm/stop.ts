@@ -1,5 +1,5 @@
 import { CMD } from '../../interfaces';
-import { validateJobFileAndAddToCliConfig } from '../../helpers/tjm-util';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
 import YargsOptions from '../../helpers/yargs-options';
@@ -14,14 +14,15 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
-        // @ts-expect-error
-        yargs.example('$0 tjm stop jobFile.json');
+        yargs
+            .example('$0 tjm stop JOBFILE.json', 'stops job')
+            .example('$0 tjm stop JOBFILE.json JOBFILE2.json', 'stops multiple jobs');
         return yargs;
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        validateJobFileAndAddToCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
 
         const jobs = new Jobs(cliConfig);
 
