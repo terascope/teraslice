@@ -32,7 +32,7 @@ export function convertSearchParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             return parsedParams;
         }
     }

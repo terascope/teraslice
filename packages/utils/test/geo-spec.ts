@@ -6,7 +6,7 @@ import {
 import {
     isGeoPoint, parseGeoPoint, inGeoBoundingBox,
     inGeoBoundingBoxFP, geoPointWithinRange, geoPointWithinRangeFP,
-    toGeoJSON, lookupTimezone
+    toGeoJSON, lookupTimezone, tzCacheLoaded
 } from '../src/geo';
 
 describe('geo utils', () => {
@@ -286,10 +286,21 @@ describe('geo utils', () => {
                 { lat: 48.86168702148502, lon: 2.3366209636711 },
                 'Europe/Paris'
             ],
+            [
+                'requires access to dat file or cached to pass',
+                { lon: -13.74651, lat: 66.44966 },
+                'Etc/GMT+1'
+            ],
         ];
 
         test.each(testCases)('should %s', (_msg, input, output) => {
             expect(lookupTimezone(input)).toEqual(output);
+        });
+
+        it('should cache geo.dat file after geoPointToTimezone is called', () => {
+            lookupTimezone({ lon: -13.74651, lat: 66.44966 });
+
+            expect(tzCacheLoaded()).toBeTrue();
         });
     });
 });

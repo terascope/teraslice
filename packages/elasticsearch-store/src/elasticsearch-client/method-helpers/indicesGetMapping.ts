@@ -11,16 +11,7 @@ export function convertIndicesGetMappingParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            const {
-                include_type_name, type,
-                ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
+        if (majorVersion === 7 || majorVersion === 8) {
             const {
                 include_type_name, type,
                 ...parsedParams
@@ -35,18 +26,16 @@ export function convertIndicesGetMappingParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout, type, include_type_name,
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

@@ -39,7 +39,7 @@ describe('reindex', () => {
         // as there are no records
         await terasliceHarness.indexStats(specIndex).catch((errResponse) => {
             const reason = get(errResponse, 'body.error.reason');
-            expect(reason).toEqual('no such index');
+            expect(reason).toContain('no such index');
         });
     });
 

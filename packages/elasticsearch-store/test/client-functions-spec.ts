@@ -1,8 +1,10 @@
 import 'jest-extended';
 import {
-    DataEntity, debugLogger, cloneDeep, get
+    DataEntity, debugLogger, cloneDeep,
+    get
 } from '@terascope/utils';
-import { ClientParams, ClientResponse } from '@terascope/types';
+import { ClientParams, ClientResponse, FieldType } from '@terascope/types';
+import { DataType } from '@terascope/data-types';
 import {
     createClient, getBaseClient, Client,
     ElasticsearchTestHelpers,
@@ -10,12 +12,12 @@ import {
 } from '../src';
 
 const {
-    upload, cleanupIndex, waitForData,
+    upload, populateIndex, cleanupIndex, waitForData,
     formatUploadData, getTestENVClientInfo,
     getTotalFormat, EvenDateData
 } = ElasticsearchTestHelpers;
 
-const { data } = EvenDateData;
+const { data, EvenDataType } = EvenDateData;
 
 describe('creates client that exposes elasticsearch and opensearch functions', () => {
     const index = 'wrapped_client_test';
@@ -253,9 +255,20 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
             DataEntity.make(doc, { _key: id2 }),
         ];
 
+        const dataType = new DataType({
+            fields: {
+                some: { type: FieldType.String },
+                bool: { type: FieldType.Boolean },
+                obj: { type: FieldType.Object },
+                method: { type: FieldType.String },
+            }
+        });
+
         beforeAll(async () => {
-            const testData = formatUploadData(testIndex, records);
-            await upload(client, { index: testIndex }, testData);
+            // use this to test the function, this ensure a type for a given field
+            await populateIndex(
+                client, testIndex, dataType, records, docType
+            );
         });
 
         afterAll(async () => {
@@ -456,8 +469,9 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
                 .map((doc, i) => DataEntity.make(doc, { _key: i + 1 }));
 
             await cleanupIndex(client, mgetIndex);
-
-            await upload(client, { index: mgetIndex, type: docType }, testData);
+            await populateIndex(
+                client, mgetIndex, EvenDataType, testData, docType
+            );
             await waitForData(client, mgetIndex, 10);
         });
 
@@ -550,7 +564,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, searchIndex);
 
-            await upload(client, { index: searchIndex, type: docType }, testData);
+            await populateIndex(
+                client, searchIndex, EvenDataType, testData, docType
+            );
+
             await waitForData(client, searchIndex, 10);
         });
 
@@ -642,7 +659,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, msearchIndex);
 
-            await upload(client, { index: msearchIndex, type: docType }, testData);
+            await populateIndex(
+                client, msearchIndex, EvenDataType, testData, docType
+            );
+
             await waitForData(client, msearchIndex, 10);
         });
 
@@ -789,7 +809,10 @@ describe('creates client that exposes elasticsearch and opensearch functions', (
 
             await cleanupIndex(client, reindexIndex);
 
-            await upload(client, { index: reindexIndex, type: docType }, testData);
+            await populateIndex(
+                client, reindexIndex, EvenDataType, testData, docType
+            );
+
             await waitForData(client, reindexIndex, 10);
         });
 

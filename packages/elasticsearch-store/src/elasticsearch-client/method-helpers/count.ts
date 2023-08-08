@@ -11,16 +11,8 @@ export function convertCountParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
+        if (majorVersion === 8 || majorVersion === 7) {
             // make sure to remove type
-            const {
-                type, ...parsedParams
-            } = params;
-
-            return parsedParams;
-        }
-
-        if (majorVersion === 7) {
             const {
                 type, ...parsedParams
             } = params;
@@ -34,7 +26,7 @@ export function convertCountParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 type, ...parsedParams
             } = params;

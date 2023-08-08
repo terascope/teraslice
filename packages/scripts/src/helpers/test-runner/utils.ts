@@ -1,17 +1,12 @@
 import path from 'path';
 import fse from 'fs-extra';
 import {
-    debugLogger,
-    get,
-    TSError,
-    isFunction,
-    flatten,
-    isCI
+    debugLogger, get, TSError,
+    isFunction, flatten, isCI,
+    toString
 } from '@terascope/utils';
 import {
-    ArgsMap,
-    ExecEnv,
-    exec,
+    ArgsMap, ExecEnv, exec,
     fork,
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
@@ -25,7 +20,8 @@ const logger = debugLogger('ts-scripts:cmd:test');
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
     args.forceExit = '';
-    args.coverage = 'true';
+    args.coverage = toString(options.reportCoverage);
+
     if (config.FORCE_COLOR === '1') {
         args.color = '';
     }
@@ -87,6 +83,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 
@@ -96,6 +93,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 
@@ -136,6 +134,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             OPENSEARCH_HOST: config.OPENSEARCH_HOST,
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
+
         });
     }
 
@@ -149,6 +149,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
             RESTRAINED_OPENSEARCH_HOST: config.RESTRAINED_OPENSEARCH_HOST,
             DISABLE_SECURITY_PLUGIN: true,
             DISABLE_INSTALL_DEMO_CONFIG: true,
+            SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
 

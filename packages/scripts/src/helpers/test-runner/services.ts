@@ -332,7 +332,7 @@ async function checkRestrainedOpensearch(
                 ({ body } = await got(host, {
                     username,
                     password,
-                    rejectUnauthorized: false,
+                    https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
                     retry: 0,
@@ -355,8 +355,7 @@ async function checkRestrainedOpensearch(
             const actual: string = body.version.number;
             const expected = options.opensearchVersion;
 
-            const satifies = semver.satisfies(actual, `^${expected}`);
-            if (satifies) {
+            if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`restrained opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -400,7 +399,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
                 ({ body } = await got(host, {
                     username,
                     password,
-                    rejectUnauthorized: false,
+                    https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
                     retry: 0,
@@ -423,8 +422,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             const actual: string = body.version.number;
             const expected = options.opensearchVersion;
 
-            const satifies = semver.satisfies(actual, `^${expected}`);
-            if (satifies) {
+            if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -488,8 +486,7 @@ async function checkRestrainedElasticsearch(
             const actual: string = body.version.number;
             const expected = options.elasticsearchVersion;
 
-            const satifies = semver.satisfies(actual, `^${expected}`);
-            if (satifies) {
+            if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
@@ -551,9 +548,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const actual: string = body.version.number;
             const expected = options.elasticsearchVersion;
 
-            const satifies = semver.satisfies(actual, `^${expected}`);
-
-            if (satifies) {
+            if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;

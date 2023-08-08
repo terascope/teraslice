@@ -25,7 +25,7 @@ export async function makeClient(): Promise<Client> {
         host = OPENSEARCH_HOST;
     }
 
-    if (process.env.RESTRAINED_OPENSEARCH) {
+    if (process.env.TEST_RESTRAINED_OPENSEARCH) {
         host = RESTRAINED_OPENSEARCH_HOST;
     }
 
@@ -119,7 +119,11 @@ export async function populateIndex(
         client, dataType, type, overrides
     );
 
-    await client.indices.create(mapping);
+    await client.indices.create({
+        index,
+        waitForActiveShards: 'all',
+        ...mapping
+    });
 
     const body = formatUploadData(index, records);
 
@@ -141,7 +145,7 @@ export async function populateIndex(
 }
 
 export function formatUploadData(
-    index: string, data: any[]
+    index: string, data: any[], apiCompatibility = false
 ): Record<string, any>[] {
     const results: any[] = [];
 
@@ -155,8 +159,13 @@ export function formatUploadData(
         if (DataEntity.isDataEntity(record) && record.getKey()) {
             meta._id = record.getKey();
         }
-
-        results.push({ index: meta }, record);
+        // This format is used by elasticsearch-api and elasticsearch-assets
+        if (apiCompatibility) {
+            results.push({ action: { index: meta }, data: record });
+        } else {
+            // this is used for raw elasticsearch bulk queries
+            results.push({ index: meta }, record);
+        }
     });
 
     return results;
@@ -219,6 +228,19 @@ export function getTestENVClientInfo()
 
         return {
             host: OPENSEARCH_HOST,
+            distribution: ElasticsearchDistribution.opensearch,
+            version,
+            majorVersion,
+            minorVersion
+        };
+    }
+
+    if (process.env.TEST_RESTRAINED_OPENSEARCH != null) {
+        const version = OPENSEARCH_VERSION;
+        const [majorVersion, minorVersion] = parseVersion(version);
+
+        return {
+            host: RESTRAINED_OPENSEARCH_HOST,
             distribution: ElasticsearchDistribution.opensearch,
             version,
             majorVersion,

@@ -2,6 +2,7 @@ import { address } from 'ip';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
+import { Service } from './interfaces';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -33,7 +34,7 @@ export const KAFKA_NAME = process.env.KAFKA_NAME || 'kafka';
 export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
-export const KAFKA_VERSION = process.env.KAFKA_VERSION || '2.3';
+export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
 
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
@@ -62,7 +63,7 @@ export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || '1.3.0';
+export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || '1.3.6';
 export const OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 
@@ -104,7 +105,7 @@ export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?
  */
 export const MAX_PROJECTS_PER_BATCH = toIntegerOrThrow(process.env.MAX_PROJECTS_PER_BATCH ?? 5);
 
-const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
+const reportCov = process.env.REPORT_COVERAGE || 'false';
 export const REPORT_COVERAGE = toBoolean(reportCov);
 
 export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
@@ -112,3 +113,43 @@ export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS
     : undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+
+const {
+    TEST_OPENSEARCH = undefined,
+    TEST_ELASTICSEARCH = undefined,
+    TEST_KAFKA = undefined,
+    TEST_MINIO = undefined,
+    TEST_RESTRAINED_OPENSEARCH = undefined,
+    TEST_RESTRAINED_ELASTICSEARCH = undefined,
+    TEST_RABBITMQ = undefined
+} = process.env;
+
+const testOpensearch = toBoolean(TEST_OPENSEARCH);
+const testElasticsearch = toBoolean(TEST_ELASTICSEARCH);
+const testRestrainedOpensearch = toBoolean(TEST_RESTRAINED_OPENSEARCH);
+const testRestrainedElasticsearch = toBoolean(TEST_RESTRAINED_ELASTICSEARCH);
+
+export const ENV_SERVICES = [
+    testOpensearch ? Service.Opensearch : undefined,
+    testElasticsearch ? Service.Elasticsearch : undefined,
+    toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
+    toBoolean(TEST_MINIO) ? Service.Minio : undefined,
+    testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
+    testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
+    toBoolean(TEST_RABBITMQ) ? Service.RabbitMQ : undefined,
+]
+    .filter(Boolean) as Service[];
+
+let testHost;
+
+if (testElasticsearch) {
+    testHost = ELASTICSEARCH_HOST;
+} else if (testOpensearch) {
+    testHost = OPENSEARCH_HOST;
+} else if (testRestrainedOpensearch) {
+    testHost = RESTRAINED_OPENSEARCH_HOST;
+} else if (testRestrainedElasticsearch) {
+    testHost = RESTRAINED_ELASTICSEARCH_HOST;
+}
+
+export const SEARCH_TEST_HOST = testHost;

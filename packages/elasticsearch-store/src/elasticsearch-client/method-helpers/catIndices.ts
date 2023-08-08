@@ -26,18 +26,17 @@ export function convertCatIndicesParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        // No major changes between the two as provided below
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error, master_timeout is deprecated
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
     }
 

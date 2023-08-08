@@ -11,11 +11,7 @@ export function convertNodeInfoParams(
     } = distributionMeta;
 
     if (distribution === ElasticsearchDistribution.elasticsearch) {
-        if (majorVersion === 8) {
-            return params;
-        }
-
-        if (majorVersion === 7) {
+        if (majorVersion === 7 || majorVersion === 8) {
             return params;
         }
 
@@ -30,18 +26,16 @@ export function convertNodeInfoParams(
     }
 
     if (distribution === ElasticsearchDistribution.opensearch) {
-        if (majorVersion === 1) {
+        if (majorVersion === 1 || majorVersion === 2) {
             const {
                 master_timeout,
                 ...parsedParams
             } = params;
 
-            if (master_timeout) {
-                // @ts-expect-error, master_timeout is deprecated
-                parsedParams.cluster_manager_timeout = master_timeout;
-            }
-
-            return parsedParams;
+            return {
+                ...parsedParams,
+                ...(master_timeout !== undefined && { cluster_manager_timeout: master_timeout }),
+            };
         }
         // future version will have master_timeout gone, renamed to cluster_manager_timeout
     }

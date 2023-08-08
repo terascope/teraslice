@@ -148,8 +148,8 @@ describe('Validate Configs', () => {
                                 maxRedirects: 10,
                                 maxRetries: 3,
                                 region: 'us-east-1',
-                                s3BucketEndpoint: false,
-                                s3ForcePathStyle: false,
+                                bucketEndpoint: false,
+                                forcePathStyle: false,
                                 secretAccessKey: null,
                                 sslEnabled: true,
                             }

@@ -64,6 +64,28 @@ export function convertMSearchParams(
 
             return parsedParams;
         }
+
+        if (majorVersion === 2) {
+            const {
+                type,
+                body,
+                ...parsedParams
+            } = params;
+
+            return {
+                ...parsedParams,
+                body: body.map((doc) => {
+                    // @ts-expect-error type only exists on one type, not the other
+                    // hence th error
+                    const { type: _type, ...docArgs } = doc;
+
+                    return {
+                        ...docArgs
+                    };
+                })
+
+            };
+        }
     }
 
     throw new Error(`unsupported ${distribution} version ${version}`);
