@@ -451,6 +451,13 @@ export default class Jobs {
     }
 
     async stop(): Promise<void> {
+        if (
+            (this.config.args.jobId.includes('all') && this.config.args._action !== 'restart')
+            || this.config.args.save
+        ) {
+            await this.save();
+        }
+
         await pMap(
             this.jobs,
             (job) => this._stop(job),
@@ -478,13 +485,6 @@ export default class Jobs {
             const msg = notAtStatus.map((job) => `${job.config.name}, id: ${job.id}`);
 
             reply.fatal(`Jobs: ${msg.join('and')} were not ${display.setAction(actionVerb, 'past')} on ${this.config.args.clusterAlias}`);
-        }
-
-        if (
-            (this.config.args.jobId.includes('all') && this.config.args._action !== 'restart')
-            || this.config.args.save
-        ) {
-            await this.save();
         }
     }
 
