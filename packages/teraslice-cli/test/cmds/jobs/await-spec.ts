@@ -17,7 +17,7 @@ describe('jobs await', () => {
             );
 
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
-            expect(yargsResult.id).toEqual('job_id');
+            expect(yargsResult.jobId).toEqual(['job_id']);
         });
 
         it('should parse properly with options', () => {

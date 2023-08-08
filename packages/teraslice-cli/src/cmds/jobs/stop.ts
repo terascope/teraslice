@@ -15,6 +15,8 @@ export = {
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.options('save', yargsOptions.buildOption('jobs-save'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
             .example('$0 jobs stop CLUSTER_ALIAS JOB_ID1', 'stops job on the cluster')

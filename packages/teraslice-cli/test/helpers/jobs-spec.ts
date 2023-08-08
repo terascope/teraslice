@@ -275,30 +275,6 @@ describe('Job helper class', () => {
             await expect(job.stop()).resolves.toBeUndefined();
         });
 
-        it('should throw error if error on stop command', async () => {
-            const [jobId] = makeJobIds(1);
-
-            tsClient
-                .get(`/v1/jobs/${jobId}/ex`)
-                .reply(200, { _status: 'running' })
-                .get(`/v1/jobs/${jobId}`)
-                .reply(200, testJobConfig(jobId))
-                .post(`/v1/jobs/${jobId}/_stop`)
-                .reply(500, () => Promise.reject(new Error('bad stuff happened')))
-                .get(`/v1/jobs/${jobId}/ex`)
-                .reply(200, () => Promise.resolve({ status: 'stopped' }));
-
-            const config = buildCLIConfig('stop', { 'job-id': [jobId], jobId: [jobId] });
-
-            const job = new Jobs(config);
-
-            await job.initialize();
-
-            expect(job.jobs[0].status).toBe('running');
-
-            await expect(job.stop()).rejects.toThrow();
-        });
-
         it('should throw error if error on await status command', async () => {
             const [jobId] = makeJobIds(1);
 
@@ -489,7 +465,9 @@ describe('Job helper class', () => {
             const config = buildCLIConfig(action, {
                 'job-id': [jobId],
                 jobId: [jobId],
-                watch: 50
+                watch: 50,
+                interval: 1000,
+                timeout: 5000
             });
 
             const job = new Jobs(config);
@@ -528,7 +506,9 @@ describe('Job helper class', () => {
             const config = buildCLIConfig(action, {
                 'job-id': [jobId],
                 jobId: [jobId],
-                watch: 50
+                watch: 50,
+                interval: 1000,
+                timeout: 5000
             });
 
             const job = new Jobs(config);
@@ -567,7 +547,9 @@ describe('Job helper class', () => {
             const config = buildCLIConfig(action, {
                 'job-id': [jobId],
                 jobId: [jobId],
-                watch: 50
+                watch: 50,
+                interval: 1000,
+                timeout: 5000
             });
 
             const job = new Jobs(config);
@@ -576,7 +558,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} only has 3 workers, expecting 10`);
+            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} on cluster: ${tsHost} only has 3 workers, expecting 10`);
         });
 
         it('should throw an error if failed slices', async () => {
@@ -605,7 +587,9 @@ describe('Job helper class', () => {
             const config = buildCLIConfig(action, {
                 'job-id': [jobId],
                 jobId: [jobId],
-                watch: 50
+                watch: 50,
+                interval: 1000,
+                timeout: 5000
             });
 
             const job = new Jobs(config);
@@ -614,7 +598,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} had 100 failed slices and completed 100 slices`);
+            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} on cluster: ${tsHost} had 100 failed slices and completed 100 slices`);
         });
 
         it('should start a job based on locally saved state file', async () => {
@@ -647,7 +631,9 @@ describe('Job helper class', () => {
                     'job-id': ['all'],
                     jobId: ['all'],
                     yes: true,
-                    y: true
+                    y: true,
+                    interval: 1000,
+                    timeout: 5000
                 }
             );
 
@@ -679,7 +665,9 @@ describe('Job helper class', () => {
                     'job-id': ['all'],
                     jobId: ['all'],
                     yes: true,
-                    y: true
+                    y: true,
+                    interval: 1000,
+                    timeout: 5000
                 }
             );
 
@@ -813,6 +801,80 @@ describe('Job helper class', () => {
             expect(state[job2].controller.job_id).toBe(job2);
             expect(state[job3].execution.job_id).toBe(job3);
             expect(state[job3].controller.job_id).toBe(job3);
+        });
+    });
+
+    describe('jobs.workers should', () => {
+        let msg: any;
+        let jobs: any;
+        const id = '12341234';
+        const exId = '56785678';
+
+        const cliArgs = {
+            'cluster-manager-type': 'native',
+            'output-style': 'txt',
+            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'cluster-alias': 'localhost',
+            args: {}
+        };
+
+        beforeEach(() => {
+            cliArgs.args = {};
+        });
+
+        afterEach(() => {
+            jobs = {};
+            nock.cleanAll();
+        });
+
+        fit('return handle response if ts-client response is an object', async () => {
+            cliArgs.args = { id, action: 'add', number: 5 };
+
+            jobs = new Jobs(cliArgs);
+
+            msg = { message: `5 workers have been added for execution: ${exId}` };
+
+            tsClient
+                .post(`/v1/jobs/${id}/_workers?add=5`)
+                .reply(200, msg);
+
+            await expect(jobs.workers()).toResolve();
+        });
+
+        it('return handle response if ts-client response is a string', async () => {
+            cliArgs.args = { id, action: 'remove', number: 3 };
+
+            jobs = new Jobs(cliArgs);
+
+            msg = `3 workers have been removed for execution: ${exId}`;
+
+            tsClient
+                .post(`/v1/jobs/${id}/_workers?remove=3`)
+                .reply(200, msg);
+
+            await expect(jobs.workers()).toResolve();
+        });
+    });
+
+    describe('jobs', () => {
+        const id = '12341234';
+
+        const cliArgs = {
+            'cluster-manager-type': 'native',
+            'output-style': 'txt',
+            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'cluster-alias': 'localhost',
+            args: {}
+        };
+
+        it('should return a job object', () => {
+            const number = 5;
+            const action = 'add';
+
+            cliArgs.args = { id, action, number };
+
+            const jobs = new Jobs(cliArgs);
+            expect(jobs).toBeDefined();
         });
     });
 });

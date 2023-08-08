@@ -307,7 +307,7 @@ export default class Jobs {
     }
 
     batchJobsBeforeStart(): JobMetadata[][] {
-        const maxWorkersInBatch = this.config.args.max_workers;
+        const maxWorkersInBatch = this.config.args.max_workers ?? 50;
 
         const batches: JobMetadata[][] = [];
 
@@ -496,7 +496,7 @@ export default class Jobs {
         reply.yellow(`${display.setAction('stop', 'present')} ${jobInfoString}`);
 
         job.api.stop()
-            .catch((e) => reply.fatal(e));
+            .catch((e) => reply.fatal(e.message));
 
         await this.postStoppedOrPausedCheck(job, ExecutionStatus.stopped);
     }

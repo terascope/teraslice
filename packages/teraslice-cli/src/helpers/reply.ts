@@ -37,7 +37,10 @@ class Reply {
     }
 
     warning(message: unknown): void {
-        this.log(chalk.yellow(this.formatErr(message)));
+        if (this.quiet) return;
+        if (!process.env.TJM_TEST_MODE) {
+            this.log(chalk.yellow(this.formatErr(message)));
+        }
     }
 
     green(message: string): void {
