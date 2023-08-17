@@ -46,6 +46,8 @@ import { toDailyDateConfig } from './toDailyDate';
 import { toDateConfig, ToDateArgs } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
+import { toTimeZoneConfig } from './toTimeZone';
+import { toTimeZoneUsingLocationConfig } from './toTimeZoneUsingLocation';
 import { toYearlyDateConfig } from './toYearlyDate';
 
 export const dateRepository = {
@@ -97,6 +99,8 @@ export const dateRepository = {
     toDate: toDateConfig,
     toHourlyDate: toHourlyDateConfig,
     toMonthlyDate: toMonthlyDateConfig,
+    toTimeZone: toTimeZoneConfig,
+    toTimeZoneUsingLocation: toTimeZoneUsingLocationConfig,
     toYearlyDate: toYearlyDateConfig,
 };
 
