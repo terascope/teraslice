@@ -1,7 +1,7 @@
 {
     "name": "generator-teraslice",
     "displayName": "Generator Teraslice",
-    "version": "0.25.0",
+    "version": "0.26.0",
     "description": "Generate teraslice related packages and code",
     "keywords": [
         "teraslice",
@@ -24,7 +24,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.46.0",
+        "@terascope/utils": "^0.47.0",
         "chalk": "^4.1.2",
         "lodash": "^4.17.21",
         "yeoman-generator": "^5.8.0",
