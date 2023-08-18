@@ -28,7 +28,9 @@ import {
     getMonth,
     getYear,
     addToDate,
-    subtractFromDate
+    subtractFromDate,
+    toTimeZone,
+    toTimeZoneUsingLocationFP
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -52,6 +54,26 @@ describe('date utils', () => {
             [[978310800000, 3 * 60], '2001-01-01T01:00:00.000+03:00'],
         ])('should handle %p and return %p', (input, expected) => {
             expect(toISO8601(input)).toEqual(expected);
+        });
+    });
+
+    describe('toTimeZone', () => {
+        test.each([
+            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', '2001-03-19T09:36:44.450Z'],
+            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', '2001-03-19T09:36:44.450Z'],
+            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', '2001-03-19T09:36:44.450Z'],
+        ])('should handle %p with timezone %p and return %p', (input, timezone, expected) => {
+            expect(toTimeZone(input, timezone)).toEqual(expected);
+        });
+    });
+
+    describe('toTimeZoneUsingLocationFP', () => {
+        test.each([
+            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, '2001-03-19T09:36:44.450Z'],
+            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', '2001-03-19T09:36:44.450Z'],
+            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], '2001-03-19T09:36:44.450Z'],
+        ])('should handle %p with location %p and return %p', (input, location, expected) => {
+            expect(toTimeZoneUsingLocationFP(location)(input)).toEqual(expected);
         });
     });
 
