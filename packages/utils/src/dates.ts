@@ -39,7 +39,7 @@ import {
     GetTimeBetweenArgs
 } from '@terascope/types';
 import tzOffset from 'date-fns-tz/getTimezoneOffset';
-import zonedTimeToUtc from 'date-fns-tz/zonedTimeToUtc';
+import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
@@ -123,9 +123,7 @@ export function toTimeZone(val:unknown, timezone: string): string {
     }
 
     const date = getValidDateOrThrow(val);
-    const parsedDate = zonedTimeToUtc(date, timezone);
-
-    return parsedDate.toISOString();
+    return formatInTimeZone(date, timezone, 'yyyy-MM-dd HH:mm:ssXXX');
 }
 
 export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
