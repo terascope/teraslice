@@ -1,7 +1,7 @@
 import {
     DateFormat, FieldType
 } from '@terascope/types';
-import { toISO8601, toTimeZone } from '@terascope/utils';
+import { toTimeZone } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -24,8 +24,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: new Date('2001-03-19T09:36:44.450Z').getTime(),
-            serialize_output: toISO8601
+            output: '2001-03-19 11:36:44+01:00',
         },
         {
             args: { timezone: 'Africa/Ndjamena' },
@@ -35,19 +34,47 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: new Date('2001-03-19T10:36:44.450Z'),
-            output: new Date('2001-03-19T09:36:44.450Z').getTime(),
-            serialize_output: toISO8601
+            output: '2001-03-19 11:36:44+01:00',
         },
         {
-            args: { timezone: 'Africa/Ndjamena' },
+            args: { timezone: 'America/Phoenix' },
             config: {
                 version: 1,
                 fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
             },
             field: 'testField',
-            input: new Date('2001-03-19T10:36:44.450Z').getTime(),
-            output: new Date('2001-03-19T09:36:44.450Z').getTime(),
-            serialize_output: toISO8601
+            input: '2023-08-22T15:41:50.172Z',
+            output: '2023-08-22 08:41:50-07:00',
+        },
+        {
+            args: { timezone: 'America/New_York' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-08-22T15:41:50.172Z',
+            output: '2023-08-22 11:41:50-04:00',
+        },
+        {
+            args: { timezone: 'America/New_York' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-11-22T15:41:50.172Z',
+            output: '2023-11-22 10:41:50-05:00',
+        },
+        {
+            args: { timezone: 'America/Phoenix' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-11-22T15:41:50.172Z',
+            output: '2023-11-22 08:41:50-07:00',
         },
     ],
     create({ args: { timezone } }) {
