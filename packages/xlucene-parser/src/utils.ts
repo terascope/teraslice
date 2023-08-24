@@ -15,7 +15,8 @@ import {
     isBooleanLike,
     isNotNil
 } from '@terascope/utils';
-import { Netmask } from 'netmask';
+import IpCidr = require('ip-cidr');
+// import { Netmask } from 'netmask';
 import {
     xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
 } from '@terascope/types';
@@ -274,7 +275,7 @@ export function makeCoerceFn(fieldType: xLuceneFieldType|undefined): (v: any) =>
 }
 
 export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
-    const { start, end } = parseIPRange(value);
+    const [start, end] = parseIPRange(value);
 
     return {
         type: i.NodeType.Range,
@@ -299,12 +300,24 @@ export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     };
 }
 
-function parseIPRange(val: string): { start: string, end: string} {
-    try {
-        const block = new Netmask(val);
-        const end = block.broadcast ? block.broadcast : block.last;
-        return { start: block.base, end };
-    } catch (err) {
-        throw new Error(`Invalid value ${val}, could not convert to ip_range`);
-    }
+function parseIPRange(val: string): [string, string] {
+    const cidrBlock = makeCidr(val);
+
+    const parsedCidr = new IpCidr(cidrBlock);
+
+    return parsedCidr.toRange();
+    // try {
+    //     const block = new Netmask(val);
+    //     const end = block.broadcast ? block.broadcast : block.last;
+    //     return { start: block.base, end };
+    // } catch (err) {
+    //     throw new Error(`Invalid value ${val}, could not convert to ip_range`);
+    // }
+}
+
+function makeCidr(val: string): string {
+    if (IpCidr.isValidCIDR(val)) return val;
+
+    if (val.includes(':')) return `${val}/128`;
+    return `${val}/32`;
 }

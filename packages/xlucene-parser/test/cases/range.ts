@@ -276,6 +276,24 @@ export default [
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
     ],
+    [
+        'ip_range:"2001:DB8::0/120"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:0db8:0000:0000:0000:0000:0000:0000' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:0db8:0000:0000:0000:0000:0000:00ff' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ]
 ] as TestCase[];
 
 export const filterNilRange: TestCase[] = [
