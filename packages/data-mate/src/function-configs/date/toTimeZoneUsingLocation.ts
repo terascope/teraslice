@@ -1,7 +1,7 @@
 import {
     DateFormat, FieldType
 } from '@terascope/types';
-import { toISO8601, toTimeZoneUsingLocationFP } from '@terascope/utils';
+import { toTimeZoneUsingLocationFP } from '@terascope/utils';
 import {
     FieldTransformConfig,
     ProcessMode,
@@ -29,8 +29,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19T09:36:44.450Z',
-            serialize_output: toISO8601
+            output: '2001-03-19 11:36:44+01:00',
         },
         {
             args: {
@@ -42,8 +41,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19T09:36:44.450Z',
-            serialize_output: toISO8601
+            output: '2001-03-19 11:36:44+01:00',
         },
         {
             args: {
@@ -55,8 +53,43 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19T09:36:44.450Z',
-            serialize_output: toISO8601
+            output: '2001-03-19 11:36:44+01:00',
+        },
+        {
+            args: {
+                location: { lat: 33.4192222, lon: -111.6566588 }
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-08-22T15:41:50.172Z',
+            output: '2023-08-22 08:41:50-07:00'
+        },
+        {
+            args: {
+                location: { lat: 40.776936, lon: -73.911140 }
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-08-22T15:41:50.172Z',
+            output: '2023-08-22 11:41:50-04:00',
+        },
+        {
+            args: {
+                location: { lat: 40.776936, lon: -73.911140 }
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-11-22T15:41:50.172Z',
+            output: '2023-11-22 10:41:50-05:00',
         },
     ],
     create({ args: { location } }) {
