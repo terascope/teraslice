@@ -31,9 +31,7 @@
     },
     "dependencies": {
         "@terascope/types": "^0.11.2",
-        "@terascope/utils": "^0.47.1",
-        "ip-cidr": "^3.1.0",
-        "netmask": "^2.0.2"
+        "@terascope/utils": "^0.47.1"
     },
     "devDependencies": {
         "@turf/invariant": "^6.2.0",

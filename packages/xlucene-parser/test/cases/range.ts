@@ -265,13 +265,31 @@ export default [
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.0' },
+                value: { type: 'value', value: '1.2.3.1' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.255' }
+                value: { type: 'value', value: '1.2.3.254' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+    [
+        'ip_range:"1.2.3.5"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '1.2.3.5' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '1.2.3.5' }
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
@@ -283,13 +301,31 @@ export default [
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '2001:0db8:0000:0000:0000:0000:0000:0000' },
+                value: { type: 'value', value: '2001:db8::1' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '2001:0db8:0000:0000:0000:0000:0000:00ff' }
+                value: { type: 'value', value: '2001:db8::ff' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+    [
+        'ip_range:"2001:DB8::64"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' }
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
