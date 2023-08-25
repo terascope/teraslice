@@ -1,4 +1,5 @@
-FROM terascope/node-base:14.21.3
+ARG NODE_VERSION=14.21.3
+FROM terascope/node-base:${NODE_VERSION}
 
 ENV NODE_ENV production
 

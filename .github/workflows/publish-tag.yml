@@ -38,5 +38,20 @@ jobs:
       - name: Publish to npm
         run: yarn ts-scripts publish -t tag npm
 
+  docker-build-publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.21.3, 16.19.1, 18.16.0]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
       - name: Publish to docker
-        run: yarn ts-scripts publish -t tag docker
+        run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
