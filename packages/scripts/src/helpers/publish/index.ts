@@ -88,7 +88,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    const devImage = await buildDevDockerImage();
+    const devImage = await buildDevDockerImage(options, undefined);
 
     let err: any|undefined;
     for (const registry of registries) {
@@ -127,7 +127,12 @@ async function publishToDocker(options: PublishOptions) {
         signale.pending(`building docker for ${options.type} release`);
 
         signale.debug(`building docker image ${imageToBuild}`);
-        await dockerBuild(imageToBuild, [devImage]);
+
+        if (options.nodeVersion) {
+            await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
+        } else {
+            await dockerBuild(imageToBuild, [devImage]);
+        }
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);

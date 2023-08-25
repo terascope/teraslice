@@ -18,6 +18,7 @@ import {
 import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
+import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
 import {
     MAX_PROJECTS_PER_BATCH,
@@ -198,7 +199,12 @@ async function runE2ETest(
             const devImage = getDevDockerImage();
             await dockerTag(devImage, e2eImage);
         } else {
-            const devImage = await buildDevDockerImage();
+            const publishOptions: PublishOptions = {
+                type: PublishType.Dev,
+                dryRun: true
+            };
+            // FIXME: I don't actually know what options this expects
+            const devImage = await buildDevDockerImage(publishOptions);
             await dockerTag(devImage, e2eImage);
         }
     } catch (err) {
