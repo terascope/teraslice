@@ -147,7 +147,7 @@ export default [
         'can match ranges with type IPRange',
         'ipField:"192.198.0.0/24"',
         [
-            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.2/24' },
             { ipField: '192.198.0.1' },
             { ipField: '1:2:3:4:5:6:7:8' },
             { ipField: 'fe80::/10' },
