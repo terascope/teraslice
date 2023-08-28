@@ -7,8 +7,8 @@ export default [
         {
             range: {
                 ip_range: {
-                    gte: '1.2.3.1',
-                    lte: '1.2.3.254'
+                    gte: '1.2.3.0',
+                    lte: '1.2.3.255'
                 }
             }
         },
@@ -41,7 +41,7 @@ export default [
         {
             range: {
                 ip_range: {
-                    gte: '2001:db8::1',
+                    gte: '2001:db8::',
                     lte: '2001:db8::ff'
                 }
             }

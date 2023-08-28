@@ -17,7 +17,10 @@ import {
     getCIDRMax,
     getCIDRBroadcast,
     getCIDRNetwork,
-    toCIDR
+    toCIDR,
+    firstUsableIPInCIDR,
+    lastUsableIPInCIDR,
+    shortenIPv6Address
 } from '../src/ip';
 
 describe('IP Utils', () => {
@@ -379,9 +382,9 @@ describe('IP Utils', () => {
     describe('getCIDRMin', () => {
         test.each([
             ['1.2.3.4/32', '1.2.3.4'],
-            ['8.8.12.118/24', '8.8.12.1'],
+            ['8.8.12.118/24', '8.8.12.0'],
             ['2001:0db8:0123:4567:89ab:cdef:1234:5678/128', '2001:db8:123:4567:89ab:cdef:1234:5678'],
-            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/46', '2001:db8:120::1']
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/46', '2001:db8:120::']
         ])('returns the min ip value in a CIDR range', (input, expected) => {
             expect(getCIDRMin(input)).toEqual(expected);
         });
@@ -394,7 +397,7 @@ describe('IP Utils', () => {
     describe('getCIDRMax', () => {
         test.each([
             ['1.2.3.4/32', '1.2.3.4'],
-            ['8.8.12.118/24', '8.8.12.254'],
+            ['8.8.12.118/24', '8.8.12.255'],
             ['2001:0db8:0123:4567:89ab:cdef:1234:5678/46', '2001:db8:123:ffff:ffff:ffff:ffff:ffff']
         ])('returns the max ip value in a CIDR range', (input, expected) => {
             expect(getCIDRMax(input)).toEqual(expected);
@@ -402,6 +405,47 @@ describe('IP Utils', () => {
 
         it('should throw if input is an invalid CIDR', () => {
             expect(() => { getCIDRMax('bad ip address'); }).toThrowError('input must be a valid IP address in CIDR notation');
+        });
+    });
+
+    describe('firstUsableIPInCIDR', () => {
+        test.each([
+            ['1.2.3.4/32', '1.2.3.4'],
+            ['8.8.12.118/24', '8.8.12.1'],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/128', '2001:db8:123:4567:89ab:cdef:1234:5678'],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/46', '2001:db8:120::1']
+        ])('returns the min ip value in a CIDR range', (input, expected) => {
+            expect(firstUsableIPInCIDR(input)).toEqual(expected);
+        });
+
+        it('should throw if input is an invalid CIDR', () => {
+            expect(() => { firstUsableIPInCIDR('bad ip address'); }).toThrowError('input must be a valid IP address in CIDR notation');
+        });
+    });
+
+    describe('lastUsableIPInCIDR', () => {
+        test.each([
+            ['1.2.3.4/32', '1.2.3.4'],
+            ['8.8.12.118/24', '8.8.12.254'],
+            ['2001:0db8:0123:4567:89ab:cdef:1234:5678/46', '2001:db8:123:ffff:ffff:ffff:ffff:ffff']
+        ])('returns the max ip value in a CIDR range', (input, expected) => {
+            expect(lastUsableIPInCIDR(input)).toEqual(expected);
+        });
+
+        it('should throw if input is an invalid CIDR', () => {
+            expect(() => { lastUsableIPInCIDR('bad ip address'); }).toThrowError('input must be a valid IP address in CIDR notation');
+        });
+    });
+
+    describe('shortenIPv6Address', () => {
+        test.each([
+            ['2001:0db8:0123:4567:0000:0000:0000:5678', '2001:db8:123:4567::5678'],
+        ])('returns the address in short form', (input, expected) => {
+            expect(shortenIPv6Address(input)).toEqual(expected);
+        });
+
+        it('should throw if input is an invalid IPv6 address', () => {
+            expect(() => { shortenIPv6Address('bad ip address'); }).toThrowError('input must be a valid address');
         });
     });
 

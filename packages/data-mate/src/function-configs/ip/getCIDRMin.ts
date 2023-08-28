@@ -16,7 +16,7 @@ export const getCIDRMinConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '8.8.12.118/24',
-            output: '8.8.12.1',
+            output: '8.8.12.0',
         },
         {
             args: {},
@@ -30,7 +30,7 @@ export const getCIDRMinConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2001:0db8:0123:4567:89ab:cdef:1234:5678/46',
-            output: '2001:db8:120::1',
+            output: '2001:db8:120::',
         }
     ],
     description: 'Returns the first address of a CIDR range, excluding the network address',

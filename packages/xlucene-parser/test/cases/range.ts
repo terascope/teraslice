@@ -265,13 +265,13 @@ export default [
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.1' },
+                value: { type: 'value', value: '1.2.3.0' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '1.2.3.254' }
+                value: { type: 'value', value: '1.2.3.255' }
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
@@ -301,7 +301,7 @@ export default [
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: { type: 'value', value: '2001:db8::1' },
+                value: { type: 'value', value: '2001:db8::' },
                 operator: 'gte'
             },
             right: {
