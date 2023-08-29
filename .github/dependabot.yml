@@ -11,6 +11,8 @@ updates:
     assignees:
       - godber
       - jsnoble
+      - sotojn
+      - busma13
     ignore:
       - dependency-name: aws-sdk
         versions:
@@ -74,4 +76,6 @@ updates:
       timezone: US/Arizona
     open-pull-requests-limit: 3
     assignees:
-      - peterdemartini
+      - godber
+      - sotojn
+      - busma13
