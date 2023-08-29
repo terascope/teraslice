@@ -39,12 +39,14 @@ import {
     GetTimeBetweenArgs
 } from '@terascope/types';
 import tzOffset from 'date-fns-tz/getTimezoneOffset';
+import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { getTypeOf } from './deps';
 import {
     bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
 } from './numbers';
 import { isString } from './strings';
 import { isBoolean } from './booleans';
+import { lookupTimezone } from './geo';
 
 // date-fns doesn't handle utc correctly here
 // https://github.com/date-fns/date-fns/issues/376
@@ -113,6 +115,30 @@ export function getValidDateOrThrow(val: unknown): Date {
         throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
     }
     return date;
+}
+
+export function toTimeZone(val:unknown, timezone: string): string {
+    if (!isString(timezone)) {
+        throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
+    }
+
+    const date = getValidDateOrThrow(val);
+    return formatInTimeZone(date, timezone, 'yyyy-MM-dd HH:mm:ssXXX');
+}
+
+export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
+    // location validation happens inside lookupTimezone
+    const timezone = lookupTimezone(location);
+    return toTimeZone(val, timezone);
+}
+
+export function toTimeZoneUsingLocationFP(location: unknown) {
+    // location validation happens inside lookupTimezone
+    const timezone = lookupTimezone(location);
+
+    return function _toTimeZoneUsingLocation(val: unknown) {
+        return toTimeZone(val, timezone);
+    };
 }
 
 /**

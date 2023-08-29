@@ -28,7 +28,9 @@ import {
     getMonth,
     getYear,
     addToDate,
-    subtractFromDate
+    subtractFromDate,
+    toTimeZone,
+    toTimeZoneUsingLocationFP
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -52,6 +54,33 @@ describe('date utils', () => {
             [[978310800000, 3 * 60], '2001-01-01T01:00:00.000+03:00'],
         ])('should handle %p and return %p', (input, expected) => {
             expect(toISO8601(input)).toEqual(expected);
+        });
+    });
+
+    describe('toTimeZone', () => {
+        test.each([
+            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
+            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
+            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
+            ['2023-08-22T15:41:50.172Z', 'America/Phoenix', '2023-08-22 08:41:50-07:00'],
+            ['2023-08-22T15:41:50.172Z', 'America/New_York', '2023-08-22 11:41:50-04:00'],
+            ['2023-11-22T15:41:50.172Z', 'America/New_York', '2023-11-22 10:41:50-05:00'],
+            ['2023-11-22T15:41:50.172Z', 'America/Phoenix', '2023-11-22 08:41:50-07:00'],
+        ])('should handle %p with timezone %p and return %p', (input, timezone, expected) => {
+            expect(toTimeZone(input, timezone)).toEqual(expected);
+        });
+    });
+
+    describe('toTimeZoneUsingLocationFP', () => {
+        test.each([
+            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, '2001-03-19 11:36:44+01:00'],
+            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', '2001-03-19 11:36:44+01:00'],
+            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], '2001-03-19 11:36:44+01:00'],
+            ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, '2023-08-22 08:41:50-07:00'],
+            ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-08-22 11:41:50-04:00'],
+            ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-11-22 10:41:50-05:00']
+        ])('should handle %p with location %p and return %p', (input, location, expected) => {
+            expect(toTimeZoneUsingLocationFP(location)(input)).toEqual(expected);
         });
     });
 

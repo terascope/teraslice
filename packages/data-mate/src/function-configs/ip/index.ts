@@ -2,6 +2,10 @@ import { extractMappedIPv4Config } from './extractMappedIPv4';
 import { getCIDRBroadcastConfig } from './getCIDRBroadcast';
 import { getCIDRMaxConfig } from './getCIDRMax';
 import { getCIDRMinConfig } from './getCIDRMin';
+import { getFirstIPInCIDRConfig } from './getFirstIpInCIDR';
+import { getLastIPInCIDRConfig } from './getLastIpInCIDR';
+import { getFirstUsableIPInCIDRConfig } from './getFirstUsableIPInCIDR';
+import { getLastUsableIPInCIDRConfig } from './getLastUsableIPInCIDR';
 import { getCIDRNetworkConfig } from './getCIDRNetwork';
 import { inIPRangeConfig, InIPRangeArgs } from './inIPRange';
 import { intToIPConfig, IntToIPArgs } from './intToIP';
@@ -31,6 +35,10 @@ export const ipRepository = {
     intToIP: intToIPConfig,
     getCIDRMin: getCIDRMinConfig,
     getCIDRMax: getCIDRMaxConfig,
+    getFirstIPInCIDR: getFirstIPInCIDRConfig,
+    getLastIPInCIDR: getLastIPInCIDRConfig,
+    getFirstUsableIPInCIDR: getFirstUsableIPInCIDRConfig,
+    getLastUsableIPInCIDR: getLastUsableIPInCIDRConfig,
     getCIDRBroadcast: getCIDRBroadcastConfig,
     getCIDRNetwork: getCIDRNetworkConfig,
     toCIDR: toCIDRConfig

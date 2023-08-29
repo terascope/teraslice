@@ -13,9 +13,15 @@ import {
     toFloatOrThrow,
     getTypeOf,
     isBooleanLike,
-    isNotNil
+    isNotNil,
+    isIP,
+    isCIDR,
+    isIPv6,
+    getFirstIPInCIDR,
+    getLastIPInCIDR,
+    toCIDR
 } from '@terascope/utils';
-import { Netmask } from 'netmask';
+
 import {
     xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
 } from '@terascope/types';
@@ -299,12 +305,23 @@ export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     };
 }
 
-function parseIPRange(val: string): { start: string, end: string} {
-    try {
-        const block = new Netmask(val);
-        const end = block.broadcast ? block.broadcast : block.last;
-        return { start: block.base, end };
-    } catch (err) {
-        throw new Error(`Invalid value ${val}, could not convert to ip_range`);
+function parseIPRange(val: string): { start: string, end: string } {
+    const cidrBlock = makeCidr(val);
+
+    return {
+        start: getFirstIPInCIDR(cidrBlock),
+        end: getLastIPInCIDR(cidrBlock)
+    };
+}
+
+function makeCidr(val: string): string {
+    if (isCIDR(val)) return val;
+
+    if (isIP(val)) {
+        // CIDR notation for a single ip
+        if (isIPv6(val)) return toCIDR(val, 128);
+        return toCIDR(val, 32);
     }
+
+    throw new Error(`Invalid value ${val}, could not convert to ip_range`);
 }
