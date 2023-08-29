@@ -471,11 +471,12 @@ describe('IP Utils', () => {
     describe('shortenIPv6Address', () => {
         test.each([
             ['2001:0db8:0123:4567:0000:0000:0000:5678', '2001:db8:123:4567::5678'],
+            ['1.2.3.4', '1.2.3.4']
         ])('returns the address in short form', (input, expected) => {
             expect(shortenIPv6Address(input)).toEqual(expected);
         });
 
-        it('should throw if input is an invalid IPv6 address', () => {
+        it('should throw if input is an invalid address', () => {
             expect(() => { shortenIPv6Address('bad ip address'); }).toThrowError('input must be a valid address');
         });
     });
