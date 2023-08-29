@@ -276,6 +276,60 @@ export default [
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
     ],
+    [
+        'ip_range:"1.2.3.5"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '1.2.3.5' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '1.2.3.5' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+    [
+        'ip_range:"2001:DB8::0/120"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::ff' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ],
+    [
+        'ip_range:"2001:DB8::64"',
+        'ip range', {
+            type: NodeType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' },
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: { type: 'value', value: '2001:db8::64' }
+            }
+        } as Range,
+        { ip_range: xLuceneFieldType.IPRange },
+    ]
 ] as TestCase[];
 
 export const filterNilRange: TestCase[] = [

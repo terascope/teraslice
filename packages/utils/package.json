@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.47.1",
+    "version": "0.48.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -50,6 +50,7 @@
         "debug": "^4.3.4",
         "geo-tz": "^7.0.7",
         "ip-bigint": "^3.0.3",
+        "ip-cidr": "^3.1.0",
         "ip6addr": "^0.2.5",
         "ipaddr.js": "^2.0.1",
         "is-cidr": "^4.0.2",
