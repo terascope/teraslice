@@ -173,8 +173,28 @@ export function isCIDR(input: unknown): input is string {
  *
  * @param input ip address block in CIDR notation
  * @returns first IP address in the block
+ * @deprecated use getFirstUsableIPInCIDR
  */
 export function getCIDRMin(input: unknown): string {
+    return getFirstUsableIPInCIDR(input);
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns last ip address in the block
+ * @deprecated use getLastUsableIPInCIDR
+ */
+export function getCIDRMax(input: unknown): string {
+    return getLastUsableIPInCIDR(input);
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation, inclusive
+ * @returns first IP address in the block
+ */
+export function getFirstIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
         return shortenIPv6Address(new IPCIDR(input as string).start());
     }
@@ -185,9 +205,9 @@ export function getCIDRMin(input: unknown): string {
 /**
  *
  * @param input ip address block in CIDR notation
- * @returns last ip address in the block
+ * @returns last ip address in the block, inclusive
  */
-export function getCIDRMax(input: unknown): string {
+export function getLastIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
         return shortenIPv6Address(new IPCIDR(input as string).end());
     }
@@ -200,7 +220,7 @@ export function getCIDRMax(input: unknown): string {
  * @param input ip address block in CIDR notation
  * @returns first usable ip address of the CIDR block
  */
-export function firstUsableIPInCIDR(input: unknown) {
+export function getFirstUsableIPInCIDR(input: unknown) {
     if (isCIDR(input)) {
         return createCIDR(input).first().toString();
     }
@@ -213,7 +233,7 @@ export function firstUsableIPInCIDR(input: unknown) {
  * @param input ip address block in CIDR notation
  * @returns last usable ip address of the CIDR block
  */
-export function lastUsableIPInCIDR(input: unknown) {
+export function getLastUsableIPInCIDR(input: unknown) {
     if (isCIDR(input)) {
         return createCIDR(input).last().toString();
     }

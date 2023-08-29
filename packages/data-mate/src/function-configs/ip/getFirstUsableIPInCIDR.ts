@@ -1,12 +1,12 @@
-import { getCIDRMin } from '@terascope/utils';
+import { getFirstUsableIPInCIDR } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getCIDRMinConfig: FieldTransformConfig = {
-    name: 'getCIDRMin',
+export const getFirstUsableIPInCIDRConfig: FieldTransformConfig = {
+    name: 'getFirstUsableIPInCIDR',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.IP,
@@ -34,7 +34,7 @@ export const getCIDRMinConfig: FieldTransformConfig = {
         }
     ],
     description: 'Returns the first address of a CIDR range, excluding the network address',
-    create() { return getCIDRMin; },
+    create() { return getFirstUsableIPInCIDR; },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {

@@ -16,7 +16,7 @@ export const getCIDRMaxConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '8.8.12.118/24',
-            output: '8.8.12.255',
+            output: '8.8.12.254',
         },
         {
             args: {},

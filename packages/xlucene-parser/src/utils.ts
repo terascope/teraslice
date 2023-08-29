@@ -17,8 +17,9 @@ import {
     isIP,
     isCIDR,
     isIPv6,
-    getCIDRMax,
-    getCIDRMin
+    getFirstIPInCIDR,
+    getLastIPInCIDR,
+    toCIDR
 } from '@terascope/utils';
 
 import {
@@ -304,12 +305,12 @@ export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     };
 }
 
-function parseIPRange(val: string): { start: string, end: string} {
+function parseIPRange(val: string): { start: string, end: string } {
     const cidrBlock = makeCidr(val);
 
     return {
-        start: getCIDRMin(cidrBlock),
-        end: getCIDRMax(cidrBlock)
+        start: getFirstIPInCIDR(cidrBlock),
+        end: getLastIPInCIDR(cidrBlock)
     };
 }
 
@@ -318,8 +319,8 @@ function makeCidr(val: string): string {
 
     if (isIP(val)) {
         // CIDR notation for a single ip
-        if (isIPv6(val)) return `${val}/128`;
-        return `${val}/32`;
+        if (isIPv6(val)) return toCIDR(val, 128);
+        return toCIDR(val, 32);
     }
 
     throw new Error(`Invalid value ${val}, could not convert to ip_range`);

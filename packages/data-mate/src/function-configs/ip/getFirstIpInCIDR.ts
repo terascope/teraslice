@@ -1,12 +1,12 @@
-import { getCIDRMin } from '@terascope/utils';
+import { getFirstIPInCIDR } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getCIDRMinConfig: FieldTransformConfig = {
-    name: 'getCIDRMin',
+export const getFirstIPInCIDRConfig: FieldTransformConfig = {
+    name: 'getFirstIPInCIDR',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.IP,
@@ -16,7 +16,7 @@ export const getCIDRMinConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '8.8.12.118/24',
-            output: '8.8.12.1',
+            output: '8.8.12.0',
         },
         {
             args: {},
@@ -30,11 +30,11 @@ export const getCIDRMinConfig: FieldTransformConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.String } } },
             field: 'testField',
             input: '2001:0db8:0123:4567:89ab:cdef:1234:5678/46',
-            output: '2001:db8:120::1',
+            output: '2001:db8:120::',
         }
     ],
-    description: 'Returns the first address of a CIDR range, excluding the network address',
-    create() { return getCIDRMin; },
+    description: 'Returns the first address of a CIDR range, all inclusive',
+    create() { return getFirstIPInCIDR; },
     accepts: [FieldType.String, FieldType.IPRange],
     output_type({ field_config }) {
         return {
