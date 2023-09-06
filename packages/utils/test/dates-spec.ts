@@ -27,10 +27,15 @@ import {
     getDate,
     getMonth,
     getYear,
+    getUTCMinutes,
+    getUTCHours,
+    getUTCDate,
+    getUTCMonth,
+    getUTCYear,
     addToDate,
     subtractFromDate,
     toTimeZone,
-    toTimeZoneUsingLocationFP
+    toTimeZoneUsingLocationFP,
 } from '../src/dates';
 
 describe('date utils', () => {
@@ -59,13 +64,13 @@ describe('date utils', () => {
 
     describe('toTimeZone', () => {
         test.each([
-            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            ['2023-08-22T15:41:50.172Z', 'America/Phoenix', '2023-08-22 08:41:50-07:00'],
-            ['2023-08-22T15:41:50.172Z', 'America/New_York', '2023-08-22 11:41:50-04:00'],
-            ['2023-11-22T15:41:50.172Z', 'America/New_York', '2023-11-22 10:41:50-05:00'],
-            ['2023-11-22T15:41:50.172Z', 'America/Phoenix', '2023-11-22 08:41:50-07:00'],
+            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', [985001804450, 60]],
+            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', [985001804450, 60]],
+            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', [985001804450, 60]],
+            ['2023-08-22T15:41:50.172Z', 'America/Phoenix', [1692693710172, -420]],
+            ['2023-08-22T15:41:50.172Z', 'America/New_York', [1692704510172, -240]],
+            ['2023-11-22T15:41:50.172Z', 'America/New_York', [1700649710172, -240]],
+            ['2023-11-22T15:41:50.172Z', 'America/Phoenix', [1700642510172, -420]],
         ])('should handle %p with timezone %p and return %p', (input, timezone, expected) => {
             expect(toTimeZone(input, timezone)).toEqual(expected);
         });
@@ -73,12 +78,12 @@ describe('date utils', () => {
 
     describe('toTimeZoneUsingLocationFP', () => {
         test.each([
-            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, '2001-03-19 11:36:44+01:00'],
-            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', '2001-03-19 11:36:44+01:00'],
-            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], '2001-03-19 11:36:44+01:00'],
-            ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, '2023-08-22 08:41:50-07:00'],
-            ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-08-22 11:41:50-04:00'],
-            ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-11-22 10:41:50-05:00']
+            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, [985001804450, 60]],
+            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', [985001804450, 60]],
+            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], [985001804450, 60]],
+            ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, [1692693710172, -420]],
+            ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1692704510172, -240]],
+            ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1700649710172, -240]]
         ])('should handle %p with location %p and return %p', (input, location, expected) => {
             expect(toTimeZoneUsingLocationFP(location)(input)).toEqual(expected);
         });
@@ -478,6 +483,7 @@ describe('date utils', () => {
     describe('getMinutes', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 19],
+            ['2001-03-19T11:36:44+01:00', 36],
             ['2021-05-10T10:00:00.000Z', 0],
             [1311874359231, 32],
             [1715472343, 31],
@@ -490,6 +496,26 @@ describe('date utils', () => {
 
         it('should throw if input cannot be parsed to a date', () => {
             expect(() => { getMinutes(true); })
+                .toThrowError('Expected true (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getUTCMinutes', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 19],
+            ['2001-03-19T11:36:44+01:00', 36],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1311874359231, 32],
+            [1715472343, 31],
+            ['08/05/2021', 0],
+            [[1621026300000, -420], 5],
+            [[1621026300000, -418], 3]
+        ])('for date %p getMinutes should return %p', (input, expected) => {
+            expect(getUTCMinutes(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCMinutes(true); })
                 .toThrowError('Expected true (Boolean) to be in a standard date format');
         });
     });
@@ -514,6 +540,26 @@ describe('date utils', () => {
         });
     });
 
+    describe('getUTCHours', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            ['2021-05-10T00:00:00.000Z', 0],
+            [1311874359231, 17],
+            [1715472343, 20],
+            ['08/05/2021 UTC', 0],
+            ['08/05/2021 EST', 5],
+            ['2021-05-10T03:00:00.000-05:00', 8],
+            [[1621026300000, -420], 4]
+        ])('for date %p getHours should return %p', (input, expected) => {
+            expect(getUTCHours(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCHours(false); })
+                .toThrowError('Expected false (Boolean) to be in a standard date format');
+        });
+    });
+
     describe('getDate', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 10],
@@ -527,6 +573,23 @@ describe('date utils', () => {
 
         it('should throw if input cannot be parsed to a date', () => {
             expect(() => { getDate([]); })
+                .toThrowError('Expected  (Array) to be in a standard date format');
+        });
+    });
+
+    describe('getUTCDate', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            [1311874359231, 28],
+            [1715472343, 20],
+            ['08/05/2021', 5],
+            [[1621026300000, -420], 15]
+        ])('for date %p getDate should return %p', (input, expected) => {
+            expect(getUTCDate(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCDate([]); })
                 .toThrowError('Expected  (Array) to be in a standard date format');
         });
     });
@@ -546,6 +609,21 @@ describe('date utils', () => {
         });
     });
 
+    describe('getUTCMonth', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 5],
+            [1311874359231, 7],
+            [1715472343, 1],
+            ['08/05/2021', 8],
+            ['2021-05-10T10:19:12.746Z', 5],
+            ['12/05/2021', 12],
+            ['01/05/2021', 1],
+            [[1621026300000, -420], 5]
+        ])('for date %p getMonth should return %p', (input, expected) => {
+            expect(getUTCMonth(input)).toEqual(expected);
+        });
+    });
+
     describe('getYear', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 2021],
@@ -555,6 +633,18 @@ describe('date utils', () => {
             [[1621026300000, -420], 2021]
         ])('for date %p getYear should return %p', (input, expected) => {
             expect(getYear(input)).toEqual(expected);
+        });
+    });
+
+    describe('getUTCYear', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 2021],
+            [1311874359231, 2011],
+            [1715472343, 1970],
+            ['08/05/1872', 1872],
+            [[1621026300000, -420], 2021]
+        ])('for date %p getYear should return %p', (input, expected) => {
+            expect(getUTCYear(input)).toEqual(expected);
         });
     });
 

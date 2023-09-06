@@ -78,7 +78,15 @@ describe('Vector', () => {
         ],
         [
             FieldType.Date,
-            [nowDate, nowDate.toISOString(), now, '1941-08-20T07:00:00.000Z', null, undefined],
+            [
+                nowDate,
+                nowDate.toISOString(),
+                now,
+                '1941-08-20T07:00:00.000Z',
+                null,
+                undefined,
+                [1693412879005, 420]
+            ],
             undefined,
             [
                 nowDate.toISOString(),
@@ -86,7 +94,8 @@ describe('Vector', () => {
                 nowDate.toISOString(),
                 '1941-08-20T07:00:00.000Z',
                 null,
-                null
+                null,
+                '2023-08-30T16:27:59.005+07:00'
             ],
             ['not a date', Number.NaN],
         ],
