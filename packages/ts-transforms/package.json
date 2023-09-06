@@ -53,7 +53,7 @@
         "@types/valid-url": "^1.0.4",
         "@types/validator": "^13.7.17",
         "@types/yargs": "^17.0.24",
-        "execa": "^5.1.0"
+        "execa": "^8.0.1"
     },
     "engines": {
         "node": ">=14.17.0",
