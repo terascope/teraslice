@@ -37,7 +37,7 @@
     },
     "devDependencies": {
         "bunyan": "^1.8.15",
-        "elasticsearch-store": "^0.69.0",
+        "elasticsearch-store": "^0.70.0",
         "fs-extra": "^10.1.0",
         "ms": "^2.1.3",
         "nanoid": "^3.3.4",
