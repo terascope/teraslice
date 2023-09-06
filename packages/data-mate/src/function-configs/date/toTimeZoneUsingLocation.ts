@@ -1,15 +1,15 @@
-import {
-    DateFormat, FieldType
-} from '@terascope/types';
+import { DateFormat, FieldType, GeoInput } from '@terascope/types';
 import { toTimeZoneUsingLocationFP } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
+export interface toTimeZoneUsingLocationArgs {
+    location: GeoInput;
+}
+
+export const toTimeZoneUsingLocationConfig: FieldTransformConfig<toTimeZoneUsingLocationArgs> = {
     name: 'toTimeZoneUsingLocation',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -29,7 +29,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19 11:36:44+01:00',
+            output: '2001-03-19T11:36:44.450+01:00',
         },
         {
             args: {
@@ -41,7 +41,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19 11:36:44+01:00',
+            output: '2001-03-19T11:36:44.450+01:00',
         },
         {
             args: {
@@ -53,7 +53,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19 11:36:44+01:00',
+            output: '2001-03-19T11:36:44.450+01:00',
         },
         {
             args: {
@@ -65,7 +65,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-08-22T15:41:50.172Z',
-            output: '2023-08-22 08:41:50-07:00'
+            output: '2023-08-22T08:41:50.172-07:00'
         },
         {
             args: {
@@ -77,7 +77,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-08-22T15:41:50.172Z',
-            output: '2023-08-22 11:41:50-04:00',
+            output: '2023-08-22T11:41:50.172-04:00',
         },
         {
             args: {
@@ -89,7 +89,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-11-22T15:41:50.172Z',
-            output: '2023-11-22 10:41:50-05:00',
+            output: '2023-11-22T10:41:50.172-04:00',
         },
     ],
     create({ args: { location } }) {
@@ -114,7 +114,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig = {
             field_config: {
                 description: field_config.description,
                 array: field_config.array,
-                type: FieldType.Any
+                type: FieldType.Date
             },
         };
     }

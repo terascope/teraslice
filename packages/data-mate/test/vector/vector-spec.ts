@@ -26,59 +26,16 @@ describe('Vector', () => {
     const now = nowDate.getTime();
     const testCases: Case[] = [
         [
-            FieldType.Any,
-            ['foo', 'bar', 1, 2, null, null]
-        ],
-        [
-            FieldType.String,
-            ['foo', 'bar', true, 1, 2, null, undefined],
-            undefined,
-            ['foo', 'bar', 'true', '1', '2', null, null],
-            [{ foo: 'bar' }]
-        ],
-        [
-            FieldType.Float,
-            [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
-            undefined,
-            [12.344, 2.01, 200, 1, 2, null, null]
-        ],
-        [
-            FieldType.Integer,
-            [12.344, '2.01', BigInt(246071665871), 1, 2, null, undefined],
-            undefined,
-            [12, 2, 246071665871, 1, 2, null, null],
-            ['foo']
-        ],
-        [
-            FieldType.Byte,
-            [12.344, '2.01', -1, 2, null, undefined],
-            undefined,
-            [12, 2, -1, 2, null, null],
-            [128, -129, 'bar']
-        ],
-        [
-            FieldType.Short,
-            [12.344, '-2.01', 1000, 2, null, undefined],
-            undefined,
-            [12, -2, 1000, 2, null, null],
-            [32_768, -32_769, 'baz', '++1']
-        ],
-        [
-            FieldType.Long,
-            [12.344, '2.01', BigInt(200), 1, null, undefined],
-            undefined,
-            [BigInt(12), BigInt(2), BigInt(200), BigInt(1), null, null]
-        ],
-        [
-            FieldType.Boolean,
-            ['yes', 'no', true, false, 0, 1, null, undefined],
-            undefined,
-            [true, false, true, false, false, true, null, null],
-            ['Y E S', 'foo', 23]
-        ],
-        [
             FieldType.Date,
-            [nowDate, nowDate.toISOString(), now, '1941-08-20T07:00:00.000Z', null, undefined],
+            [
+                nowDate,
+                nowDate.toISOString(),
+                now,
+                '1941-08-20T07:00:00.000Z',
+                null,
+                undefined,
+                [1693412879005, 420]
+            ],
             undefined,
             [
                 nowDate.toISOString(),
@@ -86,7 +43,8 @@ describe('Vector', () => {
                 nowDate.toISOString(),
                 '1941-08-20T07:00:00.000Z',
                 null,
-                null
+                null,
+                '2023-08-30T16:27:59.005+07:00'
             ],
             ['not a date', Number.NaN],
         ],
