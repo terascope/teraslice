@@ -74,7 +74,7 @@ services:
       - IPC_LOCK
   kafka:
     image: terascope/kafka-zookeeper:v1.1.0
-    platform: linux/amd64
+    platform: linux/amd64  # platform specified to force amd64 on arm MacOS docker
     ports:
       - "2181:2181"
       - "9092:9092"
