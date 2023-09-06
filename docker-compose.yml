@@ -1,4 +1,4 @@
-version: '2.4'
+version: '3.8'
 services:
   teraslice-master:
     build:
@@ -39,7 +39,7 @@ services:
       - ./autoload:/app/autoload:delegated
       - ./config:/app/config:delegated
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 15s
@@ -74,6 +74,7 @@ services:
       - IPC_LOCK
   kafka:
     image: terascope/kafka-zookeeper:v1.1.0
+    platform: linux/amd64  # platform specified to force amd64 on arm MacOS docker
     ports:
       - "2181:2181"
       - "9092:9092"

@@ -1,8 +1,8 @@
 import _isIP from 'is-ip';
+import IPCIDR from 'ip-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
-import validateCidr from 'is-cidr';
 import { isString } from './strings';
 import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
 import { getTypeOf } from './deps';
@@ -166,23 +166,93 @@ function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6): boolean {
 }
 
 export function isCIDR(input: unknown): input is string {
-    return isString(input) && validateCidr(input) > 0;
+    return isString(input) && IPCIDR.isValidCIDR(input);
 }
 
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns first IP address in the block
+ * @deprecated use getFirstUsableIPInCIDR
+ */
 export function getCIDRMin(input: unknown): string {
+    return getFirstUsableIPInCIDR(input);
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns last ip address in the block
+ * @deprecated use getLastUsableIPInCIDR
+ */
+export function getCIDRMax(input: unknown): string {
+    return getLastUsableIPInCIDR(input);
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation, inclusive
+ * @returns first IP address in the block
+ */
+export function getFirstIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return createCIDR(input as string).first().toString();
+        return shortenIPv6Address(new IPCIDR(input as string).start());
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
 }
 
-export function getCIDRMax(input: unknown): string {
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns last ip address in the block, inclusive
+ */
+export function getLastIPInCIDR(input: unknown): string {
     if (isCIDR(input)) {
-        return createCIDR(input as string).last().toString();
+        return shortenIPv6Address(new IPCIDR(input as string).end());
     }
 
     throw Error('input must be a valid IP address in CIDR notation');
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns first usable ip address of the CIDR block
+ */
+export function getFirstUsableIPInCIDR(input: unknown) {
+    if (isCIDR(input)) {
+        return createCIDR(input).first().toString();
+    }
+
+    throw Error('input must be a valid IP address in CIDR notation');
+}
+
+/**
+ *
+ * @param input ip address block in CIDR notation
+ * @returns last usable ip address of the CIDR block
+ */
+export function getLastUsableIPInCIDR(input: unknown) {
+    if (isCIDR(input)) {
+        return createCIDR(input).last().toString();
+    }
+
+    throw Error('input must be a valid IP address in CIDR notation');
+}
+
+/**
+ *
+ * @param input ip address
+ * @returns IPv6 addresses are returned without leading 0's in a group or empty groups
+ *  ipv4 addresses are simply returned
+ */
+export function shortenIPv6Address(input: unknown) {
+    if (isIP(input)) {
+        return ip6addr.parse(input).toString();
+    }
+
+    throw Error('input must be a valid address');
 }
 
 export function getCIDRBroadcast(input: unknown): string {
