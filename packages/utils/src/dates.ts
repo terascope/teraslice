@@ -127,13 +127,6 @@ export function toTimeZone(val:unknown, timezone: string): DateTuple {
     const offset = getTimezoneOffset(date, timezone);
     const newTime = date.getTime() + (offset * 60_000);
     return setTimezone(newTime, timezone);
-
-    // const other = Math.round(tzOffset(timezone, date) / (1000 * 60));
-    // const myTuple = _makeDateTuple(date, other);
-    // const backDate = toISO8601(myTuple);
-    // const answerDate = toISO8601(final)
-
-    // return final;
 }
 
 export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
