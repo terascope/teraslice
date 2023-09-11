@@ -75,6 +75,7 @@ export type RootPackageInfo = {
     workspaces: string[]|{ packages: string[] };
     terascope: {
         root: boolean;
+        asset: boolean;
         type: 'monorepo';
         target: string;
         version?: 1|2;
