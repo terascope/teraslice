@@ -32,7 +32,7 @@ export async function verifyCommitted(options: SyncOptions): Promise<void> {
         }
     });
     if (missingFiles.length) {
-        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n ${formatList(missingFiles)}
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
         \nAdd these files to the root and try again.\n`);
         process.exit(1);
     }
@@ -89,7 +89,9 @@ ${formatList(diff)}
     }
 
     if (options.verify) {
-        signale.warn('Your package.json files were not configured properly.\nThey have been configured for you.\nCommit or stage the changes and try running bump again.');
+        signale.warn(`Your package.json files were not configured properly.
+             They have been configured for you.
+             Commit or stage the changes and try running bump again.`);
         process.exit(1);
     }
 }
