@@ -73,14 +73,14 @@ const cmd: CommandModule = {
             .requiresArg('packages');
     },
     async handler(argv) {
-        const release = getRelease(argv); //patch, minor, major, etc
-        const rootInfo = getRootInfo(); //root package.json
+        const release = getRelease(argv); // patch, minor, major, etc
+        const rootInfo = getRootInfo(); // root package.json
 
         // Ensure all files have the necessary data?
-        // If this fails, save changes that were made and rerun yarn bump.      
+        // If this fails, save changes that were made and rerun yarn bump.
         await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
 
-        console.log('@@@@@ bump.ts handler, argv.packages: ', argv.packages);
+        // console.log('@@@@@ bump.ts handler, argv.packages: ', argv.packages);
 
         if (rootInfo.terascope.asset) { // we're updating an asset repo
             signale.warn('bump has detected the root directory is an Asset.');
@@ -90,18 +90,19 @@ const cmd: CommandModule = {
                 packages: argv.packages as PackageInfo[], // packages user supplies to command
                 preId: argv['prerelease-id'] as string | undefined, // user supplied prerelease-id (optional)
                 release, // user supplied release type
-                deps: Boolean(argv.deps), // Bump the child dependencies recursively, (ignores the monorepo's main package)
+                // Bump the child dependencies recursively, (ignores the monorepo's main package)
+                deps: Boolean(argv.deps),
                 skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
             });
         }
         return bumpPackages({
-            packages: argv.packages as PackageInfo[], //packages user supplies to command
-            preId: argv['prerelease-id'] as string | undefined, //user supplied prerelease-id (optional)
-            release, //user supplied release type
-            deps: Boolean(argv.deps), //Bump the child dependencies recursively, (ignores the monorepo's main package)
-            skipReset: Boolean(argv['skip-reset']), //Skip resetting the packages to latest from NPM
+            packages: argv.packages as PackageInfo[], // user supplies to command
+            preId: argv['prerelease-id'] as string | undefined, // user supplied prerelease-id (optional)
+            release, // user supplied release type
+            // Bump the child dependencies recursively, (ignores the monorepo's main package)
+            deps: Boolean(argv.deps),
+            skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
         });
-
     },
 };
 

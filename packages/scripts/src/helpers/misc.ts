@@ -40,7 +40,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
     const dir = path.dirname(pkgJSONPath);
-    const pathAsset = dir + '/asset/asset.json';
+    const pathAsset = `${dir}/asset/asset.json`;
     const isRootAsset = fse.existsSync(pathAsset);
     if (!isRoot && !isRootAsset) return undefined;
 
