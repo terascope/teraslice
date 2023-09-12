@@ -134,8 +134,8 @@ export function bumpPackagesList(
     result: Record<string, BumpPkgInfo>,
     packages: PackageInfo[],
 ): void {
-    console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, result: ', result);
-    console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, packages: ', packages);
+    // console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, result: ', result);
+    // console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, packages: ', packages);
     const rootInfo = getRootInfo();
     for (const [name, bumpInfo] of Object.entries(result)) {
         const pkgInfo = findPackageByName(packages, name);
@@ -146,7 +146,11 @@ export function bumpPackagesList(
 
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
+            // console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, depPkgInfo: ', depPkgInfo);
+
             const key = getDepKeyFromType(depBumpInfo.type);
+            // console.log('@@@@@helpers/bump/utils.ts bumpPackagesList, key: ', key);
+
             if (!depPkgInfo[key]) continue;
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
@@ -167,7 +171,7 @@ function getDepKeyFromType(type: BumpType): string {
     throw new Error(`Unknown BumpType ${type} given`);
 }
 
-function bumpVersion(pkgInfo: PackageInfo, release: ReleaseType, preId?: string) {
+export function bumpVersion(pkgInfo: PackageInfo, release: ReleaseType, preId?: string) {
     const version = semver.inc(pkgInfo.version, release, false, preId);
     if (!version) {
         throw new Error(`Failure to increment version "${pkgInfo.version}" using "${release}"`);
