@@ -6,6 +6,7 @@ import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
+import signale from '../helpers/signale';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -74,6 +75,10 @@ const cmd: CommandModule = {
     async handler(argv) {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
+        if (rootInfo.terascope.asset) {
+            signale.warn('bump has detected the root directory is an Asset.');
+            signale.note('bump is in Asset mode.');
+        }
         await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
