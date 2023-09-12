@@ -9,8 +9,8 @@ import signale from '../signale';
 import { getRootInfo } from '../misc';
 
 export async function getPackagesToBump(
-    packages: PackageInfo[], //info on all packages and rootInfo
-    options: BumpPackageOptions //options from original bump command
+    packages: PackageInfo[], // info on all packages and rootInfo
+    options: BumpPackageOptions // options from original bump command
 ): Promise<Record<string, BumpPkgInfo>> {
     if (!options.packages.length) {
         throw new Error('Missing packages to bump');
@@ -18,7 +18,7 @@ export async function getPackagesToBump(
 
     const result: Record<string, BumpPkgInfo> = {};
 
-    for (const pkgInfo of options.packages) { //options.packages is array of packages to be updated
+    for (const pkgInfo of options.packages) { // options.packages is array of packages to be updated
         await _bumpPackage(pkgInfo);
     }
 
@@ -69,7 +69,8 @@ export async function getPackagesToBump(
         await _resetVersion(pkgInfo);
 
         const from = pkgInfo.version;
-        const to = bumpVersion(pkgInfo, options.release, options.preId); //update semver according to cmd options
+        // update semver according to cmd options
+        const to = bumpVersion(pkgInfo, options.release, options.preId);
 
         const main = isMainPackage(pkgInfo);
         result[pkgInfo.name] = {
@@ -83,10 +84,10 @@ export async function getPackagesToBump(
 
     async function _resetVersion(pkgInfo: PackageInfo) {
         if (options.skipReset) return;
-        if (get(pkgInfo, 'terascope.root', false)) return; //don't reset version if in teraslice root directory
+        if (get(pkgInfo, 'terascope.root', false)) return; // don't reset version if in teraslice root directory
         if (
             pkgInfo.private
-            && pkgInfo.terascope?.allowBumpWhenPrivate //don't reset Private package that allows bump
+            && pkgInfo.terascope?.allowBumpWhenPrivate // don't reset Private pkg that allows bump
         ) return;
 
         const remote = await getRemotePackageVersion(pkgInfo);

@@ -1,8 +1,10 @@
+import fs from 'fs';
+import path from 'path';
 import { BumpPackageOptions, BumpPkgInfo } from './interfaces';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
 import { Hook, PackageInfo } from '../interfaces';
 
-import { getRootInfo } from '../misc';
+import { getRootDir, getRootInfo, writeIfChanged } from '../misc';
 import * as utils from './utils';
 import signale from '../signale';
 import { syncVersions } from '../sync/utils';
@@ -59,7 +61,7 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     // mutates packages to contain new version numbers. Updates dependencies
     utils.bumpPackagesList(packagesToBump, packages);
     console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
-    bumpAssetVersion(packagesToBump, packages);
+
     // creates the commit message for the end of this function
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
@@ -81,6 +83,9 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
 
     await updatePkgJSON(rootInfo);
 
+    // TODO: skip this if --skip-asset flag is set
+    bumpAssetVersion(packagesToBump, packages);
+
     signale.success(`
 
 Please commit these changes:
@@ -89,11 +94,29 @@ Please commit these changes:
 `);
 }
 
-function bumpAssetVersion(pkgsToBump: Record<string, BumpPkgInfo>, packages: PackageInfo[]):void {
-    for (const [name, bumpInfo] of Object.entries(pkgsToBump)) {
-        // look for name: Asset
+async function bumpAssetVersion(
+    pkgsToBump: Record<string, BumpPkgInfo>,
+    packages: PackageInfo[]
+): Promise<void> {
+    const newVersionObj = { version: 100 };
+    // get asset/package.json
+    const pathToPkgJson = path.join(getRootDir(), '/asset/package.json');
+    console.log('@@@@@ index.ts bumpAssetVersion, pathToPkgJson: ', pathToPkgJson);
+    if (fs.existsSync(pathToPkgJson)) {
         // update version in packages
-        // find the asset.json
+        const pkgUpdated = await writeIfChanged(pathToPkgJson, newVersionObj, {
+            log: true,
+        });
+        console.log('@@@@@ index.ts bumpAssetVersion, pkgUpdated: ', pkgUpdated);
+    }
+
+    // get asset/asset.json
+    const pathToAssetJson = path.join(getRootDir(), '/asset/asset.json');
+    if (fs.existsSync(pathToPkgJson)) {
         // update version in asset.json
+        const assetUpdated = await writeIfChanged(pathToAssetJson, newVersionObj, {
+            log: true,
+        });
+        console.log('@@@@@ index.ts bumpAssetVersion, assetUpdated: ', assetUpdated);
     }
 }
