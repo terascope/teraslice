@@ -135,6 +135,9 @@ export = {
 
             try {
                 reply.green('Beginning asset build.');
+                if (cliConfig.args.replace) {
+                    asset.overwrite = true;
+                }
                 const buildResult = await asset.build();
                 assetPath = buildResult.name;
                 reply.green(`Asset created:\n\t${buildResult.name} (${buildResult.bytes})`);
