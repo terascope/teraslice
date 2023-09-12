@@ -39,10 +39,10 @@ import {
     GetTimeBetweenArgs
 } from '@terascope/types';
 import tzOffset from 'date-fns-tz/getTimezoneOffset';
-import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { getTypeOf } from './deps';
 import {
-    bigIntToJSON, isNumber, toInteger, isInteger, inNumberRange
+    bigIntToJSON, isNumber, toInteger,
+    isInteger, inNumberRange
 } from './numbers';
 import { isString } from './strings';
 import { isBoolean } from './booleans';
@@ -117,13 +117,16 @@ export function getValidDateOrThrow(val: unknown): Date {
     return date;
 }
 
-export function toTimeZone(val:unknown, timezone: string): string {
+export function toTimeZone(val:unknown, timezone: string): DateTuple {
     if (!isString(timezone)) {
         throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
     }
 
     const date = getValidDateOrThrow(val);
-    return formatInTimeZone(date, timezone, 'yyyy-MM-dd HH:mm:ssXXX');
+
+    const offset = getTimezoneOffset(date, timezone);
+    const newTime = date.getTime() + (offset * 60_000);
+    return setTimezone(newTime, timezone);
 }
 
 export function toTimeZoneUsingLocation(val: unknown, location: unknown) {
@@ -869,24 +872,46 @@ export function getSeconds(input: unknown): number {
     return getValidDateOrThrow(input as any).getUTCSeconds();
 }
 
-export function getMinutes(input: unknown): number {
+export function getUTCMinutes(input: unknown): number {
     return getValidDateWithTimezoneOrThrow(input).getUTCMinutes();
 }
 
-export function getHours(input: unknown): number {
+export function getMinutes(input: unknown): number {
+    const date = getValidDateWithTimezoneOrThrow(input);
+    return date.getMinutes();
+}
+
+export function getUTCHours(input: unknown): number {
     return getValidDateWithTimezoneOrThrow(input).getUTCHours();
 }
 
-export function getDate(input: unknown): number {
+export function getHours(input: unknown): number {
+    const date = getValidDateWithTimezoneOrThrow(input);
+    return date.getHours();
+}
+
+export function getUTCDate(input: unknown): number {
     return getValidDateWithTimezoneOrThrow(input).getUTCDate();
 }
 
-export function getMonth(input: unknown): number {
+export function getDate(input: unknown): number {
+    return getValidDateWithTimezoneOrThrow(input).getDate();
+}
+
+export function getUTCMonth(input: unknown): number {
     return getValidDateWithTimezoneOrThrow(input).getUTCMonth() + 1;
 }
 
-export function getYear(input: unknown): number {
+export function getMonth(input: unknown): number {
+    return getValidDateWithTimezoneOrThrow(input).getMonth() + 1;
+}
+
+export function getUTCYear(input: unknown): number {
     return getValidDateWithTimezoneOrThrow(input).getUTCFullYear();
+}
+
+export function getYear(input: unknown): number {
+    return getValidDateWithTimezoneOrThrow(input).getFullYear();
 }
 
 /** Will convert a date to its epoch millisecond format or throw if invalid  */

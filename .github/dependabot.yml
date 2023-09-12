@@ -74,6 +74,8 @@ updates:
       interval: monthly
       time: '04:00'
       timezone: US/Arizona
+    ignore:
+      - dependency-name: "*"
     open-pull-requests-limit: 3
     assignees:
       - godber

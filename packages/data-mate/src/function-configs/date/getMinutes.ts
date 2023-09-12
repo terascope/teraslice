@@ -9,7 +9,7 @@ export const getMinutesConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the minutes of the input date in UTC time',
+    description: 'Returns the minutes of the input date time',
     examples: [
         {
             args: {},

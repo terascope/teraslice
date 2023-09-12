@@ -2,7 +2,7 @@ import { ReleaseType } from 'semver';
 import { CommandModule } from 'yargs';
 import { castArray } from '@terascope/utils';
 import { coercePkgArg } from '../helpers/args';
-import { bumpPackages } from '../helpers/bump';
+import { bumpPackages, bumpPackagesForAsset } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
@@ -73,26 +73,41 @@ const cmd: CommandModule = {
             .requiresArg('packages');
     },
     async handler(argv) {
-        const release = getRelease(argv);
-        const rootInfo = getRootInfo();
-        if (rootInfo.terascope.asset) {
+        const release = getRelease(argv); //patch, minor, major, etc
+        const rootInfo = getRootInfo(); //root package.json
+
+        // Ensure all files have the necessary data?
+        // If this fails, save changes that were made and rerun yarn bump.      
+        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
+
+        console.log('@@@@@ bump.ts handler, argv.packages: ', argv.packages);
+
+        if (rootInfo.terascope.asset) { // we're updating an asset repo
             signale.warn('bump has detected the root directory is an Asset.');
             signale.note('bump is in Asset mode.');
+            // bump and update asset.json
+            return bumpPackagesForAsset({
+                packages: argv.packages as PackageInfo[], // packages user supplies to command
+                preId: argv['prerelease-id'] as string | undefined, // user supplied prerelease-id (optional)
+                release, // user supplied release type
+                deps: Boolean(argv.deps), // Bump the child dependencies recursively, (ignores the monorepo's main package)
+                skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
+            });
         }
-        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
         return bumpPackages({
-            packages: argv.packages as PackageInfo[],
-            preId: argv['prerelease-id'] as string | undefined,
-            release,
-            deps: Boolean(argv.deps),
-            skipReset: Boolean(argv['skip-reset']),
+            packages: argv.packages as PackageInfo[], //packages user supplies to command
+            preId: argv['prerelease-id'] as string | undefined, //user supplied prerelease-id (optional)
+            release, //user supplied release type
+            deps: Boolean(argv.deps), //Bump the child dependencies recursively, (ignores the monorepo's main package)
+            skipReset: Boolean(argv['skip-reset']), //Skip resetting the packages to latest from NPM
         });
+
     },
 };
 
 function getRelease(argv: any): ReleaseType {
     const found = releaseChoices.filter((choice) => argv[choice]);
-    const release = argv.release as ReleaseType|undefined;
+    const release = argv.release as ReleaseType | undefined;
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');
