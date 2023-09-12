@@ -12,6 +12,7 @@ import { formatList, getRootDir } from '../misc';
 import { getChangedFiles, gitDiff } from '../scripts';
 import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
+import fs from 'fs';
 
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
@@ -21,8 +22,20 @@ const topLevelFiles: readonly string[] = [
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
-    const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
-
+    const pkgDirs: string[] = listPackages().map((pkg) => {
+        console.log('pkg ---> ', pkg.relativeDir);
+        return pkg.relativeDir;
+    });
+    const missingFiles = topLevelFiles.filter((fileName : string) => {
+        if (!fs.existsSync(`${getRootDir()}/${fileName}`)) {
+            return fileName;
+        }
+    });
+    if (missingFiles.length) {
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n ${formatList(missingFiles)}
+        \nAdd these files to the root and try again.\n`);
+        process.exit(1);
+    }
     const changed = await getChangedFiles(
         ...topLevelFiles,
         ...pkgDirs,
@@ -76,6 +89,7 @@ ${formatList(diff)}
     }
 
     if (options.verify) {
+        signale.warn('Your package.json files were not configured properly.\nThey have been configured for you.\nCommit or stage the changes and try running bump again.');
         process.exit(1);
     }
 }

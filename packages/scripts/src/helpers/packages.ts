@@ -58,7 +58,8 @@ export function listPackages(
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
 
-    const workspaces = (
+    ///   changing constant to let
+    let workspaces = (
         Array.isArray(rootPkg.workspaces)
             ? rootPkg.workspaces
             : rootPkg.workspaces.packages
@@ -66,11 +67,13 @@ export function listPackages(
 
     if (!workspaces) return [];
 
+    ///    Testing in the case where one of the workspaces is the root directory
+    workspaces = workspaces.filter((space) => space !== '.');
+
     const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
     if (!hasE2E) {
         workspaces.push('e2e');
     }
-
     const workspacePaths = _resolveWorkspaces(workspaces, misc.getRootDir());
     const packages = workspacePaths
         .map(_loadPackage)

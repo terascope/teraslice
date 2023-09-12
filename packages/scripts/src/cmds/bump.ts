@@ -6,6 +6,7 @@ import { bumpPackages, bumpPackagesForAsset } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
+import signale from '../helpers/signale';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -76,12 +77,14 @@ const cmd: CommandModule = {
         const rootInfo = getRootInfo(); //root package.json
 
         // Ensure all files have the necessary data?
-        // If this fails, save changes that were made and rerun yarn bump.
+        // If this fails, save changes that were made and rerun yarn bump.      
         await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
 
         console.log('@@@@@ bump.ts handler, argv.packages: ', argv.packages);
 
         if (rootInfo.terascope.asset) { // we're updating an asset repo
+            signale.warn('bump has detected the root directory is an Asset.');
+            signale.note('bump is in Asset mode.');
             // bump and update asset.json
             return bumpPackagesForAsset({
                 packages: argv.packages as PackageInfo[], // packages user supplies to command
