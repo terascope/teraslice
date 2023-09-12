@@ -51,7 +51,8 @@ export type PackageConfig = {
     testSuite?: string;
     allowBumpWhenPrivate?: boolean;
     linkToMain?: boolean;
-    root?: boolean
+    root?: boolean;
+    asset?: boolean;
     tests?: Record<string, Record<string, string[]>>
 };
 
@@ -75,6 +76,7 @@ export type RootPackageInfo = {
     workspaces: string[]|{ packages: string[] };
     terascope: {
         root: boolean;
+        asset: boolean;
         type: 'monorepo';
         target: string;
         version?: 1|2;
@@ -116,7 +118,7 @@ export type RootPackageInfo = {
 
 export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
     'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
-    'linkToMain', 'root', 'tests'
+    'linkToMain', 'root', 'tests', 'asset'
 ];
 
 export type TSCommands = 'docs';

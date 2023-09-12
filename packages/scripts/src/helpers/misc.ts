@@ -39,41 +39,46 @@ export function getRootDir(cwd: string = process.cwd()): string {
 function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
-    if (!isRoot) return undefined;
-
     const dir = path.dirname(pkgJSONPath);
+    const pathAsset = dir + '/asset/asset.json';
+    const isRootAsset = fse.existsSync(pathAsset);
+    if (!isRoot && !isRootAsset) return undefined;
+
     const folderName = path.basename(dir);
 
-    return sortPackageJson(defaultsDeep(pkg, {
-        dir,
-        relativeDir: '.',
-        folderName,
-        displayName: getName(pkg.name),
-        documentation: '',
-        homepage: '',
-        bugs: {
-            url: '',
-        },
-        engines: {
-            node: '>=14.17.0',
-            yarn: '>=1.16.0'
-        },
-        terascope: {
-            root: isRoot,
-            type: 'monorepo',
-            target: 'es2019',
-            version: 1,
-            tests: {
-                suites: {}
+    if (isRoot || isRootAsset) {
+        return sortPackageJson(defaultsDeep(pkg, {
+            dir,
+            relativeDir: '.',
+            folderName,
+            displayName: getName(pkg.name),
+            documentation: '',
+            homepage: '',
+            bugs: {
+                url: '',
             },
-            docker: {
-                registries: [`terascope/${folderName}`],
+            engines: {
+                node: '>=14.17.0',
+                yarn: '>=1.16.0'
             },
-            npm: {
-                registry: NPM_DEFAULT_REGISTRY
+            terascope: {
+                root: isRoot,
+                asset: isRootAsset,
+                type: 'monorepo',
+                target: 'es2019',
+                version: 1,
+                tests: {
+                    suites: {}
+                },
+                docker: {
+                    registries: [`terascope/${folderName}`],
+                },
+                npm: {
+                    registry: NPM_DEFAULT_REGISTRY
+                },
             },
-        },
-    } as Partial<RootPackageInfo>));
+        } as Partial<RootPackageInfo>));
+    }
 }
 
 let _rootInfo: RootPackageInfo;
