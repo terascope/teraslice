@@ -37,6 +37,11 @@ const cmd: CommandModule = {
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
                 type: 'boolean',
+            })
+            .option('skip-asset', {
+                description: 'If in an asset repository, bump the package version without updating the asset version',
+                default: false,
+                type: 'boolean',
             });
 
         releaseChoices.forEach((choice, i, arr) => {
@@ -83,6 +88,7 @@ const cmd: CommandModule = {
         // console.log('@@@@@ bump.ts handler, argv.packages: ', argv.packages);
 
         if (rootInfo.terascope.asset) { // we're updating an asset repo
+            // We can check for --skip-asset here if we keep 2 separate bumpPackage functions
             signale.warn('bump has detected the root directory is an Asset.');
             signale.note('bump is in Asset mode.');
             // bump and update asset.json
@@ -93,6 +99,7 @@ const cmd: CommandModule = {
                 // Bump the child dependencies recursively, (ignores the monorepo's main package)
                 deps: Boolean(argv.deps),
                 skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
+                skipAsset: Boolean(argv['skip-asset'])
             });
         }
         return bumpPackages({
