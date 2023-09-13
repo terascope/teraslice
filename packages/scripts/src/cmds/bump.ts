@@ -37,6 +37,11 @@ const cmd: CommandModule = {
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
                 type: 'boolean',
+            })
+            .option('skip-asset', {
+                description: 'If in an asset repository, bump the package version without updating the asset version',
+                default: false,
+                type: 'boolean',
             });
 
         releaseChoices.forEach((choice, i, arr) => {
@@ -87,7 +92,8 @@ const cmd: CommandModule = {
                 preId: argv['prerelease-id'] as string | undefined,
                 release,
                 deps: Boolean(argv.deps),
-                skipReset: Boolean(argv['skip-reset']),
+                skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
+                skipAsset: Boolean(argv['skip-asset'])
             });
         }
         return bumpPackages({
