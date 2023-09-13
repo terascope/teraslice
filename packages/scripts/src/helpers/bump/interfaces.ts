@@ -7,6 +7,7 @@ export interface BumpPackageOptions {
     deps: boolean;
     preId?: string;
     skipReset?: boolean;
+    skipAsset?: boolean;
 }
 
 export interface BumpPkgInfo {

@@ -446,7 +446,6 @@ describe('Bump Assets', () => {
             });
 
             afterAll(async () => {
-                /// Delete asset folder with asset.json
                 fs.rmSync(`${process.cwd()}/asset`, { recursive: true, force: true });
             });
 
