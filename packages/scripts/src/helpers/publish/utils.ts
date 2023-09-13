@@ -92,16 +92,12 @@ export async function buildDevDockerImage(
     publishOptions: PublishOptions,
     cacheFromPrev?: boolean
 ): Promise<string> {
-    const devImage = getDevDockerImage();
+    const devImage = `${getDevDockerImage()}-node-${publishOptions.nodeVersion}`;
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        if (publishOptions.nodeVersion) {
-            await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined, `NODE_VERSION=${publishOptions.nodeVersion}`);
-        } else {
-            await dockerBuild(devImage, cacheFromPrev ? [devImage] : []);
-        }
+        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined, `NODE_VERSION=${publishOptions.nodeVersion}`);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,

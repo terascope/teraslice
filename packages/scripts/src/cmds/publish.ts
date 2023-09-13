@@ -5,13 +5,14 @@ import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
+import { NODE_VERSION } from '../helpers/config';
 
 interface Options {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
     'publish-outdated-packages': boolean;
-    'node-version': string|undefined;
+    'node-version': string;
 }
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
@@ -49,7 +50,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('node-version', {
                 alias: 'n',
                 description: 'Node version, there must be a Docker base image with this version (e.g. 18.16.0)',
-                type: 'string'
+                type: 'string',
+                default: NODE_VERSION
             })
             .positional('action', {
                 description: 'The publish action to take',

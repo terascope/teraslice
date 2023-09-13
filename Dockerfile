@@ -1,3 +1,5 @@
+# NODE_VERSION is set by default in the config.ts, the following value will only
+# be used if you build images by default with docker build
 ARG NODE_VERSION=14.21.3
 FROM terascope/node-base:${NODE_VERSION}
 
