@@ -62,9 +62,9 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     // console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
 
     // TODO: skip this if --skip-asset flag is set
-    // if (!options.skipAsset) {
-    bumpAssetVersion(packages, options);
-    // }
+    if (!options.skipAsset) {
+        bumpAssetVersion(packages, options);
+    }
     // creates the commit message for the end of this function
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
