@@ -92,7 +92,8 @@ const cmd: CommandModule = {
                 preId: argv['prerelease-id'] as string | undefined,
                 release,
                 deps: Boolean(argv.deps),
-                skipReset: Boolean(argv['skip-reset']),
+                skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
+                skipAsset: Boolean(argv['skip-asset'])
             });
         }
         return bumpPackages({
