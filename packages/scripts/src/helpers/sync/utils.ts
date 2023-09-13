@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import semver from 'semver';
 import {
@@ -12,7 +13,6 @@ import { formatList, getRootDir } from '../misc';
 import { getChangedFiles, gitDiff } from '../scripts';
 import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
-import fs from 'fs';
 
 const topLevelFiles: readonly string[] = [
     'tsconfig.json',
@@ -26,11 +26,7 @@ export async function verifyCommitted(options: SyncOptions): Promise<void> {
         console.log('pkg ---> ', pkg.relativeDir);
         return pkg.relativeDir;
     });
-    const missingFiles = topLevelFiles.filter((fileName : string) => {
-        if (!fs.existsSync(`${getRootDir()}/${fileName}`)) {
-            return fileName;
-        }
-    });
+    const missingFiles = topLevelFiles.filter((fileName : string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
     if (missingFiles.length) {
         signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n ${formatList(missingFiles)}
         \nAdd these files to the root and try again.\n`);
@@ -72,7 +68,7 @@ export async function verify(files: string[], options: SyncOptions): Promise<voi
     const diff = changed.filter((file) => !prevChanged.includes(file));
     prevChanged = [];
     if (!diff.length) {
-        console.log('XXXXXXX diff.length:', diff.length)
+        console.log('XXXXXXX diff.length:', diff.length);
         return;
     }
 
