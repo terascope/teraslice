@@ -22,10 +22,7 @@ const topLevelFiles: readonly string[] = [
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
-    const pkgDirs: string[] = listPackages().map((pkg) => {
-        console.log('pkg ---> ', pkg.relativeDir);
-        return pkg.relativeDir;
-    });
+    const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
     const missingFiles = topLevelFiles.filter((fileName : string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
     if (missingFiles.length) {
         signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
@@ -68,7 +65,6 @@ export async function verify(files: string[], options: SyncOptions): Promise<voi
     const diff = changed.filter((file) => !prevChanged.includes(file));
     prevChanged = [];
     if (!diff.length) {
-        console.log('XXXXXXX diff.length:', diff.length);
         return;
     }
 
