@@ -11,17 +11,13 @@ import { syncVersions } from '../sync/utils';
 import { executeHook } from '../hooks';
 
 export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
-    const rootInfo = getRootInfo(); // package.json of root as a JS object
-    // list of all packages (package.json + other data as JS object)
+    const rootInfo = getRootInfo();
     const _packages = listPackages();
-    const packages: PackageInfo[] = [..._packages, rootInfo as any]; // add rootInfo to array
+    const packages: PackageInfo[] = [..._packages, rootInfo as any];
 
     const packagesToBump = await utils.getPackagesToBump(packages, options);
-    // console.log('@@@@@@@ index.ts bumpPackages, packagesToBump', packagesToBump);
-    // mutates packages to contain new version numbers. Updates dependencies
     utils.bumpPackagesList(packagesToBump, packages);
 
-    // creates the commit message for the end of this function
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
     const mainInfo = packages.find(isMainPackage);
@@ -51,22 +47,14 @@ Please commit these changes:
 }
 
 export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise<void> {
-    const rootInfo = getRootInfo(); // package.json of root as a JS object
-    // list of all packages (package.json + other data as JS object)
+    const rootInfo = getRootInfo();
     const _packages = listPackages();
-    const packages: PackageInfo[] = [..._packages, rootInfo as any]; // add rootInfo to array
 
+    // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
+    const packages: PackageInfo[] = [..._packages, rootInfo as any];
     const packagesToBump = await utils.getPackagesToBump(packages, options);
-    // console.log('@@@@@@@ index.ts bumpAssetPackages, packagesToBump: ', packagesToBump);
-    // mutates packages to contain new version numbers. Updates dependencies
     utils.bumpPackagesList(packagesToBump, packages);
-    // console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
-
-    // TODO: skip this if --skip-asset flag is set
-    if (!options.skipAsset) {
-        bumpAssetVersion(packages, options);
-    }
-    // creates the commit message for the end of this function
+    bumpAssetVersion(packages, options);
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
     const mainInfo = packages.find(isMainPackage);
@@ -87,8 +75,6 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
 
     await updatePkgJSON(rootInfo);
 
-    // console.log('@@@@@ index.ts bumpPackagesForAsset, packages: ', packages);
-
     signale.success(`
 
 Please commit these changes:
@@ -97,49 +83,34 @@ Please commit these changes:
 `);
 }
 
-async function bumpAssetVersion(
+export async function bumpAssetVersion(
     packages: PackageInfo[],
     options: BumpPackageOptions
 ): Promise<void> {
-    // get current version of asset
-    let rootPkgInfo: PackageInfo | undefined = packages.find((pkg) => pkg.terascope.root);
-    if (rootPkgInfo === undefined) {
-        const rootInfo = getRootInfo();
-        rootPkgInfo = rootInfo as unknown as PackageInfo;
+    if (options.skipAsset) {
+        return;
     }
-
-    // console.log('@@@@@ index.ts bumpAssetVersion, pkgInfo: ', rootPkgInfo);
-
-    // get new version of asset
+    const rootPkgInfo = packages[packages.length - 1];
+    const oldVersion = rootPkgInfo.version;
     const newVersion = utils.bumpVersion(rootPkgInfo, options.release, options?.preId);
-    // console.log('@@@@@ index.ts bumpAssetVersion, newVersion: ', newVersion);
 
-    // update that version in the 2 package.json files
     const relativeDirsToFind = ['.', 'asset'];
     const pkgsToUpdate = packages.filter((pkg) => relativeDirsToFind.includes(pkg.relativeDir));
-    // console.log('@@@@@ index.ts bumpAssetVersion, pkgsToUpdate: ', pkgsToUpdate);
 
     for (const pkg of pkgsToUpdate) {
-        // console.log('@@@@@ index.ts bumpAssetVersion, pkg: ', pkg);
-
         pkg.version = newVersion;
+        signale.info(`=> Updated ${pkg.displayName} from version ${oldVersion} to ${newVersion}`);
     }
 
-    // get asset/asset.json
     const pathToAssetJson = path.join(rootPkgInfo.dir, '/asset/asset.json');
-    // console.log('@@@@@ index.ts bumpAssetVersion, pathToAssetJson: ', pathToAssetJson);
 
     if (fs.existsSync(pathToAssetJson)) {
-        // get file contents
         const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
-        // console.log('@@@@@ index.ts bumpAssetVersion, assetJsonInfo: ', assetJsonInfo);
-        // update version
         assetJsonInfo.version = newVersion;
-        // write changes to asset.json
         const assetUpdated = await writeIfChanged(pathToAssetJson, assetJsonInfo, {
             log: true,
         });
 
-        console.log('@@@@@ index.ts bumpAssetVersion, assetUpdated: ', assetUpdated);
+        if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
     }
 }

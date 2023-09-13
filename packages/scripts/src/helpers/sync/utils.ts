@@ -22,13 +22,10 @@ const topLevelFiles: readonly string[] = [
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
-    const pkgDirs: string[] = listPackages().map((pkg) => {
-        console.log('pkg ---> ', pkg.relativeDir);
-        return pkg.relativeDir;
-    });
+    const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
     const missingFiles = topLevelFiles.filter((fileName : string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
     if (missingFiles.length) {
-        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n ${formatList(missingFiles)}
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
         \nAdd these files to the root and try again.\n`);
         process.exit(1);
     }
@@ -68,7 +65,6 @@ export async function verify(files: string[], options: SyncOptions): Promise<voi
     const diff = changed.filter((file) => !prevChanged.includes(file));
     prevChanged = [];
     if (!diff.length) {
-        console.log('XXXXXXX diff.length:', diff.length);
         return;
     }
 
@@ -85,7 +81,9 @@ ${formatList(diff)}
     }
 
     if (options.verify) {
-        signale.warn('Your package.json files were not configured properly.\nThey have been configured for you.\nCommit or stage the changes and try running bump again.');
+        signale.warn(`Your package.json files were not configured properly.
+             They have been configured for you.
+             Commit or stage the changes and try running bump again.`);
         process.exit(1);
     }
 }
