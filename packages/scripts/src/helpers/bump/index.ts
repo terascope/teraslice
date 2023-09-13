@@ -55,9 +55,7 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     // list of all packages (package.json + other data as JS object)
     const _packages = listPackages();
     const packages: PackageInfo[] = [..._packages, rootInfo as any]; // add rootInfo to array
-
     const packagesToBump = await utils.getPackagesToBump(packages, options);
-    console.log('@@@@@@@ index.ts bumpAssetPackages, packagesToBump: ', packagesToBump);
     // mutates packages to contain new version numbers. Updates dependencies
     utils.bumpPackagesList(packagesToBump, packages);
     // console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
@@ -85,7 +83,6 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
 
     await updatePkgJSON(rootInfo);
 
-
     // console.log('@@@@@ index.ts bumpPackagesForAsset, packages: ', packages);
 
     signale.success(`
@@ -96,7 +93,7 @@ Please commit these changes:
 `);
 }
 
-async function bumpAssetVersion(
+export async function bumpAssetVersion(
     packages: PackageInfo[],
     options: BumpPackageOptions
 ): Promise<void> {
@@ -120,7 +117,7 @@ async function bumpAssetVersion(
     }
 
     // get asset/asset.json
-    const pathToAssetJson = path.join(getRootDir(), '/asset/asset.json');
+    const pathToAssetJson = path.join(rootPkgInfo.dir, '/asset/asset.json');
     // console.log('@@@@@ index.ts bumpAssetVersion, pathToAssetJson: ', pathToAssetJson);
 
     if (fs.existsSync(pathToAssetJson)) {
@@ -133,7 +130,6 @@ async function bumpAssetVersion(
         const assetUpdated = await writeIfChanged(pathToAssetJson, assetJsonInfo, {
             log: true,
         });
-
         // console.log('@@@@@ index.ts bumpAssetVersion, assetUpdated: ', assetUpdated);
     }
 }
