@@ -57,7 +57,7 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     const packages: PackageInfo[] = [..._packages, rootInfo as any]; // add rootInfo to array
 
     const packagesToBump = await utils.getPackagesToBump(packages, options);
-    console.log('@@@@@@@ index.ts bumpAssetPackages, packagesToBump: ', packagesToBump);
+    // console.log('@@@@@@@ index.ts bumpAssetPackages, packagesToBump: ', packagesToBump);
     // mutates packages to contain new version numbers. Updates dependencies
     utils.bumpPackagesList(packagesToBump, packages);
     // console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
@@ -84,7 +84,6 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     }
 
     await updatePkgJSON(rootInfo);
-
 
     // console.log('@@@@@ index.ts bumpPackagesForAsset, packages: ', packages);
 
@@ -134,6 +133,6 @@ async function bumpAssetVersion(
             log: true,
         });
 
-        // console.log('@@@@@ index.ts bumpAssetVersion, assetUpdated: ', assetUpdated);
+        console.log('@@@@@ index.ts bumpAssetVersion, assetUpdated: ', assetUpdated);
     }
 }
