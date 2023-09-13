@@ -411,7 +411,8 @@ describe('Bump Assets', () => {
             dependencies: {
             },
             terascope: {
-                main: true
+                main: true,
+                root: true
             }
         } as any,
     ];
@@ -509,7 +510,8 @@ describe('Bump Assets', () => {
                         dependencies: {
                         },
                         terascope: {
-                            main: true
+                            main: true,
+                            root: true
                         }
                     },
                 ]);
@@ -554,7 +556,8 @@ describe('Bump Assets', () => {
                         dependencies: {
                         },
                         terascope: {
-                            main: true
+                            main: true,
+                            root: true
                         }
                     }
                 ]);
@@ -568,6 +571,149 @@ describe('Bump Assets', () => {
                 ]);
                 expect(messages).toEqual([
                     'bump: (patch) package-1@2.1.1, package-2@1.0.1'
+                ]);
+            });
+        });
+        describe('when release=minor and deps=false and skip-asset=true', () => {
+            const packages = cloneDeep(testPackages);
+            const options: BumpPackageOptions = {
+                release: 'minor',
+                deps: false,
+                skipReset: true,
+                skipAsset: true,
+                packages: [cloneDeep(pkg1!)]
+            };
+            let result: Record<string, BumpPkgInfo>;
+
+            beforeAll(async () => {
+                result = await getPackagesToBump(testPackages, options);
+                /// Create an asset folder with asset.json
+                const path = `${process.cwd()}/asset`;
+                if (!fs.existsSync(path)) {
+                    fs.mkdirSync(path);
+                    fs.writeFileSync(`${path}/asset.json`, assetJSONData);
+                }
+            });
+
+            afterAll(async () => {
+                /// Delete asset folder with asset.json
+                fs.rmSync(`${process.cwd()}/asset`, { recursive: true, force: true });
+            });
+
+            it('should return a list of correctly bump packages', () => {
+                expect(result).toEqual({
+                    'package-1': {
+                        from: '2.1.0',
+                        to: '2.2.0',
+                        main: false,
+                        deps: [
+                            {
+                                type: BumpType.Prod,
+                                name: 'package-2'
+                            },
+                        ]
+                    }
+                });
+            });
+
+            it('should correctly bump the packages list', () => {
+                bumpPackagesList(result, packages);
+                expect(packages).toEqual([
+                    {
+                        name: 'package-asset',
+                        version: '1.0.0',
+                        relativeDir: 'asset',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        }
+                    },
+                    {
+                        name: 'package-2',
+                        version: '1.0.0',
+                        dependencies: {
+                            'package-1': '^2.2.0'
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-1',
+                        version: '2.2.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-main-asset',
+                        version: '1.0.0',
+                        relativeDir: '.',
+                        dir: `${process.cwd()}`,
+                        dependencies: {
+                        },
+                        terascope: {
+                            main: true,
+                            root: true
+                        }
+                    },
+                ]);
+            });
+
+            it('should correctly NOT bump all 3 asset versions', async () => {
+                await bumpAssetVersion(packages, options);
+                const pathToAssetJson = `${process.cwd()}/asset/asset.json`;
+                const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
+                expect(packages).toEqual([
+                    {
+                        name: 'package-asset',
+                        version: '1.0.0',
+                        relativeDir: 'asset',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        }
+                    },
+                    {
+                        name: 'package-2',
+                        version: '1.0.0',
+                        dependencies: {
+                            'package-1': '^2.1.1'
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-1',
+                        version: '2.2.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-main-asset',
+                        version: '1.0.0',
+                        relativeDir: '.',
+                        dir: `${process.cwd()}`,
+                        dependencies: {
+                        },
+                        terascope: {
+                            main: true,
+                            root: true
+                        }
+                    }
+                ]);
+                expect(assetJsonInfo.version).toEqual('1.0.0');
+            });
+
+            it('should be able to get a readable commit message', () => {
+                const messages = getBumpCommitMessages(result, options.release);
+                expect(messages).toEqual([
+                    'bump: (minor) package-1@2.2.0'
+                ]);
+                expect(messages).toEqual([
+                    'bump: (minor) package-1@2.2.0'
                 ]);
             });
         });
