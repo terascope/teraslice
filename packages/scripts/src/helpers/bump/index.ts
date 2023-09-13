@@ -54,9 +54,7 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     const packages: PackageInfo[] = [..._packages, rootInfo as any];
     const packagesToBump = await utils.getPackagesToBump(packages, options);
     utils.bumpPackagesList(packagesToBump, packages);
-    if (!options.skipAsset) {
-        bumpAssetVersion(packages, options);
-    }
+    bumpAssetVersion(packages, options);
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
     const mainInfo = packages.find(isMainPackage);
@@ -89,6 +87,9 @@ export async function bumpAssetVersion(
     packages: PackageInfo[],
     options: BumpPackageOptions
 ): Promise<void> {
+    if (options.skipAsset) {
+        return;
+    }
     const rootPkgInfo = packages[packages.length - 1];
     const oldVersion = rootPkgInfo.version;
     const newVersion = utils.bumpVersion(rootPkgInfo, options.release, options?.preId);
