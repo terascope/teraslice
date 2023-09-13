@@ -4,7 +4,7 @@ import { BumpPackageOptions } from './interfaces';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
 import { Hook, PackageInfo } from '../interfaces';
 
-import { getRootDir, getRootInfo, writeIfChanged } from '../misc';
+import { getRootInfo, writeIfChanged } from '../misc';
 import * as utils from './utils';
 import signale from '../signale';
 import { syncVersions } from '../sync/utils';
@@ -63,7 +63,9 @@ export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise
     // console.log('@@@@@ index.ts bumpAssetPackages, packages: ', packages);
 
     // TODO: skip this if --skip-asset flag is set
+    // if (!options.skipAsset) {
     bumpAssetVersion(packages, options);
+    // }
     // creates the commit message for the end of this function
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
@@ -100,7 +102,12 @@ async function bumpAssetVersion(
     options: BumpPackageOptions
 ): Promise<void> {
     // get current version of asset
-    const rootPkgInfo = packages[packages.length - 1];
+    let rootPkgInfo: PackageInfo | undefined = packages.find((pkg) => pkg.terascope.root);
+    if (rootPkgInfo === undefined) {
+        const rootInfo = getRootInfo();
+        rootPkgInfo = rootInfo as unknown as PackageInfo;
+    }
+
     // console.log('@@@@@ index.ts bumpAssetVersion, pkgInfo: ', rootPkgInfo);
 
     // get new version of asset
@@ -119,7 +126,7 @@ async function bumpAssetVersion(
     }
 
     // get asset/asset.json
-    const pathToAssetJson = path.join(getRootDir(), '/asset/asset.json');
+    const pathToAssetJson = path.join(rootPkgInfo.dir, '/asset/asset.json');
     // console.log('@@@@@ index.ts bumpAssetVersion, pathToAssetJson: ', pathToAssetJson);
 
     if (fs.existsSync(pathToAssetJson)) {
