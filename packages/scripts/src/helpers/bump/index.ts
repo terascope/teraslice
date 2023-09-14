@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { BumpPackageOptions } from './interfaces';
+import { BumpAssetOnlyOptions, BumpPackageOptions } from './interfaces';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
 import { Hook, PackageInfo } from '../interfaces';
 
@@ -113,4 +113,8 @@ export async function bumpAssetVersion(
 
         if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
     }
+}
+
+export async function bumpAssetOnly(options:BumpAssetOnlyOptions): Promise<void> {
+    signale.info(`@@@@ options: ${JSON.stringify(options)}`);
 }
