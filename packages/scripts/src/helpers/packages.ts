@@ -255,6 +255,7 @@ export function updatePkgJSON(
 
     const pkgJSON = getSortedPkgJSON(pkgInfo) as Partial<i.PackageInfo>;
     delete pkgJSON.folderName;
+    delete pkgJSON.terascope?.asset;
     delete pkgJSON.dir;
     delete pkgJSON.relativeDir;
     return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
