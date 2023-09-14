@@ -143,7 +143,6 @@ export function bumpPackagesList(
 
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
-
             const key = getDepKeyFromType(depBumpInfo.type);
 
             if (!depPkgInfo[key]) continue;

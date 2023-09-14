@@ -58,7 +58,6 @@ export function listPackages(
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
 
-    ///   changing constant to let
     let workspaces = (
         Array.isArray(rootPkg.workspaces)
             ? rootPkg.workspaces
@@ -67,7 +66,6 @@ export function listPackages(
 
     if (!workspaces) return [];
 
-    ///    Testing in the case where one of the workspaces is the root directory
     workspaces = workspaces.filter((space) => space !== '.');
 
     const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));

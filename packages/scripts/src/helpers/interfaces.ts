@@ -52,7 +52,6 @@ export type PackageConfig = {
     allowBumpWhenPrivate?: boolean;
     linkToMain?: boolean;
     root?: boolean;
-    asset?: boolean;
     tests?: Record<string, Record<string, string[]>>
 };
 
@@ -118,7 +117,7 @@ export type RootPackageInfo = {
 
 export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
     'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
-    'linkToMain', 'root', 'tests', 'asset'
+    'linkToMain', 'root', 'tests'
 ];
 
 export type TSCommands = 'docs';

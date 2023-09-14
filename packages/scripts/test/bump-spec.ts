@@ -1,5 +1,7 @@
 import 'jest-extended';
 import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { cloneDeep } from '@terascope/utils';
 import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/interfaces';
 import { PackageInfo } from '../src/helpers/interfaces';
@@ -376,6 +378,7 @@ describe('Bump Utils', () => {
 /// Testing bump when running in Asset Mode
 
 describe('Bump Assets', () => {
+    const tempRootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'asset'));
     const testPackages: PackageInfo[] = [
         {
             name: 'package-asset',
@@ -407,7 +410,7 @@ describe('Bump Assets', () => {
             name: 'package-main-asset',
             version: '1.0.0',
             relativeDir: '.',
-            dir: `${process.cwd()}`,
+            dir: `${tempRootDir}`,
             dependencies: {
             },
             terascope: {
@@ -422,7 +425,10 @@ describe('Bump Assets', () => {
         "version": "1.0.0",
         "description": "A set of processors for working with files"
     }`;
-
+    afterAll(async () => {
+        /// Remove the temp root file after all tests have been done
+        fs.rmSync(tempRootDir, { recursive: true, force: true });
+    });
     describe('when bumping package-1', () => {
         const pkg1 = testPackages.find(({ name }) => name === 'package-1');
 
@@ -439,15 +445,14 @@ describe('Bump Assets', () => {
             beforeAll(async () => {
                 result = await getPackagesToBump(testPackages, options);
                 /// Create an asset folder with asset.json
-                const path = `${process.cwd()}/asset`;
-                if (!fs.existsSync(path)) {
-                    fs.mkdirSync(path);
-                    fs.writeFileSync(`${path}/asset.json`, assetJSONData);
-                }
+                const assetPath = `${tempRootDir}/asset`;
+                fs.mkdirSync(assetPath);
+                fs.writeFileSync(`${assetPath}/asset.json`, assetJSONData);
             });
 
             afterAll(async () => {
-                fs.rmSync(`${process.cwd()}/asset`, { recursive: true, force: true });
+                /// Remove the asset folder within the temp root file
+                fs.rmSync(`${tempRootDir}/asset`, { recursive: true, force: true });
             });
 
             it('should return a list of correctly bump packages', () => {
@@ -505,7 +510,7 @@ describe('Bump Assets', () => {
                         name: 'package-main-asset',
                         version: '1.0.0',
                         relativeDir: '.',
-                        dir: `${process.cwd()}`,
+                        dir: `${tempRootDir}`,
                         dependencies: {
                         },
                         terascope: {
@@ -518,7 +523,7 @@ describe('Bump Assets', () => {
 
             it('should correctly bump all 3 asset versions', async () => {
                 await bumpAssetVersion(packages, options);
-                const pathToAssetJson = `${process.cwd()}/asset/asset.json`;
+                const pathToAssetJson = `${tempRootDir}/asset/asset.json`;
                 const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
                 expect(packages).toEqual([
                     {
@@ -551,7 +556,7 @@ describe('Bump Assets', () => {
                         name: 'package-main-asset',
                         version: '1.0.1',
                         relativeDir: '.',
-                        dir: `${process.cwd()}`,
+                        dir: `${tempRootDir}`,
                         dependencies: {
                         },
                         terascope: {
@@ -587,16 +592,14 @@ describe('Bump Assets', () => {
             beforeAll(async () => {
                 result = await getPackagesToBump(testPackages, options);
                 /// Create an asset folder with asset.json
-                const path = `${process.cwd()}/asset`;
-                if (!fs.existsSync(path)) {
-                    fs.mkdirSync(path);
-                    fs.writeFileSync(`${path}/asset.json`, assetJSONData);
-                }
+                const assetPath = `${tempRootDir}/asset`;
+                fs.mkdirSync(assetPath);
+                fs.writeFileSync(`${assetPath}/asset.json`, assetJSONData);
             });
 
             afterAll(async () => {
-                /// Delete asset folder with asset.json
-                fs.rmSync(`${process.cwd()}/asset`, { recursive: true, force: true });
+                /// Remove the asset folder within the temp root file
+                fs.rmSync(`${tempRootDir}/asset`, { recursive: true, force: true });
             });
 
             it('should return a list of correctly bump packages', () => {
@@ -648,7 +651,7 @@ describe('Bump Assets', () => {
                         name: 'package-main-asset',
                         version: '1.0.0',
                         relativeDir: '.',
-                        dir: `${process.cwd()}`,
+                        dir: `${tempRootDir}`,
                         dependencies: {
                         },
                         terascope: {
@@ -661,7 +664,7 @@ describe('Bump Assets', () => {
 
             it('should correctly NOT bump all 3 asset versions', async () => {
                 await bumpAssetVersion(packages, options);
-                const pathToAssetJson = `${process.cwd()}/asset/asset.json`;
+                const pathToAssetJson = `${tempRootDir}/asset/asset.json`;
                 const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
                 expect(packages).toEqual([
                     {
@@ -694,7 +697,7 @@ describe('Bump Assets', () => {
                         name: 'package-main-asset',
                         version: '1.0.0',
                         relativeDir: '.',
-                        dir: `${process.cwd()}`,
+                        dir: `${tempRootDir}`,
                         dependencies: {
                         },
                         terascope: {

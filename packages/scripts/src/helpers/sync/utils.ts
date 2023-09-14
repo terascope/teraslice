@@ -64,9 +64,7 @@ export async function verify(files: string[], options: SyncOptions): Promise<voi
 
     const diff = changed.filter((file) => !prevChanged.includes(file));
     prevChanged = [];
-    if (!diff.length) {
-        return;
-    }
+    if (!diff.length) return;
 
     console.error(`
 This command made changes to the following files:
