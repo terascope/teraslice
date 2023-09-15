@@ -105,7 +105,7 @@ export async function bumpAssetVersion(
     }
 
     const pathToAssetJson = path.join(rootPkgInfo.dir, '/asset/asset.json');
-    updateAndSaveAssetJson(pathToAssetJson, newVersion);
+    await updateAndSaveAssetJson(pathToAssetJson, newVersion);
 
     return bumpAssetInfo;
 }
@@ -126,5 +126,6 @@ async function updateAndSaveAssetJson(
         log: true,
     });
 
+    console.log('Did find asset json', assetUpdated);
     if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
 }

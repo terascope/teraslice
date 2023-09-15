@@ -93,6 +93,7 @@ const cmd: CommandModule = {
             release,
             deps: Boolean(argv.deps),
             skipReset: Boolean(argv['skip-reset']),
+            skipAsset: Boolean(argv['skip-asset'])
         }, rootInfo.terascope.asset);
     },
 };
