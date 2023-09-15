@@ -10,51 +10,14 @@ import signale from '../signale';
 import { syncVersions } from '../sync/utils';
 import { executeHook } from '../hooks';
 
-export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
+export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
     const _packages = listPackages();
     const packages: PackageInfo[] = [..._packages, rootInfo as any];
 
     const packagesToBump = await utils.getPackagesToBump(packages, options);
     utils.bumpPackagesList(packagesToBump, packages);
-
-    const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
-
-    const mainInfo = packages.find(isMainPackage);
-    const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
-
-    if (bumpedMain) {
-        await executeHook(Hook.AFTER_RELEASE_BUMP, false, mainInfo!.version);
-        signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
-    }
-
-    if (rootInfo.terascope.version !== 2) {
-        syncVersions(_packages, rootInfo);
-    }
-
-    for (const pkgInfo of packages) {
-        await updatePkgJSON(pkgInfo);
-    }
-
-    await updatePkgJSON(rootInfo);
-
-    signale.success(`
-
-Please commit these changes:
-
-    git commit -a -m "${commitMsgs.join('" -m "')}" && git push
-`);
-}
-
-export async function bumpPackagesForAsset(options: BumpPackageOptions): Promise<void> {
-    const rootInfo = getRootInfo();
-    const _packages = listPackages();
-
-    // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
-    const packages: PackageInfo[] = [..._packages, rootInfo as any];
-    const packagesToBump = await utils.getPackagesToBump(packages, options);
-    utils.bumpPackagesList(packagesToBump, packages);
-    bumpAssetVersion(packages, options);
+    bumpAssetVersion(packages, options, isAsset);
     const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
     const mainInfo = packages.find(isMainPackage);
@@ -85,9 +48,10 @@ Please commit these changes:
 
 export async function bumpAssetVersion(
     packages: PackageInfo[],
-    options: BumpPackageOptions
+    options: BumpPackageOptions,
+    isAsset: boolean
 ): Promise<void> {
-    if (options.skipAsset) {
+    if (options.skipAsset || !isAsset) {
         return;
     }
     const rootPkgInfo = packages[packages.length - 1];

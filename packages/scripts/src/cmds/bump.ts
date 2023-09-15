@@ -2,7 +2,7 @@ import { ReleaseType } from 'semver';
 import { CommandModule } from 'yargs';
 import { castArray } from '@terascope/utils';
 import { coercePkgArg } from '../helpers/args';
-import { bumpPackages, bumpPackagesForAsset } from '../helpers/bump';
+import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
@@ -86,15 +86,6 @@ const cmd: CommandModule = {
         if (rootInfo.terascope.asset) {
             signale.warn('bump has detected the root directory is an Asset.');
             signale.note('bump is in Asset mode.');
-
-            return bumpPackagesForAsset({
-                packages: argv.packages as PackageInfo[],
-                preId: argv['prerelease-id'] as string | undefined,
-                release,
-                deps: Boolean(argv.deps),
-                skipReset: Boolean(argv['skip-reset']), // Skip resetting the packages to latest from NPM
-                skipAsset: Boolean(argv['skip-asset'])
-            });
         }
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
@@ -102,7 +93,7 @@ const cmd: CommandModule = {
             release,
             deps: Boolean(argv.deps),
             skipReset: Boolean(argv['skip-reset']),
-        });
+        }, rootInfo.terascope.asset);
     },
 };
 

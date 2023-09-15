@@ -522,7 +522,7 @@ describe('Bump Assets', () => {
             });
 
             it('should correctly bump all 3 asset versions', async () => {
-                await bumpAssetVersion(packages, options);
+                await bumpAssetVersion(packages, options, true);
                 const pathToAssetJson = `${tempRootDir}/asset/asset.json`;
                 const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
                 expect(packages).toEqual([
@@ -663,7 +663,7 @@ describe('Bump Assets', () => {
             });
 
             it('should correctly NOT bump all 3 asset versions', async () => {
-                await bumpAssetVersion(packages, options);
+                await bumpAssetVersion(packages, options, true);
                 const pathToAssetJson = `${tempRootDir}/asset/asset.json`;
                 const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
                 expect(packages).toEqual([
