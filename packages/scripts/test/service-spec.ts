@@ -18,6 +18,7 @@ describe('services', () => {
         minioVersion: 'very-bad-version',
         rabbitmqVersion: 'very-bad-version',
         opensearchVersion: 'very-bad-version',
+        nodeVersion: 'very-bad-version',
         ignoreMount: false
     };
 

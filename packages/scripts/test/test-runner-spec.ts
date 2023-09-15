@@ -24,6 +24,7 @@ describe('Test Runner Helpers', () => {
         minioVersion: '',
         rabbitmqVersion: '',
         opensearchVersion: '',
+        nodeVersion: '',
         ignoreMount: true
     };
 
