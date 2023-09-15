@@ -42,7 +42,6 @@ const cmd: CommandModule = {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
 
-        // FixMe: necessary?
         await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
 
         if (!rootInfo.terascope.asset) {
