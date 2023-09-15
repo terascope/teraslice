@@ -126,6 +126,5 @@ async function updateAndSaveAssetJson(
         log: true,
     });
 
-    console.log('Did find asset json', assetUpdated);
     if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
 }
