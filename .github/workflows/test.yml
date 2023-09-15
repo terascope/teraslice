@@ -235,5 +235,5 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
         working-directory: ./e2e

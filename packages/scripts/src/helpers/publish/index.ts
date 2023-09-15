@@ -93,6 +93,7 @@ async function publishToDocker(options: PublishOptions) {
     let err: any|undefined;
     for (const registry of registries) {
         let imageToBuild = '';
+        const nodeVersionSuffix = `nodev${options.nodeVersion}`;
 
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest`;
@@ -110,7 +111,7 @@ async function publishToDocker(options: PublishOptions) {
             }
 
             const image = `${registry}:v${mainPkgInfo.version}`;
-            const exists = await remoteDockerImageExists(`${image}-node-${options.nodeVersion}`);
+            const exists = await remoteDockerImageExists(`${image}-${nodeVersionSuffix}`);
             if (exists) {
                 err = new Error(`Docker Image ${image} already exists`);
                 continue;
@@ -128,7 +129,7 @@ async function publishToDocker(options: PublishOptions) {
         // TODO: perhaps this should be moved inside the block above and
         // repeated for each conditional branch to avoid the duplication on line
         // 113, I cant' decide which is worse.
-        imageToBuild = `${imageToBuild}-node-${options.nodeVersion}`;
+        imageToBuild = `${imageToBuild}-${nodeVersionSuffix}`;
         signale.debug(`building docker image ${imageToBuild}`);
 
         await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);

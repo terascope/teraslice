@@ -187,7 +187,7 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const e2eImage = `${rootInfo.name}:e2e`;
+    const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
     if (isCI) {
         // pull the services first in CI
@@ -196,14 +196,14 @@ async function runE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = getDevDockerImage();
+            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
-                type: PublishType.Dev,
-                dryRun: true
+                dryRun: true,
+                nodeVersion: options.nodeVersion,
+                type: PublishType.Dev
             };
-            // FIXME: I don't actually know what options this expects
             const devImage = await buildDevDockerImage(publishOptions);
             await dockerTag(devImage, e2eImage);
         }

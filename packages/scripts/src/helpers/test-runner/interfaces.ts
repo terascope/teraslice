@@ -17,6 +17,7 @@ export type TestOptions = {
     minioVersion: string;
     rabbitmqVersion: string;
     opensearchVersion: string;
+    nodeVersion: string;
     jestArgs?: string[];
     ignoreMount: boolean
 };

@@ -92,7 +92,7 @@ export async function buildDevDockerImage(
     publishOptions: PublishOptions,
     cacheFromPrev?: boolean
 ): Promise<string> {
-    const devImage = `${getDevDockerImage()}-node-${publishOptions.nodeVersion}`;
+    const devImage = `${getDevDockerImage()}-nodev${publishOptions.nodeVersion}`;
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
