@@ -4,7 +4,6 @@ import { PackageInfo } from '../interfaces';
 export interface BumpAssetOnlyOptions {
     preId?: string;
     release: ReleaseType;
-    skipReset?: boolean;
 }
 
 export interface BumpPackageOptions {
@@ -24,6 +23,12 @@ export interface BumpPkgInfo {
         name: string;
         type: BumpType;
     }[];
+}
+
+export interface AssetJsonInfo {
+    name: string;
+    version: string;
+    description: string;
 }
 
 export enum BumpType {

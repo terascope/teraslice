@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { BumpAssetOnlyOptions, BumpPackageOptions } from './interfaces';
+import {
+    AssetJsonInfo,
+    BumpAssetOnlyOptions,
+    BumpPkgInfo,
+    BumpPackageOptions
+} from './interfaces';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
 import { Hook, PackageInfo } from '../interfaces';
 
@@ -13,12 +18,14 @@ import { executeHook } from '../hooks';
 export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean): Promise<void> {
     const rootInfo = getRootInfo();
     const _packages = listPackages();
-    const packages: PackageInfo[] = [..._packages, rootInfo as any];
 
+    // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
+    const packages: PackageInfo[] = [..._packages, rootInfo as any];
     const packagesToBump = await utils.getPackagesToBump(packages, options);
     utils.bumpPackagesList(packagesToBump, packages);
-    bumpAssetVersion(packages, options, isAsset);
-    const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
+    const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
+    const allBumps = { ...packagesToBump, ...bumpAssetInfo };
+    const commitMsgs = utils.getBumpCommitMessages(allBumps, options.release);
 
     const mainInfo = packages.find(isMainPackage);
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
@@ -46,14 +53,39 @@ Please commit these changes:
 `);
 }
 
-export async function bumpAssetVersion(
-    packages: PackageInfo[],
-    options: BumpPackageOptions,
+export async function bumpAssetOnly(
+    options: BumpAssetOnlyOptions,
     isAsset: boolean
 ): Promise<void> {
-    if (options.skipAsset || !isAsset) {
-        return;
+    const rootInfo = getRootInfo();
+    const _packages = listPackages();
+
+    // The bumpAssetVersion function requires rootInfo to be the last object in the packages array
+    const packages: PackageInfo[] = [..._packages, rootInfo as any];
+    const bumpAssetInfo = await bumpAssetVersion(packages, options, isAsset);
+    const commitMsgs = utils.getBumpCommitMessages(bumpAssetInfo, options.release);
+
+    for (const pkgInfo of packages) {
+        await updatePkgJSON(pkgInfo);
     }
+    signale.success(`
+
+Please commit these changes:
+
+    git commit -a -m "${commitMsgs.join('" -m "')}" && git push
+`);
+}
+
+export async function bumpAssetVersion(
+    packages: PackageInfo[],
+    options: BumpPackageOptions | BumpAssetOnlyOptions,
+    isAsset: boolean
+): Promise<Record<string, BumpPkgInfo>> {
+    if (('skipAsset' in options && options.skipAsset) || !isAsset) {
+        return {};
+    }
+
+    const bumpAssetInfo: Record<string, BumpPkgInfo> = {};
     const rootPkgInfo = packages[packages.length - 1];
     const oldVersion = rootPkgInfo.version;
     const newVersion = utils.bumpVersion(rootPkgInfo, options.release, options?.preId);
@@ -63,22 +95,36 @@ export async function bumpAssetVersion(
 
     for (const pkg of pkgsToUpdate) {
         pkg.version = newVersion;
+        bumpAssetInfo[pkg.name] = {
+            from: oldVersion,
+            to: newVersion,
+            main: false,
+            deps: []
+        };
         signale.info(`=> Updated ${pkg.displayName} from version ${oldVersion} to ${newVersion}`);
     }
 
     const pathToAssetJson = path.join(rootPkgInfo.dir, '/asset/asset.json');
+    updateAndSaveAssetJson(pathToAssetJson, newVersion);
 
-    if (fs.existsSync(pathToAssetJson)) {
-        const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
-        assetJsonInfo.version = newVersion;
-        const assetUpdated = await writeIfChanged(pathToAssetJson, assetJsonInfo, {
-            log: true,
-        });
-
-        if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
-    }
+    return bumpAssetInfo;
 }
 
-export async function bumpAssetOnly(options:BumpAssetOnlyOptions): Promise<void> {
-    signale.info(`@@@@ options: ${JSON.stringify(options)}`);
+async function updateAndSaveAssetJson(
+    pathToAssetJson: string,
+    newVersion: string
+): Promise<void> {
+    if (!fs.existsSync(pathToAssetJson)) {
+        signale.fatal('Bump and bump-asset require an asset/asset.json file');
+        process.exit(1);
+    }
+
+    const assetJsonInfo: AssetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
+    const oldVersion = assetJsonInfo.version;
+    assetJsonInfo.version = newVersion;
+    const assetUpdated = await writeIfChanged(pathToAssetJson, assetJsonInfo, {
+        log: true,
+    });
+
+    if (assetUpdated) signale.info(`=> Updated asset.json from version ${oldVersion} to ${newVersion}`);
 }

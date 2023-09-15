@@ -1,9 +1,6 @@
 import { ReleaseType } from 'semver';
 import { CommandModule } from 'yargs';
-import { castArray } from '@terascope/utils';
-import { coercePkgArg } from '../helpers/args';
 import { bumpAssetOnly } from '../helpers/bump';
-import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
 import signale from '../helpers/signale';
@@ -17,20 +14,14 @@ const cmd: CommandModule = {
     describe: 'Update an asset to specific version. This should be run in the root of the workspace.',
     builder(yargs) {
         let y = yargs
-            .example('$0 bump-asset', 'asset // 0.20.0 => 0.20.1') // FixMe: change asset to ???
-            .example('$0 bump-asset', '--patch asset // 0.20.0 => 0.20.1')
-            .example('$0 bump-asset', '--minor asset // 0.5.0 => 0.6.0')
-            .example('$0 bump-asset', '--prepatch asset // 0.20.0 => 0.20.1-rc.0')
-            .example('$0 bump-asset', '--premajor asset // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump-asset', '--prerelease asset // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump-asset', '--patch // 0.20.0 => 0.20.1')
+            .example('$0 bump-asset', '--minor // 0.5.0 => 0.6.0')
+            .example('$0 bump-asset', '--prepatch // 0.20.0 => 0.20.1-rc.0')
+            .example('$0 bump-asset', '--premajor // 0.15.0 => 1.0.0-rc.0')
+            .example('$0 bump-asset', '--prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
             .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
-            })
-            .option('skip-reset', { // FixMe: remove this????
-                description: 'Skip resetting the packages to latest from NPM',
-                type: 'boolean',
-                default: false,
             });
 
         releaseChoices.forEach((choice, i, arr) => {
@@ -60,9 +51,8 @@ const cmd: CommandModule = {
         }
         return bumpAssetOnly({
             preId: argv['prerelease-id'] as string | undefined,
-            release,
-            skipReset: Boolean(argv['skip-reset']) // FixMe: necessary?
-        });
+            release
+        }, rootInfo.terascope.asset);
     },
 };
 
