@@ -58,7 +58,6 @@ export function listPackages(
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
 
-    ///   changing constant to let
     let workspaces = (
         Array.isArray(rootPkg.workspaces)
             ? rootPkg.workspaces
@@ -67,7 +66,7 @@ export function listPackages(
 
     if (!workspaces) return [];
 
-    ///    Testing in the case where one of the workspaces is the root directory
+    // TODO: determine why '.' needs to be in our workspaces.
     workspaces = workspaces.filter((space) => space !== '.');
 
     const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
@@ -257,6 +256,7 @@ export function updatePkgJSON(
 
     const pkgJSON = getSortedPkgJSON(pkgInfo) as Partial<i.PackageInfo>;
     delete pkgJSON.folderName;
+    delete pkgJSON.terascope?.asset;
     delete pkgJSON.dir;
     delete pkgJSON.relativeDir;
     return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
