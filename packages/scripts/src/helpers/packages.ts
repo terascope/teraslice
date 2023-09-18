@@ -66,7 +66,7 @@ export function listPackages(
 
     if (!workspaces) return [];
 
-    // TODO: determine why '.' needs to be in our workspaces.
+    // TODO: remove this check once we update the test runner to be asset aware.
     workspaces = workspaces.filter((space) => space !== '.');
 
     const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
