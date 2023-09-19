@@ -216,16 +216,16 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
 
     const rootInfo = misc.getRootInfo();
 
-    if (!pkgInfo.private) {
+    if (!pkgInfo.private && !pkgInfo.terascope.asset) {
         if (!pkgInfo.publishConfig) {
             pkgInfo.publishConfig = {
                 access: 'public',
-                registry: rootInfo.terascope.npm.registry,
+                ...{ registry: (rootInfo.terascope.npm?.registry ? `${rootInfo.terascope.npm?.registry}` : undefined) },
             };
         } else {
             pkgInfo.publishConfig = Object.assign({}, {
                 access: 'public',
-                registry: rootInfo.terascope.npm.registry,
+                ...{ registry: (rootInfo.terascope.npm?.registry ? `${rootInfo.terascope.npm?.registry}` : undefined) },
             }, pkgInfo.publishConfig);
         }
     } else {

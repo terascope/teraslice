@@ -14,7 +14,7 @@ export type PackageInfo = {
     license: string;
     publishConfig?: {
         access: 'public'|'private';
-        registry: string;
+        registry: string|undefined;
     };
     terascope: PackageConfig;
     resolutions: {

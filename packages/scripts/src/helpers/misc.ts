@@ -46,7 +46,26 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
 
     const folderName = path.basename(dir);
 
-    if (isRoot || isRootAsset) {
+    if (isRootAsset) {
+        return sortPackageJson(defaultsDeep(pkg, {
+            dir,
+            relativeDir: '.',
+            folderName,
+            displayName: getName(pkg.name),
+            engines: {
+                node: '>=14.17.0',
+                yarn: '>=1.16.0'
+            },
+            terascope: {
+                root: true,
+                asset: true,
+                tests: {
+                    suites: {}
+                },
+            },
+        } as Partial<RootPackageInfo>));
+    }
+    if (isRoot) {
         return sortPackageJson(defaultsDeep(pkg, {
             dir,
             relativeDir: '.',
@@ -62,8 +81,8 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
                 yarn: '>=1.16.0'
             },
             terascope: {
-                root: isRoot,
-                asset: isRootAsset,
+                root: true,
+                asset: false,
                 type: 'monorepo',
                 target: 'es2019',
                 version: 1,
