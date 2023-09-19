@@ -42,16 +42,17 @@ const cmd: CommandModule = {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
 
+        if (!rootInfo.terascope.asset) {
+            signale.error('Bump-asset must be run in the root directory of an Asset.');
+            return;
+        }
+
         await syncAll({
             verify: true,
             tsconfigOnly: rootInfo.terascope.version === 2,
             isAsset: true
         });
 
-        if (!rootInfo.terascope.asset) {
-            signale.error('Bump-asset must be run in the root directory of an Asset.');
-            return;
-        }
         return bumpAssetOnly({
             preId: argv['prerelease-id'] as string | undefined,
             release
