@@ -16,14 +16,13 @@ import {
     groupBySuite
 } from './utils';
 import signale from '../signale';
-import { getE2EDir } from '../packages';
+import { getE2EDir, readPackageInfo } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
 import {
     MAX_PROJECTS_PER_BATCH,
     SKIP_DOCKER_BUILD_IN_E2E
 } from '../config';
-import { readPackageInfo } from '../packages';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -55,8 +54,6 @@ async function _runTests(
     }
 
     const filtered = filterBySuite(pkgInfos, options);
-    //console.log('filtered results ---> ', filtered);
-    ///throw new Error('Noooo');
     if (!filtered.length) {
         signale.warn('No tests found.');
         return;
