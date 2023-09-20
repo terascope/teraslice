@@ -39,7 +39,7 @@ const cmd: CommandModule = {
                 type: 'boolean',
             })
             .option('skip-asset', {
-                description: 'If in an asset repository, bump the package version without updating the asset version',
+                description: 'Bumps a package version and all of the places that package is used in the current repository.\nIf in an asset repository, do not update the asset version in \'./package.json\', \'./asset/asset.json\', and \'./asset/package.json\'.',
                 default: false,
                 type: 'boolean',
             });
@@ -88,8 +88,7 @@ const cmd: CommandModule = {
         });
 
         if (rootInfo.terascope.asset) {
-            signale.warn('bump has detected the root directory is an Asset.');
-            signale.note('bump is in Asset mode.');
+            signale.info('bump has detected the root directory is an Asset. bump is now in Asset mode.');
         }
         return bumpPackages({
             packages: argv.packages as PackageInfo[],

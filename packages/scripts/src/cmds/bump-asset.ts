@@ -11,7 +11,7 @@ const releaseChoices: readonly ReleaseType[] = [
 
 const cmd: CommandModule = {
     command: 'bump-asset',
-    describe: 'Update an asset to specific version. This should be run in the root of the workspace.',
+    describe: 'Update only the asset version.\nThis is for changes in the asset code. Changes in packages should use the bump command.\nThis will update the version number in \'./package.json\', \'./asset/asset.json\', and \'./asset/package.json\'.\nThis should be run in the root of the workspace.',
     builder(yargs) {
         let y = yargs
             .example('$0 bump-asset', '--patch // 0.20.0 => 0.20.1')
@@ -28,7 +28,7 @@ const cmd: CommandModule = {
             const otherChoices = arr.filter((_item, index) => index !== i);
 
             y = y.option(choice, {
-                description: `Bump release by ${choice}`,
+                description: `Bump asset to next ${choice} version`,
                 type: 'boolean',
                 default: false,
                 conficts: ['release', ...otherChoices],
@@ -66,11 +66,17 @@ function getRelease(argv: any): ReleaseType {
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');
+        // signale.error(`Bump requires at least one of ${choices} to be specified`);
+        // process.exit(1);
         throw new Error(`Bump requires at least one of ${choices} to be specified`);
     } else if (release && found[0] && release !== found[0]) {
+        // signale.error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
+        // process.exit(1);
         throw new Error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
     } else if (found.length > 1) {
         const choices = found.map((choice) => `--${choice}`).join(' and ');
+        // signale.error(`Cannot specify ${choices}, pick one`);
+        // process.exit(1);
         throw new Error(`Cannot specify ${choices}, pick one`);
     }
 
