@@ -29,7 +29,7 @@ export const isFutureConfig: FieldValidateConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [4776228000000, -420],
-            output: '2121-05-09T10:00:00.000-07:00',
+            output: '2121-05-09T03:00:00.000-07:00',
             test_only: true,
         },
     ],

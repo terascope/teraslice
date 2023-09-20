@@ -62,7 +62,7 @@ export const formatDateConfig: FieldTransformConfig<FormatDateArgs> = {
         },
         field: 'testField',
         input: [1622760480654, 60],
-        output: '2021-06-03T21:48:00.654Z',
+        output: '2021-06-03T22:48:00.654Z',
         test_only: true,
     }, {
         args: {},

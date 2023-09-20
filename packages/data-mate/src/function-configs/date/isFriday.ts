@@ -22,7 +22,7 @@ export const isFridayConfig: FieldValidateConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [1620986400000, -620],
-            output: '2021-05-14T10:00:00.000-10:20'
+            output: null
         },
         {
             args: {},

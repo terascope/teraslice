@@ -49,7 +49,7 @@ export const getUTCMinutesConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -418],
-            output: 3,
+            output: 5,
             test_only: true,
         }
     ],
