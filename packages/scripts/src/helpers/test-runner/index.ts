@@ -23,16 +23,22 @@ import {
     MAX_PROJECTS_PER_BATCH,
     SKIP_DOCKER_BUILD_IN_E2E
 } from '../config';
+import { readPackageInfo } from '../packages';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
+    const rootpkg = getRootInfo();
+    let allpkgInfos: PackageInfo[] = pkgInfos;
+
+    /// If inside of an asset directory, add top level package to packages
+    if (rootpkg.terascope.asset) { allpkgInfos = [...pkgInfos, readPackageInfo(rootpkg.dir)]; }
 
     logger.info('running tests with options', options);
 
     try {
-        await _runTests(pkgInfos, options, tracker);
+        await _runTests(allpkgInfos, options, tracker);
     } catch (err) {
         tracker.addError(err);
     } finally {
@@ -49,7 +55,8 @@ async function _runTests(
     }
 
     const filtered = filterBySuite(pkgInfos, options);
-
+    //console.log('filtered results ---> ', filtered);
+    ///throw new Error('Noooo');
     if (!filtered.length) {
         signale.warn('No tests found.');
         return;
