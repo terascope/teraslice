@@ -58,16 +58,13 @@ export function listPackages(
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
 
-    let workspaces = (
+    const workspaces = (
         Array.isArray(rootPkg.workspaces)
             ? rootPkg.workspaces
             : rootPkg.workspaces.packages
     ).slice();
 
     if (!workspaces) return [];
-
-    // TODO: remove this check once we update the test runner to be asset aware.
-    workspaces = workspaces.filter((space) => space !== '.');
 
     const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
     if (!hasE2E) {
