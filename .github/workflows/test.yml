@@ -49,7 +49,7 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
-        run: TZ=utc yarn --silent test -- --suite unit --
+        run: yarn --silent test -- --suite unit --
 
   teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
