@@ -6,6 +6,7 @@ import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
+import signale from '../helpers/signale';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -35,6 +36,11 @@ const cmd: CommandModule = {
                 alias: 'd',
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
+                type: 'boolean',
+            })
+            .option('skip-asset', {
+                description: 'Bumps a package version and all of the places that package is used in the current repository.\nIf in an asset repository, do not update the asset version in \'./package.json\', \'./asset/asset.json\', and \'./asset/package.json\'.',
+                default: false,
                 type: 'boolean',
             });
 
@@ -74,20 +80,30 @@ const cmd: CommandModule = {
     async handler(argv) {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
-        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
+
+        await syncAll({
+            verify: true,
+            tsconfigOnly: rootInfo.terascope.version === 2,
+            isAsset: rootInfo.terascope.asset
+        });
+
+        if (rootInfo.terascope.asset) {
+            signale.info('bump has detected the root directory is an Asset. bump is now in Asset mode.');
+        }
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
             preId: argv['prerelease-id'] as string | undefined,
             release,
             deps: Boolean(argv.deps),
             skipReset: Boolean(argv['skip-reset']),
-        });
+            skipAsset: Boolean(argv['skip-asset'])
+        }, rootInfo.terascope.asset);
     },
 };
 
 function getRelease(argv: any): ReleaseType {
     const found = releaseChoices.filter((choice) => argv[choice]);
-    const release = argv.release as ReleaseType|undefined;
+    const release = argv.release as ReleaseType | undefined;
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');

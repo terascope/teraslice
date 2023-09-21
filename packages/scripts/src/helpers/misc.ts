@@ -39,41 +39,65 @@ export function getRootDir(cwd: string = process.cwd()): string {
 function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
-    if (!isRoot) return undefined;
-
     const dir = path.dirname(pkgJSONPath);
+    const pathAsset = `${dir}/asset/asset.json`;
+    const isRootAsset = fse.existsSync(pathAsset);
+    if (!isRoot && !isRootAsset) return undefined;
+
     const folderName = path.basename(dir);
 
-    return sortPackageJson(defaultsDeep(pkg, {
-        dir,
-        relativeDir: '.',
-        folderName,
-        displayName: getName(pkg.name),
-        documentation: '',
-        homepage: '',
-        bugs: {
-            url: '',
-        },
-        engines: {
-            node: '>=14.17.0',
-            yarn: '>=1.16.0'
-        },
-        terascope: {
-            root: isRoot,
-            type: 'monorepo',
-            target: 'es2019',
-            version: 1,
-            tests: {
-                suites: {}
+    if (isRootAsset) {
+        return sortPackageJson(defaultsDeep(pkg, {
+            dir,
+            relativeDir: '.',
+            folderName,
+            displayName: getName(pkg.name),
+            engines: {
+                node: '>=14.17.0',
+                yarn: '>=1.22.19'
             },
-            docker: {
-                registries: [`terascope/${folderName}`],
+            terascope: {
+                root: true,
+                asset: true,
+                tests: {
+                    suites: {}
+                },
             },
-            npm: {
-                registry: NPM_DEFAULT_REGISTRY
+        } as Partial<RootPackageInfo>));
+    }
+    if (isRoot) {
+        return sortPackageJson(defaultsDeep(pkg, {
+            dir,
+            relativeDir: '.',
+            folderName,
+            displayName: getName(pkg.name),
+            documentation: '',
+            homepage: '',
+            bugs: {
+                url: '',
             },
-        },
-    } as Partial<RootPackageInfo>));
+            engines: {
+                node: '>=14.17.0',
+                yarn: '>=1.22.19'
+            },
+            terascope: {
+                root: true,
+                asset: false,
+                type: 'monorepo',
+                target: 'es2019',
+                version: 1,
+                tests: {
+                    suites: {}
+                },
+                docker: {
+                    registries: [`terascope/${folderName}`],
+                },
+                npm: {
+                    registry: NPM_DEFAULT_REGISTRY
+                },
+            },
+        } as Partial<RootPackageInfo>));
+    }
 }
 
 let _rootInfo: RootPackageInfo;
