@@ -158,7 +158,7 @@ function _dateTupleToDateObject(val: DateTuple, getUTC = false): Date {
 /**
  * Returns a valid date with the timezone applied or throws{@see getValidDate}
  */
-export function getValidDateWithTimezoneOrThrow(val: unknown, getUTC = true): Date {
+export function getValidDateWithTimezoneOrThrow(val: unknown, getUTC = false): Date {
     if (isDateTuple(val)) {
         return _dateTupleToDateObject(val, getUTC);
     }
@@ -328,7 +328,7 @@ export function isDateTuple(input: unknown): input is DateTuple {
 */
 export function trimISODateSegment(segment: ISO8601DateSegment): (input: unknown) => number {
     return function _trimISODate(input) {
-        const date = getValidDateWithTimezoneOrThrow(input, true);
+        const date = getValidDateWithTimezoneOrThrow(input, false);
 
         if (segment === ISO8601DateSegment.hourly) {
             return new Date(Date.UTC(
