@@ -169,9 +169,9 @@ export function getValidDateWithTimezoneOrThrow(val: unknown, getUTC = false): D
 /**
  * Returns a valid date with the timezone applied {@see getValidDate}
  */
-export function getValidDateWithTimezone(val: unknown): Date | false {
+export function getValidDateWithTimezone(val: unknown, getUTC = false): Date | false {
     if (isDateTuple(val)) {
-        return _dateTupleToDateObject(val);
+        return _dateTupleToDateObject(val, getUTC);
     }
 
     return getValidDate(val);
@@ -566,56 +566,56 @@ export function getTimeBetweenFP(args: GetTimeBetweenArgs) {
 }
 
 export function isSunday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 0;
 }
 
 export function isMonday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 1;
 }
 
 export function isTuesday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 2;
 }
 
 export function isWednesday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 3;
 }
 
 export function isThursday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 4;
 }
 
 export function isFriday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 5;
 }
 
 export function isSaturday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return date.getDay() === 6;
 }
 
 export function isWeekday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     const day = date.getDay();
@@ -623,7 +623,7 @@ export function isWeekday(input: unknown): boolean {
 }
 
 export function isWeekend(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     const day = date.getDay();
@@ -631,42 +631,42 @@ export function isWeekend(input: unknown): boolean {
 }
 
 export function isFuture(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isFuture(date);
 }
 
 export function isPast(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isPast(date);
 }
 
 export function isLeapYear(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isLeapYear(date);
 }
 
 export function isTomorrow(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isTomorrow(date);
 }
 
 export function isToday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isToday(date);
 }
 
 export function isYesterday(input: unknown): boolean {
-    const date = getValidDateWithTimezone(input as any);
+    const date = getValidDateWithTimezone(input as any, false);
     if (!date) return false;
 
     return _isYesterday(date);
@@ -718,8 +718,8 @@ export function subtractFromDateFP(args: AdjustDateArgs): (input: unknown) => nu
 }
 
 export function isBefore(input: unknown, date: DateInputTypes): boolean {
-    const date1 = getValidDateWithTimezone(input as Date);
-    const date2 = getValidDateWithTimezone(date);
+    const date1 = getValidDateWithTimezone(input as Date, false);
+    const date2 = getValidDateWithTimezone(date, false);
 
     if (date1 && date2) {
         return _isBefore(date1, date2);
@@ -729,8 +729,8 @@ export function isBefore(input: unknown, date: DateInputTypes): boolean {
 }
 
 export function isAfter(input: unknown, date: DateInputTypes): boolean {
-    const date1 = getValidDateWithTimezone(input as Date);
-    const date2 = getValidDateWithTimezone(date);
+    const date1 = getValidDateWithTimezone(input as Date, false);
+    const date2 = getValidDateWithTimezone(date, false);
 
     if (date1 && date2) {
         return _isAfter(date1, date2);
@@ -745,9 +745,9 @@ export function isBetween(input: unknown, args: {
 }): boolean {
     const { start, end } = args;
 
-    const inputDate = getValidDateWithTimezone(input);
-    const date1 = getValidDateWithTimezone(start);
-    const date2 = getValidDateWithTimezone(end);
+    const inputDate = getValidDateWithTimezone(input, false);
+    const date1 = getValidDateWithTimezone(start, false);
+    const date2 = getValidDateWithTimezone(end, false);
 
     if (inputDate && date1 && date2) {
         return _isAfter(inputDate, date1) && _isBefore(inputDate, date2);
