@@ -37,11 +37,6 @@ const cmd: CommandModule = {
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
                 type: 'boolean',
-            })
-            .option('skip-asset', {
-                description: 'If in an asset repository, bump the package version without updating the asset version',
-                default: false,
-                type: 'boolean',
             });
 
         releaseChoices.forEach((choice, i, arr) => {
@@ -88,16 +83,14 @@ const cmd: CommandModule = {
         });
 
         if (rootInfo.terascope.asset) {
-            signale.warn('bump has detected the root directory is an Asset.');
-            signale.note('bump is in Asset mode.');
+            signale.info('bump has detected the root directory is an Asset. bump is now in Asset mode.');
         }
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
             preId: argv['prerelease-id'] as string | undefined,
             release,
             deps: Boolean(argv.deps),
-            skipReset: Boolean(argv['skip-reset']),
-            skipAsset: Boolean(argv['skip-asset'])
+            skipReset: Boolean(argv['skip-reset'])
         }, rootInfo.terascope.asset);
     },
 };

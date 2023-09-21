@@ -438,7 +438,6 @@ describe('Bump Assets', () => {
                 release: 'patch',
                 deps: true,
                 skipReset: true,
-                skipAsset: false,
                 packages: [cloneDeep(pkg1!)]
             };
             let result: Record<string, BumpPkgInfo>;
@@ -571,123 +570,6 @@ describe('Bump Assets', () => {
                 expect(messages).toEqual([
                     'bump: (patch) package-1@2.1.1, package-2@1.0.1',
                     'bump: (patch) package-asset@1.0.1, package-main-asset@1.0.1'
-                ]);
-            });
-        });
-        describe('when release=minor and deps=false and skip-asset=true', () => {
-            const packages = cloneDeep(testPackages);
-            const options: BumpPackageOptions = {
-                release: 'minor',
-                deps: false,
-                skipReset: true,
-                skipAsset: true,
-                packages: [cloneDeep(pkg1!)]
-            };
-            let result: Record<string, BumpPkgInfo>;
-            let assetPackages: Record<string, BumpPkgInfo>;
-
-            beforeAll(async () => {
-                result = await getPackagesToBump(testPackages, options);
-                /// Create an asset folder with asset.json
-                const assetPath = `${tempRootDir}/asset`;
-                await fs.promises.mkdir(assetPath);
-                await fs.promises.writeFile(`${assetPath}/asset.json`, assetJSONData);
-            });
-
-            afterAll(async () => {
-                /// Remove the asset folder within the temp root file
-                await fs.promises.rm(`${tempRootDir}/asset`, { recursive: true, force: true });
-            });
-
-            it('should return a list of correctly bump packages', () => {
-                expect(result).toEqual({
-                    'package-1': {
-                        from: '2.1.0',
-                        to: '2.2.0',
-                        main: false,
-                        deps: [
-                            {
-                                type: BumpType.Prod,
-                                name: 'package-2'
-                            },
-                        ]
-                    }
-                });
-            });
-
-            it('should correctly bump the packages list', () => {
-                bumpPackagesList(result, packages);
-                expect(packages).toEqual([
-                    {
-                        name: 'package-asset',
-                        version: '1.0.0',
-                        relativeDir: 'asset',
-                        dependencies: {
-                        },
-                        devDependencies: {
-                        }
-                    },
-                    {
-                        name: 'package-2',
-                        version: '1.0.0',
-                        dependencies: {
-                            'package-1': '^2.2.0'
-                        },
-                        devDependencies: {
-                        },
-                    },
-                    {
-                        name: 'package-1',
-                        version: '2.2.0',
-                        dependencies: {
-                        },
-                        devDependencies: {
-                        },
-                    },
-                    {
-                        name: 'package-main-asset',
-                        version: '1.0.0',
-                        relativeDir: '.',
-                        dir: `${tempRootDir}`,
-                        dependencies: {
-                        },
-                        terascope: {
-                            main: true,
-                            root: true
-                        }
-                    },
-                ]);
-            });
-
-            it('should return a list with all packages excluding asset', async () => {
-                assetPackages = await bumpAssetVersion(packages, options, true);
-                const allBumps = { ...result, ...assetPackages };
-                expect(allBumps).toEqual({
-                    'package-1': {
-                        from: '2.1.0',
-                        to: '2.2.0',
-                        main: false,
-                        deps: [
-                            {
-                                type: BumpType.Prod,
-                                name: 'package-2'
-                            },
-                        ]
-                    }
-                });
-            });
-
-            it('should NOT bump asset.json in temp folder', () => {
-                const pathToAssetJson = `${tempRootDir}/asset/asset.json`;
-                const assetJsonInfo = JSON.parse(fs.readFileSync(pathToAssetJson, 'utf8'));
-                expect(assetJsonInfo.version).toEqual('1.0.0');
-            });
-
-            it('should be able to get a readable commit message', () => {
-                const allBumps = { ...result, ...assetPackages };
-                const messages = getBumpCommitMessages(allBumps, options.release);
-                expect(messages).toEqual([
-                    'bump: (minor) package-1@2.2.0'
                 ]);
             });
         });
