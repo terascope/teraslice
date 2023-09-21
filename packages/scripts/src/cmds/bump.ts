@@ -37,11 +37,6 @@ const cmd: CommandModule = {
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
                 type: 'boolean',
-            })
-            .option('skip-asset', {
-                description: 'Bumps a package version and all of the places that package is used in the current repository.\nIf in an asset repository, do not update the asset version in \'./package.json\', \'./asset/asset.json\', and \'./asset/package.json\'.',
-                default: false,
-                type: 'boolean',
             });
 
         releaseChoices.forEach((choice, i, arr) => {
@@ -95,8 +90,7 @@ const cmd: CommandModule = {
             preId: argv['prerelease-id'] as string | undefined,
             release,
             deps: Boolean(argv.deps),
-            skipReset: Boolean(argv['skip-reset']),
-            skipAsset: Boolean(argv['skip-asset'])
+            skipReset: Boolean(argv['skip-reset'])
         }, rootInfo.terascope.asset);
     },
 };

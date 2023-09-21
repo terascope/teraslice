@@ -81,7 +81,7 @@ export async function bumpAssetVersion(
     options: BumpPackageOptions | BumpAssetOnlyOptions,
     isAsset: boolean
 ): Promise<Record<string, BumpPkgInfo>> {
-    if (('skipAsset' in options && options.skipAsset) || !isAsset) {
+    if (!isAsset) {
         return {};
     }
 
