@@ -124,7 +124,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: false,
             })
-            .positional('package name and/or "asset".', {
+            .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
                     let args = castArray(arg);
