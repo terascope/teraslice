@@ -31,7 +31,9 @@ export async function syncAll(options: SyncOptions): Promise<void> {
 
     // reload the packages to get the correct sorting
     pkgInfos = listPackages(true);
-    await generateTSConfig(pkgInfos, !options.quiet);
+    if (!options.isAsset) {
+        await generateTSConfig(pkgInfos, !options.quiet);
+    }
 
     await utils.verify(files, options);
 }

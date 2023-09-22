@@ -16,7 +16,7 @@ import {
     groupBySuite
 } from './utils';
 import signale from '../signale';
-import { getE2EDir } from '../packages';
+import { getE2EDir, readPackageInfo, listPackages } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { TestTracker } from './tracker';
 import {
@@ -28,11 +28,27 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
+    const rootpkg = getRootInfo();
+    let allpkgInfos: PackageInfo[] = pkgInfos;
+
+    /// swap asset/package.json with top level package.json to support running asset tests
+    /// TODO: This might be better to use jest.config within asset folder
+    let runAssetTests = false;
+    allpkgInfos.map((pkg) => {
+        if (pkg.relativeDir === 'asset') {
+            runAssetTests = true;
+        }
+        return;
+    });
+    if (rootpkg.terascope.asset && (listPackages() === allpkgInfos || runAssetTests)) {
+        allpkgInfos = allpkgInfos.filter((pkg) => pkg.relativeDir !== 'asset');
+        allpkgInfos = [...allpkgInfos, readPackageInfo(rootpkg.dir)];
+    }
 
     logger.info('running tests with options', options);
 
     try {
-        await _runTests(pkgInfos, options, tracker);
+        await _runTests(allpkgInfos, options, tracker);
     } catch (err) {
         tracker.addError(err);
     } finally {
@@ -49,7 +65,6 @@ async function _runTests(
     }
 
     const filtered = filterBySuite(pkgInfos, options);
-
     if (!filtered.length) {
         signale.warn('No tests found.');
         return;
