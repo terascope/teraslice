@@ -17,12 +17,12 @@ const cmd: CommandModule = {
     describe: 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.',
     builder(yargs) {
         let y = yargs
-            .example('$0 bump', 'example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '--patch example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '--minor example // 0.5.0 => 0.6.0')
-            .example('$0 bump', '--prepatch example // 0.20.0 => 0.20.1-rc.0')
-            .example('$0 bump', '--premajor example // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump', '--prerelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump --patch example', '0.20.0 => 0.20.1')
+            .example('$0 bump --minor example', '0.5.0 => 0.6.0')
+            .example('$0 bump --prepatch example', '0.20.0 => 0.20.1-rc.0')
+            .example('$0 bump --premajor example', '0.15.0 => 1.0.0-rc.0')
+            .example('$0 bump --prerelease example', '0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump --patch example1 example2', 'example1: 0.20.0 => 0.20.1, example2: 0.5.3 => 0.5.4')
             .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',

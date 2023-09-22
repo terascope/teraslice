@@ -14,11 +14,11 @@ const cmd: CommandModule = {
     describe: 'Update only the asset version.\nThis is for changes in the asset code. Changes in packages should use the bump command.\nThis will update the version number in \'./package.json\', \'./asset/asset.json\', and \'./asset/package.json\'.\nThis should be run in the root of the workspace.',
     builder(yargs) {
         let y = yargs
-            .example('$0 bump-asset', '--patch // 0.20.0 => 0.20.1')
-            .example('$0 bump-asset', '--minor // 0.5.0 => 0.6.0')
-            .example('$0 bump-asset', '--prepatch // 0.20.0 => 0.20.1-rc.0')
-            .example('$0 bump-asset', '--premajor // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump-asset', '--prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump-asset --patch', '0.20.0 => 0.20.1')
+            .example('$0 bump-asset --minor', '0.5.0 => 0.6.0')
+            .example('$0 bump-asset --prepatch', '0.20.0 => 0.20.1-rc.0')
+            .example('$0 bump-asset --premajor', '0.15.0 => 1.0.0-rc.0')
+            .example('$0 bump-asset --prerelease', '0.20.1-rc.0 => 0.20.1-rc.1')
             .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
