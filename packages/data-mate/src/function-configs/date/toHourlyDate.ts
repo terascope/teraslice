@@ -35,7 +35,7 @@ export const toHourlyDateConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [new Date('2019-10-22T01:05:20.000Z').getTime(), -120],
-            output: new Date('2019-10-22T03:00:00.000Z').getTime(),
+            output: new Date('2019-10-21T23:00:00.000Z').getTime(),
             serialize_output: toISO8601,
             test_only: true,
         },

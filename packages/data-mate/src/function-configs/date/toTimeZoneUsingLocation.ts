@@ -89,7 +89,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<toTimeZoneUsing
             },
             field: 'testField',
             input: '2023-11-22T15:41:50.172Z',
-            output: '2023-11-22T10:41:50.172-04:00',
+            output: '2023-11-22T10:41:50.172-05:00',
         },
     ],
     create({ args: { location } }) {

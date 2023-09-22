@@ -64,7 +64,7 @@ export const isBeforeConfig: FieldValidateConfig<IsBeforeArgs> = {
             },
             field: 'testField',
             input: [1620640800000, 0],
-            output: '2021-05-10T10:00:00.000Z',
+            output: null,
             test_only: true,
         }
     ],

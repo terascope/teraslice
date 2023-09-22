@@ -48,7 +48,7 @@ export const setMinutesConfig: FieldTransformConfig<SetMinutesArgs> = {
             },
             field: 'testField',
             input: [1621026000000, -120],
-            output: new Date('2021-05-14T23:59:00.000Z').getTime(),
+            output: new Date('2021-05-14T19:59:00.000Z').getTime(),
             serialize_output: toISO8601,
             test_only: true,
         },

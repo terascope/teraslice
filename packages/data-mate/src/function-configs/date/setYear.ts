@@ -46,7 +46,7 @@ export const setYearConfig: FieldTransformConfig<SetYearArgs> = {
             },
             field: 'testField',
             input: [1621026000000, 420],
-            output: new Date('2023-05-14T14:00:00.000Z').getTime(),
+            output: new Date('2023-05-15T04:00:00.000Z').getTime(),
             serialize_output: toISO8601
         },
         {

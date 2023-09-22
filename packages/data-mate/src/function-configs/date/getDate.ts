@@ -59,7 +59,7 @@ export const getDateConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 15,
+            output: 14,
             test_only: true,
         }
     ],

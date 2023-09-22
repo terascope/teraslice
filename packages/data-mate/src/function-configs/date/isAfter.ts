@@ -64,7 +64,7 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
             },
             field: 'testField',
             input: [1620640800000, -420],
-            output: '2021-05-10T10:00:00.000-07:00',
+            output: null,
             test_only: true,
         },
         {
@@ -75,7 +75,7 @@ export const isAfterConfig: FieldValidateConfig<IsAfterArgs> = {
             },
             field: 'testField',
             input: '2021-05-10T10:00:00.000Z',
-            output: null
+            output: '2021-05-10T10:00:00.000Z'
         }
     ],
     argument_schema: {
