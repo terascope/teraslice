@@ -5,6 +5,8 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
+const isNode18 = process.version.includes('v18');
+
 export interface toTimeZoneUsingLocationArgs {
     location: GeoInput;
 }
@@ -91,6 +93,19 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<toTimeZoneUsing
             input: '2023-11-22T15:41:50.172Z',
             output: '2023-11-22T10:41:50.172-05:00',
         },
+        {
+            args: {
+                // this timezone only exists in node v18
+                location: { lat: 31.636133, lon: -106.428667 }
+            },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2020-01-03T19:41:00.000Z',
+            output: isNode18 ? '2020-01-03T12:41:00.000-07:00' : null,
+        }
     ],
     create({ args: { location } }) {
         return toTimeZoneUsingLocationFP(location);
