@@ -117,15 +117,17 @@ export function getValidDateOrThrow(val: unknown): Date {
     return date;
 }
 
-export function toTimeZone(val:unknown, timezone: string): DateTuple {
+export function toTimeZone(val:unknown, timezone: string): DateTuple|null {
     if (!isString(timezone)) {
         throw new Error(`Invalid argument timezone, it must be a string, got ${getTypeOf(timezone)}`);
     }
 
     const date = getValidDateOrThrow(val);
-
     const offset = getTimezoneOffset(date, timezone);
-    //  const newTime = date.getTime() + (offset * 60_000);
+    // this should only fail right now in node v16, not v18
+    // as some timezones are not available in v16
+    if (isNaN(offset)) return null;
+
     return setTimezone(date, offset);
 }
 
