@@ -11,20 +11,7 @@ const signale = require('./signale');
  * we can download the correct asset
 */
 function getNodeVersion() {
-    const dockerFilePath = path.join(__dirname, '..', '..', 'Dockerfile');
-    const dockerFileContents = fs.readFileSync(dockerFilePath, 'utf8');
-    const fromLine = dockerFileContents.split('\n').find((line) => line.trim().startsWith('FROM '));
-    if (!fromLine) {
-        throw new Error('Unable to find the import FROM line in the Dockerfile');
-    }
-
-    const splitChars = 'FROM terascope/node-base:';
-    if (!fromLine.includes(splitChars)) {
-        throw new Error(`Dockerfile does not contain "${splitChars}". If this has changed, this file needs to be changed`);
-    }
-
-    const nodeVersion = fromLine.trim().split(splitChars)[1];
-    const majorNodeVersion = parseInt(nodeVersion.split('.')[0], 10);
+    const majorNodeVersion = process.version.substring(1).split('.')[0];
     if (Number.isNaN(majorNodeVersion)) {
         throw new Error(`Expected to find a valid node major version in the Dockerfile but found ${majorNodeVersion}`);
     }
