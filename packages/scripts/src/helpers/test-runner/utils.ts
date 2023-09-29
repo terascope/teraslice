@@ -67,6 +67,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         NODE_ENV: 'test',
         FORCE_COLOR: config.FORCE_COLOR,
         TEST_NAMESPACE: config.TEST_NAMESPACE,
+        TZ: 'utc'
     };
 
     if (config.DOCKER_NETWORK_NAME) {

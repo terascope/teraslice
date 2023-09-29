@@ -22,7 +22,7 @@ export const isSaturdayConfig: FieldValidateConfig = {
             config: { version: 1, fields: { testField: { type: FieldType.Date } } },
             field: 'testField',
             input: [new Date('2021-05-08T10:00:00.000Z').getTime(), 60],
-            output: '2021-05-08T10:00:00.000+01:00',
+            output: '2021-05-08T11:00:00.000+01:00',
             test_only: true
         },
         {

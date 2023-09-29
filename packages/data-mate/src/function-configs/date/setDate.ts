@@ -37,7 +37,7 @@ export const setDateConfig: FieldTransformConfig<SetDateArgs> = {
             },
             field: 'testField',
             input: [1621026000000, 420],
-            output: new Date('2021-05-12T14:00:00.000Z').getTime(),
+            output: new Date('2021-05-12T04:00:00.000Z').getTime(),
             serialize_output: toISO8601,
             test_only: true,
         },

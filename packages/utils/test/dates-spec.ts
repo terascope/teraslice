@@ -27,11 +27,18 @@ import {
     getDate,
     getMonth,
     getYear,
+    getUTCMinutes,
+    getUTCHours,
+    getUTCDate,
+    getUTCMonth,
+    getUTCYear,
     addToDate,
     subtractFromDate,
     toTimeZone,
-    toTimeZoneUsingLocationFP
+    toTimeZoneUsingLocationFP,
 } from '../src/dates';
+
+const isNode18 = process.version.includes('v18');
 
 describe('date utils', () => {
     describe('isISO8601', () => {
@@ -51,7 +58,7 @@ describe('date utils', () => {
     describe('toISO8601', () => {
         test.each([
             [978310800000, '2001-01-01T01:00:00.000Z'],
-            [[978310800000, 3 * 60], '2001-01-01T01:00:00.000+03:00'],
+            [[978310800000, 3 * 60], '2001-01-01T04:00:00.000+03:00'],
         ])('should handle %p and return %p', (input, expected) => {
             expect(toISO8601(input)).toEqual(expected);
         });
@@ -59,13 +66,13 @@ describe('date utils', () => {
 
     describe('toTimeZone', () => {
         test.each([
-            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', '2001-03-19 11:36:44+01:00'],
-            ['2023-08-22T15:41:50.172Z', 'America/Phoenix', '2023-08-22 08:41:50-07:00'],
-            ['2023-08-22T15:41:50.172Z', 'America/New_York', '2023-08-22 11:41:50-04:00'],
-            ['2023-11-22T15:41:50.172Z', 'America/New_York', '2023-11-22 10:41:50-05:00'],
-            ['2023-11-22T15:41:50.172Z', 'America/Phoenix', '2023-11-22 08:41:50-07:00'],
+            ['2001-03-19T10:36:44.450Z', 'Africa/Ndjamena', [984998204450, 60]],
+            [new Date('2001-03-19T10:36:44.450Z'), 'Africa/Ndjamena', [984998204450, 60]],
+            [new Date('2001-03-19T10:36:44.450Z').getTime(), 'Africa/Ndjamena', [984998204450, 60]],
+            ['2023-08-22T15:41:50.172Z', 'America/Phoenix', [1692718910172, -420]],
+            ['2023-08-22T15:41:50.172Z', 'America/New_York', [1692718910172, -240]],
+            ['2023-11-22T15:41:50.172Z', 'America/New_York', [1700667710172, -300]],
+            ['2023-11-22T15:41:50.172Z', 'America/Phoenix', [1700667710172, -420]],
         ])('should handle %p with timezone %p and return %p', (input, timezone, expected) => {
             expect(toTimeZone(input, timezone)).toEqual(expected);
         });
@@ -73,12 +80,13 @@ describe('date utils', () => {
 
     describe('toTimeZoneUsingLocationFP', () => {
         test.each([
-            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, '2001-03-19 11:36:44+01:00'],
-            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', '2001-03-19 11:36:44+01:00'],
-            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], '2001-03-19 11:36:44+01:00'],
-            ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, '2023-08-22 08:41:50-07:00'],
-            ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-08-22 11:41:50-04:00'],
-            ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, '2023-11-22 10:41:50-05:00']
+            ['2001-03-19T10:36:44.450Z', { lat: 16.8277, lon: 21.24046 }, [984998204450, 60]],
+            ['2001-03-19T10:36:44.450Z', '16.8277,21.24046', [984998204450, 60]],
+            ['2001-03-19T10:36:44.450Z', [21.24046, 16.8277], [984998204450, 60]],
+            ['2023-08-22T15:41:50.172Z', { lat: 33.4192222, lon: -111.6566588 }, [1692718910172, -420]],
+            ['2023-08-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1692718910172, -240]],
+            ['2023-11-22T15:41:50.172Z', { lat: 40.776936, lon: -73.911140 }, [1700667710172, -300]],
+            ['2020-01-03T19:41:00.000Z', { lat: 31.636133, lon: -106.428667 }, isNode18 ? [1578080460000, -420] : null]
         ])('should handle %p with location %p and return %p', (input, location, expected) => {
             expect(toTimeZoneUsingLocationFP(location)(input)).toEqual(expected);
         });
@@ -133,7 +141,7 @@ describe('date utils', () => {
             [new Date(102390933000), DateFormat.milliseconds, 102390933000],
             [-102390933000, DateFormat.epoch_millis, -102390933000],
             [new Date('2021-06-03T22:46:15.244Z'), 'MM/dd/yy', '06/03/21'],
-            [[1622760480654, 60] as DateTuple, DateFormat.iso_8601, '2021-06-03T22:48:00.654+01:00'],
+            [[1622760480654, 60] as DateTuple, DateFormat.iso_8601, '2021-06-03T23:48:00.654+01:00'],
             [[1622760480654, 60] as DateTuple, 'MM/dd/yyyy', '06/03/2021'],
         ])('should handle %p and return %p', (input, format, expected) => {
             expect(formatDateValue(input, format)).toBe(expected);
@@ -164,9 +172,9 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2019-05-10T11:01:33.192Z', 'ISOWeekYears', 1],
             ['2021-05-10T10:00:00.000Z', '2010-01-09T11:01:33.192Z', 'ISO8601', 'P11Y4M0DT22H58M26S'],
             [[1620640800000, 0], '2021-05-10T09:59:00.000Z', 'milliseconds', 60000],
-            [[1620640800000, -60], '2021-05-10T09:59:00.000-01:00', 'milliseconds', 60000],
-            [[1620640800000, -60], '2021-05-10T09:59:00.000+02:00', 'milliseconds', 10860000],
-            [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', -3600000]
+            [[1620640800000, -60], '2021-05-10T09:59:00.000-01:00', 'milliseconds', -7140000],
+            [[1620640800000, -60], '2021-05-10T09:59:00.000+02:00', 'milliseconds', 3660000],
+            [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', -10800000]
         ])('should return duration between %p and %p, in %p as %p for start values', (input, start, interval, expected) => {
             const args: { start: any, interval: any } = { start, interval };
 
@@ -192,7 +200,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2028-05-10T11:01:33.192Z', 'calendarISOWeekYears', 7],
             ['2021-05-10T10:00:00.000Z', '2024-05-10T11:01:33.192Z', 'ISOWeekYears', 3],
             ['2021-05-10T10:00:00.000Z', '2023-01-09T18:19:23.132Z', 'ISO8601', 'P1Y7M30DT8H19M23S'],
-            [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', 3600000]
+            [[1620640800000, -60], '2021-05-10T10:00:00.000-02:00', 'milliseconds', 10800000]
         ])('should return duration between %p and %p, in %p as %p for end values', (input, end, interval, expected) => {
             const args: { end: any, interval: any } = { end, interval };
 
@@ -234,7 +242,7 @@ describe('date utils', () => {
             ['2021-05-10T10:00:00.000Z', '2199-12-31T23:00:00.001Z', true],
             [[1620640800000, 0], '2021-05-10T10:00:00.001Z', true],
             [[1620640800000, 0], [1620640800001, 0], true],
-            [[1620640800000, -420], '2021-05-10T10:00:00.001Z', false],
+            [[1620640800000, -420], '2021-05-10T10:00:00.001Z', true],
             ['2021-05-10T10:00:00.000Z', '2021-05-09T10:00:00.001Z', false],
             [1620764444501, 1715472000000, true],
             [1620764444501, new Date(1715472000000), true],
@@ -254,7 +262,7 @@ describe('date utils', () => {
             [new Date('2199-12-31T23:00:00.001Z'), new Date('2021-05-10T10:00:00.000Z'), true],
             [[1620640800000, 0], '2021-05-10T09:59:59.999Z', true],
             [[1620640800001, 0], [1620640800000, 0], true],
-            [[1620640800000, 420], '2021-05-10T10:00:00.001Z', false],
+            [[1620640800000, 420], '2021-05-10T10:00:00.001Z', true],
             ['2021-05-09T10:00:00.001Z', '2021-05-10T10:00:00.000Z', false],
             [1715472000000, 1620764444501, true],
             [new Date(1715472000000), 1620764444501, true],
@@ -271,7 +279,7 @@ describe('date utils', () => {
         test.each([
             ['2021-05-10T10:00:00.001Z', '2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.002Z', true],
             ['2199-12-31T23:00:00.001Z', '1872-05-10T10:00:00.000Z', '2499-01-31T23:00:00.001Z', true],
-            [[1620640800000, 0], [1620640800000, 60], [1620640800000, -60], true],
+            [[1620640800000, 0], [1620640800000, 60], [1620640800000, -60], false],
             ['2021-05-10T10:00:00.003Z', '2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.002Z', false],
             ['2021-05-10T10:00:00.000Z', '2021-05-10T10:00:00.001Z', '2021-05-10T10:00:00.003Z', false],
             ['1872-05-10T10:00:00.000Z', '2199-12-31T23:00:00.001Z', '2499-01-31T23:00:00.001Z', false],
@@ -357,7 +365,7 @@ describe('date utils', () => {
             ['2021-05-14T00:32:00.000Z', 0, new Date('2021-05-14T00:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 54, new Date('2022-04-18T00:54:00.000Z').getTime()],
             [1621026000000, 59, new Date('2021-05-14T21:59:00.000Z').getTime()],
-            [[1621026000000, -120], 59, new Date('2021-05-14T23:59:00.000Z').getTime()],
+            [[1621026000000, -120], 59, 1621022340000],
         ])('for input %p set the minutes to %p and return %p', (input, minutes, expected) => {
             expect(setMinutes(minutes)(input)).toEqual(expected);
         });
@@ -384,7 +392,7 @@ describe('date utils', () => {
             ['2021-05-14T00:00:00.000Z', 12, new Date('2021-05-12T00:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 12, new Date('2022-04-12T00:00:00.000Z').getTime()],
             [1621026000000, 12, new Date('2021-05-12T21:00:00.000Z').getTime()],
-            [[1621026000000, 420], 12, new Date('2021-05-12T14:00:00.000Z').getTime()],
+            [[1621026000000, 420], 12, 1620792000000],
             ['2021-02-14T00:00:00.000Z', 30, new Date('2021-03-02T00:00:00.000Z').getTime()],
         ])('for input %p set the date to %p and return %p', (input, date, expected) => {
             expect(setDate(date)(input)).toEqual(expected);
@@ -406,7 +414,7 @@ describe('date utils', () => {
             ['2021-05-14T00:00:00.000Z', 1, new Date('2021-01-14T00:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 12, new Date('2022-12-18T00:00:00.000Z').getTime()],
             [1621026000000, 12, new Date('2021-12-14T21:00:00.000Z').getTime()],
-            [[1621026000000, -120], 12, new Date('2021-12-14T23:00:00.000Z').getTime()],
+            [[1621026000000, -120], 12, new Date('2021-12-14T19:00:00.000Z').getTime()],
         ])('for input %p set the month to %p and return %p', (input, month, expected) => {
             expect(setMonth(month)(input)).toEqual(expected);
         });
@@ -428,7 +436,7 @@ describe('date utils', () => {
             ['2021-05-14T00:00:00.000Z', 10042, new Date('+010042-05-14T00:00:00.000Z').getTime()],
             ['04/18/2022 UTC', 12, new Date('0012-04-18T00:00:00.000Z').getTime()],
             [1621026000000, 2023, new Date('2023-05-14T21:00:00.000Z').getTime()],
-            [[1621026000000, 420], 2023, new Date('2023-05-14T14:00:00.000Z').getTime()],
+            [[1621026000000, 420], 2023, new Date('2023-05-15T04:00:00.000Z').getTime()],
         ])('for input %p set the year to %p and return %p', (input, year, expected) => {
             expect(setYear(year)(input)).toEqual(expected);
         });
@@ -478,18 +486,39 @@ describe('date utils', () => {
     describe('getMinutes', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 19],
+            ['2001-03-19T11:36:44+01:00', 36],
             ['2021-05-10T10:00:00.000Z', 0],
             [1311874359231, 32],
             [1715472343, 31],
             ['08/05/2021', 0],
             [[1621026300000, -420], 5],
-            [[1621026300000, -418], 3]
+            [[1621026300000, -418], 7]
         ])('for date %p getMinutes should return %p', (input, expected) => {
             expect(getMinutes(input)).toEqual(expected);
         });
 
         it('should throw if input cannot be parsed to a date', () => {
             expect(() => { getMinutes(true); })
+                .toThrowError('Expected true (Boolean) to be in a standard date format');
+        });
+    });
+
+    describe('getUTCMinutes', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 19],
+            ['2001-03-19T11:36:44+01:00', 36],
+            ['2021-05-10T10:00:00.000Z', 0],
+            [1311874359231, 32],
+            [1715472343, 31],
+            ['08/05/2021', 0],
+            [[1621026300000, -420], 5],
+            [[1621026300000, -418], 5]
+        ])('for date %p getMinutes should return %p', (input, expected) => {
+            expect(getUTCMinutes(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCMinutes(true); })
                 .toThrowError('Expected true (Boolean) to be in a standard date format');
         });
     });
@@ -503,7 +532,7 @@ describe('date utils', () => {
             ['08/05/2021 UTC', 0],
             ['08/05/2021 EST', 5],
             ['2021-05-10T03:00:00.000-05:00', 8],
-            [[1621026300000, -420], 4]
+            [[1621026300000, -420], 14]
         ])('for date %p getHours should return %p', (input, expected) => {
             expect(getHours(input)).toEqual(expected);
         });
@@ -514,19 +543,56 @@ describe('date utils', () => {
         });
     });
 
+    describe('getUTCHours', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            ['2021-05-10T00:00:00.000Z', 0],
+            [1311874359231, 17],
+            [1715472343, 20],
+            ['08/05/2021 UTC', 0],
+            ['08/05/2021 EST', 5],
+            ['2021-05-10T03:00:00.000-05:00', 8],
+            [[1621026300000, -420], 21]
+        ])('for date %p getHours should return %p', (input, expected) => {
+            expect(getUTCHours(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCHours(false); })
+                .toThrowError('Expected false (Boolean) to be in a standard date format');
+        });
+    });
+
     describe('getDate', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 10],
             [1311874359231, 28],
             [1715472343, 20],
             ['08/05/2021', 5],
-            [[1621026300000, -420], 15]
+            [[1621026300000, -420], 14]
         ])('for date %p getDate should return %p', (input, expected) => {
             expect(getDate(input)).toEqual(expected);
         });
 
         it('should throw if input cannot be parsed to a date', () => {
             expect(() => { getDate([]); })
+                .toThrowError('Expected  (Array) to be in a standard date format');
+        });
+    });
+
+    describe('getUTCDate', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 10],
+            [1311874359231, 28],
+            [1715472343, 20],
+            ['08/05/2021', 5],
+            [[1621026300000, -420], 14]
+        ])('for date %p getDate should return %p', (input, expected) => {
+            expect(getUTCDate(input)).toEqual(expected);
+        });
+
+        it('should throw if input cannot be parsed to a date', () => {
+            expect(() => { getUTCDate([]); })
                 .toThrowError('Expected  (Array) to be in a standard date format');
         });
     });
@@ -546,6 +612,21 @@ describe('date utils', () => {
         });
     });
 
+    describe('getUTCMonth', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 5],
+            [1311874359231, 7],
+            [1715472343, 1],
+            ['08/05/2021', 8],
+            ['2021-05-10T10:19:12.746Z', 5],
+            ['12/05/2021', 12],
+            ['01/05/2021', 1],
+            [[1621026300000, -420], 5]
+        ])('for date %p getMonth should return %p', (input, expected) => {
+            expect(getUTCMonth(input)).toEqual(expected);
+        });
+    });
+
     describe('getYear', () => {
         test.each([
             ['2021-05-10T10:19:12.746Z', 2021],
@@ -558,12 +639,24 @@ describe('date utils', () => {
         });
     });
 
+    describe('getUTCYear', () => {
+        test.each([
+            ['2021-05-10T10:19:12.746Z', 2021],
+            [1311874359231, 2011],
+            [1715472343, 1970],
+            ['08/05/1872', 1872],
+            [[1621026300000, -420], 2021]
+        ])('for date %p getYear should return %p', (input, expected) => {
+            expect(getUTCYear(input)).toEqual(expected);
+        });
+    });
+
     describe('addToDate', () => {
         test.each([
             ['2019-10-22T22:00:00.000Z', { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
             [[1571781600000, 0], { expr: '10h+2m' }, new Date('2019-10-23T08:02:00.000Z').getTime()],
-            [[1571781600000, 420], { years: 4 }, 1697986800000],
-            [[1571781600000, -60], { months: 1, minutes: 2 }, 1574463720000]
+            [[1571781600000, 420], { years: 4 }, 1698037200000],
+            [[1571781600000, -60], { months: 1, minutes: 2 }, 1574456520000]
         ])('for date %p and exp %p addToDate should return %p', (input, args, expected) => {
             expect(addToDate(input, args)).toEqual(expected);
         });
@@ -573,7 +666,7 @@ describe('date utils', () => {
         test.each([
             ['2019-10-22T22:00:00.000Z', { expr: '10h+2m' }, 1571745720000],
             [[1571781600000, 0], { expr: '10h+2m' }, 1571745720000],
-            [[1571781600000, 420], { years: 4 }, 1445526000000]
+            [[1571781600000, 420], { years: 4 }, 1445576400000]
         ])('for date %p and exp %p addToDate should return %p', (input, args, expected) => {
             expect(subtractFromDate(input, args)).toEqual(expected);
         });

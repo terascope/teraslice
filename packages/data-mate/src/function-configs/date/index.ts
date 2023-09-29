@@ -8,6 +8,11 @@ import { getMonthConfig } from './getMonth';
 import { getSecondsConfig } from './getSeconds';
 import { getTimeBetweenConfig, GetTimeBetweenArgs } from './getTimeBetween';
 import { getTimezoneOffsetConfig, GetTimezoneOffsetArgs } from './getTimezoneOffset';
+import { getUTCDateConfig } from './getUTCDate';
+import { getUTCHoursConfig } from './getUTCHours';
+import { getUTCMinutesConfig } from './getUTCMinutes';
+import { getUTCMonthConfig } from './getUTCMonth';
+import { getUTCYearConfig } from './getUTCYear';
 import { getYearConfig } from './getYear';
 import { isAfterConfig, IsAfterArgs } from './isAfter';
 import { isBeforeConfig, IsBeforeArgs } from './isBefore';
@@ -46,8 +51,8 @@ import { toDailyDateConfig } from './toDailyDate';
 import { toDateConfig, ToDateArgs } from './toDate';
 import { toHourlyDateConfig } from './toHourlyDate';
 import { toMonthlyDateConfig } from './toMonthlyDate';
-import { toTimeZoneConfig } from './toTimeZone';
-import { toTimeZoneUsingLocationConfig } from './toTimeZoneUsingLocation';
+import { toTimeZoneConfig, toTimeZoneArgs } from './toTimeZone';
+import { toTimeZoneUsingLocationConfig, toTimeZoneUsingLocationArgs } from './toTimeZoneUsingLocation';
 import { toYearlyDateConfig } from './toYearlyDate';
 
 export const dateRepository = {
@@ -61,6 +66,11 @@ export const dateRepository = {
     getSeconds: getSecondsConfig,
     getTimeBetween: getTimeBetweenConfig,
     getTimezoneOffset: getTimezoneOffsetConfig,
+    getUTCDate: getUTCDateConfig,
+    getUTCHours: getUTCHoursConfig,
+    getUTCMinutes: getUTCMinutesConfig,
+    getUTCMonth: getUTCMonthConfig,
+    getUTCYear: getUTCYearConfig,
     getYear: getYearConfig,
     isAfter: isAfterConfig,
     isBefore: isBeforeConfig,
@@ -123,5 +133,7 @@ export type {
     SetSecondsArgs,
     SetTimezoneArgs,
     SetYearArgs,
-    ToDateArgs
+    ToDateArgs,
+    toTimeZoneArgs,
+    toTimeZoneUsingLocationArgs
 };

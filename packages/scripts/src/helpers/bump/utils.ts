@@ -136,7 +136,7 @@ export function bumpPackagesList(
     const rootInfo = getRootInfo();
     for (const [name, bumpInfo] of Object.entries(result)) {
         const pkgInfo = findPackageByName(packages, name);
-        signale.info(`=> Updated ${name} to version ${bumpInfo.from} to ${bumpInfo.to}`);
+        signale.info(`=> Updated ${name} from version ${bumpInfo.from} to ${bumpInfo.to}`);
 
         pkgInfo.version = bumpInfo.to;
         if (rootInfo.terascope.version === 2) continue;
@@ -144,6 +144,7 @@ export function bumpPackagesList(
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
             const key = getDepKeyFromType(depBumpInfo.type);
+
             if (!depPkgInfo[key]) continue;
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
@@ -164,7 +165,7 @@ function getDepKeyFromType(type: BumpType): string {
     throw new Error(`Unknown BumpType ${type} given`);
 }
 
-function bumpVersion(pkgInfo: PackageInfo, release: ReleaseType, preId?: string) {
+export function bumpVersion(pkgInfo: PackageInfo, release: ReleaseType, preId?: string) {
     const version = semver.inc(pkgInfo.version, release, false, preId);
     if (!version) {
         throw new Error(`Failure to increment version "${pkgInfo.version}" using "${release}"`);

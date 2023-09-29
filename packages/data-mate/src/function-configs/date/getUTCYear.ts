@@ -1,15 +1,15 @@
 import { FieldType } from '@terascope/types';
-import { getMonth } from '@terascope/utils';
+import { getUTCYear } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getMonthConfig: FieldTransformConfig = {
-    name: 'getMonth',
+export const getUTCYearConfig: FieldTransformConfig = {
+    name: 'getUTCYear',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the month of the input date time',
+    description: 'Returns the year of the input date in UTC Time',
     examples: [
         {
             args: {},
@@ -19,7 +19,7 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2021-05-11T10:12:41.091Z',
-            output: 5
+            output: 2021
         },
         {
             args: {},
@@ -29,7 +29,7 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: new Date('2021-05-16T10:59:19.091Z'),
-            output: 5
+            output: 2021
         },
         {
             args: {},
@@ -39,7 +39,7 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '05/22/2021 EST',
-            output: 5
+            output: 2021
         },
         {
             args: {},
@@ -49,7 +49,7 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: 1510123223231,
-            output: 11
+            output: 2017
         },
         {
             args: {},
@@ -59,12 +59,12 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 5,
+            output: 2021,
             test_only: true,
         }
     ],
     create() {
-        return getMonth;
+        return getUTCYear;
     },
     accepts: [
         FieldType.Date,

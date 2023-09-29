@@ -9,7 +9,7 @@ export const getDateConfig: FieldTransformConfig = {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the day of the month of the input date in UTC Time',
+    description: 'Returns the day of the month of the input date time',
     examples: [
         {
             args: {},
@@ -59,7 +59,7 @@ export const getDateConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 15,
+            output: 14,
             test_only: true,
         }
     ],

@@ -9,7 +9,11 @@ import {
     FunctionDefinitionCategory
 } from '../interfaces';
 
-export const toTimeZoneConfig: FieldTransformConfig = {
+export interface toTimeZoneArgs {
+    timezone: string
+}
+
+export const toTimeZoneConfig: FieldTransformConfig<toTimeZoneArgs> = {
     name: 'toTimeZone',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -24,7 +28,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2001-03-19T10:36:44.450Z',
-            output: '2001-03-19 11:36:44+01:00',
+            output: '2001-03-19T11:36:44.450+01:00',
         },
         {
             args: { timezone: 'Africa/Ndjamena' },
@@ -34,7 +38,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: new Date('2001-03-19T10:36:44.450Z'),
-            output: '2001-03-19 11:36:44+01:00',
+            output: '2001-03-19T11:36:44.450+01:00',
         },
         {
             args: { timezone: 'America/Phoenix' },
@@ -44,7 +48,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-08-22T15:41:50.172Z',
-            output: '2023-08-22 08:41:50-07:00',
+            output: '2023-08-22T08:41:50.172-07:00',
         },
         {
             args: { timezone: 'America/New_York' },
@@ -54,7 +58,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-08-22T15:41:50.172Z',
-            output: '2023-08-22 11:41:50-04:00',
+            output: '2023-08-22T11:41:50.172-04:00',
         },
         {
             args: { timezone: 'America/New_York' },
@@ -64,7 +68,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-11-22T15:41:50.172Z',
-            output: '2023-11-22 10:41:50-05:00',
+            output: '2023-11-22T10:41:50.172-05:00',
         },
         {
             args: { timezone: 'America/Phoenix' },
@@ -74,11 +78,21 @@ export const toTimeZoneConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: '2023-11-22T15:41:50.172Z',
-            output: '2023-11-22 08:41:50-07:00',
+            output: '2023-11-22T08:41:50.172-07:00',
+        },
+        {
+            args: { timezone: 'Asia/Calcutta' },
+            config: {
+                version: 1,
+                fields: { testField: { type: FieldType.Date, format: DateFormat.iso_8601 } }
+            },
+            field: 'testField',
+            input: '2023-11-22T15:41:50.172Z',
+            output: '2023-11-22T21:11:50.172+05:30',
         },
     ],
     create({ args: { timezone } }) {
-        return (val) => toTimeZone(val, timezone as any);
+        return (val) => toTimeZone(val, timezone);
     },
     accepts: [
         FieldType.String,
@@ -98,7 +112,7 @@ export const toTimeZoneConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.String
+                type: FieldType.Date
             },
         };
     }

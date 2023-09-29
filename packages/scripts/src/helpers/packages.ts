@@ -70,7 +70,6 @@ export function listPackages(
     if (!hasE2E) {
         workspaces.push('e2e');
     }
-
     const workspacePaths = _resolveWorkspaces(workspaces, misc.getRootDir());
     const packages = workspacePaths
         .map(_loadPackage)
@@ -214,16 +213,16 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
 
     const rootInfo = misc.getRootInfo();
 
-    if (!pkgInfo.private) {
+    if (!pkgInfo.private && !pkgInfo.terascope.asset) {
         if (!pkgInfo.publishConfig) {
             pkgInfo.publishConfig = {
                 access: 'public',
-                registry: rootInfo.terascope.npm.registry,
+                ...{ registry: (rootInfo.terascope.npm?.registry ? `${rootInfo.terascope.npm?.registry}` : undefined) },
             };
         } else {
             pkgInfo.publishConfig = Object.assign({}, {
                 access: 'public',
-                registry: rootInfo.terascope.npm.registry,
+                ...{ registry: (rootInfo.terascope.npm?.registry ? `${rootInfo.terascope.npm?.registry}` : undefined) },
             }, pkgInfo.publishConfig);
         }
     } else {
@@ -254,6 +253,7 @@ export function updatePkgJSON(
 
     const pkgJSON = getSortedPkgJSON(pkgInfo) as Partial<i.PackageInfo>;
     delete pkgJSON.folderName;
+    delete pkgJSON.terascope?.asset;
     delete pkgJSON.dir;
     delete pkgJSON.relativeDir;
     return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {

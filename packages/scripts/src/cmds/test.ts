@@ -35,10 +35,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Run monorepo tests',
     builder(yargs) {
         return yargs
-            .example('$0 test', 'example --watch -- --testPathPattern worker-spec')
-            .example('$0 test', 'example --debug --bail')
-            .example('$0 test', '. --debug --bail')
-            .example('$0 test', `. --trace --force-suite ${testSuites.find((s) => s.startsWith('unit'))}`)
+            .example('$0 test example --watch -- --testPathPattern worker-spec', 'Run worker-spec test file within example package in watch mode.')
+            .example('$0 test example --debug --bail', 'Run all tests in example package. Show debug info. Stop at first failed test.')
+            .example('$0 test . --debug --bail', 'Run all tests in current directory. Show debug info. Stop at first failed test.')
+            .example(`$0 test . --trace --force-suite ${testSuites.find((s) => s.startsWith('unit'))}`, 'Run a specific suite of tests in trace mode.')
+            .example('$0 test asset --', 'Run asset tests only if within an asset repository.')
+            .example('$0 test example asset --', 'Run example and asset tests.')
             .option('debug', {
                 alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
@@ -123,7 +125,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: false,
             })
             .positional('packages', {
-                description: 'Runs the test for one or more package, if none specified it will run all of the tests',
+                description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
                     let args = castArray(arg);
                     args = args.filter((a) => {

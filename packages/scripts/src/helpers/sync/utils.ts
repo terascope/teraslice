@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import semver from 'semver';
 import {
@@ -22,7 +23,12 @@ let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions): Promise<void> {
     const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
-
+    const missingFiles = topLevelFiles.filter((fileName: string) => !fs.existsSync(`${getRootDir()}/${fileName}`));
+    if (missingFiles.length) {
+        signale.fatal(`Bump requires you to have the following folders/files in your root directory:\n${formatList(missingFiles)}
+        \nAdd these files to the root and try again.\n`);
+        process.exit(1);
+    }
     const changed = await getChangedFiles(
         ...topLevelFiles,
         ...pkgDirs,
@@ -73,6 +79,9 @@ ${formatList(diff)}
     }
 
     if (options.verify) {
+        signale.warn(`Your package.json files were not configured properly.
+             They have been configured for you.
+             Commit or stage the changes and try running bump again.`);
         process.exit(1);
     }
 }
@@ -88,11 +97,15 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
 export async function syncPackage(
     files: string[], pkgInfo: PackageInfo, options: SyncOptions
 ): Promise<void> {
-    await Promise.all([
-        updateReadme(pkgInfo, !options.quiet),
-        ensureOverview(pkgInfo, !options.quiet),
-        updatePkgJSON(pkgInfo, !options.quiet),
-    ]);
+    if (options?.isAsset) {
+        updatePkgJSON(pkgInfo, !options.quiet);
+    } else {
+        await Promise.all([
+            updateReadme(pkgInfo, !options.quiet),
+            ensureOverview(pkgInfo, !options.quiet),
+            updatePkgJSON(pkgInfo, !options.quiet),
+        ]);
+    }
 
     files.push(...getFiles(pkgInfo));
 }

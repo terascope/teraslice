@@ -1,15 +1,15 @@
 import { FieldType } from '@terascope/types';
-import { getMonth } from '@terascope/utils';
+import { getUTCMonth } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getMonthConfig: FieldTransformConfig = {
-    name: 'getMonth',
+export const getUTCMonthConfig: FieldTransformConfig = {
+    name: 'getUTCMonth',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the month of the input date time',
+    description: 'Returns the month of the input date in UTC Time',
     examples: [
         {
             args: {},
@@ -64,7 +64,7 @@ export const getMonthConfig: FieldTransformConfig = {
         }
     ],
     create() {
-        return getMonth;
+        return getUTCMonth;
     },
     accepts: [
         FieldType.Date,

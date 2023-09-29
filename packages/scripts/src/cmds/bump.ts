@@ -6,6 +6,7 @@ import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 import { getRootInfo } from '../helpers/misc';
+import signale from '../helpers/signale';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -16,12 +17,12 @@ const cmd: CommandModule = {
     describe: 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.',
     builder(yargs) {
         let y = yargs
-            .example('$0 bump', 'example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '--patch example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '--minor example // 0.5.0 => 0.6.0')
-            .example('$0 bump', '--prepatch example // 0.20.0 => 0.20.1-rc.0')
-            .example('$0 bump', '--premajor example // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump', '--prerelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump --patch example', '0.20.0 => 0.20.1')
+            .example('$0 bump --minor example', '0.5.0 => 0.6.0')
+            .example('$0 bump --prepatch example', '0.20.0 => 0.20.1-rc.0')
+            .example('$0 bump --premajor example', '0.15.0 => 1.0.0-rc.0')
+            .example('$0 bump --prerelease example', '0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump --patch example1 example2', 'example1: 0.20.0 => 0.20.1, example2: 0.5.3 => 0.5.4')
             .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
@@ -74,20 +75,29 @@ const cmd: CommandModule = {
     async handler(argv) {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
-        await syncAll({ verify: true, tsconfigOnly: rootInfo.terascope.version === 2 });
+
+        await syncAll({
+            verify: true,
+            tsconfigOnly: rootInfo.terascope.version === 2,
+            isAsset: rootInfo.terascope.asset
+        });
+
+        if (rootInfo.terascope.asset) {
+            signale.info('bump has detected the root directory is an Asset. bump is now in Asset mode.');
+        }
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
             preId: argv['prerelease-id'] as string | undefined,
             release,
             deps: Boolean(argv.deps),
-            skipReset: Boolean(argv['skip-reset']),
-        });
+            skipReset: Boolean(argv['skip-reset'])
+        }, rootInfo.terascope.asset);
     },
 };
 
 function getRelease(argv: any): ReleaseType {
     const found = releaseChoices.filter((choice) => argv[choice]);
-    const release = argv.release as ReleaseType|undefined;
+    const release = argv.release as ReleaseType | undefined;
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');

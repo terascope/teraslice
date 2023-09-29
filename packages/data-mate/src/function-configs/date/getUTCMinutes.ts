@@ -1,15 +1,15 @@
 import { FieldType } from '@terascope/types';
-import { getMonth } from '@terascope/utils';
+import { getUTCMinutes } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getMonthConfig: FieldTransformConfig = {
-    name: 'getMonth',
+export const getUTCMinutesConfig: FieldTransformConfig = {
+    name: 'getUTCMinutes',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the month of the input date time',
+    description: 'Returns the minutes of the input date in UTC time',
     examples: [
         {
             args: {},
@@ -18,8 +18,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.String } }
             },
             field: 'testField',
-            input: '2021-05-11T10:12:41.091Z',
-            output: 5
+            input: '2021-05-10T10:12:41.091Z',
+            output: 12
         },
         {
             args: {},
@@ -28,18 +28,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: new Date('2021-05-16T10:59:19.091Z'),
-            output: 5
-        },
-        {
-            args: {},
-            config: {
-                version: 1,
-                fields: { testField: { type: FieldType.String } }
-            },
-            field: 'testField',
-            input: '05/22/2021 EST',
-            output: 5
+            input: new Date('2021-05-10T10:59:19.091Z'),
+            output: 59
         },
         {
             args: {},
@@ -48,8 +38,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Number } }
             },
             field: 'testField',
-            input: 1510123223231,
-            output: 11
+            input: 1715472323231,
+            output: 5
         },
         {
             args: {},
@@ -58,13 +48,13 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: [1621026300000, -420],
+            input: [1621026300000, -418],
             output: 5,
             test_only: true,
         }
     ],
     create() {
-        return getMonth;
+        return getUTCMinutes;
     },
     accepts: [
         FieldType.Date,

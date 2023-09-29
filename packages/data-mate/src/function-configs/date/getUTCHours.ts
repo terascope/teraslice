@@ -1,15 +1,15 @@
 import { FieldType } from '@terascope/types';
-import { getMonth } from '@terascope/utils';
+import { getUTCHours } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
 } from '../interfaces';
 
-export const getMonthConfig: FieldTransformConfig = {
-    name: 'getMonth',
+export const getUTCHoursConfig: FieldTransformConfig = {
+    name: 'getUTCHours',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     category: FunctionDefinitionCategory.DATE,
-    description: 'Returns the month of the input date time',
+    description: 'Returns the hours of the input date in UTC Time',
     examples: [
         {
             args: {},
@@ -18,8 +18,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.String } }
             },
             field: 'testField',
-            input: '2021-05-11T10:12:41.091Z',
-            output: 5
+            input: '2021-05-10T10:12:41.091Z',
+            output: 10
         },
         {
             args: {},
@@ -28,8 +28,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Date } }
             },
             field: 'testField',
-            input: new Date('2021-05-16T10:59:19.091Z'),
-            output: 5
+            input: new Date('2021-05-10T10:59:19.091Z'),
+            output: 10
         },
         {
             args: {},
@@ -48,8 +48,8 @@ export const getMonthConfig: FieldTransformConfig = {
                 fields: { testField: { type: FieldType.Number } }
             },
             field: 'testField',
-            input: 1510123223231,
-            output: 11
+            input: 17154123223231,
+            output: 2
         },
         {
             args: {},
@@ -59,12 +59,12 @@ export const getMonthConfig: FieldTransformConfig = {
             },
             field: 'testField',
             input: [1621026300000, -420],
-            output: 5,
+            output: 21,
             test_only: true,
         }
     ],
     create() {
-        return getMonth;
+        return getUTCHours;
     },
     accepts: [
         FieldType.Date,
