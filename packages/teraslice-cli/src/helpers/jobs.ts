@@ -72,7 +72,8 @@ export default class Jobs {
         for (const job of this.jobs) {
             const { jobInfoString } = this.getJobIdentifiers(job);
 
-            reply.green(`${jobInfoString} status: ${job.status}`);
+            reply.yellow(`> status: ${job.status}`);
+            reply.green(`${jobInfoString}`);
         }
     }
 
@@ -84,9 +85,9 @@ export default class Jobs {
         for (const job of this.jobs) {
             const { jobInfoString } = this.getJobIdentifiers(job);
 
-            reply.green(`${jobInfoString} config:\n`);
-
+            reply.yellow('> config:');
             reply.yellow(JSON.stringify(job.config, null, 4));
+            reply.green(`${jobInfoString}`);
         }
     }
 
@@ -95,7 +96,8 @@ export default class Jobs {
             const { jobInfoString, status } = this.getJobIdentifiers(job);
 
             if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-                reply.warning(`Cannot adjust workers for ${jobInfoString} because job status is ${status}`);
+                reply.warning(`> Cannot adjust workers. Job in terminal status ${status}`);
+                reply.green(`${jobInfoString}`);
                 return;
             }
 
@@ -106,7 +108,8 @@ export default class Jobs {
 
             const msg = typeof response === 'string' ? response : response.message;
 
-            reply.green(`${jobInfoString}, ${msg}`);
+            reply.yellow(`> ${msg}`);
+            reply.green(`${jobInfoString}`);
         }
     }
 
@@ -115,7 +118,8 @@ export default class Jobs {
             const { jobInfoString, status } = this.getJobIdentifiers(job);
 
             if (status !== ExecutionStatus.failed) {
-                reply.warning(`${jobInfoString} status is ${status}, no need to recover`);
+                reply.warning(`> Status is not failed, but ${status}. Cannot to recover`);
+                reply.green(`${jobInfoString}`);
                 continue;
             }
 
@@ -123,9 +127,11 @@ export default class Jobs {
                 const response = await job.api.recover();
 
                 if (has(response, 'job_id')) {
-                    reply.info(`Successfully recoverd ${jobInfoString}`);
+                    reply.yellow('> Successfully recovered');
+                    reply.green(`${jobInfoString}`);
                 } else {
-                    reply.info(toString(response));
+                    reply.yellow(toString(response));
+                    reply.green(`${jobInfoString}`);
                 }
             } catch (e) {
                 reply.fatal(e);
@@ -155,7 +161,8 @@ export default class Jobs {
                 if (rows.length > 0) {
                     await display.display(header, rows, format, active, parse);
                 } else {
-                    reply.green(`No errors for ${jobInfoString}`);
+                    reply.yellow('> No Errors');
+                    reply.green(`${jobInfoString}`);
                 }
             } catch (e) {
                 reply.fatal(e);
@@ -181,9 +188,10 @@ export default class Jobs {
         }
 
         if (wantedStatus.includes(newStatus)) {
-            reply.green(`${jobInfoString} reached status: ${newStatus}`);
+            reply.yellow(`> Reached status: ${newStatus}`);
+            reply.green(`${jobInfoString}`);
         } else {
-            reply.fatal(`${jobInfoString} could not reach status ${wantedStatus.join(' or ')}`);
+            reply.fatal(`could not reach status ${wantedStatus.join(' or ')}\n${jobInfoString}`);
         }
     }
 
@@ -259,10 +267,15 @@ export default class Jobs {
     }
 
     async _resume(job: JobMetadata) {
-        const { jobInfoString, status } = this.getJobIdentifiers(job);
+        const {
+            jobInfoString,
+            status,
+            name,
+            id
+        } = this.getJobIdentifiers(job);
 
         if (status === 'paused') {
-            reply.yellow(`Resuming ${jobInfoString}`);
+            reply.yellow(`> Resuming job ${name}, ${id}`);
 
             try {
                 await job.api.resume();
@@ -275,18 +288,24 @@ export default class Jobs {
         }
 
         if (status === ExecutionStatus.running) {
-            reply.green(`${jobInfoString} is already running`);
+            reply.yellow('> Job is already running');
+            reply.green(`${jobInfoString}`);
             return;
         }
 
-        reply.fatal(`Cannot resume ${jobInfoString} because it is not paused, status is ${status}`);
+        reply.fatal(`> Cannot resume job because status is ${status}\n${jobInfoString}`);
     }
 
     async _start(job: JobMetadata): Promise<void> {
-        const { jobInfoString, status } = this.getJobIdentifiers(job);
+        const {
+            jobInfoString,
+            status,
+            name,
+            id
+        } = this.getJobIdentifiers(job);
 
         if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-            reply.yellow(`${display.setAction('start', 'present')} ${jobInfoString}`);
+            reply.yellow(`> ${display.setAction('start', 'present')} ${name}, ${id}`);
 
             try {
                 await job.api.start();
@@ -299,11 +318,12 @@ export default class Jobs {
         }
 
         if (status === ExecutionStatus.running) {
-            reply.green(`${jobInfoString} is already running`);
+            reply.yellow('> Job is already running');
+            reply.green(`${jobInfoString}`);
             return;
         }
 
-        reply.fatal(`Could not start ${jobInfoString}, current job status is ${status}`);
+        reply.fatal(`Could not start job, status is ${status}\n${jobInfoString}`);
     }
 
     batchJobsBeforeStart(): JobMetadata[][] {
@@ -366,7 +386,8 @@ export default class Jobs {
         }
 
         if (newStatus === ExecutionStatus.running) {
-            reply.green(`${jobInfoString} is running`);
+            reply.yellow('> Job is running');
+            reply.green(`${jobInfoString}`);
             return;
         }
     }
@@ -376,7 +397,8 @@ export default class Jobs {
 
         const { jobInfoString } = this.getJobIdentifiers(job);
 
-        reply.yellow(`Watching ${jobInfoString} for ${slices} slices`);
+        reply.yellow(`> Watching for ${slices} slices`);
+        reply.green(`${jobInfoString}`);
 
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
@@ -391,7 +413,7 @@ export default class Jobs {
             const [jobStats] = await job.api.controller();
 
             if (jobStats == null) {
-                reply.fatal(`Could not get controller information for ${jobInfoString}`);
+                reply.fatal(`${jobInfoString}Could not get controller information.`);
             }
 
             slicesCompleted = jobStats.processed;
@@ -406,25 +428,27 @@ export default class Jobs {
             await pDelay(interval);
         }
 
-        reply.green(`Completed watch for ${jobInfoString}`);
+        reply.yellow(`> Completed watch of ${slices}`);
+        reply.green(`${jobInfoString}`);
 
         if (failedSlices > 0) {
-            reply.fatal(`${jobInfoString} had ${failedSlices} failed slices and completed ${slicesCompleted} slices`);
+            reply.fatal(`> Job had ${failedSlices} failed slices and completed ${slicesCompleted} slices\n${jobInfoString}`);
         }
 
         const requestedWorkers = job.config.workers;
 
         // should this fail? or try to add workers?
         if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
-            reply.fatal(`${jobInfoString} only has ${currentWorkers} workers, expecting ${requestedWorkers}`);
+            reply.fatal(`> Job only has ${currentWorkers} workers, expecting ${requestedWorkers}\n${jobInfoString}`);
             return;
         }
 
         if (watchTime > timeout) {
-            reply.fatal(`Watch for ${jobInfoString} timed out.  Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers`);
+            reply.fatal(`> Job timed out. Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers\n${jobInfoString}`);
         }
 
-        reply.green(`${jobInfoString} successfully completed ${slicesCompleted} slices with ${currentWorkers} workers`);
+        reply.yellow(`> Successfully completed ${slicesCompleted} slices and ${currentWorkers} workers`);
+        reply.green(`${jobInfoString}`);
     }
 
     async pause(): Promise<void> {
@@ -438,11 +462,11 @@ export default class Jobs {
     }
 
     async _pause(job: JobMetadata) {
-        const { jobInfoString } = this.getJobIdentifiers(job);
+        const { name, id } = this.getJobIdentifiers(job);
 
         if (this.preStoppedOrPausedCheck(job, ExecutionStatus.paused)) return;
 
-        reply.warning(`Attempting to pause ${jobInfoString}`);
+        reply.yellow(`> Attempting to pause ${name}, ${id}`);
 
         job.api.pause()
             .catch((e) => new Error(e));
@@ -467,33 +491,12 @@ export default class Jobs {
         this.allPausedOrStoppedCheck(ExecutionStatus.stopped);
     }
 
-    private async allPausedOrStoppedCheck(
-        expectedStatus: ExecutionStatus.stopped | ExecutionStatus.paused
-    ) {
-        const actionVerb = expectedStatus === ExecutionStatus.paused ? 'pause' : 'stop';
-
-        const notAtStatus = this.jobs
-            .filter((job) => {
-                if (expectedStatus === ExecutionStatus.paused) {
-                    return job.status !== expectedStatus;
-                }
-
-                return !this.terminalStatuses.includes(job.status);
-            });
-
-        if (notAtStatus.length) {
-            const msg = notAtStatus.map((job) => `${job.config.name}, id: ${job.id}`);
-
-            reply.fatal(`Jobs: ${msg.join('and')} were not ${display.setAction(actionVerb, 'past')} on ${this.config.args.clusterAlias}`);
-        }
-    }
-
     async _stop(job: JobMetadata): Promise<void> {
-        const { jobInfoString } = this.getJobIdentifiers(job);
+        const { name, id } = this.getJobIdentifiers(job);
 
         if (this.preStoppedOrPausedCheck(job, ExecutionStatus.stopped)) return;
 
-        reply.yellow(`${display.setAction('stop', 'present')} ${jobInfoString}`);
+        reply.yellow(`> ${display.setAction('stop', 'present')} ${name}, ${id}`);
 
         job.api.stop()
             .catch((e) => reply.fatal(e.message));
@@ -513,12 +516,14 @@ export default class Jobs {
         const actionVerb = action === ExecutionStatus.paused ? 'pause' : 'stop';
 
         if (job.status === action) {
-            reply.warning(`${jobInfoString}, is already ${display.setAction(actionVerb, 'past')}`);
+            reply.yellow(`> Job is already ${display.setAction(actionVerb, 'past')}`);
+            reply.green(`${jobInfoString}`);
             return true;
         }
 
         if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-            reply.warning(`${jobInfoString} is not running. Current status is ${job.status}`);
+            reply.warning(`> Job is not running. Current status is ${job.status}`);
+            reply.green(`${jobInfoString}`);
             return true;
         }
 
@@ -542,9 +547,31 @@ export default class Jobs {
         }
 
         if (statusUpdate.newStatus === action) {
-            reply.green(`${jobInfoString} is ${display.setAction(actionVerb, 'past')}`);
+            reply.yellow(`> Job is ${display.setAction(actionVerb, 'past')}`);
+            reply.green(`${jobInfoString}`);
         } else {
-            reply.fatal(`Could not ${actionVerb} ${jobInfoString}, current job status is ${statusUpdate.newStatus}`);
+            reply.fatal(`Could not ${actionVerb} job, current status is ${statusUpdate.newStatus}\n${jobInfoString}`);
+        }
+    }
+
+    private async allPausedOrStoppedCheck(
+        expectedStatus: ExecutionStatus.stopped | ExecutionStatus.paused
+    ) {
+        const actionVerb = expectedStatus === ExecutionStatus.paused ? 'pause' : 'stop';
+
+        const notAtStatus = this.jobs
+            .filter((job) => {
+                if (expectedStatus === ExecutionStatus.paused) {
+                    return job.status !== expectedStatus;
+                }
+
+                return !this.terminalStatuses.includes(job.status);
+            });
+
+        if (notAtStatus.length) {
+            const msg = notAtStatus.map((job) => `${job.config.name}, id: ${job.id}`);
+
+            reply.fatal(`Jobs: ${msg.join('and')} were not ${display.setAction(actionVerb, 'past')} on ${this.config.args.clusterAlias}`);
         }
     }
 
@@ -700,7 +727,7 @@ export default class Jobs {
             id,
             status,
             url,
-            jobInfoString: `job: ${name}, id: ${id} on cluster: ${url}`
+            jobInfoString: `--------\njob: ${name}\nid: ${id}\ncluster: ${url}\n--------\n`
         };
     }
 
