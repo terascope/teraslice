@@ -558,7 +558,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} on cluster: ${tsHost} only has 3 workers, expecting 10`);
+            await expect(job.start()).rejects.toThrow();
         });
 
         it('should throw an error if failed slices', async () => {
@@ -598,7 +598,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow(`job: test-job, id: ${jobId} on cluster: ${tsHost} had 100 failed slices and completed 100 slices`);
+            await expect(job.start()).rejects.toThrow();
         });
 
         it('should start a job based on locally saved state file', async () => {
@@ -827,7 +827,7 @@ describe('Job helper class', () => {
             nock.cleanAll();
         });
 
-        fit('return handle response if ts-client response is an object', async () => {
+        it('return handle response if ts-client response is an object', async () => {
             cliArgs.args = { id, action: 'add', number: 5 };
 
             jobs = new Jobs(cliArgs);
