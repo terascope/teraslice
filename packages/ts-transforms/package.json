@@ -42,7 +42,7 @@
         "graphlib": "^2.1.8",
         "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
-        "nanoid": "^3.3.4",
+        "nanoid": "^5.0.1",
         "valid-url": "^1.0.9",
         "validator": "^13.9.0",
         "yargs": "^17.7.2"
