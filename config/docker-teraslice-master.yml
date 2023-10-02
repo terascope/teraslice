@@ -14,6 +14,14 @@ terafoundation:
             default:
                 brokers:
                     - "kafka:9092"
+        s3:
+            default:
+                endpoint: "http://minio:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
 
 teraslice:
     assets_directory: '/app/assets'
