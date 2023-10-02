@@ -94,7 +94,7 @@ Commands to manage assets.
 
 **NOTE:** Before using the assets command add clusters via the aliases command
 
-### asses build
+### assets build
 
 Creates a build directory and saves the zipped asset in the build directory.
 
