@@ -3,7 +3,7 @@
     "lifecycle": "once",
     "workers": 2,
     "assets": [
-        "example",
+        "example-asset",
         "elasticsearch",
         "standard"
     ],
@@ -15,7 +15,7 @@
             "size": 5000000
         },
         {
-            "_op": "example-op"
+            "_op": "example"
         },
         {
             "_op": "elasticsearch_bulk",
@@ -23,5 +23,13 @@
             "type": "events",
             "size": 5000
         }
-    ]
+    ],
+    "__metadata": {
+        "cli": {
+            "cluster": "http://127.0.0.1:52972",
+            "version": "0.55.0",
+            "job_id": "c8542f17-2dde-4fc8-822f-2e89e2b7422c",
+            "updated": "2023-10-04T16:45:24.343Z"
+        }
+    }
 }
