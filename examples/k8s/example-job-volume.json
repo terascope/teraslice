@@ -27,13 +27,5 @@
             "type": "events",
             "size": 5000
         }
-    ],
-    "__metadata": {
-        "cli": {
-            "cluster": "http://127.0.0.1:52972",
-            "version": "0.55.0",
-            "job_id": "7a01a125-ae62-4f13-89d3-b2bd1b8869f3",
-            "updated": "2023-10-04T16:45:30.023Z"
-        }
-    }
+    ]
 }
