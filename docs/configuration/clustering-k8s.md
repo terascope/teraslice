@@ -516,7 +516,12 @@ export TERASLICE_MODE=minikube
 minikube start --memory 4096 --cpus 4
 make build
 make setup-all
+make show
 ```
+
+Confirm that both teraslice-master and elasticsearch are ready and available.  You may have to repeat the `make show` command periodically until you see that everything is up and running.
+At this point the curl commands to elasticsearch and teraslice-master should have failed. We need to open tunnels from our local machine to these ports within minikube.
+
 In two new terminal windows run the following commands. These must be left open to communicate with either service within minikube.
 
 Terminal 2 - Open tunnel to elasticsearch:
