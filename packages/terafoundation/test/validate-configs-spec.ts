@@ -144,7 +144,7 @@ describe('Validate Configs', () => {
                             default: {
                                 accessKeyId: null,
                                 certLocation: '',
-                                endpoint: 'http://127.0.0.1:80',
+                                endpoint: '127.0.0.1:80',
                                 maxRedirects: 10,
                                 maxRetries: 3,
                                 region: 'us-east-1',
