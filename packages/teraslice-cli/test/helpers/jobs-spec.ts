@@ -804,7 +804,7 @@ describe('Job helper class', () => {
         });
     });
 
-    describe('jobs.workers should', () => {
+    describe('jobs.adjustWorkers should', () => {
         let msg: any;
         let jobs: any;
         const id = '12341234';
@@ -838,7 +838,7 @@ describe('Job helper class', () => {
                 .post(`/v1/jobs/${id}/_workers?add=5`)
                 .reply(200, msg);
 
-            await expect(jobs.workers()).toResolve();
+            await expect(jobs.adjustWorkers()).toResolve();
         });
 
         it('return handle response if ts-client response is a string', async () => {
@@ -852,7 +852,7 @@ describe('Job helper class', () => {
                 .post(`/v1/jobs/${id}/_workers?remove=3`)
                 .reply(200, msg);
 
-            await expect(jobs.workers()).toResolve();
+            await expect(jobs.adjustWorkers()).toResolve();
         });
     });
 

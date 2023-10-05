@@ -414,7 +414,7 @@ export default class Jobs {
             const [jobStats] = await job.api.controller();
 
             if (jobStats == null) {
-                reply.fatal(`${jobInfoString}Could not get controller information.`);
+                reply.fatal(`Could not get controller information.\n${jobInfoString}`);
             }
 
             slicesCompleted = jobStats.processed;
@@ -514,13 +514,19 @@ export default class Jobs {
 
         if (job.status === action) {
             reply.yellow(`> Job is already ${display.setAction(actionVerb, 'past')}`);
-            reply.green(`${jobInfoString}`);
+            // don't display job info if still more actions
+            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
+                reply.green(`${jobInfoString}`);
+            }
             return true;
         }
 
         if (this.terminalStatuses.includes(status as ExecutionStatus)) {
             reply.warning(`> Job is not running. Current status is ${job.status}`);
-            reply.green(`${jobInfoString}`);
+            // don't display job info if still more actions
+            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
+                reply.green(`${jobInfoString}`);
+            }
             return true;
         }
 
