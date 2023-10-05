@@ -33,7 +33,7 @@ const cmd: CMD = {
         await jobs.initialize();
 
         try {
-            await jobs.workers();
+            await jobs.adjustWorkers();
         } catch (e) {
             reply.fatal(e);
         }

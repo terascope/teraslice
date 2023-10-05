@@ -21,8 +21,8 @@ export = {
         yargs.strict()
             .example('$0 jobs restart CLUSTER_ALIAS JOB_ID', 'restarts job on the cluster')
             .example('$0 jobs restart CLUSTER_ALIAS JOB_ID1 JOB_ID2', 'restarts two jobs on the cluster')
-            .example('$0 jobs restart CLUSTER_ALIAS JOB_ID all --status failing', 'restarts all failing jobs on the cluster')
             .example('$0 jobs restart CLUSTER_ALIAS JOB_ID1 --watch 100', 'restarts a job on the cluster and watches for 100 slices')
+            .example('$0 jobs restart CLUSTER_ALIAS all --status failing', 'restarts all failing jobs on the cluster')
             .example('$0 jobs restart CLUSTER_ALIAS all', 'restarts all jobs on the cluster');
         return yargs;
     },

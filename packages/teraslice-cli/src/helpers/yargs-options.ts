@@ -203,7 +203,7 @@ export default class Options {
             default: '_updated:desc'
         }),
         'jobs-save': () => ({
-            describe: 'Saves controller and execution state a job or jobs locally after running command or uses a saved state file and applies commands to saved jobs',
+            describe: 'Saves controller and execution state of a job or jobs locally after running command or uses a saved state file and applies commands to saved jobs',
             default: false,
             type: 'boolean'
         }),

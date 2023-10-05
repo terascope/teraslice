@@ -29,6 +29,7 @@ function pretty(headerValues: string[], rows: string[]) {
 function horizontal(
     rows: CliTable.HorizontalTableRow[], opts: CliTable.TableConstructorOptions
 ) {
+    console.log(opts);
     const table = new CliTable(opts);
 
     rows.forEach((item: any) => {
@@ -113,6 +114,9 @@ export default class Display {
                 header.forEach((item: any) => {
                     if (item === 'active') {
                         row.push(response[key][item].length);
+                    } else if (item === 'error') {
+                        // remove the stack trace from the error
+                        row.push(response[key][item].split('\n')[0]);
                     } else {
                         row.push(response[key][item]);
                     }
@@ -163,10 +167,10 @@ export default class Display {
                     'mid-mid': '',
                     right: '',
                     'right-mid': '',
-                    middle: ' '.repeat(2)
+                    middle: ''
                 },
                 style: {
-                    'padding-left': 0, 'padding-right': 0, head: ['white'], border: ['white']
+                    'padding-left': 1, 'padding-right': 1, head: ['white'], border: ['white']
                 }
             };
             if (parse) {
@@ -178,7 +182,7 @@ export default class Display {
         } else if (type === 'prettyHorizontal') {
             const opts = {
                 head: header,
-                style: { 'padding-left': 0, 'padding-right': 0, head: ['blue'] }
+                style: { 'padding-left': 1, 'padding-right': 1, head: ['yellow'] }
             };
             if (parse) {
                 rows = this.parseResponse(header, items, active, id);

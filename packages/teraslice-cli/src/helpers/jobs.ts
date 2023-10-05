@@ -87,11 +87,13 @@ export default class Jobs {
 
             reply.yellow('> config:');
             reply.yellow(JSON.stringify(job.config, null, 4));
-            reply.green(`${jobInfoString}`);
+            if (this.config.args._action !== 'update') {
+                reply.green(`${jobInfoString}`);
+            }
         }
     }
 
-    async workers(): Promise<void> {
+    async adjustWorkers(): Promise<void> {
         for (const job of this.jobs) {
             const { jobInfoString, status } = this.getJobIdentifiers(job);
 
@@ -139,7 +141,7 @@ export default class Jobs {
         }
     }
 
-    async error() {
+    async checkForErrors() {
         const opts = {
             from: this.config.args.from,
             sort: this.config.args.sort,
@@ -147,7 +149,7 @@ export default class Jobs {
         };
         const active = false;
         const parse = false;
-        const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
+        const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', '_created', '_updated', 'error'];
         const format = `${this.config.args.output}Horizontal`;
 
         for (const job of this.jobs) {
@@ -395,10 +397,9 @@ export default class Jobs {
     private async watchJob(job: JobMetadata) {
         const { timeout, interval, watch: slices } = this.config.args;
 
-        const { jobInfoString } = this.getJobIdentifiers(job);
+        const { jobInfoString, name, id } = this.getJobIdentifiers(job);
 
-        reply.yellow(`> Watching for ${slices} slices`);
-        reply.green(`${jobInfoString}`);
+        reply.yellow(`> Watching for ${name}, ${id}, for ${slices} slices`);
 
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
@@ -428,9 +429,6 @@ export default class Jobs {
             await pDelay(interval);
         }
 
-        reply.yellow(`> Completed watch of ${slices}`);
-        reply.green(`${jobInfoString}`);
-
         if (failedSlices > 0) {
             reply.fatal(`> Job had ${failedSlices} failed slices and completed ${slicesCompleted} slices\n${jobInfoString}`);
         }
@@ -440,7 +438,6 @@ export default class Jobs {
         // should this fail? or try to add workers?
         if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
             reply.fatal(`> Job only has ${currentWorkers} workers, expecting ${requestedWorkers}\n${jobInfoString}`);
-            return;
         }
 
         if (watchTime > timeout) {
@@ -548,7 +545,11 @@ export default class Jobs {
 
         if (statusUpdate.newStatus === action) {
             reply.yellow(`> Job is ${display.setAction(actionVerb, 'past')}`);
-            reply.green(`${jobInfoString}`);
+
+            // don't display job info if still more actions
+            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
+                reply.green(`${jobInfoString}`);
+            }
         } else {
             reply.fatal(`Could not ${actionVerb} job, current status is ${statusUpdate.newStatus}\n${jobInfoString}`);
         }

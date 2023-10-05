@@ -14,6 +14,7 @@ const cmd: CMD = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('output', yargsOptions.buildOption('output'));
         yargs.example('$0 tjm errors JOB_FILE.json', 'Displays errors for the job');
         return yargs;
     },
@@ -26,7 +27,7 @@ const cmd: CMD = {
 
         await jobs.initialize();
 
-        await jobs.error();
+        await jobs.checkForErrors();
     }
 };
 

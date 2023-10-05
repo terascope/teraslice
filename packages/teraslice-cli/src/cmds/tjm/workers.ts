@@ -32,7 +32,7 @@ const cmd: CMD = {
 
         await jobs.initialize();
 
-        await jobs.workers();
+        await jobs.adjustWorkers();
     }
 };
 
