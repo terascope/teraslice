@@ -501,8 +501,91 @@ There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.
 
 The standard minikube based dev workflow is and requires the `teraslice-cli`
-version `0.5.1` or higher:
+version `0.5.1` or higher.
 
+Minikube now uses the Docker driver by default. If your Minikube is using a different driver skip to [Using a VM Minikube Driver](#using-a-vm-minikube-driver)
+
+**If you are using the Docker Minikube Driver**
+
+Terminal 1:
+```bash
+cd examples/k8s
+export NAMESPACE=ts-dev1
+export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
+export TERASLICE_MODE=minikube
+minikube start --memory 4096 --cpus 4
+make build
+make setup-all
+make show
+```
+
+Confirm that both teraslice-master and elasticsearch are ready and available.  You may have to repeat the `make show` command periodically until you see that everything is up and running.
+At this point the curl commands to elasticsearch and teraslice-master should have failed. We need to open tunnels from our local machine to these ports within minikube.
+
+In two new terminal windows run the following commands. These must be left open to communicate with either service within minikube.
+
+Terminal 2 - Open tunnel to elasticsearch:
+```bash
+minikube -n ts-dev1 service elasticsearch --url
+```
+Terminal 3 - Open tunnel to teraslice-master:
+```bash
+minikube -n ts-dev1 service teraslice-master --url
+```
+Return to the original terminal.
+
+```bash
+export ES_URL=http://path/to/elasticsearch/tunnel # copy the URL returned in terminal 2
+export TERASLICE_MASTER_URL=http://path/to/teraslice-master/tunnel # copy the URL returned in terminal 3
+
+earl aliases remove ts-minikube-dev1
+earl aliases add ts-minikube-dev1 $TERASLICE_MASTER_URL
+
+make show
+make register
+make start
+```
+
+At this point you should be able to access your Teraslice instance using the tunnel in terminal 3:
+
+```bash
+curl -Ss $TERASLICE_MASTER_URL
+{
+    "arch": "x64",
+    "clustering_type": "kubernetes",
+    "name": "ts-dev1",
+    "node_version": "v8.12.0",
+    "platform": "linux",
+    "teraslice_version": "v0.49.0"
+}
+```
+
+Or using `ts-top`:
+
+```bash
+ts-top -p <port listed in terminal 3> localhost
+```
+
+And Elasticsearch should be accessible using the tunnel in terminal 2:
+
+```bash
+curl -Ss $ES_URL
+{
+  "name" : "0iE0zM1",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
+  "version" : {
+    "number" : "5.6.10",
+    "build_hash" : "b727a60",
+    "build_date" : "2018-06-06T15:48:34.860Z",
+    "build_snapshot" : false,
+    "lucene_version" : "6.6.1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+---
+**Using a VM Minikube Driver:**
 ```bash
 cd examples/k8s
 export NAMESPACE=ts-dev1
@@ -555,6 +638,8 @@ curl -Ss $(minikube ip):30200
   "tagline" : "You Know, for Search"
 }
 ```
+---
+**Modifying Teraslice**
 
 When you need to make another change to Teraslice, redeploy and run a new
 job:

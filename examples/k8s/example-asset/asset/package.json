@@ -1,0 +1,8 @@
+{
+    "name": "example-asset",
+    "version": "0.1.0",
+    "description": "example asset",
+    "dependencies": {
+        "@terascope/job-components": "^0.22.0"
+    }
+}

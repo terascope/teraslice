@@ -3,7 +3,7 @@
     "lifecycle": "once",
     "workers": 2,
     "assets": [
-        "example",
+        "example-asset",
         "elasticsearch",
         "standard"
     ],
@@ -19,7 +19,7 @@
             "size": 5000000
         },
         {
-            "_op": "example-op"
+            "_op": "example"
         },
         {
             "_op": "elasticsearch_bulk",
