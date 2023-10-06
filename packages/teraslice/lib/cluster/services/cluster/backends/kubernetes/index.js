@@ -103,9 +103,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         const jobResult = await k8s.post(exJob, 'job');
         logger.debug(jobResult, 'k8s slicer job submitted');
 
-        const controllerUid = jobResult.spec.selector.matchLabels['controller-uid'];
+        const jobId = jobResult.metadata.labels['teraslice.terascope.io/jobId'];
         const pod = await k8s.waitForSelectedPod(
-            `controller-uid=${controllerUid}`,
+            `teraslice.terascope.io/jobId=${jobId}`,
             null,
             context.sysconfig.teraslice.slicer_timeout
         );
