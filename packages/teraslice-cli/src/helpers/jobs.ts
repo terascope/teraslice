@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import {
-    has, toString, pDelay, pMap
+    has, toString, pDelay, pMap,
 } from '@terascope/utils';
 import {
     ExecutionStatus,
@@ -123,7 +123,7 @@ export default class Jobs {
                     msg: has(response, 'job_id') ? toString(response) : 'Successfully recovered'
                 });
             } catch (e) {
-                this.commandFailed(e, job);
+                this.commandFailed(e.message, job);
             }
         }
     }
@@ -151,7 +151,7 @@ export default class Jobs {
                     this.logUpdate({ action: 'checkForErrors', job });
                 }
             } catch (e) {
-                this.commandFailed(e, job);
+                this.commandFailed(e.message, job);
             }
         }
     }
@@ -168,7 +168,7 @@ export default class Jobs {
         const newStatus = statusUpdate.newStatus!;
 
         if (statusUpdate.error === true) {
-            this.commandFailed(new Error(statusUpdate.errorMessage?.message), job);
+            this.commandFailed(statusUpdate.errorMessage as string, job);
         }
 
         if (wantedStatus.includes(newStatus)) {
@@ -325,7 +325,7 @@ export default class Jobs {
         job.status = newStatus;
 
         if (statusUpdate.error === true) {
-            this.commandFailed(new Error(statusUpdate.errorMessage?.message), job);
+            this.commandFailed(statusUpdate.errorMessage as string, job);
         }
 
         if (newStatus === ExecutionStatus.running) {
@@ -437,7 +437,7 @@ export default class Jobs {
         job.status = statusUpdate.newStatus!;
 
         if (statusUpdate.error === true) {
-            this.commandFailed(statusUpdate.errorMessage?.message, job);
+            this.commandFailed(statusUpdate.errorMessage as string, job);
         }
 
         if (statusUpdate.newStatus === executionStatus) {
@@ -470,10 +470,10 @@ export default class Jobs {
 
             statusUpdate.newStatus = newStatus;
         } catch (e: unknown) {
-            reply.warning(e);
+            reply.warning((e as Error).message);
 
             statusUpdate.error = true;
-            statusUpdate.errorMessage = e as Error;
+            statusUpdate.errorMessage = (e as Error).message;
         }
 
         return statusUpdate;
@@ -748,7 +748,7 @@ export default class Jobs {
      *
      * After printing the message the process exits with code 1
      */
-    private commandFailed(msg: unknown, job: JobMetadata) {
+    private commandFailed(msg: string, job: JobMetadata) {
         const { jobInfoString } = this.getJobIdentifiers(job);
 
         return reply.fatal(`${msg}\n${jobInfoString}`);

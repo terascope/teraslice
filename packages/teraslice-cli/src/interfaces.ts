@@ -24,9 +24,9 @@ export interface JobMetadata {
 }
 
 export interface StatusUpdate {
-    newStatus?: ExecutionStatus,
-    error: boolean,
-    errorMessage?: Error
+    newStatus?: ExecutionStatus;
+    error: boolean;
+    errorMessage?: string;
 }
 
 export interface JobConfigFile extends JobConfig {
