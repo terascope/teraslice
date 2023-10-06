@@ -27,7 +27,7 @@ export = {
         await jobs.initialize();
 
         try {
-            await jobs.status();
+            await jobs.checkStatus();
         } catch (e) {
             reply.fatal(e);
         }

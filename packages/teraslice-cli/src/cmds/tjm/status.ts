@@ -28,7 +28,7 @@ const cmd: CMD = {
 
         await jobs.initialize();
 
-        await jobs.status();
+        await jobs.checkStatus();
     }
 };
 

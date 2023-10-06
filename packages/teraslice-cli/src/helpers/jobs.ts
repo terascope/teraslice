@@ -68,75 +68,62 @@ export default class Jobs {
         }
     }
 
-    async status() {
-        for (const job of this.jobs) {
-            const { jobInfoString } = this.getJobIdentifiers(job);
-
-            reply.yellow(`> status: ${job.status}`);
-            reply.green(`${jobInfoString}`);
-        }
-    }
-
     async initialize() {
         await this.getJobMetadata();
     }
 
+    async checkStatus() {
+        for (const job of this.jobs) {
+            this.logUpdate({ action: 'status', job });
+        }
+    }
+
     async view(): Promise<void> {
         for (const job of this.jobs) {
-            const { jobInfoString } = this.getJobIdentifiers(job);
-
-            reply.yellow('> config:');
-            reply.yellow(JSON.stringify(job.config, null, 4));
-            if (this.config.args._action !== 'update') {
-                reply.green(`${jobInfoString}`);
-            }
+            this.logUpdate({ action: 'view', job });
         }
     }
 
     async adjustWorkers(): Promise<void> {
         for (const job of this.jobs) {
-            const { jobInfoString, status } = this.getJobIdentifiers(job);
+            const { status } = this.getJobIdentifiers(job);
 
             if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-                reply.warning(`> Cannot adjust workers. Job in terminal status ${status}`);
-                reply.green(`${jobInfoString}`);
+                this.logUpdate({ action: 'adjustWorkersTerminal', job });
                 return;
             }
 
-            const response = await job.api.changeWorkers(
-                this.config.args.action,
-                this.config.args.number
-            );
+            try {
+                const response = await job.api.changeWorkers(
+                    this.config.args.action,
+                    this.config.args.number
+                );
 
-            const msg = typeof response === 'string' ? response : response.message;
-
-            reply.yellow(`> ${msg}`);
-            reply.green(`${jobInfoString}`);
+                this.logUpdate({ job, msg: typeof response === 'string' ? response : response.message });
+            } catch (e) {
+                this.commandFailed(e.message, job);
+            }
         }
     }
 
     async recover(): Promise<void> {
         for (const job of this.jobs) {
-            const { jobInfoString, status } = this.getJobIdentifiers(job);
+            const { status } = this.getJobIdentifiers(job);
 
             if (status !== ExecutionStatus.failed) {
-                reply.warning(`> Status is not failed, but ${status}. Cannot to recover`);
-                reply.green(`${jobInfoString}`);
+                this.logUpdate({ action: 'recoverNotFailed', job });
                 continue;
             }
 
             try {
                 const response = await job.api.recover();
 
-                if (has(response, 'job_id')) {
-                    reply.yellow('> Successfully recovered');
-                    reply.green(`${jobInfoString}`);
-                } else {
-                    reply.yellow(toString(response));
-                    reply.green(`${jobInfoString}`);
-                }
+                this.logUpdate({
+                    job,
+                    msg: has(response, 'job_id') ? toString(response) : 'Successfully recovered'
+                });
             } catch (e) {
-                reply.fatal(e);
+                this.commandFailed(e, job);
             }
         }
     }
@@ -153,8 +140,6 @@ export default class Jobs {
         const format = `${this.config.args.output}Horizontal`;
 
         for (const job of this.jobs) {
-            const { jobInfoString } = this.getJobIdentifiers(job);
-
             try {
                 const response = await job.api.errors(opts);
 
@@ -163,11 +148,10 @@ export default class Jobs {
                 if (rows.length > 0) {
                     await display.display(header, rows, format, active, parse);
                 } else {
-                    reply.yellow('> No Errors');
-                    reply.green(`${jobInfoString}`);
+                    this.logUpdate({ action: 'checkForErrors', job });
                 }
             } catch (e) {
-                reply.fatal(e);
+                this.commandFailed(e, job);
             }
         }
     }
@@ -179,21 +163,18 @@ export default class Jobs {
     }
 
     private async await(job: JobMetadata, wantedStatus: ExecutionStatus[]) {
-        const { jobInfoString } = this.getJobIdentifiers(job);
-
         const statusUpdate = await this.waitStatusChange(job, wantedStatus);
 
         const newStatus = statusUpdate.newStatus!;
 
         if (statusUpdate.error === true) {
-            reply.fatal(new Error(statusUpdate.errorMessage?.message));
+            this.commandFailed(new Error(statusUpdate.errorMessage?.message), job);
         }
 
         if (wantedStatus.includes(newStatus)) {
-            reply.yellow(`> Reached status: ${newStatus}`);
-            reply.green(`${jobInfoString}`);
+            this.logUpdate({ msg: `Reached status: ${newStatus}`, job });
         } else {
-            reply.fatal(`could not reach status ${wantedStatus.join(' or ')}\n${jobInfoString}`);
+            this.commandFailed(`could not reach status ${wantedStatus.join(' or ')}`, job);
         }
     }
 
@@ -202,7 +183,7 @@ export default class Jobs {
 
         const jobIds = this.jobs.map((job) => job.id);
 
-        reply.green(`Saving controller and execution state for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
+        reply.yellow(`Saving controller and execution state for ${jobIds.join(', ')} on ${this.config.args.clusterAlias}`);
 
         await pMap(
             this.jobs,
@@ -225,20 +206,20 @@ export default class Jobs {
         try {
             return Promise.all([job.api.execution(), job.api.controller()]);
         } catch (e) {
-            return reply.fatal(e.message);
+            return this.commandFailed(e.message, job);
         }
     }
 
     async resume(): Promise<void> {
-        await this.startOrResumeJob('resume');
+        await this.startOrResume('resume');
     }
 
     async run(): Promise<void> {
-        await this.startOrResumeJob('start');
+        await this.startOrResume('start');
     }
 
     async start(): Promise<void> {
-        await this.startOrResumeJob('start');
+        await this.startOrResume('start');
     }
 
     async restart(): Promise<void> {
@@ -246,15 +227,13 @@ export default class Jobs {
         await this.start();
     }
 
-    async startOrResumeJob(action: 'start' | 'resume') {
-        const func = action === 'start' ? '_start' : '_resume';
-
+    async startOrResume(action: 'start' | 'resume') {
         const batches = this.batchJobsBeforeStart();
 
         for (const batch of batches) {
             await pMap(
                 batch,
-                (job) => this[func](job),
+                (job) => this.startOrResumeOne(job, action),
                 { concurrency: batch.length }
             );
         }
@@ -268,21 +247,17 @@ export default class Jobs {
         }
     }
 
-    async _resume(job: JobMetadata) {
-        const {
-            jobInfoString,
-            status,
-            name,
-            id
-        } = this.getJobIdentifiers(job);
+    async startOrResumeOne(job: JobMetadata, action: 'start' | 'resume'): Promise<void> {
+        const { status } = this.getJobIdentifiers(job);
 
-        if (status === 'paused') {
-            reply.yellow(`> Resuming job ${name}, ${id}`);
+        if ((action === 'resume' && status === 'paused')
+            || (action === 'start' && this.inTerminalStatus(job))) {
+            this.logUpdate({ action: display.setAction(action, 'present'), job });
 
             try {
-                await job.api.resume();
+                await job.api[action]();
             } catch (e) {
-                reply.fatal(e);
+                this.commandFailed(e.message, job);
             }
 
             await this.verifyJobRunning(job);
@@ -290,42 +265,11 @@ export default class Jobs {
         }
 
         if (status === ExecutionStatus.running) {
-            reply.yellow('> Job is already running');
-            reply.green(`${jobInfoString}`);
+            this.logUpdate({ action: 'running', job });
             return;
         }
 
-        reply.fatal(`> Cannot resume job because status is ${status}\n${jobInfoString}`);
-    }
-
-    async _start(job: JobMetadata): Promise<void> {
-        const {
-            jobInfoString,
-            status,
-            name,
-            id
-        } = this.getJobIdentifiers(job);
-
-        if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-            reply.yellow(`> ${display.setAction('start', 'present')} ${name}, ${id}`);
-
-            try {
-                await job.api.start();
-            } catch (e) {
-                reply.fatal(e.message);
-            }
-
-            await this.verifyJobRunning(job);
-            return;
-        }
-
-        if (status === ExecutionStatus.running) {
-            reply.yellow('> Job is already running');
-            reply.green(`${jobInfoString}`);
-            return;
-        }
-
-        reply.fatal(`Could not start job, status is ${status}\n${jobInfoString}`);
+        this.commandFailed(`Could not ${action} job, status is ${status}`, job);
     }
 
     batchJobsBeforeStart(): JobMetadata[][] {
@@ -370,26 +314,22 @@ export default class Jobs {
     }
 
     private async verifyJobRunning(job: JobMetadata) {
-        const { jobInfoString, status } = this.getJobIdentifiers(job);
-
-        let newStatus = status;
-
         const statusUpdate = await this.waitStatusChange(
             job,
             ExecutionStatus.running
         );
 
-        newStatus = statusUpdate.newStatus! as ExecutionStatus;
+        const newStatus = statusUpdate.newStatus! as ExecutionStatus;
 
+        // update job status incase of further job processes
         job.status = newStatus;
 
         if (statusUpdate.error === true) {
-            throw new Error(statusUpdate.errorMessage?.message);
+            this.commandFailed(new Error(statusUpdate.errorMessage?.message), job);
         }
 
         if (newStatus === ExecutionStatus.running) {
-            reply.yellow('> Job is running');
-            reply.green(`${jobInfoString}`);
+            this.logUpdate({ action: 'running', job });
             return;
         }
     }
@@ -397,9 +337,7 @@ export default class Jobs {
     private async watchJob(job: JobMetadata) {
         const { timeout, interval, watch: slices } = this.config.args;
 
-        const { jobInfoString, name, id } = this.getJobIdentifiers(job);
-
-        reply.yellow(`> Watching for ${name}, ${id}, for ${slices} slices`);
+        this.logUpdate({ action: 'startWatching', job });
 
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
@@ -414,7 +352,7 @@ export default class Jobs {
             const [jobStats] = await job.api.controller();
 
             if (jobStats == null) {
-                reply.fatal(`Could not get controller information.\n${jobInfoString}`);
+                this.commandFailed('Could not get controller information', job);
             }
 
             slicesCompleted = jobStats.processed;
@@ -430,45 +368,32 @@ export default class Jobs {
         }
 
         if (failedSlices > 0) {
-            reply.fatal(`> Job had ${failedSlices} failed slices and completed ${slicesCompleted} slices\n${jobInfoString}`);
+            this.commandFailed(`Job had ${failedSlices} failed slices and completed ${slicesCompleted} slices`, job);
         }
 
         const requestedWorkers = job.config.workers;
 
         // should this fail? or try to add workers?
         if (this.correctNumberWorkers(currentWorkers, requestedWorkers) === false) {
-            reply.fatal(`> Job only has ${currentWorkers} workers, expecting ${requestedWorkers}\n${jobInfoString}`);
+            this.commandFailed(`Job only has ${currentWorkers} workers, expecting ${requestedWorkers}`, job);
         }
 
         if (watchTime > timeout) {
-            reply.fatal(`> Job timed out. Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers\n${jobInfoString}`);
+            this.commandFailed(`Job watch timed out. Completed ${slicesCompleted} slices, with ${failedSlices} failed slices and ${currentWorkers} workers`, job);
         }
 
-        reply.yellow(`> Successfully completed ${slicesCompleted} slices and ${currentWorkers} workers`);
-        reply.green(`${jobInfoString}`);
+        this.logUpdate({
+            msg: `Successfully completed ${slicesCompleted} slices with ${currentWorkers} workers`,
+            job
+        });
     }
 
     async pause(): Promise<void> {
         await pMap(
             this.jobs,
-            (job) => this._pause(job),
+            (job) => this.pauseOrStopOne(job, 'pause'),
             { concurrency: this.concurrency }
         );
-
-        this.allPausedOrStoppedCheck(ExecutionStatus.paused);
-    }
-
-    async _pause(job: JobMetadata) {
-        const { name, id } = this.getJobIdentifiers(job);
-
-        if (this.preStoppedOrPausedCheck(job, ExecutionStatus.paused)) return;
-
-        reply.yellow(`> Attempting to pause ${name}, ${id}`);
-
-        job.api.pause()
-            .catch((e) => new Error(e));
-
-        await this.postStoppedOrPausedCheck(job, ExecutionStatus.paused);
     }
 
     async stop(): Promise<void> {
@@ -481,105 +406,49 @@ export default class Jobs {
 
         await pMap(
             this.jobs,
-            (job) => this._stop(job),
+            (job) => this.pauseOrStopOne(job, 'stop'),
             { concurrency: this.concurrency }
         );
-
-        this.allPausedOrStoppedCheck(ExecutionStatus.stopped);
     }
 
-    async _stop(job: JobMetadata): Promise<void> {
-        const { name, id } = this.getJobIdentifiers(job);
+    async pauseOrStopOne(
+        job: JobMetadata,
+        action: 'stop' | 'pause'
+    ): Promise<void> {
+        const executionStatus = action === 'pause' ? ExecutionStatus.paused : ExecutionStatus.stopped;
 
-        if (this.preStoppedOrPausedCheck(job, ExecutionStatus.stopped)) return;
+        if (job.status === executionStatus) {
+            this.logUpdate({ action: display.setAction(action, 'past'), job });
+            return;
+        }
 
-        reply.yellow(`> ${display.setAction('stop', 'present')} ${name}, ${id}`);
+        if (this.inTerminalStatus(job)) {
+            this.logUpdate({ action: `cannot_${action}`, job });
+            return;
+        }
 
-        job.api.stop()
+        this.logUpdate({ action: display.setAction(action, 'present'), job });
+
+        job.api[action]()
             .catch((e) => reply.fatal(e.message));
 
-        await this.postStoppedOrPausedCheck(job, ExecutionStatus.stopped);
-    }
-
-    private preStoppedOrPausedCheck(
-        job: JobMetadata,
-        action: ExecutionStatus.stopped | ExecutionStatus.paused
-    ): boolean {
-        const {
-            status,
-            jobInfoString
-        } = this.getJobIdentifiers(job);
-
-        const actionVerb = action === ExecutionStatus.paused ? 'pause' : 'stop';
-
-        if (job.status === action) {
-            reply.yellow(`> Job is already ${display.setAction(actionVerb, 'past')}`);
-            // don't display job info if still more actions
-            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
-                reply.green(`${jobInfoString}`);
-            }
-            return true;
-        }
-
-        if (this.terminalStatuses.includes(status as ExecutionStatus)) {
-            reply.warning(`> Job is not running. Current status is ${job.status}`);
-            // don't display job info if still more actions
-            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
-                reply.green(`${jobInfoString}`);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    private async postStoppedOrPausedCheck(
-        job: JobMetadata,
-        action: ExecutionStatus.stopped | ExecutionStatus.paused
-    ) {
-        const actionVerb = action === ExecutionStatus.paused ? 'pause' : 'stop';
-
-        const { jobInfoString } = this.getJobIdentifiers(job);
-
-        const statusUpdate = await this.waitStatusChange(job, action);
+        const statusUpdate = await this.waitStatusChange(job, executionStatus);
 
         job.status = statusUpdate.newStatus!;
 
         if (statusUpdate.error === true) {
-            throw new Error(statusUpdate.errorMessage?.message);
+            this.commandFailed(statusUpdate.errorMessage?.message, job);
         }
 
-        if (statusUpdate.newStatus === action) {
-            reply.yellow(`> Job is ${display.setAction(actionVerb, 'past')}`);
-
-            // don't display job info if still more actions
-            if (this.config.args._action !== 'restart' && this.config.args._action !== 'update') {
-                reply.green(`${jobInfoString}`);
-            }
+        if (statusUpdate.newStatus === executionStatus) {
+            this.logUpdate({ action: display.setAction(action, 'past'), job });
         } else {
-            reply.fatal(`Could not ${actionVerb} job, current status is ${statusUpdate.newStatus}\n${jobInfoString}`);
+            this.commandFailed(`Could not ${action} job, job status is ${job.status}`, job);
         }
     }
 
-    private async allPausedOrStoppedCheck(
-        expectedStatus: ExecutionStatus.stopped | ExecutionStatus.paused
-    ) {
-        const actionVerb = expectedStatus === ExecutionStatus.paused ? 'pause' : 'stop';
-
-        const notAtStatus = this.jobs
-            .filter((job) => {
-                if (expectedStatus === ExecutionStatus.paused) {
-                    return job.status !== expectedStatus;
-                }
-
-                return !this.terminalStatuses.includes(job.status);
-            });
-
-        if (notAtStatus.length) {
-            const msg = notAtStatus.map((job) => `${job.config.name}, id: ${job.id}`);
-
-            reply.fatal(`Jobs: ${msg.join('and')} were not ${display.setAction(actionVerb, 'past')} on ${this.config.args.clusterAlias}`);
-        }
+    private inTerminalStatus(job: JobMetadata): boolean {
+        return this.terminalStatuses.includes(job.status as ExecutionStatus);
     }
 
     private correctNumberWorkers(currentWorkers: number, requestedWorkers: number): boolean {
@@ -755,5 +624,133 @@ export default class Jobs {
         } catch (e) {
             throw Error(e);
         }
+    }
+
+    /**
+     * @param args action and final property, final indicates if it is part of a series of commands
+     * @param job job metadata
+     *
+     * Logs status updates relative to the actions being performed on the job
+     */
+
+    private logUpdate(args: { action?: string, msg?: string, job: JobMetadata }) {
+        const {
+            action,
+            msg,
+            job
+        } = args;
+
+        let message = msg;
+        let final = true;
+
+        const { jobInfoString } = this.getJobIdentifiers(job);
+
+        if (msg == null && action) {
+            ({ message, final } = this.getUpdateMessage(action, job));
+        }
+
+        reply.yellow(`> ${message}`);
+
+        if (final) {
+            reply.green(`${jobInfoString}`);
+        }
+    }
+
+    private getUpdateMessage(action: string, job: JobMetadata): { message: string, final: boolean} {
+        const {
+            name,
+            id,
+            status
+        } = this.getJobIdentifiers(job);
+
+        const messages = {
+            running: {
+                message: `${name} is running`,
+                final: true
+            },
+            stopping: {
+                message: `${display.setAction('stop', 'present')} ${name}, ${id}`,
+                final: false
+            },
+            status: {
+                message: `status: ${status}`,
+                final: true
+            },
+            adjustWorkersTerminal: {
+                message: `Cannot adjust workers. Job in terminal status ${status}`,
+                final: true
+            },
+            recoverNotFailed: {
+                message: `Status is not failed, but ${status}. No need to recover`,
+                final: true
+            },
+            checkForErrors: {
+                message: 'No Errors',
+                final: true
+            },
+            resuming: {
+                message: `${display.setAction('resume', 'present')}, ${name}, ${id}`,
+                final: false
+            },
+            starting: {
+                message: `${display.setAction('start', 'present')} ${name}, ${id}`,
+                final: false
+            },
+            startWatching: {
+                message: `Watching for ${name}, ${id}, for ${this.config.args.watch} slices`,
+                final: false
+            },
+            pausing: {
+                message: `Attempting to pause ${name}, ${id}`,
+                final: false
+            },
+            paused: {
+                message: `${name} is paused`,
+                final: true
+            },
+            stopped: {
+                message: `${name} is stopped`,
+                final: this.finalAction(action)
+            },
+            view: {
+                message: `config:\n${JSON.stringify(job.config, null, 4)}`,
+                final: this.finalAction(action)
+            },
+            cannot_pause: {
+                message: `Job status is ${status}, cannot pause`,
+                final: true,
+            },
+            cannot_stop: {
+                message: `Job status is ${status}, cannot stop`,
+                final: this.finalAction(action)
+            }
+        };
+
+        return messages[action];
+    }
+
+    private finalAction(action: string) {
+        if (action === 'view' && this.config.args._action === 'update' && this.config.args.start === true) {
+            return false;
+        }
+
+        if ((action === 'stopped' || action === 'stopTerminal')
+            && (this.config.args._action === 'restart'
+            || this.config.args._action === 'update')) return false;
+
+        return true;
+    }
+
+    /**
+     *
+     * @param msg message or error to print to the console
+     * @param job job metadata
+     *
+     * After printing the message the process exits with code 1
+     */
+    private commandFailed(msg: unknown, job: JobMetadata) {
+        const { jobInfoString } = this.getJobIdentifiers(job);
+
+        return reply.fatal(`${msg}\n${jobInfoString}`);
     }
 }
