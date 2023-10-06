@@ -29,7 +29,6 @@ function pretty(headerValues: string[], rows: string[]) {
 function horizontal(
     rows: CliTable.HorizontalTableRow[], opts: CliTable.TableConstructorOptions
 ) {
-    console.log(opts);
     const table = new CliTable(opts);
 
     rows.forEach((item: any) => {
