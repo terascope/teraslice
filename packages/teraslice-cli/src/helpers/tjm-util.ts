@@ -116,21 +116,25 @@ export async function registerJobToCluster(cliConfig: Config) {
             continue;
         }
 
-        const resp = await job.submitJobConfig(jobConfig);
+        try {
+            const resp = await job.submitJobConfig(jobConfig);
 
-        if (resp) {
-            const jobId = resp.id();
+            if (resp) {
+                const jobId = resp.id();
 
-            reply.green(`Successfully registered ${jobConfig.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
+                reply.green(`Successfully registered ${jobConfig.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
 
-            addMetaData(jobConfig, jobId, cliConfig.clusterUrl);
-            saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
-            fileMetadataToCliArgs(cliConfig, jobConfig);
+                addMetaData(jobConfig, jobId, cliConfig.clusterUrl);
+                saveConfig(cliConfig.args.srcDir, jobFile, jobConfig);
+                fileMetadataToCliArgs(cliConfig, jobConfig);
 
-            continue;
+                continue;
+            }
+
+            reply.fatal(`Failed to register ${jobConfig.name} on ${cliConfig.clusterUrl}`);
+        } catch (e) {
+            reply.fatal(`Error ${e.message} registering job ${jobConfig.name} on ${cliConfig.clusterUrl}`);
         }
-
-        reply.fatal(`Failed to register ${jobConfig.name} on ${cliConfig.clusterUrl}`);
     }
 
     return job;
