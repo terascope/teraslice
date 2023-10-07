@@ -187,7 +187,8 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
+    // const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
+    const e2eImage = `${rootInfo.name}:e2e`;
 
     if (isCI) {
         // pull the services first in CI
