@@ -43,7 +43,7 @@
         "@turf/line-to-polygon": "^6.4.0",
         "@types/lodash": "^4.14.195",
         "@types/validator": "^13.7.17",
-        "awesome-phonenumber": "^2.70.0",
+        "awesome-phonenumber": "^6.0.0",
         "date-fns": "^2.30.0",
         "date-fns-tz": "^1.3.7",
         "datemath-parser": "^1.0.6",

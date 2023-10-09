@@ -3566,6 +3566,11 @@ awesome-phonenumber@^2.70.0:
   resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.73.0.tgz#c921f47450ba10bb2e4a6305cc85d802f57a96cf"
   integrity sha512-zirkzWFUheNnnPY1QE05PQd+5drn+5kVy76gZ3WyXnLwzXOguw6sqksyZGO1qyNnYj3Y/SDITXnS/TCk/hJXpQ==
 
+awesome-phonenumber@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-6.0.0.tgz#f8753866d2b088f5bf46debc83cbcda2d6dfa92c"
+  integrity sha512-9OzZgUuUjrfRB3hIBN0M7eDoSwr+dTQfNcGGAKeU/kcD5/3msbo+14CdmySXtP+kWTz7olvYZOSs1KjrnnRU+g==
+
 aws-sdk@^2.1401.0:
   version "2.1403.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1403.0.tgz#17c5728995d8de208af28eb81cf6bbbdc6a1ec71"
