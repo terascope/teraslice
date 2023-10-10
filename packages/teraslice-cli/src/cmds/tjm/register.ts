@@ -1,65 +1,41 @@
-import { get } from '@terascope/utils';
 import Config from '../../helpers/config';
-import TjmUtil from '../../helpers/tjm-util';
-import { getTerasliceClient } from '../../helpers/utils';
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import { registerJobToCluster } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'register <cluster-alias> <job-file>',
-    describe: 'Register a job to a cluster from a job file',
+    command: 'register <cluster-alias> <job-file...>',
+    describe: 'Register and upload a new job config to a cluster from a job config file',
     aliases: ['reg'],
     builder(yargs) {
         yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('start', yargsOptions.buildOption('start'));
-        yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
+        yargs.options('watch', yargsOptions.buildOption('jobs-watch'));
+        yargs.options('max-workers', yargsOptions.buildOption('max-workers'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-expect-error
-        yargs.example('$0 tjm register localhost new-job.json');
-        // @ts-expect-error
-        yargs.example('$0 tjm register localhost new-job.json --start');
-        // @ts-expect-error
-        yargs.example('$0 tjm reg localhost new-job.json --start');
+        yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+        yargs.example('$0 tjm register CLUSTER JOB_FILE.json', 'registers job on cluster')
+            .example('$0 tjm register CLUSTER JOB_FILE.json --start', 'registers and starts job')
+            .example('$0 tjm register CLUSTER JOB_FILE1.json JOB_FILE2.json --start', 'registers and starts multiple jobs')
+            .example('$0 tjm register CLUSTER JOB_FILE1.json JOB_FILE2.json --start --watch 1000', 'registers and starts multiple jobs, watches for 1000 successful slices')
+            .example('$0 tjm reg CLUSTER JOB_FILE.json', 'reg alias for register');
+
         return yargs;
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
-        const job = new JobSrc(argv);
-        const client = getTerasliceClient(cliConfig);
 
-        if (job.hasMetaData) {
-            const regCluster = get(job.content, '__metadata.cli.cluster');
-            reply.fatal(`job has already been registered on ${regCluster}`);
-        }
-        job.readFile();
-        job.validateJob();
-        try {
-            const registeredResponse = await client.jobs
-                .submit(job.content, true);
+        const jobs = await registerJobToCluster(cliConfig);
 
-            const jobId = registeredResponse.id();
+        if (jobs && argv.start) {
+            await jobs.initialize();
 
-            if (registeredResponse) {
-                reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
-            } else {
-                reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
-            }
-
-            job.addMetaData(jobId, cliConfig.clusterUrl);
-            job.overwrite();
-        } catch (e) {
-            reply.fatal(e.message);
-        }
-
-        if (argv.start) {
-            job.init();
-            const tjmUtil = new TjmUtil(client, job);
-            tjmUtil.start();
+            await jobs.start();
         }
     }
 } as CMD;

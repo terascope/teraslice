@@ -12,7 +12,7 @@ describe('jobs save', () => {
                 () => true
             );
             const yargsResult = yargsCmd.parseSync(
-                'save ts-test1', {}
+                'save ts-test1 all', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });

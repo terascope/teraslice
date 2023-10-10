@@ -1,35 +1,34 @@
-import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
-import reply from '../../helpers/reply';
+import Config from '../../helpers/config';
+import Jobs from '../../helpers/jobs';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'view <job-file>',
+    command: 'view <job-file...>',
     describe: 'View job as saved on the cluster by referencing the job file',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-expect-error
-        yargs.example('$0 tjm view jobFile.json');
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs
+            .example('$0 tjm view JOB_FILE.json', 'displays job config on job cluster')
+            .example('$0 tjm view JOB_FILE1.json JOB_FILE2.json', 'displays config for multiple job files');
         return yargs;
     },
     async handler(argv): Promise <void> {
-        const job = new JobSrc(argv);
-        job.init();
-        const client = getTerasliceClient(job);
+        const cliConfig = new Config(argv);
 
-        try {
-            const response = await client.jobs.wrap(job.id).config();
+        validateAndUpdateCliConfig(cliConfig);
 
-            reply.yellow(`${job.name} on ${job.clusterUrl}:`);
-            reply.green(JSON.stringify(response, null, 4));
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
+
+        await jobs.view();
     }
 };
 

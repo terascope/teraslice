@@ -25,6 +25,7 @@ export default class Config {
         Object.entries(cliArgs).forEach(([key, value]) => {
             this.args[camelCase(key)] = value;
         });
+        this._addJobAction();
         this.configDir = this.args.configDir;
         this._setupConfigDir();
         this.aliases = new Aliases(this.aliasesFile);
@@ -34,9 +35,7 @@ export default class Config {
         // TODO: This should probably be expressed with yargs somehow.
         if (has(this.args, 'clusterAlias')) {
             if (!this.aliases.present(this.args.clusterAlias)) {
-                throw new Error(
-                    `Alias, ${this.args.clusterAlias}, not found in config file: ${this.aliasesFile}`
-                );
+                reply.fatal(`Alias, ${this.args.clusterAlias}, not found in config file: ${this.aliasesFile}`);
             }
         }
         if (this.args.quiet) {
@@ -63,7 +62,7 @@ export default class Config {
         try {
             return this.aliases.config.clusters[this.args.clusterAlias].host;
         } catch (err) {
-            throw new Error(`Unable to retrieve clusterAlias: ${this.args.clusterAlias} config:\n\n${err.stack}`);
+            return reply.fatal(`Unable to retrieve clusterAlias: ${this.args.clusterAlias} config:\n\n${err.stack}`);
         }
     }
 
@@ -100,5 +99,13 @@ export default class Config {
                 fs.mkdirSync(dir);
             }
         });
+    }
+
+    private _addJobAction() {
+        if (this.args['']?.includes('jobs') || this.args['']?.includes('tjm')) {
+            const [, action] = this.args[''];
+
+            if (action != null) this.args._action = action;
+        }
     }
 }

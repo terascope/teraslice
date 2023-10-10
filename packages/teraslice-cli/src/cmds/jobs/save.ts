@@ -7,15 +7,19 @@ import reply from '../../helpers/reply';
 const yargsOptions = new YargsOptions();
 
 export = {
-    // TODO: is it [id] or <id>
-    command: 'save <cluster-alias>',
-    describe: 'Saves all running job on the specified cluster to a json file.\n',
+    command: 'save <cluster-alias> <job-id...>',
+    describe: 'Saves job or jobs on a cluster to a json file.The file is saved in the .teraslice dir\n',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
+        yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
         yargs.strict()
-            .example('$0 jobs save cluster1');
+            .example('$0 jobs save CLUSTER_ALIAS JOB1', 'saves state (controller and execution context) for a job')
+            .example('$0 jobs save CLUSTER_ALIAS JOB1 JOB2', 'saves state for two jobs')
+            .example('$0 jobs save CLUSTER_ALIAS all --status failing', 'saves state for failing jobs on a cluster')
+            .example('$0 jobs save CLUSTER_ALIAS all -y', 'saves state for all jobs on a cluster and bypasses the prompt');
         return yargs;
     },
     async handler(argv: any) {
@@ -23,6 +27,7 @@ export = {
         const jobs = new Jobs(cliConfig);
 
         try {
+            await jobs.initialize();
             await jobs.save();
         } catch (e) {
             reply.fatal(e);

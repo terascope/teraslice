@@ -1,27 +1,26 @@
-import { unset } from '@terascope/utils';
-import JobSrc from '../../helpers/job-src';
+import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
+import { resetConfigFile } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'reset <job-file>',
+    command: 'reset <job-file...>',
     describe: 'Removes cli metadata so job can be registerd on another cluster',
     builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-expect-error
-        yargs.example('$0 tjm reset jobFile.json');
+        yargs
+            .example('$0 tjm reset JOB_FILE.json', 'removes __metadata from job file and allows it to be re-registered')
+            .example('$0 tjm reset JOB_FILE1.json JOB_FILE2.json', 'removes __metadata from multiple jobs file');
+
         return yargs;
     },
     async handler(argv) {
-        const job = new JobSrc(argv);
-        job.init();
-        unset(job.content, '__metadata');
-        job.overwrite();
-        reply.green(`Removed metadata from ${argv.jobFile}`);
+        const cliConfig = new Config(argv);
+
+        resetConfigFile(cliConfig);
     }
 } as CMD;

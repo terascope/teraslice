@@ -12,7 +12,7 @@ describe('jobs restart', () => {
                 () => true
             );
             const yargsResult = yargsCmd.parseSync(
-                'restart ts-test1', {}
+                'restart ts-test1 all', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });
@@ -28,7 +28,7 @@ describe('jobs restart', () => {
                 'restart ts-test1 99999999-9999-9999-9999-999999999999', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
-            expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
+            expect(yargsResult.jobId).toEqual(['99999999-9999-9999-9999-999999999999']);
         });
     });
 });

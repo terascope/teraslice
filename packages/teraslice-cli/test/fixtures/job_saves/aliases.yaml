@@ -1,0 +1,7 @@
+clusters:
+  testerTest:
+    host: http://test-host
+  save_jobs1:
+    host: http://test-host
+  save_jobs2:
+    host: http://test-host

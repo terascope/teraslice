@@ -1,52 +1,37 @@
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import TerasliceUtil from '../../helpers/teraslice-util';
+import Jobs from '../../helpers/jobs';
 import reply from '../../helpers/reply';
-import Display from '../../helpers/display';
 
-const display = new Display();
 const yargsOptions = new YargsOptions();
 
 export = {
-    command: 'errors <cluster-alias> [id]',
-    describe: 'List errors for all running and failing job on cluster.\n',
+    command: 'errors <cluster-alias> <job-id...>',
+    describe: 'List errors for job or jobs on a cluster\n',
     builder(yargs: any) {
+        yargs.positional('job-id', yargsOptions.buildPositional('job-id'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
-        yargs.options('from', yargsOptions.buildOption('jobs-from'));
-        yargs.options('size', yargsOptions.buildOption('jobs-size'));
-        yargs.options('sort', yargsOptions.buildOption('jobs-sort'));
+        yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('yes', yargsOptions.buildOption('yes'));
         yargs.strict()
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --from=500')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --size=10')
-            .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc');
+            .example('$0 jobs errors CLUSTER_ALIAS JOB_ID1')
+            .example('$0 jobs errors CLUSTER_ALIAS JOB_ID1 --from=500')
+            .example('$0 jobs errors CLUSTER_ALIAS JOB_ID1 --size=10')
+            .example('$0 jobs errors CLUSTER_ALIAS JOB_ID1 --sort=slicer_order:asc');
         return yargs;
     },
     async handler(argv: any) {
-        let response;
-        const active = false;
-        const parse = false;
         const cliConfig = new Config(argv);
-        const teraslice = new TerasliceUtil(cliConfig);
-        const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
-        const format = `${cliConfig.args.output}Horizontal`;
+        const jobs = new Jobs(cliConfig);
+
+        await jobs.initialize();
 
         try {
-            const opts: any = {};
-            opts.from = cliConfig.args.from;
-            opts.sort = cliConfig.args.sort;
-            opts.size = cliConfig.args.size;
-            response = await teraslice.client.jobs.wrap(cliConfig.args.id).errors(opts);
-        } catch (err) {
-            reply.fatal(`Error getting job errors list on ${cliConfig.args.clusterAlias}\n${err}`);
-        }
-        const rows = await display.parseResponse(header, response ?? [], active);
-        if (rows.length > 0) {
-            await display.display(header, rows, format, active, parse);
-        } else {
-            reply.fatal(`> No errors for job_id: ${cliConfig.args.id}`);
+            await jobs.checkForErrors();
+        } catch (e) {
+            reply.fatal(e);
         }
     }
 } as CMD;

@@ -1,42 +1,37 @@
 /* eslint-disable import/no-import-module-exports */
+import { CMD } from '../../interfaces';
+import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
-import YargsOptions from '../../helpers/yargs-options';
-import JobSrc from '../../helpers/job-src';
-import { CMD } from '../../interfaces';
-import reply from '../../helpers/reply';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
-    command: 'await <job-file>',
-    describe: 'cli waits until the job reaches a specified status or timeout expires',
+    command: 'await <job-file...>',
+    describe: 'Waits until a job or jobs reach a specified status or timeout expires',
     builder(yargs: any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
-        yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
+        yargs.options('timeout', yargsOptions.buildOption('timeout'));
+        yargs.options('interval', yargsOptions.buildOption('interval'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.example('$0 tjm await FILE.JSON');
-        yargs.example('$0 tjm await FILE.JSON --status completed --timeout 10000');
-        yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
+        yargs.example('$0 tjm await JOB_FILE.json');
+        yargs.example('$0 tjm await JOB_FILE.json --status completed --timeout 10000');
+        yargs.example('$0 tjm await JOB_FILE.json --status failing stopping terminated rejected --timeout 600000 ');
         return yargs;
     },
     async handler(argv: any): Promise<void> {
-        const jobFile = new JobSrc(argv);
-        jobFile.init();
+        const cliConfig = new Config(argv);
 
-        const cliConfig = new Config({ ...jobFile, ...argv });
+        validateAndUpdateCliConfig(cliConfig);
+
         const jobs = new Jobs(cliConfig);
 
-        reply.green(`> job: ${jobFile.id} waiting for status ${argv.status.join(' or ')}`);
+        await jobs.initialize();
 
-        try {
-            const status = await jobs.awaitStatus();
-            reply.green(`> job: ${jobFile.id} reached status: ${status}`);
-        } catch (e) {
-            reply.fatal(e.message);
-        }
+        await jobs.awaitStatus();
     }
 };
 

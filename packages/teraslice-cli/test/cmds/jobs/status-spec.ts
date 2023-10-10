@@ -12,7 +12,7 @@ describe('jobs status', () => {
                 () => true
             );
             const yargsResult = yargsCmd.parseSync(
-                'status ts-test1', {}
+                'status ts-test1 all', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });

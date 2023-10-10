@@ -113,6 +113,9 @@ export default class Display {
                 header.forEach((item: any) => {
                     if (item === 'active') {
                         row.push(response[key][item].length);
+                    } else if (item === 'error') {
+                        // remove the stack trace from the error
+                        row.push(response[key][item].split('\n')[0]);
                     } else {
                         row.push(response[key][item]);
                     }
@@ -163,10 +166,10 @@ export default class Display {
                     'mid-mid': '',
                     right: '',
                     'right-mid': '',
-                    middle: ' '.repeat(2)
+                    middle: ''
                 },
                 style: {
-                    'padding-left': 0, 'padding-right': 0, head: ['white'], border: ['white']
+                    'padding-left': 1, 'padding-right': 1, head: ['white'], border: ['white']
                 }
             };
             if (parse) {
@@ -178,7 +181,7 @@ export default class Display {
         } else if (type === 'prettyHorizontal') {
             const opts = {
                 head: header,
-                style: { 'padding-left': 0, 'padding-right': 0, head: ['blue'] }
+                style: { 'padding-left': 1, 'padding-right': 1, head: ['yellow'] }
             };
             if (parse) {
                 rows = this.parseResponse(header, items, active, id);
@@ -252,13 +255,13 @@ export default class Display {
         if (action === 'start' && tense === 'past') {
             return 'started';
         }
-        if (action === 'stop' && tense === 'present') {
+        if (action === 'start' && tense === 'present') {
             return 'starting';
         }
         if (action === 'pause' && tense === 'past') {
             return 'paused';
         }
-        if (action === 'stop' && tense === 'present') {
+        if (action === 'pause' && tense === 'present') {
             return 'pausing';
         }
         if (action === 'restart' && tense === 'past') {

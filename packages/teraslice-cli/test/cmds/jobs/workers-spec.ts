@@ -12,10 +12,10 @@ describe('jobs workers', () => {
                 () => true
             );
             const yargsResult = yargsCmd.parseSync(
-                'workers ts-test1 99999999-9999-9999-9999-999999999999 add 5', {}
+                'workers ts-test1 add 5 99999999-9999-9999-9999-999999999999', {}
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
-            expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
+            expect(yargsResult.jobId).toEqual(['99999999-9999-9999-9999-999999999999']);
             expect(yargsResult.number).toEqual(5);
             expect(yargsResult.action).toEqual('add');
         });
@@ -28,11 +28,11 @@ describe('jobs workers', () => {
                 () => true
             );
             const yargsResult = yargsCmd.parseSync(
-                'workers ts-test1 99999999-9999-9999-9999-999999999999 remove 5', {}
+                'workers ts-test1 remove 5 99999999-9999-9999-9999-999999999999', {}
             );
 
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
-            expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
+            expect(yargsResult.jobId).toEqual(['99999999-9999-9999-9999-999999999999']);
             expect(yargsResult.number).toEqual(5);
             expect(yargsResult.action).toEqual('remove');
         });
