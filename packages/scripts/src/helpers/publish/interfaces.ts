@@ -18,4 +18,5 @@ export interface PublishOptions {
      * Publish packages that may have newer versions
     */
     publishOutdatedPackages?: boolean;
+    nodeVersion?: string;
 }

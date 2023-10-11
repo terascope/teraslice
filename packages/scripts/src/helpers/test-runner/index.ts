@@ -18,6 +18,7 @@ import {
 import signale from '../signale';
 import { getE2EDir, readPackageInfo, listPackages } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
+import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
 import {
     MAX_PROJECTS_PER_BATCH,
@@ -201,6 +202,7 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
+    // const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
     const e2eImage = `${rootInfo.name}:e2e`;
 
     if (isCI) {
@@ -210,10 +212,15 @@ async function runE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = getDevDockerImage();
+            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
             await dockerTag(devImage, e2eImage);
         } else {
-            const devImage = await buildDevDockerImage();
+            const publishOptions: PublishOptions = {
+                dryRun: true,
+                nodeVersion: options.nodeVersion,
+                type: PublishType.Dev
+            };
+            const devImage = await buildDevDockerImage(publishOptions);
             await dockerTag(devImage, e2eImage);
         }
     } catch (err) {

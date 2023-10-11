@@ -194,6 +194,7 @@ export async function dockerStop(name: string): Promise<void> {
 }
 
 export async function dockerTag(from: string, to: string): Promise<void> {
+    logger.debug(`dockerTag: ${from} -> ${to}`);
     await exec({
         cmd: 'docker',
         args: ['tag', from, to],

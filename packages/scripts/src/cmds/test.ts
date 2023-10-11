@@ -23,6 +23,7 @@ type Options = {
     'minio-version': string;
     'rabbitmq-version': string;
     'opensearch-version': string;
+    'node-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
     'ignore-mount': boolean
@@ -119,6 +120,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.OPENSEARCH_VERSION,
             })
+            .option('node-version', {
+                description: 'Node version, there must be a Docker base image with this version (e.g. 18.16.0)',
+                type: 'string',
+                default: config.NODE_VERSION
+            })
             .option('ignore-mount', {
                 description: 'If we should ignore configured mount',
                 type: 'boolean',
@@ -150,6 +156,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
         const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
         const opensearchVersion = hoistJestArg(argv, 'opensearch-version', 'string');
+        const nodeVersion = hoistJestArg(argv, 'node-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
 
@@ -172,6 +179,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             minioVersion,
             rabbitmqVersion,
             opensearchVersion,
+            nodeVersion,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,

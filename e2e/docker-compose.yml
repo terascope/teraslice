@@ -4,7 +4,8 @@ services:
         image: teraslice-workspace:e2e
         ports:
             - '45678:45678'
-        scale: 1
+        deploy:
+          replicas: 1
         restart: 'no'
         stop_grace_period: 30s
         environment:
@@ -17,7 +18,8 @@ services:
             - ./.assets:/app/assets:delegated
     teraslice-worker:
         image: teraslice-workspace:e2e
-        scale: 2
+        deploy:
+          replicas: 2
         restart: 'no'
         stop_grace_period: 30s
         links:

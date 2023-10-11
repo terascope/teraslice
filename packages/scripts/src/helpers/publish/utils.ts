@@ -4,7 +4,7 @@ import {
     getCommitHash,
     dockerBuild,
 } from '../scripts';
-import { PublishType } from './interfaces';
+import { PublishType, PublishOptions } from './interfaces';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
@@ -88,13 +88,16 @@ export async function formatDailyTag(): Promise<string> {
     return `daily-${date}-${hash}`;
 }
 
-export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<string> {
-    const devImage = getDevDockerImage();
+export async function buildDevDockerImage(
+    publishOptions: PublishOptions,
+    cacheFromPrev?: boolean
+): Promise<string> {
+    const devImage = `${getDevDockerImage()}-nodev${publishOptions.nodeVersion}`;
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined);
+        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined, `NODE_VERSION=${publishOptions.nodeVersion}`);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,
