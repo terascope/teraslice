@@ -53,7 +53,7 @@
         "easy-table": "^1.2.0",
         "event-loop-stats": "^1.4.1",
         "express": "^4.18.2",
-        "fs-extra": "^10.1.0",
+        "fs-extra": "^11.1.1",
         "gc-stats": "^1.4.0",
         "got": "^11.8.3",
         "ip": "^1.1.8",
