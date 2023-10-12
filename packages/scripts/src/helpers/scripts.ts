@@ -532,3 +532,85 @@ export async function yarnPublish(
         }
     });
 }
+
+export async function createKindCluster(
+    k8se2eDir: string,
+    kindConfigFileName: string
+): Promise<void> {
+    const configPath = path.join(k8se2eDir, kindConfigFileName);
+    const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
+    signale.log(subprocess.stderr);
+    // const test = await execa.command('echo hello');
+    // console.log('test: ', test);
+}
+
+export async function destroyKindCluster(): Promise<void> {
+    // TODO: pass cluster name in as variable
+    const subprocess = await execa.command('kind delete cluster --name k8se2e');
+    signale.log(subprocess.stderr);
+}
+
+export async function isKindInstalled(): Promise<boolean> {
+    try {
+        const subprocess = await execa.command('command -v kind');
+        // console.log('kind subprocess: ', subprocess);
+        return !!subprocess.stdout;
+    } catch (err) {
+        // console.log(err);
+        return false;
+    }
+}
+
+export async function isKubectlInstalled(): Promise<boolean> {
+    try {
+        const subprocess = await execa.command('command -v kubectl');
+        // console.log('kubectl subprocess: ', subprocess);
+        return !!subprocess.stdout;
+    } catch (err) {
+        return false;
+    }
+}
+
+export async function loadTerasliceImage(terasliceImage: string): Promise<void> {
+    const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name k8se2e`);
+    console.log('load teraslice image subprocess: ', subprocess);
+}
+
+export async function createNamespace() {
+    const subprocess = await execa.command('kubectl create namespace ts-dev1');
+    console.log('namespace subprocess: ', subprocess);
+}
+
+export async function deployElasticSearch(k8se2eDir: string, elasticsearchYaml: string) {
+    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, elasticsearchYaml)}`);
+    console.log('esDeploy subprocess: ', subprocess);
+}
+
+export async function k8sSetup(
+    k8se2eDir: string,
+    roleYaml: string,
+    roleBindingYaml: string,
+    priorityClassYaml: string
+): Promise<void> {
+    const subprocess1 = await execa.command(`kubectl create -f ${path.join(k8se2eDir, roleYaml)}`);
+    const subprocess2 = await execa.command(`kubectl create -f ${path.join(k8se2eDir, roleBindingYaml)}`);
+    const subprocess3 = await execa.command(`kubectl apply -f ${path.join(k8se2eDir, priorityClassYaml)}`);
+    console.log('role, binding, priority, subprocesses: ', subprocess1, subprocess2, subprocess3);
+}
+
+export async function deployk8sTeraslice(
+    k8se2eDir: string,
+    masterDeploymentYaml: string
+) {
+    /// Creates configmap for terasclice-master
+    let subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-master --from-file=${path.join(k8se2eDir, 'masterConfig', 'teraslice.yaml')}`);
+    console.log('masterConfig subprocess: ', subprocess);
+
+    /// Creates configmap for teraslice-worker
+    subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-worker --from-file=${path.join(k8se2eDir, 'workerConfig', 'teraslice.yaml')}`);
+    console.log('workerConfig subprocess: ', subprocess);
+
+    /// Creates deployment for teraslice
+    subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, masterDeploymentYaml)}`);
+    console.log('masterDeploy subprocess: ', subprocess);
+}
