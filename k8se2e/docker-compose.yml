@@ -1,0 +1,32 @@
+version: '2.4'
+services:
+    teraslice-master:
+        image: teraslice-workspace:e2e
+        ports:
+            - '45678:45678'
+        scale: 1
+        restart: 'no'
+        stop_grace_period: 30s
+        environment:
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
+            - NODE_OPTIONS=--max-old-space-size=256
+        volumes:
+            - ./logs:/app/logs:delegated
+            - ./autoload:/app/autoload:ro
+            - ./.config:/app/config:ro
+            - ./.assets:/app/assets:delegated
+    teraslice-worker:
+        image: teraslice-workspace:e2e
+        scale: 2
+        restart: 'no'
+        stop_grace_period: 30s
+        links:
+            - teraslice-master
+        environment:
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
+            - NODE_OPTIONS=--max-old-space-size=256
+        volumes:
+            - ./logs:/app/logs:delegated
+            - ./autoload:/app/autoload:ro
+            - ./.config:/app/config:ro
+            - ./.assets:/app/assets:delegated

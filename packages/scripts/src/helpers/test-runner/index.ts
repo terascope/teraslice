@@ -9,20 +9,35 @@ import {
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
-import { runJest, dockerTag } from '../scripts';
+import {
+    createKindCluster,
+    destroyKindCluster,
+    loadTerasliceImage,
+    createNamespace,
+    deployElasticSearch,
+    k8sSetup,
+    deployk8sTeraslice,
+    runJest,
+    dockerTag,
+    isKindInstalled,
+    isKubectlInstalled
+} from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
     reportCoverage, logE2E, getEnv,
     groupBySuite
 } from './utils';
 import signale from '../signale';
-import { getE2EDir, readPackageInfo, listPackages } from '../packages';
+import {
+    getE2EDir, readPackageInfo, listPackages, getK8SE2EDir
+} from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
 import {
     MAX_PROJECTS_PER_BATCH,
-    SKIP_DOCKER_BUILD_IN_E2E
+    SKIP_DOCKER_BUILD_IN_E2E,
+    SKIP_DOCKER_BUILD_K8S_E2E
 } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -62,6 +77,11 @@ async function _runTests(
 ): Promise<void> {
     if (options.suite?.includes('e2e')) {
         await runE2ETest(options, tracker);
+        return;
+    }
+
+    if (options.suite?.includes('k8se2e')) {
+        await runk8sE2ETest(options, tracker);
         return;
     }
 
@@ -299,4 +319,112 @@ function printAndGetEnv(suite: string, options: TestOptions) {
         signale.debug(`Setting ${suite} test suite env to ${envStr}`);
     }
     return env;
+}
+
+async function runk8sE2ETest(
+    options: TestOptions, tracker: TestTracker
+): Promise<void> {
+    console.log('options: ', options);
+    tracker.expected++;
+
+    const k8se2eDir = getK8SE2EDir();
+    if (!k8se2eDir) {
+        throw new Error('Missing k8se2e test directory');
+    }
+
+    const kindInstalled = await isKindInstalled();
+    if (!kindInstalled) {
+        signale.error('Please install Kind before running k8s tests. https://kind.sigs.k8s.io/docs/user/quick-start');
+        process.exit(1);
+    }
+
+    const kubectlInstalled = await isKubectlInstalled();
+    if (!kubectlInstalled) {
+        signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools/');
+        process.exit(1);
+    }
+    // TODO: pass kind config file in as a variable
+    await createKindCluster(k8se2eDir, 'kindConfig.yaml');
+
+    const suite = 'k8se2e';
+    let startedTest = false;
+
+    const rootInfo = getRootInfo();
+    const k8se2eImage = `${rootInfo.name}:k8se2e`;
+
+    // if (isCI) {
+    //     // pull the services first in CI
+    //     await pullServices(suite, options);
+    // }
+
+    try {
+        if (SKIP_DOCKER_BUILD_K8S_E2E) {
+            const devImage = getDevDockerImage();
+            await dockerTag(devImage, k8se2eImage);
+            await loadTerasliceImage(k8se2eImage);
+        } else {
+            const devImage = await buildDevDockerImage();
+            await dockerTag(devImage, k8se2eImage);
+            await loadTerasliceImage(k8se2eImage);
+        }
+    } catch (err) {
+        tracker.addError(err);
+    }
+
+    // TODO: add tracker
+    await createNamespace();
+    await deployElasticSearch(k8se2eDir, 'elasticsearchDeployment.yaml');
+    await k8sSetup(k8se2eDir, 'role.yaml', 'roleBinding.yaml', 'priorityClass.yaml');
+    await deployk8sTeraslice(k8se2eDir, 'masterDeployment.yaml');
+
+    if (!tracker.hasErrors()) {
+        const timeLabel = `test suite "${suite}"`;
+        signale.time(timeLabel);
+        startedTest = true;
+
+        const env = printAndGetEnv(suite, options);
+
+        tracker.started++;
+        try {
+            await runJest(
+                k8se2eDir,
+                getArgs(options),
+                env,
+                options.jestArgs,
+                options.debug
+            );
+            tracker.ended++;
+        } catch (err) {
+            tracker.ended++;
+            tracker.addError(err.message);
+        }
+
+        signale.timeEnd(timeLabel);
+    }
+
+    if (!startedTest) return;
+
+    // if (!options.keepOpen) {
+    //     try {
+    //         await logE2E(k8se2eDir, tracker.hasErrors());
+    //     } catch (err) {
+    //         signale.error(
+    //             new TSError(err, {
+    //                 reason: `Writing the "${suite}" logs failed`,
+    //             })
+    //         );
+    //     }
+    // }
+
+    // if (tracker.hasErrors()) {
+    //     tracker.addCleanup('e2e:teardown', async () => {
+    //         options.keepOpen = false;
+    //         await globalTeardown(options, [{
+    //             name: suite,
+    //             dir: k8se2eDir,
+    //             suite,
+    //         }]);
+    //     });
+    // }
+    // await destroyKindCluster();
 }

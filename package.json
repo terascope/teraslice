@@ -69,6 +69,7 @@
         "tests": {
             "suites": {
                 "e2e": [],
+                "k8se2e": [],
                 "elasticsearch": [],
                 "search": [],
                 "restrained": [],
