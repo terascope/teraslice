@@ -40,7 +40,7 @@
         "@types/bluebird": "^3.5.38",
         "@types/convict": "^6.1.2",
         "@types/elasticsearch": "^5.0.40",
-        "@types/fs-extra": "^9.0.9",
+        "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.2",
         "@types/lodash": "^4.14.195",
         "@types/node": "^18.14.2",
