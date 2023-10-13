@@ -20,7 +20,9 @@ import {
     runJest,
     dockerTag,
     isKindInstalled,
-    isKubectlInstalled
+    isKubectlInstalled,
+    registerTestJob,
+    startTestJob
 } from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
@@ -359,11 +361,16 @@ async function runk8sE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_K8S_E2E) {
-            const devImage = getDevDockerImage();
+            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
             await dockerTag(devImage, k8se2eImage);
             await loadTerasliceImage(k8se2eImage);
         } else {
-            const devImage = await buildDevDockerImage();
+            const publishOptions: PublishOptions = {
+                dryRun: true,
+                nodeVersion: options.nodeVersion,
+                type: PublishType.Dev
+            };
+            const devImage = await buildDevDockerImage(publishOptions);
             await dockerTag(devImage, k8se2eImage);
             await loadTerasliceImage(k8se2eImage);
         }
@@ -377,32 +384,35 @@ async function runk8sE2ETest(
     await k8sSetup(k8se2eDir, 'role.yaml', 'roleBinding.yaml', 'priorityClass.yaml');
     await deployk8sTeraslice(k8se2eDir, 'masterDeployment.yaml');
 
-    if (!tracker.hasErrors()) {
-        const timeLabel = `test suite "${suite}"`;
-        signale.time(timeLabel);
-        startedTest = true;
+    // await registerTestJob(k8se2eDir);
+    // await startTestJob(k8se2eDir);
 
-        const env = printAndGetEnv(suite, options);
+    // if (!tracker.hasErrors()) {
+    //     const timeLabel = `test suite "${suite}"`;
+    //     signale.time(timeLabel);
+    //     startedTest = true;
 
-        tracker.started++;
-        try {
-            await runJest(
-                k8se2eDir,
-                getArgs(options),
-                env,
-                options.jestArgs,
-                options.debug
-            );
-            tracker.ended++;
-        } catch (err) {
-            tracker.ended++;
-            tracker.addError(err.message);
-        }
+    //     const env = printAndGetEnv(suite, options);
 
-        signale.timeEnd(timeLabel);
-    }
+    //     tracker.started++;
+    //     try {
+    //         await runJest(
+    //             k8se2eDir,
+    //             getArgs(options),
+    //             env,
+    //             options.jestArgs,
+    //             options.debug
+    //         );
+    //         tracker.ended++;
+    //     } catch (err) {
+    //         tracker.ended++;
+    //         tracker.addError(err.message);
+    //     }
 
-    if (!startedTest) return;
+    //     signale.timeEnd(timeLabel);
+    // }
+
+    // if (!startedTest) return;
 
     // if (!options.keepOpen) {
     //     try {

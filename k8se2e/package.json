@@ -4,7 +4,7 @@
     "version": "0.0.1",
     "private": true,
     "description": "Teraslice in Kubernetes integration test suite",
-    "keywords": [ // ???
+    "keywords": [
         "docker-compose",
         "elasticsearch",
         "teraslice"
@@ -19,7 +19,7 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "scripts": { // check these
+    "scripts": {
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
@@ -32,10 +32,10 @@
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' TEST_KAFKA='true' ts-scripts test --suite k8se2e --",
         "test:watch": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite k8se2e --watch --"
     },
-    "resolutions": { // ???
+    "resolutions": {
         "ms": "^2.1.3"
     },
-    "devDependencies": { // ???
+    "devDependencies": {
         "bunyan": "^1.8.15",
         "elasticsearch-store": "^0.72.0",
         "fs-extra": "^10.1.0",
