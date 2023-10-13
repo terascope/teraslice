@@ -614,3 +614,19 @@ export async function deployk8sTeraslice(
     subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, masterDeploymentYaml)}`);
     console.log('masterDeploy subprocess: ', subprocess);
 }
+
+export async function setAlias() {
+    const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
+    const subprocess2 = await execa.command('earl aliases add ts-k8s-e2e http://localhost:5678');
+    console.log('setAlias subprocess: ', subprocess1, subprocess2);
+}
+
+export async function registerTestJob(k8se2eDir: string) {
+    const subprocess = await execa.command(`earl tjm register localhost ${path.join(k8se2eDir, 'testJob.json')}`);
+    console.log('registerTestJob subprocess: ', subprocess);
+}
+
+export async function startTestJob(k8se2eDir: string) {
+    const subprocess = await execa.command(`earl tjm start ${path.join(k8se2eDir, 'testJob.json')}`);
+    console.log('registerTestJob subprocess: ', subprocess);
+}

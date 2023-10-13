@@ -98,6 +98,8 @@ export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
 */
 export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
 
+export const SKIP_DOCKER_BUILD_K8S_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_K8S_E2E ?? false);
+
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
 /**

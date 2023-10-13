@@ -1,0 +1,12 @@
+{
+    "name": "Test Job",
+    "lifecycle": "once",
+    "workers": 1,
+    "assets": [],
+    "operations": [
+        {
+            "_op": "test-reader",
+            "fetcher_data_file_path": "./testReaderFile.json"
+        }
+    ]
+}
