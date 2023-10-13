@@ -14,6 +14,7 @@ import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
+import { setTimeout } from 'timers';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -584,6 +585,23 @@ export async function createNamespace() {
 export async function deployElasticSearch(k8se2eDir: string, elasticsearchYaml: string) {
     const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, elasticsearchYaml)}`);
     console.log('esDeploy subprocess: ', subprocess);
+
+    let elasticsearchRunning = false;
+    // TODO: add curl check to ES before continuing
+    while (!elasticsearchRunning) {
+        const ESResponse = execa.command('curl localhost:9200').stdout;
+        if (ESResponse) {
+            ESResponse.on('data', (data) => {
+                const jsonData = JSON.parse(data);
+                console.log(`response: ${JSON.stringify(jsonData)}`);
+                if (jsonData.tagline === 'You Know, for Search') {
+                    console.log('jsonData.tagline === You Know, for Search')
+                    elasticsearchRunning = true;
+                }
+            });
+        }
+        await PromiseTimeout(3000);
+    }
 }
 
 export async function k8sSetup(
@@ -613,6 +631,62 @@ export async function deployk8sTeraslice(
     /// Creates deployment for teraslice
     subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, masterDeploymentYaml)}`);
     console.log('masterDeploy subprocess: ', subprocess);
+
+    subprocess = await execa.command('kubectl get pods -n ts-dev1 --output name');
+    const podName = subprocess.stdout.split('\n').filter((podString) => podString.includes('teraslice-master'));
+    console.log('podName: ', podName);
+
+    // await waitForTerasliceRunning(120000);
+
+    let terasliceRunning = false;
+
+    while (!terasliceRunning) {
+        const TSMasterResponse = execa.command('curl localhost:5678').stdout;
+        if (TSMasterResponse) {
+            TSMasterResponse.on('data', (data) => {
+                const jsonData = JSON.parse(data);
+                console.log(`response: ${JSON.stringify(jsonData)}`);
+                if (jsonData.clustering_type === 'kubernetes') {
+                    console.log('jsonData.clusteringType === kubernetes')
+                    terasliceRunning = true;
+                }
+            });
+        }
+        await PromiseTimeout(3000);
+    }
+    // function waitForTerasliceRunning(timeoutMs = 120000) : Promise<boolean> {
+    //     const endAt = Date.now() + timeoutMs;
+
+    //     const _waitForTerasliceRunning = async () : Promise<boolean> => {
+    //         if (Date.now() > endAt) {
+    //             throw new Error(`Failure to communicate with the Teraslice Master after ${timeoutMs}ms`);
+    //         }
+
+    //         let terasliceRunning = false;
+    //         // let nodes = -1;
+    //         try {
+    //             const TSMasterResponse = execa.command('curl localhost:5678').stdout;
+    //             if (TSMasterResponse) {
+    //                 TSMasterResponse.on('data', (data) => {
+    //                     const jsonData = JSON.parse(data);
+    //                     console.log(`response: ${JSON.stringify(jsonData)}`);
+    //                     if (jsonData.clustering_type === 'kubernetes') {
+    //                         console.log('jsonData.clusteringType === kubernetes');
+    //                         terasliceRunning = true;
+    //                     }
+    //                 });
+    //             }
+    //         } catch (err) {
+    //             await PromiseTimeout(3000);
+    //             return _waitForTerasliceRunning();
+    //         }
+
+    //         if (terasliceRunning) return true;
+    //         return _waitForTerasliceRunning();
+    //     };
+
+    //     return _waitForTerasliceRunning();
+    // }
 }
 
 export async function setAlias() {
@@ -621,12 +695,23 @@ export async function setAlias() {
     console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }
 
-export async function registerTestJob(k8se2eDir: string) {
-    const subprocess = await execa.command(`earl tjm register localhost ${path.join(k8se2eDir, 'testJob.json')}`);
+export async function registerTestJob() {
+    const subprocess = await execa.command('earl tjm register localhost testJob.json');
     console.log('registerTestJob subprocess: ', subprocess);
 }
 
-export async function startTestJob(k8se2eDir: string) {
-    const subprocess = await execa.command(`earl tjm start ${path.join(k8se2eDir, 'testJob.json')}`);
+export async function startTestJob() {
+    const subprocess = await execa.command('earl tjm start testJob.json');
     console.log('registerTestJob subprocess: ', subprocess);
+}
+
+export async function showState() {
+    const subprocess = await execa.command('kubectl -n ts-dev1 get deployments,po,svc -o wide');
+    console.log('showState subprocess: ', subprocess);
+}
+
+function PromiseTimeout(delayms: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, delayms);
+    });
 }

@@ -22,7 +22,8 @@ import {
     isKindInstalled,
     isKubectlInstalled,
     registerTestJob,
-    startTestJob
+    startTestJob,
+    showState
 } from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
@@ -383,9 +384,10 @@ async function runk8sE2ETest(
     await deployElasticSearch(k8se2eDir, 'elasticsearchDeployment.yaml');
     await k8sSetup(k8se2eDir, 'role.yaml', 'roleBinding.yaml', 'priorityClass.yaml');
     await deployk8sTeraslice(k8se2eDir, 'masterDeployment.yaml');
+    await showState();
 
-    // await registerTestJob(k8se2eDir);
-    // await startTestJob(k8se2eDir);
+    await registerTestJob();
+    await startTestJob();
 
     // if (!tracker.hasErrors()) {
     //     const timeLabel = `test suite "${suite}"`;
