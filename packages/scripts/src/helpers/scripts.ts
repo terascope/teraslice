@@ -699,7 +699,7 @@ function waitForTerasliceRunning(timeoutMs = 120000): Promise<boolean> {
 }
 
 export async function setAlias() {
-    const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
+    const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true', { shell: true });
     const subprocess2 = await execa.command('earl aliases add ts-k8s-e2e http://localhost:5678');
     console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }
