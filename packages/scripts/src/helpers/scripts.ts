@@ -14,7 +14,6 @@ import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
-import { setTimeout } from 'timers';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -586,22 +585,44 @@ export async function deployElasticSearch(k8se2eDir: string, elasticsearchYaml: 
     const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, elasticsearchYaml)}`);
     console.log('esDeploy subprocess: ', subprocess);
 
-    let elasticsearchRunning = false;
-    // TODO: add curl check to ES before continuing
-    while (!elasticsearchRunning) {
-        const ESResponse = execa.command('curl localhost:9200').stdout;
-        if (ESResponse) {
-            ESResponse.on('data', (data) => {
-                const jsonData = JSON.parse(data);
+    const elasticsearchReady = await waitForESRunning(240000);
+    if (elasticsearchReady) {
+        signale.success('Elasticsearch is ready to go');
+    }
+}
+
+function waitForESRunning(timeoutMs = 120000): Promise<boolean> {
+    const endAt = Date.now() + timeoutMs;
+
+    const _waitForESRunning = async (): Promise<boolean> => {
+        if (Date.now() > endAt) {
+            throw new Error(`Failure to communicate with elasticsearch after ${timeoutMs}ms`);
+        }
+
+        let elasticsearchRunning = false;
+        try {
+            const ESResponse = await execa.command('curl localhost:9200');
+            if (ESResponse.stdout) {
+                const jsonData = JSON.parse(ESResponse.stdout);
                 console.log(`response: ${JSON.stringify(jsonData)}`);
                 if (jsonData.tagline === 'You Know, for Search') {
-                    console.log('jsonData.tagline === You Know, for Search')
+                    console.log('jsonData.tagline === You Know, for Search');
                     elasticsearchRunning = true;
                 }
-            });
+            }
+        } catch (err) {
+            await PromiseTimeout(3000);
+            return _waitForESRunning();
+        }
+
+        if (elasticsearchRunning) {
+            return true;
         }
         await PromiseTimeout(3000);
-    }
+        return _waitForESRunning();
+    };
+
+    return _waitForESRunning();
 }
 
 export async function k8sSetup(
@@ -636,64 +657,56 @@ export async function deployk8sTeraslice(
     const podName = subprocess.stdout.split('\n').filter((podString) => podString.includes('teraslice-master'));
     console.log('podName: ', podName);
 
-    // await waitForTerasliceRunning(120000);
+    const terasliceReady = await waitForTerasliceRunning(240000);
+    if (terasliceReady) {
+        signale.success('Teraslice is ready to go');
+    }
+}
 
-    let terasliceRunning = false;
+function waitForTerasliceRunning(timeoutMs = 120000): Promise<boolean> {
+    const endAt = Date.now() + timeoutMs;
 
-    while (!terasliceRunning) {
-        const TSMasterResponse = execa.command('curl localhost:5678').stdout;
-        if (TSMasterResponse) {
-            TSMasterResponse.on('data', (data) => {
-                const jsonData = JSON.parse(data);
+    const _waitForTerasliceRunning = async (): Promise<boolean> => {
+        if (Date.now() > endAt) {
+            throw new Error(`Failure to communicate with the Teraslice Master after ${timeoutMs}ms`);
+        }
+
+        let terasliceRunning = false;
+        try {
+            const TSMasterResponse = await execa.command('curl localhost:5678');
+            if (TSMasterResponse.stdout) {
+                const jsonData = JSON.parse(TSMasterResponse.stdout);
                 console.log(`response: ${JSON.stringify(jsonData)}`);
                 if (jsonData.clustering_type === 'kubernetes') {
-                    console.log('jsonData.clusteringType === kubernetes')
+                    console.log('jsonData.clusteringType === kubernetes');
                     terasliceRunning = true;
                 }
-            });
+            }
+        } catch (err) {
+            await PromiseTimeout(3000);
+            return _waitForTerasliceRunning();
         }
+
+        if (terasliceRunning) {
+            return true;
+        }
+
         await PromiseTimeout(3000);
-    }
-    // function waitForTerasliceRunning(timeoutMs = 120000) : Promise<boolean> {
-    //     const endAt = Date.now() + timeoutMs;
+        return _waitForTerasliceRunning();
+    };
 
-    //     const _waitForTerasliceRunning = async () : Promise<boolean> => {
-    //         if (Date.now() > endAt) {
-    //             throw new Error(`Failure to communicate with the Teraslice Master after ${timeoutMs}ms`);
-    //         }
-
-    //         let terasliceRunning = false;
-    //         // let nodes = -1;
-    //         try {
-    //             const TSMasterResponse = execa.command('curl localhost:5678').stdout;
-    //             if (TSMasterResponse) {
-    //                 TSMasterResponse.on('data', (data) => {
-    //                     const jsonData = JSON.parse(data);
-    //                     console.log(`response: ${JSON.stringify(jsonData)}`);
-    //                     if (jsonData.clustering_type === 'kubernetes') {
-    //                         console.log('jsonData.clusteringType === kubernetes');
-    //                         terasliceRunning = true;
-    //                     }
-    //                 });
-    //             }
-    //         } catch (err) {
-    //             await PromiseTimeout(3000);
-    //             return _waitForTerasliceRunning();
-    //         }
-
-    //         if (terasliceRunning) return true;
-    //         return _waitForTerasliceRunning();
-    //     };
-
-    //     return _waitForTerasliceRunning();
-    // }
+    return _waitForTerasliceRunning();
 }
 
 export async function setAlias() {
-   // const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
-   const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true', { shell: true });
+    const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
     const subprocess2 = await execa.command('earl aliases add ts-k8s-e2e http://localhost:5678');
     console.log('setAlias subprocess: ', subprocess1, subprocess2);
+}
+
+export async function deployESAsset() {
+    const subprocess = await execa.command('earl assets deploy ts-k8s-e2e --blocking --bundle terascope/elasticsearch-assets');
+    console.log('deployESAsset subprocess: ', subprocess);
 }
 
 export async function registerTestJob() {
