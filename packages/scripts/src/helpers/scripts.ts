@@ -690,19 +690,26 @@ export async function deployk8sTeraslice(
 }
 
 export async function setAlias() {
-    const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
+   // const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true');
+   const subprocess1 = await execa.command('earl aliases remove ts-k8s-e2e 2> /dev/null || true', { shell: true });
     const subprocess2 = await execa.command('earl aliases add ts-k8s-e2e http://localhost:5678');
     console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }
 
 export async function registerTestJob() {
-    const subprocess = await execa.command('earl tjm register localhost testJob.json');
+    const subprocess = await execa.command('earl tjm register ts-k8s-e2e testJob.json');
     console.log('registerTestJob subprocess: ', subprocess);
+}
+
+export async function registerElasticsearch() {
+    const subprocess = await execa.command('earl assets deploy ts-k8s-e2e --bundle terascope/elasticsearch-assets');
+    console.log('registerElasticsearch asset subprocess: ', subprocess);
 }
 
 export async function startTestJob() {
     const subprocess = await execa.command('earl tjm start testJob.json');
-    console.log('registerTestJob subprocess: ', subprocess);
+    console.log('Run earl tjm start testJob.json');
+    console.log(subprocess.stdout);
 }
 
 export async function showState() {

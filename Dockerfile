@@ -13,6 +13,7 @@ COPY .yarn /app/source/.yarn
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 COPY types /app/source/types
+COPY k8se2e /app/source/k8se2e
 
 RUN yarn --prod=false --frozen-lockfile \
     && yarn build \

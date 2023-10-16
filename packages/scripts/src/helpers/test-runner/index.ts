@@ -23,7 +23,9 @@ import {
     isKubectlInstalled,
     registerTestJob,
     startTestJob,
-    showState
+    showState,
+    registerElasticsearch,
+    setAlias
 } from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
@@ -386,6 +388,8 @@ async function runk8sE2ETest(
     await deployk8sTeraslice(k8se2eDir, 'masterDeployment.yaml');
     await showState();
 
+    await setAlias();
+    await registerElasticsearch();
     await registerTestJob();
     await startTestJob();
 
