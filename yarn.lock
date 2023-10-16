@@ -4255,6 +4255,13 @@ ci-info@^3.2.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.8.0.tgz#81408265a5380c929f0bc665d62256628ce9ef91"
   integrity sha512-eXTggHWSooYhq49F2opQhuHWgzucfF2YgODK4e1566GQs5BIfP30B0oenwBJHfWxAs2fyPB1s7Mg949zLf61Yw==
 
+cidr-regex@4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/cidr-regex/-/cidr-regex-4.0.3.tgz#07b52c9762d1ff546a50740e92fc2b5b13a6d871"
+  integrity sha512-HOwDIy/rhKeMf6uOzxtv7FAbrz8zPjmVKfSpM+U7/bNBXC5rtOyr758jxcptiSx6ZZn5LOhPJT5WWxPAGDV8dw==
+  dependencies:
+    ip-regex "^5.0.0"
+
 cidr-regex@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/cidr-regex/-/cidr-regex-3.1.1.tgz#ba1972c57c66f61875f18fd7dd487469770b571d"
@@ -7223,6 +7230,11 @@ ip-regex@^4.0.0, ip-regex@^4.1.0:
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-4.3.0.tgz#687275ab0f57fa76978ff8f4dddc8a23d5990db5"
   integrity sha512-B9ZWJxHHOHUhUjCPrMpLD4xEq35bUTClHM1S6CBU5ixQnkZmwipwgc96vAd7AAGM9TGHvJR+Uss+/Ak6UphK+Q==
 
+ip-regex@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-5.0.0.tgz#cd313b2ae9c80c07bd3851e12bf4fa4dc5480632"
+  integrity sha512-fOCG6lhoKKakwv+C6KdsOnGvgXnmgfmp0myi3bcNwj3qfwPAxRKWEuFhvEFF7ceYIz6+1jRZ+yguLFAmUNPEfw==
+
 ip6addr@^0.2.5:
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/ip6addr/-/ip6addr-0.2.5.tgz#06e134f44b4e1a684fd91b24035dca7a53b8f759"
@@ -7306,6 +7318,13 @@ is-cidr@^4.0.2:
   integrity sha512-z4a1ENUajDbEl/Q6/pVBpTR1nBjjEE1X7qb7bmWYanNnPoKAvUCPFKeXV6Fe4mgTkWKBqiHIcwsI3SndiO5FeA==
   dependencies:
     cidr-regex "^3.1.1"
+
+is-cidr@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/is-cidr/-/is-cidr-5.0.3.tgz#fcf817c0146dd4a318f27938af89e98a9b21bdd5"
+  integrity sha512-lKkM0tmz07dAxNsr8Ii9MGreExa9ZR34N9j8mTG5op824kcwBqinZPowNjcVWWc7j+jR8XAMMItOmBkniN0jOA==
+  dependencies:
+    cidr-regex "4.0.3"
 
 is-core-module@^2.11.0, is-core-module@^2.8.1, is-core-module@^2.9.0:
   version "2.12.1"
