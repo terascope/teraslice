@@ -19,7 +19,7 @@ export type TestOptions = {
     opensearchVersion: string;
     nodeVersion: string;
     jestArgs?: string[];
-    ignoreMount: boolean
+    ignoreMount: boolean;
 };
 
 export type GroupedPackages = {
