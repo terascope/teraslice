@@ -98,8 +98,6 @@ export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
 */
 export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
 
-export const SKIP_DOCKER_BUILD_K8S_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_K8S_E2E ?? false);
-
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
 /**
@@ -160,3 +158,5 @@ export const SEARCH_TEST_HOST = testHost;
 // https://github.com/terascope/base-docker-image
 // This overrides the value in the Dockerfile
 export const NODE_VERSION = process.env.NODE_VERSION || '18.16.0';
+
+export const { TEST_PLATFORM = 'native' } = process.env;
