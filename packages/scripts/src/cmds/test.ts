@@ -26,7 +26,7 @@ type Options = {
     'node-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
-    'ignore-mount': boolean
+    'ignore-mount': boolean;
 };
 
 const jestArgs = getExtraArgs();
