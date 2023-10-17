@@ -10,7 +10,8 @@ import {
     DockerRunOptions,
     getContainerInfo,
     dockerStop,
-    dockerPull
+    dockerPull,
+    kindLoadServiceImage
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
@@ -135,6 +136,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
 };
 
 export async function pullServices(suite: string, options: TestOptions): Promise<void> {
+    console.log('@@@ in pull services');
+
     const launchServices = getServicesForSuite(suite);
 
     try {
@@ -189,6 +192,7 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 }
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
+    console.log('@@@ in ensure services');
     const launchServices = getServicesForSuite(suite);
 
     const promises: Promise<(() => void)>[] = [];
@@ -242,7 +246,7 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 }
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
     await checkKafka(options, startTime);
@@ -250,7 +254,7 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 }
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -258,7 +262,7 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
 }
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Elasticsearch);
     await checkElasticsearch(options, startTime);
@@ -266,7 +270,7 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
 }
 
 export async function ensureRestrainedElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RestrainedElasticsearch);
     await checkRestrainedElasticsearch(options, startTime);
@@ -274,7 +278,7 @@ export async function ensureRestrainedElasticsearch(options: TestOptions): Promi
 }
 
 export async function ensureRestrainedOpensearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RestrainedOpensearch);
     await checkRestrainedOpensearch(options, startTime);
@@ -282,7 +286,7 @@ export async function ensureRestrainedOpensearch(options: TestOptions): Promise<
 }
 
 export async function ensureOpensearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Opensearch);
     await checkOpensearch(options, startTime);
@@ -290,7 +294,7 @@ export async function ensureOpensearch(options: TestOptions): Promise<() => void
 }
 
 export async function ensureRabbitMQ(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RabbitMQ);
     await checkRabbitMQ(options, startTime);
@@ -680,6 +684,8 @@ async function checkKafka(options: TestOptions, startTime: number) {
 }
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
+    console.log('in startService: ', service);
+
     let serviceName = service;
 
     if (serviceName === 'restrained_elasticsearch') {
@@ -693,13 +699,21 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     const version = options[`${serviceName}Version`] as string;
     if (options.useExistingServices) {
         signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
-        return () => {};
+        return () => { };
     }
 
     signale.pending(`starting ${service}@${version} service...`);
 
     await stopService(service);
+    if (process.env.TEST_PLATFORM === 'kubernetes') {
+        await stopService(service); // FIXME: does this use docker
+        console.log(`@@@@@@@ loading ${service} via kind`);
+        // load via kind
+        kindLoadServiceImage(service);
+        return () => { };
+    }
 
+    console.log(`@@@@@@@ loading ${service} via docker`);
     const fn = await dockerRun(
         services[service],
         version,
@@ -707,6 +721,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         options.debug || options.trace
     );
 
+    console.log('@@@@@ fn(): ', fn.toString());
     return () => {
         try {
             fn();
@@ -718,4 +733,5 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             );
         }
     };
+
 }
