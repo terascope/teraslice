@@ -25,6 +25,7 @@
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn --silent",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
+        "test:k8s": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e  --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
