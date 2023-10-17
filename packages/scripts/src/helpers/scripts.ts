@@ -14,6 +14,7 @@ import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
+import { getE2eK8sDir } from '../helpers/packages';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -164,6 +165,12 @@ export async function runJest(
     if (debug) {
         signale.debug(`executing: jest ${args.join(' ')}`);
     }
+
+    console.log('######## cwd: ', cwd);
+    console.log('######## argsMap: ', argsMap);
+    console.log('######## args: ', args);
+    console.log('######## env: ', env);
+    console.log('######## extraArgs: ', extraArgs);
 
     await fork({
         cmd: 'jest',
@@ -534,10 +541,10 @@ export async function yarnPublish(
 }
 
 export async function createKindCluster(
-    k8se2eDir: string,
+    e2eK8sDir: string,
     kindConfigFileName: string
 ): Promise<void> {
-    const configPath = path.join(k8se2eDir, kindConfigFileName);
+    const configPath = path.join(e2eK8sDir, kindConfigFileName);
     const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
     signale.log(subprocess.stderr);
     // const test = await execa.command('echo hello');
@@ -576,13 +583,29 @@ export async function loadTerasliceImage(terasliceImage: string): Promise<void> 
     console.log('load teraslice image subprocess: ', subprocess);
 }
 
+export async function kindLoadServiceImage(serviceName: string): Promise<void> {
+    console.log('@@@@@ kindLoadServiceImage');
+    const e2eK8sDir = getE2eK8sDir();
+    if (!e2eK8sDir) {
+        throw new Error('Missing k8s e2e test directory');
+    }
+    if (serviceName === 'elasticsearch') {
+        await deployElasticsearch(e2eK8sDir, 'elasticsearchDeployment.yaml');
+    } else if (serviceName === 'kafka') {
+        await deployKafka(e2eK8sDir, 'elasticsearchDeployment.yaml');
+    } else {
+        signale.error(`The service ${serviceName} is not avalable in the kubernetes test platform.`);
+    }
+}
+
 export async function createNamespace() {
     const subprocess = await execa.command('kubectl create namespace ts-dev1');
     console.log('namespace subprocess: ', subprocess);
 }
 
-export async function deployElasticSearch(k8se2eDir: string, elasticsearchYaml: string) {
-    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, elasticsearchYaml)}`);
+export async function deployElasticsearch(e2eK8sDir: string, elasticsearchYaml: string) {
+    console.log('@@@@@ deployElasticsearch');
+    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, elasticsearchYaml)}`);
     console.log('esDeploy subprocess: ', subprocess);
 
     const elasticsearchReady = await waitForESRunning(240000);
@@ -625,32 +648,43 @@ function waitForESRunning(timeoutMs = 120000): Promise<boolean> {
     return _waitForESRunning();
 }
 
+function deployKafka(e2eK8sDir: string, arg1: string) {
+    throw new Error('Function not implemented.');
+    // const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, elasticsearchYaml)}`);
+    // console.log('esDeploy subprocess: ', subprocess);
+
+    // const elasticsearchReady = await waitForESRunning(240000);
+    // if (elasticsearchReady) {
+    //     signale.success('Elasticsearch is ready to go');
+    // }
+}
+
 export async function k8sSetup(
-    k8se2eDir: string,
+    e2eK8sDir: string,
     roleYaml: string,
     roleBindingYaml: string,
     priorityClassYaml: string
 ): Promise<void> {
-    const subprocess1 = await execa.command(`kubectl create -f ${path.join(k8se2eDir, roleYaml)}`);
-    const subprocess2 = await execa.command(`kubectl create -f ${path.join(k8se2eDir, roleBindingYaml)}`);
-    const subprocess3 = await execa.command(`kubectl apply -f ${path.join(k8se2eDir, priorityClassYaml)}`);
+    const subprocess1 = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, roleYaml)}`);
+    const subprocess2 = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, roleBindingYaml)}`);
+    const subprocess3 = await execa.command(`kubectl apply -f ${path.join(e2eK8sDir, priorityClassYaml)}`);
     console.log('role, binding, priority, subprocesses: ', subprocess1, subprocess2, subprocess3);
 }
 
 export async function deployk8sTeraslice(
-    k8se2eDir: string,
+    e2eK8sDir: string,
     masterDeploymentYaml: string
 ) {
     /// Creates configmap for terasclice-master
-    let subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-master --from-file=${path.join(k8se2eDir, 'masterConfig', 'teraslice.yaml')}`);
+    let subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-master --from-file=${path.join(e2eK8sDir, 'masterConfig', 'teraslice.yaml')}`);
     console.log('masterConfig subprocess: ', subprocess);
 
     /// Creates configmap for teraslice-worker
-    subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-worker --from-file=${path.join(k8se2eDir, 'workerConfig', 'teraslice.yaml')}`);
+    subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-worker --from-file=${path.join(e2eK8sDir, 'workerConfig', 'teraslice.yaml')}`);
     console.log('workerConfig subprocess: ', subprocess);
 
     /// Creates deployment for teraslice
-    subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(k8se2eDir, masterDeploymentYaml)}`);
+    subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, masterDeploymentYaml)}`);
     console.log('masterDeploy subprocess: ', subprocess);
 
     subprocess = await execa.command('kubectl get pods -n ts-dev1 --output name');
@@ -714,9 +748,14 @@ export async function registerTestJob() {
     console.log('registerTestJob subprocess: ', subprocess);
 }
 
-export async function registerElasticsearch() {
+export async function registerElasticsearchAssets() {
     const subprocess = await execa.command('earl assets deploy ts-k8s-e2e --bundle terascope/elasticsearch-assets');
     console.log('registerElasticsearch asset subprocess: ', subprocess);
+}
+
+export async function registerStandardAssets() {
+    const subprocess = await execa.command('earl assets deploy ts-k8s-e2e --bundle terascope/standard-assets');
+    console.log('registerStandardAssets subprocess: ', subprocess);
 }
 
 export async function startTestJob() {
@@ -730,8 +769,10 @@ export async function showState() {
     console.log('showState subprocess: ', subprocess);
 }
 
+// TODO: utils/src/promises/.ts pDelay already does this
 function PromiseTimeout(delayms: number) {
     return new Promise((resolve) => {
         setTimeout(resolve, delayms);
     });
 }
+
