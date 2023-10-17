@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teraslice-master
+  labels:
+      app: teraslice
+      nodeType: master
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          app: teraslice
+          nodeType: master
+  template:
+    metadata:
+      labels:
+        app: teraslice
+        nodeType: master
+        clusterName: ts-dev1
+    spec:
+      containers:
+      - name: teraslice-master
+        image: teraslice-workspace:k8se2e
+        ports:
+        - containerPort: 5678
+        volumeMounts:
+          - mountPath: /app/config  # defines the directory
+            name: config
+      volumes:
+        - name: config
+          configMap:
+            name: teraslice-master
+            items:
+              - key: teraslice.yaml
+                path: teraslice.yaml  # the filename that the configMap gets written to, inside the matching mountPath
+      imagePullSecrets:
+        - name: docker-tera1-secret
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: teraslice-master
+  labels:
+    app: teraslice
+spec:
+  selector:
+      app: teraslice
+      nodeType: master
+  ports:
+  - port: 5678
+    targetPort: 5678
+    nodePort: 30678  # the external port teraslice can be accessed on
+  type: NodePort
