@@ -49,5 +49,5 @@ spec:
   ports:
   - port: 45678
     targetPort: 45678
-    nodePort: 45678  # the external port teraslice can be accessed on
+    nodePort: 30678  # the external port teraslice can be accessed on
   type: NodePort
