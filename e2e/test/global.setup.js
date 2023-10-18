@@ -1,7 +1,7 @@
 'use strict';
 
 const { pDelay } = require('@terascope/utils');
-const { getE2eK8sDir } = require('@terascope/scripts');
+const { getE2eK8sDir, deployK8sTeraslice, destroyKindCluster } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
 const globalTeardown = require('./global.teardown');
@@ -10,7 +10,6 @@ const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
 const { CONFIG_PATH, ASSETS_PATH } = require('./config');
-const { createKindCluster, destroyKindCluster } = require('../../packages/scripts/src/helpers/scripts.ts');// FIXME: is this right?
 
 module.exports = async () => {
     const teraslice = new TerasliceHarness();
@@ -42,7 +41,7 @@ module.exports = async () => {
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         const e2eK8sDir = getE2eK8sDir();
-        await createKindCluster(e2eK8sDir, 'kindConfig.yaml');
+        await deployK8sTeraslice(e2eK8sDir, 'kindConfig.yaml');
     } else {
         await dockerUp(); // create TS master and workers from docker-compose file
     }
