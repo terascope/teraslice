@@ -22,7 +22,7 @@ spec:
       - name: teraslice-master
         image: teraslice-workspace:k8se2e
         ports:
-        - containerPort: 45678
+        - containerPort: 5678
         volumeMounts:
           - mountPath: /app/config  # defines the directory
             name: config
@@ -47,7 +47,7 @@ spec:
       app: teraslice
       nodeType: master
   ports:
-  - port: 45678
-    targetPort: 45678
+  - port: 5678
+    targetPort: 5678
     nodePort: 30678  # the external port teraslice can be accessed on
   type: NodePort
