@@ -133,7 +133,6 @@ export class AggregationFrame<
         this._groupByFields = Object.freeze(this._groupByFields.concat(
             Array.from(getFieldsFromArg(this.fields, fieldArg))
         ));
-
         return this;
     }
 
@@ -584,9 +583,9 @@ export class AggregationFrame<
 
         const merge = new Map<string, number[]>();
         for (let i = 0; i < this.size; i++) {
-            if (this._merge) {
-                const res = makeKeyForRow(keyAggs, i);
-                if (res) {
+            const res = makeKeyForRow(keyAggs, i);
+            if (res) {
+                if (this._merge) {
                     let indices = [i];
                     if (merge.has(res.key)) {
                         // if merging collect all indices, then it will
@@ -597,10 +596,7 @@ export class AggregationFrame<
                         merge.delete(res.key);
                     }
                     merge.set(res.key, indices);
-                }
-            } else {
-                const res = makeKeyForRow(keyAggs, i);
-                if (res) {
+                } else {
                     fieldAggMakers.forEach(
                         makeProcessFieldAgg(getFieldAggs(res.key, i), i)
                     );
