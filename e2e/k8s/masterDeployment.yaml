@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: teraslice-master
-        image: teraslice-workspace:k8se2e
+        image: teraslice-workspace:e2e
         ports:
         - containerPort: 5678
         volumeMounts:

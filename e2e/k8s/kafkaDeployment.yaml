@@ -19,14 +19,10 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: kafka:3.3
+        image: sotojn6/kafka:3.3
         ports:
         - containerPort: 9092
-        env:
-        - name: ES_JAVA_OPTS
-          value: "-Xms512m -Xmx512m"
-        - name: discovery.type
-          value: single-node
+
 ---
 kind: Service
 apiVersion: v1
