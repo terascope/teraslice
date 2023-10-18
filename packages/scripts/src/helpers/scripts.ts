@@ -592,7 +592,7 @@ export async function kindLoadServiceImage(serviceName: string): Promise<void> {
     if (serviceName === 'elasticsearch') {
         await deployElasticsearch(e2eK8sDir, 'elasticsearchDeployment.yaml');
     } else if (serviceName === 'kafka') {
-        await deployKafka(e2eK8sDir, 'elasticsearchDeployment.yaml');
+        await deployKafka(e2eK8sDir, 'kafkaDeployment.yaml');
     } else {
         signale.error(`The service ${serviceName} is not avalable in the kubernetes test platform.`);
     }
@@ -606,7 +606,7 @@ export async function createNamespace() {
 export async function deployElasticsearch(e2eK8sDir: string, elasticsearchYaml: string) {
     console.log('@@@@@ deployElasticsearch');
     const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, elasticsearchYaml)}`);
-    console.log('esDeploy subprocess: ', subprocess);
+    console.log('deployElasticserach subprocess: ', subprocess);
 
     const elasticsearchReady = await waitForESRunning(240000);
     if (elasticsearchReady) {
@@ -624,7 +624,7 @@ function waitForESRunning(timeoutMs = 120000): Promise<boolean> {
 
         let elasticsearchRunning = false;
         try {
-            const ESResponse = await execa.command('curl localhost:9200');
+            const ESResponse = await execa.command('curl http://localhost:49200');
             if (ESResponse.stdout) {
                 const jsonData = JSON.parse(ESResponse.stdout);
                 console.log(`response: ${JSON.stringify(jsonData)}`);
@@ -648,10 +648,9 @@ function waitForESRunning(timeoutMs = 120000): Promise<boolean> {
     return _waitForESRunning();
 }
 
-function deployKafka(e2eK8sDir: string, arg1: string) {
-    throw new Error('Function not implemented.');
-    // const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, elasticsearchYaml)}`);
-    // console.log('esDeploy subprocess: ', subprocess);
+export async function deployKafka(e2eK8sDir: string, kafkaYaml: string) {
+    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, kafkaYaml)}`);
+    console.log('deployKafka subprocess: ', subprocess);
 
     // const elasticsearchReady = await waitForESRunning(240000);
     // if (elasticsearchReady) {
@@ -671,7 +670,7 @@ export async function k8sSetup(
     console.log('role, binding, priority, subprocesses: ', subprocess1, subprocess2, subprocess3);
 }
 
-export async function deployk8sTeraslice(
+export async function deployK8sTeraslice(
     e2eK8sDir: string,
     masterDeploymentYaml: string
 ) {
