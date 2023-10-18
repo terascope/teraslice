@@ -697,6 +697,69 @@ export class DataFrame<
         return this.forkWithBuilders(builders, buckets.size);
     }
 
+    // merge(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+    //     return this._merge(getFieldsFromArg(this.fields, fieldArg));
+    // }
+
+    // private _merge(
+    //     fields: Iterable<keyof T>,
+    //     serializeOptions?: SerializeOptions
+    // ) {
+    //     const buckets = new Set<string>();
+    //     const keyAggs = new Map<keyof T, KeyAggFn>();
+
+    //     for (const name of fields) {
+    //         const column = this.getColumnOrThrow(name);
+    //         if (column) {
+    //             keyAggs.set(column.name, makeUniqueKeyAgg(
+    //                 column.vector, serializeOptions
+    //             ));
+    //         }
+    //     }
+
+    //     const builders = getBuildersForConfig<T>(this.config, this.size);
+
+    //     const rowBuilder = makeUniqueRowBuilder(
+    //         builders,
+    //         buckets,
+    //         (name, _indices) => {
+    //             const indices = castArray(_indices);
+    //             for (const i of indices) {
+    //                 const fetched = this.getColumnOrThrow(name).vector.get(i);
+    //                 if (fetched) return fetched;
+    //             }
+
+    //             return;
+    //         }
+    //     );
+
+    //     const reduced = new Map<string, [number[], any]>();
+    //     for (let i = 0; i < this.size; i++) {
+    //         const res = makeKeyForRow(keyAggs, i);
+    //         if (res) {
+    //             let indices = [i];
+    //             if (reduced.has(res.key)) {
+    //                 const _indices = reduced.get(res.key)?.[0];
+    //                 if (_indices?.length) indices = indices.concat(_indices);
+    //             }
+
+    //             reduced.delete(res.key);
+    //             reduced.set(res.key, [indices, res.row]);
+    //         }
+    //     }
+    //     if (reduced.size) {
+    //         [...reduced.entries()].forEach(([key, [indices, row]]) => {
+    //             if (!buckets.has(key)) {
+    //                 rowBuilder(row, key, indices);
+    //             } else {
+    //                 rowBuilder(row, key, indices);
+    //             }
+    //         });
+    //     }
+
+    //     return this.forkWithBuilders(builders, buckets.size);
+    // }
+
     /**
      * Create a new data frame from the builders
     */

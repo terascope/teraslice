@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { BigMap } from '@terascope/utils';
+import { BigMap, isArray, castArray } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -77,6 +77,15 @@ export class AggregationFrame<
     */
     protected _fieldToColumnIndexCache?: Map<(keyof T), number>;
 
+    /**
+     * When using mergeBy... similar to groupBy as groups by the unique fields but
+     * if more than 1 is found it uses the last value and also merges fields
+     * i.e. mergeBy("foo")
+     * makes this [ { foo: a, bar: b, one: one }, { foo: a, bar: c, two: two } ]
+     * turn into  [ { foo: a, bar: c, one: one, two: two }, { foo: b, bar: b2 } ]
+     */
+    private _merge?: boolean;
+
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
         options: AggregationFrameOptions
@@ -113,6 +122,18 @@ export class AggregationFrame<
         this._groupByFields = Object.freeze(this._groupByFields.concat(
             Array.from(getFieldsFromArg(this.fields, fieldArg))
         ));
+        return this;
+    }
+
+    /**
+     * MergeBy fields
+    */
+    mergeBy(...fieldArg: FieldArg<keyof T>[]): this {
+        this._merge = true;
+        this._groupByFields = Object.freeze(this._groupByFields.concat(
+            Array.from(getFieldsFromArg(this.fields, fieldArg))
+        ));
+
         return this;
     }
 
@@ -561,13 +582,38 @@ export class AggregationFrame<
         const buckets = new BigMap<string, Bucket<T>>();
         const getFieldAggs = makeGetFieldAggs(buckets);
 
+        const merge = new Map<string, number[]>();
         for (let i = 0; i < this.size; i++) {
-            const res = makeKeyForRow(keyAggs, i);
-            if (res) {
-                fieldAggMakers.forEach(
-                    makeProcessFieldAgg(getFieldAggs(res.key, i), i)
-                );
+            if (this._merge) {
+                const res = makeKeyForRow(keyAggs, i);
+                if (res) {
+                    let indices = [i];
+                    if (merge.has(res.key)) {
+                        // if merging collect all indices, then it will
+                        // try to set fields with the last index if a value is found,
+                        // otherwise will proceed to previous indices, until a value is found
+                        const _indices = merge.get(res.key);
+                        if (_indices?.length) indices = indices.concat(_indices);
+                        merge.delete(res.key);
+                    }
+                    merge.set(res.key, indices);
+                }
+            } else {
+                const res = makeKeyForRow(keyAggs, i);
+                if (res) {
+                    fieldAggMakers.forEach(
+                        makeProcessFieldAgg(getFieldAggs(res.key, i), i)
+                    );
+                }
             }
+        }
+
+        if (merge.size) {
+            [...merge.entries()].forEach(([key, indices]) => {
+                fieldAggMakers.forEach(
+                    makeProcessFieldAgg(getFieldAggs(key, indices), indices)
+                );
+            });
         }
 
         return buckets;
@@ -595,21 +641,25 @@ export class AggregationFrame<
             return this._buildBucketWithAdjustedRowIndex(builders, bucket);
         }
 
-        const [fieldAggs, startIndex] = bucket;
+        const [fieldAggs, bucketIndices] = bucket;
+        const indices = castArray(bucketIndices);
         for (const [field, builder] of builders) {
             const agg = fieldAggs.get(field);
             if (agg != null) {
                 builder.append(agg.flush().value);
             } else {
-                const value = this.getColumnOrThrow(field).vector.get(startIndex);
                 const writeIndex = builder.currentIndex++;
-                if (value != null) {
-                    // doing this is faster than append
-                    // because we KNOW it is already in a valid format
-                    builder.data.set(
-                        writeIndex,
-                        value
-                    );
+                for (const index of indices) {
+                    const value = this.getColumnOrThrow(field).vector.get(index);
+                    if (value != null) {
+                        // doing this is faster than append
+                        // because we KNOW it is already in a valid format
+                        builder.data.set(
+                            writeIndex,
+                            value
+                        );
+                        break;
+                    }
                 }
             }
         }
@@ -624,15 +674,19 @@ export class AggregationFrame<
         builders: Map<keyof T, Builder<any>>,
         [fieldAggs, startIndex]: Bucket<T>,
     ): void {
-        let useIndex = startIndex;
+        let useIndex = isArray(startIndex) ? startIndex[0] : startIndex;
         const remainingFields: (keyof T)[] = [];
 
         for (const [field, builder] of builders) {
             const agg = fieldAggs.get(field);
             if (agg != null) {
                 const res = agg.flush();
-                if (res.index != null && res.index > useIndex) {
-                    useIndex = res.index;
+
+                if (res.index != null) {
+                    const idx = isArray(res.index) ? res?.index[0] : res.index;
+                    if (idx > useIndex) {
+                        useIndex = res.index;
+                    }
                 }
                 builder.append(res.value);
             } else {
@@ -699,7 +753,7 @@ type FieldAggsMap<T extends Record<string, unknown>> = Map<keyof T, FieldAgg> & 
     adjustsSelectedRow: boolean
 };
 type Bucket<T extends Record<string, unknown>> = [
-    fieldAggs: FieldAggsMap<T>, startIndex: number
+    fieldAggs: FieldAggsMap<T>, startIndex: number|number[]
 ];
 
 interface AggBuilders<T extends Record<string, any>> {
@@ -723,7 +777,7 @@ function curryFieldAgg(
 }
 
 function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string, Bucket<T>>) {
-    return function getFieldAggs(key: string, index: number): FieldAggsMap<T> {
+    return function getFieldAggs(key: string, index: number|number[]): FieldAggsMap<T> {
         const fieldAggRes = buckets.get(key);
 
         if (!fieldAggRes) {
@@ -737,10 +791,11 @@ function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string,
 }
 
 function makeProcessFieldAgg<T extends Record<string, any>>(
-    fieldAggs: FieldAggsMap<T>, index: number
+    fieldAggs: FieldAggsMap<T>, index: number|number[]
 ) {
     return function processFieldAgg(maker: FieldAggMaker, field: keyof T) {
         let agg = fieldAggs.get(field);
+
         if (!agg) {
             agg = maker[0]();
             fieldAggs.set(field, agg);
@@ -748,6 +803,12 @@ function makeProcessFieldAgg<T extends Record<string, any>>(
         if (agg.adjustsSelectedRow) {
             fieldAggs.adjustsSelectedRow = true;
         }
-        agg.push(maker[1].get(index), index);
+        if (isArray(index)) {
+            for (const i of index) {
+                agg.push(maker[1].get(i), i);
+            }
+        } else {
+            agg.push(maker[1].get(index), index);
+        }
     };
 }

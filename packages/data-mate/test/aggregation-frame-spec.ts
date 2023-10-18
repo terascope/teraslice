@@ -952,4 +952,216 @@ describe('AggregationFrame', () => {
             });
         });
     });
+
+    describe('->mergeBy', () => {
+        type Item = {
+            name: Maybe<string>;
+            state: Maybe<string>;
+            fishing?: Maybe<boolean>;
+            boating?: Maybe<boolean>;
+            swimming?: Maybe<boolean>;
+            hiking?: Maybe<boolean>;
+            offRoad?: Maybe<boolean>;
+        };
+        let dataFrame2: DataFrame<Item>;
+
+        beforeAll(() => {
+            dataFrame2 = DataFrame.fromJSON<Item>({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    state: {
+                        type: FieldType.Keyword,
+                    },
+                    fishing: {
+                        type: FieldType.Boolean,
+                    },
+                    boating: {
+                        type: FieldType.Boolean,
+                    },
+                    swimming: {
+                        type: FieldType.Boolean,
+                    },
+                    hiking: {
+                        type: FieldType.Boolean,
+                    },
+                    offRoad: {
+                        type: FieldType.Boolean,
+                    },
+                }
+            }, [
+                {
+                    name: 'some-lake-1',
+                    fishing: true,
+                    boating: true,
+                    swimming: false,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-trail-1',
+                    offRoad: true,
+                    hiking: false,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-lake-2',
+                    fishing: true,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'AZ',
+                },
+                {
+                    name: 'some-trail-2',
+                    offRoad: false,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'AZ'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should get the right result', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .mergeBy(['state'])
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'some-trail-2',
+                    offRoad: false,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'AZ'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should create the correct results when mergeBy multiple fields', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .mergeBy('hiking', 'swimming')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'some-trail-1',
+                    offRoad: true,
+                    hiking: false,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should create the correct results when mergeBy countBy', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .mergeBy('state')
+                .count('state', 'count')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'some-trail-2',
+                    state: 'AZ',
+                    count: 2,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    hiking: true,
+                    offRoad: false
+                },
+                {
+                    name: 'some-lake-3',
+                    state: 'NY',
+                    count: 1,
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    hiking: false,
+                    offRoad: false
+                },
+                {
+                    name: 'some-trail-3',
+                    state: 'CA',
+                    count: 3,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    hiking: true,
+                    offRoad: true
+                }
+            ]);
+        });
+    });
 });
