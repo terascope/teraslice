@@ -1123,45 +1123,50 @@ describe('AggregationFrame', () => {
             ]);
         });
 
-        it('should create the correct results when mergeBy countBy', async () => {
+        it('should create the correct results when mergeBy + aggregations', async () => {
             const resultFrame = await dataFrame2
                 .aggregate()
-                .mergeBy('state')
                 .count('state', 'count')
+                .rename('name', 'mainAttraction')
+                .mergeBy('state')
+                .select('mainAttraction', 'count', 'state')
                 .run();
 
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'some-trail-2',
+                    mainAttraction: 'some-trail-2',
                     state: 'AZ',
                     count: 2,
-                    fishing: false,
-                    boating: false,
-                    swimming: false,
-                    hiking: true,
-                    offRoad: false
                 },
                 {
-                    name: 'some-lake-3',
+                    mainAttraction: 'some-lake-3',
                     state: 'NY',
                     count: 1,
-                    fishing: false,
-                    boating: false,
-                    swimming: true,
-                    hiking: false,
-                    offRoad: false
                 },
                 {
-                    name: 'some-trail-3',
+                    mainAttraction: 'some-trail-3',
                     state: 'CA',
                     count: 3,
-                    fishing: false,
-                    boating: false,
-                    swimming: false,
-                    hiking: true,
-                    offRoad: true
                 }
             ]);
+        });
+
+        it('should throw when running mergeBy -> groupBy', () => {
+            expect(() => dataFrame2
+                .aggregate()
+                .mergeBy('state')
+                .count('state', 'count')
+                .groupBy('boating')
+            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+        });
+
+        it('should throw when running groupBy -> mergeBy', () => {
+            expect(() => dataFrame2
+                .aggregate()
+                .groupBy('boating')
+                .orderBy('state')
+                .mergeBy('state')
+            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
         });
     });
 });

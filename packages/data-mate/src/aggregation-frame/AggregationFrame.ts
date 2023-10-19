@@ -119,6 +119,10 @@ export class AggregationFrame<
      * GroupBy fields
     */
     groupBy(...fieldArg: FieldArg<keyof T>[]): this {
+        if (this._merge) {
+            throw new Error('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+        }
+
         this._groupByFields = Object.freeze(this._groupByFields.concat(
             Array.from(getFieldsFromArg(this.fields, fieldArg))
         ));
@@ -129,6 +133,10 @@ export class AggregationFrame<
      * MergeBy fields
     */
     mergeBy(...fieldArg: FieldArg<keyof T>[]): this {
+        if (this._groupByFields.length) {
+            throw new Error('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+        }
+
         this._merge = true;
         this._groupByFields = Object.freeze(this._groupByFields.concat(
             Array.from(getFieldsFromArg(this.fields, fieldArg))
