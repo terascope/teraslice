@@ -15,7 +15,6 @@ terafoundation:
             default:
                 brokers:
                     - "kafka:9092"
-
 teraslice:
     worker_disconnect_timeout: 60000
     node_disconnect_timeout: 60000
@@ -25,7 +24,7 @@ teraslice:
     cluster_manager_type: "kubernetes"
     master: true
     master_hostname: "127.0.0.1"
-    kubernetes_image: "teraslice-workspace:k8se2e"
+    kubernetes_image: "teraslice-workspace:e2e"
     kubernetes_image_pull_secrets:
         - "docker-tera1-secret"
     kubernetes_namespace: "ts-dev1"
