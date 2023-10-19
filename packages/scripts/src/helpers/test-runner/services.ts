@@ -11,7 +11,8 @@ import {
     getContainerInfo,
     dockerStop,
     dockerPull,
-    kindLoadServiceImage
+    kindLoadServiceImage,
+    kindStopService
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
@@ -704,14 +705,15 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     signale.pending(`starting ${service}@${version} service...`);
 
-    await stopService(service);
     if (process.env.TEST_PLATFORM === 'kubernetes') {
-        await stopService(service); // FIXME: does this use docker
-        console.log(`@@@@@@@ loading ${service} via kind`);
+        await kindStopService(service);
         // load via kind
-        kindLoadServiceImage(service);
+        console.log(`@@@@@@@ loading ${service} via kind`);
+        await kindLoadServiceImage(service);
         return () => { };
     }
+
+    await stopService(service);
 
     console.log(`@@@@@@@ loading ${service} via docker`);
     const fn = await dockerRun(
