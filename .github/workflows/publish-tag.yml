@@ -42,7 +42,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.21.3, 16.19.1, 18.16.0]
+        # node-version: [14.21.3, 16.19.1, 18.16.0]
+        node-version: [14.21.3, 16.19.1]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -52,6 +53,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
