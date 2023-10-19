@@ -679,10 +679,10 @@ export class DataFrame<
             buckets,
             (name, i) => {
                 if (!serializeOptions) {
-                    return this.getColumnOrThrow(name).vector.get(i);
+                    return this.getColumnOrThrow(name).vector.get(i as number);
                 }
                 return this.getColumnOrThrow(name).vector.get(
-                    i, true, serializeOptions
+                    i as number, true, serializeOptions
                 );
             }
         );
