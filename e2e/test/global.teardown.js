@@ -1,6 +1,7 @@
 'use strict';
 
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
+const { k8sTearDown } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const { KEEP_OPEN, CONFIG_PATH, ASSETS_PATH } = require('./config');
 const { tearDown, TEST_INDEX_PREFIX } = require('./docker-helpers');
@@ -14,16 +15,24 @@ async function getClient(client) {
 }
 
 async function globalTeardown(testClient) {
-    const client = await getClient(testClient);
+    console.log('@@@@@@@@ testClient: ', testClient);
+    console.log('@@@@@@@@ KEEP_OPEN?: ', KEEP_OPEN);
 
     if (KEEP_OPEN) {
         return;
     }
+    console.log('@@@@@@@@ past KEEP_OPEN');
+
+    const client = await getClient(testClient);
 
     const errors = [];
 
     try {
-        await tearDown();
+        if (process.env.TEST_PATTERN === 'kubernetes') {
+            await k8sTearDown();
+        } else {
+            await tearDown();
+        }
     } catch (err) {
         errors.push(err);
     }

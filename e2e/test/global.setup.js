@@ -1,7 +1,9 @@
 'use strict';
 
 const { pDelay } = require('@terascope/utils');
-const { getE2eK8sDir, deployK8sTeraslice, destroyKindCluster } = require('@terascope/scripts');
+const {
+    getE2eK8sDir, deployK8sTeraslice, setAlias, deployElasticsearchAssets, deployStandardAssets
+} = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
 const globalTeardown = require('./global.teardown');
@@ -15,10 +17,8 @@ module.exports = async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();// create TS and ES or OS clients
 
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
-        await destroyKindCluster();
-    } else {
-        await globalTeardown(teraslice.client); // docker compose down and ES or OS teardown
+    if (process.env.TEST_PLATFORM === 'native') {
+        await globalTeardown(teraslice.client); // docker compose down and ES teardown FIXME for k8s
     }
     await teraslice.resetLogs();
 
@@ -37,17 +37,27 @@ module.exports = async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
+    // FIXME: config diff between k8s and native
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);
+
+    // await pDelay(10000);
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         const e2eK8sDir = getE2eK8sDir();
-        await deployK8sTeraslice(e2eK8sDir, 'kindConfig.yaml');
+        await deployK8sTeraslice(e2eK8sDir, 'masterDeployment.yaml');
     } else {
-        await dockerUp(); // create TS master and workers from docker-compose file
+        await dockerUp();
     }
+
     await teraslice.waitForTeraslice();
     await pDelay(2000);
     await teraslice.resetState();
+
+    if (process.env.TEST_PLATFORM === 'kubernetes') {
+        await setAlias();
+        await deployElasticsearchAssets();
+        await deployStandardAssets();
+    }
 
     try {
         await teraslice.generateTestData();

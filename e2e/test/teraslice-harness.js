@@ -9,6 +9,7 @@ const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store'
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
 const fse = require('fs-extra');
+const { resetTeraslice } = require('@terascope/scripts');
 const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
@@ -23,7 +24,7 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
 module.exports = class TerasliceHarness {
     async init() {
-        const { client } = await createClient({ node: TEST_HOST });
+        const { client } = await createClient({ node: TEST_HOST });// create ES or OS db
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:45678`,
@@ -113,11 +114,16 @@ module.exports = class TerasliceHarness {
                 );
             })(),
             (async () => {
-                const count = Object.keys(state).length;
-                if (count !== DEFAULT_NODES) {
-                    signale.warn(`resetting cluster state of ${count} nodes`);
-                    await scaleWorkers();
-                    await this.forWorkers();
+                if (process.env.TEST_PLATFORM === 'kubernetes') {
+                    // FIXME: scale workers in k8s????????
+                } else {
+                    console.log('@@@@@@@ else');
+                    const count = Object.keys(state).length;
+                    if (count !== DEFAULT_NODES) {
+                        signale.warn(`resetting cluster state of ${count} nodes`);
+                        await scaleWorkers();
+                        await this.forWorkers();
+                    }
                 }
             })()
         ]);
@@ -350,6 +356,9 @@ module.exports = class TerasliceHarness {
                 return _waitForClusterState();
             }
 
+            if (process.env.TEST_PLATFORM === 'kubernetes') {
+                if (nodes === 0) return nodes;
+            }
             if (nodes >= DEFAULT_NODES) return nodes;
             return _waitForClusterState();
         };
@@ -390,7 +399,12 @@ module.exports = class TerasliceHarness {
         signale.pending('Waiting for Teraslice...');
 
         const nodes = await this.waitForClusterState();
-        signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
+
+        if (process.env.TEST_PLATFORM === 'kubernetes') {
+            signale.success('Teraslice is ready to go', getElapsed(startTime));
+        } else {
+            signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
+        }
     }
 
     async postJob(jobSpec) {
