@@ -2,7 +2,7 @@
 
 const { pDelay } = require('@terascope/utils');
 const {
-    getE2eK8sDir, deployK8sTeraslice, setAlias, deployElasticsearchAssets, deployStandardAssets
+    getE2eK8sDir, deployK8sTeraslice, setAlias, deployElasticsearchAssets, deployStandardAssets, deployKafkaAssets
 } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
@@ -57,6 +57,7 @@ module.exports = async () => {
         await setAlias();
         await deployElasticsearchAssets();
         await deployStandardAssets();
+        await deployKafkaAssets();
     }
 
     try {
