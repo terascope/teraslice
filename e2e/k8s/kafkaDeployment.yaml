@@ -19,10 +19,14 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: sotojn6/kafka:3.3
+        image: terascope/kafka-zookeeper:v1.1.0
+        env:
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: PLAINTEXT://kafka:9092
+          - name: host.name
+            value: kafka
         ports:
         - containerPort: 9092
-
 ---
 kind: Service
 apiVersion: v1
