@@ -17,6 +17,8 @@ import {
     isKubectlInstalled,
     createNamespace,
     k8sSetup,
+    loadTerasliceImage,
+    destroyKindCluster,
 } from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
@@ -225,18 +227,19 @@ async function runE2ETest(
             signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools/');
             process.exit(1);
         }
-        // TODO: pass kind config file in as a variable
+        // TODO: pass kind config files in as variables
+        // FIXME: error handling
         await createKindCluster(e2eK8sDir, 'kindConfig.yaml');
-        await createNamespace();
+        await createNamespace(e2eK8sDir, 'ns.yaml');
         await k8sSetup(e2eK8sDir, 'role.yaml', 'roleBinding.yaml', 'priorityClass.yaml');
     }
 
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e`;
 
-    if (isCI) {
+    if (isCI && process.env.TEST_PLATFORM === 'native') {
         // pull the services first in CI
-        await pullServices(suite, options); // FIXME: if in k8s run different function
+        await pullServices(suite, options);
     }
 
     try {
@@ -256,10 +259,14 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
+    if (process.env.TEST_PLATFORM === 'kubernetes') {
+        await loadTerasliceImage(e2eImage); // FIXME: move to global.setup?
+    }
+
     try {
         tracker.addCleanup(
             'e2e:services',
-            await ensureServices(suite, options) // FIXME: if in k8s run different function
+            await ensureServices(suite, options)
         );
     } catch (err) {
         tracker.addError(err);
@@ -314,6 +321,10 @@ async function runE2ETest(
             }]);
         });
     }
+
+    // if (process.env.TEST_PLATFORM === 'kubernetes') {
+    //     await destroyKindCluster();
+    // }
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {
