@@ -16,7 +16,7 @@ spec:
       labels:
         app: teraslice
         nodeType: master
-        clusterName: ts-dev1
+        clusterName: k8se2e
     spec:
       containers:
       - name: teraslice-master
