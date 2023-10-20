@@ -21,12 +21,12 @@ spec:
       - name: kafka
         image: terascope/kafka-zookeeper:v1.1.0
         env:
-          - name: KAFKA_ADVERTISED_LISTENERS
-            value: PLAINTEXT://kafka:9092
-          - name: host.name
+          - name: ADVERTISED_HOST
             value: kafka
+          - name: ADVERTISED_PORT
+            value: "9093"
         ports:
-        - containerPort: 9092
+        - containerPort: 9093
 ---
 kind: Service
 apiVersion: v1
@@ -35,11 +35,12 @@ metadata:
   labels:
     app: kafka
 spec:
+  type: NodePort
   selector:
       app: kafka
       nodeType: master
   ports:
-  - port: 9092
-    targetPort: 9092
-    nodePort: 30092  # the external port teraslice can be accessed on
-  type: NodePort
+  - port: 9093
+    name: kafka
+    targetPort: 9093
+    nodePort: 30092

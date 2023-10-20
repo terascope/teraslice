@@ -14,7 +14,7 @@ terafoundation:
         kafka:
             default:
                 brokers:
-                    - "kafka:9092"
+                    - "kafka:9093"
 teraslice:
     worker_disconnect_timeout: 60000
     node_disconnect_timeout: 60000
