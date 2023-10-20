@@ -952,4 +952,221 @@ describe('AggregationFrame', () => {
             });
         });
     });
+
+    describe('->mergeBy', () => {
+        type Item = {
+            name: Maybe<string>;
+            state: Maybe<string>;
+            fishing?: Maybe<boolean>;
+            boating?: Maybe<boolean>;
+            swimming?: Maybe<boolean>;
+            hiking?: Maybe<boolean>;
+            offRoad?: Maybe<boolean>;
+        };
+        let dataFrame2: DataFrame<Item>;
+
+        beforeAll(() => {
+            dataFrame2 = DataFrame.fromJSON<Item>({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    state: {
+                        type: FieldType.Keyword,
+                    },
+                    fishing: {
+                        type: FieldType.Boolean,
+                    },
+                    boating: {
+                        type: FieldType.Boolean,
+                    },
+                    swimming: {
+                        type: FieldType.Boolean,
+                    },
+                    hiking: {
+                        type: FieldType.Boolean,
+                    },
+                    offRoad: {
+                        type: FieldType.Boolean,
+                    },
+                }
+            }, [
+                {
+                    name: 'some-lake-1',
+                    fishing: true,
+                    boating: true,
+                    swimming: false,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-trail-1',
+                    offRoad: true,
+                    hiking: false,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-lake-2',
+                    fishing: true,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'AZ',
+                },
+                {
+                    name: 'some-trail-2',
+                    offRoad: false,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'AZ'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should get the right result', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .mergeBy(['state'])
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'some-trail-2',
+                    offRoad: false,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'AZ'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should create the correct results when mergeBy multiple fields', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .mergeBy('hiking', 'swimming')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'some-trail-1',
+                    offRoad: true,
+                    hiking: false,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+                {
+                    name: 'some-lake-3',
+                    fishing: false,
+                    boating: false,
+                    swimming: true,
+                    offRoad: false,
+                    hiking: false,
+                    state: 'NY',
+                },
+                {
+                    name: 'some-trail-3',
+                    offRoad: true,
+                    hiking: true,
+                    fishing: false,
+                    boating: false,
+                    swimming: false,
+                    state: 'CA'
+                },
+            ]);
+        });
+
+        it('should create the correct results when mergeBy + aggregations', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .count('state', 'count')
+                .rename('name', 'mainAttraction')
+                .mergeBy('state')
+                .select('mainAttraction', 'count', 'state')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    mainAttraction: 'some-trail-2',
+                    state: 'AZ',
+                    count: 2,
+                },
+                {
+                    mainAttraction: 'some-lake-3',
+                    state: 'NY',
+                    count: 1,
+                },
+                {
+                    mainAttraction: 'some-trail-3',
+                    state: 'CA',
+                    count: 3,
+                }
+            ]);
+        });
+
+        it('should throw when running mergeBy -> groupBy', () => {
+            expect(() => dataFrame2
+                .aggregate()
+                .mergeBy('state')
+                .count('state', 'count')
+                .groupBy('boating')
+            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+        });
+
+        it('should throw when running groupBy -> mergeBy', () => {
+            expect(() => dataFrame2
+                .aggregate()
+                .groupBy('boating')
+                .orderBy('state')
+                .mergeBy('state')
+            ).toThrowError('AggregationFrame.groupBy and AggregationFrame.mergeBy running at the same time is not currently supported');
+        });
+    });
 });
