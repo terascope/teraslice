@@ -2,9 +2,7 @@
 
 const { Router } = require('express');
 const bodyParser = require('body-parser');
-const stream = require('stream');
-const { promisify } = require('util');
-const got = require('got');
+const { pipeline: streamPipeline } = require('node:stream/promises');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
     parseErrorInfo, parseList, logError, TSError, startsWith
@@ -20,7 +18,15 @@ const {
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
-const pStreamPipeline = promisify(stream.pipeline);
+
+let gotESMModule;
+
+async function getGotESM() {
+    if (gotESMModule) return gotESMModule;
+    const module = await import('gotESM'); // eslint-disable-line
+    gotESMModule = module.default;
+    return module.default;
+}
 
 module.exports = function apiService(context, { assetsUrl, app }) {
     const clusterConfig = context.sysconfig.teraslice;
@@ -488,23 +494,24 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     }
 
     async function _redirect(req, res) {
+        const module = await getGotESM()
         const options = {
             prefixUrl: assetsUrl,
             headers: req.headers,
             searchParams: req.query,
             throwHttpErrors: false,
-            timeout: clusterConfig.api_response_timeout,
+            timeout: { request: clusterConfig.api_response_timeout },
             decompress: false,
-            retry: 0
+            retry: { limit: 0 }
         };
 
         const uri = req.url.replace(/^\//, '');
         const method = req.method.toLowerCase();
 
         try {
-            await pStreamPipeline(
+            await streamPipeline(
                 req,
-                got.stream[method](uri, options),
+                module.stream[method](uri, options),
                 res,
             );
         } catch (err) {
