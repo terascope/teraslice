@@ -14,7 +14,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: 14.21.3
+        node-version: 18.16.0
         cache: 'yarn'
 
     - name: Install and build packages
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.21.3, 16.19.1, 18.16.0]
+        node-version: [16.19.1, 18.16.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -57,7 +57,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [14.21.3, 16.19.1, 18.16.0]
+        node-version: [16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -91,7 +91,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [14.21.3, 16.19.1, 18.16.0]
+        node-version: [16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -129,7 +129,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14.21.3
+          node-version: 18.16.0
           cache: 'yarn'
 
       # we login to docker to avoid docker pull limit rates
@@ -154,7 +154,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [14.21.3, 16.19.1, 18.16.0]
+        node-version: [16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -193,7 +193,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14.21.3
+          node-version: 18.16.0
           cache: 'yarn'
 
       # we login to docker to avoid docker pull limit rates
@@ -218,10 +218,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        # temporarily remove node18 from the e2e tests since they fail, see:
-        #   https://github.com/terascope/teraslice/issues/3434
-        # node-version: [14.21.3, 16.19.1, 18.16.0]
-        node-version: [14.21.3, 16.19.1]
+        node-version: [16.19.1, 18.16.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
