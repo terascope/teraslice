@@ -18,7 +18,6 @@ const {
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
-
 let gotESMModule;
 
 async function getGotESM() {
@@ -494,7 +493,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     }
 
     async function _redirect(req, res) {
-        const module = await getGotESM()
+        const module = await getGotESM();
         const options = {
             prefixUrl: assetsUrl,
             headers: req.headers,
