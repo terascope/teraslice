@@ -8,19 +8,19 @@ import {
 } from '../vector';
 
 /**
- * Since Vectors are immutable, a Builder can be to construct a
+ * Since Vectors are immutable, a Builder can be used to construct a
  * Vector. When values are inserted they are coerced and validated.
 */
 export abstract class Builder<T = unknown> {
     /**
-     * Make a instance of a Builder from a DataTypeField config
+     * Make an instance of a Builder from a DataTypeFieldConfig
     */
     static make<R = unknown>(
         data: WritableData<R>,
         options: BuilderOptions,
     ): Builder<R> {
         throw new Error(
-            `This will functionality replaced in the index file
+            `This functionality will be replaced in the index file
             ${options} ${length} ${data}`
         );
     }
@@ -47,7 +47,7 @@ export abstract class Builder<T = unknown> {
     }
 
     /**
-     * The type of Vector, this should only be set the specific Vector type classes.
+     * The type of Vector, this should only be set with the specific Vector type classes.
     */
     readonly type: VectorType;
 
