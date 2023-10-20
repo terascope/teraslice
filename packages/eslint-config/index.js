@@ -5,7 +5,7 @@ const { rules, overrides } = require('./lib');
 module.exports = {
     extends: ['airbnb-base'],
     parserOptions: {
-        ecmaVersion: 2019,
+        ecmaVersion: 'latest',
         sourceType: 'script',
     },
     env: {
