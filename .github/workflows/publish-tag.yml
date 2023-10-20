@@ -42,8 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # node-version: [14.21.3, 16.19.1, 18.16.0]
-        node-version: [14.21.3, 16.19.1]
+        node-version: [16.19.1, 18.16.0]
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
