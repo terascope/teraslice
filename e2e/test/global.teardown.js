@@ -1,10 +1,12 @@
 'use strict';
 
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { k8sTearDown } = require('@terascope/scripts');
+const { tearDownTerasliceK8s } = require('@terascope/scripts');
 const fse = require('fs-extra');
-const { KEEP_OPEN, CONFIG_PATH, ASSETS_PATH } = require('./config');
-const { tearDown, TEST_INDEX_PREFIX } = require('./docker-helpers');
+const {
+    KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX
+} = require('./config');
+const { tearDown } = require('./docker-helpers');
 const signale = require('./signale');
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
@@ -15,13 +17,9 @@ async function getClient(client) {
 }
 
 async function globalTeardown(testClient) {
-    console.log('@@@@@@@@ testClient: ', testClient);
-    console.log('@@@@@@@@ KEEP_OPEN?: ', KEEP_OPEN);
-
     if (KEEP_OPEN) {
         return;
     }
-    console.log('@@@@@@@@ past KEEP_OPEN');
 
     const client = await getClient(testClient);
 
@@ -29,14 +27,14 @@ async function globalTeardown(testClient) {
 
     try {
         if (process.env.TEST_PATTERN === 'kubernetes') {
-            await k8sTearDown();
+            await tearDownTerasliceK8s();
         } else {
             await tearDown();
         }
     } catch (err) {
         errors.push(err);
     }
-
+    console.log('@@@@@ global.teardown, TEST_INDEX_PREFIX: ', TEST_INDEX_PREFIX);
     await cleanupIndex(client, `${TEST_INDEX_PREFIX}*`);
 
     if (fse.existsSync(CONFIG_PATH)) {

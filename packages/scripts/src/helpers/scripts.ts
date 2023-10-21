@@ -166,12 +166,6 @@ export async function runJest(
         signale.debug(`executing: jest ${args.join(' ')}`);
     }
 
-    console.log('######## cwd: ', cwd);
-    console.log('######## argsMap: ', argsMap);
-    console.log('######## args: ', args);
-    console.log('######## env: ', env);
-    console.log('######## extraArgs: ', extraArgs);
-
     await fork({
         cmd: 'jest',
         cwd,
@@ -836,20 +830,17 @@ function PromiseTimeout(delayms: number) {
     });
 }
 
-export async function takeDownTeraslice() {
-    const subprocess = await execa.command('kubectl delete --namespace ts-dev1 deployments,jobs,services,pods -l app=teraslice --grace-period=1');
-    console.log('resetTeraslice subprocess: ', subprocess);
-}
-
 export async function resetTeraslice(e2eK8sDir: string, masterDeploymentYaml: string) {
-    await takeDownTeraslice();
+    await tearDownTerasliceK8s();
     await deployK8sTeraslice(e2eK8sDir, masterDeploymentYaml);
 }
 
-export async function k8sTearDown() {
-    await takeDownTeraslice(); // FIXME: or reset
+export async function tearDownTerasliceK8s() {
+    let subprocess = await execa.command('kubectl delete --namespace ts-dev1 deployments,jobs,services,pods -l app=teraslice --grace-period=1');
+    console.log('resetTeraslice subprocess: ', subprocess);
+
     /// Creates configmap for teraslice-worker
-    let subprocess = await execa.command('kubectl delete --namespace ts-dev1 configmap teraslice-master || echo "* it is okay..."');
+    subprocess = await execa.command('kubectl delete --namespace ts-dev1 configmap teraslice-master || echo "* it is okay..."');
     console.log('workerConfig subprocess: ', subprocess);
 
     /// Creates deployment for teraslice

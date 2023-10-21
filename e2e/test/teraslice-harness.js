@@ -9,7 +9,6 @@ const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store'
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
 const fse = require('fs-extra');
-const { resetTeraslice } = require('@terascope/scripts');
 const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
@@ -114,16 +113,18 @@ module.exports = class TerasliceHarness {
                 );
             })(),
             (async () => {
-                if (process.env.TEST_PLATFORM === 'kubernetes') {
-                    // FIXME: scale workers in k8s????????
-                } else {
-                    console.log('@@@@@@@ else');
+                if (process.env.TEST_PLATFORM === 'native') {
                     const count = Object.keys(state).length;
                     if (count !== DEFAULT_NODES) {
                         signale.warn(`resetting cluster state of ${count} nodes`);
                         await scaleWorkers();
                         await this.forWorkers();
                     }
+                } else {
+                    // Do nothing
+                    // TODO: If tests are ever implemented to scale nodes in Kind,
+                    // a scaleWorkers implementation will need to be created that works with Kind.
+                    // As of 10/2023 Kind doesn't let you scale nodes w/o restarting the cluster.
                 }
             })()
         ]);
