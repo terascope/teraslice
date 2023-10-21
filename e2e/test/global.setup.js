@@ -2,7 +2,12 @@
 
 const { pDelay } = require('@terascope/utils');
 const {
-    getE2eK8sDir, deployK8sTeraslice, setAlias, deployElasticsearchAssets, deployStandardAssets, deployKafkaAssets
+    getE2eK8sDir,
+    deployK8sTeraslice,
+    setAlias,
+    deployElasticsearchAssets,
+    deployStandardAssets,
+    deployKafkaAssets
 } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
@@ -15,7 +20,7 @@ const { CONFIG_PATH, ASSETS_PATH } = require('./config');
 
 module.exports = async () => {
     const teraslice = new TerasliceHarness();
-    await teraslice.init();// create TS and ES or OS clients
+    await teraslice.init();
 
     if (process.env.TEST_PLATFORM === 'native') {
         await globalTeardown(teraslice.client); // docker compose down and ES teardown FIXME for k8s
@@ -37,15 +42,11 @@ module.exports = async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
-    // FIXME: config diff between k8s and native
-    await Promise.all([setupTerasliceConfig(), downloadAssets()]);
-
-    // await pDelay(10000);
-
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         const e2eK8sDir = getE2eK8sDir();
         await deployK8sTeraslice(e2eK8sDir, 'masterDeployment.yaml');
     } else {
+        await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
     }
 
