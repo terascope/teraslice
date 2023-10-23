@@ -137,8 +137,6 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
 };
 
 export async function pullServices(suite: string, options: TestOptions): Promise<void> {
-    console.log('@@@ in pull services');
-
     const launchServices = getServicesForSuite(suite);
 
     try {
@@ -193,7 +191,6 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 }
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
-    console.log('@@@ in ensure services');
     const launchServices = getServicesForSuite(suite);
 
     const promises: Promise<(() => void)>[] = [];
@@ -685,8 +682,6 @@ async function checkKafka(options: TestOptions, startTime: number) {
 }
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
-    console.log('in startService: ', service);
-
     let serviceName = service;
 
     if (serviceName === 'restrained_elasticsearch') {
@@ -707,15 +702,15 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         await kindStopService(service);
-        // load via kind
-        console.log(`@@@@@@@ loading ${service} via kind`);
+
+        // console.log(`@@@@@@@ loading ${service} via kind`);
         await kindLoadServiceImage(service);
         return () => { };
     }
 
     await stopService(service);
 
-    console.log(`@@@@@@@ loading ${service} via docker`);
+    // console.log(`@@@@@@@ loading ${service} via docker`);
     const fn = await dockerRun(
         services[service],
         version,
@@ -723,7 +718,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         options.debug || options.trace
     );
 
-    console.log('@@@@@ fn(): ', fn.toString());
     return () => {
         try {
             fn();
@@ -735,5 +729,4 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             );
         }
     };
-
 }

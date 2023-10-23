@@ -5,9 +5,7 @@ const {
     getE2eK8sDir,
     deployK8sTeraslice,
     setAlias,
-    deployElasticsearchAssets,
-    deployStandardAssets,
-    deployKafkaAssets
+    deployAssets
 } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
@@ -22,9 +20,7 @@ module.exports = async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 
-    if (process.env.TEST_PLATFORM === 'native') {
-        await globalTeardown(teraslice.client); // docker compose down and ES teardown FIXME for k8s
-    }
+    await globalTeardown(teraslice.client);
     await teraslice.resetLogs();
 
     process.stdout.write('\n');
@@ -56,9 +52,9 @@ module.exports = async () => {
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         await setAlias();
-        await deployElasticsearchAssets();
-        await deployStandardAssets();
-        await deployKafkaAssets();
+        await deployAssets('elasticsearch');
+        await deployAssets('standard');
+        await deployAssets('kafka');
     }
 
     try {
