@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "0.86.5",
+    "version": "0.87.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -56,6 +56,7 @@
         "fs-extra": "^11.1.1",
         "gc-stats": "^1.4.0",
         "got": "^11.8.3",
+        "gotESM": "npm:got@^13.0.0",
         "ip": "^1.1.8",
         "kubernetes-client": "^9.0.0",
         "lodash": "^4.17.21",
