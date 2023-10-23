@@ -34,7 +34,6 @@ async function globalTeardown(testClient) {
     } catch (err) {
         errors.push(err);
     }
-    console.log('@@@@@ global.teardown, TEST_INDEX_PREFIX: ', TEST_INDEX_PREFIX);
     await cleanupIndex(client, `${TEST_INDEX_PREFIX}*`);
 
     if (fse.existsSync(CONFIG_PATH)) {

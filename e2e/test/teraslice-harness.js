@@ -358,6 +358,8 @@ module.exports = class TerasliceHarness {
             }
 
             if (process.env.TEST_PLATFORM === 'kubernetes') {
+                // A get request to 'cluster/state' will return an empty object in kubernetes.
+                // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
             }
             if (nodes >= DEFAULT_NODES) return nodes;
