@@ -4,7 +4,7 @@ import isIP from 'is-ip';
 import {
     isInfiniteMin, isInfiniteMax, ParsedRange
 } from 'xlucene-parser';
-import { getTypeOf, isString } from '@terascope/utils';
+import { getTypeOf, isString, isNonZeroCidr } from '@terascope/utils';
 import { MatchValueFn } from './interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -41,7 +41,7 @@ export function ipTerm(value: unknown): MatchValueFn {
         if (!isString(ip)) {
             throw new TypeError(`Expected string for IP term match, got ${ip} (${getTypeOf(ip)})`);
         }
-        if (isCidr(ip) > 0) {
+        if (isNonZeroCidr(ip)) {
             const argRange = ip6addr.createCIDR(ip);
             return argRange.contains(`${value}`);
         }
@@ -90,7 +90,7 @@ function pRangeTerm(range: ip6addr.AddrRange): MatchValueFn {
         if (!isString(ip)) {
             throw new TypeError(`Expected string for IP Range match, got ${ip} (${getTypeOf(ip)})`);
         }
-        if (isCidr(ip) > 0) {
+        if (isNonZeroCidr(ip)) {
             return checkCidr(ip, range);
         }
         if (isIP(ip)) return range.contains(ip);

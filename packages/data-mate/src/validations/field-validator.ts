@@ -2,7 +2,6 @@ import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
 import _isIP from 'is-ip';
 import ip6addr from 'ip6addr';
-import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
@@ -604,7 +603,7 @@ export function isCIDR(input: unknown, _parentContext?: unknown): boolean {
 
 function _isCidr(input: unknown, _parentContext?: unknown): boolean {
     if (!ts.isString(input)) return false;
-    return validateCidr(input) > 0;
+    return ts.isNonZeroCidr(input);
 }
 
 /**
