@@ -1,46 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka
+  name: cpkafka
   labels:
-      app: kafka
+      app: cpkafka
       nodeType: master
 spec:
   replicas: 1
   selector:
       matchLabels:
-          app: kafka
+          app: cpkafka
           nodeType: master
   template:
     metadata:
       labels:
-        app: kafka
+        app: cpkafka
         nodeType: master
     spec:
       containers:
-      - name: kafka
-        image: terascope/kafka-zookeeper:v1.1.0
+      - name: cpkafka
+        image: confluentinc/cp-kafka:7.2.0
         env:
-          - name: ADVERTISED_HOST
-            value: kafka
-          - name: ADVERTISED_PORT
-            value: "9093"
+          - name: KAFKA_BROKER_ID
+            value: "1"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: zookeeper:2181
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: INTERNAL://cpkafka:9092
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: INTERNAL:PLAINTEXT
+          - name: KAFKA_INTER_BROKER_LISTENER_NAME
+            value: INTERNAL
+          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+            value: "1"
         ports:
-        - containerPort: 9093
+        - containerPort: 9092
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: kafka
+  name: cpkafka
   labels:
-    app: kafka
+    app: cpkafka
 spec:
   type: NodePort
   selector:
-      app: kafka
+      app: cpkafka
       nodeType: master
   ports:
-  - port: 9093
-    name: kafka
-    targetPort: 9093
+  - port: 9092
+    name: cpkafka
+    targetPort: 9092
     nodePort: 30092

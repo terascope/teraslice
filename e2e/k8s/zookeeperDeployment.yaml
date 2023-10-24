@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  labels:
+      app: zookeeper
+      nodeType: master
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          app: zookeeper
+          nodeType: master
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+        nodeType: master
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.2.0
+        env:
+          - name: ZOOKEEPER_CLIENT_PORT
+            value: "2181"
+          - name: ZOOKEEPER_TICK_TIME
+            value: "2000"
+        ports:
+        - containerPort: 2181
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  type: NodePort
+  selector:
+      app: zookeeper
+      nodeType: master
+  ports:
+  - port: 2181
+    name: zookeeper
+    targetPort: 2181
+    nodePort: 32181
