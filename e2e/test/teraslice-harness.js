@@ -5,6 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
+const { deleteWorkerDeploymentsAndPods, showState } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -90,6 +91,14 @@ module.exports = class TerasliceHarness {
         await Promise.all([
             pDelay(800),
             cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`),
+            (async () => {
+                if (process.env.TEST_PLATFORM === 'kubernetes') {
+                    await showState();
+                    await deleteWorkerDeploymentsAndPods();
+                } else {
+                    // Do nothing
+                }
+            })(),
             (async () => {
                 const cleanupExIds = [];
                 Object.values(state).forEach((node) => {

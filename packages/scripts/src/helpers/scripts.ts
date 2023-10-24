@@ -633,21 +633,27 @@ export async function kindStopService(serviceName: string): Promise<void> {
 }
 
 export async function kindLoadServiceImage(serviceName: string): Promise<void> {
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
+    // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
+    const fileName = `${serviceName}Deployment.yaml`;
+
+    async function createFromYaml(yamlFile: string) {
+        const e2eK8sDir = getE2eK8sDir();
+        if (!e2eK8sDir) {
+            throw new Error('Missing k8s e2e test directory');
+        }
+
+        try {
+            const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+            signale.info(subprocess.stdout);
+        } catch (err) {
+            signale.error(`The service ${serviceName} could not be loaded.`);
+        }
     }
 
-    try {
-        // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
-        const yamlFile = `${serviceName}Deployment.yaml`;
-        const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
-        signale.info(subprocess.stdout);
-    } catch (err) {
-        signale.error(`The service ${serviceName} could not be loaded.`);
-    }
+    await createFromYaml(fileName);
 
     if (serviceName === 'kafka') {
+        await createFromYaml('zookeeperDeployment.yaml');
         await waitForKafkaRunning(240000);
     }
 }
@@ -747,6 +753,19 @@ export async function deployAssets(assetName: string) {
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
 
+export async function deleteWorkerDeploymentsAndPods() {
+    try {
+        let subprocess = await execa.command('kubectl -n ts-dev1 delete deployments -l app.kubernetes.io/component=worker');
+        signale.info(subprocess.stdout);
+        console.log('deleteWorkerDeployments subprocess: ', subprocess);
+        subprocess = await execa.command('kubectl -n ts-dev1 delete pods -l app.kubernetes.io/component=execution_controller');
+        signale.info(subprocess.stdout);
+        console.log('deleteWorkerDeployments subprocess: ', subprocess);
+    } catch (err) {
+        signale.error('Error deleting worker deployments: ', err);
+    }
+}
+
 // FIXME: delete before merging - for testing
 export async function showState() {
     const subprocess = await execa.command('kubectl -n ts-dev1 get deployments,po,svc -o wide');
@@ -773,8 +792,8 @@ export async function tearDownTerasliceK8s() {
         signale.info(subprocess.stdout);
         // console.log('delete configmap master subprocess: ', subprocess);
     } catch (err) {
-        console.log(err)
-        signale.warn(err);
+        console.log(err);
+        signale.info('info: ', err);
     }
     try {
         const subprocess = await execa.command('kubectl delete -n ts-dev1 configmap teraslice-worker');
@@ -782,7 +801,7 @@ export async function tearDownTerasliceK8s() {
         // console.log('delete configmap worker subprocess: ', subprocess);
     } catch (err) {
         // Do nothing
-        console.log(err)
-        signale.warn(err);
+        console.log(err);
+        signale.warn('warn: ', err);
     }
 }
