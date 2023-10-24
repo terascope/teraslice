@@ -702,15 +702,12 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
         await kindStopService(service);
-
-        // console.log(`@@@@@@@ loading ${service} via kind`);
         await kindLoadServiceImage(service);
         return () => { };
     }
 
     await stopService(service);
 
-    // console.log(`@@@@@@@ loading ${service} via docker`);
     const fn = await dockerRun(
         services[service],
         version,

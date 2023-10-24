@@ -545,7 +545,6 @@ export async function createKindCluster(): Promise<void> {
 }
 
 export async function destroyKindCluster(): Promise<void> {
-    // TODO: pass cluster name in as variable
     const subprocess = await execa.command('kind delete cluster --name k8se2e');
     signale.info(subprocess.stderr);
 }
@@ -556,7 +555,6 @@ export async function isKindInstalled(): Promise<boolean> {
         // console.log('kind subprocess: ', subprocess);
         return !!subprocess.stdout;
     } catch (err) {
-        // console.log(err);
         return false;
     }
 }
@@ -594,7 +592,7 @@ export async function loadTerasliceImage(terasliceImage: string): Promise<void> 
 //         let terasliceLoaded = false;
 //         try {
 //             // docker exec into kind-control-plane
-//             // crictl images -o json
+//             // docker exec -it k8se2e crictl images -o json
 //             // find repo tag "docker.io/library/teraslice-workspace:e2e"
 //             const kubectlResponse = await execa.command('');
 //             const kindFinished = kubectlResponse.stdout;
@@ -622,6 +620,7 @@ export async function kindStopService(serviceName: string): Promise<void> {
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
     }
+
     try {
         // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
         const yamlFile = `${serviceName}Deployment.yaml`;
@@ -633,47 +632,24 @@ export async function kindStopService(serviceName: string): Promise<void> {
     }
 }
 
-// FIXME: refactor
 export async function kindLoadServiceImage(serviceName: string): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
     }
-    if (serviceName === 'elasticsearch') {
-        await deployElasticsearch(e2eK8sDir, 'elasticsearchDeployment.yaml');
-    } else if (serviceName === 'kafka') {
-        await deployKafka(e2eK8sDir, 'kafkaDeployment.yaml', 'zookeeperDeployment.yaml');
-    } else {
-        signale.error(`The service ${serviceName} is not avalable in the kubernetes test platform.`);
+
+    try {
+        // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
+        const yamlFile = `${serviceName}Deployment.yaml`;
+        const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+        signale.info(subprocess.stdout);
+    } catch (err) {
+        signale.error(`The service ${serviceName} could not be loaded.`);
     }
-}
 
-export async function createNamespace() {
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
+    if (serviceName === 'kafka') {
+        await waitForKafkaRunning(240000);
     }
-    const subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, 'ns.yaml')}`);
-    signale.info(subprocess.stdout);
-    // console.log('namespace subprocess: ', subprocess);
-}
-
-export async function deployElasticsearch(e2eK8sDir: string, elasticsearchYaml: string) {
-    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, elasticsearchYaml)}`);
-    signale.info(subprocess.stdout);
-    // console.log('deployElasticsearch subprocess: ', subprocess);
-}
-
-export async function deployKafka(
-    e2eK8sDir: string,
-    kafkaDeploymentYaml: string,
-    zookeeperDeploymentYaml: string
-) {
-    const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, kafkaDeploymentYaml)}`);
-    signale.info(subprocess.stdout);
-    // console.log('deployKafka subprocess: ', subprocess);
-
-    await waitForKafkaRunning(240000);
 }
 
 function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
@@ -686,7 +662,7 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse: execa.ExecaReturnValue<string> = await execa.command('kubectl -n ts-dev1 get pods -l app=kafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse: execa.ExecaReturnValue<string> = await execa.command('kubectl -n ts-dev1 get pods -l app=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
             const kafkaReady = kubectlResponse.stdout;
             // console.log('kafka response: ', kafkaReady);
             if (kafkaReady === '"true"') {
@@ -705,6 +681,16 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
     };
 
     return _waitForKafkaRunning();
+}
+
+export async function createNamespace() {
+    const e2eK8sDir = getE2eK8sDir();
+    if (!e2eK8sDir) {
+        throw new Error('Missing k8s e2e test directory');
+    }
+    const subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, 'ns.yaml')}`);
+    signale.info(subprocess.stdout);
+    // console.log('namespace subprocess: ', subprocess);
 }
 
 export async function k8sSetup(): Promise<void> {
@@ -740,8 +726,10 @@ export async function deployK8sTeraslice(
         subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, masterDeploymentYaml)}`);
         // console.log('masterDeploy subprocess: ', subprocess);
         signale.info(subprocess.stdout);
-    } catch (error) {
-        signale.error('Error in deployK8sTeraslice function: ', error);
+    } catch (err) {
+        signale.error('Error deploying Teraslice');
+        signale.error(err);
+        process.exit(1);
     }
 }
 
@@ -773,14 +761,28 @@ export async function resetTeraslice(e2eK8sDir: string, masterDeploymentYaml: st
 }
 
 export async function tearDownTerasliceK8s() {
-    let subprocess = await execa.command('kubectl delete --namespace ts-dev1 deployments,jobs,services,pods -l app=teraslice --grace-period=1');
-    signale.info(subprocess.stdout);
-
-    subprocess = await execa.command('kubectl delete --namespace ts-dev1 configmap teraslice-master || echo "* it is okay..."');
-    signale.info(subprocess.stdout);
-    // console.log('workerConfig subprocess: ', subprocess);
-
-    subprocess = await execa.command('kubectl delete --namespace ts-dev1 configmap teraslice-worker || echo "* it is okay..."');
-    signale.info(subprocess.stdout);
-    // console.log('masterDeploy subprocess: ', subprocess);
+    try {
+        const subprocess = await execa.command('kubectl delete -n ts-dev1 deployments,jobs,services,pods -l app=teraslice --grace-period=1');
+        signale.info(subprocess.stdout);
+        // console.log('delete where app=teraslice subprocess: ', subprocess);
+    } catch (err) {
+        signale.error('Error in k8s teraslice teardown: ', err);
+    }
+    try {
+        const subprocess = await execa.command('kubectl delete -n ts-dev1 configmap teraslice-master');
+        signale.info(subprocess.stdout);
+        // console.log('delete configmap master subprocess: ', subprocess);
+    } catch (err) {
+        console.log(err)
+        signale.warn(err);
+    }
+    try {
+        const subprocess = await execa.command('kubectl delete -n ts-dev1 configmap teraslice-worker');
+        signale.info(subprocess.stdout);
+        // console.log('delete configmap worker subprocess: ', subprocess);
+    } catch (err) {
+        // Do nothing
+        console.log(err)
+        signale.warn(err);
+    }
 }

@@ -51,10 +51,16 @@ module.exports = async () => {
     await teraslice.resetState();
 
     if (process.env.TEST_PLATFORM === 'kubernetes') {
-        await setAlias();
-        await deployAssets('elasticsearch');
-        await deployAssets('standard');
-        await deployAssets('kafka');
+        try {
+            await setAlias();
+            await deployAssets('elasticsearch');
+            await deployAssets('standard');
+            await deployAssets('kafka');
+        } catch (err) {
+            signale.error('Setup failed');
+            signale.error(err);
+            process.exit(1);
+        }
     }
 
     try {

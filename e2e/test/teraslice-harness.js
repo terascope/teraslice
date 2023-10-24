@@ -124,7 +124,7 @@ module.exports = class TerasliceHarness {
                     // Do nothing
                     // TODO: If tests are ever implemented to scale nodes in Kind,
                     // a scaleWorkers implementation will need to be created that works with Kind.
-                    // As of 10/2023 Kind doesn't let you scale nodes w/o restarting the cluster.
+                    // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
                 }
             })()
         ]);

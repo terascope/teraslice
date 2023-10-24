@@ -26,7 +26,7 @@ async function globalTeardown(testClient) {
     const errors = [];
 
     try {
-        if (process.env.TEST_PATTERN === 'kubernetes') {
+        if (process.env.TEST_PLATFORM === 'kubernetes') {
             await tearDownTerasliceK8s();
         } else {
             await tearDown();
