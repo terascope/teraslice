@@ -603,7 +603,7 @@ export async function kindLoadServiceImage(serviceName: string): Promise<void> {
     if (serviceName === 'elasticsearch') {
         await deployElasticsearch(e2eK8sDir, 'elasticsearchDeployment.yaml');
     } else if (serviceName === 'kafka') {
-        await deployKafka(e2eK8sDir, 'kafkaDeployment.yaml');
+        await deployKafka(e2eK8sDir, 'kafkaDeployment.yaml', 'zookeeperDeployment.yaml');
     } else {
         signale.error(`The service ${serviceName} is not avalable in the kubernetes test platform.`);
     }
@@ -662,7 +662,9 @@ function waitForESRunning(timeoutMs = 120000): Promise<boolean> {
 export async function deployKafka(
     e2eK8sDir: string,
     kafkaDeploymentYaml: string,
+    zookeeperDeploymentYaml: string
 ) {
+    await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, zookeeperDeploymentYaml)}`);
     let subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, kafkaDeploymentYaml)}`);
     console.log('deployKafka subprocess: ', subprocess);
 
