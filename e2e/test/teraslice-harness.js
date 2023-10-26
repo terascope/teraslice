@@ -86,38 +86,33 @@ module.exports = class TerasliceHarness {
 
     async resetState() {
         const startTime = Date.now();
-        const state = await this.teraslice.cluster.state();
 
         if (TEST_PLATFORM === 'kubernetes') {
-            await Promise.all([
-                (async () => {
-                    try {
-                        console.log('@@@@ before state reset');
-                        await showState();
-                        await cleanupIndex(this.client, 'ts-dev1_*');
-                        await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                    } catch (err) {
-                        signale.error('Failure to clean indices', err);
-                        throw err;
-                    }
-                })(),
-                (async () => {
-                    try {
-                        await deployK8sTeraslice();
-                        await this.waitForTeraslice();
-                        await setAliasAndBaseAssets();
-                        console.log('@@@@ after state reset');
-                        await showState();
-                    } catch (err) {
-                        signale.error('Failure to reset teraslice state', err);
-                        throw err;
-                    }
-                })(),
-                // TODO: If tests are ever implemented to scale nodes in Kind,
-                // a scaleWorkers implementation will need to be created that works with Kind.
-                // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
-            ]);
+            try {
+                console.log('@@@@ before state reset');
+                await showState();
+                await cleanupIndex(this.client, 'ts-dev1_*');
+                await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
+            } catch (err) {
+                signale.error('Failure to clean indices', err);
+                throw err;
+            }
+            try {
+                await deployK8sTeraslice();
+                await this.waitForTeraslice();
+                await setAliasAndBaseAssets();
+                console.log('@@@@ after state reset');
+                await showState();
+            } catch (err) {
+                signale.error('Failure to reset teraslice state', err);
+                throw err;
+            }
+            // TODO: If tests are ever implemented to scale nodes in Kind,
+            // a scaleWorkers implementation will need to be created that works with Kind.
+            // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
         } else {
+            const state = await this.teraslice.cluster.state();
+
             await Promise.all([
                 pDelay(800),
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`),
