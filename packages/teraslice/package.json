@@ -13,14 +13,8 @@
     },
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "index.js",
-    "bin": "service.js",
-    "directories": {
-        "lib": "lib",
-        "bin": "service.js",
-        "test": "test",
-        "main": "index.js"
-    },
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "files": [
         "*.js",
         "lib/**/*",
@@ -71,6 +65,7 @@
     },
     "devDependencies": {
         "@terascope/teraslice-op-test-harness": "^1.24.1",
+        "@types/express": "^4.17.20",
         "archiver": "^5.3.1",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.11",
@@ -81,7 +76,7 @@
         "nock": "^13.3.1"
     },
     "engines": {
-        "node": ">=14.17.0",
+        "node": ">=16.0.0",
         "yarn": ">=1.16.0"
     },
     "publishConfig": {
