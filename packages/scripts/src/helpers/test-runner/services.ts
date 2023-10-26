@@ -700,7 +700,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     signale.pending(`starting ${service}@${version} service...`);
 
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes') {
         await kindStopService(service);
         await kindLoadServiceImage(service);
         return () => { };

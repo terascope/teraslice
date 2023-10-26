@@ -19,7 +19,8 @@ describe('services', () => {
         rabbitmqVersion: 'very-bad-version',
         opensearchVersion: 'very-bad-version',
         nodeVersion: 'very-bad-version',
-        ignoreMount: false
+        ignoreMount: false,
+        testPlatform: 'native'
     };
 
     describe('pullServices', () => {

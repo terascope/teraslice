@@ -5,7 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
-const { deleteWorkerDeploymentsAndPods, showState } = require('@terascope/scripts');
+const { showState, deployK8sTeraslice, setAliasAndBaseAssets } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -13,7 +13,7 @@ const fse = require('fs-extra');
 const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
-    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX
+    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM
 } = require('./config');
 const { scaleWorkers, getElapsed } = require('./docker-helpers');
 const signale = require('./signale');
@@ -88,55 +88,71 @@ module.exports = class TerasliceHarness {
         const startTime = Date.now();
         const state = await this.teraslice.cluster.state();
 
-        await Promise.all([
-            pDelay(800),
-            cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`),
-            (async () => {
-                if (process.env.TEST_PLATFORM === 'kubernetes') {
-                    await showState();
-                    await deleteWorkerDeploymentsAndPods();
-                } else {
-                    // Do nothing
-                }
-            })(),
-            (async () => {
-                const cleanupExIds = [];
-                Object.values(state).forEach((node) => {
-                    const { assignment, ex_id: exId } = node;
-
-                    const isWorker = ['execution_controller', 'worker'].includes(assignment);
-                    if (isWorker) {
-                        cleanupExIds.push(exId);
+        if (TEST_PLATFORM === 'kubernetes') {
+            await Promise.all([
+                (async () => {
+                    try {
+                        console.log('@@@@ before state reset');
+                        await showState();
+                        await cleanupIndex(this.client, 'ts-dev1_*');
+                        await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
+                    } catch (err) {
+                        signale.error('Failure to clean indices', err);
+                        throw err;
                     }
-                });
+                })(),
+                (async () => {
+                    try {
+                        await deployK8sTeraslice();
+                        await this.waitForTeraslice();
+                        await setAliasAndBaseAssets();
+                        console.log('@@@@ after state reset');
+                        await showState();
+                    } catch (err) {
+                        signale.error('Failure to reset teraslice state', err);
+                        throw err;
+                    }
+                })(),
+                // TODO: If tests are ever implemented to scale nodes in Kind,
+                // a scaleWorkers implementation will need to be created that works with Kind.
+                // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
+            ]);
+        } else {
+            await Promise.all([
+                pDelay(800),
+                cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`),
+                (async () => {
+                    const cleanupExIds = [];
+                    Object.values(state).forEach((node) => {
+                        const { assignment, ex_id: exId } = node;
 
-                await Promise.all(
-                    uniq(cleanupExIds).map(async (exId) => {
-                        signale.warn(`resetting ex ${exId}`);
-                        try {
-                            await this.teraslice.executions.wrap(exId).stop({ blocking: true });
-                        } catch (err) {
-                        // ignore error;
+                        const isWorker = ['execution_controller', 'worker'].includes(assignment);
+                        if (isWorker) {
+                            cleanupExIds.push(exId);
                         }
-                    })
-                );
-            })(),
-            (async () => {
-                if (process.env.TEST_PLATFORM === 'native') {
+                    });
+
+                    await Promise.all(
+                        uniq(cleanupExIds).map(async (exId) => {
+                            signale.warn(`resetting ex ${exId}`);
+                            try {
+                                await this.teraslice.executions.wrap(exId).stop({ blocking: true });
+                            } catch (err) {
+                                // ignore error;
+                            }
+                        })
+                    );
+                })(),
+                (async () => {
                     const count = Object.keys(state).length;
                     if (count !== DEFAULT_NODES) {
                         signale.warn(`resetting cluster state of ${count} nodes`);
                         await scaleWorkers();
                         await this.forWorkers();
                     }
-                } else {
-                    // Do nothing
-                    // TODO: If tests are ever implemented to scale nodes in Kind,
-                    // a scaleWorkers implementation will need to be created that works with Kind.
-                    // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
-                }
-            })()
-        ]);
+                })()
+            ]);
+        }
 
         const elapsed = Date.now() - startTime;
         if (elapsed > 1000) {
@@ -366,7 +382,7 @@ module.exports = class TerasliceHarness {
                 return _waitForClusterState();
             }
 
-            if (process.env.TEST_PLATFORM === 'kubernetes') {
+            if (TEST_PLATFORM === 'kubernetes') {
                 // A get request to 'cluster/state' will return an empty object in kubernetes.
                 // Therefore nodes will be 0.
                 if (nodes === 0) return nodes;
@@ -392,7 +408,7 @@ module.exports = class TerasliceHarness {
                 return count;
             }
         } catch (err) {
-        // it probably okay
+            // it probably okay
         }
 
         await pDelay(50);
@@ -412,7 +428,7 @@ module.exports = class TerasliceHarness {
 
         const nodes = await this.waitForClusterState();
 
-        if (process.env.TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes') {
             signale.success('Teraslice is ready to go', getElapsed(startTime));
         } else {
             signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));

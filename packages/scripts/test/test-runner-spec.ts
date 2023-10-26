@@ -25,7 +25,8 @@ describe('Test Runner Helpers', () => {
         rabbitmqVersion: '',
         opensearchVersion: '',
         nodeVersion: '',
-        ignoreMount: true
+        ignoreMount: true,
+        testPlatform: 'native'
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

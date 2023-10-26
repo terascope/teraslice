@@ -34,7 +34,8 @@ const {
     KAFKA_BROKER = 'locahost:9092',
     HOST_IP = '127.0.0.1',
     GENERATE_ONLY,
-    TEST_OPENSEARCH = false
+    TEST_OPENSEARCH = false,
+    TEST_PLATFORM = 'native'
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -76,5 +77,6 @@ module.exports = {
     OPENSEARCH_VERSION,
     GENERATE_ONLY,
     newId,
-    TEST_HOST
+    TEST_HOST,
+    TEST_PLATFORM
 };
