@@ -3,20 +3,20 @@ kind: Deployment
 metadata:
   name: teraslice-master
   labels:
-      app: teraslice
-      nodeType: master
+      app.kubernetes.io/name: teraslice
+      app.kubernetes.io/component: master
 spec:
   replicas: 1
   selector:
       matchLabels:
-          app: teraslice
-          nodeType: master
+          app.kubernetes.io/name: teraslice
+          app.kubernetes.io/component: master
   template:
     metadata:
       labels:
-        app: teraslice
-        nodeType: master
-        clusterName: k8se2e
+        app.kubernetes.io/name: teraslice
+        app.kubernetes.io/component: master
+        app.kubernetes.io/instance: k8se2e
     spec:
       containers:
       - name: teraslice-master
@@ -41,11 +41,11 @@ apiVersion: v1
 metadata:
   name: teraslice-master
   labels:
-    app: teraslice
+    app.kubernetes.io/name: teraslice
 spec:
   selector:
-      app: teraslice
-      nodeType: master
+      app.kubernetes.io/name: teraslice
+      app.kubernetes.io/component: master
   ports:
   - port: 5678
     targetPort: 5678

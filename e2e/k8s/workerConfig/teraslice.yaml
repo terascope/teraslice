@@ -6,15 +6,15 @@ terafoundation:
             default:
                 apiVersion: "5.6"
                 host:
-                    - "elasticsearch:9200"
+                    - "elasticsearch.services-dev1:9200"
         elasticsearch-next:
             default:
                 node:
-                    - "http://elasticsearch:9200"
+                    - "http://elasticsearch.services-dev1:9200"
         kafka:
             default:
                 brokers:
-                    - "cpkafka:9092"
+                    - "cpkafka.services-dev1:9092"
 teraslice:
     worker_disconnect_timeout: 60000
     node_disconnect_timeout: 60000
