@@ -11,7 +11,8 @@ import {
     getContainerInfo,
     dockerStop,
     dockerPull,
-    kindLoadServiceImage,
+    // kindLoadServiceImage,
+    kindStartService,
     kindStopService
 } from '../scripts';
 import { TestOptions } from './interfaces';
@@ -702,7 +703,8 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     if (options.testPlatform === 'kubernetes') {
         await kindStopService(service);
-        await kindLoadServiceImage(service);
+        // await kindLoadServiceImage(service);
+        await kindStartService(service);
         return () => { };
     }
 
