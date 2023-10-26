@@ -632,7 +632,19 @@ export async function kindStopService(serviceName: string): Promise<void> {
     }
 }
 
-export async function kindLoadServiceImage(serviceName: string): Promise<void> {
+// FIXME: implement this function
+// export async function kindLoadServiceImage(serviceName: string): Promise<void> {
+//     try {
+//         const serviceImage = ;
+//         const subprocess = await execa.command(`kind load docker-image ${serviceImage} --name k8se2e`);
+//         // console.log('load service image subprocess: ', subprocess);
+//         signale.info(subprocess.stderr);
+//     } catch (err) {
+//         signale.info(`The service ${serviceName} could not be loaded. It may not be present locally`);
+//     }
+// }
+
+export async function kindStartService(serviceName: string): Promise<void> {
     // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
     const fileName = `${serviceName}Deployment.yaml`;
 
@@ -646,7 +658,7 @@ export async function kindLoadServiceImage(serviceName: string): Promise<void> {
             const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
             signale.info(subprocess.stdout);
         } catch (err) {
-            signale.error(`The service ${serviceName} could not be loaded.`);
+            signale.error(`The service ${serviceName} could not be started.`);
         }
     }
 
@@ -668,8 +680,7 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse = await execa.command('kubectl -n services-dev1 get pods -l app=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
-            // const kubectlResponse = await execa.command('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse = await execa.command('kubectl -n services-dev1 get pods -l app.kubernetes.io/name=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
             const kafkaReady = kubectlResponse.stdout;
             // console.log('kafka response: ', kafkaReady);
             if (kafkaReady === '"true"') {
@@ -766,22 +777,9 @@ async function deployAssets(assetName: string) {
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
 
-export async function deleteWorkerDeploymentsAndPods() {
-    try {
-        let subprocess = await execa.command('kubectl -n ts-dev1 delete deployments -l app.kubernetes.io/component=worker');
-        signale.info(subprocess.stdout);
-        console.log('deleteWorkerDeployments subprocess: ', subprocess);
-        subprocess = await execa.command('kubectl -n ts-dev1 delete pods -l app.kubernetes.io/component=execution_controller');
-        signale.info(subprocess.stdout);
-        console.log('deleteWorkerDeployments subprocess: ', subprocess);
-    } catch (err) {
-        signale.error('Error deleting worker deployments: ', err);
-    }
-}
-
-// FIXME: delete before merging - for testing
+// FIXME: delete before merging? - for testing
 export async function showState() {
-    const subprocess = await execa.command('kubectl get deployments,po,svc -o wide --all-namespaces');
+    const subprocess = await execa.command('kubectl get deployments,po,svc -o wide --all-namespaces --show-labels');
     signale.info(subprocess.stdout);
     console.log('showState subprocess: ', subprocess);
     await showESIndices();
