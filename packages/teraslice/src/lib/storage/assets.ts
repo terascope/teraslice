@@ -3,24 +3,51 @@ import fse from 'fs-extra';
 import crypto from 'crypto';
 import {
     TSError, uniq, isString,
-    toString, filterObject
+    toString, filterObject, Logger
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
 import { makeLogger } from '../workers/helpers/terafoundation';
-import { saveAsset } from '../utils/file_utils';
+import { saveAsset, AssetMetadata } from '../utils/file_utils';
 import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
 } from '../utils/asset_utils';
 
+async function _metaIsUnique(backend: any) {
+    return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
+        const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
+        // @ts-expect-error
+        const query = Object.entries(filterObject(meta, { includes }))
+            .map(([key, val]) => `${key}:"${val}"`)
+            .join(' AND ');
+
+        const total = await backend.count(query);
+
+        if (total === 0) {
+            return meta;
+        }
+
+        const error = new TSError(`Asset ${query} already exists, please increment the version and send again`, {
+            statusCode: 409
+        });
+        error.code = '409';
+        // @ts-expect-error a flag to differentiate error scenarios
+        error.alreadyExists = true;
+        throw error;
+    };
+}
+
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-export class AssetsStorage extends TerasliceElasticsearchStorage {
-    readonly assetsPath: string | string[] | undefined;
+export class AssetsStorage {
+    readonly assetsPath: string;
+    private backend: TerasliceElasticsearchStorage;
+    private readonly context: Context;
+    logger: Logger;
 
-    constructor (context: Context) {
+    constructor(context: Context) {
         const logger = makeLogger(context, 'assets_storage');
         const config = context.sysconfig.teraslice;
         const indexName = `${config.name}__assets`;
@@ -35,23 +62,26 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
             storageName: 'assets',
             logger
         };
-
-        super(backendConfig);
-        this.assetsPath = config.assets_directory;
+        this.context = context;
+        this.logger = logger;
+        // TODO: verify this behavior of string vs string[] and undefined
+        this.assetsPath = config.assets_directory as string;
+        this.backend = new TerasliceElasticsearchStorage(backendConfig);
     }
 
     async initialize() {
+        await this.ensureAssetDir();
+        await this.backend.initialize();
         this.logger.info('assets storage initialized');
-        await ensureAssetDir();
-        return super.initialize();
     }
 
     private async _assetExistsInFS(id: string): Promise<boolean> {
         try {
             if (!this.assetsPath) return false;
+            // eslint-disable-next-line no-bitwise
             const access = fse.constants.F_OK | fse.constants.R_OK | fse.constants.W_OK;
-            // @ts-expect-error
             await fse.access(path.join(this.assetsPath, id), access);
+
             return true;
         } catch (err) {
             return false;
@@ -60,7 +90,7 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
 
     private async _assetExistsInES(id: string): Promise<boolean> {
         try {
-            const result = await super.get(id, undefined, ['id', 'name']);
+            const result = await this.backend.get(id, undefined, ['id', 'name']);
             return result != null;
         } catch (err) {
             if (err.statusCode === 404) {
@@ -73,15 +103,23 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
     }
 
     private async _assetExists(id: string) {
-        const [readable, exists] = await Promise.all([this._assetExistsInFS(id), this._assetExistsInES(id)])
+        const [readable, exists] = await Promise.all([
+            this._assetExistsInFS(id),
+            this._assetExistsInES(id)
+        ]);
+
         return readable && exists;
     }
 
     private async _saveAndUpload({
         id, data, esData, blocking
-    }) {
+    }: { id: string, data: any, esData: any, blocking: boolean }) {
+        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
-        const metaData = await saveAsset(this.logger, this.assetsPath, id, data, _metaIsUnique);
+        const metaData = await saveAsset(
+            // @ts-expect-error
+            this.logger, this.assetsPath, id, data, _metaIsUnique(this.backend)
+        );
 
         const assetRecord = Object.assign({
             blob: esData,
@@ -90,10 +128,10 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
 
         if (blocking) {
             const elapsed = Date.now() - startTime;
-            const remaining = this.config.api_response_timeout - elapsed;
-            await super.indexWithId(id, assetRecord, undefined, remaining);
+            const remaining = responseTimeout - elapsed;
+            await this.backend.indexWithId(id, assetRecord, undefined, remaining);
         } else {
-            await super.indexWithId(id, assetRecord, undefined, config.api_response_timeout);
+            await this.backend.indexWithId(id, assetRecord, undefined, responseTimeout);
         }
 
         this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
@@ -126,7 +164,7 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
                 });
             } catch (err) {
                 this.logger.error(err, `Failure saving asset: ${id}`);
-            };
+            }
         }
 
         return {
@@ -135,14 +173,24 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
         };
     }
 
+    async search(
+        query: string | Record<string, any>,
+        from?: number,
+        size?: number,
+        sort?: string,
+        fields?: string | string[]
+    ) {
+        return this.backend.search(query, from, size, sort, fields);
+    }
+
     async getAsset(id: string) {
-        return super.get(id);
+        return this.backend.get(id);
     }
 
     private async _getAssetId(assetIdentifier: string) {
         // is full _id
         if (assetIdentifier.length === 40) {
-            const count = await this.count(`id:"${assetIdentifier}"`);
+            const count = await this.backend.count(`id:"${assetIdentifier}"`);
             if (count === 1) return assetIdentifier;
         }
 
@@ -150,9 +198,10 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
         const sort = '_created:desc';
         const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
-        const response = await this.search(
-            `name:"${name}" AND ${toVersionQuery(version)}`, null, 10000, sort, fields
+        const response = await this.backend.search(
+            `name:"${name}" AND ${toVersionQuery(version)}`, undefined, 10000, sort, fields
         );
+        // @ts-expect-error TODO: verify this
         const assets = response.hits.hits.map((doc) => doc._source);
 
         const found = findMatchingAsset(assets, name, version);
@@ -165,65 +214,45 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
         return found.id;
     }
 
-     parseAssetsArray(assetsArray) {
+    async parseAssetsArray(assetsArray: string[]) {
         return Promise.all(uniq(assetsArray).map(this._getAssetId));
     }
 
-    async function _metaIsUnique(meta) {
-        const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
-
-        const query = Object.entries(filterObject(meta, { includes }))
-            .map(([key, val]) => `${key}:"${val}"`)
-            .join(' AND ');
-
-        const total = await backend.count(query);
-        if (total === 0) {
-            return meta;
-        }
-
-        const error = new TSError(`Asset ${query} already exists, please increment the version and send again`, {
-            statusCode: 409
-        });
-        error.code = 409;
-        error.alreadyExists = true;
-        throw error;
+    async shutdown(forceShutdown: boolean) {
+        this.logger.info('shutting asset store down.');
+        return this.backend.shutdown(forceShutdown);
     }
 
-    async function shutdown(forceShutdown) {
-        logger.info('shutting asset store down.');
-        return backend.shutdown(forceShutdown);
-    }
-
-    async function remove(assetId) {
+    async remove(assetId: string) {
         try {
-            await backend.get(assetId, null, ['name']);
+            await this.backend.get(assetId, undefined, ['name']);
         } catch (err) {
             if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
                     statusCode: 404
                 });
-                error.code = 404;
+                error.code = '404';
                 throw error;
             }
             throw err;
         }
-        await backend.remove(assetId);
-        await fse.remove(path.join(assetsPath, assetId));
+        await this.backend.remove(assetId);
+        await fse.remove(path.join(this.assetsPath, assetId));
     }
 
-    async function ensureAssetDir() {
-        if (!assetsPath || !isString(assetsPath)) {
+    private async ensureAssetDir() {
+        if (!this.assetsPath || !isString(this.assetsPath)) {
             throw new Error('Asset Store requires a valid assetsPath');
         }
 
         try {
-            return await fse.ensureDir(assetsPath);
+            return await fse.ensureDir(this.assetsPath);
         } catch (err) {
-            throw new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
+            throw new Error(`Failure to the ensure assets directory ${this.assetsPath}, for reason ${err.message}`);
         }
     }
 
-    async function findAssetsToAutoload(autoloadDir) {
+    private async findAssetsToAutoload(autoloadDir: string) {
         const files = await fse.readdir(autoloadDir);
 
         return files.filter((fileName) => {
@@ -232,32 +261,41 @@ export class AssetsStorage extends TerasliceElasticsearchStorage {
         });
     }
 
-    async function autoload() {
-        const autoloadDir = context.sysconfig.teraslice.autoload_directory;
+    async autoload() {
+        // @ts-expect-error TODO: verify this parameter
+        const autoloadDir = this.context.sysconfig.teraslice.autoload_directory;
         if (!autoloadDir || !fse.existsSync(autoloadDir)) return;
 
-        const assets = await findAssetsToAutoload(autoloadDir);
+        const assets = await this.findAssetsToAutoload(autoloadDir);
         if (!assets || !assets.length) return;
 
         for (const asset of assets) {
-            logger.info(`autoloading asset ${asset}...`);
+            this.logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
-                const result = await save(await fse.readFile(assetPath), true);
+                const result = await this.save(await fse.readFile(assetPath), true);
                 if (result.created) {
-                    logger.debug(`autoloaded asset ${asset}`);
+                    this.logger.debug(`autoloaded asset ${asset}`);
                 } else {
-                    logger.debug(`autoloaded asset ${asset} already exists`);
+                    this.logger.debug(`autoloaded asset ${asset} already exists`);
                 }
             } catch (err) {
                 if (err.alreadyExists) {
-                    logger.debug(`autoloaded asset ${asset} already exists`);
+                    this.logger.debug(`autoloaded asset ${asset} already exists`);
                 } else {
                     throw err;
                 }
             }
         }
 
-        logger.info('done autoloading assets');
+        this.logger.info('done autoloading assets');
+    }
+
+    verifyClient() {
+        return this.backend.verifyClient();
+    }
+
+    async waitForClient() {
+        return this.backend.waitForClient();
     }
 }

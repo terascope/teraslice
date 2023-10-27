@@ -30,13 +30,13 @@ export interface AssetJSON {
     node_version?: number;
 }
 
-export type metaCheckFN = (data: AssetMetadata) => Promise<void>
+export type metaCheckFN = (data: AssetMetadata) => Promise<AssetMetadata>
 
-interface AssetMetadata extends AssetJSON {
+export interface AssetMetadata extends AssetJSON {
     id: string
 }
 
-export async function verifyAssetJSON(id: string, newPath: string) {
+export async function verifyAssetJSON(id: string, newPath: string): Promise<AssetMetadata> {
     const hasAssetJSONTopLevel = await fse.pathExists(path.join(newPath, 'asset.json'));
     if (!hasAssetJSONTopLevel) {
         const err = new TSError(
@@ -92,7 +92,7 @@ async function _saveAsset(
     id: string,
     binaryData: any,
     metaCheck: metaCheckFN
-) {
+): Promise<AssetMetadata> {
     const newPath = path.join(assetsPath, id);
 
     try {

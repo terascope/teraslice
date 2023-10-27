@@ -311,7 +311,7 @@ export class TerasliceElasticsearchStorage {
 
     async count(
         query: string | Record<string, any>,
-        from: number,
+        from?: number,
         sort?: string,
         index = this.defaultIndexName
     ) {
@@ -601,7 +601,7 @@ export class TerasliceElasticsearchStorage {
         return this.api.putTemplate(template, name);
     }
 
-    async verifyClient() {
+    verifyClient() {
         if (this.isShuttingDown) return false;
         return this.api.verifyClient();
     }

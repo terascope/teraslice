@@ -1,73 +1,76 @@
-'use strict';
+import { Context, RecoveryCleanupType } from '@terascope/job-components';
+import {
+    TSError, pRetry, toString,
+    isRetryableError, parseErrorInfo, isTest,
+    times, getFullErrorStack, Logger
+} from '@terascope/utils';
+import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils';
+import { makeLogger } from '../workers/helpers/terafoundation';
+import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
 
-const {
-    RecoveryCleanupType
-} = require('@terascope/job-components');
-const {
-    TSError,
-    pRetry,
-    toString,
-    isRetryableError,
-    parseErrorInfo,
-    isTest,
-    times,
-    getFullErrorStack,
-} = require('@terascope/utils');
-const { timeseriesIndex } = require('../utils/date_utils');
-const { makeLogger } = require('../workers/helpers/terafoundation');
-const elasticsearchBackend = require('./backends/elasticsearch_store');
-
-const SliceState = Object.freeze({
+export const SliceState = Object.freeze({
     pending: 'pending',
     start: 'start',
     error: 'error',
     completed: 'completed',
 });
 
-// Module to manager job states in Elasticsearch.
-// All functions in this module return promises that must be resolved to
-// get the final result.
-async function stateStorage(context) {
-    const recordType = 'state';
+export class StateStorage {
+    private backend: TerasliceElasticsearchStorage;
+    logger: Logger;
+    readonly recordType: string;
+    private readonly timeseriesFormat: TimeseriesFormat;
+    readonly baseIndex: string;
+    readonly index: string;
 
-    const logger = makeLogger(context, 'state_storage');
-    const config = context.sysconfig.teraslice;
-    const _index = `${config.name}__state`;
-    // making this to pass down to backend for dynamic index searches
-    const indexName = `${_index}*`;
-    const timeseriesFormat = config.index_rollover_frequency.state;
+    constructor(context: Context) {
+        const recordType = 'state';
 
-    const backendConfig = {
-        context,
-        indexName,
-        recordType,
-        idField: 'slice_id',
-        fullResponse: false,
-        logRecord: true,
-        forceRefresh: false,
-        storageName: 'state'
-    };
+        const logger = makeLogger(context, 'state_storage');
+        const config = context.sysconfig.teraslice;
+        const _index = `${config.name}__state`;
+        // making this to pass down to backend for dynamic index searches
+        const indexName = `${_index}*`;
+        const timeseriesFormat = config.index_rollover_frequency.state as TimeseriesFormat;
 
-    const backend = await elasticsearchBackend(backendConfig);
+        const backendConfig: TerasliceStorageConfig = {
+            context,
+            indexName,
+            recordType,
+            idField: 'slice_id',
+            fullResponse: false,
+            logRecord: true,
+            forceRefresh: false,
+            storageName: 'state',
+            logger
+        };
 
-    async function createState(exId, slice, state, error) {
-        await waitForClient();
-
-        const { record, index } = _createSliceRecord(exId, slice, state, error);
-
-        return backend.indexWithId(slice.slice_id, record, index);
+        this.backend = new TerasliceElasticsearchStorage(backendConfig);
+        this.logger = logger;
+        this.recordType = recordType;
+        this.timeseriesFormat = timeseriesFormat;
+        this.baseIndex = _index;
+        this.index = indexName;
     }
 
-    async function createSlices(exId, slices) {
-        await waitForClient();
+    async initialize() {
+        await this.backend.initialize();
+        this.logger.info('state storage initialized');
+    }
 
+    async createState(exId: string, slice: any, state: any, error?: Error) {
+        const { record, index } = this._createSliceRecord(exId, slice, state, error);
+        return this.backend.indexWithId(slice.slice_id, record, index);
+    }
+
+    async createSlices(exId: string, slices: any[]) {
         const bulkRequest = slices.map((slice) => {
-            const { record, index } = _createSliceRecord(exId, slice, SliceState.pending);
+            const { record, index } = this._createSliceRecord(exId, slice, SliceState.pending);
             return {
                 action: {
                     index: {
                         _index: index,
-                        _type: recordType,
+                        _type: this.recordType,
                         _id: record.slice_id,
                     },
                 },
@@ -75,15 +78,18 @@ async function stateStorage(context) {
             };
         });
 
-        return backend.bulkSend(bulkRequest);
+        return this.backend.bulkSend(bulkRequest);
     }
 
-    function _createSliceRecord(exId, slice, state, error) {
+    private _createSliceRecord(exId: string, slice: any, state: any, error?: Error) {
         if (!SliceState[state]) {
             throw new Error(`Unknown slice state "${state}" on create`);
         }
-        const { index } = timeseriesIndex(timeseriesFormat, _index, slice._created);
-        const record = {
+        const { index } = timeseriesIndex(
+            this.timeseriesFormat, this.baseIndex, slice._created
+        );
+        // TODO: type this better
+        const record: Record<string, any> = {
             slice_id: slice.slice_id,
             slicer_id: slice.slicer_id,
             slicer_order: slice.slicer_order,
@@ -97,16 +103,21 @@ async function stateStorage(context) {
         if (error) {
             record.error = toString(error);
         }
+
         return { record, index };
     }
-
-    async function updateState(slice, state, error) {
+    // TODO: type this better
+    async updateState(slice: any, state: string, error?: Error) {
         if (!SliceState[state]) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
 
-        const indexData = timeseriesIndex(timeseriesFormat, _index, slice._created);
-        const record = {
+        const indexData = timeseriesIndex(
+            this.timeseriesFormat, this.baseIndex, slice._created
+        );
+
+        // TODO: type this better
+        const record: Record<string, any> = {
             _updated: indexData.timestamp,
             state
         };
@@ -121,12 +132,11 @@ async function stateStorage(context) {
         }
 
         let notFoundErrCount = 0;
+        const updateFn = this.backend.update.bind(this);
 
         async function update() {
-            await waitForClient();
-
             try {
-                return await backend.update(slice.slice_id, record, indexData.index);
+                return await updateFn(slice.slice_id, record, indexData.index);
             } catch (_err) {
                 const { statusCode, message } = parseErrorInfo(_err);
                 let retryable = isRetryableError(_err);
@@ -159,12 +169,11 @@ async function stateStorage(context) {
      * @param {number} slicerId
      * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData>}
     */
-    async function _getSlicerStartingPoint(exId, slicerId) {
+    private async _getSlicerStartingPoint(exId: string, slicerId: number) {
         const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}" AND state:${SliceState.completed}`;
-        await waitForClient();
 
         try {
-            const [slice] = await search(startQuery, 0, 1, 'slicer_order:desc');
+            const [slice] = await this.search(startQuery, 0, 1, 'slicer_order:desc') as any[];
             const recoveryData = {
                 slicer_id: slicerId,
                 lastSlice: undefined
@@ -172,7 +181,7 @@ async function stateStorage(context) {
 
             if (slice) {
                 recoveryData.lastSlice = JSON.parse(slice.request);
-                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, slice.lastSlice);
+                this.logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, slice.lastSlice);
             }
 
             return recoveryData;
@@ -190,11 +199,12 @@ async function stateStorage(context) {
      * @param {number} slicer
      * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData[]>}
     */
-    async function getStartingPoints(exId, slicers) {
-        const recoveredSlices = times(slicers, (i) => _getSlicerStartingPoint(exId, i));
+    async getStartingPoints(exId: string, slicers: number) {
+        const recoveredSlices = times(slicers, (i) => this._getSlicerStartingPoint(exId, i));
         return Promise.all(recoveredSlices);
     }
 
+    // TODO: fix types
     /**
      * @private
      * @param {string} exId
@@ -202,8 +212,9 @@ async function stateStorage(context) {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {string}
     */
-    function _getRecoverSlicesQuery(exId, slicerId, cleanupType) {
+    private _getRecoverSlicesQuery(exId: string, slicerId: number, cleanupType: string) {
         let query = `ex_id:"${exId}"`;
+
         if (slicerId !== -1) {
             query = `${query} AND slicer_id:"${slicerId}"`;
         }
@@ -215,7 +226,8 @@ async function stateStorage(context) {
         } else {
             query = `${query} AND NOT state:"${SliceState.completed}"`;
         }
-        logger.debug('recovery slices query:', query);
+
+        this.logger.debug('recovery slices query:', query);
         return query;
     }
 
@@ -225,14 +237,14 @@ async function stateStorage(context) {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {Promise<import('@terascope/job-components').Slice[]>}
     */
-    async function recoverSlices(exId, slicerId, cleanupType) {
-        const query = _getRecoverSlicesQuery(exId, slicerId, cleanupType);
+    async recoverSlices(exId: string, slicerId: number, cleanupType: string) {
+        const query = this._getRecoverSlicesQuery(exId, slicerId, cleanupType);
         // Look for all slices that haven't been completed so they can be retried.
         try {
-            await waitForClient();
-            await backend.refresh(indexName);
+            await this.backend.refresh(this.index);
 
-            const results = await search(query, 0, 5000, 'slicer_order:desc');
+            const results = await this.search(query, 0, 5000, 'slicer_order:desc') as any[];
+
             return results.map((doc) => ({
                 slice_id: doc.slice_id,
                 slicer_id: doc.slicer_id,
@@ -246,57 +258,48 @@ async function stateStorage(context) {
         }
     }
 
-    async function search(query, from, size, sort, fields) {
-        return backend.search(query, from, size, sort || '_updated:desc', fields);
+    async search(
+        query: string | Record<string, any>,
+        from?: number,
+        size?: number,
+        sort?: string,
+        fields?: string | string[]
+    ) {
+        return this.backend.search(query, from, size, sort || '_updated:desc', fields);
     }
 
-    async function count(query, from = 0, sort = '_updated:desc') {
-        return backend.count(query, from, sort);
+    async count(
+        query: string | Record<string, any>,
+        from = 0,
+        sort = '_updated:desc'
+    ) {
+        return this.backend.count(query, from, sort);
     }
 
-    async function countByState(exId, state) {
+    async countByState(exId: string, state: string) {
         if (!SliceState[state]) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
         const query = `ex_id:"${exId}" AND state:${state}`;
-        return count(query);
+
+        return this.count(query);
     }
 
-    async function shutdown(forceShutdown) {
-        logger.info('shutting down');
-        return backend.shutdown(forceShutdown);
+    async shutdown(forceShutdown: boolean) {
+        this.logger.info('shutting down');
+        return this.backend.shutdown(forceShutdown);
     }
 
-    async function refresh() {
-        const { index } = timeseriesIndex(timeseriesFormat, _index);
-        return backend.refresh(index);
+    async refresh() {
+        const { index } = timeseriesIndex(this.timeseriesFormat, this.baseIndex);
+        return this.backend.refresh(index);
     }
 
-    function verifyClient() {
-        return backend.verifyClient();
+    verifyClient() {
+        return this.backend.verifyClient();
     }
 
-    async function waitForClient() {
-        return backend.waitForClient();
+    async waitForClient() {
+        return this.backend.waitForClient();
     }
-
-    logger.info('state storage initialized');
-    return {
-        search,
-        createState,
-        createSlices,
-        updateState,
-        recoverSlices,
-        getStartingPoints,
-        count,
-        countByState,
-        waitForClient,
-        verifyClient,
-        shutdown,
-        refresh,
-    };
 }
-
-stateStorage.SliceState = SliceState;
-
-module.exports = stateStorage;

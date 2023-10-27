@@ -67,3 +67,5 @@ export interface StateRecord {
     _updated: string|Date;
     error?: string;
 }
+
+

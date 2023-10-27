@@ -1,15 +1,14 @@
-
 import { AnalyticsStorage } from './analytics';
 import { AssetsStorage } from './assets';
-import makeExStore from './execution';
-import makeJobStore from './jobs';
-import makeStateStore from './state';
+import { ExecutionStorage } from './execution';
+import { JobsStorage } from './jobs';
+import { StateStorage, SliceState } from './state';
 
 export {
-    SliceState: makeStateStore.SliceState,
+    SliceState,
     AnalyticsStorage,
     AssetsStorage,
-    makeExStore,
-    makeJobStore,
-    makeStateStore,
+    ExecutionStorage,
+    JobsStorage,
+    StateStorage,
 };

@@ -107,6 +107,10 @@ export class AnalyticsStorage {
         return this.backend.refresh(index);
     }
 
+    verifyClient() {
+        return this.backend.verifyClient();
+    }
+
     async waitForClient() {
         return this.backend.waitForClient();
     }
