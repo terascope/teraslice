@@ -12,6 +12,7 @@ import {
     dockerStop,
     dockerPull,
     kindLoadServiceImage,
+    kindStartService,
     kindStopService
 } from '../scripts';
 import { TestOptions } from './interfaces';
@@ -742,11 +743,12 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
-        await kindStopService(service);
+    signale.pending(`starting ${service}@${version} service...`);
 
-        // console.log(`@@@@@@@ loading ${service} via kind`);
-        await kindLoadServiceImage(service);
+    if (options.testPlatform === 'kubernetes') {
+        await kindStopService(service);
+        await kindLoadServiceImage(service, services[service].image, version);
+        await kindStartService(service);
         return () => { };
     }
 

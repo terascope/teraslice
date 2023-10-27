@@ -3,19 +3,19 @@ kind: Deployment
 metadata:
   name: elasticsearch
   labels:
-      app: elasticsearch
-      nodeType: master
+      app.kubernetes.io/name: elasticsearch
+      app.kubernetes.io/component: master
 spec:
   replicas: 1
   selector:
       matchLabels:
-          app: elasticsearch
-          nodeType: master
+          app.kubernetes.io/name: elasticsearch
+          app.kubernetes.io/component: master
   template:
     metadata:
       labels:
-        app: elasticsearch
-        nodeType: master
+        app.kubernetes.io/name: elasticsearch
+        app.kubernetes.io/component: master
     spec:
       containers:
       - name: elasticsearch
@@ -33,11 +33,11 @@ apiVersion: v1
 metadata:
   name: elasticsearch
   labels:
-    app: elasticsearch
+    app.kubernetes.io/name: elasticsearch
 spec:
   selector:
-      app: elasticsearch
-      nodeType: master
+      app.kubernetes.io/name: elasticsearch
+      app.kubernetes.io/component: master
   ports:
   - port: 9200
     targetPort: 9200

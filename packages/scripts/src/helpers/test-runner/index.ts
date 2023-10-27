@@ -211,7 +211,7 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled) {
@@ -226,8 +226,7 @@ async function runE2ETest(
             }
 
             await createKindCluster();
-            await createNamespace();
-            await k8sSetup();
+            await createNamespace('services-ns.yaml');
         } catch (err) {
             tracker.addError(err);
         }
@@ -236,7 +235,7 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e`;
 
-    if (isCI && process.env.TEST_PLATFORM === 'native') {
+    if (isCI && options.testPlatform === 'native') {
         // pull the services first in CI
         await pullServices(suite, options);
     }
@@ -258,7 +257,7 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes') {
         try {
             await loadTerasliceImage(e2eImage);
         } catch (err) {
@@ -326,7 +325,7 @@ async function runE2ETest(
         });
     }
 
-    // if (process.env.TEST_PLATFORM === 'kubernetes') {
+    // if (poptions.testPlatform === 'kubernetes') {
     //     await destroyKindCluster();
     // }
 }

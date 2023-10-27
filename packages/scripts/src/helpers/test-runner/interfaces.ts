@@ -22,6 +22,7 @@ export type TestOptions = {
     nodeVersion: string;
     jestArgs?: string[];
     ignoreMount: boolean;
+    testPlatform: string;
 };
 
 export type GroupedPackages = {

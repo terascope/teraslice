@@ -1,10 +1,10 @@
 'use strict';
 
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { tearDownTerasliceK8s } = require('@terascope/scripts');
+const { deleteTerasliceNamespace } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const {
-    KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX
+    KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX, TEST_PLATFORM
 } = require('./config');
 const { tearDown } = require('./docker-helpers');
 const signale = require('./signale');
@@ -26,8 +26,9 @@ async function globalTeardown(testClient) {
     const errors = [];
 
     try {
-        if (process.env.TEST_PATTERN === 'kubernetes') {
-            await tearDownTerasliceK8s();
+        if (TEST_PLATFORM === 'kubernetes' && !process.env.KEEP_OPEN) {
+            await deleteTerasliceNamespace();
+            await cleanupIndex(client, 'ts-dev1_*');
         } else {
             await tearDown();
         }
