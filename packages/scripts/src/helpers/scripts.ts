@@ -539,6 +539,7 @@ export async function createKindCluster(): Promise<void> {
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
     }
+
     const configPath = path.join(e2eK8sDir, 'kindConfig.yaml');
     const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
     signale.info(subprocess.stderr);
@@ -647,26 +648,21 @@ export async function kindLoadServiceImage(
 
 export async function kindStartService(serviceName: string): Promise<void> {
     // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
-    const fileName = `${serviceName}Deployment.yaml`;
+    const yamlFile = `${serviceName}Deployment.yaml`;
 
-    async function createFromYaml(yamlFile: string) {
-        const e2eK8sDir = getE2eK8sDir();
-        if (!e2eK8sDir) {
-            throw new Error('Missing k8s e2e test directory');
-        }
-
-        try {
-            const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
-            signale.info(subprocess.stdout);
-        } catch (err) {
-            signale.error(`The service ${serviceName} could not be started.`);
-        }
+    const e2eK8sDir = getE2eK8sDir();
+    if (!e2eK8sDir) {
+        throw new Error('Missing k8s e2e test directory');
     }
 
-    await createFromYaml(fileName);
+    try {
+        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+        signale.info(subprocess.stdout);
+    } catch (err) {
+        signale.error(`The service ${serviceName} could not be started: `, err);
+    }
 
     if (serviceName === 'kafka') {
-        await createFromYaml('zookeeperDeployment.yaml');
         await waitForKafkaRunning(240000);
     }
 }
@@ -773,7 +769,7 @@ async function setAlias() {
 }
 
 async function deployAssets(assetName: string) {
-    const subprocess = await execa.command(`earl assets deploy k8se2e --bundle --blocking terascope/${assetName}-assets`);
+    const subprocess = await execa.command(`earl assets deploy k8se2e --blocking terascope/${assetName}-assets`);
     signale.info(subprocess.stdout);
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
@@ -801,7 +797,7 @@ export async function showAssets() {
         console.log('\nshowAssets subprocess: \n', subprocess.stdout);
     } catch (err) {
         signale.info(err);
-        console.log('\nshowAssets subprocess: \n', err);
+        // console.log('\nshowAssets subprocess: \n', err);
     }
 }
 

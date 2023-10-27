@@ -16,7 +16,6 @@ import {
     isKindInstalled,
     isKubectlInstalled,
     createNamespace,
-    k8sSetup,
     loadTerasliceImage,
     destroyKindCluster,
 } from '../scripts';
@@ -200,7 +199,7 @@ async function runTestSuite(
 async function runE2ETest(
     options: TestOptions, tracker: TestTracker
 ): Promise<void> {
-    // console.log('options: ', options);
+    // console.log('@@@@@@@@ options: ', options);
     tracker.expected++;
 
     const suite = 'e2e';
@@ -325,7 +324,7 @@ async function runE2ETest(
         });
     }
 
-    // if (poptions.testPlatform === 'kubernetes') {
+    // if (options.testPlatform === 'kubernetes') {
     //     await destroyKindCluster();
     // }
 }

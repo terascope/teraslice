@@ -3,7 +3,7 @@
 const { pDelay } = require('@terascope/utils');
 const {
     deployK8sTeraslice,
-    showState
+    setAliasAndBaseAssets
 } = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
@@ -37,8 +37,9 @@ module.exports = async () => {
     ]);
 
     if (TEST_PLATFORM === 'kubernetes') {
-        // await deployK8sTeraslice(); // here
-        // await showState();
+        await deployK8sTeraslice(); // here
+        await teraslice.waitForTeraslice();
+        await setAliasAndBaseAssets();
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
@@ -47,13 +48,6 @@ module.exports = async () => {
 
     await pDelay(2000);
     await teraslice.resetState();
-
-    if (process.env.TEST_PLATFORM === 'kubernetes') {
-        await setAlias();
-        await deployAssets('elasticsearch');
-        await deployAssets('standard');
-        await deployAssets('kafka');
-    }
 
     try {
         await teraslice.generateTestData();

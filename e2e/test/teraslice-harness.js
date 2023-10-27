@@ -5,7 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
-const { showState, deployK8sTeraslice, setAliasAndBaseAssets } = require('@terascope/scripts');
+const { showState, deployK8sTeraslice } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -89,9 +89,9 @@ module.exports = class TerasliceHarness {
 
         if (TEST_PLATFORM === 'kubernetes') {
             try {
-                console.log('@@@@ before state reset');
-                await showState();
-                await cleanupIndex(this.client, 'ts-dev1_*');
+                // console.log('@@@@ before state reset');
+                // await showState();
+                // await cleanupIndex(this.client, 'ts-dev1__assets');
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
             } catch (err) {
                 signale.error('Failure to clean indices', err);
@@ -100,9 +100,8 @@ module.exports = class TerasliceHarness {
             try {
                 await deployK8sTeraslice();
                 await this.waitForTeraslice();
-                await setAliasAndBaseAssets();
-                console.log('@@@@ after state reset');
-                await showState();
+                // console.log('@@@@ after state reset');
+                // await showState();
             } catch (err) {
                 signale.error('Failure to reset teraslice state', err);
                 throw err;
