@@ -629,11 +629,11 @@ export async function kindStopService(serviceName: string): Promise<void> {
         signale.info(subprocess.stdout);
         // console.log('stopElasticsearch subprocess: ', subprocess);
     } catch (err) {
-        signale.info(`The service ${serviceName} could not be deleted because it does not exist.`);
+        // Do nothing. This should fail because no services should be up yet.
     }
 }
 
-// FIXME: implement this function with cp-kafka support
+// TODO: Image versions are currently hard coded into yaml files
 export async function kindLoadServiceImage(
     serviceName: string, serviceImage: string, version: string
 ): Promise<void> {

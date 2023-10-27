@@ -91,8 +91,8 @@ module.exports = class TerasliceHarness {
             try {
                 // console.log('@@@@ before state reset');
                 // await showState();
-                // await cleanupIndex(this.client, 'ts-dev1__assets');
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
+                await this.clearNonBaseAssets();
             } catch (err) {
                 signale.error('Failure to clean indices', err);
                 throw err;
@@ -505,6 +505,22 @@ module.exports = class TerasliceHarness {
         } catch (err) {
             signale.error('Data generation failed', getElapsed(startTime));
             throw err;
+        }
+    }
+
+    async clearNonBaseAssets() {
+        const assetList = await this.teraslice.assets.list();
+        // console.log('@@@@@ assetList: ', assetList);
+
+        const baseAssets = ['standard', 'elasticsearch', 'kafka'];
+        const assetsToDelete = assetList.filter((assetObj) => !baseAssets.includes(assetObj.name));
+        // console.log('@@@@@ assetsToDelete: ', assetsToDelete);
+
+        for (const asset of assetsToDelete) {
+            // console.log('@@@@@ asset: ', asset);
+            const response = await this.teraslice.assets.remove(asset.id);
+            // console.log('@@@@@ response: ', response);
+            signale.success(`Deleted asset with id ${response}`);
         }
     }
 };

@@ -214,7 +214,6 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
-    console.log('@@@@ Here it is: ', launchServices);
 
     const promises: Promise<(() => void)>[] = [];
 
