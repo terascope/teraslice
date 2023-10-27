@@ -214,6 +214,7 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
+    console.log('@@@@ Here it is: ', launchServices);
 
     const promises: Promise<(() => void)>[] = [];
 
@@ -742,8 +743,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
         return () => { };
     }
-
-    signale.pending(`starting ${service}@${version} service...`);
 
     if (options.testPlatform === 'kubernetes') {
         await kindStopService(service);
