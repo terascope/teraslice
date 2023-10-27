@@ -632,17 +632,18 @@ export async function kindStopService(serviceName: string): Promise<void> {
     }
 }
 
-// FIXME: implement this function
-// export async function kindLoadServiceImage(serviceName: string): Promise<void> {
-//     try {
-//         const serviceImage = ;
-//         const subprocess = await execa.command(`kind load docker-image ${serviceImage} --name k8se2e`);
-//         // console.log('load service image subprocess: ', subprocess);
-//         signale.info(subprocess.stderr);
-//     } catch (err) {
-//         signale.info(`The service ${serviceName} could not be loaded. It may not be present locally`);
-//     }
-// }
+// FIXME: implement this function with cp-kafka support
+export async function kindLoadServiceImage(
+    serviceName: string, serviceImage: string, version: string
+): Promise<void> {
+    try {
+        const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name k8se2e`);
+        // console.log('load service image subprocess: ', subprocess);
+        signale.info(subprocess.stderr);
+    } catch (err) {
+        signale.info(`The service ${serviceName} could not be loaded. It may not be present locally`);
+    }
+}
 
 export async function kindStartService(serviceName: string): Promise<void> {
     // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
@@ -779,9 +780,9 @@ async function deployAssets(assetName: string) {
 
 // FIXME: delete before merging? - for testing
 export async function showState() {
-    const subprocess = await execa.command('kubectl get deployments,po,svc -o wide --all-namespaces --show-labels');
+    const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
     signale.info(subprocess.stdout);
-    console.log('showState subprocess: ', subprocess);
+    console.log('\nshowState subprocess: \n', subprocess.stdout);
     await showESIndices();
     await showAssets();
 }
@@ -789,7 +790,7 @@ export async function showState() {
 export async function showESIndices() {
     const subprocess = await execa.command('curl localhost:49200/_cat/indices');
     signale.info(subprocess.stdout);
-    console.log('showESIndices subprocess: ', subprocess);
+    console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
 export async function showAssets() {
@@ -797,9 +798,10 @@ export async function showAssets() {
         const subprocess = await execa.command('curl localhost:45678/v1/assets');
         signale.info(subprocess.stdout);
 
-        console.log('showAssets subprocess: ', subprocess);
+        console.log('\nshowAssets subprocess: \n', subprocess.stdout);
     } catch (err) {
         signale.info(err);
+        console.log('\nshowAssets subprocess: \n', err);
     }
 }
 
