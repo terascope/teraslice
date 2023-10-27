@@ -14,6 +14,8 @@ export type TestOptions = {
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
     kafkaVersion: string;
+    kafkaImageVersion: any;
+    zookeeperVersion: string;
     minioVersion: string;
     rabbitmqVersion: string;
     opensearchVersion: string;

@@ -669,6 +669,7 @@ export async function deployKafka(
     kafkaDeploymentYaml: string,
     zookeeperDeploymentYaml: string
 ) {
+    await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, zookeeperDeploymentYaml)}`);
     const subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, kafkaDeploymentYaml)}`);
     signale.info(subprocess.stdout);
     // console.log('deployKafka subprocess: ', subprocess);
@@ -686,7 +687,7 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
 
         let kafkaRunning = false;
         try {
-            const kubectlResponse: execa.ExecaReturnValue<string> = await execa.command('kubectl -n ts-dev1 get pods -l app=kafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
+            const kubectlResponse: execa.ExecaReturnValue<string> = await execa.command('kubectl -n ts-dev1 get pods -l app=cpkafka -o=jsonpath="{.items[?(@.status.containerStatuses)].status.containerStatuses[0].ready}"');
             const kafkaReady = kubectlResponse.stdout;
             // console.log('kafka response: ', kafkaReady);
             if (kafkaReady === '"true"') {

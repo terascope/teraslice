@@ -176,6 +176,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             elasticsearchVersion,
             elasticsearchAPIVersion,
             kafkaVersion,
+            kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
+            zookeeperVersion: config.ZOOKEEPER_VERSION,
             minioVersion,
             rabbitmqVersion,
             opensearchVersion,

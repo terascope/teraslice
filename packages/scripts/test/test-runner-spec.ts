@@ -21,6 +21,8 @@ describe('Test Runner Helpers', () => {
         elasticsearchAPIVersion: '',
         elasticsearchVersion: '',
         kafkaVersion: '',
+        kafkaImageVersion: '',
+        zookeeperVersion: '',
         minioVersion: '',
         rabbitmqVersion: '',
         opensearchVersion: '',

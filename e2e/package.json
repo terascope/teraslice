@@ -26,6 +26,7 @@
         "setup": "yarn --silent",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:k8s": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' KAFKA_VERSION='3.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e  -- --silent=false",
+        "test:k8sfast": "SKIP_DOCKER_BUILD_IN_E2E='true' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' KAFKA_VERSION='3.3' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e  -- --silent=false",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",

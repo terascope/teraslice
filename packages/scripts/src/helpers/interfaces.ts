@@ -37,6 +37,7 @@ export type PackageInfo = {
 
 export enum Service {
     Kafka = 'kafka',
+    Zookeeper = 'zookeeper',
     Elasticsearch = 'elasticsearch',
     Minio = 'minio',
     RabbitMQ = 'rabbitmq',
