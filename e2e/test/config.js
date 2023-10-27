@@ -35,7 +35,8 @@ const {
     HOST_IP = '127.0.0.1',
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
-    TEST_PLATFORM = 'native'
+    TEST_PLATFORM = 'native',
+    KEEP_OPEN = false
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -78,5 +79,6 @@ module.exports = {
     GENERATE_ONLY,
     newId,
     TEST_HOST,
-    TEST_PLATFORM
+    TEST_PLATFORM,
+    KEEP_OPEN
 };
