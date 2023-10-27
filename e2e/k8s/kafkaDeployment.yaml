@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: cpkafka
-        image: confluentinc/cp-kafka:7.2.0
+        image: confluentinc/cp-kafka:7.1.9
         env:
           - name: KAFKA_BROKER_ID
             value: "1"
