@@ -570,51 +570,12 @@ export async function isKubectlInstalled(): Promise<boolean> {
     }
 }
 
+// TODO: check that image is loaded before we continue
 export async function loadTerasliceImage(terasliceImage: string): Promise<void> {
     const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name k8se2e`);
     // console.log('load teraslice image subprocess: ', subprocess);
     signale.info(subprocess.stderr);
-
-    // FIXME: is it necessary to wait?
-    // const imageLoaded = await waitForTerasliceImageLoaded();
-    // if (imageLoaded) {
-    //     signale.success('Teraslice image successfully loaded.');
-    // }
 }
-
-// function waitForTerasliceImageLoaded(timeoutMs = 120000): Promise<boolean> {
-//     const endAt = Date.now() + timeoutMs;
-
-//     const _waitForTerasliceImageLoaded = async (): Promise<boolean> => {
-//         if (Date.now() > endAt) {
-//             throw new Error(`Failure to load teraslice image after ${timeoutMs}ms`);
-//         }
-
-//         let terasliceLoaded = false;
-//         try {
-//             // docker exec into kind-control-plane
-//             // docker exec -it k8se2e crictl images -o json
-//             // find repo tag "docker.io/library/teraslice-workspace:e2e"
-//             const kubectlResponse = await execa.command('');
-//             const kindFinished = kubectlResponse.stdout;
-//             console.log('kubectl response: ', kubectlResponse);
-//             if (kindFinished === '"true"') {
-//                 terasliceLoaded = true;
-//             }
-//         } catch (err) {
-//             await pDelay(3000);
-//             return _waitForTerasliceImageLoaded();
-//         }
-
-//         if (terasliceLoaded) {
-//             return true;
-//         }
-//         await pDelay(3000);
-//         return _waitForTerasliceImageLoaded();
-//     };
-
-//     return _waitForTerasliceImageLoaded();
-// }
 
 export async function kindStopService(serviceName: string): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
@@ -634,6 +595,7 @@ export async function kindStopService(serviceName: string): Promise<void> {
 }
 
 // TODO: Image versions are currently hard coded into yaml files
+// TODO: check that image is loaded before we continue
 export async function kindLoadServiceImage(
     serviceName: string, serviceImage: string, version: string
 ): Promise<void> {
@@ -774,6 +736,15 @@ async function deployAssets(assetName: string) {
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
 
+export async function deleteTerasliceNamespace() {
+    try {
+        const subprocess = await execa.command('kubectl delete namespace ts-dev1');
+        signale.info(subprocess.stdout);
+    } catch (err) {
+        signale.info('Teraslice namespace cannot be deleted because it does not exist');
+    }
+}
+
 // FIXME: delete before merging? - for testing
 export async function showState() {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
@@ -783,13 +754,13 @@ export async function showState() {
     await showAssets();
 }
 
-export async function showESIndices() {
+async function showESIndices() {
     const subprocess = await execa.command('curl localhost:49200/_cat/indices');
     signale.info(subprocess.stdout);
     console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
-export async function showAssets() {
+async function showAssets() {
     try {
         const subprocess = await execa.command('curl localhost:45678/v1/assets');
         signale.info(subprocess.stdout);
@@ -798,14 +769,5 @@ export async function showAssets() {
     } catch (err) {
         signale.info(err);
         // console.log('\nshowAssets subprocess: \n', err);
-    }
-}
-
-export async function deleteTerasliceNamespace() {
-    try {
-        const subprocess = await execa.command('kubectl delete namespace ts-dev1');
-        signale.info(subprocess.stdout);
-    } catch (err) {
-        signale.info('Teraslice namespace cannot be deleted because it does not exist');
     }
 }
