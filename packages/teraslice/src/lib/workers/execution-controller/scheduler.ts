@@ -1,21 +1,51 @@
-'use strict';
+import {
+    Queue, noop, pDelay, get,
+    toString, makeISODate, logError,
+    pWhile, Logger
+} from '@terascope/utils';
+import type { EventEmitter } from 'node:events';
+import type {
+    Context, SlicerExecutionContext, Slice,
+    SlicerRecoveryData
+} from '@terascope/job-components';
+import { RecoveryModule } from './recovery';
+import { makeLogger } from '../helpers/terafoundation';
+import type { StateStorage, ExecutionStorage } from '../../storage';
 
-const {
-    Queue, noop, pDelay, get, toString, makeISODate, logError, pWhile
-} = require('@terascope/utils');
-const makeExecutionRecovery = require('./recovery');
-const { makeLogger } = require('../helpers/terafoundation');
+export class Scheduler {
+    readonly context: Context;
+    logger: Logger;
+    events: EventEmitter;
+    readonly executionContext: SlicerExecutionContext;
+    readonly exId: string;
+    readonly recoverFromExId?: string;
+    readonly recoverExecution?: boolean;
+    private recovering: boolean;
+    readonly autorecover: boolean;
+    private _creating = 0;
+    private ready = false;
+    private paused = true;
+    private stopped = false;
+    private slicersDone = false;
+    private slicersFailed = false;
+    private queue = new Queue<Slice>();
+    private recover: RecoveryModule;
+    private stateStore!: StateStorage;
+    private exStore!: ExecutionStorage;
+    private _resolveRun = noop;
+    private _processCleanup = noop;
+    private startingPoints: SlicerRecoveryData[] = [];
 
-class Scheduler {
-    constructor(context, executionContext) {
+    constructor(context: Context, executionContext: SlicerExecutionContext) {
         this.context = context;
         this.logger = makeLogger(context, 'execution_scheduler');
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
         this.exId = executionContext.exId;
-
+        this.recover = new RecoveryModule(context, executionContext);
         const recoverFromExId = get(executionContext.config, 'recovered_execution');
         const slicerCanRecover = executionContext.slicer().isRecoverable();
+
         if (recoverFromExId && !slicerCanRecover) {
             throw new Error('Slicer is not recoverable');
         }
@@ -24,19 +54,6 @@ class Scheduler {
         this.recoverExecution = Boolean(recoverFromExId && slicerCanRecover);
         this.recovering = Boolean(this.recoverExecution);
         this.autorecover = Boolean(executionContext.config.autorecover);
-
-        this._creating = 0;
-        this.ready = false;
-        this.paused = true;
-        this.stopped = false;
-        this.slicersDone = false;
-        this.slicersFailed = false;
-        this.queue = new Queue();
-        this.startingPoints = [];
-
-        this._resolveRun = noop;
-        this._processCleanup = noop;
-
         this._processSlicers();
     }
 
@@ -46,7 +63,10 @@ class Scheduler {
      * initialized until the execution if finished and the cleanup
      * type is set.
     */
-    async initialize() {
+    async initialize(stateStore: StateStorage, exStore: ExecutionStorage) {
+        this.stateStore = stateStore;
+        this.exStore = exStore;
+
         if (this.recoverExecution) {
             await this._initializeRecovery();
             return;
@@ -80,7 +100,7 @@ class Scheduler {
         this.ready = true;
 
         const promise = new Promise((resolve) => {
-            const handler = (err) => {
+            const handler = (err: Error) => {
                 if (err) {
                     this.slicersFailed = true;
                 } else {
@@ -92,7 +112,7 @@ class Scheduler {
 
             this._resolveRun = () => {
                 this.events.removeListener('slicers:finished', handler);
-                resolve();
+                resolve(true);
             };
 
             this.events.once('slicers:finished', handler);
@@ -202,7 +222,7 @@ class Scheduler {
             }
         }
 
-        this.queue.each((slice) => {
+        this.queue.each((slice: Slice) => {
             this.queue.remove(slice.slice_id, 'slice_id');
         });
     }
@@ -227,11 +247,11 @@ class Scheduler {
         return slices;
     }
 
-    enqueueSlice(slice, addToStart) {
+    enqueueSlice(slice: Slice, addToStart?: boolean) {
         return this.enqueueSlices([slice], addToStart);
     }
 
-    enqueueSlices(slices, addToStart = false) {
+    enqueueSlices(slices: Slice[], addToStart = false) {
         if (this.stopped) return;
 
         slices.forEach((slice) => {
@@ -259,8 +279,8 @@ class Scheduler {
         let _handling = false;
         let _finished = false;
 
-        let createInterval;
-        let handleInterval;
+        let createInterval: NodeJS.Timeout | undefined;
+        let handleInterval: NodeJS.Timeout | undefined;
 
         const resetCleanup = () => {
             this._processCleanup = noop;
@@ -268,9 +288,9 @@ class Scheduler {
 
         const cleanup = () => {
             clearInterval(createInterval);
-            createInterval = null;
+            createInterval = undefined;
             clearInterval(handleInterval);
-            handleInterval = null;
+            handleInterval = undefined;
             resetCleanup();
         };
 
@@ -290,7 +310,7 @@ class Scheduler {
             events.emit('slicers:finished');
         };
 
-        const onSlicerFailure = async (err) => {
+        const onSlicerFailure = async (err: Error) => {
             cleanup();
             logger.warn('slicer failed', toString(err));
 
@@ -319,7 +339,7 @@ class Scheduler {
 
             if (!this.recovering) {
                 clearInterval(handleInterval);
-                handleInterval = null;
+                handleInterval = undefined;
             }
 
             if (this.canComplete()) {
@@ -373,7 +393,7 @@ class Scheduler {
         return this.executionContext.slicer().getSlices(this.queueRemainder);
     }
 
-    async _createSlices(allSlices) {
+    async _createSlices(allSlices: Slice[]) {
         // filter out anything that doesn't need to be created
         const slices = [];
 
@@ -407,12 +427,12 @@ class Scheduler {
     }
 
     async _initializeRecovery() {
-        this.recover = this.recover
-            || makeExecutionRecovery(this.context, this.stateStore, this.executionContext);
+        await this.recover.initialize(this.stateStore);
 
-        await this.recover.initialize();
+        const { slicers: prevSlicers } = await this.exStore.get(
+            this.recoverFromExId as string
+        );
 
-        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId);
         this.events.emit('slicers:registered', prevSlicers);
     }
 
@@ -428,7 +448,7 @@ class Scheduler {
         if (!this.recover.recoveryComplete()) {
             await new Promise((resolve) => {
                 this.events.once('execution:recovery:complete', () => {
-                    resolve();
+                    resolve(true);
                 });
             });
         }
@@ -448,14 +468,12 @@ class Scheduler {
             return;
         }
 
-        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId);
+        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId as string);
         this.startingPoints = await this.stateStore.getStartingPoints(
-            this.recoverFromExId,
+            this.recoverFromExId as string,
             prevSlicers,
         );
 
         this.logger.info(`execution: ${this.exId} finished its recovery`);
     }
 }
-
-module.exports = Scheduler;

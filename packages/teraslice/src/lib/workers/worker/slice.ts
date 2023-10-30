@@ -1,12 +1,21 @@
-'use strict';
+import events from 'node:events';
+import {
+    TSError, getTypeOf, logError,
+    Logger
+} from '@terascope/utils';
+import { Context, SlicerExecutionContext } from '@terascope/job-components';
+import { SliceState } from '../../storage';
+import { makeLogger } from '../helpers/terafoundation';
+import { logOpStats } from '../helpers/op-analytics';
 
-const { TSError, getTypeOf, logError } = require('@terascope/utils');
-const { SliceState } = require('../../storage');
-const { makeLogger } = require('../helpers/terafoundation');
-const { logOpStats } = require('../helpers/op-analytics');
+export class Slice {
+    private context: Context;
+    private executionContext: SlicerExecutionContext;
+    private events: events.EventEmitter;
+    private logger!: Logger;
+    private isShutdown: boolean;
 
-class Slice {
-    constructor(context, executionContext) {
+    constructor(context: Context, executionContext: SlicerExecutionContext) {
         this.context = context;
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
@@ -28,7 +37,7 @@ class Slice {
     }
 
     async run() {
-        if (this._isShutdown) throw new Error('Slice is already shutdown');
+        if (this.isShutdown) throw new Error('Slice is already shutdown');
 
         const { slice } = this;
 
@@ -67,7 +76,7 @@ class Slice {
     }
 
     async shutdown() {
-        this._isShutdown = true;
+        this.isShutdown = true;
     }
 
     async _onSliceFinalize(slice) {
@@ -116,7 +125,7 @@ class Slice {
         }
     }
 
-    async _markCompleted() {
+    private async _markCompleted() {
         const { slice } = this;
 
         await this.stateStore.updateState(slice, SliceState.completed);
@@ -125,7 +134,7 @@ class Slice {
         this.events.emit('slice:success', slice);
     }
 
-    async _markFailed(err) {
+    private async _markFailed(err: error) {
         const { stateStore, slice } = this;
 
         await stateStore.updateState(slice, SliceState.error, err);
@@ -139,5 +148,3 @@ class Slice {
         });
     }
 }
-
-module.exports = Slice;

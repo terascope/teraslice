@@ -1,20 +1,16 @@
-'use strict';
 
-const {
-    get,
-    getFullErrorStack,
-    isFatalError,
-    logError,
-    pWhile
-} = require('@terascope/utils');
-const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { makeStateStore, makeAnalyticsStore } = require('../../storage');
-const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
-const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
-const Metrics = require('../metrics');
-const Slice = require('./slice');
+import {
+    get, getFullErrorStack, isFatalError,
+    logError, pWhile
+} from '@terascope/utils';
+import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
+import { makeStateStore, makeAnalyticsStore } from '../../storage';
+import { generateWorkerId, makeLogger } from '../helpers/terafoundation';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
+import Metrics from '../metrics';
+import Slice from './slice';
 
-class Worker {
+export class Worker {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, 'worker');
@@ -340,5 +336,3 @@ class Worker {
         });
     }
 }
-
-module.exports = Worker;

@@ -1,21 +1,31 @@
 /* eslint-disable no-console */
+import { EventEmitter } from 'node:events';
+import {
+    // TODO: fix this
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    pDelay, debugLogger, isTest,
+    Logger
+} from '@terascope/utils';
 
-'use strict';
+const defaultLogger = debugLogger('metrics');
 
-const { EventEmitter } = require('events');
-const { pDelay, debugLogger, isTest } = require('@terascope/utils');
+export class Metrics extends EventEmitter {
+    private logger: Logger;
+    private _intervals: any[];
+    private eventLoopInterval: number;
+    // TODO: fix types here
+    private _typesCollectedAt: Record<string, any>;
+    private gcStats: any;
+    private eventLoopStats: any;
 
-const _logger = debugLogger('metrics');
-
-class Metrics extends EventEmitter {
-    constructor({ logger } = {}) {
+    constructor(config?: { logger: Logger }) {
         super();
-
-        this._logger = logger
-            ? logger.child({
+        const argLogger = config && config.logger;
+        this.logger = argLogger
+            ? argLogger.child({
                 module: 'performance:metrics'
             })
-            : _logger;
+            : defaultLogger;
 
         this.eventLoopInterval = isTest ? 100 : 5000;
         this._intervals = [];
@@ -25,13 +35,13 @@ class Metrics extends EventEmitter {
         try {
             this.gcStats = require('gc-stats')();
         } catch (err) {
-            this._logger.error(err, 'Failure to construct gc-stats');
+            this.logger.error(err, 'Failure to construct gc-stats');
         }
 
         try {
             this.eventLoopStats = require('event-loop-stats');
         } catch (err) {
-            this._logger.error(err, 'Failure to construct event-loop-stats');
+            this.logger.error(err, 'Failure to construct event-loop-stats');
         }
     }
 
@@ -39,7 +49,7 @@ class Metrics extends EventEmitter {
         const gcEnabled = this.gcStats != null;
         const loopEnabled = this.eventLoopStats != null;
 
-        this._logger.info('initializing performance metrics', {
+        this.logger.info('initializing performance metrics', {
             gcEnabled,
             loopEnabled
         });
@@ -54,10 +64,10 @@ class Metrics extends EventEmitter {
                 15: 'All'
             };
 
-            this.gcStats.on('stats', (metrics) => {
+            this.gcStats.on('stats', (metrics: any) => {
                 // never cause an unwanted error
                 if (!metrics) {
-                    this._logger.warn('invalid metrics received for gc stats', metrics);
+                    this.logger.warn('invalid metrics received for gc stats', metrics);
                     return;
                 }
 
@@ -75,12 +85,12 @@ class Metrics extends EventEmitter {
                     try {
                         metrics = this.eventLoopStats.sense();
                     } catch (err) {
-                        this._logger.error(err, 'failure getting for event-loop-stats');
+                        this.logger.error(err, 'failure getting for event-loop-stats');
                         return;
                     }
 
                     if (!metrics) {
-                        this._logger.warn('invalid metrics received for event-loop-stats', metrics);
+                        this.logger.warn('invalid metrics received for event-loop-stats', metrics);
                         return;
                     }
 
@@ -101,7 +111,7 @@ class Metrics extends EventEmitter {
         }
     }
 
-    _emitMetric(type, metrics) {
+    private _emitMetric(type: string, metrics: any) {
         const lastCollectedAt = this._typesCollectedAt[type] || Date.now();
         const msg = {
             type,
@@ -110,30 +120,30 @@ class Metrics extends EventEmitter {
         };
         this._typesCollectedAt[type] = Date.now();
         this.emit('metric', msg);
-        this._logger.info(msg, `${type} performance metrics`);
+        this.logger.info(msg, `${type} performance metrics`);
     }
 }
 
-if (require.main === module) {
-    (async () => {
-        const metrics = new Metrics();
-        metrics.on('metric', (metric) => {
-            console.dir(metric);
-        });
+// if (require.main === module) {
+//     (async () => {
+//         const metrics = new Metrics();
+//         metrics.on('metric', (metric) => {
+//             console.dir(metric);
+//         });
 
-        try {
-            await metrics.initialize();
-            console.log('staying alive for 30s...');
-            await pDelay(30000);
-            console.log('done, exiting...');
-        } catch (err) {
-            console.error(err);
-            process.exitCode = 1;
-        } finally {
-            await metrics.shutdown();
-            process.exit();
-        }
-    })();
-} else {
-    module.exports = Metrics;
-}
+//         try {
+//             await metrics.initialize();
+//             console.log('staying alive for 30s...');
+//             await pDelay(30000);
+//             console.log('done, exiting...');
+//         } catch (err) {
+//             console.error(err);
+//             process.exitCode = 1;
+//         } finally {
+//             await metrics.shutdown();
+//             process.exit();
+//         }
+//     })();
+// } else {
+//     module.exports = Metrics;
+// }

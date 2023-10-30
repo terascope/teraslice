@@ -2,7 +2,7 @@ import {
     isInteger, trimStart, trim,
     getFirst, joinList
 } from '@terascope/utils';
-import { AssetRecord } from '../../interfaces';
+import { AssetRecord } from '@terascope/types';
 
 const semver = require('semver');
 

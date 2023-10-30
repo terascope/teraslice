@@ -1,4 +1,5 @@
 import { Logger } from '@terascope/utils';
+import { ExecutionAnalytics, AggregatedExecutionAnalytics } from '@terascope/types';
 import { Message, RequestListener } from '../messenger/interfaces';
 
 export interface ClientOptions {
@@ -22,35 +23,8 @@ export interface ServerOptions {
     logger?: Logger;
 }
 
-export interface ClusterExecutionAnalytics {
-    processed: number;
-    failed: number;
-    queued: number;
-    job_duration: number;
-    workers_joined: number;
-    workers_disconnected: number;
-    workers_reconnected: number;
-}
-
 export interface ClusterAnalytics {
-    controllers: ClusterExecutionAnalytics;
-}
-
-export interface ExecutionAnalytics {
-    workers_available: number;
-    workers_active: number;
-    workers_joined: number;
-    workers_reconnected: number;
-    workers_disconnected: number;
-    job_duration: number;
-    failed: number;
-    subslices: number;
-    queued: number;
-    slice_range_expansion: number;
-    processed: number;
-    slicers: number;
-    subslice_by_key: number;
-    started: string;
+    controllers: AggregatedExecutionAnalytics;
 }
 
 export interface ExecutionAnalyticsMessage extends Message {

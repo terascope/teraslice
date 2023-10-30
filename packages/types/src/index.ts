@@ -7,3 +7,4 @@ export * from './typed-arrays';
 export * from './utility';
 export * from './xlucene-interfaces';
 export * from './elasticsearch-client';
+export * from './teraslice';

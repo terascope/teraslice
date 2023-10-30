@@ -20,7 +20,7 @@ module.exports = async function nodeMaster(context) {
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
-    const isShuttingDown = false;
+    const isShuttingDo wn = false;
     const ports = getPorts(context);
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);

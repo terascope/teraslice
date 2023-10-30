@@ -235,7 +235,7 @@ export class ExecutionStorage {
      * @param {Partial<import('@terascope/job-components').ExecutionConfig>} body
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async setStatus(exId: string, status: string, body: Record<string, any>) {
+    async setStatus(exId: string, status: string, body?: Record<string, any>) {
         try {
             return await this.updatePartial(exId, async (existing) => {
                 this._verifyStatus(existing._status, status);

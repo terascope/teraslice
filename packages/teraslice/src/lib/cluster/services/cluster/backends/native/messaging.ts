@@ -1,8 +1,6 @@
-'use strict';
-
-const _ = require('lodash');
-const { nanoid } = require('nanoid');
-const { pDelay, Queue } = require('@terascope/utils');
+import _ from 'lodash';
+import { nanoid } from 'nanoid';
+import { pDelay, Queue } from '@terascope/utils';
 
 // messages send to cluster_master
 const clusterMasterMessages = {
@@ -68,7 +66,7 @@ const routing = {
     }
 };
 
-module.exports = function messaging(context, logger) {
+export function messaging(context, logger) {
     const functionMapping = {};
     // processContext is set in _makeConfigurations
     let processContext;

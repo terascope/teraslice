@@ -1,4 +1,4 @@
-import { Context, RecoveryCleanupType } from '@terascope/job-components';
+import { Context, RecoveryCleanupType, Slice } from '@terascope/job-components';
 import {
     TSError, pRetry, toString,
     isRetryableError, parseErrorInfo, isTest,
@@ -237,7 +237,11 @@ export class StateStorage {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {Promise<import('@terascope/job-components').Slice[]>}
     */
-    async recoverSlices(exId: string, slicerId: number, cleanupType: string) {
+    async recoverSlices(
+        exId: string,
+        slicerId: number,
+        cleanupType: RecoveryCleanupType
+    ): Promise<Slice[]> {
         const query = this._getRecoverSlicesQuery(exId, slicerId, cleanupType);
         // Look for all slices that haven't been completed so they can be retried.
         try {
@@ -250,7 +254,7 @@ export class StateStorage {
                 slicer_id: doc.slicer_id,
                 request: JSON.parse(doc.request),
                 _created: doc._created
-            }));
+            })) as Slice[];
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Failure to get recovered slices'

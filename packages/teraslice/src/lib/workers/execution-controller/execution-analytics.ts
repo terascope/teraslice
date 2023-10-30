@@ -1,7 +1,12 @@
-'use strict';
-
-const { makeISODate, get, has } = require('@terascope/utils');
-const { makeLogger } = require('../helpers/terafoundation');
+import {
+    makeISODate, get, has,
+    Logger
+} from '@terascope/utils';
+import type { EventEmitter } from 'node:events';
+import type { Context, ExecutionContext } from '@terascope/job-components';
+import type { ClusterMaster } from '@terascope/teraslice-messaging';
+import { ExecutionAnalytics as EStats, AggregatedExecutionAnalytics } from '@terascope/types';
+import { makeLogger } from '../helpers/terafoundation';
 
 /**
  * @typedef ExecutionStats
@@ -22,8 +27,25 @@ const { makeLogger } = require('../helpers/terafoundation');
  * @property queuing_complete {String} a date string
 */
 
-class ExecutionAnalytics {
-    constructor(context, executionContext, client) {
+export class ExecutionAnalytics {
+    logger: Logger;
+    events: EventEmitter;
+    executionContext: any;
+    client: ClusterMaster.Client;
+    analyticsRate: number;
+    _handlers: Record<string, (arg?: any) => void>;
+    _pushing: boolean;
+    _started: boolean;
+    isShutdown: boolean;
+    executionAnalytics: EStats;
+    pushedAnalytics: AggregatedExecutionAnalytics;
+    analyticsInterval!: NodeJS.Timeout;
+
+    constructor(
+        context: Context,
+        executionContext: ExecutionContext,
+        client: ClusterMaster.Client
+    ) {
         this.logger = makeLogger(context, 'execution_analytics');
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
@@ -49,7 +71,7 @@ class ExecutionAnalytics {
             subslice_by_key: 0,
             started: undefined,
             queuing_complete: undefined
-        };
+        } as EStats;
 
         this.pushedAnalytics = {
             processed: 0,
@@ -59,7 +81,7 @@ class ExecutionAnalytics {
             workers_joined: 0,
             workers_disconnected: 0,
             workers_reconnected: 0
-        };
+        } as AggregatedExecutionAnalytics;
 
         this._registerHandlers();
 
@@ -73,6 +95,7 @@ class ExecutionAnalytics {
     get isRunning() {
         if (this.isShutdown) return false;
         if (!this._started) return false;
+        // @ts-expect-error "ready" is protected
         return this.client.ready;
     }
 
@@ -98,11 +121,11 @@ class ExecutionAnalytics {
         }, this.analyticsRate);
     }
 
-    set(key, value) {
+    set(key: string, value: any) {
         this.executionAnalytics[key] = value;
     }
 
-    increment(key) {
+    increment(key: string) {
         if (!has(this.executionAnalytics, key)) {
             this.logger.warn(`"${key}" is not a valid analytics property`);
             return;
@@ -111,7 +134,7 @@ class ExecutionAnalytics {
         this.executionAnalytics[key] += 1;
     }
 
-    get(key) {
+    get(key: string) {
         if (key) {
             return this.executionAnalytics[key];
         }
@@ -122,35 +145,38 @@ class ExecutionAnalytics {
         return Object.assign({}, this.executionAnalytics);
     }
 
-    async shutdown(timeout) {
+    async shutdown(timeout?: number) {
         this.isShutdown = true;
 
         clearInterval(this.analyticsInterval);
 
         Object.entries(this._handlers).forEach(([event, handler]) => {
             this.events.removeListener(event, handler);
+            // @ts-expect-error
             this._handlers[event] = null;
         });
 
         await this._pushAnalytics(timeout);
     }
 
-    async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
+    private async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
         if (this._pushing) return;
         this._pushing = true;
 
         const analytics = this.getAnalytics();
 
         // save a copy of what we push so we can emit diffs
-        const diffs = {};
-        const copy = {};
+        const diffs: Partial<AggregatedExecutionAnalytics> = {};
+        const copy: Partial<AggregatedExecutionAnalytics> = {};
 
         Object.entries(this.pushedAnalytics).forEach(([field, value]) => {
             diffs[field] = analytics[field] - value;
             copy[field] = analytics[field];
         });
 
-        const response = await this.client.sendClusterAnalytics(diffs, timeout);
+        const response = await this.client.sendClusterAnalytics(
+            diffs as AggregatedExecutionAnalytics, timeout
+        );
         const recorded = get(response, 'payload.recorded', false);
 
         this._pushing = false;
@@ -160,10 +186,10 @@ class ExecutionAnalytics {
             return;
         }
 
-        this.pushedAnalytics = copy;
+        this.pushedAnalytics = copy as AggregatedExecutionAnalytics;
     }
 
-    _registerHandlers() {
+    private _registerHandlers() {
         const { exId } = this.executionContext;
 
         this._handlers['slicer:slice:recursion'] = () => {
@@ -181,11 +207,11 @@ class ExecutionAnalytics {
             this.increment('subslice_by_key');
         };
 
-        this._handlers['slicers:queued'] = (queueSize) => {
+        this._handlers['slicers:queued'] = (queueSize: number) => {
             this.set('queued', queueSize);
         };
 
-        this._handlers['slicers:registered'] = (count) => {
+        this._handlers['slicers:registered'] = (count: number) => {
             this.set('slicers', count);
         };
 
@@ -207,5 +233,3 @@ class ExecutionAnalytics {
         });
     }
 }
-
-module.exports = ExecutionAnalytics;
