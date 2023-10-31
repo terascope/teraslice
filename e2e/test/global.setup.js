@@ -41,8 +41,11 @@ module.exports = async () => {
 
     if (TEST_PLATFORM === 'kubernetes') {
         await deployK8sTeraslice(); // here
+        await pDelay(2000);
         await teraslice.waitForTeraslice();
+        await pDelay(2000);
         await setAliasAndBaseAssets();
+        await pDelay(2000);
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();

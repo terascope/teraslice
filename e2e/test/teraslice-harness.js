@@ -99,7 +99,9 @@ module.exports = class TerasliceHarness {
             }
             try {
                 await deployK8sTeraslice();
+                await pDelay(2000);
                 await this.waitForTeraslice();
+                await pDelay(2000);
                 // console.log('@@@@ after state reset');
                 // await showState();
             } catch (err) {
