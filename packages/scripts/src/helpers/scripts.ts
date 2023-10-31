@@ -715,17 +715,17 @@ export async function deployK8sTeraslice() {
     }
 }
 
-export async function setAliasAndBaseAssets() {
-    await setAlias();
+export async function setAliasAndBaseAssets(hostIP: string) {
+    await setAlias(hostIP);
     await deployAssets('elasticsearch');
     await deployAssets('standard');
     await deployAssets('kafka');
 }
 
-async function setAlias() {
+async function setAlias(hostIP: string) {
     let subprocess = await execa.command('earl aliases remove k8se2e 2> /dev/null || true', { shell: true });
     signale.debug(subprocess.stdout);
-    subprocess = await execa.command('earl aliases add k8se2e http://localhost:45678');
+    subprocess = await execa.command(`earl aliases add k8se2e http://${hostIP}:45678`);
     signale.debug(subprocess.stdout);
     // console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }

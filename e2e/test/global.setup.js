@@ -44,7 +44,7 @@ module.exports = async () => {
         await pDelay(2000);
         await teraslice.waitForTeraslice();
         await pDelay(2000);
-        await setAliasAndBaseAssets();
+        await setAliasAndBaseAssets(HOST_IP);
         await pDelay(2000);
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
