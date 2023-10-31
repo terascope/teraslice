@@ -12,9 +12,12 @@ const { dockerUp } = require('./docker-helpers');
 const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
-const { CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM } = require('./config');
+const {
+    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM, HOST_IP
+} = require('./config');
 
 module.exports = async () => {
+    signale.debug('@@@@ HOST_IP: ', HOST_IP);
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 
