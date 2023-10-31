@@ -324,9 +324,9 @@ async function runE2ETest(
         });
     }
 
-    // if (options.testPlatform === 'kubernetes') {
-    //     await destroyKindCluster();
-    // }
+    if (options.testPlatform === 'kubernetes') {
+        await destroyKindCluster();
+    }
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {
