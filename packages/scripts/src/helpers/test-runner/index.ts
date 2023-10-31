@@ -31,7 +31,7 @@ import {
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
-import { KEEP_OPEN, MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E } from '../config';
+import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -324,7 +324,7 @@ async function runE2ETest(
         });
     }
 
-    if (options.testPlatform === 'kubernetes' && !KEEP_OPEN) {
+    if (options.testPlatform === 'kubernetes' && !options.keepOpen) {
         await destroyKindCluster();
     }
 }
