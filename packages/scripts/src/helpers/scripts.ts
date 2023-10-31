@@ -749,7 +749,7 @@ export async function deleteTerasliceNamespace() {
 export async function showState() {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
     signale.info(subprocess.stdout);
-    console.log('\nshowState subprocess: \n', subprocess.stdout);
+    // console.log('\nshowState subprocess: \n', subprocess.stdout);
     await showESIndices();
     await showAssets();
 }
@@ -757,7 +757,7 @@ export async function showState() {
 async function showESIndices() {
     const subprocess = await execa.command('curl localhost:49200/_cat/indices');
     signale.info(subprocess.stdout);
-    console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
+    // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
 async function showAssets() {
@@ -765,7 +765,7 @@ async function showAssets() {
         const subprocess = await execa.command('curl localhost:45678/v1/assets');
         signale.info(subprocess.stdout);
 
-        console.log('\nshowAssets subprocess: \n', subprocess.stdout);
+        // console.log('\nshowAssets subprocess: \n', subprocess.stdout);
     } catch (err) {
         signale.info(err);
         // console.log('\nshowAssets subprocess: \n', err);
