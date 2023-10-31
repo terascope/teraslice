@@ -724,31 +724,31 @@ export async function setAliasAndBaseAssets() {
 
 async function setAlias() {
     let subprocess = await execa.command('earl aliases remove k8se2e 2> /dev/null || true', { shell: true });
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
     subprocess = await execa.command('earl aliases add k8se2e http://localhost:45678');
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
     // console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }
 
 async function deployAssets(assetName: string) {
     const subprocess = await execa.command(`earl assets deploy k8se2e --blocking terascope/${assetName}-assets`);
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
 
 export async function deleteTerasliceNamespace() {
     try {
         const subprocess = await execa.command('kubectl delete namespace ts-dev1');
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
     } catch (err) {
-        signale.info('Teraslice namespace cannot be deleted because it does not exist');
+        signale.debug('Teraslice namespace cannot be deleted because it does not exist');
     }
 }
 
 // FIXME: delete before merging? - for testing
 export async function showState() {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
     // console.log('\nshowState subprocess: \n', subprocess.stdout);
     await showESIndices();
     await showAssets();
@@ -756,18 +756,18 @@ export async function showState() {
 
 async function showESIndices() {
     const subprocess = await execa.command('curl localhost:49200/_cat/indices');
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
     // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
 async function showAssets() {
     try {
         const subprocess = await execa.command('curl localhost:45678/v1/assets');
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
 
         // console.log('\nshowAssets subprocess: \n', subprocess.stdout);
     } catch (err) {
-        signale.info(err);
+        signale.debug(err);
         // console.log('\nshowAssets subprocess: \n', err);
     }
 }
