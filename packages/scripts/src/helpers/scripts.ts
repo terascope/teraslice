@@ -816,9 +816,10 @@ export async function showTSWorkerLogs() {
 }
 
 export async function describeWorker() {
+    signale.debug('@@@ descripbeWorker');
     const subprocess = await execa.command('kubectl -n ts-dev1 describe pod -l app.kubernetes.io/component=worker');
-    signale.debug(subprocess.stdout);
-    logger.debug(subprocess.stdout);
+    signale.debug(subprocess);
+    logger.debug(subprocess);
 }
 
 async function showAssets(hostIP: string) {

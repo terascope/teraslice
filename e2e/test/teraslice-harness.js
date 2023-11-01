@@ -80,6 +80,7 @@ module.exports = class TerasliceHarness {
         } catch (err) {
             if (process.env.TEST_PLATFORM === 'kubernetes') {
                 signale.debug('@@@ in catch of waitForExStatus');
+                signale.debug(await describeWorker());
                 signale.debug(await showState(HOST_IP));
                 signale.debug(await showTSMasterLogs());
                 signale.debug(await showTSExLogs());
