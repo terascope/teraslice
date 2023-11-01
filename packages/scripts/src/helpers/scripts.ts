@@ -769,7 +769,7 @@ export async function deleteTerasliceNamespace() {
 
 // FIXME: delete before merging? - for testing
 export async function showState(hostIP: string) {
-    const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
+    const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     signale.debug(subprocess.stdout);
     logger.debug(subprocess.stdout);
     // console.log('\nshowState subprocess: \n', subprocess.stdout);
@@ -811,6 +811,12 @@ export async function showTSExLogs() {
 
 export async function showTSWorkerLogs() {
     const subprocess = await execa.command('kubectl -n ts-dev1 logs --tail 1000 -l app.kubernetes.io/component=worker');
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+}
+
+export async function describeWorker() {
+    const subprocess = await execa.command('kubectl -n ts-dev1 describe -l app.kubernetes.io/component=worker');
     signale.debug(subprocess.stdout);
     logger.debug(subprocess.stdout);
 }
