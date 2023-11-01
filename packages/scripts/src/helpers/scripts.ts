@@ -798,19 +798,19 @@ export async function showESData(hostIP: string) {
 }
 
 export async function showTSMasterLogs() {
-    const subprocess = await execa.command('kubectl -n ts-dev1 logs -l app.kubernetes.io/component=master');
+    const subprocess = await execa.command('kubectl -n ts-dev1 logs --tail 1000 -l app.kubernetes.io/component=master');
     signale.debug(subprocess.stdout);
     logger.debug(subprocess.stdout);
 }
 
 export async function showTSExLogs() {
-    const subprocess = await execa.command('kubectl -n ts-dev1 logs -l app.kubernetes.io/component=execution_controller');
+    const subprocess = await execa.command('kubectl -n ts-dev1 logs --tail 1000 -l app.kubernetes.io/component=execution_controller');
     signale.debug(subprocess.stdout);
     logger.debug(subprocess.stdout);
 }
 
 export async function showTSWorkerLogs() {
-    const subprocess = await execa.command('kubectl -n ts-dev1 logs -l app.kubernetes.io/component=worker');
+    const subprocess = await execa.command('kubectl -n ts-dev1 logs --tail 1000 -l app.kubernetes.io/component=worker');
     signale.debug(subprocess.stdout);
     logger.debug(subprocess.stdout);
 }
