@@ -784,6 +784,19 @@ async function showESIndices(hostIP: string) {
     // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
+export async function showESData(hostIP: string) {
+    let subprocess = await execa.command(`curl ${hostIP}:49200/ts-dev1__ex/_search`);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+    subprocess = await execa.command(`curl ${hostIP}:49200/ts-dev1__analytics-2023.11/_search`);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+    subprocess = await execa.command(`curl ${hostIP}:49200/ts-dev1__state-2023.11/_search`);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+    // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
+}
+
 async function showAssets(hostIP: string) {
     try {
         const subprocess = await execa.command(`curl ${hostIP}:45678/v1/assets`);

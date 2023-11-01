@@ -5,7 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
-const { deployK8sTeraslice, showState } = require('@terascope/scripts');
+const { deployK8sTeraslice, showState, showESData } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -77,6 +77,7 @@ module.exports = class TerasliceHarness {
             if (process.env.TEST_PLATFORM === 'kubernetes') {
                 signale.debug('@@@ in catch of waitForExStatus');
                 signale.debug(await showState(HOST_IP));
+                signale.debug(await showESData(HOST_IP));
             }
             err.message = `Execution: ${ex.id()}: ${err.message}`;
 
