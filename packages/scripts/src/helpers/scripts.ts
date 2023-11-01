@@ -797,6 +797,24 @@ export async function showESData(hostIP: string) {
     // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
+export async function showTSMasterLogs() {
+    const subprocess = await execa.command('kubectl -n tsdev1 logs -l app.kubernetes.io/component=master');
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+}
+
+export async function showTSExLogs() {
+    const subprocess = await execa.command('kubectl -n tsdev1 logs -l app.kubernetes.io/component=execution_controller');
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+}
+
+export async function showTSWorkerLogs() {
+    const subprocess = await execa.command('kubectl -n tsdev1 logs -l app.kubernetes.io/component=worker');
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
+}
+
 async function showAssets(hostIP: string) {
     try {
         const subprocess = await execa.command(`curl ${hostIP}:45678/v1/assets`);
