@@ -90,7 +90,7 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 // console.log('@@@@ before state reset');
-                // await showState();
+                // await showState(HOST_IP);
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await this.clearNonBaseAssets();
             } catch (err) {
@@ -478,7 +478,9 @@ module.exports = class TerasliceHarness {
                 await Promise.all(executions.map((ex) => this.waitForExStatus(ex, 'completed')));
             } else {
                 const ex = await this.postJob(jobSpec);
+                showState(HOST_IP);
                 await this.waitForExStatus(ex, 'completed');
+                showState(HOST_IP);
             }
 
             signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
