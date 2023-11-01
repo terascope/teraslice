@@ -57,6 +57,10 @@ module.exports = class TerasliceHarness {
         const start = Date.now();
 
         try {
+            if (process.env.TEST_PLATFORM === 'kubernetes') {
+                signale.debug('@@@ before ex.waitForExStatus');
+                signale.debug(await showState(HOST_IP));
+            }
             const result = await ex.waitForStatus(status, interval, 2 * 60 * 1000);
             if (endDelay) {
                 // since most of the time we are chaining this with other actions
@@ -64,8 +68,16 @@ module.exports = class TerasliceHarness {
                 // it a little bit of time
                 await pDelay(endDelay);
             }
+            if (process.env.TEST_PLATFORM === 'kubernetes') {
+                signale.debug('@@@ after ex.waitForExStatus');
+                signale.debug(await showState(HOST_IP));
+            }
             return result;
         } catch (err) {
+            if (process.env.TEST_PLATFORM === 'kubernetes') {
+                signale.debug('@@@ in catch of waitForExStatus');
+                signale.debug(await showState(HOST_IP));
+            }
             err.message = `Execution: ${ex.id()}: ${err.message}`;
 
             this.warn(err.stack, {
