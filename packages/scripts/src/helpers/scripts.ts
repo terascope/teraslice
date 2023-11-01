@@ -542,12 +542,14 @@ export async function createKindCluster(): Promise<void> {
 
     const configPath = path.join(e2eK8sDir, 'kindConfig.yaml');
     const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
-    signale.info(subprocess.stderr);
+    signale.debug(subprocess.stderr);
+    logger.debug(subprocess.stderr);
 }
 
 export async function destroyKindCluster(): Promise<void> {
     const subprocess = await execa.command('kind delete cluster --name k8se2e');
-    signale.info(subprocess.stderr);
+    signale.debug(subprocess.stderr);
+    logger.debug(subprocess.stderr);
 }
 
 export async function isKindInstalled(): Promise<boolean> {
@@ -574,7 +576,8 @@ export async function isKubectlInstalled(): Promise<boolean> {
 export async function loadTerasliceImage(terasliceImage: string): Promise<void> {
     const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name k8se2e`);
     // console.log('load teraslice image subprocess: ', subprocess);
-    signale.info(subprocess.stderr);
+    signale.debug(subprocess.stderr);
+    logger.debug(subprocess.stderr);
 }
 
 export async function kindStopService(serviceName: string): Promise<void> {
@@ -587,7 +590,8 @@ export async function kindStopService(serviceName: string): Promise<void> {
         // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
         const yamlFile = `${serviceName}Deployment.yaml`;
         const subprocess = await execa.command(`kubectl delete -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
         // console.log('stopElasticsearch subprocess: ', subprocess);
     } catch (err) {
         // Do nothing. This should fail because no services should be up yet.
@@ -602,9 +606,11 @@ export async function kindLoadServiceImage(
     try {
         const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name k8se2e`);
         // console.log('load service image subprocess: ', subprocess);
-        signale.info(subprocess.stderr);
+        signale.debug(subprocess.stderr);
+        logger.debug(subprocess.stderr);
     } catch (err) {
-        signale.info(`The service ${serviceName} could not be loaded. It may not be present locally`);
+        signale.debug(`The service ${serviceName} could not be loaded. It may not be present locally`);
+        logger.debug(`The service ${serviceName} could not be loaded. It may not be present locally`);
     }
 }
 
@@ -619,9 +625,11 @@ export async function kindStartService(serviceName: string): Promise<void> {
 
     try {
         const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
     } catch (err) {
         signale.error(`The service ${serviceName} could not be started: `, err);
+        logger.error(`The service ${serviceName} could not be started: `, err);
     }
 
     if (serviceName === 'kafka') {
@@ -666,7 +674,8 @@ export async function createNamespace(namespaceYaml: string) {
         throw new Error('Missing k8s e2e test directory');
     }
     const subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, namespaceYaml)}`);
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     // console.log('namespace subprocess: ', subprocess);
 }
 
@@ -677,11 +686,14 @@ export async function k8sSetup(): Promise<void> {
     }
 
     let subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, 'role.yaml')}`);
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, 'roleBinding.yaml')}`);
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     subprocess = await execa.command(`kubectl apply -f ${path.join(e2eK8sDir, 'priorityClass.yaml')}`);
-    signale.info(subprocess.stdout);
+    signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
 }
 
 export async function deployK8sTeraslice() {
@@ -697,20 +709,25 @@ export async function deployK8sTeraslice() {
         /// Creates configmap for terasclice-master
         let subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-master --from-file=${path.join(e2eK8sDir, 'masterConfig', 'teraslice.yaml')}`);
         // console.log('masterConfig subprocess: ', subprocess);
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
 
         /// Creates configmap for teraslice-worker
         subprocess = await execa.command(`kubectl create -n ts-dev1 configmap teraslice-worker --from-file=${path.join(e2eK8sDir, 'workerConfig', 'teraslice.yaml')}`);
         // console.log('workerConfig subprocess: ', subprocess);
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
 
         /// Creates deployment for teraslice
         subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, 'masterDeployment.yaml')}`);
         // console.log('masterDeploy subprocess: ', subprocess);
-        signale.info(subprocess.stdout);
+        signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
     } catch (err) {
         signale.error('Error deploying Teraslice');
         signale.error(err);
+        logger.error('Error deploying Teraslice');
+        logger.error(err);
         process.exit(1);
     }
 }
@@ -725,14 +742,17 @@ export async function setAliasAndBaseAssets(hostIP: string) {
 async function setAlias(hostIP: string) {
     let subprocess = await execa.command('earl aliases remove k8se2e 2> /dev/null || true', { shell: true });
     signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     subprocess = await execa.command(`earl aliases add k8se2e http://${hostIP}:45678`);
     signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     // console.log('setAlias subprocess: ', subprocess1, subprocess2);
 }
 
 async function deployAssets(assetName: string) {
     const subprocess = await execa.command(`earl assets deploy k8se2e --blocking terascope/${assetName}-assets`);
     signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     // console.log('deployKafkaAssets subprocess: ', subprocess);
 }
 
@@ -740,34 +760,40 @@ export async function deleteTerasliceNamespace() {
     try {
         const subprocess = await execa.command('kubectl delete namespace ts-dev1');
         signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
     } catch (err) {
         signale.debug('Teraslice namespace cannot be deleted because it does not exist');
+        logger.debug('Teraslice namespace cannot be deleted because it does not exist');
     }
 }
 
 // FIXME: delete before merging? - for testing
-export async function showState() {
+export async function showState(hostIP: string) {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels');
     signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     // console.log('\nshowState subprocess: \n', subprocess.stdout);
-    await showESIndices();
-    await showAssets();
+    await showESIndices(hostIP);
+    await showAssets(hostIP);
 }
 
-async function showESIndices() {
-    const subprocess = await execa.command('curl localhost:49200/_cat/indices');
+async function showESIndices(hostIP: string) {
+    const subprocess = await execa.command(`curl ${hostIP}:49200/_cat/indices`);
     signale.debug(subprocess.stdout);
+    logger.debug(subprocess.stdout);
     // console.log('\nshowESIndices subprocess: \n', subprocess.stdout);
 }
 
-async function showAssets() {
+async function showAssets(hostIP: string) {
     try {
-        const subprocess = await execa.command('curl localhost:45678/v1/assets');
+        const subprocess = await execa.command(`curl ${hostIP}:45678/v1/assets`);
         signale.debug(subprocess.stdout);
+        logger.debug(subprocess.stdout);
 
         // console.log('\nshowAssets subprocess: \n', subprocess.stdout);
     } catch (err) {
         signale.debug(err);
+        logger.debug(err);
         // console.log('\nshowAssets subprocess: \n', err);
     }
 }

@@ -5,7 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
-const { deployK8sTeraslice } = require('@terascope/scripts');
+const { deployK8sTeraslice, showState } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -24,7 +24,7 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
 module.exports = class TerasliceHarness {
     async init() {
-        const { client } = await createClient({ node: TEST_HOST });// create ES or OS db
+        const { client } = await createClient({ node: TEST_HOST });
         this.client = client;
         this.teraslice = new TerasliceClient({
             host: `http://${HOST_IP}:45678`,
@@ -103,7 +103,7 @@ module.exports = class TerasliceHarness {
                 await this.waitForTeraslice();
                 await pDelay(2000);
                 // console.log('@@@@ after state reset');
-                // await showState();
+                await showState(HOST_IP);
             } catch (err) {
                 signale.error('Failure to reset teraslice state', err);
                 throw err;
