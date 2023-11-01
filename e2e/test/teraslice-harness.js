@@ -478,9 +478,15 @@ module.exports = class TerasliceHarness {
                 await Promise.all(executions.map((ex) => this.waitForExStatus(ex, 'completed')));
             } else {
                 const ex = await this.postJob(jobSpec);
-                if (process.env.TEST_PLATFORM === 'kubernetes') showState(HOST_IP);
+                if (process.env.TEST_PLATFORM === 'kubernetes') {
+                    signale.debug('@@@ after postJob');
+                    signale.debug(await showState(HOST_IP));
+                }
                 await this.waitForExStatus(ex, 'completed');
-                if (process.env.TEST_PLATFORM === 'kubernetes') showState(HOST_IP);
+                if (process.env.TEST_PLATFORM === 'kubernetes') {
+                    signale.debug('@@@ after waitForExStatus');
+                    signale.debug(await showState(HOST_IP));
+                }
             }
 
             signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
