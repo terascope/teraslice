@@ -136,17 +136,23 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 });
             }
 
-            if (p.isWildcard(node)) {
-                const value = p.getFieldValue(node.value, this.variables);
+            if (this.preventPrefixWildcard) {
+                if (p.isWildcard(node) || p.isRegexp(node)) {
+                    const value = p.getFieldValue(node.value, this.variables);
 
-                if (this.preventPrefixWildcard && startsWithWildcard(value)) {
-                    throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
-                        statusCode: 403,
-                        context: {
-                            q,
-                            safe: true
-                        }
-                    });
+                    if (startsWithWildcard(value, node.type)) {
+                        const errMessage = node.type === p.NodeType.Wildcard
+                            ? "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted"
+                            : "Regexp queries starting with wildcards in the form 'fieldname:/*value/' or 'fieldname:/.*?value/' in query are restricted";
+
+                        throw new ts.TSError(errMessage, {
+                            statusCode: 403,
+                            context: {
+                                q,
+                                safe: true
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -381,9 +387,29 @@ function matchTypeField(typeField: string, restrictField: string) {
     return false;
 }
 
-function startsWithWildcard(input?: string | number) {
+/**
+ * Regular expression ES standard operators to avoid starting a query with
+ * left off closing braces but included all others even though some aren't likely
+ * to be used as the first character in a query (i.e. | and { )
+ */
+const standardOperators = ['.', '?', '+', '*', '(', '[', '|', '{'];
+/**
+ * Regular expression ES optional operators - included all even though we don't allow all
+ */
+const optionalOperators = ['~', '#', '<', '&', '@'];
+/**
+ * Standard and optional regex characters to avoid starting a query with since starting
+ * a query with wildcards makes a query heavy as all terms in the index need to be searched
+ */
+const regexWildcard = standardOperators.concat(optionalOperators);
+
+function startsWithWildcard(input?: string | number, nodeType = p.NodeType.Wildcard) {
     if (!input) return false;
     if (!ts.isString(input)) return false;
+
+    if (nodeType === p.NodeType.Regexp) {
+        return regexWildcard.includes(ts.getFirstChar(input));
+    }
 
     return ['*', '?'].includes(ts.getFirstChar(input));
 }

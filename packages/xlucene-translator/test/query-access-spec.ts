@@ -502,6 +502,15 @@ describe('QueryAccess', () => {
             });
         });
 
+        describe.each([['hello:/*world/'], ['hello:/.*world/'], ['hello:/.+world/']])('when using a query of "%s"', (query) => {
+            it('should throw an error', () => {
+                expect(() => queryAccess.restrict(query)).toThrowWithMessage(
+                    TSError,
+                    "Regexp queries starting with wildcards in the form 'fieldname:/*value/' or 'fieldname:/.*?value/' in query are restricted"
+                );
+            });
+        });
+
         it('should work range queries', () => {
             const query = 'hello:world AND bytes:{2000 TO *]';
 
