@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { accessSync, readFileSync } from 'node:fs';
 import path from 'path';
 import fse from 'fs-extra';
 import semver from 'semver';
@@ -9,9 +9,18 @@ import { getMajorVersion } from './asset_utils';
 
 const mutex = new Mutex();
 
+export function getPackageJSON() {
+    const file = readFileSync(
+        new URL('../../../package.json'),
+        { encoding: 'utf8' }
+    );
+
+    return JSON.parse(file as any);
+}
+
 export function existsSync(filename: string) {
     try {
-        fs.accessSync(filename);
+        accessSync(filename);
         return true;
     } catch (ex) {
         return false;
@@ -90,8 +99,8 @@ async function _saveAsset(
     logger: Logger,
     assetsPath: string,
     id: string,
-    binaryData: any,
-    metaCheck: metaCheckFN
+    binaryData: Buffer,
+    metaCheck?: metaCheckFN
 ): Promise<AssetMetadata> {
     const newPath = path.join(assetsPath, id);
 
@@ -125,8 +134,8 @@ export async function saveAsset(
     logger: Logger,
     assetsPath: string,
     id: string,
-    binaryData: string,
-    metaCheck: metaCheckFN
+    binaryData: Buffer,
+    metaCheck?: metaCheckFN
 ) {
     return mutex.runExclusive(() => _saveAsset(
         logger, assetsPath, id, binaryData, metaCheck

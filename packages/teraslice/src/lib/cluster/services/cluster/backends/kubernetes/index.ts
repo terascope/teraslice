@@ -1,13 +1,13 @@
-'use strict';
-
-const {
-    TSError, logError, get, cloneDeep, pRetry
-} = require('@terascope/utils');
-const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
-const K8sResource = require('./k8sResource');
-const k8sState = require('./k8sState');
-const K8s = require('./k8s');
-const { getRetryConfig } = require('./utils');
+import {
+    TSError, logError, get,
+    cloneDeep, pRetry, Logger
+} from '@terascope/utils';
+import type { Context, ExecutionConfig } from '@terascope/job-components';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation';
+import { K8sResource } from './k8sResource';
+import { gen } from './k8sState';
+import { K8s } from './k8s';
+import { getRetryConfig } from './utils';
 
 /*
  Execution Life Cycle for _status
@@ -18,34 +18,44 @@ const { getRetryConfig } = require('./utils');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
-    const logger = makeLogger(context, 'kubernetes_cluster_service');
+export class KubernetesClusterBackend {
+    context: Context;
+    k8s: K8s;
+    logger: Logger;
+    private clusterStateInterval: NodeJS.Timeout | undefined;
+    clusterState: Record<string, any> = {};
+    readonly clusterNameLabel: string;
 
-    const clusterName = get(context, 'sysconfig.teraslice.name');
-    const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-    const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
+    constructor(context: Context, clusterMasterServer: any) {
+        const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
+        const clusterName = get(context, 'sysconfig.teraslice.name');
 
-    const clusterState = {};
-    let clusterStateInterval = null;
+        this.context = context;
+        this.logger = makeLogger(context, 'kubernetes_cluster_service');
+        this.clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
+        this.clusterState = {};
+        this.clusterStateInterval = undefined;
 
-    const k8s = new K8s(
-        logger,
-        null,
-        kubernetesNamespace,
-        context.sysconfig.teraslice.kubernetes_api_poll_delay,
-        context.sysconfig.teraslice.shutdown_timeout
-    );
+        this.k8s = new K8s(
+            this.logger,
+            null,
+            kubernetesNamespace,
+            // @ts-expect-error
+            context.sysconfig.teraslice.kubernetes_api_poll_delay,
+            context.sysconfig.teraslice.shutdown_timeout
+        );
 
-    clusterMasterServer.onClientOnline((exId) => {
-        logger.info(`execution ${exId} is connected`);
-    });
+        clusterMasterServer.onClientOnline((exId: string) => {
+            this.logger.info(`execution ${exId} is connected`);
+        });
+    }
 
     /**
      * getClusterState returns a copy of the clusterState object
      * @return {Object} a copy of the clusterState object
      */
-    function getClusterState() {
-        return cloneDeep(clusterState);
+    getClusterState() {
+        return cloneDeep(this.clusterState);
     }
 
     /**
@@ -55,15 +65,15 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @constructor
      * @return      {Promise} [description]
      */
-    function _getClusterState() {
-        return k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${clusterNameLabel}`, 'pods')
-            .then((k8sPods) => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
+    private async _getClusterState() {
+        return this.k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${this.clusterNameLabel}`, 'pods')
+            .then((k8sPods) => gen(k8sPods, this.clusterState))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
                 // log though.  This only gets used to show slicer info through
                 // the API.  We wouldn't want to disrupt the cluster master
                 // for rare failures to reach the k8s API.
-                logError(logger, err, 'Error listing teraslice pods in k8s');
+                logError(this.logger, err, 'Error listing teraslice pods in k8s');
             });
     }
 
@@ -73,7 +83,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * worker.
      * @return {boolean} Ok to create job?
      */
-    function readyForAllocation() {
+    readyForAllocation() {
         // return _availableWorkers() >= 2;
         // TODO: This will be addressed in the future, see:
         //   https://github.com/terascope/teraslice/issues/744
@@ -89,19 +99,24 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @param  {Object} execution        Object containing execution details
      * @return {Promise}                 [description]
      */
-    async function allocateSlicer(ex) {
+    async allocateSlicer(ex: ExecutionConfig) {
         const execution = cloneDeep(ex);
 
         execution.slicer_port = 45680;
+
         const exJobResource = new K8sResource(
-            'jobs', 'execution_controller', context.sysconfig.teraslice, execution, logger
+            'jobs',
+            'execution_controller',
+            this.context.sysconfig.teraslice,
+            execution,
+            this.logger
         );
         const exJob = exJobResource.resource;
 
-        logger.debug(exJob, 'execution allocating slicer');
+        this.logger.debug(exJob, 'execution allocating slicer');
 
-        const jobResult = await k8s.post(exJob, 'job');
-        logger.debug(jobResult, 'k8s slicer job submitted');
+        const jobResult = await this.k8s.post(exJob, 'job');
+        this.logger.debug(jobResult, 'k8s slicer job submitted');
 
         let controllerLabel;
         if (jobResult.spec.selector.matchLabels['controller-uid']) {
@@ -114,13 +129,13 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         const controllerUid = jobResult.spec.selector.matchLabels[controllerLabel];
 
-        const pod = await k8s.waitForSelectedPod(
+        const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
-            null,
-            context.sysconfig.teraslice.slicer_timeout
+            undefined,
+            this.context.sysconfig.teraslice.slicer_timeout
         );
 
-        logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
+        this.logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
         execution.slicer_hostname = `${pod.status.podIP}`;
 
         return execution;
@@ -132,28 +147,34 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @param  {Object} execution  Object that contains information of Execution
      * @return {Promise}           [description]
      */
-    async function allocateWorkers(execution) {
+    async allocateWorkers(execution: ExecutionConfig) {
         // NOTE: I tried to set these on the execution inside allocateSlicer
         // but these properties were gone by the time this was called, perhaps
         // because they are not on the schema.  So I do this k8s API call
         // instead.
         const selector = `app.kubernetes.io/component=execution_controller,teraslice.terascope.io/jobId=${execution.job_id}`;
         const jobs = await pRetry(
-            () => k8s.nonEmptyList(selector, 'jobs'), getRetryConfig
+            () => this.k8s.nonEmptyList(selector, 'jobs'), getRetryConfig()
         );
+        // @ts-expect-error
         execution.k8sName = jobs.items[0].metadata.name;
+        // @ts-expect-error
         execution.k8sUid = jobs.items[0].metadata.uid;
 
         const kr = new K8sResource(
-            'deployments', 'worker', context.sysconfig.teraslice, execution, logger
+            'deployments',
+            'worker',
+            this.context.sysconfig.teraslice,
+            execution,
+            this.logger
         );
 
         const workerDeployment = kr.resource;
 
-        logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
+        this.logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
-        return k8s.post(workerDeployment, 'deployment')
-            .then((result) => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
+        return this.k8s.post(workerDeployment, 'deployment')
+            .then((result) => this.logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
                 const error = new TSError(err, {
                     reason: 'Error submitting k8s worker deployment'
@@ -165,20 +186,20 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     // FIXME: These functions should probably do something with the response
     // NOTE: I find is strange that the expected return value here is
     //        effectively the same as the function inputs
-    async function addWorkers(executionContext, numWorkers) {
-        await k8s.scaleExecution(executionContext.ex_id, numWorkers, 'add');
+    async addWorkers(executionContext: any, numWorkers: number) {
+        await this.k8s.scaleExecution(executionContext.ex_id, numWorkers, 'add');
         return { action: 'add', ex_id: executionContext.ex_id, workerNum: numWorkers };
     }
 
     // NOTE: This is passed exId instead of executionContext like addWorkers and
     // removeWorkers.  I don't know why, just dealing with it.
-    async function removeWorkers(exId, numWorkers) {
-        await k8s.scaleExecution(exId, numWorkers, 'remove');
+    async removeWorkers(exId: string, numWorkers: number) {
+        await this.k8s.scaleExecution(exId, numWorkers, 'remove');
         return { action: 'remove', ex_id: exId, workerNum: numWorkers };
     }
-
-    async function setWorkers(executionContext, numWorkers) {
-        await k8s.scaleExecution(executionContext.ex_id, numWorkers, 'set');
+    // TODO: fix types here
+    async setWorkers(executionContext: any, numWorkers: number) {
+        await this.k8s.scaleExecution(executionContext.ex_id, numWorkers, 'set');
         return { action: 'set', ex_id: executionContext.ex_id, workerNum: numWorkers };
     }
 
@@ -188,38 +209,24 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @return {Promise}
      */
 
-    async function stopExecution(exId) {
-        return k8s.deleteExecution(exId);
+    async stopExecution(exId: string) {
+        return this.k8s.deleteExecution(exId);
     }
 
-    async function shutdown() {
-        clearInterval(clusterStateInterval);
+    async shutdown() {
+        clearInterval(this.clusterStateInterval);
     }
 
-    async function initialize() {
-        logger.info('kubernetes clustering initializing');
+    async initialize() {
+        this.logger.info('kubernetes clustering initializing');
 
         // Periodically update cluster state, update period controlled by:
         //  context.sysconfig.teraslice.node_state_interval
-        clusterStateInterval = setInterval(() => {
-            logger.trace('cluster_master requesting cluster state update.');
-            _getClusterState();
-        }, context.sysconfig.teraslice.node_state_interval);
+        this.clusterStateInterval = setInterval(() => {
+            this.logger.trace('cluster_master requesting cluster state update.');
+            this._getClusterState();
+        }, this.context.sysconfig.teraslice.node_state_interval);
 
-        await k8s.init();
+        await this.k8s.init();
     }
-
-    return {
-        getClusterState,
-        allocateWorkers,
-        allocateSlicer,
-        initialize,
-        shutdown,
-        stopExecution,
-        removeWorkers,
-        addWorkers,
-        setWorkers,
-        readyForAllocation,
-        // clusterAvailable TODO: return false if k8s API unavailable, not in use
-    };
-};
+}

@@ -482,7 +482,7 @@ export class TerasliceElasticsearchStorage {
         return true;
     }
 
-    async shutdown(forceShutdown: boolean) {
+    async shutdown(forceShutdown = false) {
         const startTime = Date.now();
         this.logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
 
@@ -491,6 +491,7 @@ export class TerasliceElasticsearchStorage {
         if (forceShutdown !== true) {
             return this._flush(true);
         }
+
         const destroy = this._destroy.bind(this);
         const timeout = this.context.sysconfig.teraslice.shutdown_timeout;
 

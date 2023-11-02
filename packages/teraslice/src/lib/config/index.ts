@@ -9,7 +9,7 @@ export function clusterName(configFile: TerasliceConfig) {
     return get(configFile, 'teraslice.name', null);
 }
 
-export function getTerasliceConfig(sysconfig: SysConfig) {
+export function getTerasliceConfig(sysconfig?: SysConfig) {
     return Object.assign({
         name: 'teraslice',
         default_config_file: path.join(__dirname, 'default-sysconfig.js'),

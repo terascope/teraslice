@@ -95,7 +95,6 @@ export class ExecutionAnalytics {
     get isRunning() {
         if (this.isShutdown) return false;
         if (!this._started) return false;
-        // @ts-expect-error "ready" is protected
         return this.client.ready;
     }
 

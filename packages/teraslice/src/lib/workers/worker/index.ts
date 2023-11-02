@@ -1,17 +1,38 @@
-
 import {
     get, getFullErrorStack, isFatalError,
-    logError, pWhile
+    logError, pWhile, Logger
 } from '@terascope/utils';
+import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
-import { makeStateStore, makeAnalyticsStore } from '../../storage';
+import type { Context, WorkerExecutionContext } from '@terascope/job-components';
+import type { SliceCompletePayload } from '@terascope/types';
+import { StateStorage, AnalyticsStorage } from '../../storage';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import Metrics from '../metrics';
-import Slice from './slice';
+import { Metrics } from '../metrics';
+import { SliceExecution } from './slice';
 
 export class Worker {
-    constructor(context, executionContext) {
+    stateStorage: StateStorage;
+    analyticsStorage: AnalyticsStorage;
+    client: ExecutionController.Client;
+    metrics: Metrics | null;
+    readonly executionContext: WorkerExecutionContext;
+    readonly shutdownTimeout: number;
+    readonly context: Context;
+    readonly workerId: string;
+    private slice!: SliceExecution;
+    logger: Logger;
+    events: EventEmitter;
+    isShuttingDown = false;
+    isProcessing = false;
+    isInitialized = false;
+    shouldShutdown = false;
+    forceShutdown = false;
+    slicesProcessed = 0;
+    isShutdown = false;
+
+    constructor(context: Context, executionContext: WorkerExecutionContext) {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
@@ -29,6 +50,10 @@ export class Worker {
         const slicerTimeout = get(config, 'slicer_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
 
+        this.stateStorage = new StateStorage(context);
+        this.analyticsStorage = new AnalyticsStorage(context);
+
+        // TODO: fix types here
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
@@ -39,9 +64,7 @@ export class Worker {
             connectTimeout: slicerTimeout,
             actionTimeout,
             logger
-        });
-
-        this.slice = new Slice(context, executionContext);
+        } as any);
 
         this.metrics = performanceMetrics
             ? new Metrics({
@@ -49,35 +72,29 @@ export class Worker {
             })
             : null;
 
-        this.stores = {};
         this.executionContext = executionContext;
         this.shutdownTimeout = shutdownTimeout;
         this.context = context;
         this.workerId = workerId;
         this.logger = logger;
         this.events = events;
-
-        this.isShuttingDown = false;
-        this.isProcessing = false;
-        this.isInitialized = false;
-        this.shouldShutdown = false;
-        this.forceShutdown = false;
-        this.slicesProcessed = 0;
     }
 
     async initialize() {
         const { context } = this;
         this.isInitialized = true;
 
-        const [stateStore, analyticsStore] = await Promise.all([
-            makeStateStore(context),
-            makeAnalyticsStore(context),
+        await Promise.all([
+            this.stateStorage.initialize(),
+            this.analyticsStorage.initialize(),
         ]);
 
-        this.stores.stateStore = stateStore;
-        this.slice.stateStore = stateStore;
-        this.stores.analyticsStore = analyticsStore;
-        this.slice.analyticsStore = analyticsStore;
+        this.slice = new SliceExecution(
+            context,
+            this.executionContext,
+            this.stateStorage,
+            this.analyticsStorage
+        );
 
         this.client.onServerShutdown(() => {
             this.logger.warn('Execution Controller shutdown, exiting...');
@@ -133,7 +150,7 @@ export class Worker {
 
             function done() {
                 clearInterval(interval);
-                resolve();
+                resolve(true);
             }
         });
     }
@@ -167,7 +184,7 @@ export class Worker {
             });
             sentSliceComplete = true;
 
-            await this.executionContext.onSliceFinished(sliceId);
+            await this.executionContext.onSliceFinished();
         } catch (err) {
             logError(this.logger, err, `slice ${sliceId} run error`);
 
@@ -188,7 +205,7 @@ export class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(block, event, shutdownError) {
+    async shutdown(block: boolean, event: string, shutdownError: Error) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;
@@ -211,8 +228,8 @@ export class Worker {
         this.client.available = false;
         this.isShuttingDown = true;
 
-        const shutdownErrs = [];
-        const pushError = (err) => {
+        const shutdownErrs: Error[] = [];
+        const pushError = (err: Error) => {
             shutdownErrs.push(err);
         };
 
@@ -242,8 +259,22 @@ export class Worker {
 
         await Promise.all([
             (async () => {
-                const stores = Object.values(this.stores);
-                await Promise.all(stores.map((store) => store.shutdown(true).catch(pushError)));
+                await Promise.all([
+                    () => {
+                        try {
+                            this.stateStorage.shutdown(true);
+                        } catch (err) {
+                            pushError(err);
+                        }
+                    },
+                    () => {
+                        try {
+                            this.analyticsStorage.shutdown(true);
+                        } catch (err) {
+                            pushError(err);
+                        }
+                    }
+                ]);
             })(),
             (async () => {
                 await this.slice.shutdown().catch(pushError);
@@ -266,14 +297,16 @@ export class Worker {
         if (shutdownErrs.length) {
             const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
-            this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
+            this.events.emit('worker:shutdown:complete', shutdownErr);
             throw shutdownErr;
         }
 
-        this.events.emit(this.context, 'worker:shutdown:complete');
+        // TODO: investigate this this.events.emit(this.context, 'worker:shutdown:complete');
+
+        this.events.emit('worker:shutdown:complete');
     }
 
-    _sendSliceComplete(payload) {
+    _sendSliceComplete(payload: SliceCompletePayload) {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
@@ -296,16 +329,16 @@ export class Worker {
         const startTime = Date.now();
 
         return new Promise((resolve, reject) => {
-            let timeout;
-            let interval;
-            const done = (err) => {
+            let timeout: NodeJS.Timeout | undefined;
+            let interval: NodeJS.Timer | undefined;
+            const done = (err?: Error) => {
                 clearInterval(interval);
                 clearTimeout(timeout);
                 if (err) {
                     reject(err);
                     return;
                 }
-                resolve();
+                resolve(true);
             };
 
             interval = setInterval(() => {

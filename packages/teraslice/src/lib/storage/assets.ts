@@ -183,7 +183,7 @@ export class AssetsStorage {
         return this.backend.search(query, from, size, sort, fields);
     }
 
-    async getAsset(id: string) {
+    async get(id: string) {
         return this.backend.get(id);
     }
 

@@ -1,15 +1,27 @@
-'use strict';
+import {
+    TSError, get, isEmpty,
+    pDelay, pRetry, Logger
+} from '@terascope/utils';
+// @ts-expect-error
+import { Client, KubeConfig } from 'kubernetes-client';
+// @ts-expect-error
+import Request from 'kubernetes-client/backends/request';
+import { getRetryConfig } from './utils';
 
-const {
-    TSError, get, isEmpty, pDelay, pRetry
-} = require('@terascope/utils');
-const { Client, KubeConfig } = require('kubernetes-client');
-const Request = require('kubernetes-client/backends/request');
-const { getRetryConfig } = require('./utils');
+export class K8s {
+    logger: Logger;
+    apiPollDelay: number;
+    defaultNamespace: string;
+    shutdownTimeout: number;
+    client: Client;
 
-class K8s {
-    constructor(logger, clientConfig, defaultNamespace,
-        apiPollDelay, shutdownTimeout) {
+    constructor(
+        logger: Logger,
+        clientConfig: Record<string, any> | null,
+        defaultNamespace: string,
+        apiPollDelay: number,
+        shutdownTimeout: number
+    ) {
         this.apiPollDelay = apiPollDelay;
         this.defaultNamespace = defaultNamespace || 'default';
         this.logger = logger;
@@ -80,7 +92,7 @@ class K8s {
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls
      */
-    async waitForSelectedPod(selector, ns, timeout = 10000) {
+    async waitForSelectedPod(selector: string, ns?: string, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
@@ -119,7 +131,7 @@ class K8s {
      * TODO: Should this use the cluster state that gets polled periodically,
      * rather than making it's own k8s API calls?
      */
-    async waitForNumPods(number, selector, ns, timeout = 10000) {
+    async waitForNumPods(number: number, selector: string, ns: string, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
         let now = Date.now();
         const end = now + timeout;
@@ -155,7 +167,7 @@ class K8s {
     * @param  {String} ns       namespace to search, this will override the default
     * @return {Object}          body of k8s get response.
     */
-    async list(selector, objType, ns) {
+    async list(selector: string, objType: string, ns?: string) {
         const namespace = ns || this.defaultNamespace;
         let response;
 
@@ -188,7 +200,7 @@ class K8s {
         }
 
         if (response.statusCode >= 400) {
-            const err = new Error(`Problem when trying to k8s.list ${objType}`);
+            const err = new TSError(`Problem when trying to k8s.list ${objType}`);
             this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
@@ -197,7 +209,7 @@ class K8s {
         return response.body;
     }
 
-    async nonEmptyList(selector, objType) {
+    async nonEmptyList(selector: string, objType: string) {
         const jobs = await this.list(selector, objType);
         if (jobs.items.length === 1) {
             return jobs;
@@ -218,7 +230,7 @@ class K8s {
      * @param  {String} manifestType 'service', 'deployment', 'job'
      * @return {Object}              body of k8s API response object
      */
-    async post(manifest, manifestType) {
+    async post(manifest: Record<string, any>, manifestType: string) {
         let response;
 
         try {
@@ -241,7 +253,7 @@ class K8s {
         }
 
         if (response.statusCode >= 400) {
-            const err = new Error(`Problem when trying to k8s.post ${manifestType} with body ${JSON.stringify(manifest)}`);
+            const err = new TSError(`Problem when trying to k8s.post ${manifestType} with body ${JSON.stringify(manifest)}`);
             this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
@@ -259,7 +271,7 @@ class K8s {
     // TODO: I renamed this from patchDeployment to just patch because this is
     // the low level k8s api method, I expect to eventually change the interface
     // on this to require `objType` to support patching other things
-    async patch(record, name) {
+    async patch(record: Record<string, any>, name: string) {
         let response;
 
         try {
@@ -273,7 +285,7 @@ class K8s {
         }
 
         if (response.statusCode >= 400) {
-            const err = new Error(`Unexpected response code (${response.statusCode}), when patching ${name} with body ${JSON.stringify(record)}`);
+            const err = new TSError(`Unexpected response code (${response.statusCode}), when patching ${name} with body ${JSON.stringify(record)}`);
             this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
@@ -289,14 +301,14 @@ class K8s {
      *                           'deployments', 'services', 'jobs'
      * @return {Object}          body of k8s delete response.
      */
-    async delete(name, objType) {
+    async delete(name: string, objType: string) {
         let response;
 
         try {
             if (objType === 'services') {
                 response = await pRetry(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).services(name)
-                    .delete(), getRetryConfig(), getRetryConfig());
+                    .delete(), getRetryConfig());
             } else if (objType === 'deployments') {
                 response = await pRetry(() => this.client
                     .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
@@ -323,7 +335,7 @@ class K8s {
         }
 
         if (response.statusCode >= 400) {
-            const err = new Error(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
+            const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
             this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
@@ -342,7 +354,7 @@ class K8s {
      * @param  {String}  exId ID of the execution
      * @return {Promise}
      */
-    async deleteExecution(exId) {
+    async deleteExecution(exId: string) {
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
         }
@@ -372,7 +384,7 @@ class K8s {
      *                            'jobs'
      * @return {Promise}
      */
-    async _deleteObjByExId(exId, nodeType, objType) {
+    async _deleteObjByExId(exId: string, nodeType: string, objType: string) {
         let objList;
         let deleteResponse;
 
@@ -410,7 +422,7 @@ class K8s {
      * @param  {String} op         Scale operation: `set`, `add`, `remove`
      * @return {Object}            Body of patch response.
      */
-    async scaleExecution(exId, numWorkers, op) {
+    async scaleExecution(exId: string, numWorkers: number, op: string) {
         let newScale;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
@@ -446,5 +458,3 @@ class K8s {
         return patchResponseBody;
     }
 }
-
-module.exports = K8s;

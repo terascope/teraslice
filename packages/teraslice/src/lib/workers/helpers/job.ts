@@ -1,7 +1,10 @@
 import { makeISODate } from '@terascope/utils';
-import { JobValidator, Context } from '@terascope/job-components';
+import {
+    JobValidator, Context, RecoveryCleanupType,
+    Slice
+} from '@terascope/job-components';
 import { terasliceOpPath } from '../../config';
-import { makeJobStore, makeExStore, makeStateStore } from '../../storage';
+import { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
 
 // TODO: fix type here
 export async function validateJob(context: Context, jobSpec: any) {
@@ -16,22 +19,53 @@ export async function validateJob(context: Context, jobSpec: any) {
     }
 }
 
+interface TestExecution {
+    context: Context
+    config: any;
+    stores?: { jobStore: JobsStorage, exStore: ExecutionStorage, stateStore: StateStorage};
+    isRecovery?: boolean;
+    cleanupType?: RecoveryCleanupType;
+    createRecovery?: boolean;
+    shutdownStores?: boolean;
+    recoverySlices?: Slice[],
+    lastStatus?: string;
+}
+
 export async function initializeTestExecution({
     context,
     config,
-    stores = {},
-    isRecovery,
+    stores = {} as any,
+    isRecovery = false,
     cleanupType,
     createRecovery = true,
     shutdownStores = false,
     recoverySlices = [],
     lastStatus = 'failed'
-}) {
-    stores.jobStore = stores.jobStore || (await makeJobStore(context));
-    stores.exStore = stores.exStore || (await makeExStore(context));
-    stores.stateStore = stores.stateStore || (await makeStateStore(context));
+}: TestExecution) {
+    if (!stores.jobStore) {
+        const [jobStore, exStore, stateStore] = await Promise.all([
+            (async () => {
+                const store = new JobsStorage(context);
+                await store.initialize();
+                return store;
+            })(),
+            (async () => {
+                const store = new ExecutionStorage(context);
+                await store.initialize();
+                return store;
+            })(),
+            (async () => {
+                const store = new StateStorage(context);
+                await store.initialize();
+                return store;
+            })(),
+        ]);
+        stores.jobStore = jobStore;
+        stores.exStore = exStore;
+        stores.stateStore = stateStore;
+    }
 
-    const validJob = await validateJob(context, config, { skipRegister: true });
+    const validJob = await validateJob(context, config);
     const jobSpec = await stores.jobStore.create(config);
 
     const job = Object.assign({}, jobSpec, validJob, {
@@ -41,13 +75,13 @@ export async function initializeTestExecution({
     const slicerHostname = job.slicer_hostname;
     const slicerPort = job.slicer_port;
 
-    let ex;
+    let ex: any;
     if (isRecovery) {
         ex = await stores.exStore.create(job, lastStatus);
 
         if (recoverySlices.length) {
             await Promise.all(recoverySlices
-                .map(({ slice, state }) => stores.stateStore.createState(
+                .map(({ slice, state }: any) => stores.stateStore.createState(
                     ex.ex_id,
                     slice,
                     state,
@@ -64,11 +98,14 @@ export async function initializeTestExecution({
     }
 
     if (slicerHostname && slicerPort) {
-        ex = await stores.exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
-            slicer_hostname: slicerHostname,
-            slicer_port: slicerPort,
-            _updated: makeISODate()
-        }));
+        ex = await stores.exStore.updatePartial(
+            ex.ex_id,
+            async (existing) => Object.assign(existing, {
+                slicer_hostname: slicerHostname,
+                slicer_port: slicerPort,
+                _updated: makeISODate()
+            })
+        );
     }
 
     if (shutdownStores) {

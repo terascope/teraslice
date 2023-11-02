@@ -1,6 +1,10 @@
 import _ from 'lodash';
+import type { EventEmitter } from 'node:events';
 import { nanoid } from 'nanoid';
-import { pDelay, Queue } from '@terascope/utils';
+import { pDelay, Queue, Logger } from '@terascope/utils';
+import { Context } from '@terascope/job-components';
+import socketIOClient from 'socket.io-client';
+import socketIOServer from 'socket.io';
 
 // messages send to cluster_master
 const clusterMasterMessages = {
@@ -66,41 +70,82 @@ const routing = {
     }
 };
 
-export function messaging(context, logger) {
-    const functionMapping = {};
-    // processContext is set in _makeConfigurations
-    let processContext;
-    const config = _makeConfigurations();
-    const { hostURL } = config;
-    const configTimeout = context.sysconfig.teraslice.action_timeout;
-    const networkLatencyBuffer = context.sysconfig.teraslice.network_latency_buffer;
-    const self = config.assignment;
-    const events = context.apis.foundation.getSystemEvents();
-    const selfMessages = _getMessages(self);
-    const messagingQueue = new Queue();
+type HookFN = () => void | null;
 
-    let messsagingOnline = false;
-    let childHookFn = null;
-    let io;
+export class Messaging {
+    context: Context;
+    logger: Logger;
+    events: EventEmitter;
+    configTimeout: number;
+    networkLatencyBuffer: number;
+    hostURL: string;
+    messsagingOnline = false;
+    messagingQueue = new Queue<any>();
+    childHookFn: HookFN;
+    config: any;
+    self: string;
+    selfMessages: Record<string, any>;
+    processContext!: Record<string, any>;
+    functionMapping: Record<string, any>;
+    io!: Record<string, any>;
 
-    logger.debug(`messaging service configuration for assignment ${config.assignment}`);
+    constructor(context: Context, logger: Logger) {
+        this.context = context;
+        this.functionMapping = {};
+        // processContext is set in _makeConfigurations
+        let processContext: any;
+        this.config = this._makeConfigurations() as any;
+        const { hostURL } = this.config;
+        this.hostURL = hostURL;
+        this.configTimeout = context.sysconfig.teraslice.action_timeout;
+        this.networkLatencyBuffer = context.sysconfig.teraslice.network_latency_buffer;
+        this.self = this.config.assignment;
+        this.events = context.apis.foundation.getSystemEvents();
+        this.selfMessages = this._getMessages(this.self);
+        this.logger = logger;
+        // @ts-expect-error TODO: fixme
+        this.childHookFn = null;
 
-    // set a default listener the is used for forwarding/completing responses
-    functionMapping['messaging:response'] = _handleResponse;
-    processContext.on('messaging:response', _handleResponse);
+        this.logger.debug(`messaging service configuration for assignment ${this.config.assignment}`);
 
-    function _handleResponse(msgResponse) {
-        // if msg has returned to source then emit it else pass it along
-        if (msgResponse.__source === config.assignment) {
-            logger.trace(`node message ${msgResponse.__msgId} has been processed`);
-            // we are in the right spot, emit to complete the promise from send
-            events.emit(msgResponse.__msgId, msgResponse);
+        // set a default listener the is used for forwarding/completing responses
+        this.functionMapping['messaging:response'] = this._handleResponse;
+        processContext.on('messaging:response', this._handleResponse);
+
+        // all child processes need to set up a process listener on the 'message' event
+        if (this.config.clients.ipcClient) {
+            process.on('message', this._handleIpcMessages());
         } else {
-            _forwardMessage(msgResponse);
+            processContext.on('online', (worker: NodeJS.Process) => {
+                this.logger.debug('worker process has come online');
+                if (this.childHookFn) {
+                    this.childHookFn();
+                }
+                // @ts-expect-error
+                const contextWorker = processContext.workers[worker.id];
+
+                // don't double subscribe
+                contextWorker.removeListener('message', this._handleWorkerMessage);
+
+                // set up a message handler on each child created, if a child is talking to cluster
+                // then pass it on, else invoke process event handler on node_master
+                contextWorker.on('message', this._handleWorkerMessage);
+            });
         }
     }
 
-    function respond(incoming, outgoing) {
+    private _handleResponse(msgResponse: any) {
+        // if msg has returned to source then emit it else pass it along
+        if (msgResponse.__source === this.config.assignment) {
+            this.logger.trace(`node message ${msgResponse.__msgId} has been processed`);
+            // we are in the right spot, emit to complete the promise from send
+            this.events.emit(msgResponse.__msgId, msgResponse);
+        } else {
+            this._forwardMessage(msgResponse);
+        }
+    }
+
+    respond(incoming: any, outgoing?: any) {
         const outgoingResponse = (outgoing && typeof outgoing === 'object') ? outgoing : {};
         if (incoming.__msgId) {
             outgoingResponse.__msgId = incoming.__msgId;
@@ -108,71 +153,75 @@ export function messaging(context, logger) {
         outgoingResponse.__source = incoming.__source;
         outgoingResponse.message = 'messaging:response';
         outgoingResponse.to = incoming.__source;
-        return send(outgoingResponse);
+        return this.send(outgoingResponse);
     }
 
-    function _findAndSend(filterFn, msg, msgHookFn) {
-        const childProcesses = context.cluster.workers;
+    private _findAndSend(filterFn: any, msg: any, msgHookFn?: any) {
+        // @ts-expect-error
+        const childProcesses = this.context.cluster.workers as any;
         const children = _.filter(childProcesses, filterFn);
         if (children.length === 0 && msg.response) {
             // if there are no child processes found and it needs a response, answer back so
             // that it does not hold for a long time
-            respond(msg);
+            this.respond(msg);
         }
         children.forEach((childProcess) => {
             if (msgHookFn) msgHookFn(childProcess);
+            // @ts-expect-error
             if (childProcess.connected) {
+                // @ts-expect-error
                 childProcess.send(msg);
             } else {
-                logger.warn('cannot send message to process', msg);
+                this.logger.warn('cannot send message to process', msg);
             }
         });
     }
 
-    function _sendToProcesses(msg) {
+    private _sendToProcesses(msg: any) {
         const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
         if (msgExId) {
             // all processes that have the same assignment and exId
-            const filterFn = (process) => {
+            const filterFn = (process: any) => {
                 if (process.assignment !== msg.to) return false;
                 if (process.ex_id !== msgExId) return false;
                 return true;
             };
-            _findAndSend(filterFn, msg);
+            this._findAndSend(filterFn, msg);
         } else {
             // all processes that have the same assignment
-            const filterFn = (process) => process.assignment === msg.to;
-            _findAndSend(filterFn, msg);
+            const filterFn = (process: any) => process.assignment === msg.to;
+            this._findAndSend(filterFn, msg);
         }
     }
 
-    function register(eventConfig) {
+    register(eventConfig: Record<string, any>) {
         const eventName = eventConfig.event;
         const { callback, identifier } = eventConfig;
 
-        const selfHasEvent = _.some(selfMessages, (type) => type[eventName] != null);
+        const selfHasEvent = _.some(this.selfMessages, (type) => type[eventName] != null);
+
         if (!selfHasEvent) {
             throw new Error(`"${self}" cannot register for event, "${eventName}", in messaging module`);
         }
 
-        if (selfMessages.ipc[eventName]) {
-            const realKey = selfMessages.ipc[eventName];
+        if (this.selfMessages.ipc[eventName]) {
+            const realKey = this.selfMessages.ipc[eventName];
             // this needs to be directly allocated so that IPC messaging can happen if
             // network was not instantiated
-            processContext.on(realKey, callback);
+            this.processContext.on(realKey, callback);
         } else {
             // we attach events etc later when the connection is made, this is async
             // while others are sync registration
-            let trueEventName = selfMessages.network[eventName];
+            let trueEventName = this.selfMessages.network[eventName];
 
-            if (!trueEventName) trueEventName = selfMessages.intraProcess[eventName];
+            if (!trueEventName) trueEventName = this.selfMessages.intraProcess[eventName];
             if (identifier) callback.__socketIdentifier = identifier;
-            functionMapping[trueEventName] = callback;
+            this.functionMapping[trueEventName] = callback;
         }
     }
 
-    function _registerFns(socket) {
-        _.forOwn(functionMapping, (func, key) => {
+    private _registerFns(socket: any) {
+        _.forOwn(this.functionMapping, (func, key) => {
             if (func.__socketIdentifier) {
                 const wrappedFunc = (msg = {}) => {
                     const identifier = func.__socketIdentifier;
@@ -189,7 +238,7 @@ export function messaging(context, logger) {
                         const rooms = Object.keys(socket.rooms);
                         const hasRoom = _.some(rooms, (r) => r === id);
                         if (!hasRoom) {
-                            logger.info(`joining room ${id}`);
+                            this.logger.info(`joining room ${id}`);
                             socket.join(id);
                         }
                     }
@@ -205,19 +254,19 @@ export function messaging(context, logger) {
                 return;
             }
 
-            logger.trace(`setting listener key ${key}`);
+            this.logger.trace(`setting listener key ${key}`);
 
             socket.on(key, func);
         });
     }
 
-    function _determinePathForMessage(messageSent) {
+    private _determinePathForMessage(messageSent: any) {
         const { to } = messageSent;
-        let destinationType = routing[self][to];
+        let destinationType = routing[this.self][to];
         // cluster_master has two types of connections to node_master, if it does not have a
         // address then its talking to its own node_master through ipc
         // TODO: reference self message, remove cluster_master specific code
-        if (self === 'cluster_master' && !messageSent.address && clusterMasterMessages.ipc[messageSent.message]) {
+        if (this.self === 'cluster_master' && !messageSent.address && clusterMasterMessages.ipc[messageSent.message]) {
             destinationType = 'ipc';
         }
         if (destinationType === undefined) {
@@ -227,118 +276,120 @@ export function messaging(context, logger) {
     }
 
     // join rooms before on connect to avoid race conditions
-    function _attachRoomsSocketIO() {
-        if (!io) return;
+    private _attachRoomsSocketIO() {
+        if (!this.io) return;
 
         // middleware
-        io.use((socket, next) => {
+        this.io.use((socket: any, next: any) => {
             const {
                 node_id: nodeId,
             } = socket.handshake.query;
 
             if (nodeId) {
-                logger.info(`node ${nodeId} joining room on connect`);
+                this.logger.info(`node ${nodeId} joining room on connect`);
                 socket.join(nodeId);
             }
 
             return next();
         });
     }
+    // @ts-expect-error
+    listen({ server, query } = {}) {
+        this.messsagingOnline = true;
 
-    function listen({ server, query } = {}) {
-        messsagingOnline = true;
-
-        if (config.clients.networkClient) {
+        if (this.config.clients.networkClient) {
             // node_master, worker
-            io = require('socket.io-client')(hostURL, {
+            this.io = socketIOClient(this.hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
                 perMessageDeflate: false,
                 query,
-            });
-            _registerFns(io);
-            if (self === 'node_master') {
-                io.on('networkMessage', (networkMsg) => {
+            } as any);
+            this._registerFns(io);
+            if (this.self === 'node_master') {
+                this.io.on('networkMessage', (networkMsg: any) => {
                     const { message } = networkMsg;
-                    const func = functionMapping[message];
+                    const func = this.functionMapping[message];
                     if (func) {
                         func(networkMsg);
                     } else {
                         // if no function is registered, it is meant to by passed along to child
-                        _sendToProcesses(networkMsg);
+                        this._sendToProcesses(networkMsg);
                     }
                 });
             }
-            logger.debug('client network connection is online');
+            this.logger.debug('client network connection is online');
         } else if (server) {
             // cluster_master
-            io = require('socket.io')(server, {
+            this.io = socketIOServer(server, {
                 path: '/native-clustering',
-                pingTimeout: configTimeout,
-                pingInterval: configTimeout + networkLatencyBuffer,
+                pingTimeout: this.configTimeout,
+                pingInterval: this.configTimeout + this.networkLatencyBuffer,
                 perMessageDeflate: false,
                 serveClient: false,
             });
-            _attachRoomsSocketIO();
+            this._attachRoomsSocketIO();
 
-            io.on('connection', (socket) => {
-                logger.debug('a connection to cluster_master has been made');
-                _registerFns(socket);
+            this.io.on('connection', (socket: any) => {
+                this.logger.debug('a connection to cluster_master has been made');
+                this._registerFns(socket);
             });
         }
 
         // TODO: message queuing will be used until formal process lifecycles are implemented
-        while (messagingQueue.size() > 0) {
-            const cachedMessages = messagingQueue.dequeue();
+        while (this.messagingQueue.size() > 0) {
+            const cachedMessages = this.messagingQueue.dequeue();
             // they are put in as a tuple, [realMsg, ipcMessage]
-            processContext.emit(cachedMessages[0], cachedMessages[1]);
+            this.processContext.emit(cachedMessages[0], cachedMessages[1]);
         }
     }
 
-    function broadcast(eventName, payload = {}) {
-        logger.trace('broadcasting a network message', { eventName, payload });
-        if (!payload.message) payload.message = eventName;
-        io.emit('networkMessage', payload);
+    broadcast(eventName: string, payload: Record<string, any> = {}) {
+        this.logger.trace('broadcasting a network message', { eventName, payload });
+        if (!payload.message) {
+            payload.message = eventName;
+        }
+        this.io.emit('networkMessage', payload);
     }
 
-    function _forwardMessage(messageSent) {
-        const messageType = _determinePathForMessage(messageSent);
+    private _forwardMessage(messageSent: any) {
+        const messageType = this._determinePathForMessage(messageSent);
         if (messageType === 'network') {
             // worker and node_master communicate through broadcast to slicer/cluster_master
-            if (self === 'node_master') {
-                io.emit(messageSent.message, messageSent);
-            } else if (self === 'cluster_master') {
-                io.sockets.in(messageSent.address).emit('networkMessage', messageSent);
+            if (this.self === 'node_master') {
+                this.io.emit(messageSent.message, messageSent);
+            } else if (this.self === 'cluster_master') {
+                this.io.sockets.in(messageSent.address).emit('networkMessage', messageSent);
             } else {
-                io.sockets.in(messageSent.address).emit(messageSent.message, messageSent);
+                this.io.sockets.in(messageSent.address).emit(messageSent.message, messageSent);
             }
-        } else if (self === 'node_master') {
-            _sendToProcesses(messageSent);
-        } else if (processContext) {
-            if (processContext.connected) {
-                processContext.send(messageSent);
+        } else if (this.self === 'node_master') {
+            this._sendToProcesses(messageSent);
+        } else if (this.processContext) {
+            if (this.processContext.connected) {
+                this.processContext.send(messageSent);
             } else {
-                logger.warn('cannot send to process because it is not connected', messageSent);
+                this.logger.warn('cannot send to process because it is not connected', messageSent);
             }
         }
     }
 
-    function send(messageSent) {
+    send(messageSent: any) {
         if (!messageSent.__source) messageSent.__source = self;
         const needsReply = messageSent.response;
 
         if (!needsReply) {
-            _forwardMessage(messageSent);
+            this._forwardMessage(messageSent);
             return Promise.resolve(true);
         }
         return new Promise((resolve, reject) => {
-            let timer;
+            let timer: NodeJS.Timeout | undefined;
             const msgID = nanoid(8);
-            const actionTimeout = messageSent.timeout || configTimeout;
-            const messageTimeout = _.toNumber(actionTimeout) + networkLatencyBuffer;
+            const actionTimeout = messageSent.timeout || this.configTimeout;
+            const messageTimeout = _.toNumber(actionTimeout) + this.networkLatencyBuffer;
             messageSent.__msgId = msgID;
 
-            events.once(msgID, (nodeMasterData) => {
+            this.events.once(msgID, (nodeMasterData) => {
                 clearTimeout(timer);
                 if (nodeMasterData.error) {
                     reject(new Error(`${nodeMasterData.error} occurred on node: ${nodeMasterData.__source}`));
@@ -347,16 +398,17 @@ export function messaging(context, logger) {
                 }
             });
 
-            _forwardMessage(messageSent);
+            this._forwardMessage(messageSent);
+
             timer = setTimeout(() => {
                 // remove listener to prevent memory leaks
-                events.removeAllListeners(msgID);
+                this.events.removeAllListeners(msgID);
                 reject(new Error(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`));
             }, messageTimeout);
         });
     }
 
-    function _makeConfigurations() {
+    private _makeConfigurations() {
         let host;
         let port;
         const options = {
@@ -366,25 +418,27 @@ export function messaging(context, logger) {
             worker: { networkClient: true, ipcClient: true },
             assets_service: { networkClient: true, ipcClient: true }
         };
-
-        const env = context.__testingModule ? context.__testingModule.env : process.env;
-        const processConfig = {};
+        // @ts-expect-error
+        const env = this.context.__testingModule ? this.context.__testingModule.env : process.env;
+        const processConfig: Record<string, any> = {};
         processConfig.clients = options[env.assignment];
 
         if (processConfig.clients.ipcClient) {
             // all children of node_master
-            processContext = context.__testingModule ? context.__testingModule : process;
+            // @ts-expect-error
+            // eslint-disable-next-line max-len
+            this.processContext = this.context.__testingModule ? this.context.__testingModule : process;
         } else {
             // node_master
-            processContext = context.cluster;
+            this.processContext = this.context.cluster;
         }
 
         if (processConfig.clients.networkClient) {
             if (env.assignment === 'node_master' || env.assignment === 'assets_service') {
-                host = context.sysconfig.teraslice.master_hostname;
-                ({ port } = context.sysconfig.teraslice);
+                host = this.context.sysconfig.teraslice.master_hostname;
+                ({ port } = this.context.sysconfig.teraslice);
             }
-            processConfig.hostURL = _makeHostName(host, port);
+            processConfig.hostURL = this._makeHostName(host as string, port as unknown as string);
         }
 
         processConfig.assignment = env.assignment;
@@ -392,7 +446,7 @@ export function messaging(context, logger) {
         return processConfig;
     }
 
-    function _makeHostName(host, port, nameSpace) {
+    private _makeHostName(host: string, port: string, nameSpace?: string) {
         let name;
         let hostname = host;
 
@@ -415,29 +469,30 @@ export function messaging(context, logger) {
         return name;
     }
 
-    function _getMessages(type) {
+    private _getMessages(type: string) {
         if (type === 'cluster_master') return clusterMasterMessages;
         if (type === 'node_master') return nodeMasterMessages;
         if (type === 'assets_service') return assetServiceMessages;
         return new Error(`could not find message model for type: ${type}`);
     }
 
-    function getHostUrl() {
-        if (hostURL) {
-            return hostURL;
+    getHostUrl() {
+        if (this.hostURL) {
+            return this.hostURL;
         }
+
         return null;
     }
 
-    function getClientCounts() {
-        if (io) {
-            return io.eio.clientsCount;
+    getClientCounts() {
+        if (this.io) {
+            return this.io.eio.clientsCount;
         }
         // there are no connected clients because the network is not instantiated
         return 0;
     }
 
-    function listRooms() {
+    listRooms() {
         const connected = _.get(io, 'sockets.connected', {});
 
         if (_.isEmpty(connected)) return [];
@@ -447,11 +502,11 @@ export function messaging(context, logger) {
         return _.flatten(allRooms);
     }
 
-    function registerChildOnlineHook(fn) {
-        childHookFn = fn;
+    registerChildOnlineHook(fn: () => void) {
+        this.childHookFn = fn;
     }
 
-    function isExecutionStateQuery(msg) {
+    private _isExecutionStateQuery(msg: any) {
         const stateQuery = {
             'cluster:execution:pause': 'cluster:execution:pause',
             'cluster:execution:resume': 'cluster:execution:resume',
@@ -461,101 +516,70 @@ export function messaging(context, logger) {
         return stateQuery[msg] !== undefined;
     }
 
-    function emitIpcMessage(fn) {
-        return (ipcMessage) => {
+    private _emitIpcMessage(fn: any) {
+        return (ipcMessage: any) => {
             const msg = ipcMessage.message;
-            const realMsg = _.get(selfMessages, `ipc.${msg}`, null);
+            const realMsg = _.get(this.selfMessages, `ipc.${msg}`, null);
             if (realMsg) {
                 fn(realMsg, ipcMessage);
             } else {
-                logger.error(`process: ${self} has received a message: ${msg}, which is not registered in the messaging module`);
+                this.logger.error(`process: ${self} has received a message: ${msg}, which is not registered in the messaging module`);
             }
         };
     }
 
-    function handleIpcMessages() {
-        if (self === 'execution_controller') {
-            const checkAndEmit = (realMsg, ipcMessage) => {
-                if (messsagingOnline || !isExecutionStateQuery(realMsg)) {
-                    processContext.emit(realMsg, ipcMessage);
+    private _handleIpcMessages() {
+        if (this.self === 'execution_controller') {
+            const checkAndEmit = (realMsg: any, ipcMessage: any) => {
+                if (this.messsagingOnline || !this._isExecutionStateQuery(realMsg)) {
+                    this.processContext.emit(realMsg, ipcMessage);
                 } else {
-                    messagingQueue.enqueue([realMsg, ipcMessage]);
+                    this.messagingQueue.enqueue([realMsg, ipcMessage]);
                 }
             };
-            return emitIpcMessage(checkAndEmit);
+            return this._emitIpcMessage(checkAndEmit);
         }
         // for everything else just emit the message
-        const emitFn = (realMsg, ipcMessage) => processContext.emit(realMsg, ipcMessage);
-        return emitIpcMessage(emitFn);
+        const emitFn = (realMsg: any, ipcMessage: any) => this.processContext.emit(
+            realMsg,
+            ipcMessage
+        );
+        return this._emitIpcMessage(emitFn);
     }
 
-    // all child processes need to set up a process listener on the 'message' event
-    if (config.clients.ipcClient) {
-        process.on('message', handleIpcMessages());
-    } else {
-        processContext.on('online', (worker) => {
-            logger.debug('worker process has come online');
-            if (childHookFn) {
-                childHookFn();
-            }
-            const contextWorker = processContext.workers[worker.id];
-
-            // don't double subscribe
-            contextWorker.removeListener('message', _handleWorkerMessage);
-
-            // set up a message handler on each child created, if a child is talking to cluster
-            // then pass it on, else invoke process event handler on node_master
-            contextWorker.on('message', _handleWorkerMessage);
-        });
-    }
-
-    function _handleWorkerMessage(ipcMessage) {
+    private _handleWorkerMessage(ipcMessage: any) {
         if (ipcMessage.to === 'cluster_master') {
-            logger.trace('network passing process message', ipcMessage.message, ipcMessage);
-            send(ipcMessage);
+            this.logger.trace('network passing process message', ipcMessage.message, ipcMessage);
+            this.send(ipcMessage);
         } else if (ipcMessage.to === 'node_master') {
-            logger.trace('process message', ipcMessage.message, ipcMessage);
-            processContext.emit(ipcMessage.message, ipcMessage);
+            this.logger.trace('process message', ipcMessage.message, ipcMessage);
+            this.processContext.emit(ipcMessage.message, ipcMessage);
         } else {
-            _sendToProcesses(ipcMessage);
+            this._sendToProcesses(ipcMessage);
         }
     }
 
-    function testContext(_io) {
-        if (_io) io = _io;
+    // __test_context(_io) {
+    //     if (_io) io = _io;
 
-        return {
-            _sendToProcesses,
-            _registerFns,
-            _determinePathForMessage,
-            _forwardMessage,
-            _makeConfigurations,
-            _makeHostName,
-            _getMessages,
-            _handleResponse,
-            _getRegistry: () => functionMapping,
-            routing
-        };
-    }
+    //     return {
+    //         _sendToProcesses,
+    //         _registerFns,
+    //         _determinePathForMessage,
+    //         _forwardMessage,
+    //         _makeConfigurations,
+    //         _makeHostName,
+    //         _getMessages,
+    //         _handleResponse,
+    //         _getRegistry: () => functionMapping,
+    //         routing
+    //     };
+    // }
 
-    async function shutdown() {
-        if (io && _.isFunction(io.close)) {
-            io.close();
+    async shutdown() {
+        if (this.io && _.isFunction(this.io.close)) {
+            this.io.close();
             await pDelay(100);
         }
     }
-
-    return {
-        register,
-        listen,
-        getHostUrl,
-        getClientCounts,
-        listRooms,
-        send,
-        respond,
-        broadcast,
-        registerChildOnlineHook,
-        shutdown,
-        __test_context: testContext
-    };
-};
+}

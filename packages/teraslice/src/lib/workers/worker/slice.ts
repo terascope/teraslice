@@ -3,31 +3,41 @@ import {
     TSError, getTypeOf, logError,
     Logger
 } from '@terascope/utils';
-import { Context, SlicerExecutionContext } from '@terascope/job-components';
-import { SliceState } from '../../storage';
+import { Context, WorkerExecutionContext } from '@terascope/job-components';
+import { SliceState, StateStorage, AnalyticsStorage } from '../../storage';
 import { makeLogger } from '../helpers/terafoundation';
 import { logOpStats } from '../helpers/op-analytics';
 
-export class Slice {
+export class SliceExecution {
     private context: Context;
-    private executionContext: SlicerExecutionContext;
+    private executionContext: WorkerExecutionContext;
+    private stateStorage: StateStorage;
+    private analyticsStorage: AnalyticsStorage;
     private events: events.EventEmitter;
     private logger!: Logger;
-    private isShutdown: boolean;
+    private isShutdown!: boolean;
+    slice: any;
+    analyticsData: any;
 
-    constructor(context: Context, executionContext: SlicerExecutionContext) {
+    constructor(
+        context: Context,
+        executionContext: WorkerExecutionContext,
+        stateStorage: StateStorage,
+        analyticsStorage: AnalyticsStorage
+    ) {
         this.context = context;
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
+        this.stateStorage = stateStorage;
+        this.analyticsStorage = analyticsStorage;
     }
 
-    async initialize(slice) {
+    async initialize(slice: any) {
         const { slice_id: sliceId } = slice;
 
         if (slice.state !== SliceState.pending) {
-            await this.stateStore.updateState(slice, SliceState.start);
+            await this.stateStorage.updateState(slice, SliceState.start);
         }
-
         this.slice = slice;
         this.logger = makeLogger(this.context, 'slice', {
             slice_id: sliceId
@@ -79,7 +89,7 @@ export class Slice {
         this.isShutdown = true;
     }
 
-    async _onSliceFinalize(slice) {
+    async _onSliceFinalize(slice: any) {
         try {
             await this.executionContext.onSliceFinalizing();
         } catch (err) {
@@ -91,7 +101,7 @@ export class Slice {
         }
     }
 
-    async _onSliceFailure(slice) {
+    async _onSliceFailure(slice: any) {
         try {
             await this.executionContext.onSliceFailed();
         } catch (err) {
@@ -103,14 +113,14 @@ export class Slice {
         }
     }
 
-    async _logAnalytics(analyticsData, state) {
+    async _logAnalytics(analyticsData: any, state: any) {
         if (analyticsData == null) return;
         this.analyticsData = analyticsData;
 
         logOpStats(this.logger, this.slice, this.analyticsData);
 
         try {
-            await this.analyticsStore.log(
+            await this.analyticsStorage.log(
                 this.executionContext,
                 this.slice,
                 this.analyticsData,
@@ -128,16 +138,16 @@ export class Slice {
     private async _markCompleted() {
         const { slice } = this;
 
-        await this.stateStore.updateState(slice, SliceState.completed);
+        await this.stateStorage.updateState(slice, SliceState.completed);
 
         this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
         this.events.emit('slice:success', slice);
     }
 
-    private async _markFailed(err: error) {
-        const { stateStore, slice } = this;
+    private async _markFailed(err: Error) {
+        const { stateStorage, slice } = this;
 
-        await stateStore.updateState(slice, SliceState.error, err);
+        await stateStorage.updateState(slice, SliceState.error, err);
 
         logError(this.logger, err, `slice state for ${this.executionContext.exId} has been marked as error`);
 

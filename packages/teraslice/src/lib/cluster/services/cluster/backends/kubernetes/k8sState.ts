@@ -1,6 +1,4 @@
-'use strict';
-
-const _ = require('lodash');
+import _ from 'lodash';
 
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster
@@ -10,10 +8,11 @@ const _ = require('lodash');
  * @param  {Object} clusterState     Teraslice Cluster State
  * @param  {String} clusterNameLabel k8s label containing clusterName
  */
-function gen(k8sPods, clusterState) {
+export function gen(k8sPods: any, clusterState: any) {
     // Make sure we clean up the old
     const hostIPs = _.uniq(_.map(k8sPods.items, 'status.hostIP'));
     const oldHostIps = _.difference(_.keys(clusterState), hostIPs);
+
     _.forEach(oldHostIps, (ip) => {
         delete clusterState[ip];
     });
@@ -25,7 +24,7 @@ function gen(k8sPods, clusterState) {
     });
 
     // add a worker for each pod
-    k8sPods.items.forEach((pod) => {
+    k8sPods.items.forEach((pod: any) => {
         if (!_.has(clusterState, pod.status.hostIP)) {
             // If the node isn't in clusterState, add it
             clusterState[pod.status.hostIP] = {
@@ -63,5 +62,3 @@ function gen(k8sPods, clusterState) {
         }
     });
 }
-
-exports.gen = gen;

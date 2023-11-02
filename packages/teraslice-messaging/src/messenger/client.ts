@@ -17,7 +17,7 @@ export class Client extends Core {
     readonly connectTimeout: number;
     readonly hostUrl: string;
     available: boolean;
-    protected ready: boolean;
+    ready: boolean;
     protected serverShutdown: boolean;
 
     constructor(opts: i.ClientOptions, _connectTimeout?: number) {

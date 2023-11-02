@@ -20,13 +20,13 @@ export class Scheduler {
     readonly exId: string;
     readonly recoverFromExId?: string;
     readonly recoverExecution?: boolean;
-    private recovering: boolean;
+    recovering: boolean;
     readonly autorecover: boolean;
     private _creating = 0;
     private ready = false;
     private paused = true;
     private stopped = false;
-    private slicersDone = false;
+    slicersDone = false;
     private slicersFailed = false;
     private queue = new Queue<Slice>();
     private recover: RecoveryModule;

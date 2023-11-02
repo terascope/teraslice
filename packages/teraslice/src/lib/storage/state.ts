@@ -289,7 +289,7 @@ export class StateStorage {
         return this.count(query);
     }
 
-    async shutdown(forceShutdown: boolean) {
+    async shutdown(forceShutdown?: boolean) {
         this.logger.info('shutting down');
         return this.backend.shutdown(forceShutdown);
     }

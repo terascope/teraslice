@@ -1,17 +1,42 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+// @ts-expect-error no types found
+import barbe from 'barbe';
+import _ from 'lodash';
+import { isNumber, Logger } from '@terascope/utils';
+import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components';
+import { safeEncode } from '../../../../../utils/encoding_utils';
+import { setMaxOldSpaceViaEnv } from './utils';
 
-const fs = require('fs');
-const path = require('path');
+interface K8sConfig {
+    clusterName: string,
+    clusterNameLabel: string,
+    configMapName: string,
+    dockerImage: string,
+    execution: string,
+    exId: string,
+    exName: string,
+    exUid: string,
+    jobId: string,
+    jobNameLabel: string,
+    name: string,
+    namespace: string,
+    nodeType: string,
+    replicas: number
+    shutdownTimeout: number
+}
 
-const barbe = require('barbe');
-const _ = require('lodash');
-
-const { isNumber } = require('@terascope/utils');
-
-const { safeEncode } = require('../../../../../utils/encoding_utils');
-const { setMaxOldSpaceViaEnv } = require('./utils');
-
-class K8sResource {
+export class K8sResource {
+    execution: ExecutionConfig;
+    jobLabelPrefix: string;
+    jobPropertyLabelPrefix: string;
+    logger: Logger;
+    nodeType: string;
+    nameInfix: string;
+    terasliceConfig: TerasliceConfig;
+    templateGenerator: (record: Record<string, any>) => any;
+    templateConfig: K8sConfig;
+    resource: any;
     /**
      * K8sResource allows the generation of k8s resources based on templates.
      * After creating the object, the k8s resource is accessible on the objects
@@ -22,7 +47,13 @@ class K8sResource {
      * @param {Object} terasliceConfig - teraslice cluster config from context
      * @param {Object} execution - teraslice execution
      */
-    constructor(resourceType, resourceName, terasliceConfig, execution, logger) {
+    constructor(
+        resourceType: string,
+        resourceName: string,
+        terasliceConfig: TerasliceConfig,
+        execution: ExecutionConfig,
+        logger: Logger
+    ) {
         this.execution = execution;
         this.jobLabelPrefix = 'job.teraslice.terascope.io';
         this.jobPropertyLabelPrefix = 'job-property.teraslice.terascope.io';
@@ -75,7 +106,7 @@ class K8sResource {
         }
     }
 
-    _makeConfig() {
+    _makeConfig(): K8sConfig {
         const clusterName = _.get(this.terasliceConfig, 'name');
         const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
         const configMapName = _.get(
@@ -107,7 +138,9 @@ class K8sResource {
             dockerImage,
             execution: safeEncode(this.execution),
             exId: this.execution.ex_id,
+            // @ts-expect-error TODO: not sure where these come from
             exName: this.execution.k8sName,
+            // @ts-expect-error TODO: not sure where these come from
             exUid: this.execution.k8sUid,
             jobId: this.execution.job_id,
             jobNameLabel,
@@ -116,16 +149,17 @@ class K8sResource {
             nodeType: this.nodeType,
             replicas: this.execution.workers,
             shutdownTimeout: shutdownTimeoutSeconds
-        };
+        } as K8sConfig;
+
         return config;
     }
 
-    _makeTemplate(folder, fileName) {
+    _makeTemplate(folder: string, fileName: string) {
         const filePath = path.join(__dirname, folder, `${fileName}.hbs`);
         const templateData = fs.readFileSync(filePath, 'utf-8');
         const templateKeys = ['{{', '}}'];
 
-        return (config) => {
+        return (config: Record<string, any>) => {
             const templated = barbe(templateData, templateKeys, config);
             return JSON.parse(templated);
         };
@@ -210,6 +244,7 @@ class K8sResource {
                         .push(
                             {
                                 name: portValue.name,
+                                // @ts-expect-error TODO: don't know types here
                                 containerPort: portValue.port
                             }
                         );
@@ -344,12 +379,12 @@ class K8sResource {
         // NOTE: This sucks, this manages the memory env var but it ALSO is
         // responsible for doing the config and execution env var merge, which
         // should NOT be in this function
-        setMaxOldSpaceViaEnv(container.env, envVars, maxMemory);
+        setMaxOldSpaceViaEnv(container.env, envVars, maxMemory as number);
     }
 
     _setTargets() {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
-            _.forEach(this.execution.targets, (target) => {
+            _.forEach(this.execution.targets, (target: any) => {
                 // `required` is the default if no `constraint` is provided for
                 // backwards compatibility and as the most likely case
                 if (target.constraint === 'required' || !_.has(target, 'constraint')) {
@@ -367,7 +402,7 @@ class K8sResource {
         }
     }
 
-    _setTargetRequired(target) {
+    _setTargetRequired(target: any) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
         if (!_.has(this.resource, targetKey)) {
             const nodeSelectorObj = {
@@ -385,7 +420,7 @@ class K8sResource {
             });
     }
 
-    _setTargetPreferred(target) {
+    _setTargetPreferred(target: any) {
         const targetKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
         if (!_.has(this.resource, targetKey)) {
             _.set(this.resource, targetKey, []);
@@ -404,7 +439,7 @@ class K8sResource {
             });
     }
 
-    _setTargetAccepted(target) {
+    _setTargetAccepted(target: any) {
         const targetKey = 'spec.template.spec.tolerations';
         if (!_.has(this.resource, targetKey)) {
             _.set(this.resource, targetKey, []);
@@ -439,5 +474,3 @@ class K8sResource {
         );
     }
 }
-
-module.exports = K8sResource;

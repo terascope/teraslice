@@ -1,8 +1,6 @@
-'use strict';
+import _ from 'lodash';
 
-const _ = require('lodash');
-
-function _iterateState(clusterState, cb) {
+export function iterateState(clusterState: any, cb: (input: any) => boolean) {
     // I clone here, because the code below accidentally modifies clusterState.
     // Not sure if this is the best chouice.
     return _.chain(_.cloneDeep(clusterState))
@@ -10,7 +8,7 @@ function _iterateState(clusterState, cb) {
         .map((node) => {
             const workers = node.active.filter(cb);
 
-            return workers.map((worker) => {
+            return workers.map((worker: any) => {
                 worker.node_id = node.node_id;
                 worker.hostname = node.hostname;
                 return worker;
@@ -20,30 +18,23 @@ function _iterateState(clusterState, cb) {
         .value();
 }
 
-function findAllSlicers(clusterState) {
-    return _iterateState(
+export function findAllSlicers(clusterState: any) {
+    return iterateState(
         clusterState,
         (worker) => worker.assignment === 'execution_controller'
     );
 }
 
-function findWorkersByExecutionID(clusterState, exId) {
-    return _iterateState(
+export function findWorkersByExecutionID(clusterState: any, exId: string) {
+    return iterateState(
         clusterState,
         (worker) => worker.assignment === 'worker' && worker.ex_id === exId
     );
 }
 
-function findSlicersByExecutionID(clusterState, exIdDict) {
-    return _iterateState(
+export function findSlicersByExecutionID(clusterState: any, exIdDict: any) {
+    return iterateState(
         clusterState,
         (worker) => worker.assignment === 'execution_controller' && exIdDict[worker.ex_id]
     );
 }
-
-module.exports = {
-    _iterateState, // Exporting so it can be tested
-    findAllSlicers,
-    findWorkersByExecutionID,
-    findSlicersByExecutionID,
-};

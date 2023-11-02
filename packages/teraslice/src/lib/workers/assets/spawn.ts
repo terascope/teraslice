@@ -1,15 +1,17 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const { fork } = require('child_process');
-const { isEmpty, get, has } = require('@terascope/utils');
-const { makeLogger } = require('../helpers/terafoundation');
-const { safeEncode } = require('../../lib/utils/encoding_utils');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fork } from 'node:child_process';
+import { isEmpty, get, has } from '@terascope/utils';
+import type { Context } from '@terascope/job-components';
+import { makeLogger } from '../helpers/terafoundation';
+import { safeEncode } from '../../utils/encoding_utils';
 
 const loaderPath = path.join(__dirname, 'loader.js');
 
-async function spawnAssetLoader(assets, context) {
+export async function spawnAssetLoader(
+    assets: string[],
+    context: Context
+): Promise<string[]> {
     // if assets is empty return early
     if (isEmpty(assets)) {
         return [];
@@ -17,9 +19,9 @@ async function spawnAssetLoader(assets, context) {
 
     // if the assets are ids and are already loaded, return early
     if (context) {
-        const assetDir = get(context, 'sysconfig.teraslice.assets_directory');
+        const assetDir = get(context, 'sysconfig.teraslice.assets_directory') as string;
 
-        const alreadyExists = assets.every((id) => {
+        const alreadyExists = assets.every((id: string) => {
             const assetPath = path.join(assetDir, id);
             return fs.existsSync(assetPath);
         });
@@ -32,7 +34,7 @@ async function spawnAssetLoader(assets, context) {
     }
 
     return new Promise((resolve, reject) => {
-        let message;
+        let message: any;
 
         const child = fork(loaderPath, process.argv, {
             stdio: 'inherit',
@@ -60,19 +62,19 @@ async function spawnAssetLoader(assets, context) {
     });
 }
 
-/* istanbul ignore if */
-if (require.main === module) {
-    (async () => {
-        try {
-            const assetIds = await spawnAssetLoader(process.argv.slice(2));
-            console.log(JSON.stringify(assetIds, null, 2)); // eslint-disable-line
-        } catch (err) {
-            console.error(err); // eslint-disable-line
-            process.exitCode = 1;
-        } finally {
-            process.exit();
-        }
-    })();
-} else {
-    module.exports = spawnAssetLoader;
-}
+// /* istanbul ignore if */
+// if (require.main === module) {
+//     (async () => {
+//         try {
+//             const assetIds = await spawnAssetLoader(process.argv.slice(2));
+//             console.log(JSON.stringify(assetIds, null, 2)); // eslint-disable-line
+//         } catch (err) {
+//             console.error(err); // eslint-disable-line
+//             process.exitCode = 1;
+//         } finally {
+//             process.exit();
+//         }
+//     })();
+// } else {
+//     module.exports = spawnAssetLoader;
+// }

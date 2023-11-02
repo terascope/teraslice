@@ -145,7 +145,7 @@ export class ExecutionStorage {
      * @return {ExErrorMetadata}
     */
     // TODO: type out stats
-    executionMetaData(stats: any, errMsg: string) {
+    executionMetaData(stats: any, errMsg?: string) {
         const errMetadata = {
             _has_errors: false,
             _failureReason: ''
@@ -256,7 +256,7 @@ export class ExecutionStorage {
         return this.backend.remove(exId);
     }
 
-    async shutdown(forceShutdown: boolean) {
+    async shutdown(forceShutdown?: boolean) {
         this.logger.info('shutting down.');
         return this.backend.shutdown(forceShutdown);
     }

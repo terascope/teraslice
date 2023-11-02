@@ -1,19 +1,16 @@
-'use strict';
-
-const defaultsDeep = require('lodash/defaultsDeep');
-const {
-    TSError,
-    uniq,
-    get,
-    cloneDeep,
-    isEmpty,
-    getTypeOf,
-    isString,
-} = require('@terascope/utils');
-const { JobValidator } = require('@terascope/job-components');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const spawnAssetsLoader = require('../../workers/assets/spawn');
-const { terasliceOpPath } = require('../../config');
+import defaultsDeep from 'lodash/defaultsDeep';
+import {
+    TSError, uniq, cloneDeep,
+    isEmpty, getTypeOf, isString,
+    Logger
+} from '@terascope/utils';
+import { JobValidator, ValidatedJobConfig } from '@terascope/job-components';
+import { ClusterMasterContext } from '../../../interfaces';
+import { makeLogger } from '../../workers/helpers/terafoundation';
+import { spawnAssetLoader } from '../../workers/assets/spawn';
+import { terasliceOpPath } from '../../config';
+import { JobsStorage, ExecutionStorage } from '../../storage';
+import {} from './execution';
 
 /**
  * New execution result
@@ -22,38 +19,64 @@ const { terasliceOpPath } = require('../../config');
  * @property {string} ex_id
  */
 
-module.exports = function jobsService(context) {
-    let executionService;
-    let exStore;
-    let jobStore;
+export class JobsService {
+    context: ClusterMasterContext;
+    jobValidator: JobValidator;
+    logger: Logger;
+    jobsStorage!: JobsStorage;
+    executionStorage!: ExecutionStorage;
+    executionService!: any;
 
-    const logger = makeLogger(context, 'jobs_service');
+    constructor(context: ClusterMasterContext) {
+        this.context = context;
+        this.logger = makeLogger(context, 'jobs_service');
+        this.jobValidator = new JobValidator(context, {
+            terasliceOpPath,
+        });
+    }
 
-    const jobValidator = new JobValidator(context, {
-        terasliceOpPath,
-        assetPath: get(context, 'sysconfig.teraslice.assets_directory'),
-    });
+    async initialize() {
+        this.logger.info('job service is initializing...');
+
+        const { executionStorage, jobsStorage } = this.context.stores;
+        if (jobsStorage == null || executionStorage == null) {
+            throw new Error('Missing required stores');
+        }
+
+        const executionService = this.context.services.execution;
+
+        if (executionService == null) {
+            throw new Error('Missing required services');
+        }
+
+        this.jobsStorage = jobsStorage;
+        this.executionStorage = executionStorage;
+        this.jobsStorage = jobsStorage;
+    }
 
     /**
      * Validate the job spec
      *
      * @returns {Promise<import('@terascope/job-components').ValidatedJobConfig>}
     */
-    async function _validateJobSpec(jobSpec) {
-        const parsedAssetJob = await _ensureAssets(cloneDeep(jobSpec));
-        const validJob = await jobValidator.validateConfig(parsedAssetJob);
+    private async _validateJobSpec(
+        jobSpec: Partial<ValidatedJobConfig>
+    ): Promise<ValidatedJobConfig> {
+        const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
+        const validJob = await this.jobValidator.validateConfig(parsedAssetJob);
         return validJob;
     }
 
-    async function submitJob(jobSpec, shouldRun) {
+    async submitJob(jobSpec: Partial<ValidatedJobConfig>, shouldRun?: boolean) {
+        // @ts-expect-error TODO: should have job_id?
         if (jobSpec.job_id) {
             throw new TSError('Job cannot include a job_id on submit', {
                 statusCode: 422,
             });
         }
 
-        const validJob = await _validateJobSpec(jobSpec);
-        const job = await jobStore.create(jobSpec);
+        const validJob = await this._validateJobSpec(jobSpec);
+        const job = await this.jobsStorage.create(jobSpec);
         if (!shouldRun) {
             return { job_id: job.job_id };
         }
@@ -69,21 +92,21 @@ module.exports = function jobsService(context) {
      * @param {string} jobId
      * @param {boolean} activeState
      */
-    async function setActiveState(jobId, activeState) {
-        const job = await jobStore.get(jobId);
+    async setActiveState(jobId: string, activeState: boolean) {
+        const job = await this.jobsStorage.get(jobId);
         if (activeState === true) {
             job.active = true;
         } else {
             job.active = false;
         }
-        logger.info(`Setting jobId: ${jobId} to active: ${activeState}`);
-        return updateJob(jobId, job);
+        this.logger.info(`Setting jobId: ${jobId} to active: ${activeState}`);
+        return this.updateJob(jobId, job);
     }
 
-    async function updateJob(jobId, jobSpec) {
-        await _validateJobSpec(jobSpec);
-        const originalJob = await jobStore.get(jobId);
-        return jobStore.update(jobId, Object.assign({}, jobSpec, {
+    async updateJob(jobId: string, jobSpec: any) {
+        await this._validateJobSpec(jobSpec);
+        const originalJob = await this.jobsStorage.get(jobId);
+        return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
         }));
     }
@@ -94,7 +117,7 @@ module.exports = function jobsService(context) {
      * @param {string} jobId
      * @returns {Promise<NewExecutionResult>}
     */
-    async function startJob(jobId) {
+    async startJob(jobId) {
         const activeExecution = await _getActiveExecution(jobId, true);
 
         // searching for an active execution, if there is then we reject
@@ -104,8 +127,8 @@ module.exports = function jobsService(context) {
             });
         }
 
-        const jobSpec = await jobStore.get(jobId);
-        const validJob = await _validateJobSpec(jobSpec);
+        const jobSpec = await this.jobsStorage.get(jobId);
+        const validJob = await this._validateJobSpec(jobSpec);
 
         if (validJob.autorecover) {
             return _recoverValidJob(validJob);
@@ -122,7 +145,7 @@ module.exports = function jobsService(context) {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {Promise<NewExecutionResult>}
     */
-    async function _recoverValidJob(validJob, cleanupType) {
+    private async _recoverValidJob(validJob, cleanupType) {
         const recoverFrom = await getLatestExecution(validJob.job_id, undefined, true);
 
         // if there isn't an execution and autorecover is true
@@ -139,7 +162,7 @@ module.exports = function jobsService(context) {
 
         if (validJob.slicers !== recoverFrom.slicers) {
             const changedFrom = `from ${recoverFrom.slicers} to ${validJob.slicers}`;
-            logger.warn(`recovery for job ${recoverFrom.job_id} changed slicers ${changedFrom}`);
+            this.logger.warn(`recovery for job ${recoverFrom.job_id} changed slicers ${changedFrom}`);
         }
 
         return executionService.recoverExecution(
@@ -156,18 +179,18 @@ module.exports = function jobsService(context) {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @returns {Promise<NewExecutionResult>}
     */
-    async function recoverJob(jobId, cleanupType) {
+    async recoverJob(jobId, cleanupType) {
         // we need to do validations since the job config could change between recovery
-        const jobSpec = await jobStore.get(jobId);
-        const validJob = await _validateJobSpec(jobSpec);
+        const jobSpec = await this.jobsStorage.get(jobId);
+        const validJob = await this._validateJobSpec(jobSpec);
         return _recoverValidJob(validJob, cleanupType);
     }
 
-    async function pauseJob(jobId) {
+    async pauseJob(jobId) {
         return getLatestExecutionId(jobId).then((exId) => executionService.pauseExecution(exId));
     }
 
-    async function resumeJob(jobId) {
+    async resumeJob(jobId) {
         return getLatestExecutionId(jobId).then((exId) => executionService.resumeExecution(exId));
     }
 
@@ -179,7 +202,7 @@ module.exports = function jobsService(context) {
      * @param {boolean=false} [allowZeroResults]
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async function getLatestExecution(jobId, query, allowZeroResults = false) {
+    async getLatestExecution(jobId, query, allowZeroResults = false) {
         if (!jobId || !isString(jobId)) {
             throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
         }
@@ -203,7 +226,7 @@ module.exports = function jobsService(context) {
      * @param {boolean} [allowZeroResults]
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async function _getActiveExecution(jobId, allowZeroResults) {
+    private async _getActiveExecution(jobId, allowZeroResults) {
         const str = exStore
             .getTerminalStatuses()
             .map((state) => ` _status:"${state}"`)
@@ -219,34 +242,34 @@ module.exports = function jobsService(context) {
      * @param {boolean} [allowZeroResults]
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async function _getActiveExecutionId(jobId) {
+    private async _getActiveExecutionId(jobId) {
         return _getActiveExecution(jobId).then((ex) => ex.ex_id);
     }
 
-    async function getLatestExecutionId(jobId) {
+    async getLatestExecutionId(jobId) {
         return getLatestExecution(jobId).then((ex) => ex.ex_id);
     }
 
-    async function shutdown() {
+    async shutdown() {
 
     }
 
-    async function addWorkers(jobId, workerCount) {
+    async addWorkers(jobId, workerCount) {
         const exId = await _getActiveExecutionId(jobId);
         return executionService.addWorkers(exId, workerCount);
     }
 
-    async function removeWorkers(jobId, workerCount) {
+    async removeWorkers(jobId, workerCount) {
         const exId = await _getActiveExecutionId(jobId);
         return executionService.removeWorkers(exId, workerCount);
     }
 
-    async function setWorkers(jobId, workerCount) {
+    async setWorkers(jobId, workerCount) {
         const exId = await _getActiveExecutionId(jobId);
         return executionService.setWorkers(exId, workerCount);
     }
 
-    async function _ensureAssets(jobConfig) {
+    private async _ensureAssets(jobConfig) {
         const jobAssets = uniq(jobConfig.assets || []);
         if (isEmpty(jobAssets)) {
             return cloneDeep(jobConfig);
@@ -267,37 +290,4 @@ module.exports = function jobsService(context) {
         parsedAssetJob.assets = assetIds;
         return parsedAssetJob;
     }
-
-    async function initialize() {
-        logger.info('job service is initializing...');
-
-        exStore = context.stores.execution;
-        jobStore = context.stores.jobs;
-
-        if (jobStore == null || exStore == null) {
-            throw new Error('Missing required stores');
-        }
-
-        executionService = context.services.execution;
-        if (executionService == null) {
-            throw new Error('Missing required services');
-        }
-    }
-
-    return {
-        submitJob,
-        updateJob,
-        startJob,
-        pauseJob,
-        resumeJob,
-        recoverJob,
-        setActiveState,
-        addWorkers,
-        removeWorkers,
-        setWorkers,
-        getLatestExecutionId,
-        getLatestExecution,
-        initialize,
-        shutdown,
-    }; // Load the initial pendingJobs state.
-};
+}

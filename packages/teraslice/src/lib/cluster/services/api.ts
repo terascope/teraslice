@@ -1,27 +1,25 @@
-'use strict';
 
-const { Router } = require('express');
-const bodyParser = require('body-parser');
-const { pipeline: streamPipeline } = require('node:stream/promises');
-const { RecoveryCleanupType } = require('@terascope/job-components');
-const {
+import { Router } from 'express';
+import bodyParser from 'body-parser';
+import { pipeline as streamPipeline } from 'node:stream/promises';
+import { RecoveryCleanupType } from '@terascope/job-components';
+import {
     parseErrorInfo, parseList, logError, TSError, startsWith
-} = require('@terascope/utils');
-const { makeLogger } = require('../../../workers/helpers/terafoundation');
-const {
-    makePrometheus,
-    isPrometheusRequest,
-    makeTable,
-    sendError,
-    handleRequest,
-    getSearchOptions,
-} = require('../../../utils/api_utils');
-const terasliceVersion = require('../../../../package.json').version;
+} from '@terascope/utils';
+import { makeLogger } from '../../workers/helpers/terafoundation';
+import {
+    makePrometheus, isPrometheusRequest, makeTable,
+    sendError, handleRequest, getSearchOptions,
+} from '../../utils/api_utils';
+import { getPackageJSON } from '../../utils/file_utils';
 
-let gotESMModule;
+const terasliceVersion = getPackageJSON().version;
+
+let gotESMModule: any;
 
 async function getGotESM() {
     if (gotESMModule) return gotESMModule;
+    // @ts-expect-error
     const module = await import('gotESM'); // eslint-disable-line
     gotESMModule = module.default;
     return module.default;
