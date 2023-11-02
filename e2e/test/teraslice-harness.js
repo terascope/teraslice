@@ -6,7 +6,8 @@ const {
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
 const {
-    deployK8sTeraslice, showState, showTSMasterLogs, showTSExLogs, showTSWorkerLogs, describeWorker
+    deployK8sTeraslice, showState, showTSMasterLogs,
+    showTSExLogs, showTSWorkerLogs, describeWorker, getPodYamls, describeNode
 } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
@@ -63,6 +64,8 @@ module.exports = class TerasliceHarness {
                 signale.debug('@@@ before ex.waitForExStatus');
                 signale.debug(await showState(HOST_IP));
                 signale.debug(await describeWorker());
+                signale.debug(await describeNode());
+                signale.debug(await getPodYamls());
             }
             const result = await ex.waitForStatus(status, interval, 2 * 60 * 1000);
             if (endDelay) {
@@ -75,12 +78,16 @@ module.exports = class TerasliceHarness {
                 signale.debug('@@@ after ex.waitForExStatus');
                 signale.debug(await showState(HOST_IP));
                 signale.debug(await describeWorker());
+                signale.debug(await describeNode());
+                signale.debug(await getPodYamls());
             }
             return result;
         } catch (err) {
             if (process.env.TEST_PLATFORM === 'kubernetes') {
                 signale.debug('@@@ in catch of waitForExStatus');
                 signale.debug(await describeWorker());
+                signale.debug(await describeNode());
+                signale.debug(await getPodYamls());
                 signale.debug(await showState(HOST_IP));
                 signale.debug(await showTSMasterLogs());
                 signale.debug(await showTSExLogs());
@@ -476,6 +483,9 @@ module.exports = class TerasliceHarness {
             lifecycle: 'once',
             workers: 1,
             assets: ['elasticsearch', 'standard'],
+            resources_requests_cpu: 0.1,
+            resources_limits_cpu: 0.5,
+            cpu_execution_controller: 0.2,
             operations: [
                 {
                     _op: 'data_generator',

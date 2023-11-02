@@ -1,4 +1,4 @@
-name: Teraslice CI Tests
+name: Teraslice CI Tests K8sOnly
 # this will technically run again on merge to master, should limit it
 on:
   pull_request:
