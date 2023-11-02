@@ -26,7 +26,7 @@ async function globalTeardown(testClient) {
     const errors = [];
 
     try {
-        if (TEST_PLATFORM === 'kubernetes' && !process.env.KEEP_OPEN) {
+        if (TEST_PLATFORM === 'kubernetes') {
             await deleteTerasliceNamespace();
             await cleanupIndex(client, 'ts-dev1_*');
         } else {

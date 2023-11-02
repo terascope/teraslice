@@ -6,8 +6,7 @@ const {
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
 const {
-    deployK8sTeraslice, showState, showTSMasterLogs,
-    showTSExLogs, showTSWorkerLogs, describeWorker, getPodYamls, describeNode
+    deployK8sTeraslice, showState
 } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
@@ -60,13 +59,6 @@ module.exports = class TerasliceHarness {
         const start = Date.now();
 
         try {
-            if (process.env.TEST_PLATFORM === 'kubernetes') {
-                signale.debug('@@@ before ex.waitForExStatus');
-                signale.debug(await showState(HOST_IP));
-                signale.debug(await describeWorker());
-                signale.debug(await describeNode());
-                signale.debug(await getPodYamls());
-            }
             const result = await ex.waitForStatus(status, interval, 2 * 60 * 1000);
             if (endDelay) {
                 // since most of the time we are chaining this with other actions
@@ -74,25 +66,8 @@ module.exports = class TerasliceHarness {
                 // it a little bit of time
                 await pDelay(endDelay);
             }
-            if (process.env.TEST_PLATFORM === 'kubernetes') {
-                signale.debug('@@@ after ex.waitForExStatus');
-                signale.debug(await showState(HOST_IP));
-                signale.debug(await describeWorker());
-                signale.debug(await describeNode());
-                signale.debug(await getPodYamls());
-            }
             return result;
         } catch (err) {
-            if (process.env.TEST_PLATFORM === 'kubernetes') {
-                signale.debug('@@@ in catch of waitForExStatus');
-                signale.debug(await describeWorker());
-                signale.debug(await describeNode());
-                signale.debug(await getPodYamls());
-                signale.debug(await showState(HOST_IP));
-                signale.debug(await showTSMasterLogs());
-                signale.debug(await showTSExLogs());
-                signale.debug(await showTSWorkerLogs());
-            }
             err.message = `Execution: ${ex.id()}: ${err.message}`;
 
             this.warn(err.stack, {
@@ -116,12 +91,11 @@ module.exports = class TerasliceHarness {
 
         if (TEST_PLATFORM === 'kubernetes') {
             try {
-                // console.log('@@@@ before state reset');
                 // await showState(HOST_IP);
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await this.clearNonBaseAssets();
             } catch (err) {
-                signale.error('Failure to clean indices', err);
+                signale.error('Failure to clean indices and assets', err);
                 throw err;
             }
             try {
@@ -129,7 +103,6 @@ module.exports = class TerasliceHarness {
                 await pDelay(2000);
                 await this.waitForTeraslice();
                 await pDelay(2000);
-                // console.log('@@@@ after state reset');
                 await showState(HOST_IP);
             } catch (err) {
                 signale.error('Failure to reset teraslice state', err);
@@ -459,13 +432,7 @@ module.exports = class TerasliceHarness {
     }
 
     async postJob(jobSpec) {
-        const result = this.teraslice.executions.submit(jobSpec);
-        signale.debug('@@@ postJob result: ', result);
-        if (process.env.TEST_PLATFORM === 'kubernetes') {
-            signale.debug('@@@ after postJob result');
-            signale.debug(await showState(HOST_IP));
-        }
-        return result;
+        return this.teraslice.executions.submit(jobSpec);
     }
 
     async generate(count, hex) {
@@ -514,15 +481,7 @@ module.exports = class TerasliceHarness {
                 await Promise.all(executions.map((ex) => this.waitForExStatus(ex, 'completed')));
             } else {
                 const ex = await this.postJob(jobSpec);
-                if (process.env.TEST_PLATFORM === 'kubernetes') {
-                    signale.debug('@@@ after postJob');
-                    signale.debug(await showState(HOST_IP));
-                }
                 await this.waitForExStatus(ex, 'completed');
-                if (process.env.TEST_PLATFORM === 'kubernetes') {
-                    signale.debug('@@@ after waitForExStatus');
-                    signale.debug(await showState(HOST_IP));
-                }
             }
 
             signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
@@ -556,17 +515,12 @@ module.exports = class TerasliceHarness {
 
     async clearNonBaseAssets() {
         const assetList = await this.teraslice.assets.list();
-        // console.log('@@@@@ assetList: ', assetList);
-
         const baseAssets = ['standard', 'elasticsearch', 'kafka'];
         const assetsToDelete = assetList.filter((assetObj) => !baseAssets.includes(assetObj.name));
-        // console.log('@@@@@ assetsToDelete: ', assetsToDelete);
 
         for (const asset of assetsToDelete) {
-            // console.log('@@@@@ asset: ', asset);
             const response = await this.teraslice.assets.remove(asset.id);
-            // console.log('@@@@@ response: ', response);
-            signale.success(`Deleted asset with id ${response}`);
+            signale.debug(`Deleted asset with id ${response._id}`);
         }
     }
 };

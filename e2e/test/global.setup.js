@@ -17,7 +17,6 @@ const {
 } = require('./config');
 
 module.exports = async () => {
-    signale.debug('@@@@ HOST_IP: ', HOST_IP);
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 

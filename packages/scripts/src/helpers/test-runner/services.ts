@@ -752,7 +752,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    // console.log(`@@@@@@@ loading ${service} via docker`);
     const fn = await dockerRun(
         services[service],
         version,

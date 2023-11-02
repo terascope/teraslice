@@ -199,7 +199,6 @@ async function runTestSuite(
 async function runE2ETest(
     options: TestOptions, tracker: TestTracker
 ): Promise<void> {
-    // console.log('@@@@@@@@ options: ', options);
     tracker.expected++;
 
     const suite = 'e2e';
