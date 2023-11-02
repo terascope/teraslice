@@ -816,8 +816,22 @@ export async function showTSWorkerLogs() {
 }
 
 export async function describeWorker() {
-    signale.debug('@@@ descripbeWorker');
+    signale.debug('@@@ describeWorker');
     const subprocess = await execa.command('kubectl -n ts-dev1 describe pod -l app.kubernetes.io/component=worker');
+    signale.debug(subprocess);
+    logger.debug(subprocess);
+}
+
+export async function describeNode() {
+    signale.debug('@@@ describeNode');
+    const subprocess = await execa.command('kubectl -n ts-dev1 describe node');
+    signale.debug(subprocess);
+    logger.debug(subprocess);
+}
+
+export async function getPodYamls() {
+    signale.debug('@@@ getPodYamls');
+    const subprocess = await execa.command('kubectl -n ts-dev1 get pods -l app.kubernetes.io/component=worker -o yaml');
     signale.debug(subprocess);
     logger.debug(subprocess);
 }
