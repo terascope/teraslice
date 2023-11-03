@@ -558,7 +558,7 @@ export class NativeClustering {
                 // already receives the shutdown notice so it can be empty, in all other
                 // circumstances if the node list length is zero then reject
                 const error = new TSError(`Could not find active execution processes for ex_id: ${exId}`);
-                error.code = '404';
+                error.statusCode = 404;
                 reject(error);
                 return;
             }
@@ -594,7 +594,7 @@ export class NativeClustering {
 
     clusterAvailable() {}
 
-    async stopExecution(exId: string, timeout: number, exclude?: string) {
+    async stopExecution(exId: string, timeout?: number, exclude?: string) {
         // we are allowing stopExecution to be non blocking, we block at api level
         const excludeNode = exclude ?? undefined;
         this.pendingWorkerRequests.remove(exId, 'ex_id');

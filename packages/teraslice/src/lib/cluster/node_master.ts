@@ -1,26 +1,28 @@
 import ms from 'ms';
-import _ from 'lodash;
+import _ from 'lodash';
 import { Mutex } from 'async-mutex';
 import { getFullErrorStack } from '@terascope/utils';
 import { makeLogger } from '../workers/helpers/terafoundation';
-import messageModule from './services/cluster/backends/native/messaging';
-import spawnAssetLoader from '../workers/assets/spawn';
+import { Messaging } from './services/cluster/backends/native/messaging';
+import { spawnAssetLoader } from '../workers/assets/spawn';
 import { safeEncode } from '../utils/encoding_utils';
 import { findPort, getPorts } from '../utils/port_utils';
+import { getPackageJSON } from '../utils/file_utils';
+import { ClusterMasterContext } from '../../interfaces';
 
 const nodeVersion = process.version;
-const terasliceVersion from '../../package.json').version;
+const terasliceVersion = getPackageJSON().version;
 
-module.exports = async function nodeMaster(context) {
+export async function nodeMaster(context: ClusterMasterContext) {
     const logger = makeLogger(context, 'node_master');
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
     const events = context.apis.foundation.getSystemEvents();
     const mutex = new Mutex();
 
-    const messaging = messageModule(context, logger);
+    const messaging = new Messaging(context, logger);
     const host = messaging.getHostUrl();
-    const isShuttingDo wn = false;
+    const isShuttingDown = false;
     const ports = getPorts(context);
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
@@ -40,7 +42,11 @@ module.exports = async function nodeMaster(context) {
 
     let pendingAllocations = 0;
 
-    function allocateWorkers(count, exConfig, fn) {
+    function allocateWorkers(
+        count: number,
+        exConfig: Record<string, any>,
+        fn: () => Promise<any>
+    ) {
         const startTime = Date.now();
         pendingAllocations += count;
         sendNodeStateNow();
@@ -73,7 +79,8 @@ module.exports = async function nodeMaster(context) {
         });
     }
 
-    function canAllocateWorkers(requestedWorkers) {
+    function canAllocateWorkers(requestedWorkers: number) {
+        // @ts-expect-error TODO: fix this
         const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
         // if there is an over allocation, send back rest to be enqueued
         if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
@@ -102,12 +109,13 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'network:error',
-        callback: (err) => logger.warn(err, `Attempting to connect to cluster_master: ${host}`)
+        callback: (err: Error) => logger.warn(err, `Attempting to connect to cluster_master: ${host}`)
     });
 
     messaging.register({
         event: 'cluster:execution_controller:create',
-        callback: (createSlicerRequest) => {
+        // TODO: type this
+        callback: (createSlicerRequest: Record<string, any>) => {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
 
@@ -123,6 +131,7 @@ module.exports = async function nodeMaster(context) {
                     slicer_port: createSlicerMsg.slicer_port
                 };
                 logger.trace('starting a execution controller', controllerContext);
+                // @ts-expect-error TODO: check this
                 return context.foundation.startWorkers(1, controllerContext);
             })
                 .then(() => messaging.respond(createSlicerRequest))
@@ -136,7 +145,7 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'cluster:workers:create',
-        callback: (createWorkerRequest) => {
+        callback: (createWorkerRequest: Record<string, any>) => {
             const createWorkerMsg = createWorkerRequest.payload;
             const requestedWorkers = createWorkerMsg.workers;
             logger.info(`starting ${requestedWorkers} workers for execution ${createWorkerMsg.ex_id}...`);
@@ -153,6 +162,7 @@ module.exports = async function nodeMaster(context) {
 
             allocateWorkers(requestedWorkers, createWorkerMsg, () => {
                 let newWorkers = requestedWorkers;
+                // @ts-expect-error
                 const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
                 // if there is an over allocation, send back rest to be enqueued
                 if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
@@ -164,6 +174,7 @@ module.exports = async function nodeMaster(context) {
                 let workers = [];
                 if (newWorkers > 0) {
                     logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
+                    // @ts-expect-error
                     workers = context.foundation.startWorkers(newWorkers, {
                         NODE_TYPE: 'worker',
                         EX: safeEncode(createWorkerMsg.job),
@@ -195,7 +206,7 @@ module.exports = async function nodeMaster(context) {
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
         logger.debug('received shutdown notice from terafoundation');
-
+        // @ts-expect-error
         const filterFn = () => context.cluster.workers;
         const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
         shutdownProcesses({}, filterFn, isActionCompleteFn, true);
@@ -203,17 +214,22 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'cluster:execution:stop',
-        callback: (networkMsg) => {
+        callback: (networkMsg: Record<string, any>) => {
             const exId = networkMsg.ex_id;
             logger.debug(`received cluster execution stop for execution ${exId}`);
 
             const filterFn = () => _.filter(
+                // @ts-expect-error
                 context.cluster.workers,
-                (worker) => worker.ex_id === exId
+                (worker: Record<string, any>) => worker.ex_id === exId
             );
             function actionCompleteFn() {
                 const children = getNodeState().active;
-                const workers = _.filter(children, (worker) => worker.ex_id === exId);
+                const workers = _.filter(
+                    children,
+                    (worker: Record<string, any>) => worker.ex_id === exId
+                );
+
                 logger.debug(`waiting for ${workers.length} to stop for ex: ${exId}`);
                 return workers.length === 0;
             }
@@ -224,18 +240,20 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'cluster:workers:remove',
-        callback: (networkMsg) => {
+        callback: (networkMsg: Record<string, any>) => {
             const numberToRemove = networkMsg.payload.workers;
             const children = getNodeState().active;
-            const startingWorkerCount = _.filter(children, (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+            const startingWorkerCount = _.filter(children, (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+
             const filterFn = () => _.filter(
                 children,
-                (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
+                (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
             ).slice(0, numberToRemove);
 
             function actionCompleteFn() {
                 const childWorkers = getNodeState().active;
-                const currentWorkersForJob = _.filter(childWorkers, (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+                const currentWorkersForJob = _.filter(childWorkers, (worker: Record<string, any>) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+
                 return currentWorkersForJob + numberToRemove <= startingWorkerCount;
             }
 
@@ -246,7 +264,7 @@ module.exports = async function nodeMaster(context) {
     // used to find an open port for slicer
     messaging.register({
         event: 'cluster:node:get_port',
-        callback: async (msg) => {
+        callback: async (msg: Record<string, any>) => {
             const port = await findPort(ports);
             logger.debug(`assigning port ${port} for new job`);
             messaging.respond(msg, { port });
@@ -267,12 +285,12 @@ module.exports = async function nodeMaster(context) {
         callback: () => sendNodeState()
     });
 
-    function getAssetsFromJob(jobStr) {
+    function getAssetsFromJob(jobStr: string | Record<string, any>) {
         const job = typeof jobStr === 'string' ? JSON.parse(jobStr) : jobStr;
         return job.assets || [];
     }
 
-    async function loadAssetsIfNeeded(job, exId) {
+    async function loadAssetsIfNeeded(job: Record<string, any>, exId: string) {
         const assets = getAssetsFromJob(job);
         if (!assets.length) return;
 
@@ -280,11 +298,13 @@ module.exports = async function nodeMaster(context) {
         await spawnAssetLoader(assets, context);
     }
 
-    function shutdownWorkers(signal, filterFn) {
+    function shutdownWorkers(signal: string, filterFn: any) {
         const allWorkersForJob = filterFn();
-        _.each(allWorkersForJob, (worker) => {
+        _.each(allWorkersForJob, (worker: Record<string, any>) => {
             const workerID = worker.worker_id || worker.id;
+            // @ts-expect-error
             if (_.has(context.cluster.workers, workerID)) {
+                // @ts-expect-error
                 const clusterWorker = context.cluster.workers[workerID];
                 const processId = clusterWorker.process.pid;
                 if (clusterWorker.isDead()) return;
@@ -295,7 +315,11 @@ module.exports = async function nodeMaster(context) {
         });
     }
 
-    function shutdownProcesses(message, filterFn, isActionCompleteFn, onlySigKill = false) {
+    function shutdownProcesses(
+        message: Record<string, any>,
+        filterFn: any,
+        isActionCompleteFn: any,
+        onlySigKill = false) {
         const intervalTime = 200;
         const needsResponse = message.response && message.to;
 
@@ -332,17 +356,17 @@ module.exports = async function nodeMaster(context) {
             teraslice_version: terasliceVersion,
             total: context.sysconfig.teraslice.workers,
             state: 'connected'
-        };
-
+        } as Record<string, any>;
+        // @ts-expect-error
         const clusterWorkers = context.cluster.workers;
-        const active = [];
+        const active: Record<string, any>[] = [];
 
-        _.forOwn(clusterWorkers, (worker) => {
+        _.forOwn(clusterWorkers, (worker: Record<string, any>) => {
             const child = {
                 worker_id: worker.id,
                 assignment: worker.assignment,
                 pid: worker.process.pid
-            };
+            } as Record<string, any>;
 
             if (worker.ex_id) {
                 child.ex_id = worker.ex_id;
@@ -353,7 +377,7 @@ module.exports = async function nodeMaster(context) {
             }
 
             if (worker.assets) {
-                child.assets = worker.assets.map((asset) => asset.id);
+                child.assets = worker.assets.map((asset: Record<string, any>) => asset.id);
             }
 
             active.push(child);
@@ -369,10 +393,11 @@ module.exports = async function nodeMaster(context) {
         query: {
             node_id: context.sysconfig._nodeName
         }
-    });
+    } as any);
 
     if (context.sysconfig.teraslice.master) {
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
+        // @ts-expect-error
         context.foundation.startWorkers(1, {
             assignment: 'cluster_master',
             assets_port: ports.assetsPort,
@@ -380,7 +405,7 @@ module.exports = async function nodeMaster(context) {
         });
 
         logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
-
+        // @ts-expect-error
         context.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
@@ -388,4 +413,4 @@ module.exports = async function nodeMaster(context) {
             node_id: context.sysconfig._nodeName
         });
     }
-};
+}

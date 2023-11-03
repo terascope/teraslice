@@ -10,7 +10,7 @@ const loaderPath = path.join(__dirname, 'loader.js');
 
 export async function spawnAssetLoader(
     assets: string[],
-    context: Context
+    context?: Context
 ): Promise<string[]> {
     // if assets is empty return early
     if (isEmpty(assets)) {

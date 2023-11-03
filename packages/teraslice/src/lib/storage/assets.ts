@@ -31,7 +31,7 @@ async function _metaIsUnique(backend: any) {
         const error = new TSError(`Asset ${query} already exists, please increment the version and send again`, {
             statusCode: 409
         });
-        error.code = '409';
+        error.statusCode = 409;
         // @ts-expect-error a flag to differentiate error scenarios
         error.alreadyExists = true;
         throw error;
@@ -231,7 +231,7 @@ export class AssetsStorage {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
                     statusCode: 404
                 });
-                error.code = '404';
+
                 throw error;
             }
             throw err;

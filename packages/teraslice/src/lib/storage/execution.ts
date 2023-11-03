@@ -302,7 +302,10 @@ export class ExecutionStorage {
      * @param {RecoveryCleanupType} [cleanupType]
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async createRecoveredExecution(recoverFrom: any, cleanupType: any) {
+    async createRecoveredExecution(
+        recoverFrom: Record<string, any>,
+        cleanupType?: RecoveryCleanupType
+    ) {
         if (!recoverFrom) {
             throw new Error(`Invalid execution given, got ${getTypeOf(recoverFrom)}`);
         }

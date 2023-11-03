@@ -5,12 +5,12 @@ import {
     isEmpty, isString, flatten,
     includes, cloneDeep, Logger
 } from '@terascope/utils';
-import { ExecutionConfig } from '@terascope/job-components';
+import type { ExecutionConfig, RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import type { ExecutionStorage, StateStorage } from '../../storage';
 import { ClusterMasterContext } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
-
+import type { ClusterServiceType } from './cluster';
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -35,7 +35,7 @@ export class ExecutionService {
     clusterMasterServer: ClusterMaster.Server;
     executionStorage!: ExecutionStorage;
     stateStorage!: StateStorage;
-    cluster: any;
+    clusterService!: ClusterServiceType;
     allocateInterval!: NodeJS.Timeout | undefined;
     reapInterval!: NodeJS.Timeout | undefined;
 
@@ -56,20 +56,20 @@ export class ExecutionService {
             throw new Error('Missing required stores');
         }
 
-        const { cluster } = this.context.services;
-        if (cluster == null) {
+        const { clusterService } = this.context.services;
+        if (clusterService == null) {
             throw new Error('Missing required services');
         }
 
         this.executionStorage = executionStorage;
         this.stateStorage = stateStorage;
-        this.cluster = cluster;
+        this.clusterService = clusterService;
 
         this.logger.info('execution service is initializing...');
 
         // listen for an execution finished events
         // @ts-expect-error TODO: check this
-        this.clusterMasterServer.onExecutionFinished(this._finishExecution);
+        this.clusterServiceMasterServer.onExecutionFinished(this._finishExecution);
 
         // lets call this before calling it
         // in the background
@@ -111,7 +111,7 @@ export class ExecutionService {
 
         return new Promise((resolve) => {
             const checkCluster = async () => {
-                const state = this.cluster.getClusterState();
+                const state = this.clusterService.getClusterState();
                 const dict = Object.create(null);
 
                 Object.values(state).forEach((node: any) => node.active.forEach((worker: any) => {
@@ -165,7 +165,7 @@ export class ExecutionService {
     }
 
     findAllWorkers() {
-        return flatten(Object.values(this.cluster.getClusterState())
+        return flatten(Object.values(this.clusterService.getClusterState())
             .filter((node: any) => node.state === 'connected')
             .map((node: any) => {
                 const workers = node.active.filter(Boolean);
@@ -181,17 +181,17 @@ export class ExecutionService {
 
     async addWorkers(exId: string, workerNum: number) {
         return this.executionStorage.getActiveExecution(exId)
-            .then((execution) => this.cluster.addWorkers(execution, workerNum));
+            .then((execution) => this.clusterService.addWorkers(execution, workerNum));
     }
 
     async setWorkers(exId: string, workerNum: number) {
         return this.executionStorage.getActiveExecution(exId)
-            .then((execution) => this.cluster.setWorkers(execution, workerNum));
+            .then((execution) => this.clusterService.setWorkers(execution, workerNum));
     }
 
     async removeWorkers(exId: string, workerNum: number) {
         return this.executionStorage.getActiveExecution(exId)
-            .then((execution) => this.cluster.removeWorkers(execution.ex_id, workerNum));
+            .then((execution) => this.clusterService.removeWorkers(execution.ex_id, workerNum));
     }
 
     /**
@@ -229,7 +229,7 @@ export class ExecutionService {
         this.logger.debug(`execution ${exId} finished, shutting down execution`);
 
         try {
-            await this.cluster.stopExecution(exId);
+            await this.clusterService.stopExecution(exId);
         } catch (stopErr) {
             const stopError = new TSError(stopErr, {
                 reason: 'error finishing the execution',
@@ -260,7 +260,7 @@ export class ExecutionService {
         this.logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
 
         await this.executionStorage.setStatus(exId, 'stopping');
-        await this.cluster.stopExecution(exId, timeout, excludeNode);
+        await this.clusterService.stopExecution(exId, timeout, excludeNode);
         // we are kicking this off in the background, not part of the promise chain
         this.waitForExecutionStatus(exId);
     }
@@ -369,7 +369,10 @@ export class ExecutionService {
      * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @return {Promise<NewExecutionResult>}
     */
-    async recoverExecution(exIdOrEx: string | Record<string, any>, cleanupType: any) {
+    async recoverExecution(
+        exIdOrEx: string | Record<string, any>,
+        cleanupType?: RecoveryCleanupType
+    ) {
         const recoverFromEx = isString(exIdOrEx)
             ? await this.getExecutionContext(exIdOrEx)
             : cloneDeep(exIdOrEx);
@@ -381,7 +384,7 @@ export class ExecutionService {
 
     private async _executionAllocator() {
         let allocatingExecution = false;
-        const { readyForAllocation } = this.cluster;
+        const { readyForAllocation } = this.clusterService;
 
         const allocator = async () => {
             const canAllocate = !allocatingExecution
@@ -397,7 +400,7 @@ export class ExecutionService {
             try {
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'scheduling');
 
-                execution = await this.cluster.allocateSlicer(execution);
+                execution = await this.clusterService.allocateSlicer(execution);
 
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
@@ -405,7 +408,7 @@ export class ExecutionService {
                 });
 
                 try {
-                    await this.cluster.allocateWorkers(execution, execution.workers);
+                    await this.clusterService.allocateWorkers(execution, execution.workers);
                 } catch (err) {
                     throw new TSError(err, {
                         reason: `Failure to allocateWorkers ${execution.ex_id}`
@@ -438,7 +441,7 @@ export class ExecutionService {
                     // Calling delete on the worker deployment that doesn't
                     // exist is OK.
                     this.logger.warn(`Calling stopExecution on execution: ${execution.ex_id} to clean up k8s resources.`);
-                    await this.cluster.stopExecution(execution.ex_id);
+                    await this.clusterService.stopExecution(execution.ex_id);
                 }
             } finally {
                 allocatingExecution = false;

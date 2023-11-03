@@ -9,7 +9,7 @@ export function makeTable(
     req: TerasliceRequest,
     defaults: string[],
     data: Record<string, any>[],
-    mappingFn: (item: any) => any
+    mappingFn?: (item: any) => any
 ) {
     const query = fieldsQuery(req.query, defaults);
     let emptyChar = 'N/A';
@@ -54,7 +54,7 @@ export function handleTerasliceRequest(
     { errorCode = 500, successCode = 200 } = {}
 ) {
     logTerasliceRequest(req);
-    return async (fn: () => Promise<void>) => {
+    return async (fn: () => Promise<string | Record<string, any>>) => {
         try {
             const result = await fn();
             if (isString(result)) {
@@ -83,7 +83,7 @@ export function sendError(
     res: TerasliceResponse,
     code: number,
     message: string,
-    logger: Logger
+    logger?: Logger
 ) {
     if (res.headersSent) {
         const error = new Error(message);
