@@ -91,8 +91,9 @@ module.exports = class TerasliceHarness {
 
         if (TEST_PLATFORM === 'kubernetes') {
             try {
-                // await showState(HOST_IP);
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
+                await cleanupIndex(this.client, 'ts-dev1__ex');
+                await cleanupIndex(this.client, 'ts-dev1__jobs');
                 await this.clearNonBaseAssets();
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
@@ -100,9 +101,7 @@ module.exports = class TerasliceHarness {
             }
             try {
                 await deployK8sTeraslice();
-                await pDelay(2000);
                 await this.waitForTeraslice();
-                await pDelay(2000);
                 await showState(HOST_IP);
             } catch (err) {
                 signale.error('Failure to reset teraslice state', err);

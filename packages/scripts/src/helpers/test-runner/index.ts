@@ -264,10 +264,9 @@ async function runE2ETest(
     }
 
     try {
-        const svcFn = await ensureServices(suite, options);
         tracker.addCleanup(
             'e2e:services',
-            svcFn
+            await ensureServices(suite, options)
         );
     } catch (err) {
         tracker.addError(err);

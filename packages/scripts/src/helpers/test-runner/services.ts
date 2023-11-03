@@ -100,7 +100,6 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             : undefined,
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
-            // KAFKA_HEAP_OPTS: config.SERVICE_HEAP_OPTS,
             KAFKA_BROKER_ID: config.KAFKA_BROKER_ID,
             KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
             KAFKA_ZOOKEEPER_CONNECT: config.KAFKA_ZOOKEEPER_CONNECT,
