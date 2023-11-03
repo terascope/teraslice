@@ -137,7 +137,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
 
             if (this.preventPrefixWildcard) {
-                if (p.isWildcard(node) || p.isRegexp(node)) {
+                const isWildcardNode = p.isWildcard(node);
+                const isRegexpNode = p.isRegexp(node);
+
+                if (isWildcardNode || isRegexpNode) {
                     const value = p.getFieldValue(node.value, this.variables);
 
                     if (startsWithWildcard(value, node.type)) {
@@ -146,6 +149,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                             : "Regexp queries starting with wildcards in the form 'fieldname:/*value/' or 'fieldname:/.*?value/' in query are restricted";
 
                         throw new ts.TSError(errMessage, {
+                            statusCode: 403,
+                            context: {
+                                q,
+                                safe: true
+                            }
+                        });
+                    }
+
+                    if (isRegexpNode && hasNonGuaranteedMatch(value)) {
+                        throw new ts.TSError("Regexp queries with non-guaranteed wildcard matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' in query are restricted", {
                             statusCode: 403,
                             context: {
                                 q,
@@ -388,7 +401,7 @@ function matchTypeField(typeField: string, restrictField: string) {
 }
 
 /**
- * Regular expression ES standard operators to avoid starting a query with
+ * Regular expression ES standard operators to avoid starting a query with...
  * left off closing braces but included all others even though some aren't likely
  * to be used as the first character in a query (i.e. | and { )
  */
@@ -412,4 +425,20 @@ function startsWithWildcard(input?: string | number, nodeType = p.NodeType.Wildc
     }
 
     return ['*', '?'].includes(ts.getFirstChar(input));
+}
+
+/**
+ * Whether full index will be searched...
+ * ab* and a+ require a match on a, but a*, a?, a{0,1}
+ * do not so could search the whole index
+ */
+function hasNonGuaranteedMatch(input?: string | number) {
+    if (!input) return false;
+    if (!ts.isString(input)) return false;
+
+    // get the second characters
+    const trimmed = input.trim().charAt(1);
+    if (['*', '?', '{'].includes(trimmed[0])) return true;
+
+    return false;
 }
