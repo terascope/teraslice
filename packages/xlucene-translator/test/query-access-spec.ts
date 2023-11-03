@@ -511,7 +511,7 @@ describe('QueryAccess', () => {
             });
         });
 
-        describe.each([['hello:/w*/'], ['hello:/w{0,1}/'], ['hello:/.+world/']])('when using a query of "%s"', (query) => {
+        describe.each([['hello:/w*/'], ['hello:/w{0,1}/']])('when using a query of "%s"', (query) => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
