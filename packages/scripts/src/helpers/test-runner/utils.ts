@@ -55,7 +55,7 @@ export function getArgs(options: TestOptions): ArgsMap {
     if (options.suite?.includes('e2e')) {
         args.runInBand = '';
         args.coverage = 'false';
-        // args.bail = '';
+        args.bail = '';
     }
 
     return args;
