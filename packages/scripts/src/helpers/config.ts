@@ -8,7 +8,23 @@ const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
     ? '1'
     : '0';
-
+const kafkaMapper = {
+    3: {
+        0: '7.0.11',
+        1: '7.1.9',
+        2: '7.2.7',
+        3: '7.3.5',
+        4: '7.4.2',
+        5: '7.5.1'
+    },
+    2: {
+        4: '5.4.10',
+        5: '5.5.12',
+        6: '6.0.15',
+        7: '6.1.13',
+        8: '6.2.12'
+    }
+};
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
@@ -25,7 +41,7 @@ export const ELASTICSEARCH_PORT = process.env.ELASTICSEARCH_PORT || '49200';
 export const ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}`;
 export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || '6.8.6';
 export const ELASTICSEARCH_API_VERSION = process.env.ELASTICSEARCH_API_VERSION || '6.5';
-export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'blacktop/elasticsearch';
+export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'elasticsearch';
 
 export const RESTRAINED_ELASTICSEARCH_PORT = process.env.RESTRAINED_ELASTICSEARCH_PORT || '49202';
 export const RESTRAINED_ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${RESTRAINED_ELASTICSEARCH_PORT}`;
@@ -35,7 +51,19 @@ export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
-export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
+export const KAFKA_IMAGE_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
+export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
+export const ZOOKEEPER_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
+export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
+export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
+export const ZOOKEEPER_DOCKER_IMAGE = process.env.ZOOKEEPER_DOCKER_IMAGE || 'confluentinc/cp-zookeeper';
+export const KAFKA_BROKER_ID = process.env.KAFKA_BROKER_ID || '1';
+export const KAFKA_ZOOKEEPER_CONNECT = `${KAFKA_HOSTNAME}:${ZOOKEEPER_CLIENT_PORT}`;
+export const KAFKA_LISTENERS = `INTERNAL://:${KAFKA_PORT}`;
+export const KAFKA_ADVERTISED_LISTENERS = `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
+export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = 'INTERNAL:PLAINTEXT';
+export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
+export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
 
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
 export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
@@ -133,6 +161,8 @@ export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
+    /// couple kafa with zookeeper
+    toBoolean(TEST_KAFKA) ? Service.Zookeeper : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
@@ -158,3 +188,5 @@ export const SEARCH_TEST_HOST = testHost;
 // https://github.com/terascope/base-docker-image
 // This overrides the value in the Dockerfile
 export const NODE_VERSION = process.env.NODE_VERSION || '18.16.0';
+
+export const { TEST_PLATFORM = 'native' } = process.env;

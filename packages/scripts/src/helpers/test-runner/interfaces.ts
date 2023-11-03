@@ -14,12 +14,15 @@ export type TestOptions = {
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
     kafkaVersion: string;
+    kafkaImageVersion: any;
+    zookeeperVersion: string;
     minioVersion: string;
     rabbitmqVersion: string;
     opensearchVersion: string;
     nodeVersion: string;
     jestArgs?: string[];
-    ignoreMount: boolean
+    ignoreMount: boolean;
+    testPlatform: string;
 };
 
 export type GroupedPackages = {

@@ -15,6 +15,7 @@ import * as i from './interfaces';
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string|undefined;
+let _e2e_k8s_dir: string|undefined;
 
 export function getE2EDir(): string|undefined {
     if (_e2eDir) return _e2eDir;
@@ -22,6 +23,17 @@ export function getE2EDir(): string|undefined {
     if (fs.existsSync(path.join(misc.getRootDir(), 'e2e'))) {
         _e2eDir = path.join(misc.getRootDir(), 'e2e');
         return _e2eDir;
+    }
+
+    return undefined;
+}
+
+export function getE2eK8sDir(): string|undefined {
+    if (_e2e_k8s_dir) return _e2e_k8s_dir;
+
+    if (fs.existsSync(path.join(misc.getRootDir(), 'e2e/k8s'))) {
+        _e2e_k8s_dir = path.join(misc.getRootDir(), 'e2e/k8s');
+        return _e2e_k8s_dir;
     }
 
     return undefined;
