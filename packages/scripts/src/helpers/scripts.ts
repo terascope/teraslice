@@ -733,7 +733,6 @@ export async function deleteTerasliceNamespace() {
     }
 }
 
-// FIXME: delete before merging? - for testing
 export async function showState(hostIP: string) {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     logger.debug(subprocess.stdout);
