@@ -741,7 +741,7 @@ export async function showState(hostIP: string) {
 }
 
 async function showESIndices(hostIP: string) {
-    const subprocess = await execa.command(`curl ${hostIP}:49200/_cat/indices`);
+    const subprocess = await execa.command(`curl ${hostIP}:49200/_cat/indices?v`);
     logger.debug(subprocess.stdout);
 }
 

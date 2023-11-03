@@ -94,6 +94,8 @@ module.exports = class TerasliceHarness {
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
                 await cleanupIndex(this.client, 'ts-dev1__ex');
                 await cleanupIndex(this.client, 'ts-dev1__jobs');
+                await cleanupIndex(this.client, 'ts-dev1__analytics*');
+                await cleanupIndex(this.client, 'ts-dev1__state*');
                 await this.clearNonBaseAssets();
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
