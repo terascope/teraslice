@@ -497,7 +497,7 @@ describe('QueryAccess', () => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
-                    "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted"
+                    "Queries starting with wildcards in the form 'fieldname:*value' or 'fieldname:?value' are restricted"
                 );
             });
         });
@@ -506,7 +506,7 @@ describe('QueryAccess', () => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
-                    "Regexp queries starting with wildcards in the form 'fieldname:/*value/' or 'fieldname:/.*?value/' in query are restricted"
+                    "Queries starting with regular expressions in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted"
                 );
             });
         });
@@ -515,7 +515,7 @@ describe('QueryAccess', () => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
-                    "Regexp queries with non-guaranteed wildcard matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' in query are restricted"
+                    "Regular expression queries with non-guaranteed matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' are restricted"
                 );
             });
         });

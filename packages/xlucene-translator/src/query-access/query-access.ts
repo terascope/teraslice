@@ -145,8 +145,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
                     if (startsWithWildcard(value, node.type)) {
                         const errMessage = node.type === p.NodeType.Wildcard
-                            ? "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted"
-                            : "Regexp queries starting with wildcards in the form 'fieldname:/*value/' or 'fieldname:/.*?value/' in query are restricted";
+                            ? "Queries starting with wildcards in the form 'fieldname:*value' or 'fieldname:?value' are restricted"
+                            : "Queries starting with regular expressions in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted";
 
                         throw new ts.TSError(errMessage, {
                             statusCode: 403,
@@ -158,7 +158,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
 
                     if (isRegexpNode && hasNonGuaranteedMatch(value)) {
-                        throw new ts.TSError("Regexp queries with non-guaranteed wildcard matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' in query are restricted", {
+                        throw new ts.TSError("Regular expression queries with non-guaranteed matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' are restricted", {
                             statusCode: 403,
                             context: {
                                 q,
