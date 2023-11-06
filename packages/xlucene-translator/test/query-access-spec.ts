@@ -506,7 +506,7 @@ describe('QueryAccess', () => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
-                    "Queries starting with regular expressions in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted"
+                    "Regular expression queries starting with wildcards in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted"
                 );
             });
         });

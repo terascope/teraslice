@@ -146,7 +146,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     if (startsWithWildcard(value, node.type)) {
                         const errMessage = node.type === p.NodeType.Wildcard
                             ? "Queries starting with wildcards in the form 'fieldname:*value' or 'fieldname:?value' are restricted"
-                            : "Queries starting with regular expressions in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted";
+                            : "Regular expression queries starting with wildcards in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted";
 
                         throw new ts.TSError(errMessage, {
                             statusCode: 403,
