@@ -19,6 +19,8 @@ spec:
     spec:
       containers:
       - name: elasticsearch
+        # version must match ELASTICSEARCH_VERSION from
+        # e2e/package.json > script > "test:k8s" or "test:k8sNoBuild"
         image: elasticsearch:7.9.3
         ports:
         - containerPort: 9200

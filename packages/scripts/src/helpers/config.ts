@@ -51,8 +51,10 @@ export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
+// Use kafkaMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
 export const KAFKA_IMAGE_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
+// Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaMapper
 export const ZOOKEEPER_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
 export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
 export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
