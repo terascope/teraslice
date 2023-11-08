@@ -2,6 +2,7 @@
 
 const { get, times } = require('@terascope/utils');
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('reindex', () => {
     let terasliceHarness;
@@ -14,6 +15,12 @@ describe('reindex', () => {
 
     it('should work for simple case', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
 
@@ -26,6 +33,12 @@ describe('reindex', () => {
 
     it('should work when no data is returned with lucene query', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
         jobSpec.operations[0].query = 'bytes:>=99999999';
@@ -62,8 +75,13 @@ describe('reindex', () => {
 
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('reindex');
-
         jobSpec.name = `reindex ${iterations} times`;
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[0].interval = '1s';
         jobSpec.operations[1].index = specIndex;
@@ -82,10 +100,14 @@ describe('reindex', () => {
 
     it('should be able to recover and continue', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
-        jobSpec.name = 'reindex (with recovery)';
-
         const index = terasliceHarness.newSpecIndex('reindex');
-
+        jobSpec.name = 'reindex (with recovery)';
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         // Job needs to be able to run long enough to cycle
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = index;

@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { cloneDeep } = require('@terascope/utils');
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('cluster api', () => {
     let terasliceHarness;
@@ -17,6 +18,12 @@ describe('cluster api', () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
 
         await terasliceHarness.teraslice.assets.upload(testStream, {
             blocking: true
@@ -30,6 +37,12 @@ describe('cluster api', () => {
     it('should update job config', async () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         const { workers, slicers } = jobSpec;
         const alteredJob = cloneDeep(jobSpec);
         alteredJob.workers = 3;
@@ -56,6 +69,12 @@ describe('cluster api', () => {
     it('will not send lifecycle changes to executions that are not active', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('api');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'basic reindex for lifecycle';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;

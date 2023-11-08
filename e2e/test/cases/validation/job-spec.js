@@ -1,6 +1,7 @@
 'use strict';
 
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('job validation', () => {
     let terasliceHarness;
@@ -13,6 +14,12 @@ describe('job validation', () => {
 
     it('should be rejected with empty index selector index name', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.operations[1].index = ''; // index selector
 
         return terasliceHarness.teraslice
@@ -25,6 +32,12 @@ describe('job validation', () => {
 
     it('should be rejected with empty reader index name', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.operations[0].index = ''; // reader
 
         return terasliceHarness.teraslice
@@ -36,6 +49,12 @@ describe('job validation', () => {
 
     it('should be rejected with slicers = 0', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.slicers = 0;
 
         return terasliceHarness.teraslice
@@ -48,6 +67,12 @@ describe('job validation', () => {
 
     it('should be rejected with slicers < 0', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.slicers = -1;
 
         return terasliceHarness.teraslice
@@ -60,6 +85,12 @@ describe('job validation', () => {
 
     it('should be rejected with negative workers == 0', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.workers = 0;
 
         return terasliceHarness.teraslice
@@ -72,6 +103,12 @@ describe('job validation', () => {
 
     it('should be rejected with invalid lifecycle', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.lifecycle = 'invalid';
 
         return terasliceHarness.teraslice

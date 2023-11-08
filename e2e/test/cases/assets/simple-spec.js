@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('assets', () => {
     let terasliceHarness;
@@ -26,6 +27,12 @@ describe('assets', () => {
     async function submitAndValidateAssetJob(jobSpecName, assetPath) {
         const fileStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         const { workers } = jobSpec; // save for comparison
 
         const result = await terasliceHarness.teraslice.assets.upload(
@@ -104,6 +111,12 @@ describe('assets', () => {
         const fileStream = fs.createReadStream(assetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         const { workers } = jobSpec;
 
         const assetResponse = await terasliceHarness.teraslice.assets.upload(fileStream, {
@@ -124,6 +137,12 @@ describe('assets', () => {
 
     it('can directly ask for the new asset to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;
 
