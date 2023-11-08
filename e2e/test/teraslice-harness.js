@@ -6,7 +6,7 @@ const {
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
 const {
-    deployK8sTeraslice, showState
+    showState
 } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
@@ -20,7 +20,7 @@ const {
 const { scaleWorkers, getElapsed } = require('./docker-helpers');
 const signale = require('./signale');
 
-const { cleanupIndex } = ElasticsearchTestHelpers;
+const { cleanupIndex, deleteAllRecords } = ElasticsearchTestHelpers;
 
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
@@ -92,21 +92,14 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await cleanupIndex(this.client, 'ts-dev1__ex');
-                await cleanupIndex(this.client, 'ts-dev1__jobs');
-                await cleanupIndex(this.client, 'ts-dev1__analytics*');
-                await cleanupIndex(this.client, 'ts-dev1__state*');
+                await deleteAllRecords(this.client, 'ts-dev1__ex');
+                await deleteAllRecords(this.client, 'ts-dev1__jobs');
+                await deleteAllRecords(this.client, 'ts-dev1__analytics*');
+                await deleteAllRecords(this.client, 'ts-dev1__state*');
                 await this.clearNonBaseAssets();
-            } catch (err) {
-                signale.error('Failure to clean indices and assets', err);
-                throw err;
-            }
-            try {
-                await deployK8sTeraslice();
-                await this.waitForTeraslice();
                 await showState(HOST_IP);
             } catch (err) {
-                signale.error('Failure to reset teraslice state', err);
+                signale.error('Failure to clean indices and assets', err);
                 throw err;
             }
             // TODO: If tests are ever implemented to scale nodes in Kind,
@@ -451,9 +444,6 @@ module.exports = class TerasliceHarness {
             lifecycle: 'once',
             workers: 1,
             assets: ['elasticsearch', 'standard'],
-            resources_requests_cpu: 0.1,
-            resources_limits_cpu: 0.5,
-            cpu_execution_controller: 0.2,
             operations: [
                 {
                     _op: 'data_generator',
@@ -469,6 +459,11 @@ module.exports = class TerasliceHarness {
         };
 
         try {
+            if (TEST_PLATFORM === 'kubernetes') {
+                jobSpec.resources_requests_cpu = 0.1;
+                jobSpec.resources_limits_cpu = 0.5;
+                jobSpec.cpu_execution_controller = 0.2;
+            }
             if (hex) {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
