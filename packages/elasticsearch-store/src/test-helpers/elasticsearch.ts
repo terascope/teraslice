@@ -71,6 +71,29 @@ export async function cleanupIndex(
     }
 }
 
+export async function deleteAllRecords(client: any, index: string) {
+    const deleteByQueryResponse = await client
+        .deleteByQuery(
+            {
+                body: {
+                    query: {
+                        match_all: {},
+                    },
+                },
+                index,
+                refresh: 'true'
+            })
+        .catch((err: any) => {
+            // ignore index not found exceptions
+            const errType = err.meta ? err.meta : err;
+            if (errType.statusCode !== 404) {
+                throw err;
+            }
+        });
+
+    console.log('@@@ deleteByQueryResponse: ', deleteByQueryResponse);
+}
+
 /*
  This is a quick and easy way to upload data, however, types are auto generated
  by elasticsearch itself. If you need to control types for detailed searching
