@@ -5,9 +5,7 @@ const {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray
 } = require('@terascope/utils');
-const {
-    deployK8sTeraslice, showState
-} = require('@terascope/scripts');
+const { showState } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { TerasliceClient } = require('teraslice-client-js');
 const path = require('path');
@@ -91,27 +89,15 @@ module.exports = class TerasliceHarness {
 
         if (TEST_PLATFORM === 'kubernetes') {
             try {
-                await cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await cleanupIndex(this.client, 'ts-dev1__ex');
-                await cleanupIndex(this.client, 'ts-dev1__jobs');
-                await cleanupIndex(this.client, 'ts-dev1__analytics*');
-                await cleanupIndex(this.client, 'ts-dev1__state*');
-                await this.clearNonBaseAssets();
+                cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
+                await showState(HOST_IP);
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;
             }
-            try {
-                await deployK8sTeraslice();
-                await this.waitForTeraslice();
-                await showState(HOST_IP);
-            } catch (err) {
-                signale.error('Failure to reset teraslice state', err);
-                throw err;
-            }
-            // TODO: If tests are ever implemented to scale nodes in Kind,
-            // a scaleWorkers implementation will need to be created that works with Kind.
-            // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
+            //     // TODO: If tests are ever implemented to scale nodes in Kind,
+            //     // a scaleWorkers implementation will need to be created that works with Kind.
+            //     // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
         } else {
             const state = await this.teraslice.cluster.state();
 
@@ -451,9 +437,6 @@ module.exports = class TerasliceHarness {
             lifecycle: 'once',
             workers: 1,
             assets: ['elasticsearch', 'standard'],
-            resources_requests_cpu: 0.1,
-            resources_limits_cpu: 0.5,
-            cpu_execution_controller: 0.2,
             operations: [
                 {
                     _op: 'data_generator',
@@ -469,6 +452,11 @@ module.exports = class TerasliceHarness {
         };
 
         try {
+            if (TEST_PLATFORM === 'kubernetes') {
+                jobSpec.resources_requests_cpu = 0.1;
+                jobSpec.resources_limits_cpu = 0.5;
+                jobSpec.cpu_execution_controller = 0.2;
+            }
             if (hex) {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
