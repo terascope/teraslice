@@ -1,6 +1,7 @@
 'use strict';
 
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 /**
  * The id reader don't work in 6.x and greater
@@ -22,7 +23,12 @@ xdescribe('id reader', () => {
     it('should support reindexing', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'reindex by id';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
@@ -34,6 +40,12 @@ xdescribe('id reader', () => {
     it('should support reindexing by hex id', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'reindex by hex id';
         jobSpec.operations[0].key_type = 'hexadecimal';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000); // add hex
@@ -46,7 +58,12 @@ xdescribe('id reader', () => {
     it('should support reindexing by hex id + key_range', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         jobSpec.name = 'reindex by hex id (range=a..e)';
         jobSpec.operations[0].key_type = 'hexadecimal';
         jobSpec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
@@ -61,6 +78,12 @@ xdescribe('id reader', () => {
     it('should be able to recover and continue while using the id_reader', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+            jobSpec.resources_limits_cpu = 0.5;
+            jobSpec.cpu_execution_controller = 0.2;
+        }
         // Job needs to be able to run long enough to cycle
         jobSpec.name = 'id-reader (with recovery)';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
