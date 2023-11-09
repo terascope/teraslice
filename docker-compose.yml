@@ -73,7 +73,7 @@ services:
     cap_add:
       - IPC_LOCK
   kafka:
-    image: confluentinc/cp-kafka:7.2.0 # Has kafka 3.2.0
+    image: confluentinc/cp-kafka:7.1.9 # Has kafka 3.2.0
     ports:
       - "9094:9094"
     restart: unless-stopped
@@ -90,7 +90,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.2.0
+    image: confluentinc/cp-zookeeper:7.1.9
     ports:
       - "2181:2181"
     restart: unless-stopped
