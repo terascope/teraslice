@@ -95,7 +95,7 @@ describe('cluster state', () => {
     fit('should be correct for running job with 1 worker', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -138,7 +138,7 @@ describe('cluster state', () => {
     it('should be correct for running job with 4 workers', async () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('state');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }

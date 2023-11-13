@@ -23,7 +23,7 @@ xdescribe('id reader', () => {
     it('should support reindexing', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -38,7 +38,7 @@ xdescribe('id reader', () => {
     it('should support reindexing by hex id', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -54,7 +54,7 @@ xdescribe('id reader', () => {
     it('should support reindexing by hex id + key_range', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -72,7 +72,7 @@ xdescribe('id reader', () => {
     it('should be able to recover and continue while using the id_reader', async () => {
         const jobSpec = terasliceHarness.newJob('id');
         const specIndex = terasliceHarness.newSpecIndex('id-reader');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }

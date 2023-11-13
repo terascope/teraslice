@@ -27,7 +27,7 @@ describe('assets', () => {
     async function submitAndValidateAssetJob(jobSpecName, assetPath) {
         const fileStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -109,7 +109,7 @@ describe('assets', () => {
         const fileStream = fs.createReadStream(assetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
@@ -133,7 +133,7 @@ describe('assets', () => {
 
     it('can directly ask for the new asset to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }

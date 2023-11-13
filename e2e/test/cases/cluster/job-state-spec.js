@@ -15,7 +15,7 @@ describe('job state', () => {
     it('should cycle through after state changes with other jobs running', async () => {
         const jobSpec1 = terasliceHarness.newJob('generator');
         const jobSpec2 = terasliceHarness.newJob('generator');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec1.resources_requests_cpu = 0.05;
             jobSpec1.cpu_execution_controller = 0.4;

@@ -15,7 +15,7 @@ describe('elasticsearch bulk', () => {
     it('should support multisend', async () => {
         const jobSpec = terasliceHarness.newJob('multisend');
         const specIndex = terasliceHarness.newSpecIndex('elasticsearch-bulk');
-        // Set resource constraints on workers and ex controllers within CI
+        // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }

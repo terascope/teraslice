@@ -95,9 +95,9 @@ module.exports = class TerasliceHarness {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;
             }
-            //     // TODO: If tests are ever implemented to scale nodes in Kind,
-            //     // a scaleWorkers implementation will need to be created that works with Kind.
-            //     // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
+            // TODO: If tests are ever implemented to scale nodes in Kind,
+            // a scaleWorkers implementation will need to be created that works with Kind.
+            // As of Oct 2023 Kind doesn't let you scale nodes w/o restarting the cluster.
         } else {
             const state = await this.teraslice.cluster.state();
 
@@ -453,6 +453,7 @@ module.exports = class TerasliceHarness {
 
         try {
             if (TEST_PLATFORM === 'kubernetes') {
+                // Set resource constraints on workers and ex controllers within CI
                 jobSpec.resources_requests_cpu = 0.05;
                 jobSpec.cpu_execution_controller = 0.4;
             }
