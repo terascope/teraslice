@@ -18,10 +18,8 @@ describe('job state', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec1.resources_requests_cpu = 0.1;
-            jobSpec1.resources_limits_cpu = 0.5;
             jobSpec1.cpu_execution_controller = 0.2;
             jobSpec2.resources_requests_cpu = 0.1;
-            jobSpec2.resources_limits_cpu = 0.5;
             jobSpec2.cpu_execution_controller = 0.2;
         }
         jobSpec2.operations[1].name = 'second_generator';

@@ -9,7 +9,6 @@ async function workersTest(harness, workers, workersExpected, records) {
     // Set resource constraints on workers and ex controllers within CI
     if (TEST_PLATFORM === 'kubernetes') {
         jobSpec.resources_requests_cpu = 0.1;
-        jobSpec.resources_limits_cpu = 0.5;
         jobSpec.cpu_execution_controller = 0.2;
     }
     jobSpec.name = 'worker allocation';

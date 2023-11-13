@@ -26,10 +26,8 @@ describe('kafka', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             senderSpec.resources_requests_cpu = 0.1;
-            senderSpec.resources_limits_cpu = 0.5;
             senderSpec.cpu_execution_controller = 0.2;
             readerSpec.resources_requests_cpu = 0.1;
-            readerSpec.resources_limits_cpu = 0.5;
             readerSpec.cpu_execution_controller = 0.2;
         }
 

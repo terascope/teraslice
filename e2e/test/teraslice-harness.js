@@ -454,7 +454,6 @@ module.exports = class TerasliceHarness {
         try {
             if (TEST_PLATFORM === 'kubernetes') {
                 jobSpec.resources_requests_cpu = 0.1;
-                jobSpec.resources_limits_cpu = 0.5;
                 jobSpec.cpu_execution_controller = 0.2;
             }
             if (hex) {
