@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { cloneDeep } = require('@terascope/utils');
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('cluster api', () => {
     let terasliceHarness;
@@ -17,7 +18,10 @@ describe('cluster api', () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
-
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.05;
+        }
         await terasliceHarness.teraslice.assets.upload(testStream, {
             blocking: true
         });
@@ -31,6 +35,10 @@ describe('cluster api', () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.05;
+        }
         const alteredJob = cloneDeep(jobSpec);
         alteredJob.workers = 3;
         delete alteredJob.slicers;
@@ -57,6 +65,10 @@ describe('cluster api', () => {
         const jobSpec = terasliceHarness.newJob('reindex');
         const specIndex = terasliceHarness.newSpecIndex('api');
         jobSpec.name = 'basic reindex for lifecycle';
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.05;
+        }
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 

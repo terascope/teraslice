@@ -4,7 +4,6 @@ terafoundation:
     connectors:
         elasticsearch:
             default:
-                apiVersion: "5.6"
                 host:
                     - "elasticsearch.services-dev1:9200"
         elasticsearch-next:

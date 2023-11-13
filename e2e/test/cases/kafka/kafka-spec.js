@@ -3,6 +3,7 @@
 const { v4: uuidv4 } = require('uuid');
 const TerasliceHarness = require('../../teraslice-harness');
 const signale = require('../../signale');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('kafka', () => {
     let terasliceHarness;
@@ -21,6 +22,14 @@ describe('kafka', () => {
 
         const senderSpec = terasliceHarness.newJob('kafka-sender');
         const readerSpec = terasliceHarness.newJob('kafka-reader');
+
+        // Set resource constraints on workers and ex controllers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            senderSpec.resources_requests_cpu = 0.05;
+            senderSpec.cpu_execution_controller = 0.4;
+            readerSpec.resources_requests_cpu = 0.05;
+            readerSpec.cpu_execution_controller = 0.4;
+        }
 
         senderSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         senderSpec.operations[1].topic = topic;

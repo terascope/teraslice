@@ -4,9 +4,6 @@
     "workers": 1,
     "analytics": true,
     "assets": ["elasticsearch"],
-    "resources_requests_cpu": 0.1,
-    "resources_limits_cpu": 0.5,
-    "cpu_execution_controller": 0.2,
     "operations": [
         {
             "_op": "elasticsearch_reader",

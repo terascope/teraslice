@@ -10,6 +10,7 @@ const {
 
 const { ASSETS_PATH, CONFIG_PATH } = require('../../config');
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 describe('recovery', () => {
     const stores = {};
@@ -47,6 +48,10 @@ describe('recovery', () => {
 
     beforeEach(async () => {
         const jobSpec = terasliceHarness.newJob('generate-to-es');
+        // Set resource constraints on workers within CI
+        if (TEST_PLATFORM === 'kubernetes') {
+            jobSpec.resources_requests_cpu = 0.1;
+        }
         jobSpec.name = 'test recovery job';
 
         const files = await fse.readdir(ASSETS_PATH);

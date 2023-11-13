@@ -39,7 +39,7 @@ module.exports = async () => {
     ]);
 
     if (TEST_PLATFORM === 'kubernetes') {
-        await deployK8sTeraslice(); // here
+        await deployK8sTeraslice();
         await teraslice.waitForTeraslice();
         await setAliasAndBaseAssets(HOST_IP);
     } else {
