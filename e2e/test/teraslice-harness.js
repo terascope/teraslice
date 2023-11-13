@@ -453,8 +453,8 @@ module.exports = class TerasliceHarness {
 
         try {
             if (TEST_PLATFORM === 'kubernetes') {
-                jobSpec.resources_requests_cpu = 0.1;
-                jobSpec.cpu_execution_controller = 0.2;
+                jobSpec.resources_requests_cpu = 0.05;
+                jobSpec.cpu_execution_controller = 0.4;
             }
             if (hex) {
                 jobSpec.operations[0].size = count / hex.length;

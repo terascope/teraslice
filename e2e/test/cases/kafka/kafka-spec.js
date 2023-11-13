@@ -25,10 +25,10 @@ describe('kafka', () => {
 
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
-            senderSpec.resources_requests_cpu = 0.1;
-            senderSpec.cpu_execution_controller = 0.2;
-            readerSpec.resources_requests_cpu = 0.1;
-            readerSpec.cpu_execution_controller = 0.2;
+            senderSpec.resources_requests_cpu = 0.05;
+            senderSpec.cpu_execution_controller = 0.4;
+            readerSpec.resources_requests_cpu = 0.05;
+            readerSpec.cpu_execution_controller = 0.4;
         }
 
         senderSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
