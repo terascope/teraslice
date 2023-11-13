@@ -2,7 +2,8 @@
 # be used if you build images by default with docker build
 ARG NODE_VERSION=18.16.0
 FROM terascope/node-base:${NODE_VERSION}
-
+# I am testing the master branch in CI to see if
+#  there are any changes.
 ENV NODE_ENV production
 
 ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
