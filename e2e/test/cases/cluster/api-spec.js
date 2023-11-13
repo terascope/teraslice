@@ -20,8 +20,7 @@ describe('cluster api', () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
-            jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
+            jobSpec.resources_requests_cpu = 0.05;
         }
         await terasliceHarness.teraslice.assets.upload(testStream, {
             blocking: true
@@ -38,8 +37,7 @@ describe('cluster api', () => {
         const { workers, slicers } = jobSpec;
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
-            jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
+            jobSpec.resources_requests_cpu = 0.05;
         }
         const alteredJob = cloneDeep(jobSpec);
         alteredJob.workers = 3;
@@ -69,8 +67,7 @@ describe('cluster api', () => {
         jobSpec.name = 'basic reindex for lifecycle';
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
-            jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
+            jobSpec.resources_requests_cpu = 0.05;
         }
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;

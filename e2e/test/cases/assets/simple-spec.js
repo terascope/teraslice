@@ -30,7 +30,6 @@ describe('assets', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         const { workers } = jobSpec; // save for comparison
 
@@ -113,7 +112,6 @@ describe('assets', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         const { workers } = jobSpec;
 
@@ -138,7 +136,6 @@ describe('assets', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;

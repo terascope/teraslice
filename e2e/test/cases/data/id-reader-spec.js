@@ -26,7 +26,6 @@ xdescribe('id reader', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         jobSpec.name = 'reindex by id';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
@@ -42,7 +41,6 @@ xdescribe('id reader', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         jobSpec.name = 'reindex by hex id';
         jobSpec.operations[0].key_type = 'hexadecimal';
@@ -59,7 +57,6 @@ xdescribe('id reader', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         jobSpec.name = 'reindex by hex id (range=a..e)';
         jobSpec.operations[0].key_type = 'hexadecimal';
@@ -78,7 +75,6 @@ xdescribe('id reader', () => {
         // Set resource constraints on workers and ex controllers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
-            jobSpec.cpu_execution_controller = 0.2;
         }
         // Job needs to be able to run long enough to cycle
         jobSpec.name = 'id-reader (with recovery)';
