@@ -23,9 +23,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '-t tag docker')
             .example('$0 publish', '-t dev docker')
             .example('$0 publish', '-t latest docker')
-            .example('$0 publish', '-n 18.16.0 -t latest docker')
+            .example('$0 publish', '-n 18.18.2 -t latest docker')
             .example('$0 publish', '--dry-run docker')
-            .example('$0 publish', '-n 18.16.0 --dry-run docker')
+            .example('$0 publish', '-n 18.18.2 --dry-run docker')
             .example('$0 publish', '-t tag npm')
             .example('$0 publish', '-t latest npm')
             .example('$0 publish', '--dry-run npm')
@@ -49,7 +49,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             })
             .option('node-version', {
                 alias: 'n',
-                description: 'Node version, there must be a Docker base image with this version (e.g. 18.16.0)',
+                description: 'Node version, there must be a Docker base image with this version (e.g. 18.18.2)',
                 type: 'string',
                 default: NODE_VERSION
             })
