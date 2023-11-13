@@ -26,7 +26,8 @@ type Options = {
     'node-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
-    'ignore-mount': boolean
+    'ignore-mount': boolean;
+    'test-platform': string;
 };
 
 const jestArgs = getExtraArgs();
@@ -130,6 +131,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: false,
             })
+            .option('test-platform', {
+                description: 'Clustering platform for e2e tests',
+                type: 'string',
+                default: config.TEST_PLATFORM,
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -159,6 +165,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const nodeVersion = hoistJestArg(argv, 'node-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -176,6 +183,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             elasticsearchVersion,
             elasticsearchAPIVersion,
             kafkaVersion,
+            kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
+            zookeeperVersion: config.ZOOKEEPER_VERSION,
             minioVersion,
             rabbitmqVersion,
             opensearchVersion,
@@ -183,7 +192,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
-            ignoreMount
+            ignoreMount,
+            testPlatform
         });
     },
 };

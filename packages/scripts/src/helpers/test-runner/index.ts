@@ -9,21 +9,29 @@ import {
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
-import { runJest, dockerTag } from '../scripts';
+import {
+    createKindCluster,
+    runJest,
+    dockerTag,
+    isKindInstalled,
+    isKubectlInstalled,
+    createNamespace,
+    loadTerasliceImage,
+    destroyKindCluster,
+} from '../scripts';
 import {
     getArgs, filterBySuite, globalTeardown,
     reportCoverage, logE2E, getEnv,
     groupBySuite
 } from './utils';
 import signale from '../signale';
-import { getE2EDir, readPackageInfo, listPackages } from '../packages';
+import {
+    getE2EDir, readPackageInfo, listPackages
+} from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
-import {
-    MAX_PROJECTS_PER_BATCH,
-    SKIP_DOCKER_BUILD_IN_E2E
-} from '../config';
+import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -201,11 +209,31 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
+    if (options.testPlatform === 'kubernetes') {
+        try {
+            const kindInstalled = await isKindInstalled();
+            if (!kindInstalled && !isCI) {
+                signale.error('Please install Kind before running k8s tests. https://kind.sigs.k8s.io/docs/user/quick-start');
+                process.exit(1);
+            }
+
+            const kubectlInstalled = await isKubectlInstalled();
+            if (!kubectlInstalled && !isCI) {
+                signale.error('Please install kubectl before running k8s tests. https://kubernetes.io/docs/tasks/tools/');
+                process.exit(1);
+            }
+
+            await createKindCluster();
+            await createNamespace('services-ns.yaml');
+        } catch (err) {
+            tracker.addError(err);
+        }
+    }
+
     const rootInfo = getRootInfo();
-    // const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
     const e2eImage = `${rootInfo.name}:e2e`;
 
-    if (isCI) {
+    if (isCI && options.testPlatform === 'native') {
         // pull the services first in CI
         await pullServices(suite, options);
     }
@@ -225,6 +253,14 @@ async function runE2ETest(
         }
     } catch (err) {
         tracker.addError(err);
+    }
+
+    if (options.testPlatform === 'kubernetes') {
+        try {
+            await loadTerasliceImage(e2eImage);
+        } catch (err) {
+            tracker.addError(err);
+        }
     }
 
     try {
@@ -284,6 +320,10 @@ async function runE2ETest(
                 suite,
             }]);
         });
+    }
+
+    if (options.testPlatform === 'kubernetes' && !options.keepOpen) {
+        await destroyKindCluster();
     }
 }
 

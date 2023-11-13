@@ -5,6 +5,9 @@
     "workers": 2,
     "analytics": false,
     "assets": ["elasticsearch", "standard"],
+    "resources_requests_cpu": 0.1,
+    "resources_limits_cpu": 0.5,
+    "cpu_execution_controller": 0.2,
     "max_retries": 0,
     "operations": [
         {

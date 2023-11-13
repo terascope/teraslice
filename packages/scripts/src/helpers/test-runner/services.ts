@@ -10,7 +10,10 @@ import {
     DockerRunOptions,
     getContainerInfo,
     dockerStop,
-    dockerPull
+    dockerPull,
+    kindLoadServiceImage,
+    kindStartService,
+    kindStopService
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
@@ -85,7 +88,8 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             'http.port': config.OPENSEARCH_PORT,
             'discovery.type': 'single-node',
             DISABLE_INSTALL_DEMO_CONFIG: 'true',
-            DISABLE_SECURITY_PLUGIN: 'true'
+            DISABLE_SECURITY_PLUGIN: 'true',
+            DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI: 'true'
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -97,12 +101,27 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             : undefined,
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
-            KAFKA_HEAP_OPTS: config.SERVICE_HEAP_OPTS,
-            KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true',
+            KAFKA_BROKER_ID: config.KAFKA_BROKER_ID,
             KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
-            KAFKA_ADVERTISED_PORT: config.KAFKA_PORT,
-            KAFKA_PORT: config.KAFKA_PORT,
-            KAFKA_NUM_PARTITIONS: '2',
+            KAFKA_ZOOKEEPER_CONNECT: config.KAFKA_ZOOKEEPER_CONNECT,
+            KAFKA_LISTENERS: config.KAFKA_LISTENERS,
+            KAFKA_ADVERTISED_LISTENERS: config.KAFKA_ADVERTISED_LISTENERS,
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: config.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP,
+            KAFKA_INTER_BROKER_LISTENER_NAME: config.KAFKA_INTER_BROKER_LISTENER_NAME,
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: config.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+        },
+        network: config.DOCKER_NETWORK_NAME
+    },
+    [Service.Zookeeper]: {
+        image: config.ZOOKEEPER_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_zookeeper`,
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/tmp/zookeeper-logs']
+            : undefined,
+        ports: [`${config.ZOOKEEPER_CLIENT_PORT}:${config.ZOOKEEPER_CLIENT_PORT}`],
+        env: {
+            ZOOKEEPER_CLIENT_PORT: config.ZOOKEEPER_CLIENT_PORT,
+            ZOOKEEPER_TICK_TIME: config.ZOOKEEPER_TICK_TIME
         },
         network: config.DOCKER_NETWORK_NAME
     },
@@ -161,7 +180,12 @@ export async function pullServices(suite: string, options: TestOptions): Promise
         }
 
         if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaImageVersion}`;
+            images.push(image);
+        }
+
+        if (launchServices.includes(Service.Zookeeper)) {
+            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${options.zookeeperVersion}`;
             images.push(image);
         }
 
@@ -221,6 +245,10 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
         promises.push(ensureKafka(options));
     }
 
+    if (launchServices.includes(Service.Zookeeper)) {
+        promises.push(ensureZookeeper(options));
+    }
+
     if (launchServices.includes(Service.Minio)) {
         promises.push(ensureMinio(options));
     }
@@ -242,15 +270,23 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 }
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
     await checkKafka(options, startTime);
     return fn;
 }
 
+export async function ensureZookeeper(options: TestOptions): Promise<() => void> {
+    let fn = () => { };
+    const startTime = Date.now();
+    fn = await startService(options, Service.Zookeeper);
+    await checkZookeeper(options, startTime);
+    return fn;
+}
+
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -258,7 +294,7 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
 }
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Elasticsearch);
     await checkElasticsearch(options, startTime);
@@ -266,7 +302,7 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
 }
 
 export async function ensureRestrainedElasticsearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RestrainedElasticsearch);
     await checkRestrainedElasticsearch(options, startTime);
@@ -274,7 +310,7 @@ export async function ensureRestrainedElasticsearch(options: TestOptions): Promi
 }
 
 export async function ensureRestrainedOpensearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RestrainedOpensearch);
     await checkRestrainedOpensearch(options, startTime);
@@ -282,7 +318,7 @@ export async function ensureRestrainedOpensearch(options: TestOptions): Promise<
 }
 
 export async function ensureOpensearch(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.Opensearch);
     await checkOpensearch(options, startTime);
@@ -290,7 +326,7 @@ export async function ensureOpensearch(options: TestOptions): Promise<() => void
 }
 
 export async function ensureRabbitMQ(options: TestOptions): Promise<() => void> {
-    let fn = () => {};
+    let fn = () => { };
     const startTime = Date.now();
     fn = await startService(options, Service.RabbitMQ);
     await checkRabbitMQ(options, startTime);
@@ -679,6 +715,11 @@ async function checkKafka(options: TestOptions, startTime: number) {
     signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
+async function checkZookeeper(options: TestOptions, startTime: number) {
+    const took = ts.toHumanTime(Date.now() - startTime);
+    signale.success(` zookeeper*might* be running, took ${took}`);
+}
+
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     let serviceName = service;
 
@@ -689,14 +730,25 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     if (serviceName === 'restrained_opensearch') {
         serviceName = Service.Opensearch;
     }
-
-    const version = options[`${serviceName}Version`] as string;
+    let version:string;
+    if (serviceName === 'kafka') {
+        version = options[`${serviceName}ImageVersion`] as string;
+        signale.pending(`starting ${service}@${options.kafkaVersion} service...`);
+    } else {
+        version = options[`${serviceName}Version`] as string;
+        signale.pending(`starting ${service}@${version} service...`);
+    }
     if (options.useExistingServices) {
         signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
-        return () => {};
+        return () => { };
     }
 
-    signale.pending(`starting ${service}@${version} service...`);
+    if (options.testPlatform === 'kubernetes') {
+        await kindStopService(service);
+        await kindLoadServiceImage(service, services[service].image, version);
+        await kindStartService(service);
+        return () => { };
+    }
 
     await stopService(service);
 
