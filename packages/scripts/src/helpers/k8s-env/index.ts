@@ -4,15 +4,19 @@ import {
     createKindCluster,
     createNamespace,
     deployK8sTeraslice,
+    dockerTag,
     isKindInstalled,
     isKubectlInstalled,
-    kindLoadServiceImage,
     kindStartService,
     kindStopService,
+    loadTerasliceImage,
     setAliasAndBaseAssets
 } from '../scripts';
 import { k8sEnvOptions } from './interfaces';
 import signale from '../signale';
+import { getDevDockerImage, getRootInfo } from '../misc';
+import { buildDevDockerImage } from '../publish/utils';
+import { PublishOptions, PublishType } from '../publish/interfaces';
 
 // import { TerasliceHarness } from 'e2e/test/teraslice-harness.js';
 // const TerasliceHarness = require('e2e/test/teraslice-harness');
@@ -20,7 +24,7 @@ import signale from '../signale';
 const logger = debugLogger('ts-scripts:cmd:k8s-env');
 
 export async function launchK8sEnv(options: k8sEnvOptions) {
-    logger.info('Starting k8s environment with the following options: ', options);
+    logger.debug('Starting k8s environment with the following options: ', options);
 
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -37,55 +41,46 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     await createKindCluster();
     await createNamespace('services-ns.yaml');
 
+    const rootInfo = getRootInfo();
+    const e2eImage = `${rootInfo.name}:e2e`;
+
+    try {
+        if (options.skipBuild) {
+            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
+            await dockerTag(devImage, e2eImage);
+        } else {
+            const publishOptions: PublishOptions = {
+                dryRun: true,
+                nodeVersion: options.nodeVersion,
+                type: PublishType.Dev
+            };
+            const devImage = await buildDevDockerImage(publishOptions);
+            await dockerTag(devImage, e2eImage);
+        }
+    } catch (err) {
+        signale.error('Docker image build failed: ', err);
+        process.exit(1);
+    }
+
+    await loadTerasliceImage(e2eImage);
+
     // FIXME: launch services
     const services = ['elasticsearch', 'kafka'];
     // Promise.all([])
-    for (const service of services) {
+    for (const service of options.services) {
+        let version: string;
+        if (service === 'kafka') {
+            version = options[`${service}ImageVersion`] as string;
+            signale.pending(`starting ${service}@${options.kafkaVersion} service...`);
+        } else {
+            version = options[`${service}Version`] as string;
+            signale.pending(`starting ${service}@${version} service...`);
+        }
         await kindStopService(service);
         // await kindLoadServiceImage(service, services[service].image, version);
         await kindStartService(service);
     }
 
-    // const teraslice = new TerasliceHarness();
-    // await teraslice.init();
     await deployK8sTeraslice();
-
-    // FIXME: we need an alternative to teraslice harness?
-    // await teraslice.waitForTeraslice();
-    await waitForTerasliceRunning(120000);
-    await setAliasAndBaseAssets('127.0.0.1');
 }
 
-function waitForTerasliceRunning(timeoutMs = 120000) : Promise<boolean> {
-    const endAt = Date.now() + timeoutMs;
-
-    const _waitForTerasliceRunning = async () : Promise<boolean> => {
-        if (Date.now() > endAt) {
-            throw new Error(`Failure to communicate with the Teraslice Master after ${timeoutMs}ms`);
-        }
-
-        let terasliceRunning = false;
-        // let nodes = -1;
-        try {
-            const TSMasterResponse = execa.command('curl localhost:5678').stdout;
-            if (TSMasterResponse) {
-                TSMasterResponse.on('data', (data) => {
-                    const jsonData = JSON.parse(data);
-                    signale.info(`response: ${JSON.stringify(jsonData)}`);
-                    if (jsonData.clustering_type === 'kubernetes') {
-                        signale.info('jsonData.clusteringType === kubernetes');
-                        terasliceRunning = true;
-                    }
-                });
-            }
-        } catch (err) {
-            await pDelay(3000);
-            return _waitForTerasliceRunning();
-        }
-
-        if (terasliceRunning) return true;
-        return _waitForTerasliceRunning();
-    };
-
-    return _waitForTerasliceRunning();
-}
