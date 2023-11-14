@@ -1,15 +1,21 @@
 import { CommandModule } from 'yargs';
+import { castArray } from '@terascope/utils';
 import * as config from '../helpers/config';
 import { launchK8sEnv } from '../helpers/k8s-env';
 
+const availableServices = [
+    'elasticsearch', 'kafka'
+];
+
 const cmd: CommandModule = {
-    command: 'k8s-env',
+    command: 'k8s-env [services..]',
     describe: 'Run a local kubernetes dev environment using kind',
     builder(yargs) {
         return yargs
         // FIXME: add examples
-            .example('$0 k8s-env', '')
-            .example('$0 k8s-env', '')
+            .example('$0 k8s-env elasticsearch', '')
+            .example('$0 k8s-env elasticsearch kafka', '')
+            .example('$0 k8s-env elasticsearch kafka --debug --skip-build', '')
             .option('debug', {
                 alias: 'd',
                 description: 'This will launch a kubernetes dev environment and output any debug info',
@@ -50,6 +56,26 @@ const cmd: CommandModule = {
                 description: 'Node version, there must be a Docker base image with this version (e.g. 18.16.0)',
                 type: 'string',
                 default: config.NODE_VERSION
+            })
+            .option('skip-build', {
+                description: 'Skip building the teraslice docker iamge',
+                type: 'boolean',
+                default: false
+            })
+            .positional('services', {
+                description: 'List of services that will be started in k8s',
+                type: 'string',
+                coerce(arg) {
+                    castArray(arg).forEach((a) => {
+                        if (!availableServices.includes(a)) {
+                            throw new Error(`Service ${a} is not available. Create a kubernetes deployment yaml file in 'e2e/k8s' and add service name to the availableServices list.`);
+                        }
+                    });
+                    if (arg.includes('kafka')) {
+                        arg.push('zookeeper');
+                    }
+                    return arg;
+                },
             });
     },
     handler(argv) {
@@ -63,7 +89,9 @@ const cmd: CommandModule = {
             rabbitmqVersion: argv.rabbitmqVersion as string,
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
-            trace: Boolean(argv.trace)
+            trace: Boolean(argv.trace),
+            skipBuild: Boolean(argv['skip-build']),
+            services: argv.services as string[]
         });
     },
 };

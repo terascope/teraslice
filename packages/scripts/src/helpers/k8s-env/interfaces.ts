@@ -9,4 +9,6 @@ export interface k8sEnvOptions {
     rabbitmqVersion: string;
     opensearchVersion: string;
     nodeVersion: string;
+    skipBuild: boolean;
+    services: string[]
 }
