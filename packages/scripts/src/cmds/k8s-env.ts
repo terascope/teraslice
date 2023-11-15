@@ -2,6 +2,7 @@ import { CommandModule } from 'yargs';
 import { castArray } from '@terascope/utils';
 import * as config from '../helpers/config';
 import { launchK8sEnv } from '../helpers/k8s-env';
+import { kafkaVersionMapper } from '../helpers/mapper';
 
 const availableServices = [
     'elasticsearch', 'kafka'
@@ -70,6 +71,7 @@ const cmd: CommandModule = {
                         if (!availableServices.includes(a)) {
                             throw new Error(`Service ${a} is not available. Create a kubernetes deployment yaml file in 'e2e/k8s' and add service name to the availableServices list.`);
                         }
+                        setEnvVariable(arg);
                     });
                     if (arg.includes('kafka')) {
                         arg.push('zookeeper');
@@ -79,12 +81,15 @@ const cmd: CommandModule = {
             });
     },
     handler(argv) {
+        const kafkaVersion = argv.kafkaVersion as string;
+        const kafkaCPVersion = kafkaVersionMapper(kafkaVersion);
+
         return launchK8sEnv({
             debug: Boolean(argv.debug),
             elasticsearchVersion: argv.elasticsearchVersion as string,
-            kafkaVersion: argv.kafkaVersion as string,
-            kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
-            zookeeperVersion: config.ZOOKEEPER_VERSION,
+            kafkaVersion,
+            kafkaImageVersion: kafkaCPVersion,
+            zookeeperVersion: kafkaCPVersion,
             minioVersion: argv.minioVersion as string,
             rabbitmqVersion: argv.rabbitmqVersion as string,
             opensearchVersion: argv.opensearchVersion as string,
@@ -97,3 +102,25 @@ const cmd: CommandModule = {
 };
 
 export = cmd;
+
+function setEnvVariable(arg: string) {
+    switch (arg.toLowerCase()) {
+        case ('opensearch'):
+            process.env.TEST_OPENSEARCH = undefined;
+            break;
+        case ('elasticsearch'):
+            process.env.TEST_ELASTICSEARCH = undefined;
+            break;
+        case ('kafka'):
+            process.env.TEST_KAFKA = undefined;
+            break;
+        case ('minio'):
+            process.env.TEST_MINIO = undefined;
+            break;
+        case ('rabbitmq'):
+            process.env.TEST_RABBITMQ = undefined;
+            break;
+        default:
+            break;
+    }
+}
