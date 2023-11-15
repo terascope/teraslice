@@ -3,6 +3,8 @@ import _ from 'lodash';
 export function iterateState(clusterState: any, cb: (input: any) => boolean) {
     // I clone here, because the code below accidentally modifies clusterState.
     // Not sure if this is the best chouice.
+    console.dir({ clusterState, iterateState: true }, { depth: 40 })
+
     return _.chain(_.cloneDeep(clusterState))
         .filter((node) => node.state === 'connected')
         .map((node) => {

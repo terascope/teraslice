@@ -93,7 +93,6 @@ export class Messaging {
         this.context = context;
         this.functionMapping = {};
         // processContext is set in _makeConfigurations
-        let processContext: any;
         this.config = this._makeConfigurations() as any;
         const { hostURL } = this.config;
         this.hostURL = hostURL;
@@ -109,20 +108,20 @@ export class Messaging {
         this.logger.debug(`messaging service configuration for assignment ${this.config.assignment}`);
 
         // set a default listener the is used for forwarding/completing responses
-        this.functionMapping['messaging:response'] = this._handleResponse;
-        processContext.on('messaging:response', this._handleResponse);
+        this.functionMapping['messaging:response'] = this._handleResponse.bind(this);
+        this.processContext.on('messaging:response', this._handleResponse.bind(this));
 
         // all child processes need to set up a process listener on the 'message' event
         if (this.config.clients.ipcClient) {
             process.on('message', this._handleIpcMessages());
         } else {
-            processContext.on('online', (worker: NodeJS.Process) => {
+            this.processContext.on('online', (worker: NodeJS.Process) => {
                 this.logger.debug('worker process has come online');
                 if (this.childHookFn) {
                     this.childHookFn();
                 }
                 // @ts-expect-error
-                const contextWorker = processContext.workers[worker.id];
+                const contextWorker = this.processContext.workers[worker.id];
 
                 // don't double subscribe
                 contextWorker.removeListener('message', this._handleWorkerMessage);
@@ -135,6 +134,8 @@ export class Messaging {
     }
 
     private _handleResponse(msgResponse: any) {
+        console.dir({ msgResponse, _handleResponse: true }, { depth: 40 })
+
         // if msg has returned to source then emit it else pass it along
         if (msgResponse.__source === this.config.assignment) {
             this.logger.trace(`node message ${msgResponse.__msgId} has been processed`);
@@ -146,6 +147,8 @@ export class Messaging {
     }
 
     respond(incoming: any, outgoing?: any) {
+        console.dir({ incoming, outgoing, respond: true }, { depth: 40 })
+
         const outgoingResponse = (outgoing && typeof outgoing === 'object') ? outgoing : {};
         if (incoming.__msgId) {
             outgoingResponse.__msgId = incoming.__msgId;
@@ -157,6 +160,8 @@ export class Messaging {
     }
 
     private _findAndSend(filterFn: any, msg: any, msgHookFn?: any) {
+        console.dir({ msg, _findAndSend: true }, { depth: 40 })
+
         // @ts-expect-error
         const childProcesses = this.context.cluster.workers as any;
         const children = _.filter(childProcesses, filterFn);
@@ -178,6 +183,8 @@ export class Messaging {
     }
 
     private _sendToProcesses(msg: any) {
+        console.dir({ msg, _sendToProcesses: true }, { depth: 40 })
+
         const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
         if (msgExId) {
             // all processes that have the same assignment and exId
@@ -305,7 +312,9 @@ export class Messaging {
                 perMessageDeflate: false,
                 query,
             } as any);
-            this._registerFns(io);
+
+            this._registerFns(this.io);
+
             if (this.self === 'node_master') {
                 this.io.on('networkMessage', (networkMsg: any) => {
                     const { message } = networkMsg;
@@ -318,6 +327,7 @@ export class Messaging {
                     }
                 });
             }
+
             this.logger.debug('client network connection is online');
         } else if (server) {
             // cluster_master
@@ -375,7 +385,9 @@ export class Messaging {
     }
 
     send(messageSent: any) {
-        if (!messageSent.__source) messageSent.__source = self;
+        if (!messageSent.__source) {
+            messageSent.__source = this.self;
+        }
         const needsReply = messageSent.response;
 
         if (!needsReply) {

@@ -120,7 +120,7 @@ export class ExecutionAnalytics {
         }, this.analyticsRate);
     }
 
-    set(key: string, value: any) {
+    set(key: keyof EStats, value: any) {
         this.executionAnalytics[key] = value;
     }
 
@@ -176,6 +176,7 @@ export class ExecutionAnalytics {
         const response = await this.client.sendClusterAnalytics(
             diffs as AggregatedExecutionAnalytics, timeout
         );
+
         const recorded = get(response, 'payload.recorded', false);
 
         this._pushing = false;

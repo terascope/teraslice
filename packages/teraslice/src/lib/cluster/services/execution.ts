@@ -5,10 +5,10 @@ import {
     isEmpty, isString, flatten,
     includes, cloneDeep, Logger
 } from '@terascope/utils';
-import type { ExecutionConfig, RecoveryCleanupType } from '@terascope/job-components';
+import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import type { ExecutionStorage, StateStorage } from '../../storage';
-import { ClusterMasterContext } from '../../../interfaces';
+import { ClusterMasterContext, ExecutionRecord } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
 import type { ClusterServiceType } from './cluster';
 /**
@@ -57,6 +57,7 @@ export class ExecutionService {
         }
 
         const { clusterService } = this.context.services;
+
         if (clusterService == null) {
             throw new Error('Missing required services');
         }
@@ -68,8 +69,8 @@ export class ExecutionService {
         this.logger.info('execution service is initializing...');
 
         // listen for an execution finished events
-        // @ts-expect-error TODO: check this
-        this.clusterServiceMasterServer.onExecutionFinished(this._finishExecution);
+        // TODO: look closer at the types of the callback
+        this.clusterMasterServer.onExecutionFinished(this._finishExecution.bind(this) as any);
 
         // lets call this before calling it
         // in the background
@@ -88,15 +89,18 @@ export class ExecutionService {
         } else {
             this.logger.debug('execution queue initialization complete');
         }
-        // @ts-expect-error TODO: check this
-        this.allocateInterval = setInterval(this._executionAllocator(), 1000);
+        const executionAllocator = this._executionAllocator().bind(this);
+
+        this.allocateInterval = setInterval(executionAllocator, 1000);
         this.reapInterval = setInterval(
-            this.reapExecutions,
+            this.reapExecutions.bind(this),
             this.context.sysconfig.teraslice.shutdown_timeout || 30000
         );
     }
 
     enqueue(ex: any) {
+        console.dir({ ex, enqueue: true }, { depth: 40 });
+
         const size = this.pendingExecutionQueue.size();
         this.logger.debug(ex, `enqueueing execution to be processed (queue size ${size})`);
         this.pendingExecutionQueue.enqueue(cloneDeep(ex));
@@ -200,14 +204,14 @@ export class ExecutionService {
      * @param {import('@terascope/job-components').ExecutionConfig} execution
      * @returns {boolean}
     */
-    isExecutionTerminal(execution: ExecutionConfig) {
+    isExecutionTerminal(execution: ExecutionRecord) {
         const terminalList = this.executionStorage.getTerminalStatuses();
-        // @ts-expect-error
         return terminalList.find((tStat) => tStat === execution._status) != null;
     }
 
     // safely stop the execution without setting the ex status to stopping or stopped
     private async _finishExecution(exId: string, err?: Error) {
+        console.log('_finishExecution err', err, exId)
         if (err) {
             const error = new TSError(err, {
                 reason: `terminal error for execution: ${exId}, shutting down execution`,
@@ -219,6 +223,11 @@ export class ExecutionService {
         }
 
         const execution = await this.getExecutionContext(exId);
+
+        if (!execution) {
+            throw new Error(`Execution: ${exId} was not found to finish execution`);
+        }
+
         const status = execution._status;
 
         if (['stopping', 'stopped'].includes(status)) {
@@ -243,7 +252,12 @@ export class ExecutionService {
 
     async stopExecution(exId: string, timeout: number, excludeNode?: string) {
         const execution = await this.getExecutionContext(exId);
-        const isTerminal = this.isExecutionTerminal(execution._status);
+
+        if (!execution) {
+            throw new Error(`Execution: ${exId} was not found`);
+        }
+
+        const isTerminal = this.isExecutionTerminal(execution);
 
         if (isTerminal) {
             this.logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
@@ -346,9 +360,17 @@ export class ExecutionService {
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
-    async getExecutionContext(exId: string) {
-        return this.executionStorage.get(exId)
-            .catch((err) => logError(this.logger, err, `error getting execution context for ex: ${exId}`));
+    async getExecutionContext(exId: string): Promise<ExecutionRecord> {
+        try {
+            const record = this.executionStorage.get(exId);
+            if (!record) {
+                throw new Error(`Execution ${exId} was not found`);
+            }
+            return record;
+        } catch (err) {
+            logError(this.logger, err, `error getting execution context for ex: ${exId}`);
+            throw err;
+        }
     }
 
     async getRunningExecutions(exId: string | boolean) {
@@ -375,21 +397,24 @@ export class ExecutionService {
     ) {
         const recoverFromEx = isString(exIdOrEx)
             ? await this.getExecutionContext(exIdOrEx)
-            : cloneDeep(exIdOrEx);
+            : cloneDeep(exIdOrEx) as ExecutionRecord;
+
+        if (!recoverFromEx) {
+            throw new Error(`Could not find execution: ${exIdOrEx} to recover from`);
+        }
 
         const ex = await this.executionStorage.createRecoveredExecution(recoverFromEx, cleanupType);
         this.enqueue(ex);
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
-    private async _executionAllocator() {
+    private _executionAllocator() {
         let allocatingExecution = false;
-        const { readyForAllocation } = this.clusterService;
 
         const allocator = async () => {
             const canAllocate = !allocatingExecution
                 && this.pendingExecutionQueue.size() > 0
-                && readyForAllocation();
+                && this.clusterService.readyForAllocation();
             if (!canAllocate) return;
 
             allocatingExecution = true;

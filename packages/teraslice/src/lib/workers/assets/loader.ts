@@ -1,14 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */ // TODO: fix this
 import path from 'node:path';
 import fs from 'node:fs';
-import {
-    get, isEmpty, Logger, getFullErrorStack,
-    pDelay
-} from '@terascope/utils';
+import { get, isEmpty, Logger } from '@terascope/utils';
 import type { Context } from '@terascope/job-components';
-import { makeTerafoundationContext } from '../context/terafoundation-context';
 import { AssetsStorage } from '../../storage';
-import { safeDecode } from '../../utils/encoding_utils';
 import { makeLogger } from '../helpers/terafoundation';
 import { saveAsset } from '../../utils/file_utils';
 
@@ -82,34 +76,3 @@ export class AssetLoader {
         return idArray;
     }
 }
-
-// async function loadAssets(context, assets) {
-//     const assetLoader = new AssetLoader(context, assets);
-//     return assetLoader.load();
-// }
-
-// if (require.main === module) {
-//     const context = makeTerafoundationContext();
-//     const assets = safeDecode(process.env.ASSETS);
-
-//     (async () => {
-//         try {
-//             const assetIds = await loadAssets(context, assets);
-//             process.send({
-//                 assetIds: assetIds || [],
-//                 success: true
-//             });
-//         } catch (err) {
-//             process.send({
-//                 error: getFullErrorStack(err),
-//                 success: false
-//             });
-//             process.exitCode = 1;
-//         } finally {
-//             await pDelay(500);
-//             process.exit();
-//         }
-//     })();
-// } else {
-//     module.exports = loadAssets;
-// }

@@ -6,6 +6,7 @@ import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
 import { makeLogger } from '../workers/helpers/terafoundation';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
+import { ExecutionRecord, JobRecord } from '../../interfaces';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
@@ -41,10 +42,11 @@ export class ExecutionStorage {
         this.logger = logger;
         this.backend = new TerasliceElasticsearchStorage(backendConfig);
 
-        // TODO: verify this
-        context.apis.executionContext.registerMetadataFns(
-            { get: this.getMetadata.bind(this), update: this.updateMetadata.bind(this) }
-        );
+        if (context.apis.executionContext) {
+            context.apis.executionContext.registerMetadataFns(
+                { get: this.getMetadata.bind(this), update: this.updateMetadata.bind(this) }
+            );
+        }
     }
 
     async initialize() {
@@ -52,12 +54,13 @@ export class ExecutionStorage {
         this.logger.info('execution storage initialized');
     }
 
-    async get(exId: string) {
-        return this.backend.get(exId);
+    async get(exId: string): Promise<ExecutionRecord> {
+        const results = await this.backend.get(exId);
+        return results as ExecutionRecord;
     }
 
     // encompasses all executions in either initialization or running statuses
-    async getActiveExecution(exId: string) {
+    async getActiveExecution(exId: string): Promise<ExecutionRecord> {
         const str = this.getTerminalStatuses().map((state) => ` _status:${state} `).join('OR');
         const query = `ex_id:"${exId}" NOT (${str.trim()})`;
         const executions = await this.backend.search(query, undefined, 1, '_created:desc') as any[];
@@ -68,7 +71,7 @@ export class ExecutionStorage {
             });
         }
 
-        return executions[0];
+        return executions[0] as ExecutionRecord;
     }
 
     async search(
@@ -77,11 +80,13 @@ export class ExecutionStorage {
         size?: number,
         sort?: string,
         fields?: string | string[]
-    ) {
-        return this.backend.search(query, from, size, sort, fields);
+    ): Promise<ExecutionRecord[]> {
+        const results = await this.backend.search(query, from, size, sort, fields);
+        return results as ExecutionRecord[];
     }
-    // TODO: type this
-    async create(record: Record<string, any>, status = 'pending') {
+
+    async create(record: JobRecord | ExecutionRecord, status = 'pending'): Promise<ExecutionRecord> {
+        console.dir({ record, execution_create: true }, { depth: 40 })
         if (!this._isValidStatus(status)) {
             throw new Error(`Unknown status "${status}" on execution create`);
         }
@@ -101,8 +106,9 @@ export class ExecutionStorage {
             _slicer_stats: {},
             _failureReason: ''
         });
-
+        // @ts-expect-error
         delete doc.slicer_port;
+        // @ts-expect-error
         delete doc.slicer_hostname;
 
         try {
@@ -112,7 +118,8 @@ export class ExecutionStorage {
                 reason: 'Failure to create execution context'
             });
         }
-        return doc;
+
+        return doc as unknown as ExecutionRecord;
     }
 
     async updatePartial(
@@ -165,7 +172,7 @@ export class ExecutionStorage {
     }
 
     async getMetadata(exId: string) {
-        const ex = await this.get(exId);
+        const ex = await this.get(exId) as ExecutionRecord;
         return ex.metadata ?? {};
     }
     // TODO: type this
@@ -179,7 +186,7 @@ export class ExecutionStorage {
     // TODO: put a type of return
     async getStatus(exId: string): Promise<string> {
         try {
-            const result = await this.get(exId);
+            const result = await this.get(exId) as ExecutionRecord;
             return result._status;
         } catch (err) {
             throw new TSError(err, {
@@ -196,7 +203,7 @@ export class ExecutionStorage {
             });
         }
 
-        const status = await this.get(exId);
+        const status = await this.getStatus(exId);
         this._verifyStatus(status, desiredStatus);
     }
 
@@ -303,7 +310,7 @@ export class ExecutionStorage {
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
     async createRecoveredExecution(
-        recoverFrom: Record<string, any>,
+        recoverFrom: ExecutionRecord,
         cleanupType?: RecoveryCleanupType
     ) {
         if (!recoverFrom) {
@@ -315,7 +322,7 @@ export class ExecutionStorage {
 
         const recoverFromId = recoverFrom.ex_id;
 
-        const ex = Object.assign({}, recoverFrom);
+        const ex = Object.assign({}, recoverFrom) as ExecutionRecord;
         if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
         }

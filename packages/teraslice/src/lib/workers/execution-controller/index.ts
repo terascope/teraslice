@@ -1,6 +1,8 @@
 import ms from 'ms';
 import _ from 'lodash';
-import Messaging from '@terascope/teraslice-messaging';
+import {
+    formatURL, ExecutionController as ExController, ClusterMaster
+} from '@terascope/teraslice-messaging';
 import type { EventEmitter } from 'node:events';
 import {
     TSError, includes, get,
@@ -16,15 +18,13 @@ import { SliceAnalytics } from './slice-analytics';
 import { Scheduler } from './scheduler';
 import { Metrics } from '../metrics';
 
-const { formatURL } = Messaging;
-
 export class ExecutionController {
     readonly context: Context;
     readonly executionContext: SlicerExecutionContext;
     events: EventEmitter;
     logger: Logger;
-    readonly server: Messaging.ExecutionController.Server;
-    readonly client: Messaging.ClusterMaster.Client;
+    readonly server: ExController.Server;
+    readonly client: ClusterMaster.Client;
     stateStorage: StateStorage;
     executionStorage: ExecutionStorage;
     private isPaused = false;
@@ -72,7 +72,7 @@ export class ExecutionController {
         const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
 
-        this.server = new Messaging.ExecutionController.Server({
+        this.server = new ExController.Server({
             port: slicerPort,
             networkLatencyBuffer,
             actionTimeout,
@@ -83,7 +83,7 @@ export class ExecutionController {
         const clusterMasterPort = get(config, 'port');
         const clusterMasterHostname = get(config, 'master_hostname');
 
-        this.client = new Messaging.ClusterMaster.Client({
+        this.client = new ClusterMaster.Client({
             clusterMasterUrl: formatURL(clusterMasterHostname, clusterMasterPort),
             nodeDisconnectTimeout,
             networkLatencyBuffer,
@@ -338,6 +338,7 @@ export class ExecutionController {
 
         const executionStats = this.executionAnalytics.getAnalytics();
         const errorMeta = this.executionStorage.executionMetaData(executionStats, errMsg);
+
         try {
             await this.executionStorage.setStatus(this.exId, 'failing', errorMeta);
         } catch (err) {

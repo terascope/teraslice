@@ -5,9 +5,12 @@ import {
 } from '@terascope/job-components';
 import { terasliceOpPath } from '../../config';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
+import { ExecutionRecord, JobRecord } from '../../../interfaces';
 
 // TODO: fix type here
 export async function validateJob(context: Context, jobSpec: any) {
+    console.dir({ jobSpec, validateJob: true }, { depth: 40 })
+
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,
     });
@@ -21,7 +24,7 @@ export async function validateJob(context: Context, jobSpec: any) {
 
 interface TestExecution {
     context: Context
-    config: any;
+    config: JobRecord | ExecutionRecord;
     stores?: { jobStore: JobsStorage, exStore: ExecutionStorage, stateStore: StateStorage};
     isRecovery?: boolean;
     cleanupType?: RecoveryCleanupType;
@@ -72,7 +75,9 @@ export async function initializeTestExecution({
         job_id: jobSpec.job_id
     });
 
+    // @ts-expect-error
     const slicerHostname = job.slicer_hostname;
+    // @ts-expect-error
     const slicerPort = job.slicer_port;
 
     let ex: any;

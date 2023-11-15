@@ -3,7 +3,10 @@ import {
     TSError, getTypeOf, logError,
     Logger
 } from '@terascope/utils';
-import { Context, WorkerExecutionContext } from '@terascope/job-components';
+import {
+    Context, Slice, WorkerExecutionContext,
+    RunSliceResult
+} from '@terascope/job-components';
 import { SliceState, StateStorage, AnalyticsStorage } from '../../storage';
 import { makeLogger } from '../helpers/terafoundation';
 import { logOpStats } from '../helpers/op-analytics';
@@ -32,9 +35,11 @@ export class SliceExecution {
         this.analyticsStorage = analyticsStorage;
     }
 
-    async initialize(slice: any) {
-        const { slice_id: sliceId } = slice;
+    async initialize(slice: Slice) {
+        console.dir({ slice, Slice_initialize: true }, { depth: 40 })
 
+        const { slice_id: sliceId } = slice;
+        // @ts-expect-error TODO: fix this type
         if (slice.state !== SliceState.pending) {
             await this.stateStorage.updateState(slice, SliceState.start);
         }
@@ -51,11 +56,12 @@ export class SliceExecution {
 
         const { slice } = this;
 
-        let result;
+        let result: RunSliceResult | undefined;
         let sliceSuccess = false;
 
         try {
             result = await this.executionContext.runSlice();
+
             sliceSuccess = true;
             await this._markCompleted();
         } catch (_err) {
@@ -68,7 +74,7 @@ export class SliceExecution {
             }
             throw err;
         } finally {
-            if (result) await this._logAnalytics(result.analytics, result.status);
+            if (result) await this._logAnalytics(result);
             await this._onSliceFinalize(slice);
         }
 
@@ -80,7 +86,7 @@ export class SliceExecution {
 
         if (result) {
             await this._markCompleted();
-            await this._logAnalytics(result.analytics, result.status);
+            await this._logAnalytics(result);
             await this._onSliceFinalize(this.slice);
         }
     }
@@ -101,7 +107,7 @@ export class SliceExecution {
         }
     }
 
-    async _onSliceFailure(slice: any) {
+    async _onSliceFailure(slice: Slice) {
         try {
             await this.executionContext.onSliceFailed();
         } catch (err) {
@@ -113,9 +119,11 @@ export class SliceExecution {
         }
     }
 
-    async _logAnalytics(analyticsData: any, state: any) {
-        if (analyticsData == null) return;
-        this.analyticsData = analyticsData;
+    async _logAnalytics(sliceResult: RunSliceResult) {
+        const { analytics, status } = sliceResult;
+
+        if (analytics == null) return;
+        this.analyticsData = analytics;
 
         logOpStats(this.logger, this.slice, this.analyticsData);
 
@@ -124,7 +132,7 @@ export class SliceExecution {
                 this.executionContext,
                 this.slice,
                 this.analyticsData,
-                state
+                status
             );
         } catch (_err) {
             this.logger.error(

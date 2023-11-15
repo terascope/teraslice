@@ -1,7 +1,7 @@
 import Table from 'easy-table';
 import {
     parseErrorInfo, parseList, logError,
-    isString, get, toInteger, Logger,
+    isString, get, toInteger, Logger, TSError,
 } from '@terascope/utils';
 import { TerasliceRequest, TerasliceResponse } from '../../interfaces';
 
@@ -63,6 +63,7 @@ export function handleTerasliceRequest(
                 res.status(successCode).json(result);
             }
         } catch (err) {
+            console.log('handleTerasliceRequest_error', err)
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg,
                 defaultStatusCode: errorCode,
@@ -86,8 +87,7 @@ export function sendError(
     logger?: Logger
 ) {
     if (res.headersSent) {
-        const error = new Error(message);
-        // @ts-expect-error  TODO: fixme
+        const error = new TSError(message);
         error.statusCode = code;
         if (logger) {
             logger.error(error, 'TerasliceRequest send error after headers sent');

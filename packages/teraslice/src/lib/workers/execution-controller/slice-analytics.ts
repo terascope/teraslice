@@ -1,4 +1,7 @@
-import { has, isInteger, Logger } from '@terascope/utils';
+import {
+    has, isInteger, Logger,
+    toNumber
+} from '@terascope/utils';
 import type { Context, ExecutionContext, OpConfig } from '@terascope/job-components';
 import type { EventEmitter } from 'node:events';
 import { makeLogger } from '../helpers/terafoundation';
@@ -9,6 +12,12 @@ interface SliceOperationStat {
     sum: number;
     total: number;
     average: number;
+}
+
+interface SliceOperationRecord {
+    time: number[];
+    size: number[]
+    memory: number[]
 }
 
 interface SliceAnalyticsStats {
@@ -63,10 +72,10 @@ export class SliceAnalytics {
             } as SliceOperationStat);
         }
 
-        this.events.on('slice:success', this.onSliceSuccess);
+        this.events.on('slice:success', this.onSliceSuccess.bind(this));
     }
 
-    addStat(input: string, stat: any) {
+    addStat(input: SliceOperationRecord, stat: keyof SliceOperationRecord) {
         if (!has(input, stat) || !has(this.sliceAnalytics, stat)) {
             this.logger.warn(`unsupported stat "${stat}"`);
             return;
@@ -87,11 +96,11 @@ export class SliceAnalytics {
 
             this.sliceAnalytics[stat][i].min = min !== 0 ? Math.min(val, min) : val;
             this.sliceAnalytics[stat][i].max = max !== 0 ? Math.max(val, max) : val;
-            this.sliceAnalytics[stat][i].average = (sum / total).toFixed(2);
+            this.sliceAnalytics[stat][i].average = toNumber((sum / total).toFixed(2));
         }
     }
 
-    addStats(data: any) {
+    addStats(data: SliceOperationRecord) {
         this.addStat(data, 'time');
         this.addStat(data, 'memory');
         this.addStat(data, 'size');
@@ -119,13 +128,13 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
         return this.sliceAnalytics;
     }
 
-    private onSliceSuccess({ analytics }: any) {
+    private onSliceSuccess({ analytics }: { analytics: SliceOperationRecord}) {
         if (analytics) {
             this.addStats(analytics);
         }
     }
 
     async shutdown() {
-        this.events.removeListener('slice:success', this.onSliceSuccess);
+        this.events.removeListener('slice:success', this.onSliceSuccess.bind(this));
     }
 }

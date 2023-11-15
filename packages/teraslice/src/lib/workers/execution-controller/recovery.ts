@@ -39,7 +39,7 @@ export class RecoveryModule {
         this.timeout = context.sysconfig.teraslice.shutdown_timeout;
     }
 
-    initialize(stateStore: StateStorage,) {
+    initialize(stateStore: StateStorage) {
         this.stateStore = stateStore;
         this.events.on('slice:success', this._sliceComplete);
         this.recoverComplete = false;
@@ -51,6 +51,8 @@ export class RecoveryModule {
     }
     // TODO: this is wrong
     private _sliceComplete(sliceData: Slice) {
+        console.dir({ sliceData, recover__sliceComplete: true }, { depth: 40 })
+
         // @ts-expect-error
         this.retryState.set(sliceData.slice.slice_id, false);
     }

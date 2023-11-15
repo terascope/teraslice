@@ -1,7 +1,5 @@
 /* eslint-disable default-param-last */
 import ms from 'ms';
-import fs from 'fs';
-import path from 'path';
 import {
     TSError, parseError, isTest, pDelay,
     pRetry, logError, pWhile, isString, getTypeOf,
@@ -12,6 +10,11 @@ import { getClientAsync, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation';
 import { timeseriesIndex } from '../../utils/date_utils';
+import analyticsSchema from './mappings/analytics.json';
+import assetSchema from './mappings/asset.json';
+import executionSchema from './mappings/ex.json';
+import jobsSchema from './mappings/job.json';
+import stateSchema from './mappings/state.json';
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {
@@ -85,6 +88,7 @@ export class TerasliceElasticsearchStorage {
     private bulkQueue: any[] = [];
     private readonly idField: string;
     readonly options!: TerasliceStorageOptions;
+    readonly mapping: Record<string, any>;
     api!: elasticsearchApi.Client;
 
     constructor(backendConfig: TerasliceStorageConfig) {
@@ -99,6 +103,31 @@ export class TerasliceElasticsearchStorage {
         this.storageName = storageName;
         this.logger = logger ?? makeLogger(context, 'elasticsearch_backend', { storageName });
         this.recordType = recordType;
+        if (recordType === 'analytics') {
+            this.mapping = analyticsSchema;
+        } else if (recordType === 'asset') {
+            this.mapping = assetSchema;
+        } else if (recordType === 'ex') {
+            this.mapping = executionSchema;
+        } else if (recordType === 'job') {
+            this.mapping = jobsSchema;
+        } else if (recordType === 'state') {
+            this.mapping = stateSchema;
+        } else {
+            throw new Error(`Could not find mapping for recordType: ${recordType}`);
+        }
+
+        const config = this.context.sysconfig.teraslice;
+        const indexSettings = get(config, ['index_settings', this.storageName], {
+            number_of_shards: 5,
+            number_of_replicas: 1,
+        });
+
+        this.mapping.settings = {
+            'index.number_of_shards': indexSettings.number_of_shards,
+            'index.number_of_replicas': indexSettings.number_of_replicas,
+        };
+
         this.defaultIndexName = indexName;
         this.idField = idField;
         this.options = {
@@ -149,8 +178,8 @@ export class TerasliceElasticsearchStorage {
         await pWhile(async () => {
             try {
                 const client = await getClientAsync(this.context, connectionConfig, 'elasticsearch-next');
-                this.api = elasticsearchApi(client, this.logger, options);
 
+                this.api = elasticsearchApi(client, this.logger, options);
                 await this._createIndex(newIndex);
                 await this.api.isAvailable(newIndex, this.recordType);
 
@@ -552,28 +581,14 @@ export class TerasliceElasticsearchStorage {
         const exists = await this.api.indexExists(existQuery);
 
         if (!exists) {
-            const config = this.context.sysconfig.teraslice;
-            const mappingFile = path.join(__dirname, `mappings/${this.recordType}.json`);
-            const indexSettings = get(config, ['index_settings', this.storageName], {
-                number_of_shards: 5,
-                number_of_replicas: 1,
-            });
-
-            const mapping = JSON.parse(fs.readFileSync(mappingFile, { encoding: 'utf8' }));
-
-            mapping.settings = {
-                'index.number_of_shards': indexSettings.number_of_shards,
-                'index.number_of_replicas': indexSettings.number_of_replicas,
-            };
-
             // Make sure the index exists before we do anything else.
             const createQuery: ClientParams.IndicesCreateParams = {
                 index,
-                body: mapping,
+                body: this.mapping,
             };
 
             try {
-                await this.sendTemplate(mapping);
+                await this.sendTemplate(this.mapping);
                 return await this.api.indexCreate(createQuery);
             } catch (err) {
                 // It's not really an error if it's just that the index is already there

@@ -1,5 +1,5 @@
 import { accessSync, readFileSync } from 'node:fs';
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
 import { Mutex } from 'async-mutex';
@@ -9,13 +9,38 @@ import { getMajorVersion } from './asset_utils';
 
 const mutex = new Mutex();
 
-export function getPackageJSON() {
+const packagePath = path.join(__dirname, '../../../../../../package.json');
+
+export interface PackageJSON {
+    name: string;
+    version: string;
+    scripts: Record<string, string>
+    resolutions: Record<string, string>
+    devDependencies: Record<string, string>
+    terascope: {
+        root?: boolean;
+        type?: string;
+        target?: string;
+        tests?: {
+            [key: string]: string[]
+        };
+        version?: number;
+    }
+}
+
+let _packageJSON: PackageJSON | undefined;
+
+export function getPackageJSON(): PackageJSON {
+    if (_packageJSON) return _packageJSON;
+
     const file = readFileSync(
-        new URL('../../../package.json'),
+        packagePath,
         { encoding: 'utf8' }
     );
 
-    return JSON.parse(file as any);
+    const results = JSON.parse(file) as PackageJSON;
+    _packageJSON = results;
+    return results;
 }
 
 export function existsSync(filename: string) {
@@ -58,11 +83,13 @@ export async function verifyAssetJSON(id: string, newPath: string): Promise<Asse
     try {
         const packageData = await fse.readJson(path.join(newPath, 'asset.json'));
         const metadata: AssetMetadata = Object.assign({ id }, packageData);
+
         if (!metadata.name) {
             throw new Error('Missing name');
         }
 
         metadata.version = semver.clean(metadata.version) as string;
+
         if (!semver.valid(metadata.version)) {
             throw new Error(`Invalid version "${metadata.version}"`);
         }

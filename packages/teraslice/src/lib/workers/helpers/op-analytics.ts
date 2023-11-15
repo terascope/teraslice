@@ -24,6 +24,7 @@ function format(input: Record<string, any>) {
 export function logOpStats(logger: Logger, slice: Record<string, any>, analyticsData: any) {
     const { request, ...record } = slice;
     const obj = Object.assign({}, record, analyticsData);
+    console.dir({ slice, obj, logOpStats: true }, { depth: 40 })
 
     logger.info(`analytics for slice: ${format(obj)}`);
 }

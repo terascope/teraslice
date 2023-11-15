@@ -120,11 +120,13 @@ export class AssetsStorage {
             // @ts-expect-error
             this.logger, this.assetsPath, id, data, _metaIsUnique(this.backend)
         );
+        console.dir({ metaData, _assetExistsInESOne: true }, { depth: 40 });
 
         const assetRecord = Object.assign({
             blob: esData,
             _created: new Date().toISOString()
         }, metaData);
+        console.dir({ assetRecord, _assetExistsInESTwo: true }, { depth: 40 });
 
         if (blocking) {
             const elapsed = Date.now() - startTime;
@@ -180,7 +182,10 @@ export class AssetsStorage {
         sort?: string,
         fields?: string | string[]
     ) {
-        return this.backend.search(query, from, size, sort, fields);
+        const results = this.backend.search(query, from, size, sort, fields);
+        console.dir({ results, assets_search: true }, { depth: 40 });
+
+        return results;
     }
 
     async get(id: string) {
@@ -201,21 +206,28 @@ export class AssetsStorage {
         const response = await this.backend.search(
             `name:"${name}" AND ${toVersionQuery(version)}`, undefined, 10000, sort, fields
         );
+        console.dir({ response, _getAssetId: true }, { depth: 40 });
         // @ts-expect-error TODO: verify this
         const assets = response.hits.hits.map((doc) => doc._source);
 
         const found = findMatchingAsset(assets, name, version);
+
         if (!found) {
             const reason = getInCompatibilityReason(findSimilarAssets(assets, name, version), ', due to a potential');
             throw new TSError(`No asset found for "${assetIdentifier}"${reason}`, {
                 statusCode: 404
             });
         }
+
         return found.id;
     }
 
     async parseAssetsArray(assetsArray: string[]) {
-        return Promise.all(uniq(assetsArray).map(this._getAssetId));
+        console.log('assetsArray', assetsArray);
+        const results = await Promise.all(uniq(assetsArray).map(this._getAssetId.bind(this)));
+        console.dir({ results, parseAssetsArray: true }, { depth: 40 });
+
+        return results;
     }
 
     async shutdown(forceShutdown: boolean) {

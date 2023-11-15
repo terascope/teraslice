@@ -31,7 +31,7 @@ export class AssetsService {
 
         this.app.use((req, _res, next) => {
             // @ts-expect-error
-            req.logger = logger;
+            req.logger = this.logger;
             next();
         });
     }
@@ -198,7 +198,7 @@ export class AssetsService {
             const results = await this.assetsStorage.search(
                 query, from, size, sort as string, fields
             ) as Record<string, any>;
-
+                console.dir({ assetSearch: results }, { depth: 30 })
             return results.hits.hits.map((asset: any) => {
                 const record = asset._source;
                 record.id = asset._id;

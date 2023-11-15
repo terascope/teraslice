@@ -4,5 +4,9 @@
         "outDir": "dist",
         "rootDir": "."
     },
-    "include": ["src", "test", "src/index.ts", "lib"]
+    "include": [
+        "src",
+        "test",
+        "./src/lib/storage/backends/mappings/**.json"
+    ]
 }

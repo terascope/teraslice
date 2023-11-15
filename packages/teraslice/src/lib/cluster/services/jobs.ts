@@ -51,7 +51,7 @@ export class JobsService {
 
         this.jobsStorage = jobsStorage;
         this.executionStorage = executionStorage;
-        this.jobsStorage = jobsStorage;
+        this.executionService = executionService;
     }
 
     /**
@@ -68,7 +68,10 @@ export class JobsService {
     }
 
     async submitJob(jobSpec: Partial<ValidatedJobConfig>, shouldRun?: boolean) {
+        console.dir({ jobSpec }, { depth: 40 })
+
         // @ts-expect-error TODO: should have job_id?
+
         if (jobSpec.job_id) {
             throw new TSError('Job cannot include a job_id on submit', {
                 statusCode: 422,
@@ -76,10 +79,12 @@ export class JobsService {
         }
 
         const validJob = await this._validateJobSpec(jobSpec);
-        const job = await this.jobsStorage.create(jobSpec);
+        const job = await this.jobsStorage.create(validJob);
+
         if (!shouldRun) {
             return { job_id: job.job_id };
         }
+        console.dir({ validJob, job }, { depth: 40 })
 
         const exConfig = Object.assign({}, jobSpec, validJob, {
             job_id: job.job_id
@@ -134,7 +139,7 @@ export class JobsService {
         if (validJob.autorecover) {
             return this._recoverValidJob(validJob);
         }
-
+        console.log('here in startJob', this.executionService)
         return this.executionService.createExecutionContext(validJob);
     }
 
@@ -297,6 +302,8 @@ export class JobsService {
         // but not mutate original job_spec
         const parsedAssetJob = cloneDeep(jobConfig);
         parsedAssetJob.assets = assetIds;
+        console.dir({ parsedAssetJob }, { depth: 40 })
+
         return parsedAssetJob;
     }
 }

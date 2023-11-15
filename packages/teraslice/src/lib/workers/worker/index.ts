@@ -53,7 +53,6 @@ export class Worker {
         this.stateStorage = new StateStorage(context);
         this.analyticsStorage = new AnalyticsStorage(context);
 
-        // TODO: fix types here
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
@@ -186,6 +185,7 @@ export class Worker {
 
             await this.executionContext.onSliceFinished();
         } catch (err) {
+            console.log('the err', err.message, msg)
             logError(this.logger, err, `slice ${sliceId} run error`);
 
             if (!sentSliceComplete) {

@@ -6,8 +6,7 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger
 } from '@terascope/utils';
-import { TerasliceRequest, TerasliceResponse } from 'packages/teraslice/src/interfaces.js';
-import { ClusterMasterContext } from '../../../interfaces';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
 import { ExecutionService, JobsService } from '../services';
 import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
@@ -218,7 +217,7 @@ export class ApiService {
                 return;
             }
             // @ts-expect-error
-            req.logger = logger;
+            req.logger = this.logger;
             next();
         });
 

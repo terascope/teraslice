@@ -90,6 +90,8 @@ export class AnalyticsStorage {
         updateSpec: Record<string, any>,
         index?: string
     ) {
+        console.dir({ updateSpec, analytics: true }, { depth: 40 })
+
         return this.backend.update(recordId, updateSpec, index);
     }
 

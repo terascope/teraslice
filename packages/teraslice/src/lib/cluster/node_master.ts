@@ -8,7 +8,7 @@ import { spawnAssetLoader } from '../workers/assets/spawn';
 import { safeEncode } from '../utils/encoding_utils';
 import { findPort, getPorts } from '../utils/port_utils';
 import { getPackageJSON } from '../utils/file_utils';
-import { ClusterMasterContext } from '../../interfaces';
+import { ClusterMasterContext, NodeState, WorkerNode } from '../../interfaces';
 
 const nodeVersion = process.version;
 const terasliceVersion = getPackageJSON().version;
@@ -345,7 +345,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
         }, intervalTime);
     }
 
-    function getNodeState() {
+    function getNodeState(): NodeState {
         const nodeId = context.sysconfig._nodeName;
 
         const state = {
@@ -356,10 +356,10 @@ export async function nodeMaster(context: ClusterMasterContext) {
             teraslice_version: terasliceVersion,
             total: context.sysconfig.teraslice.workers,
             state: 'connected'
-        } as Record<string, any>;
+        } as Partial<NodeState>;
         // @ts-expect-error
         const clusterWorkers = context.cluster.workers;
-        const active: Record<string, any>[] = [];
+        const active: WorkerNode[] = [];
 
         _.forOwn(clusterWorkers, (worker: Record<string, any>) => {
             const child = {
@@ -380,13 +380,14 @@ export async function nodeMaster(context: ClusterMasterContext) {
                 child.assets = worker.assets.map((asset: Record<string, any>) => asset.id);
             }
 
-            active.push(child);
+            active.push(child as WorkerNode);
         });
 
-        state.available = state.total - active.length - pendingAllocations;
+        const total = state.total as number;
+        state.available = total - active.length - pendingAllocations;
         state.active = active;
 
-        return state;
+        return state as NodeState;
     }
 
     messaging.listen({

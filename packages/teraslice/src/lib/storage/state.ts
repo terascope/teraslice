@@ -60,10 +60,13 @@ export class StateStorage {
 
     async createState(exId: string, slice: any, state: any, error?: Error) {
         const { record, index } = this._createSliceRecord(exId, slice, state, error);
-        return this.backend.indexWithId(slice.slice_id, record, index);
+        const stateResp = await this.backend.indexWithId(slice.slice_id, record, index);
+
+        console.dir({ stateResp, createState: true }, { depth: 40 })
+        return stateResp;
     }
 
-    async createSlices(exId: string, slices: any[]) {
+    async createSlices(exId: string, slices: Slice[]) {
         const bulkRequest = slices.map((slice) => {
             const { record, index } = this._createSliceRecord(exId, slice, SliceState.pending);
             return {
@@ -107,7 +110,7 @@ export class StateStorage {
         return { record, index };
     }
     // TODO: type this better
-    async updateState(slice: any, state: string, error?: Error) {
+    async updateState(slice: Slice, state: string, error?: Error) {
         if (!SliceState[state]) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
@@ -127,17 +130,19 @@ export class StateStorage {
             if (error) {
                 record.error = getFullErrorStack(error);
             } else {
-                record.error = new Error('Unkown slice error').stack;
+                record.error = new Error('Unknown slice error').stack;
             }
         }
 
         let notFoundErrCount = 0;
-        const updateFn = this.backend.update.bind(this);
+        const updateFn = this.backend.update.bind(this.backend);
 
+        console.log('here', slice, indexData, updateFn)
         async function update() {
             try {
                 return await updateFn(slice.slice_id, record, indexData.index);
             } catch (_err) {
+                console.log('at this part', _err)
                 const { statusCode, message } = parseErrorInfo(_err);
                 let retryable = isRetryableError(_err);
                 if (statusCode === 404) {

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { get } from '@terascope/utils';
-import { formats, TerasliceConfig, SysConfig } from '@terascope/job-components';
+import { formats, TerasliceConfig } from '@terascope/job-components';
+import type { FoundationConfig } from 'terafoundation';
 import { configSchema } from './schemas/system';
 
 export const terasliceOpPath = path.join(__dirname, '..');
@@ -9,7 +10,7 @@ export function clusterName(configFile: TerasliceConfig) {
     return get(configFile, 'teraslice.name', null);
 }
 
-export function getTerasliceConfig(sysconfig?: SysConfig) {
+export function getTerasliceConfig(sysconfig: FoundationConfig) {
     return Object.assign({
         name: 'teraslice',
         default_config_file: path.join(__dirname, 'default-sysconfig.js'),

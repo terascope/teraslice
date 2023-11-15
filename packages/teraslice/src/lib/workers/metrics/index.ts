@@ -119,6 +119,8 @@ export class Metrics extends EventEmitter {
             metrics
         };
         this._typesCollectedAt[type] = Date.now();
+        console.dir({ msg, metrics, _emitMetric: true }, { depth: 40 })
+
         this.emit('metric', msg);
         this.logger.info(msg, `${type} performance metrics`);
     }

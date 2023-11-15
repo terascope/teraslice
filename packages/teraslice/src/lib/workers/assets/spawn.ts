@@ -6,7 +6,7 @@ import type { Context } from '@terascope/job-components';
 import { makeLogger } from '../helpers/terafoundation';
 import { safeEncode } from '../../utils/encoding_utils';
 
-const loaderPath = path.join(__dirname, 'loader.js');
+const loaderPath = path.join(__dirname, './loader-executable');
 
 export async function spawnAssetLoader(
     assets: string[],
@@ -35,7 +35,7 @@ export async function spawnAssetLoader(
 
     return new Promise((resolve, reject) => {
         let message: any;
-
+        console.log('loaderPath', loaderPath)
         const child = fork(loaderPath, process.argv, {
             stdio: 'inherit',
             env: Object.assign({}, process.env, {
@@ -44,6 +44,7 @@ export async function spawnAssetLoader(
         });
 
         child.on('message', (msg) => {
+            console.log('any message response', msg)
             if (has(msg, 'success')) {
                 message = msg;
             }
@@ -51,6 +52,7 @@ export async function spawnAssetLoader(
 
         child.on('close', (code) => {
             const isSuccess = get(message, 'success', false) && code === 0;
+
             if (!isSuccess) {
                 const errMsg = get(message, 'error', `exit code ${code}`);
                 const error = new Error(`Failure to get assets, caused by ${errMsg}`);

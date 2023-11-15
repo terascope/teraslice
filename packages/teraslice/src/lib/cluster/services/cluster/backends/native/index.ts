@@ -5,12 +5,12 @@ import {
     pDelay, cloneDeep, Logger
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
-import type { Context } from '@terascope/job-components';
+import type { ClusterMasterContext, ExecutionRecord } from '../../../../../../interfaces';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation';
 import { findWorkersByExecutionID } from '../state-utils';
 import { Messaging } from './messaging';
 import { ExecutionStorage } from '../../../../../storage';
-
+import { NodeState } from '../../../../../../interfaces';
 /*
  Execution Life Cycle for _status
  pending -> scheduling -> running -> [ paused -> running ] -> [ stopped | completed ]
@@ -20,8 +20,18 @@ import { ExecutionStorage } from '../../../../../storage';
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
+interface StateMessage {
+    to: string;
+    message: string;
+    node_id: string;
+    payload: Record<string, any>,
+    __source: string;
+}
+
+ type Message = StateMessage
+
 export class NativeClustering {
-    context: Context;
+    context: ClusterMasterContext;
     logger: Logger;
     events: EventEmitter;
     executionStore!: ExecutionStorage;
@@ -34,7 +44,7 @@ export class NativeClustering {
     droppedNodes: Record<string, any> = {};
     clusterMasterServer: any;
 
-    constructor(context: Context, clusterMasterServer: any) {
+    constructor(context: ClusterMasterContext, clusterMasterServer: any) {
         this.context = context;
         this.events = context.apis.foundation.getSystemEvents();
         this.logger = makeLogger(context, 'native_cluster_service');
@@ -50,7 +60,7 @@ export class NativeClustering {
         this.messaging.register({
             event: 'node:online',
             identifier: 'node_id',
-            callback: (data: any, nodeId: string) => {
+            callback: (data: Message, nodeId: string) => {
                 this.logger.info(`node ${nodeId} has connected`);
                 // if a reconnect happens stop timer
                 if (this.droppedNodes[nodeId]) {
@@ -66,7 +76,7 @@ export class NativeClustering {
 
         this.messaging.register({
             event: 'node:state',
-            callback: (stateMsg: any) => {
+            callback: (stateMsg: Message) => {
                 const data = stateMsg.payload;
                 this.clusterState[data.node_id] = data;
                 this.logger.trace(`node ${data.node_id} state is being updated`, data);
@@ -165,8 +175,8 @@ export class NativeClustering {
 
     async initialize() {
         this.logger.info('native clustering initializing');
-        // @ts-expect-error
-        this.executionStore = this.context.stores.execution;
+        this.executionStore = this.context.stores.executionStorage;
+
         if (!this.executionStore) {
             throw new Error('Missing required stores');
         }
@@ -184,17 +194,16 @@ export class NativeClustering {
         return cloneDeep(this.clusterState);
     }
 
-    private _checkNode(node: any) {
+    private _checkNode(node: NodeState) {
         const obj = {
             hasSlicer: false,
             numOfSlicers: 0,
             slicerExecutions: {},
             workerExecutions: {},
             numOfWorkers: 0,
-            id: node.id,
             available: node.available
         };
-        // @ts-expect-error
+
         return node.active.reduce((prev, curr) => {
             if (curr.assignment === 'execution_controller') {
                 prev.hasSlicer = true;
@@ -216,8 +225,9 @@ export class NativeClustering {
         }, obj);
     }
 
-    private _findNodeForSlicer(stateArray: any[], errorNodes: any[]) {
+    private _findNodeForSlicer(stateArray: NodeState[], errorNodes: Record<string, any>) {
         let slicerNode = null;
+
         for (let i = 0; i < stateArray.length; i += 1) {
             if (stateArray[i].state === 'connected' && stateArray[i].available > 0 && !errorNodes[stateArray[i].node_id]) {
                 const node = this._checkNode(stateArray[i]);
@@ -306,7 +316,9 @@ export class NativeClustering {
     }
 
     // designed to allocate additional workers, not any future slicers
-    allocateWorkers(execution: any, numOfWorkersRequested: number) {
+    async allocateWorkers(execution: any, numOfWorkersRequested: number) {
+        console.dir({ execution, allocateWorkers: true }, { depth: 40 });
+
         const exId = execution.ex_id;
         const jobId = execution.job_id;
         const jobStr = JSON.stringify(execution);
@@ -391,7 +403,9 @@ export class NativeClustering {
         return Promise.all(results);
     }
 
-    private async _createSlicer(ex: any, errorNodes: any[]) {
+    private async _createSlicer(ex: ExecutionRecord, errorNodes: Record<string, any>) {
+        console.dir({ errorNodes, ex, _createSlicer: true }, { depth: 40 });
+
         const execution = cloneDeep(ex);
         const sortedNodes = _.orderBy(this.clusterState, 'available', 'desc');
         const slicerNodeID = this._findNodeForSlicer(sortedNodes, errorNodes);
@@ -437,13 +451,14 @@ export class NativeClustering {
         }
     }
 
-    async allocateSlicer(ex: any) {
+    async allocateSlicer(ex: ExecutionRecord) {
+        console.dir({ ex, allocateSlicer: true }, { depth: 40 });
+
         let retryCount = 0;
         const errorNodes = {};
         // @ts-expect-error
         const _allocateSlicer = async () => {
             try {
-                // @ts-expect-error
                 return await this._createSlicer(ex, errorNodes);
             } catch (err) {
                 retryCount += 1;
