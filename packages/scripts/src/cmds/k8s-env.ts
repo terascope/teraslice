@@ -1,30 +1,19 @@
 import { CommandModule } from 'yargs';
-import { castArray } from '@terascope/utils';
 import * as config from '../helpers/config';
 import { launchK8sEnv } from '../helpers/k8s-env';
 import { kafkaVersionMapper } from '../helpers/mapper';
 
-const availableServices = [
-    'elasticsearch', 'kafka'
-];
-
 const cmd: CommandModule = {
-    command: 'k8s-env [services..]',
-    describe: 'Run a local kubernetes dev environment using kind',
+    command: 'k8s-env',
+    describe: 'Run a local kubernetes dev environment using kind.',
     builder(yargs) {
         return yargs
-        // FIXME: add examples
-            .example('$0 k8s-env elasticsearch', '')
-            .example('$0 k8s-env elasticsearch kafka', '')
-            .example('$0 k8s-env elasticsearch kafka --debug --skip-build', '')
+            .example('$0 k8s-env', 'Start a kind kubernetes cluster running teraslice and elasticsearch.')
+            .example('TEST_KAFKA=\'true\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
+            .example('$0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
             .option('debug', {
                 alias: 'd',
                 description: 'This will launch a kubernetes dev environment and output any debug info',
-                type: 'boolean',
-                default: false,
-            })
-            .option('trace', {
-                description: 'Sets the debug log level to trace',
                 type: 'boolean',
                 default: false,
             })
@@ -62,22 +51,6 @@ const cmd: CommandModule = {
                 description: 'Skip building the teraslice docker iamge',
                 type: 'boolean',
                 default: false
-            })
-            .positional('services', {
-                description: 'List of services that will be started in k8s',
-                type: 'string',
-                coerce(arg) {
-                    castArray(arg).forEach((a) => {
-                        if (!availableServices.includes(a)) {
-                            throw new Error(`Service ${a} is not available. Create a kubernetes deployment yaml file in 'e2e/k8s' and add service name to the availableServices list.`);
-                        }
-                        setEnvVariable(arg);
-                    });
-                    if (arg.includes('kafka')) {
-                        arg.push('zookeeper');
-                    }
-                    return arg;
-                },
             });
     },
     handler(argv) {
@@ -94,33 +67,9 @@ const cmd: CommandModule = {
             rabbitmqVersion: argv.rabbitmqVersion as string,
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
-            trace: Boolean(argv.trace),
-            skipBuild: Boolean(argv['skip-build']),
-            services: argv.services as string[]
+            skipBuild: Boolean(argv['skip-build'])
         });
     },
 };
 
 export = cmd;
-
-function setEnvVariable(arg: string) {
-    switch (arg.toLowerCase()) {
-        case ('opensearch'):
-            process.env.TEST_OPENSEARCH = undefined;
-            break;
-        case ('elasticsearch'):
-            process.env.TEST_ELASTICSEARCH = undefined;
-            break;
-        case ('kafka'):
-            process.env.TEST_KAFKA = undefined;
-            break;
-        case ('minio'):
-            process.env.TEST_MINIO = undefined;
-            break;
-        case ('rabbitmq'):
-            process.env.TEST_RABBITMQ = undefined;
-            break;
-        default:
-            break;
-    }
-}

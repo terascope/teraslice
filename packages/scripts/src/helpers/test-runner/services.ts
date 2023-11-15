@@ -214,7 +214,6 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
-
     const promises: Promise<(() => void)>[] = [];
 
     if (launchServices.includes(Service.Elasticsearch)) {
@@ -746,7 +745,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     if (options.testPlatform === 'kubernetes') {
         await kindStopService(service);
         await kindLoadServiceImage(service, services[service].image, version);
-        await kindStartService(service);
+        await kindStartService(service, services[service].image, version);
         return () => { };
     }
 

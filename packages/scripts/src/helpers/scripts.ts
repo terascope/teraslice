@@ -1,7 +1,10 @@
+import fs from 'fs';
+import os from 'os';
 import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
+import yaml from 'js-yaml';
 import {
     debugLogger,
     isString,
@@ -15,6 +18,7 @@ import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
 import { getE2eK8sDir } from '../helpers/packages';
+import { yamlDeploymentResource, yamlServiceResource } from './k8s-env/interfaces';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -603,7 +607,20 @@ export async function kindLoadServiceImage(
     }
 }
 
-export async function kindStartService(serviceName: string): Promise<void> {
+export async function kindStartService(
+    serviceName: string, image: string, version: string
+): Promise<void> {
+    const availableServices = [
+        'elasticsearch', 'kafka', 'zookeeper', // 'opensearch', 'minio', 'rabbitmq'
+    ];
+
+    if (!availableServices.includes(serviceName)) {
+        signale.error(`Service ${serviceName} is not available. No kubernetes deployment yaml file in 'e2e/k8s' directory.`);
+        signale.info(`Remove ${serviceName} from the services list by running 'unset TEST_${serviceName.toUpperCase()}' in your terminal.`);
+        await destroyKindCluster();
+        process.exit(1);
+    }
+
     // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
     const yamlFile = `${serviceName}Deployment.yaml`;
 
@@ -612,15 +629,24 @@ export async function kindStartService(serviceName: string): Promise<void> {
         throw new Error('Missing k8s e2e test directory');
     }
 
+    const imageString = `${image}:${version}`;
+
     try {
-        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+        const tempDoc = yaml.loadAll(fs.readFileSync(`${path.join(e2eK8sDir, yamlFile)}`, 'utf8'));
+        const jsDoc = tempDoc as Array<yamlDeploymentResource | yamlServiceResource>;
+        const deployment = jsDoc[0] as yamlDeploymentResource;
+        deployment.spec.template.spec.containers[0].image = imageString;
+        const updatedYaml = jsDoc.map((doc) => yaml.dump(doc)).join('---\n');
+        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
+        fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
+        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
         logger.debug(subprocess.stdout);
     } catch (err) {
         logger.error(`The service ${serviceName} could not be started: `, err);
     }
 
     if (serviceName === 'kafka') {
-        await waitForKafkaRunning(240000);
+        await waitForKafkaRunning();
     }
 }
 
@@ -698,11 +724,42 @@ export async function deployK8sTeraslice() {
         /// Creates deployment for teraslice
         subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, 'masterDeployment.yaml')}`);
         logger.debug(subprocess.stdout);
+        await waitForTerasliceRunning();
     } catch (err) {
         logger.error('Error deploying Teraslice');
         logger.error(err);
         process.exit(1);
     }
+}
+
+function waitForTerasliceRunning(timeoutMs = 120000): Promise<boolean> {
+    const endAt = Date.now() + timeoutMs;
+
+    const _waitForTerasliceRunning = async (): Promise<boolean> => {
+        if (Date.now() > endAt) {
+            throw new Error(`Failure to communicate with teraslice after ${timeoutMs}ms`);
+        }
+
+        let terasliceRunning = false;
+        try {
+            const kubectlResponse = await execa.command('curl http://127.0.0.1:45678');
+            const response = JSON.parse(kubectlResponse.stdout);
+            if (response.clustering_type === 'kubernetes') {
+                terasliceRunning = true;
+            }
+        } catch (err) {
+            await pDelay(3000);
+            return _waitForTerasliceRunning();
+        }
+
+        if (terasliceRunning) {
+            return true;
+        }
+        await pDelay(3000);
+        return _waitForTerasliceRunning();
+    };
+
+    return _waitForTerasliceRunning();
 }
 
 export async function setAliasAndBaseAssets(hostIP: string) {

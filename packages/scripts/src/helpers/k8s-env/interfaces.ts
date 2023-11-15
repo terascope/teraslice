@@ -1,6 +1,5 @@
 export interface k8sEnvOptions {
     debug: boolean;
-    trace: boolean;
     elasticsearchVersion: string;
     kafkaVersion: string;
     kafkaImageVersion: string,
@@ -10,5 +9,81 @@ export interface k8sEnvOptions {
     opensearchVersion: string;
     nodeVersion: string;
     skipBuild: boolean;
-    services: string[]
+}
+
+export interface yamlDeploymentResource {
+    apiVersion: string;
+    kind: string;
+    metadata: {
+        name: string;
+        labels: {
+            'app.kubernetes.io/name': string;
+            'app.kubernetes.io/component': string;
+        }
+    };
+    spec: {
+        replicas: number;
+        selector: {
+            matchLabels: {
+                'app.kubernetes.io/name': string;
+                'app.kubernetes.io/component': string;
+            };
+        };
+        template: {
+            metadata: {
+                labels: {
+                    'app.kubernetes.io/name': string;
+                    'app.kubernetes.io/component': string;
+                };
+            };
+            spec: {
+                containers: [
+                    {
+                        name: string;
+                        image: string;
+                        ports: [
+                            {
+                                containerPort: string;
+                            }
+                        ];
+                        env: [
+                            {
+                                name: string;
+                                value:string;
+                            },
+                            {
+                                name: string;
+                                value: string;
+                            }
+                        ];
+                    }
+                ];
+            };
+        };
+    };
+}
+
+export interface yamlServiceResource {
+    kind: string;
+    apiVersion: string;
+    metadata: {
+        name: string;
+        labels: {
+            'app.kubernetes.io/name': string;
+        }
+    }
+    spec: {
+        selector: {
+            'app.kubernetes.io/name': string;
+            'app.kubernetes.io/component': string;
+        },
+        ports: [
+            {
+                port: number;
+                targetPort: number;
+                nodePort: number;
+            }
+        ],
+        type: string;
+    }
 }

@@ -1,5 +1,4 @@
-import execa from 'execa';
-import { debugLogger, pDelay } from '@terascope/utils';
+// import { debugLogger } from '@terascope/utils';
 import {
     createKindCluster,
     createNamespace,
@@ -7,24 +6,20 @@ import {
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
-    kindStartService,
-    kindStopService,
-    loadTerasliceImage,
-    setAliasAndBaseAssets
+    loadTerasliceImage
 } from '../scripts';
 import { k8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import { getDevDockerImage, getRootInfo } from '../misc';
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
+import * as config from '../config';
+import { ensureServices } from '../test-runner/services';
 
-// import { TerasliceHarness } from 'e2e/test/teraslice-harness.js';
-// const TerasliceHarness = require('e2e/test/teraslice-harness');
-
-const logger = debugLogger('ts-scripts:cmd:k8s-env');
+// const logger = debugLogger('ts-scripts:cmd:k8s-env');
 
 export async function launchK8sEnv(options: k8sEnvOptions) {
-    logger.debug('Starting k8s environment with the following options: ', options);
+    signale.pending('Starting k8s environment with the following options: ', options);
 
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -38,7 +33,9 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         process.exit(1);
     }
 
+    signale.pending('Creating kind cluster');
     await createKindCluster();
+    signale.success('Kind cluster created');
     await createNamespace('services-ns.yaml');
 
     const rootInfo = getRootInfo();
@@ -64,23 +61,20 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
 
     await loadTerasliceImage(e2eImage);
 
-    // FIXME: launch services
-    const services = ['elasticsearch', 'kafka'];
-    // Promise.all([])
-    for (const service of options.services) {
-        let version: string;
-        if (service === 'kafka') {
-            version = options[`${service}ImageVersion`] as string;
-            signale.pending(`starting ${service}@${options.kafkaVersion} service...`);
-        } else {
-            version = options[`${service}Version`] as string;
-            signale.pending(`starting ${service}@${version} service...`);
-        }
-        await kindStopService(service);
-        // await kindLoadServiceImage(service, services[service].image, version);
-        await kindStartService(service);
-    }
+    await ensureServices('k8s_env', {
+        ...options,
+        trace: false,
+        bail: false,
+        watch: false,
+        all: false,
+        keepOpen: false,
+        reportCoverage: false,
+        useExistingServices: false,
+        elasticsearchAPIVersion: config.ELASTICSEARCH_API_VERSION,
+        ignoreMount: false,
+        testPlatform: 'kubernetes'
+    });
 
     await deployK8sTeraslice();
+    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:45678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:45678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
 }
-
