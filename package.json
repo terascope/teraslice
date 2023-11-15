@@ -77,6 +77,9 @@
                 "unit": [],
                 "_for_testing_": [
                     "elasticsearch"
+                ],
+                "k8s_env": [
+                    "elasticsearch"
                 ]
             }
         },
