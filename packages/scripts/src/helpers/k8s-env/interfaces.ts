@@ -1,5 +1,4 @@
 export interface k8sEnvOptions {
-    debug: boolean;
     elasticsearchVersion: string;
     kafkaVersion: string;
     kafkaImageVersion: string,

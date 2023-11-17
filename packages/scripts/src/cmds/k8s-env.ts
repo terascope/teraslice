@@ -8,15 +8,9 @@ const cmd: CommandModule = {
     describe: 'Run a local kubernetes dev environment using kind.',
     builder(yargs) {
         return yargs
-            .example('$0 k8s-env', 'Start a kind kubernetes cluster running teraslice and elasticsearch.')
-            .example('TEST_KAFKA=\'true\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
-            .example('$0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
-            .option('debug', {
-                alias: 'd',
-                description: 'This will launch a kubernetes dev environment and output any debug info',
-                type: 'boolean',
-                default: false,
-            })
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice and elasticsearch.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' SKIP_DOCKER_BUILD_IN_K8S=\'true\' $0 k8s-env', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
@@ -50,7 +44,7 @@ const cmd: CommandModule = {
             .option('skip-build', {
                 description: 'Skip building the teraslice docker iamge',
                 type: 'boolean',
-                default: false
+                default: config.SKIP_DOCKER_BUILD_IN_K8S
             });
     },
     handler(argv) {
@@ -58,7 +52,6 @@ const cmd: CommandModule = {
         const kafkaCPVersion = kafkaVersionMapper(kafkaVersion);
 
         return launchK8sEnv({
-            debug: Boolean(argv.debug),
             elasticsearchVersion: argv.elasticsearchVersion as string,
             kafkaVersion,
             kafkaImageVersion: kafkaCPVersion,

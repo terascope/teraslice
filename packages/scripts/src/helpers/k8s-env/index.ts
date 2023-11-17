@@ -34,7 +34,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     }
 
     signale.pending('Creating kind cluster');
-    await createKindCluster();
+    await createKindCluster('k8s-env');
     signale.success('Kind cluster created');
     await createNamespace('services-ns.yaml');
 
@@ -63,6 +63,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
 
     await ensureServices('k8s_env', {
         ...options,
+        debug: false,
         trace: false,
         bail: false,
         watch: false,
@@ -75,6 +76,6 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         testPlatform: 'kubernetes'
     });
 
-    await deployK8sTeraslice();
-    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:45678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:45678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
+    await deployK8sTeraslice(true);
+    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
 }
