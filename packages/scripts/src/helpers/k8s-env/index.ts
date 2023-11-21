@@ -41,22 +41,27 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e`;
 
-    try {
-        if (options.skipBuild) {
-            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
-            await dockerTag(devImage, e2eImage);
-        } else {
+    let devImage;
+    if (options.skipBuild) {
+        devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
+    } else {
+        try {
             const publishOptions: PublishOptions = {
                 dryRun: true,
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
-            const devImage = await buildDevDockerImage(publishOptions);
-            await dockerTag(devImage, e2eImage);
+            devImage = await buildDevDockerImage(publishOptions);
+        } catch (err) {
+            signale.error('Docker image build failed: ', err);
+            process.exit(1);
         }
+    }
+
+    try {
+        await dockerTag(devImage, e2eImage);
     } catch (err) {
-        signale.error('Docker image build failed: ', err);
-        process.exit(1);
+        signale.error(`Failed to tag docker image ${devImage} as ${e2eImage}.`, err);
     }
 
     await loadTerasliceImage(e2eImage);

@@ -4,9 +4,9 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraPortMappings:
-  - containerPort: 30200
+  - containerPort: 30200 # Map internal elasticsearch service to host port
     hostPort: 9200
-  - containerPort: 30678
+  - containerPort: 30678 # Map internal teraslice service to host port
     hostPort: 5678
-  - containerPort: 30092
+  - containerPort: 30092 # Map internal kafka service to host port
     hostPort: 9092

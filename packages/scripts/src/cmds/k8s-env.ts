@@ -48,12 +48,11 @@ const cmd: CommandModule = {
             });
     },
     handler(argv) {
-        const kafkaVersion = argv.kafkaVersion as string;
-        const kafkaCPVersion = kafkaVersionMapper(kafkaVersion);
+        const kafkaCPVersion = kafkaVersionMapper(argv.kafkaVersion as string);
 
         return launchK8sEnv({
             elasticsearchVersion: argv.elasticsearchVersion as string,
-            kafkaVersion,
+            kafkaVersion: argv.kafkaVersion as string,
             kafkaImageVersion: kafkaCPVersion,
             zookeeperVersion: kafkaCPVersion,
             minioVersion: argv.minioVersion as string,

@@ -10,6 +10,8 @@ export interface k8sEnvOptions {
     skipBuild: boolean;
 }
 
+// TODO: create a common parent for each resource type,
+// or use types from k8s-client when implemented.
 export interface yamlDeploymentResource {
     apiVersion: string;
     kind: string;
