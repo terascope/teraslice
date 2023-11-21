@@ -3,28 +3,12 @@ import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
 import { Service } from './interfaces';
+import { kafkaVersionMapper } from './mapper';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
     ? '1'
     : '0';
-const kafkaMapper = {
-    3: {
-        0: '7.0.11',
-        1: '7.1.9',
-        2: '7.2.7',
-        3: '7.3.5',
-        4: '7.4.2',
-        5: '7.5.1'
-    },
-    2: {
-        4: '5.4.10',
-        5: '5.5.12',
-        6: '6.0.15',
-        7: '6.1.13',
-        8: '6.2.12'
-    }
-};
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
@@ -51,11 +35,11 @@ export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
-// Use kafkaMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
-export const KAFKA_IMAGE_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
+// Use kafkaVersionMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
+export const KAFKA_IMAGE_VERSION = kafkaVersionMapper(KAFKA_VERSION);
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
-// Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaMapper
-export const ZOOKEEPER_VERSION = kafkaMapper[KAFKA_VERSION.charAt(0)][KAFKA_VERSION.charAt(2)];
+// Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaVersionMapper
+export const ZOOKEEPER_VERSION = KAFKA_IMAGE_VERSION;
 export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
 export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
 export const ZOOKEEPER_DOCKER_IMAGE = process.env.ZOOKEEPER_DOCKER_IMAGE || 'confluentinc/cp-zookeeper';
@@ -112,7 +96,7 @@ export const DEV_TAG = toSafeString((
     || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
-// convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
+    // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/', 1)[0]);
 
 /**
@@ -127,6 +111,8 @@ export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
  * is up-to-date
 */
 export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
+
+export const SKIP_DOCKER_BUILD_IN_K8S = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_K8S ?? false);
 
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
@@ -163,7 +149,7 @@ export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
-    /// couple kafa with zookeeper
+    /// couple kafka with zookeeper
     toBoolean(TEST_KAFKA) ? Service.Zookeeper : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,

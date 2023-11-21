@@ -90,7 +90,7 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState(HOST_IP);
+                await showState();
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;

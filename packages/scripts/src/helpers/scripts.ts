@@ -1,7 +1,10 @@
+import fs from 'fs';
+import os from 'os';
 import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
+import yaml from 'js-yaml';
 import {
     debugLogger,
     isString,
@@ -15,8 +18,10 @@ import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
 import { getE2eK8sDir } from '../helpers/packages';
+import { yamlDeploymentResource, yamlServiceResource } from './k8s-env/interfaces';
 
 const logger = debugLogger('ts-scripts:cmd');
+let TS_PORT = '45678';
 
 export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
@@ -534,13 +539,19 @@ export async function yarnPublish(
     });
 }
 
-export async function createKindCluster(): Promise<void> {
+export async function createKindCluster(cmd = 'test'): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
     }
 
-    const configPath = path.join(e2eK8sDir, 'kindConfig.yaml');
+    let configPath: string;
+    if (cmd === 'k8s-env') {
+        TS_PORT = '5678';
+        configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
+    } else { // cmd === test
+        configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
+    }
     const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
     logger.debug(subprocess.stderr);
 }
@@ -603,7 +614,20 @@ export async function kindLoadServiceImage(
     }
 }
 
-export async function kindStartService(serviceName: string): Promise<void> {
+export async function kindStartService(
+    serviceName: string, image: string, version: string
+): Promise<void> {
+    const availableServices = [
+        'elasticsearch', 'kafka', 'zookeeper', // 'opensearch', 'minio', 'rabbitmq'
+    ];
+
+    if (!availableServices.includes(serviceName)) {
+        signale.error(`Service ${serviceName} is not available. No kubernetes deployment yaml file in 'e2e/k8s' directory.`);
+        signale.info(`Remove ${serviceName} from the services list by running 'unset TEST_${serviceName.toUpperCase()}' in your terminal.`);
+        await destroyKindCluster();
+        process.exit(1);
+    }
+
     // Any new service's yaml file must be named '<serviceName>Deployment.yaml'
     const yamlFile = `${serviceName}Deployment.yaml`;
 
@@ -612,22 +636,31 @@ export async function kindStartService(serviceName: string): Promise<void> {
         throw new Error('Missing k8s e2e test directory');
     }
 
+    const imageString = `${image}:${version}`;
+
     try {
-        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(e2eK8sDir, yamlFile)}`);
+        const jsDoc = yaml.loadAll(fs.readFileSync(`${path.join(e2eK8sDir, yamlFile)}`, 'utf8')) as Array<yamlDeploymentResource | yamlServiceResource>;
+        const deployment = jsDoc[0] as yamlDeploymentResource;
+        deployment.spec.template.spec.containers[0].image = imageString;
+        const updatedYaml = jsDoc.map((doc) => yaml.dump(doc)).join('---\n');
+        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
+        fs.writeFileSync(path.join(tempDir, `${serviceName}Deployment.yaml`), updatedYaml);
+        const subprocess = await execa.command(`kubectl create -n services-dev1 -f ${path.join(tempDir, `${serviceName}Deployment.yaml`)}`);
         logger.debug(subprocess.stdout);
+        fs.rmSync(tempDir, { recursive: true, force: true });
     } catch (err) {
         logger.error(`The service ${serviceName} could not be started: `, err);
     }
 
     if (serviceName === 'kafka') {
-        await waitForKafkaRunning(240000);
+        await waitForKafkaRunning();
     }
 }
 
-function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
+function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
     const endAt = Date.now() + timeoutMs;
 
-    const _waitForKafkaRunning = async (): Promise<boolean> => {
+    const _waitForKafkaRunning = async (): Promise<void> => {
         if (Date.now() > endAt) {
             throw new Error(`Failure to communicate with kafka after ${timeoutMs}ms`);
         }
@@ -645,7 +678,7 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<boolean> {
         }
 
         if (kafkaRunning) {
-            return true;
+            return;
         }
         await pDelay(3000);
         return _waitForKafkaRunning();
@@ -677,7 +710,7 @@ export async function k8sSetup(): Promise<void> {
     logger.debug(subprocess.stdout);
 }
 
-export async function deployK8sTeraslice() {
+export async function deployK8sTeraslice(wait = false) {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
@@ -698,6 +731,9 @@ export async function deployK8sTeraslice() {
         /// Creates deployment for teraslice
         subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, 'masterDeployment.yaml')}`);
         logger.debug(subprocess.stdout);
+        if (wait) {
+            await waitForTerasliceRunning();
+        }
     } catch (err) {
         logger.error('Error deploying Teraslice');
         logger.error(err);
@@ -705,17 +741,58 @@ export async function deployK8sTeraslice() {
     }
 }
 
-export async function setAliasAndBaseAssets(hostIP: string) {
-    await setAlias(hostIP);
+async function waitForTerasliceRunning() {
+    const startTime = Date.now();
+    signale.pending('Waiting for Teraslice...');
+
+    await waitForTerasliceResponse();
+
+    const elapsed = Date.now() - startTime;
+
+    signale.success('Teraslice is ready to go,', `took ${ms(elapsed)}`);
+}
+
+function waitForTerasliceResponse(timeoutMs = 120000) {
+    const endAt = Date.now() + timeoutMs;
+
+    const _waitForTerasliceRunning = async (): Promise<boolean> => {
+        if (Date.now() > endAt) {
+            throw new Error(`Failure to communicate with teraslice after ${timeoutMs}ms`);
+        }
+
+        let terasliceRunning = false;
+        try {
+            const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${TS_PORT}`);
+            const response = JSON.parse(kubectlResponse.stdout);
+            if (response.clustering_type === 'kubernetes') {
+                terasliceRunning = true;
+            }
+        } catch (err) {
+            await pDelay(3000);
+            return _waitForTerasliceRunning();
+        }
+
+        if (terasliceRunning) {
+            return true;
+        }
+        await pDelay(3000);
+        return _waitForTerasliceRunning();
+    };
+
+    return _waitForTerasliceRunning();
+}
+
+export async function setAliasAndBaseAssets() {
+    await setAlias();
     await deployAssets('elasticsearch');
     await deployAssets('standard');
     await deployAssets('kafka');
 }
 
-async function setAlias(hostIP: string) {
+async function setAlias() {
     let subprocess = await execa.command('earl aliases remove k8se2e 2> /dev/null || true', { shell: true });
     logger.debug(subprocess.stdout);
-    subprocess = await execa.command(`earl aliases add k8se2e http://${hostIP}:45678`);
+    subprocess = await execa.command(`earl aliases add k8se2e http://${config.HOST_IP}:${TS_PORT}`);
     logger.debug(subprocess.stdout);
 }
 
@@ -733,21 +810,21 @@ export async function deleteTerasliceNamespace() {
     }
 }
 
-export async function showState(hostIP: string) {
+export async function showState() {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     logger.debug(subprocess.stdout);
-    await showESIndices(hostIP);
-    await showAssets(hostIP);
+    await showESIndices();
+    await showAssets();
 }
 
-async function showESIndices(hostIP: string) {
-    const subprocess = await execa.command(`curl ${hostIP}:49200/_cat/indices?v`);
+async function showESIndices() {
+    const subprocess = await execa.command(`curl ${config.HOST_IP}:${config.ELASTICSEARCH_PORT}/_cat/indices?v`);
     logger.debug(subprocess.stdout);
 }
 
-async function showAssets(hostIP: string) {
+async function showAssets() {
     try {
-        const subprocess = await execa.command(`curl ${hostIP}:45678/v1/assets`);
+        const subprocess = await execa.command(`curl ${config.HOST_IP}:${TS_PORT}/v1/assets`);
         logger.debug(subprocess.stdout);
     } catch (err) {
         logger.debug(err);
