@@ -189,6 +189,6 @@ export const SEARCH_TEST_HOST = testHost;
 // This should match a node version from the base-docker-image repo:
 // https://github.com/terascope/base-docker-image
 // This overrides the value in the Dockerfile
-export const NODE_VERSION = process.env.NODE_VERSION || '18.16.0';
+export const NODE_VERSION = process.env.NODE_VERSION || '18.18.2';
 
 export const { TEST_PLATFORM = 'native' } = process.env;

@@ -122,7 +122,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: config.OPENSEARCH_VERSION,
             })
             .option('node-version', {
-                description: 'Node version, there must be a Docker base image with this version (e.g. 18.16.0)',
+                description: 'Node version, there must be a Docker base image with this version (e.g. 18.18.2)',
                 type: 'string',
                 default: config.NODE_VERSION
             })

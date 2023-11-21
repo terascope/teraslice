@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version:  18.16.0
+          node-version:  18.18.2
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
 
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.19.1, 18.16.0]
+        node-version: [16.20.2, 18.18.2]
     steps:
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
