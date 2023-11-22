@@ -5,12 +5,13 @@ import {
     pDelay, cloneDeep, Logger
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
-import type { ClusterMasterContext, ExecutionRecord } from '../../../../../../interfaces';
+import { ExecutionRecord } from '@terascope/types';
+import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation';
 import { findWorkersByExecutionID } from '../state-utils';
 import { Messaging } from './messaging';
 import { ExecutionStorage } from '../../../../../storage';
-import { NodeState } from '../../../../../../interfaces';
+
 /*
  Execution Life Cycle for _status
  pending -> scheduling -> running -> [ paused -> running ] -> [ stopped | completed ]
@@ -38,7 +39,7 @@ export class NativeClustering {
     pendingWorkerRequests = new Queue<any>();
     nodeStateInterval: number;
     slicerAllocationAttempts: number;
-    clusterState: Record<string, any> = {};
+    clusterState: Record<string, NodeState> = {};
     clusterStateInterval!: NodeJS.Timeout | undefined;
     messaging: Messaging;
     droppedNodes: Record<string, any> = {};
@@ -68,7 +69,7 @@ export class NativeClustering {
                     delete this.droppedNodes[nodeId];
                 }
                 this.logger.trace(`node ${nodeId} has state:`, data.payload);
-                this.clusterState[nodeId] = data.payload;
+                this.clusterState[nodeId] = data.payload as NodeState;
                 // if new node comes online, check if jobs need more workers
                 this.events.emit('cluster:available_workers');
             }
@@ -78,7 +79,7 @@ export class NativeClustering {
             event: 'node:state',
             callback: (stateMsg: Message) => {
                 const data = stateMsg.payload;
-                this.clusterState[data.node_id] = data;
+                this.clusterState[data.node_id] = data as NodeState;
                 this.logger.trace(`node ${data.node_id} state is being updated`, data);
                 // check to see if we can provision any additional workers
                 this.events.emit('cluster:available_workers');
@@ -93,7 +94,7 @@ export class NativeClustering {
         this.messaging.register({
             event: 'network:disconnect',
             identifier: 'node_id',
-            callback: (msg: any, nodeId: string) => {
+            callback: (msg: StateMessage, nodeId: string) => {
                 if (!this.clusterState[nodeId]) return;
 
                 if (this.clusterState[nodeId].active.length === 0) {
@@ -316,9 +317,7 @@ export class NativeClustering {
     }
 
     // designed to allocate additional workers, not any future slicers
-    async allocateWorkers(execution: any, numOfWorkersRequested: number) {
-        console.dir({ execution, allocateWorkers: true }, { depth: 40 });
-
+    async allocateWorkers(execution: ExecutionRecord, numOfWorkersRequested: number) {
         const exId = execution.ex_id;
         const jobId = execution.job_id;
         const jobStr = JSON.stringify(execution);
@@ -404,8 +403,6 @@ export class NativeClustering {
     }
 
     private async _createSlicer(ex: ExecutionRecord, errorNodes: Record<string, any>) {
-        console.dir({ errorNodes, ex, _createSlicer: true }, { depth: 40 });
-
         const execution = cloneDeep(ex);
         const sortedNodes = _.orderBy(this.clusterState, 'available', 'desc');
         const slicerNodeID = this._findNodeForSlicer(sortedNodes, errorNodes);
@@ -451,9 +448,7 @@ export class NativeClustering {
         }
     }
 
-    async allocateSlicer(ex: ExecutionRecord) {
-        console.dir({ ex, allocateSlicer: true }, { depth: 40 });
-
+    async allocateSlicer(ex: ExecutionRecord): Promise<ExecutionRecord> {
         let retryCount = 0;
         const errorNodes = {};
         // @ts-expect-error
@@ -609,13 +604,13 @@ export class NativeClustering {
 
     clusterAvailable() {}
 
-    async stopExecution(exId: string, timeout?: number, exclude?: string) {
+    async stopExecution(exId: string, timeout?: number | null | undefined, exclude?: string) {
         // we are allowing stopExecution to be non blocking, we block at api level
         const excludeNode = exclude ?? undefined;
         this.pendingWorkerRequests.remove(exId, 'ex_id');
-        const sendingMessage = { message: 'cluster:execution:stop' };
+        const sendingMessage = { message: 'cluster:execution:stop' } as Record<string, any>;
+
         if (timeout) {
-            // @ts-expect-error
             sendingMessage.timeout = timeout;
         }
         return this._notifyNodesWithExecution(exId, sendingMessage, excludeNode);

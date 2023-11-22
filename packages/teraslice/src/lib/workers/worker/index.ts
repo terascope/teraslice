@@ -185,7 +185,6 @@ export class Worker {
 
             await this.executionContext.onSliceFinished();
         } catch (err) {
-            console.log('the err', err.message, msg)
             logError(this.logger, err, `slice ${sliceId} run error`);
 
             if (!sentSliceComplete) {
@@ -331,7 +330,9 @@ export class Worker {
         return new Promise((resolve, reject) => {
             let timeout: NodeJS.Timeout | undefined;
             let interval: NodeJS.Timer | undefined;
+
             const done = (err?: Error) => {
+                // @ts-expect-error
                 clearInterval(interval);
                 clearTimeout(timeout);
                 if (err) {

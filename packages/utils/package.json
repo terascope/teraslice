@@ -67,6 +67,7 @@
     },
     "devDependencies": {
         "@types/debug": "^4.1.8",
+        "@types/is-plain-object": "^2.0.4",
         "@types/js-string-escape": "^1.0.1",
         "benchmark": "^2.1.4"
     },

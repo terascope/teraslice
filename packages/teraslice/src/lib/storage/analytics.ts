@@ -1,6 +1,7 @@
 /* eslint-disable default-param-last */
-import { Context } from '@terascope/job-components';
+import { Context, WorkerExecutionContext } from '@terascope/job-components';
 import { pMap, Logger } from '@terascope/utils';
+import { Slice, SliceAnalyticsData } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation';
 import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
@@ -45,8 +46,7 @@ export class AnalyticsStorage {
         this.logger.info('analytics storage initialized');
     }
 
-    // TODO: fix types here
-    async log(job: any, sliceInfo: any, stats: any, state = 'completed') {
+    async log(job: WorkerExecutionContext, sliceInfo: Slice, stats: SliceAnalyticsData, state = 'completed') {
         const { index, timestamp } = timeseriesIndex(this.timeseriesFormat, this.baseIndex);
         // These records are uniquely identified by ex_id + slice_id
         return pMap(
@@ -90,8 +90,6 @@ export class AnalyticsStorage {
         updateSpec: Record<string, any>,
         index?: string
     ) {
-        console.dir({ updateSpec, analytics: true }, { depth: 40 })
-
         return this.backend.update(recordId, updateSpec, index);
     }
 

@@ -8,6 +8,11 @@ import { safeEncode } from '../../utils/encoding_utils';
 
 const loaderPath = path.join(__dirname, './loader-executable');
 
+interface AssetMessage {
+    success: boolean;
+    assetIds: string[]
+}
+
 export async function spawnAssetLoader(
     assets: string[],
     context?: Context
@@ -34,8 +39,8 @@ export async function spawnAssetLoader(
     }
 
     return new Promise((resolve, reject) => {
-        let message: any;
-        console.log('loaderPath', loaderPath)
+        let message: AssetMessage | undefined;
+
         const child = fork(loaderPath, process.argv, {
             stdio: 'inherit',
             env: Object.assign({}, process.env, {
@@ -43,8 +48,7 @@ export async function spawnAssetLoader(
             })
         });
 
-        child.on('message', (msg) => {
-            console.log('any message response', msg)
+        child.on('message', (msg: AssetMessage) => {
             if (has(msg, 'success')) {
                 message = msg;
             }
@@ -63,20 +67,3 @@ export async function spawnAssetLoader(
         });
     });
 }
-
-// /* istanbul ignore if */
-// if (require.main === module) {
-//     (async () => {
-//         try {
-//             const assetIds = await spawnAssetLoader(process.argv.slice(2));
-//             console.log(JSON.stringify(assetIds, null, 2)); // eslint-disable-line
-//         } catch (err) {
-//             console.error(err); // eslint-disable-line
-//             process.exitCode = 1;
-//         } finally {
-//             process.exit();
-//         }
-//     })();
-// } else {
-//     module.exports = spawnAssetLoader;
-// }

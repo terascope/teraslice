@@ -68,20 +68,3 @@ export function getPorts(context: Context) {
     const end = toIntegerOrThrow(dataArray[1]) + 1;
     return { assetsPort, start, end };
 }
-
-// if (require.main === module) {
-//     // eslint-disable-next-line no-inner-declarations
-//     function _test(tries = 10) {
-//         if (!tries) return false;
-
-//         // for testing
-//         return findPort()
-//             .then((port) => console.error(`Found port ${port}`))
-//             .catch((err) => console.error(err))
-//             .then(() => _test(tries - 1));
-//     }
-
-//     _test();
-// } else {
-//     export { findPort, getPorts };
-// }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Logger } from '@terascope/utils';
-import { Context, ValidatedJobConfig, RecoveryCleanupType } from '@terascope/job-components';
+import { Context } from '@terascope/job-components';
+import { ExecutionAnalytics } from '@terascope/types';
 import type { ExecutionStorage, StateStorage, JobsStorage } from './lib/storage';
 import type {
     ExecutionService, JobsService, ApiService,
@@ -40,29 +41,29 @@ interface BaseWorkerNode {
     pid: number;
 }
 
-export interface WorkerClusterNode extends BaseWorkerNode {
+export interface ClusterNode extends BaseWorkerNode {
     assignment: ProcessAssignment.cluster_master
 }
 
-export interface WorkerAssetNode extends BaseWorkerNode {
+export interface AssetNode extends BaseWorkerNode {
     assignment: ProcessAssignment.assets_service
 }
 
-export interface WorkerExecutionNode extends BaseWorkerNode {
+export interface ExecutionNode extends BaseWorkerNode {
     assignment: ProcessAssignment.execution_controller;
     ex_id: string;
     job_id: string;
 }
-export interface WorkerWorkerNode extends BaseWorkerNode {
+export interface WorkerNode extends BaseWorkerNode {
     assignment: ProcessAssignment.worker;
     ex_id: string;
     job_id: string;
 }
 
-export type WorkerNode = WorkerClusterNode
-| WorkerAssetNode
-| WorkerExecutionNode
-| WorkerWorkerNode
+export type ProcessNode = ClusterNode
+| AssetNode
+| ExecutionNode
+| WorkerNode
 
 // TODO: find out about state
 export interface NodeState {
@@ -74,30 +75,20 @@ export interface NodeState {
     total: number;
     state: string; // ??
     available: number;
-    active: WorkerNode[];
+    active: ProcessNode[];
 }
 
-export interface JobRecord extends ValidatedJobConfig{
-    job_id: string;
-    _context: 'job';
-    _created: string | Date;
-    _updated: string | Date;
+export interface ClusterState {
+    [nodeId: string] : NodeState
 }
 
-export interface ExecutionRecord extends ValidatedJobConfig {
-    job_id: string;
+export interface ExecutionNodeWorker extends NodeState {
+    node_id: string;
+    hostname: string
+}
+
+export interface ControllerStats extends ExecutionAnalytics {
     ex_id: string;
-    _context: 'ex';
-    _created: string | Date;
-    _updated: string | Date;
-    // TODO: fix this
-    metadata: Record<string, any>;
-    recovered_execution?: string;
-    recovered_slice_type?: RecoveryCleanupType;
-    _status: string;
-    _has_errors: boolean;
-    _slicer_stats: Record<string, any>;
-    _failureReason: string
-    slicer_port?: number;
-    slicer_hostname: string;
+    job_id: string;
+    name: string;
 }

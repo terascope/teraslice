@@ -1,11 +1,12 @@
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
     toString, filterObject, Logger
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
+import { ClientResponse, AssetRecord } from '@terascope/types';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
 import { makeLogger } from '../workers/helpers/terafoundation';
 import { saveAsset, AssetMetadata } from '../utils/file_utils';
@@ -14,7 +15,7 @@ import {
     getInCompatibilityReason
 } from '../utils/asset_utils';
 
-async function _metaIsUnique(backend: any) {
+function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {
         const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
         // @ts-expect-error
@@ -110,23 +111,26 @@ export class AssetsStorage {
 
         return readable && exists;
     }
-
+    // data is the buffer form of asset, stored in filesystem
+    // esData is the base64 version which is stored in elasticsearch
     private async _saveAndUpload({
         id, data, esData, blocking
-    }: { id: string, data: any, esData: any, blocking: boolean }) {
+    }: { id: string, data: Buffer, esData: string, blocking: boolean }) {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
+
         const metaData = await saveAsset(
-            // @ts-expect-error
-            this.logger, this.assetsPath, id, data, _metaIsUnique(this.backend)
+            this.logger,
+            this.assetsPath,
+            id,
+            data,
+            _metaIsUnique(this.backend)
         );
-        console.dir({ metaData, _assetExistsInESOne: true }, { depth: 40 });
 
         const assetRecord = Object.assign({
             blob: esData,
             _created: new Date().toISOString()
         }, metaData);
-        console.dir({ assetRecord, _assetExistsInESTwo: true }, { depth: 40 });
 
         if (blocking) {
             const elapsed = Date.now() - startTime;
@@ -146,7 +150,7 @@ export class AssetsStorage {
      * @param blocking {boolean=true} If false, save the asset in the background
      * @returns {Promise<{ assetId: string; created: boolean }>}
     */
-    async save(data: any, blocking = true) {
+    async save(data: Buffer, blocking = true) {
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData).digest('hex');
 
@@ -181,14 +185,15 @@ export class AssetsStorage {
         size?: number,
         sort?: string,
         fields?: string | string[]
-    ) {
-        const results = this.backend.search(query, from, size, sort, fields);
-        console.dir({ results, assets_search: true }, { depth: 40 });
-
-        return results;
+    ): Promise<ClientResponse.SearchResponse<AssetRecord>> {
+        return this.backend.search(
+            query, from, size, sort, fields
+        ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
-
-    async get(id: string) {
+    // this should be a SearchResponse as full_response is set to true in backendConfig
+    // however for some reason the api ignores that for get and mget, and fullResponse
+    // is an argument to the call itself, which can defy the config, defaults to false
+    async get(id: string): Promise<AssetRecord> {
         return this.backend.get(id);
     }
 
@@ -204,16 +209,25 @@ export class AssetsStorage {
         const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
         const response = await this.backend.search(
-            `name:"${name}" AND ${toVersionQuery(version)}`, undefined, 10000, sort, fields
-        );
-        console.dir({ response, _getAssetId: true }, { depth: 40 });
-        // @ts-expect-error TODO: verify this
+            `name:"${name}" AND ${toVersionQuery(version)}`,
+            undefined,
+            10000,
+            sort,
+            fields
+        ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
+
         const assets = response.hits.hits.map((doc) => doc._source);
 
-        const found = findMatchingAsset(assets, name, version);
+        if (!assets.length) {
+            throw new TSError(`No assets found for "${assetIdentifier}`, {
+                statusCode: 404
+            });
+        }
+
+        const found = findMatchingAsset(assets as AssetRecord[], name, version);
 
         if (!found) {
-            const reason = getInCompatibilityReason(findSimilarAssets(assets, name, version), ', due to a potential');
+            const reason = getInCompatibilityReason(findSimilarAssets(assets as AssetRecord[], name, version), ', due to a potential');
             throw new TSError(`No asset found for "${assetIdentifier}"${reason}`, {
                 statusCode: 404
             });
@@ -223,11 +237,7 @@ export class AssetsStorage {
     }
 
     async parseAssetsArray(assetsArray: string[]) {
-        console.log('assetsArray', assetsArray);
-        const results = await Promise.all(uniq(assetsArray).map(this._getAssetId.bind(this)));
-        console.dir({ results, parseAssetsArray: true }, { depth: 40 });
-
-        return results;
+        return Promise.all(uniq(assetsArray).map(this._getAssetId.bind(this)));
     }
 
     async shutdown(forceShutdown: boolean) {

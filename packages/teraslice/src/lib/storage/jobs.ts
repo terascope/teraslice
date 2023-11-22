@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 import { TSError, makeISODate, Logger } from '@terascope/utils';
 import { Context, ValidatedJobConfig, JobConfig } from '@terascope/job-components';
+import { JobRecord } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
-import { JobRecord } from '../../interfaces';
 
 export class JobsStorage {
     private backend: TerasliceElasticsearchStorage;

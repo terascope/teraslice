@@ -2,6 +2,7 @@ import {
     Logger, isString, isArray,
     truncate,
 } from '@terascope/utils';
+import type { Slice } from '@terascope/types';
 
 function formatVal(value: string | string[]) {
     if (isString(value)) return `"${value}"`;
@@ -21,10 +22,8 @@ function format(input: Record<string, any>) {
 }
 
 // TODO: fix type here
-export function logOpStats(logger: Logger, slice: Record<string, any>, analyticsData: any) {
+export function logOpStats(logger: Logger, slice: Slice, analyticsData: any) {
     const { request, ...record } = slice;
     const obj = Object.assign({}, record, analyticsData);
-    console.dir({ slice, obj, logOpStats: true }, { depth: 40 })
-
     logger.info(`analytics for slice: ${format(obj)}`);
 }

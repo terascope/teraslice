@@ -1,9 +1,9 @@
 import _ from 'lodash';
+import type { ClusterState } from '../../../../../interfaces';
 
-export function iterateState(clusterState: any, cb: (input: any) => boolean) {
+export function iterateState(clusterState: ClusterState, cb: (input: any) => boolean) {
     // I clone here, because the code below accidentally modifies clusterState.
-    // Not sure if this is the best chouice.
-    console.dir({ clusterState, iterateState: true }, { depth: 40 })
+    // Not sure if this is the best choice.
 
     return _.chain(_.cloneDeep(clusterState))
         .filter((node) => node.state === 'connected')
@@ -20,21 +20,21 @@ export function iterateState(clusterState: any, cb: (input: any) => boolean) {
         .value();
 }
 
-export function findAllSlicers(clusterState: any) {
+export function findAllSlicers(clusterState: ClusterState) {
     return iterateState(
         clusterState,
         (worker) => worker.assignment === 'execution_controller'
     );
 }
 
-export function findWorkersByExecutionID(clusterState: any, exId: string) {
+export function findWorkersByExecutionID(clusterState: ClusterState, exId: string) {
     return iterateState(
         clusterState,
         (worker) => worker.assignment === 'worker' && worker.ex_id === exId
     );
 }
 
-export function findSlicersByExecutionID(clusterState: any, exIdDict: any) {
+export function findSlicersByExecutionID(clusterState: ClusterState, exIdDict: any) {
     return iterateState(
         clusterState,
         (worker) => worker.assignment === 'execution_controller' && exIdDict[worker.ex_id]

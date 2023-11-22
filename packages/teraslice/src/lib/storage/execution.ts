@@ -4,9 +4,9 @@ import {
 } from '@terascope/utils';
 import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
+import { JobRecord, ExecutionRecord } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
-import { ExecutionRecord, JobRecord } from '../../interfaces';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
@@ -86,7 +86,6 @@ export class ExecutionStorage {
     }
 
     async create(record: JobRecord | ExecutionRecord, status = 'pending'): Promise<ExecutionRecord> {
-        console.dir({ record, execution_create: true }, { depth: 40 })
         if (!this._isValidStatus(status)) {
             throw new Error(`Unknown status "${status}" on execution create`);
         }
@@ -125,8 +124,8 @@ export class ExecutionStorage {
     async updatePartial(
         exId: string,
         applyChanges: (doc: Record<string, any>) => Promise<Record<string, any>>
-    ) {
-        return this.backend.updatePartial(exId, applyChanges);
+    ): Promise<ExecutionRecord> {
+        return this.backend.updatePartial(exId, applyChanges) as unknown as ExecutionRecord;
     }
 
     /**
@@ -242,14 +241,18 @@ export class ExecutionStorage {
      * @param {Partial<import('@terascope/job-components').ExecutionConfig>} body
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async setStatus(exId: string, status: string, body?: Record<string, any>) {
+    async setStatus(
+        exId: string,
+        status: string,
+        body?: Partial<ExecutionRecord>
+    ): Promise<ExecutionRecord> {
         try {
             return await this.updatePartial(exId, async (existing) => {
                 this._verifyStatus(existing._status, status);
                 return Object.assign(existing, body, {
                     _status: status,
                     _updated: makeISODate()
-                });
+                }) as ExecutionRecord;
             });
         } catch (err) {
             throw new TSError(err, {

@@ -80,7 +80,8 @@ export async function nodeMaster(context: ClusterMasterContext) {
     }
 
     function canAllocateWorkers(requestedWorkers: number) {
-        // @ts-expect-error TODO: fix this
+        // @ts-expect-error TODO: fix this, type issue due to divergent types of
+        // job-components and terafoundation
         const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
         // if there is an over allocation, send back rest to be enqueued
         if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {

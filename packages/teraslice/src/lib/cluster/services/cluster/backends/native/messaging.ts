@@ -113,7 +113,7 @@ export class Messaging {
 
         // all child processes need to set up a process listener on the 'message' event
         if (this.config.clients.ipcClient) {
-            process.on('message', this._handleIpcMessages());
+            process.on('message', this._handleIpcMessages().bind(this));
         } else {
             this.processContext.on('online', (worker: NodeJS.Process) => {
                 this.logger.debug('worker process has come online');
@@ -124,18 +124,16 @@ export class Messaging {
                 const contextWorker = this.processContext.workers[worker.id];
 
                 // don't double subscribe
-                contextWorker.removeListener('message', this._handleWorkerMessage);
+                contextWorker.removeListener('message', this._handleWorkerMessage.bind(this));
 
                 // set up a message handler on each child created, if a child is talking to cluster
                 // then pass it on, else invoke process event handler on node_master
-                contextWorker.on('message', this._handleWorkerMessage);
+                contextWorker.on('message', this._handleWorkerMessage.bind(this));
             });
         }
     }
 
     private _handleResponse(msgResponse: any) {
-        console.dir({ msgResponse, _handleResponse: true }, { depth: 40 })
-
         // if msg has returned to source then emit it else pass it along
         if (msgResponse.__source === this.config.assignment) {
             this.logger.trace(`node message ${msgResponse.__msgId} has been processed`);
@@ -147,8 +145,6 @@ export class Messaging {
     }
 
     respond(incoming: any, outgoing?: any) {
-        console.dir({ incoming, outgoing, respond: true }, { depth: 40 })
-
         const outgoingResponse = (outgoing && typeof outgoing === 'object') ? outgoing : {};
         if (incoming.__msgId) {
             outgoingResponse.__msgId = incoming.__msgId;
@@ -160,8 +156,6 @@ export class Messaging {
     }
 
     private _findAndSend(filterFn: any, msg: any, msgHookFn?: any) {
-        console.dir({ msg, _findAndSend: true }, { depth: 40 })
-
         // @ts-expect-error
         const childProcesses = this.context.cluster.workers as any;
         const children = _.filter(childProcesses, filterFn);
@@ -183,8 +177,6 @@ export class Messaging {
     }
 
     private _sendToProcesses(msg: any) {
-        console.dir({ msg, _sendToProcesses: true }, { depth: 40 })
-
         const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
         if (msgExId) {
             // all processes that have the same assignment and exId

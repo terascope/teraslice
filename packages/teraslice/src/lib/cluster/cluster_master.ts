@@ -56,6 +56,7 @@ export class ClusterMaster {
 
         return this.waitForAssetsService(timeoutAt);
     }
+
     async initialize() {
         const clusterConfig = this.context.sysconfig.teraslice;
         const { logger } = this;

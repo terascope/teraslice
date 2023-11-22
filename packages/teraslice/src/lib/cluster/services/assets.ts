@@ -193,12 +193,13 @@ export class AssetsService {
         const { size, from, sort } = getSearchOptions(req, '_created:desc');
 
         const requestHandler = handleTerasliceRequest(req, res, 'Could not get assets');
+
         requestHandler(async () => {
             const fields = ['_created', 'name', 'version', 'description', 'node_version', 'platform', 'arch'];
             const results = await this.assetsStorage.search(
                 query, from, size, sort as string, fields
             ) as Record<string, any>;
-                console.dir({ assetSearch: results }, { depth: 30 })
+
             return results.hits.hits.map((asset: any) => {
                 const record = asset._source;
                 record.id = asset._id;

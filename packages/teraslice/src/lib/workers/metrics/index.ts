@@ -119,33 +119,7 @@ export class Metrics extends EventEmitter {
             metrics
         };
         this._typesCollectedAt[type] = Date.now();
-        console.dir({ msg, metrics, _emitMetric: true }, { depth: 40 })
-
         this.emit('metric', msg);
         this.logger.info(msg, `${type} performance metrics`);
     }
 }
-
-// if (require.main === module) {
-//     (async () => {
-//         const metrics = new Metrics();
-//         metrics.on('metric', (metric) => {
-//             console.dir(metric);
-//         });
-
-//         try {
-//             await metrics.initialize();
-//             console.log('staying alive for 30s...');
-//             await pDelay(30000);
-//             console.log('done, exiting...');
-//         } catch (err) {
-//             console.error(err);
-//             process.exitCode = 1;
-//         } finally {
-//             await metrics.shutdown();
-//             process.exit();
-//         }
-//     })();
-// } else {
-//     module.exports = Metrics;
-// }

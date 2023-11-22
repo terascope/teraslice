@@ -60,10 +60,7 @@ export class StateStorage {
 
     async createState(exId: string, slice: any, state: any, error?: Error) {
         const { record, index } = this._createSliceRecord(exId, slice, state, error);
-        const stateResp = await this.backend.indexWithId(slice.slice_id, record, index);
-
-        console.dir({ stateResp, createState: true }, { depth: 40 })
-        return stateResp;
+        return this.backend.indexWithId(slice.slice_id, record, index);
     }
 
     async createSlices(exId: string, slices: Slice[]) {
@@ -137,14 +134,13 @@ export class StateStorage {
         let notFoundErrCount = 0;
         const updateFn = this.backend.update.bind(this.backend);
 
-        console.log('here', slice, indexData, updateFn)
         async function update() {
             try {
                 return await updateFn(slice.slice_id, record, indexData.index);
             } catch (_err) {
-                console.log('at this part', _err)
                 const { statusCode, message } = parseErrorInfo(_err);
                 let retryable = isRetryableError(_err);
+
                 if (statusCode === 404) {
                     notFoundErrCount++;
                     retryable = notFoundErrCount < 3;

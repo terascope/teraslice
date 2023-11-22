@@ -7,8 +7,12 @@ import {
 } from '@terascope/utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
+import { ExecutionRecord, JobRecord } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage';
-import { ClusterMasterContext, ExecutionRecord } from '../../../interfaces';
+import type {
+    ClusterMasterContext, NodeState, ExecutionNodeWorker,
+    ControllerStats
+} from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
 import type { ClusterServiceType } from './cluster';
 /**
@@ -29,7 +33,7 @@ import type { ClusterServiceType } from './cluster';
 
 export class ExecutionService {
     logger: Logger;
-    pendingExecutionQueue = new Queue<any>();
+    pendingExecutionQueue = new Queue<ExecutionRecord>();
     isNative: boolean;
     context: ClusterMasterContext;
     clusterMasterServer: ClusterMaster.Server;
@@ -76,7 +80,7 @@ export class ExecutionService {
         // in the background
         await this.reapExecutions();
 
-        const pending = await executionStorage.search('_status:pending', undefined, 10000, '_created:asc') as any[];
+        const pending = await executionStorage.search('_status:pending', undefined, 10000, '_created:asc') as ExecutionRecord[];
         for (const execution of pending) {
             this.logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
             this.enqueue(execution);
@@ -98,9 +102,7 @@ export class ExecutionService {
         );
     }
 
-    enqueue(ex: any) {
-        console.dir({ ex, enqueue: true }, { depth: 40 });
-
+    enqueue(ex: ExecutionRecord) {
         const size = this.pendingExecutionQueue.size();
         this.logger.debug(ex, `enqueueing execution to be processed (queue size ${size})`);
         this.pendingExecutionQueue.enqueue(cloneDeep(ex));
@@ -118,9 +120,13 @@ export class ExecutionService {
                 const state = this.clusterService.getClusterState();
                 const dict = Object.create(null);
 
-                Object.values(state).forEach((node: any) => node.active.forEach((worker: any) => {
-                    dict[worker.ex_id] = true;
-                }));
+                Object.values(state).forEach(
+                    (node: NodeState) => node.active.forEach((worker: any) => {
+                        if (worker.ex_id) {
+                            dict[worker.ex_id] = true;
+                        }
+                    })
+                );
 
                 // if found, do not resolve
                 if (dict[exId]) {
@@ -151,7 +157,7 @@ export class ExecutionService {
         this.reapInterval = undefined;
 
         const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
-        const executions = await this.executionStorage.search(query) as any[];
+        const executions = await this.executionStorage.search(query) as ExecutionRecord[];
 
         await Promise.all(executions.map(async (execution) => {
             if (!this.isNative) return;
@@ -162,16 +168,15 @@ export class ExecutionService {
             // need to exclude sending a stop to cluster master host, the shutdown event
             // has already been propagated this can cause a condition of it waiting for
             // stop to return but it already has which pauses this service shutdown
-            // @ts-expect-error TODO: fix this
             await this.stopExecution(exId, null, hostname);
             await this.waitForExecutionStatus(exId, 'terminated');
         }));
     }
 
-    findAllWorkers() {
+    findAllWorkers(): ExecutionNodeWorker[] {
         return flatten(Object.values(this.clusterService.getClusterState())
-            .filter((node: any) => node.state === 'connected')
-            .map((node: any) => {
+            .filter((node: NodeState) => node.state === 'connected')
+            .map((node: NodeState) => {
                 const workers = node.active.filter(Boolean);
 
                 return workers.map((worker: any) => {
@@ -211,7 +216,6 @@ export class ExecutionService {
 
     // safely stop the execution without setting the ex status to stopping or stopped
     private async _finishExecution(exId: string, err?: Error) {
-        console.log('_finishExecution err', err, exId)
         if (err) {
             const error = new TSError(err, {
                 reason: `terminal error for execution: ${exId}, shutting down execution`,
@@ -250,7 +254,7 @@ export class ExecutionService {
         }
     }
 
-    async stopExecution(exId: string, timeout: number, excludeNode?: string) {
+    async stopExecution(exId: string, timeout?: number | null | undefined, excludeNode?: string) {
         const execution = await this.getExecutionContext(exId);
 
         if (!execution) {
@@ -307,10 +311,10 @@ export class ExecutionService {
         return { status };
     }
 
-    async getControllerStats(exId?: string) {
+    async getControllerStats(exId?: string): Promise<ControllerStats[]> {
         // if no exId is provided it returns all running executions
         const specificId = exId ?? false;
-        const exIds = await this.getRunningExecutions(exId as any);
+        const exIds = await this.getRunningExecutions(exId);
 
         const clients = this.clusterMasterServer.onlineClients.filter(({ clientId }) => {
             if (specificId && clientId === specificId) return true;
@@ -345,7 +349,7 @@ export class ExecutionService {
         });
 
         const results = await Promise.all(promises);
-        return sortBy(results, ['name', 'started']).reverse();
+        return sortBy(results, ['name', 'started']).reverse() as ControllerStats[];
     }
 
     /**
@@ -354,7 +358,7 @@ export class ExecutionService {
      * @param {string|import('@terascope/job-components').JobConfig} job
      * @return {Promise<NewExecutionResult>}
     */
-    async createExecutionContext(job: any) {
+    async createExecutionContext(job: JobRecord) {
         const ex = await this.executionStorage.create(job);
         this.enqueue(ex);
         return { job_id: ex.job_id, ex_id: ex.ex_id };
@@ -373,14 +377,14 @@ export class ExecutionService {
         }
     }
 
-    async getRunningExecutions(exId: string | boolean) {
+    async getRunningExecutions(exId: string | undefined) {
         let query = this.executionStorage.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
 
         if (exId) {
             query = `ex_id:"${exId}" AND (${query.trim()})`;
         }
 
-        const exs = await this.executionStorage.search(query, undefined, undefined, '_created:desc') as any[];
+        const exs = await this.executionStorage.search(query, undefined, undefined, '_created:desc') as ExecutionRecord[];
         return exs.map((ex) => ex.ex_id);
     }
 
@@ -392,7 +396,7 @@ export class ExecutionService {
      * @return {Promise<NewExecutionResult>}
     */
     async recoverExecution(
-        exIdOrEx: string | Record<string, any>,
+        exIdOrEx: string | ExecutionRecord,
         cleanupType?: RecoveryCleanupType
     ) {
         const recoverFromEx = isString(exIdOrEx)
@@ -418,13 +422,13 @@ export class ExecutionService {
             if (!canAllocate) return;
 
             allocatingExecution = true;
-            let execution = this.pendingExecutionQueue.dequeue();
+            let execution = this.pendingExecutionQueue.dequeue() as ExecutionRecord;
 
             this.logger.info(`Scheduling execution: ${execution.ex_id}`);
 
             try {
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'scheduling');
-
+                // @ts-expect-error TODO: figure this out
                 execution = await this.clusterService.allocateSlicer(execution);
 
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'initializing', {
@@ -433,6 +437,7 @@ export class ExecutionService {
                 });
 
                 try {
+                    // @ts-expect-error TODO: figure this out
                     await this.clusterService.allocateWorkers(execution, execution.workers);
                 } catch (err) {
                     throw new TSError(err, {
@@ -484,7 +489,8 @@ export class ExecutionService {
             // sometimes in development an execution gets stuck in stopping
             // status since the process gets force killed in before it
             // can be updated to stopped.
-            const stopping = await this.executionStorage.search('_status:stopping') as any[];
+            const stopping = await this.executionStorage.search('_status:stopping') as ExecutionRecord[];
+
             for (const execution of stopping) {
                 const updatedAt = new Date(execution._updated).getTime();
                 const timeout = this.context.sysconfig.teraslice.shutdown_timeout;

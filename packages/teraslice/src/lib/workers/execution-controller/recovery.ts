@@ -6,6 +6,7 @@ import type {
     Context, ExecutionContext, RecoveryCleanupType,
     Slice
 } from '@terascope/job-components';
+import { SliceCompletePayload } from '@terascope/types';
 import type { EventEmitter } from 'node:events';
 import { makeLogger } from '../helpers/terafoundation';
 import type { StateStorage } from '../../storage/state';
@@ -14,7 +15,7 @@ export class RecoveryModule {
     logger: Logger;
     events: EventEmitter;
     readonly slicersToRecover: number;
-    recoveryQueue: Queue<any>;
+    recoveryQueue: Queue<Slice>;
     private recoverComplete = true;
     private isShutdown = false;
     private autorecover: boolean;
@@ -41,19 +42,16 @@ export class RecoveryModule {
 
     initialize(stateStore: StateStorage) {
         this.stateStore = stateStore;
-        this.events.on('slice:success', this._sliceComplete);
+        this.events.on('slice:success', this._sliceComplete.bind(this));
         this.recoverComplete = false;
 
         // once we have fully recovered, clean up event listeners
         this.events.once('execution:recovery:complete', () => {
-            this.events.removeListener('slice:success', this._sliceComplete);
+            this.events.removeListener('slice:success', this._sliceComplete.bind(this));
         });
     }
     // TODO: this is wrong
-    private _sliceComplete(sliceData: Slice) {
-        console.dir({ sliceData, recover__sliceComplete: true }, { depth: 40 })
-
-        // @ts-expect-error
+    private _sliceComplete(sliceData: SliceCompletePayload) {
         this.retryState.set(sliceData.slice.slice_id, false);
     }
 
@@ -125,11 +123,11 @@ export class RecoveryModule {
         return false;
     }
 
-    getSlice(): Slice | null {
+    getSlice(): Slice | undefined {
         if (this.recoveryQueue.size() > 0) {
             return this.recoveryQueue.dequeue();
         }
-        return null;
+        return;
     }
 
     getSlices(max = 1) {

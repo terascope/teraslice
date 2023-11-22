@@ -3,6 +3,7 @@ import {
     toNumber
 } from '@terascope/utils';
 import type { Context, ExecutionContext, OpConfig } from '@terascope/job-components';
+import type { SliceAnalyticsData, SliceCompletePayload } from '@terascope/types';
 import type { EventEmitter } from 'node:events';
 import { makeLogger } from '../helpers/terafoundation';
 
@@ -12,12 +13,6 @@ interface SliceOperationStat {
     sum: number;
     total: number;
     average: number;
-}
-
-interface SliceOperationRecord {
-    time: number[];
-    size: number[]
-    memory: number[]
 }
 
 interface SliceAnalyticsStats {
@@ -75,7 +70,7 @@ export class SliceAnalytics {
         this.events.on('slice:success', this.onSliceSuccess.bind(this));
     }
 
-    addStat(input: SliceOperationRecord, stat: keyof SliceOperationRecord) {
+    addStat(input: SliceAnalyticsData, stat: keyof SliceAnalyticsData) {
         if (!has(input, stat) || !has(this.sliceAnalytics, stat)) {
             this.logger.warn(`unsupported stat "${stat}"`);
             return;
@@ -100,7 +95,7 @@ export class SliceAnalytics {
         }
     }
 
-    addStats(data: SliceOperationRecord) {
+    addStats(data: SliceAnalyticsData) {
         this.addStat(data, 'time');
         this.addStat(data, 'memory');
         this.addStat(data, 'size');
@@ -128,7 +123,7 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
         return this.sliceAnalytics;
     }
 
-    private onSliceSuccess({ analytics }: { analytics: SliceOperationRecord}) {
+    private onSliceSuccess({ analytics }: SliceCompletePayload) {
         if (analytics) {
             this.addStats(analytics);
         }

@@ -10,7 +10,6 @@ export function safeEncode(obj: string | AnyObject) {
     } else if (isObjectEntity(obj) || isArrayLike(obj)) {
         str = JSON.stringify(obj);
     } else {
-        console.dir({ safeEncode_error: true, obj, bool: isObjectEntity(obj) }, { depth: 40 })
         throw new Error(`unprocessable entity to encode: ${getTypeOf(obj)}`);
     }
     return Buffer.from(str).toString('base64');

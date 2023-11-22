@@ -1,14 +1,11 @@
 import * as ts from '@terascope/utils';
 import {
-    ExecutionContextConfig,
-    RunSliceResult,
-    WorkerSliceState,
-    WorkerStatus,
-    SliceStatus,
-    JobAPIInstances
+    ExecutionContextConfig, RunSliceResult, WorkerSliceState,
+    WorkerStatus, SliceStatus, JobAPIInstances
 } from './interfaces';
 import {
-    WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData
+    WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics,
+    SliceAnalyticsData
 } from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
@@ -327,11 +324,13 @@ export class WorkerExecutionContext
 
         if (status === 'completed') {
             this.sliceState.analytics = this.jobObserver.getAnalytics();
+            console.log('completed', this.sliceState.analytics)
             return;
         }
 
         if (status === 'flushed') {
             this.sliceState.analytics = this._mergeAnalytics();
+            console.log('flushed', this.sliceState.analytics)
         }
     }
 
@@ -357,6 +356,7 @@ export class WorkerExecutionContext
             } else {
                 this._updateSliceState('completed');
             }
+
             return {
                 results,
                 status: this.sliceState.status,

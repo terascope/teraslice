@@ -63,7 +63,7 @@
     "terascope": {
         "root": true,
         "type": "monorepo",
-        "target": "es2019",
+        "target": "es2022",
         "tests": {
             "suites": {
                 "e2e": [],

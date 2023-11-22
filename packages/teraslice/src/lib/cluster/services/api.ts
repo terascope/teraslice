@@ -8,7 +8,7 @@ import {
 } from '@terascope/utils';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
-import { ExecutionService, JobsService } from '../services';
+import { ExecutionService, JobsService, ClusterServiceType } from '../services';
 import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
@@ -31,8 +31,7 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
 
 async function getGotESM() {
     if (gotESMModule) return gotESMModule;
-    // @ts-expect-error
-    const module = await import('gotESM'); // eslint-disable-line
+    const module = await eval("import('gotESM')"); // eslint-disable-line
     gotESMModule = module.default;
     return module.default;
 }
@@ -45,8 +44,7 @@ export class ApiService {
     stateStorage!: StateStorage;
     executionService!: ExecutionService;
     jobsService!: JobsService;
-    // TODO: fix this;
-    clusterService: any;
+    clusterService!: ClusterServiceType;
     available = false;
     clusterType: string;
     assetsUrl: string;
@@ -137,6 +135,7 @@ export class ApiService {
 
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
         const module = await getGotESM();
+
         const options = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -196,6 +195,7 @@ export class ApiService {
         this.jobsStorage = jobsStorage;
 
         const v1routes = Router();
+        const redirect = this._redirect.bind(this);
 
         this.app.use(bodyParser.json({
             type(req) {
@@ -237,22 +237,23 @@ export class ApiService {
 
         v1routes.get('/cluster/state', (req, res) => {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res);
+            // @ts-expect-error
             requestHandler(() => this.clusterService.getClusterState());
         });
 
         v1routes.route('/assets*')
             .delete((req, res) => {
-                this._redirect(req as TerasliceRequest, res);
+                redirect(req as TerasliceRequest, res);
             })
             .post((req, res) => {
                 if (req.headers['content-type'] === 'application/json' || req.headers['content-type'] === 'application/x-www-form-urlencoded') {
                     sendError(res, 400, '/asset endpoints do not accept json');
                     return;
                 }
-                this._redirect(req as TerasliceRequest, res);
+                redirect(req as TerasliceRequest, res);
             })
             // @ts-expect-error
-            .get(this._redirect);
+            .get(redirect);
 
         v1routes.post('/jobs', (req, res) => {
             // if no job was posted an empty object is returned, so we check if it has values
@@ -481,7 +482,7 @@ export class ApiService {
 
         this.app.route('/txt/assets*')
         // @ts-expect-error
-            .get(this._redirect);
+            .get(redirect);
 
         this.app.get('/txt/workers', (req, res) => {
             const { size, from } = getSearchOptions(req as TerasliceRequest);

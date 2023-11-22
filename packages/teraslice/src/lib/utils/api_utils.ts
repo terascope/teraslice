@@ -63,7 +63,6 @@ export function handleTerasliceRequest(
                 res.status(successCode).json(result);
             }
         } catch (err) {
-            console.log('handleTerasliceRequest_error', err)
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg,
                 defaultStatusCode: errorCode,

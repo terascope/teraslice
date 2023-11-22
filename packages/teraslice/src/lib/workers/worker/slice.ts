@@ -7,6 +7,7 @@ import {
     Context, Slice, WorkerExecutionContext,
     RunSliceResult
 } from '@terascope/job-components';
+import { SliceAnalyticsData } from '@terascope/types';
 import { SliceState, StateStorage, AnalyticsStorage } from '../../storage';
 import { makeLogger } from '../helpers/terafoundation';
 import { logOpStats } from '../helpers/op-analytics';
@@ -19,8 +20,8 @@ export class SliceExecution {
     private events: events.EventEmitter;
     private logger!: Logger;
     private isShutdown!: boolean;
-    slice: any;
-    analyticsData: any;
+    slice!: Slice;
+    analyticsData!: SliceAnalyticsData;
 
     constructor(
         context: Context,
@@ -36,13 +37,10 @@ export class SliceExecution {
     }
 
     async initialize(slice: Slice) {
-        console.dir({ slice, Slice_initialize: true }, { depth: 40 })
-
         const { slice_id: sliceId } = slice;
-        // @ts-expect-error TODO: fix this type
-        if (slice.state !== SliceState.pending) {
-            await this.stateStorage.updateState(slice, SliceState.start);
-        }
+
+        await this.stateStorage.updateState(slice, SliceState.start);
+
         this.slice = slice;
         this.logger = makeLogger(this.context, 'slice', {
             slice_id: sliceId
@@ -74,7 +72,9 @@ export class SliceExecution {
             }
             throw err;
         } finally {
-            if (result) await this._logAnalytics(result);
+            if (result) {
+                await this._logAnalytics(result);
+            }
             await this._onSliceFinalize(slice);
         }
 
