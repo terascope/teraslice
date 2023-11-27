@@ -1,6 +1,5 @@
 import * as k8sClient from '@kubernetes/client-node';
 import fs from 'fs';
-import os from 'os';
 import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
@@ -11,6 +10,7 @@ import {
 import { getE2eK8sDir } from '../../helpers/packages';
 import signale from '../signale';
 import * as config from '../config';
+import { destroyKindCluster } from '../scripts';
 
 const logger = debugLogger('ts-scripts:k8s-env');
 // FixMe: this needs to be variable
@@ -38,6 +38,8 @@ export class K8s {
     }
 
     async createNamespace(yamlFile: string, namespaceCategory: string) {
+        signale.pending(`Creating new namespace for ${namespaceCategory}`);
+
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
             throw new Error('Missing k8s e2e test directory');
@@ -47,35 +49,26 @@ export class K8s {
 
         try {
             const createNamespaceRes = await this.k8sCoreV1Api.createNamespace(namespaceSpec);
-            // console.log('New namespace created: ', createNamespaceRes.body);
-
-            // FixMe: refactor
-            if (namespaceCategory === 'teraslice') {
-                if (createNamespaceRes?.body?.metadata?.name) {
+            if (createNamespaceRes?.body?.metadata?.name) {
+                if (namespaceCategory === 'teraslice') {
                     this.terasliceNamespace = createNamespaceRes.body.metadata.name;
-                    if (this.terasliceNamespace) {
-                        const readNamespaceRes = await this
-                            .k8sCoreV1Api.readNamespace(this.terasliceNamespace);
-                        console.log('Namespace: ', readNamespaceRes.body);
-                    }
-                }
-            }
-            if (namespaceCategory === 'services') {
-                if (createNamespaceRes?.body?.metadata?.name) {
+                    signale.success(`Teraslice namespace set to ${createNamespaceRes.body.metadata.name}`);
+                } else if (namespaceCategory === 'services') {
                     this.servicesNamespace = createNamespaceRes.body.metadata.name;
-                    if (this.servicesNamespace) {
-                        const readNamespaceRes = await this
-                            .k8sCoreV1Api.readNamespace(this.servicesNamespace);
-                        console.log('Namespace: ', readNamespaceRes.body);
-                    }
+                    signale.success(`Services namespace set to ${createNamespaceRes.body.metadata.name}`);
+                } else {
+                    signale.success(`Namespace ${createNamespaceRes.body.metadata.name} created`);
                 }
             }
         } catch (err) {
-            console.error(err);
+            logger.error('Error creating namespace: ', err);
+            await destroyKindCluster();
+            process.exit(1);
         }
     }
 
     async deployK8sTeraslice(wait = false) {
+        signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
             throw new Error('Missing k8s e2e test directory');
@@ -84,53 +77,65 @@ export class K8s {
         await this.deleteTerasliceNamespace();
         await this.createNamespace('ts-ns.yaml', 'teraslice');
         await this.k8sSetup();
+        const baseConfigMap = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'baseConfigmap.yaml')}`, 'utf8')) as k8sClient.V1ConfigMap;
         try {
-            const baseConfigMap = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'baseConfigmap.yaml')}`, 'utf8')) as k8sClient.V1ConfigMap;
-
             /// Creates configmap for teraslice-master
             const masterConfigMap = baseConfigMap;
-            masterConfigMap.metadata = { name: 'teraslice-master' };
             const masterTerafoundation: object = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'masterConfig', 'teraslice.yaml')}`, 'utf8'));
-            console.log('terafoundation yaml: ');
-            console.dir(k8sClient.dumpYaml(masterTerafoundation));
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
-            const yamlMasterConfigmap = k8sClient.dumpYaml(masterConfigMap);
-            const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
-            fs.writeFileSync(path.join(tempDir, 'newConfig.yaml'), yamlMasterConfigmap);
-            console.log('@@@@@@@@ tempDir: ', tempDir);
-            console.log('@@@ deployK8sTeraslice masterConfigMap: ', masterConfigMap);
-            console.dir(masterConfigMap.data['teraslice.yaml']);
-            await this.k8sCoreV1Api
+            masterConfigMap.metadata = { name: 'teraslice-master' };
+            const response = await this.k8sCoreV1Api
                 .createNamespacedConfigMap(this.terasliceNamespace, masterConfigMap);
+            logger.debug('deployK8sTeraslice masterConfigMap:', response.body);
+        } catch (err) {
+            logger.error('Error creating Teraslice Master Configmap: ', err);
+            await destroyKindCluster();
+            process.exit(1);
+        }
 
+        try {
             /// Creates configmap for teraslice-worker
             const workerConfigMap = baseConfigMap;
-            workerConfigMap.metadata = { name: 'teraslice-worker' };
             const workerTerafoundation: object = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'workerConfig', 'teraslice.yaml')}`, 'utf8'));
-            console.dir(masterTerafoundation);
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
-            console.log('@@@ deployK8sTeraslice workerConfigMap: ', workerConfigMap);
-            console.dir(workerConfigMap.data['teraslice.yaml']);
-            await this.k8sCoreV1Api
+            workerConfigMap.metadata = { name: 'teraslice-worker' };
+            const response = await this.k8sCoreV1Api
                 .createNamespacedConfigMap(this.terasliceNamespace, workerConfigMap);
+            logger.debug('deployK8sTeraslice workerConfigMap:', response.body);
+        } catch (err) {
+            logger.error('Error creating Teraslice Worker Configmap: ');
+            logger.error(err);
+            await destroyKindCluster();
+            process.exit(1);
+        }
 
+        try {
             /// Creates master deployment for teraslice
             const yamlTSMasterDeployment = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'masterDeployment.yaml')}`, 'utf8')) as k8sClient.V1Deployment;
-            console.log('@@@ deployK8sTeraslice yamlTSMasterDeployment: ', yamlTSMasterDeployment);
-            await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
+            const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
+            logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);
+        } catch (err) {
+            logger.error('Error creating Teraslice Master Deployment: ');
+            logger.error(err);
+            await destroyKindCluster();
+            process.exit(1);
+        }
 
+        try {
             /// Creates master service for teraslice
             const yamlTSMasterService = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'masterService.yaml')}`, 'utf8')) as k8sClient.V1Service;
-            console.log('@@@ deployK8sTeraslice yamlTSMasterService: ', yamlTSMasterService);
-            await this.k8sCoreV1Api.createNamespacedService('ts-dev1', yamlTSMasterService);
+            const response = await this.k8sCoreV1Api.createNamespacedService('ts-dev1', yamlTSMasterService);
+            logger.debug('deployK8sTeraslice yamlTSMasterService: ', response.body);
             if (wait) {
                 await this.waitForTerasliceRunning();
             }
         } catch (err) {
-            logger.error('Error deploying Teraslice');
+            logger.error('Error creating Teraslice Master Service: ');
             logger.error(err);
+            await destroyKindCluster();
             process.exit(1);
         }
+        signale.success('Teraslice deployment complete');
     }
 
     async waitForTerasliceRunning() {
@@ -194,14 +199,14 @@ export class K8s {
             const yamlRoleBinding = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'roleBinding.yaml')}`, 'utf8')) as k8sClient.V1RoleBinding;
             const response2 = await this.k8sRbacAuthorizationV1Api
                 .createNamespacedRoleBinding(this.terasliceNamespace, yamlRoleBinding);
-            logger.debug('@@@ deployK8sTeraslice yamlRoleBinding: ', response2.body);
+            logger.debug('deployK8sTeraslice yamlRoleBinding: ', response2.body);
         } catch (err) {
             logger.error('Error creating roleBinding: ', err);
         }
         try {
             const yamlPriorityClass = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'priorityClass.yaml')}`, 'utf8')) as k8sClient.V1PriorityClass;
             const response3 = await this.k8sSchedulingV1Api.createPriorityClass(yamlPriorityClass);
-            logger.debug('@@@ deployK8sTeraslice yamlPriorityClass: ', response3.body);
+            logger.debug('deployK8sTeraslice yamlPriorityClass: ', response3.body);
         } catch (err) {
             logger.error('Error creating priorityClass: ', err);
         }
