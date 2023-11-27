@@ -585,7 +585,19 @@ export async function loadTerasliceImage(terasliceImage: string): Promise<void> 
     logger.debug(subprocess.stderr);
 }
 
-export async function kindStopService(serviceName: string): Promise<void> {
+// TODO: check that image is loaded before we continue
+export async function kindLoadServiceImage(
+    serviceName: string, serviceImage: string, version: string
+): Promise<void> {
+    try {
+        const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name k8se2e`);
+        logger.debug(subprocess.stderr);
+    } catch (err) {
+        logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
+    }
+}
+
+export async function k8sStopService(serviceName: string): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
@@ -601,22 +613,10 @@ export async function kindStopService(serviceName: string): Promise<void> {
     }
 }
 
-// TODO: Image versions are currently hard coded into yaml files
-// TODO: check that image is loaded before we continue
-export async function kindLoadServiceImage(
-    serviceName: string, serviceImage: string, version: string
-): Promise<void> {
-    try {
-        const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name k8se2e`);
-        logger.debug(subprocess.stderr);
-    } catch (err) {
-        logger.debug(`The service ${serviceName} could not be loaded. It may not be present locally`);
-    }
-}
-
-export async function kindStartService(
+export async function k8sStartService(
     serviceName: string, image: string, version: string
 ): Promise<void> {
+    // services that have an available k8s deployment yaml file
     const availableServices = [
         'elasticsearch', 'kafka', 'zookeeper', // 'opensearch', 'minio', 'rabbitmq'
     ];
@@ -730,6 +730,9 @@ export async function deployK8sTeraslice(wait = false) {
 
         /// Creates deployment for teraslice
         subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, 'masterDeployment.yaml')}`);
+        logger.debug(subprocess.stdout);
+
+        subprocess = await execa.command(`kubectl create -n ts-dev1 -f ${path.join(e2eK8sDir, 'masterService.yaml')}`);
         logger.debug(subprocess.stdout);
         if (wait) {
             await waitForTerasliceRunning();
