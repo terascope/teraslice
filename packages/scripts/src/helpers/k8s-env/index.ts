@@ -4,7 +4,7 @@ import {
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
-    loadTerasliceImage
+    kindLoadTerasliceImage
 } from '../scripts';
 import { k8sEnvOptions } from './interfaces';
 import signale from '../signale';
@@ -68,7 +68,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     }
 
     signale.pending('Loading teraslice docker image');
-    await loadTerasliceImage(e2eImage);
+    await kindLoadTerasliceImage(e2eImage);
     signale.success('Teraslice docker image loaded');
 
     await ensureServices('k8s_env', {

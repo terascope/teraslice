@@ -580,7 +580,7 @@ export async function isKubectlInstalled(): Promise<boolean> {
 }
 
 // TODO: check that image is loaded before we continue
-export async function loadTerasliceImage(terasliceImage: string): Promise<void> {
+export async function kindLoadTerasliceImage(terasliceImage: string): Promise<void> {
     const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name k8se2e`);
     logger.debug(subprocess.stderr);
 }
