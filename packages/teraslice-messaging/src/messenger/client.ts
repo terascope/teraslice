@@ -122,6 +122,7 @@ export class Client extends Core {
 
         this.socket.on('reconnect', () => {
             this.logger.info(`client ${this.clientId} reconnected`);
+            this.serverShutdown = false;
             this.ready = true;
             this.emit('ready');
 
