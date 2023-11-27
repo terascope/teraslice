@@ -12,7 +12,7 @@ import { getE2eK8sDir } from '../../helpers/packages';
 import signale from '../signale';
 import * as config from '../config';
 
-const logger = debugLogger('ts-scripts:cmd');
+const logger = debugLogger('ts-scripts:k8s-env');
 // FixMe: this needs to be variable
 const TS_PORT = '5678';
 
@@ -148,15 +148,15 @@ export class K8s {
         const endAt = Date.now() + timeoutMs;
 
         const _waitForTerasliceRunning = async (): Promise<boolean> => {
+            let response;
             if (Date.now() > endAt) {
-                throw new Error(`Failure to communicate with teraslice after ${timeoutMs}ms`);
+                throw new Error(`Failure to communicate with teraslice after ${timeoutMs}ms. Last response from curl request to teraslice root: ${response}`);
             }
 
             let terasliceRunning = false;
             try {
                 const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${TS_PORT}`);
-                const response = JSON.parse(kubectlResponse.stdout);
-                console.log('@@@@ curl teraslice response: ', response);
+                response = JSON.parse(kubectlResponse.stdout);
                 if (response.clustering_type === 'kubernetes') {
                     terasliceRunning = true;
                 }
@@ -181,29 +181,38 @@ export class K8s {
             throw new Error('Missing k8s e2e test directory');
         }
 
-        const yamlRole = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'role.yaml')}`, 'utf8')) as k8sClient.V1Role;
-        const response1 = await this.k8sRbacAuthorizationV1Api
-            .createNamespacedRole(this.terasliceNamespace, yamlRole);
-        console.log('@@@ deployK8sTeraslice yamlRole: ', response1.body);
+        try {
+            const yamlRole = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'role.yaml')}`, 'utf8')) as k8sClient.V1Role;
+            const response1 = await this.k8sRbacAuthorizationV1Api
+                .createNamespacedRole(this.terasliceNamespace, yamlRole);
+            logger.debug('deployK8sTeraslice yamlRole: ', response1.body);
+        } catch (err) {
+            logger.error('Error creating role: ', err);
+        }
 
-        const yamlRoleBinding = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'roleBinding.yaml')}`, 'utf8')) as k8sClient.V1RoleBinding;
-        const response2 = await this.k8sRbacAuthorizationV1Api
-            .createNamespacedRoleBinding(this.terasliceNamespace, yamlRoleBinding);
-        console.log('@@@ deployK8sTeraslice yamlRoleBinding: ', response2.body);
-
-        const yamlPriorityClass = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'priorityClass.yaml')}`, 'utf8')) as k8sClient.V1PriorityClass;
-        const response3 = await this.k8sSchedulingV1Api.createPriorityClass(yamlPriorityClass);
-        console.log('@@@ deployK8sTeraslice yamlPriorityClass: ', response3.body);
+        try {
+            const yamlRoleBinding = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'roleBinding.yaml')}`, 'utf8')) as k8sClient.V1RoleBinding;
+            const response2 = await this.k8sRbacAuthorizationV1Api
+                .createNamespacedRoleBinding(this.terasliceNamespace, yamlRoleBinding);
+            logger.debug('@@@ deployK8sTeraslice yamlRoleBinding: ', response2.body);
+        } catch (err) {
+            logger.error('Error creating roleBinding: ', err);
+        }
+        try {
+            const yamlPriorityClass = k8sClient.loadYaml(fs.readFileSync(`${path.join(e2eK8sDir, 'priorityClass.yaml')}`, 'utf8')) as k8sClient.V1PriorityClass;
+            const response3 = await this.k8sSchedulingV1Api.createPriorityClass(yamlPriorityClass);
+            logger.debug('@@@ deployK8sTeraslice yamlPriorityClass: ', response3.body);
+        } catch (err) {
+            logger.error('Error creating priorityClass: ', err);
+        }
     }
 
     async deleteTerasliceNamespace() {
         try {
             const response = await this.k8sCoreV1Api.deleteNamespace(this.terasliceNamespace);
-
-            console.log('DeleteTerasliceNamespace response: ', response);
+            logger.debug('Teraslice namespace and all contents deleted. ', response);
         } catch (err) {
-            // FixMe: different message
-            console.log('Teraslice namespace cannot be deleted because it does not exist');
+            logger.debug('Teraslice namespace cannot be deleted. It might not yet exist.');
         }
     }
 
