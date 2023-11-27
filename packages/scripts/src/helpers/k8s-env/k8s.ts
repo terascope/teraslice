@@ -206,4 +206,6 @@ export class K8s {
             console.log('Teraslice namespace cannot be deleted because it does not exist');
         }
     }
+
+    // TODO: add functions to create services
 }
