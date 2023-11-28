@@ -1,4 +1,3 @@
-// import { debugLogger } from '@terascope/utils';
 import {
     createKindCluster,
     dockerTag,
@@ -15,19 +14,17 @@ import * as config from '../config';
 import { ensureServices } from '../test-runner/services';
 import { K8s } from './k8s';
 
-// const logger = debugLogger('ts-scripts:cmd:k8s-env');
-
 export async function launchK8sEnv(options: k8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
 
-    // FixMe: create a kind class
+    // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
         signale.error('Please install Kind before launching a k8s dev environment. https://kind.sigs.k8s.io/docs/user/quick-start');
         process.exit(1);
     }
 
-    // FixMe: Remove once all kubectl commands are converted to k8s client
+    // TODO: Remove once all kubectl commands are converted to k8s client
     const kubectlInstalled = await isKubectlInstalled();
     if (!kubectlInstalled) {
         signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');

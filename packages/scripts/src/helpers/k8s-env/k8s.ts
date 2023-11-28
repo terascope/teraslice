@@ -13,7 +13,7 @@ import * as config from '../config';
 import { destroyKindCluster } from '../scripts';
 
 const logger = debugLogger('ts-scripts:k8s-env');
-// FixMe: this needs to be variable
+// TODO: consider setting TS_PORT with an env variable or cmd option
 const TS_PORT = '5678';
 
 export class K8s {
@@ -160,6 +160,7 @@ export class K8s {
 
             let terasliceRunning = false;
             try {
+                // TODO: switch to a teraslice client
                 const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${TS_PORT}`);
                 response = JSON.parse(kubectlResponse.stdout);
                 if (response.clustering_type === 'kubernetes') {
@@ -215,7 +216,7 @@ export class K8s {
     async deleteTerasliceNamespace() {
         try {
             const response = await this.k8sCoreV1Api.deleteNamespace(this.terasliceNamespace);
-            logger.debug('Teraslice namespace and all contents deleted. ', response);
+            logger.debug('Teraslice namespace and all contents deleted: ', response.body);
         } catch (err) {
             logger.debug('Teraslice namespace cannot be deleted. It might not yet exist.');
         }
