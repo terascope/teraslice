@@ -32,7 +32,7 @@ export function findSimilarAssets(
     return assets;
 }
 
-export function getInCompatibilityReason(assets: AssetRecord[], prefix: string): string {
+export function getInCompatibilityReason(assets?: AssetRecord[], prefix?: string): string {
     if (!assets || !assets.length) return '';
 
     const reasons: string[] = [];
@@ -92,7 +92,7 @@ function _isCompatibleAsset(name: string, range: string, skipRestrictions = fals
     };
 }
 
-export function toSemverRange(version: string): string {
+export function toSemverRange(version?: string | null): string {
     if (!version || version === 'latest') return '*';
     if (semver.validRange(version)) {
         return trimStart(trim(version), 'v');
@@ -101,7 +101,7 @@ export function toSemverRange(version: string): string {
     throw new Error(`Version "${version}" is not a valid semver range`);
 }
 
-export function toVersionQuery(_version: string): string {
+export function toVersionQuery(_version?: string | null): string {
     const version = trimStart(trim(_version));
 
     if (!version || version === 'latest' || version === '*') {

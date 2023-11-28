@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const stateUtils = require('../../../../../../lib/cluster/services/cluster/backends/state-utils');
+const stateUtils = require('../../../../../../dist/src/lib/cluster/services/cluster/backends/state-utils');
 
 const clusterStateFile = path.join(__dirname, 'files', 'sample-state.json');
 
@@ -14,9 +14,9 @@ describe('stateUtils', () => {
         clusterState = JSON.parse(fs.readFileSync(clusterStateFile, 'utf-8'));
     });
 
-    describe('->_iterateState', () => {
+    describe('->iterateState', () => {
         it('can filter worker list and return cluster master node', () => {
-            const workerList = stateUtils._iterateState(
+            const workerList = stateUtils.iterateState(
                 clusterState,
                 (worker) => worker.assignment === 'cluster_master'
             );

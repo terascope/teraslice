@@ -204,7 +204,7 @@ export class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(block: boolean, event: string, shutdownError: Error) {
+    async shutdown(block?: boolean, event?: string, shutdownError?: Error) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;
@@ -332,7 +332,6 @@ export class Worker {
             let interval: NodeJS.Timer | undefined;
 
             const done = (err?: Error) => {
-                // @ts-expect-error
                 clearInterval(interval);
                 clearTimeout(timeout);
                 if (err) {

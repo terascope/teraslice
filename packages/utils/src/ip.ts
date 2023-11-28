@@ -8,9 +8,9 @@ import { isString } from './strings';
 import {
     toInteger, isNumberLike, toBigIntOrThrow,
     isNumber
- } from './numbers';
+} from './numbers';
 import { getTypeOf } from './deps';
-import { isBoolean } from './booleans.js';
+import { isBoolean } from './booleans';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);

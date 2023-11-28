@@ -14,10 +14,10 @@ import { logOpStats } from '../helpers/op-analytics';
 
 export class SliceExecution {
     private context: Context;
-    private executionContext: WorkerExecutionContext;
-    private stateStorage: StateStorage;
-    private analyticsStorage: AnalyticsStorage;
-    private events: events.EventEmitter;
+    readonly executionContext: WorkerExecutionContext;
+    readonly stateStorage: StateStorage;
+    readonly analyticsStorage: AnalyticsStorage;
+    events: events.EventEmitter;
     private logger!: Logger;
     private isShutdown!: boolean;
     slice!: Slice;

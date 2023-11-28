@@ -57,7 +57,7 @@ const assetServiceMessages = {
 };
 
 // messaging destination relative towards each process type
-const routing = {
+export const routing = Object.freeze({
     cluster_master: {
         node_master: 'network',
     },
@@ -68,7 +68,7 @@ const routing = {
     assets_service: {
         cluster_master: 'ipc'
     }
-};
+});
 
 type HookFN = () => void | null;
 
@@ -89,7 +89,10 @@ export class Messaging {
     functionMapping: Record<string, any>;
     io!: Record<string, any>;
 
-    constructor(context: Context, logger: Logger) {
+    constructor(context: Context, logger: Logger, __io?: any) {
+        if (__io) {
+            this.io = __io;
+        }
         this.context = context;
         this.functionMapping = {};
         // processContext is set in _makeConfigurations
@@ -562,23 +565,6 @@ export class Messaging {
             this._sendToProcesses(ipcMessage);
         }
     }
-
-    // __test_context(_io) {
-    //     if (_io) io = _io;
-
-    //     return {
-    //         _sendToProcesses,
-    //         _registerFns,
-    //         _determinePathForMessage,
-    //         _forwardMessage,
-    //         _makeConfigurations,
-    //         _makeHostName,
-    //         _getMessages,
-    //         _handleResponse,
-    //         _getRegistry: () => functionMapping,
-    //         routing
-    //     };
-    // }
 
     async shutdown() {
         if (this.io && _.isFunction(this.io.close)) {

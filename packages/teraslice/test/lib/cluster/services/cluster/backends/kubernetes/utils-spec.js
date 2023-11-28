@@ -3,8 +3,8 @@
 const {
     makeTemplate,
     getMaxOldSpace
-} = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
-const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
+} = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/utils');
+const { safeEncode } = require('../../../../../../../dist/src/lib/utils/encoding_utils');
 
 describe('K8s Utils', () => {
     describe('->makeTemplate', () => {

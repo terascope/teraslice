@@ -8,7 +8,7 @@ const fs = require('fs');
 const nock = require('nock');
 const path = require('path');
 const { debugLogger } = require('@terascope/job-components');
-const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
+const K8s = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/k8s');
 
 const logger = debugLogger('k8s-spec');
 

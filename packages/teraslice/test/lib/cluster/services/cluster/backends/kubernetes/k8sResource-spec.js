@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const yaml = require('js-yaml');
 
-const K8sResource = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sResource');
+const K8sResource = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/k8sResource');
 
 describe('k8sResource', () => {
     let execution;

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const _podsJobRunning = require('./files/job-running-v1-k8s-pods-multicluster.json');
-const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
+const k8sState = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
 describe('k8sState with pods from multiple clusters', () => {
     it('should generate cluster state correctly on first call', () => {
