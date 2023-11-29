@@ -136,17 +136,36 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 });
             }
 
-            if (p.isWildcard(node)) {
-                const value = p.getFieldValue(node.value, this.variables);
+            if (this.preventPrefixWildcard) {
+                const isWildcardNode = p.isWildcard(node);
+                const isRegexpNode = p.isRegexp(node);
 
-                if (this.preventPrefixWildcard && startsWithWildcard(value)) {
-                    throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
-                        statusCode: 403,
-                        context: {
-                            q,
-                            safe: true
-                        }
-                    });
+                if (isWildcardNode || isRegexpNode) {
+                    const value = p.getFieldValue(node.value, this.variables);
+
+                    if (startsWithWildcard(value, node.type)) {
+                        const errMessage = node.type === p.NodeType.Wildcard
+                            ? "Queries starting with wildcards in the form 'fieldname:*value' or 'fieldname:?value' are restricted"
+                            : "Regular expression queries starting with wildcards in the form 'fieldname:/.*value/' or 'fieldname:/.?value/' are restricted";
+
+                        throw new ts.TSError(errMessage, {
+                            statusCode: 403,
+                            context: {
+                                q,
+                                safe: true
+                            }
+                        });
+                    }
+
+                    if (isRegexpNode && hasNonGuaranteedMatch(value)) {
+                        throw new ts.TSError("Regular expression queries with non-guaranteed matches in the form 'fieldname:/v*/' or 'fieldname:/v{0,1}/' are restricted", {
+                            statusCode: 403,
+                            context: {
+                                q,
+                                safe: true
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -381,9 +400,45 @@ function matchTypeField(typeField: string, restrictField: string) {
     return false;
 }
 
-function startsWithWildcard(input?: string | number) {
+/**
+ * Regular expression ES standard operators to avoid starting a query with...
+ * left off closing braces but included all others even though some aren't likely
+ * to be used as the first character in a query (i.e. | and { )
+ */
+const standardOperators = ['.', '?', '+', '*', '(', '[', '|', '{'];
+/**
+ * Regular expression ES optional operators - included all even though we don't allow all
+ */
+const optionalOperators = ['~', '#', '<', '&', '@'];
+/**
+ * Standard and optional regex characters to avoid starting a query with since starting
+ * a query with wildcards makes a query heavy as all terms in the index need to be searched
+ */
+const regexWildcard = standardOperators.concat(optionalOperators);
+
+function startsWithWildcard(input?: string | number, nodeType = p.NodeType.Wildcard) {
     if (!input) return false;
     if (!ts.isString(input)) return false;
 
+    if (nodeType === p.NodeType.Regexp) {
+        return regexWildcard.includes(ts.getFirstChar(input));
+    }
+
     return ['*', '?'].includes(ts.getFirstChar(input));
+}
+
+/**
+ * Whether full index will be searched...
+ * ab* and a+ require a match on a, but a*, a?, a{0,1}
+ * do not so could search the whole index
+ */
+function hasNonGuaranteedMatch(input?: string | number) {
+    if (!input) return false;
+    if (!ts.isString(input)) return false;
+
+    // get the second characters
+    const trimmed = input.trim().charAt(1);
+    if (['*', '?', '{'].includes(trimmed[0])) return true;
+
+    return false;
 }

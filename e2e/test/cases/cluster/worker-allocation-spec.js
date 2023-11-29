@@ -1,10 +1,15 @@
 'use strict';
 
 const TerasliceHarness = require('../../teraslice-harness');
+const { TEST_PLATFORM } = require('../../config');
 
 async function workersTest(harness, workers, workersExpected, records) {
     const jobSpec = harness.newJob('reindex');
     const specIndex = harness.newSpecIndex('worker-allocation');
+    // Set resource constraints on workers within CI
+    if (TEST_PLATFORM === 'kubernetes') {
+        jobSpec.resources_requests_cpu = 0.1;
+    }
     jobSpec.name = 'worker allocation';
     jobSpec.operations[0].index = harness.getExampleIndex(records);
     jobSpec.operations[0].size = 100;

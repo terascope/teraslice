@@ -21,11 +21,14 @@ describe('Test Runner Helpers', () => {
         elasticsearchAPIVersion: '',
         elasticsearchVersion: '',
         kafkaVersion: '',
+        kafkaImageVersion: '',
+        zookeeperVersion: '',
         minioVersion: '',
         rabbitmqVersion: '',
         opensearchVersion: '',
         nodeVersion: '',
-        ignoreMount: true
+        ignoreMount: true,
+        testPlatform: 'native'
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

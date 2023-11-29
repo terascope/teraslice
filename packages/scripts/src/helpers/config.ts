@@ -3,12 +3,12 @@ import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
 import { Service } from './interfaces';
+import { kafkaVersionMapper } from './mapper';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
     ? '1'
     : '0';
-
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
@@ -25,7 +25,7 @@ export const ELASTICSEARCH_PORT = process.env.ELASTICSEARCH_PORT || '49200';
 export const ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}`;
 export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || '6.8.6';
 export const ELASTICSEARCH_API_VERSION = process.env.ELASTICSEARCH_API_VERSION || '6.5';
-export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'blacktop/elasticsearch';
+export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'elasticsearch';
 
 export const RESTRAINED_ELASTICSEARCH_PORT = process.env.RESTRAINED_ELASTICSEARCH_PORT || '49202';
 export const RESTRAINED_ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${RESTRAINED_ELASTICSEARCH_PORT}`;
@@ -35,7 +35,21 @@ export const KAFKA_HOSTNAME = process.env.KAFKA_HOSTNAME || HOST_IP;
 export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '3.1';
-export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
+// Use kafkaVersionMapper to determine confluentinc/cp-kafka image version from KAFKA_VERSION
+export const KAFKA_IMAGE_VERSION = kafkaVersionMapper(KAFKA_VERSION);
+export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'confluentinc/cp-kafka';
+// Zookeeper version needs to match KAFKA_IMAGE_VERSION which is determined by kafkaVersionMapper
+export const ZOOKEEPER_VERSION = KAFKA_IMAGE_VERSION;
+export const ZOOKEEPER_CLIENT_PORT = process.env.ZOOKEEPER_CLIENT_PORT || '42181';
+export const ZOOKEEPER_TICK_TIME = process.env.ZOOKEEPER_TICK_TIME || '2000';
+export const ZOOKEEPER_DOCKER_IMAGE = process.env.ZOOKEEPER_DOCKER_IMAGE || 'confluentinc/cp-zookeeper';
+export const KAFKA_BROKER_ID = process.env.KAFKA_BROKER_ID || '1';
+export const KAFKA_ZOOKEEPER_CONNECT = `${KAFKA_HOSTNAME}:${ZOOKEEPER_CLIENT_PORT}`;
+export const KAFKA_LISTENERS = `INTERNAL://:${KAFKA_PORT}`;
+export const KAFKA_ADVERTISED_LISTENERS = `INTERNAL://${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
+export const KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = 'INTERNAL:PLAINTEXT';
+export const KAFKA_INTER_BROKER_LISTENER_NAME = process.env.KAFKA_INTER_BROKER_LISTENER_NAME || 'INTERNAL';
+export const KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = process.env.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR || '1';
 
 export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
 export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
@@ -63,7 +77,7 @@ export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || '1.3.6';
+export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || '1.3.10';
 export const OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 
@@ -82,7 +96,7 @@ export const DEV_TAG = toSafeString((
     || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
-// convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
+    // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/', 1)[0]);
 
 /**
@@ -97,6 +111,8 @@ export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
  * is up-to-date
 */
 export const SKIP_DOCKER_BUILD_IN_E2E = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_E2E ?? false);
+
+export const SKIP_DOCKER_BUILD_IN_K8S = toBoolean(process.env.SKIP_DOCKER_BUILD_IN_K8S ?? false);
 
 export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
 
@@ -133,6 +149,8 @@ export const ENV_SERVICES = [
     testOpensearch ? Service.Opensearch : undefined,
     testElasticsearch ? Service.Elasticsearch : undefined,
     toBoolean(TEST_KAFKA) ? Service.Kafka : undefined,
+    /// couple kafka with zookeeper
+    toBoolean(TEST_KAFKA) ? Service.Zookeeper : undefined,
     toBoolean(TEST_MINIO) ? Service.Minio : undefined,
     testRestrainedOpensearch ? Service.RestrainedOpensearch : undefined,
     testRestrainedElasticsearch ? Service.RestrainedElasticsearch : undefined,
@@ -157,4 +175,6 @@ export const SEARCH_TEST_HOST = testHost;
 // This should match a node version from the base-docker-image repo:
 // https://github.com/terascope/base-docker-image
 // This overrides the value in the Dockerfile
-export const NODE_VERSION = process.env.NODE_VERSION || '18.16.0';
+export const NODE_VERSION = process.env.NODE_VERSION || '18.18.2';
+
+export const { TEST_PLATFORM = 'native' } = process.env;

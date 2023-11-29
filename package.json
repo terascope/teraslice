@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.87.0",
+    "version": "0.87.1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -9,7 +9,8 @@
     },
     "workspaces": [
         "packages/*",
-        "e2e"
+        "e2e",
+        "k8se2e"
     ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
@@ -21,6 +22,9 @@
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
         "docs": "ts-scripts docs",
+        "k8s": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' ts-scripts k8s-env",
+        "k8s:kafka": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' TEST_KAFKA='true' KAFKA_PORT='9092' ts-scripts k8s-env",
+        "k8s:noBuild": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' SKIP_DOCKER_BUILD_IN_K8S='true' ts-scripts k8s-env",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
@@ -67,13 +71,15 @@
         "tests": {
             "suites": {
                 "e2e": [],
+                "k8se2e": [],
                 "elasticsearch": [],
                 "search": [],
                 "restrained": [],
                 "unit": [],
                 "_for_testing_": [
                     "elasticsearch"
-                ]
+                ],
+                "k8s_env": []
             }
         },
         "docker": {

@@ -92,7 +92,7 @@ export class TestTracker {
         if (!force) {
             const keys = [...this.cleanups.keys()];
             if (keys.length && this.options.debug) {
-                signale.info('Cleaning up after tests tests');
+                signale.info('Cleaning up after tests');
             }
             for (const key of keys) {
                 await this.runCleanupByKey(key);

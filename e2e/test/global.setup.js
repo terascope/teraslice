@@ -1,6 +1,10 @@
 'use strict';
 
 const { pDelay } = require('@terascope/utils');
+const {
+    deployK8sTeraslice,
+    setAliasAndBaseAssets
+} = require('@terascope/scripts');
 const fse = require('fs-extra');
 const TerasliceHarness = require('./teraslice-harness');
 const globalTeardown = require('./global.teardown');
@@ -8,11 +12,12 @@ const { dockerUp } = require('./docker-helpers');
 const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
-const { CONFIG_PATH, ASSETS_PATH } = require('./config');
+const {
+    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM
+} = require('./config');
 
 module.exports = async () => {
     const teraslice = new TerasliceHarness();
-
     await teraslice.init();
 
     await globalTeardown(teraslice.client);
@@ -33,10 +38,16 @@ module.exports = async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
-    await Promise.all([setupTerasliceConfig(), downloadAssets()]);
+    if (TEST_PLATFORM === 'kubernetes') {
+        await deployK8sTeraslice();
+        await teraslice.waitForTeraslice();
+        await setAliasAndBaseAssets();
+    } else {
+        await Promise.all([setupTerasliceConfig(), downloadAssets()]);
+        await dockerUp();
+        await teraslice.waitForTeraslice();
+    }
 
-    await dockerUp();
-    await teraslice.waitForTeraslice();
     await pDelay(2000);
     await teraslice.resetState();
 
