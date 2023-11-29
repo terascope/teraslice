@@ -1,15 +1,13 @@
-'use strict';
-
-const _ = require('lodash');
-const _podsJobRunning = require('./files/job-running-v1-k8s-pods-multicluster.json');
-const k8sState = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/k8sState');
+import _ from 'lodash';
+import _podsJobRunning from './files/job-running-v1-k8s-pods-multicluster.json';
+import { gen } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sState';
 
 describe('k8sState with pods from multiple clusters', () => {
     it('should generate cluster state correctly on first call', () => {
         const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
-        k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
+        gen(podsJobRunning, clusterState);
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
         // console.log(JSON.stringify(podsJobRunning, null, 2));
 
@@ -43,8 +41,8 @@ describe('k8sState with pods from multiple clusters', () => {
         const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
-        k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
-        k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
+        gen(podsJobRunning, clusterState);
+        gen(podsJobRunning, clusterState);
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);

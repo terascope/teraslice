@@ -36,11 +36,11 @@ export class ExecutionController {
     private pendingSlices = 0;
     private isDoneProcessing = false;
     private isExecutionFinished = false;
-    private isExecutionDone = false;
+    isExecutionDone = false;
     private workersHaveConnected = false;
     // eslint-disable-next-line no-spaced-func
     private _handlers = new Map<string, (arg: any) => void>();
-    private executionAnalytics: ExecutionAnalytics;
+    executionAnalytics: ExecutionAnalytics;
     readonly scheduler: Scheduler;
     private metrics: Metrics | null;
     readonly workerId: string;

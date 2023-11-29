@@ -1,15 +1,13 @@
-'use strict';
-
-import events from 'events');
-import analyticsCode from '../../../dist/src/lib/workers/execution-controller/slice-analytics');
+import events from 'node:events';
+import { SliceAnalytics } from '../../../src/lib/workers/execution-controller/slice-analytics';
 
 const eventEmitter = new events.EventEmitter();
 
 describe('slice_analytics', () => {
-    const logMessages = [];
+    const logMessages: any[] = [];
     const logger = {
         error() {},
-        info(msg) { logMessages.push(msg); },
+        info(msg: any) { logMessages.push(msg); },
         warn() {},
         trace() {},
         debug() {}
@@ -22,7 +20,7 @@ describe('slice_analytics', () => {
                 getSystemEvents: () => eventEmitter
             }
         }
-    };
+    } as any;
     const executionContext = {
         config: {
             slicers: 2,
@@ -30,9 +28,9 @@ describe('slice_analytics', () => {
         },
         ex_id: '1234',
         job_id: '5678'
-    };
+    } as any;
 
-    const analytics = analyticsCode(context, executionContext);
+    const analytics = new SliceAnalytics(context, executionContext);
 
     it('addStats transfers message stats to the statsContainer', () => {
         const statsObj = analytics.getStats();

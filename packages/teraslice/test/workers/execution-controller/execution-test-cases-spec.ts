@@ -1,12 +1,12 @@
-'use strict';
-
-import { pDelay, times, random } from '@terascope/utils');
-import Messaging from '@terascope/teraslice-messaging');
-import { TestContext } from '../helpers');
-import { getTestCases } from '../helpers/execution-controller-helper');
-import ExecutionController from '../../../dist/src/lib/workers/execution-controller');
-import { findPort } from '../../../dist/src/lib/utils/port_utils');
-import { newId } from '../../../dist/src/lib/utils/id_utils');
+import { pDelay, times, random } from '@terascope/utils';
+import Messaging from '@terascope/teraslice-messaging';
+import { ExecutionRecord } from '@terascope/types';
+import { TestContext } from '../helpers';
+import { getTestCases } from '../helpers/execution-controller-helper';
+import { findPort } from '../../../src/lib/utils/port_utils';
+import { newId } from '../../../src/lib/utils/id_utils';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller';
+import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 
@@ -146,12 +146,12 @@ describe('ExecutionController Test Cases', () => {
             workerIds = []
         } = options;
 
-        let exController;
-        let testContext;
-        let slices;
-        let exStore;
-        let stateStore;
-        let exStatus;
+        let exController: ExecutionController;
+        let testContext: TestContext;
+        let slices: any;
+        let exStore: ExecutionStorage;
+        let stateStore: StateStorage;
+        let executionRecord: ExecutionRecord;
 
         beforeAll(async () => {
             await TestContext.cleanupAll(true);
@@ -184,7 +184,7 @@ describe('ExecutionController Test Cases', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
 
             const {
@@ -211,7 +211,7 @@ describe('ExecutionController Test Cases', () => {
 
             let firedReconnect = false;
 
-            const workerClients = [];
+            const workerClients: any[] = [];
 
             clusterMaster.onExecutionFinished(() => {
                 workerClients.forEach((workerClient) => {
@@ -219,8 +219,8 @@ describe('ExecutionController Test Cases', () => {
                 });
             });
 
-            async function startWorker(n) {
-                const workerId = workerIds[n] || newId('worker');
+            async function startWorker(n?: number) {
+                const workerId = n ? workerIds[n] : newId('worker');
                 const workerClient = new ExecutionControllerClient({
                     executionControllerUrl: `http://localhost:${port}`,
                     workerId,
@@ -259,7 +259,7 @@ describe('ExecutionController Test Cases', () => {
 
                     slices.push(slice);
 
-                    const msg = { slice };
+                    const msg = { slice } as any;
 
                     if (analytics) {
                         msg.analytics = {
@@ -330,7 +330,7 @@ describe('ExecutionController Test Cases', () => {
 
             clearTimeout(requestAnayltics);
 
-            exStatus = await exStore.get(exId);
+            executionRecord = await exStore.get(exId);
         });
 
         afterAll(() => testContext.cleanup());
@@ -360,65 +360,65 @@ describe('ExecutionController Test Cases', () => {
         it('should have the correct execution status', () => {
             const { exId } = testContext.executionContext;
 
-            expect(exStatus).toBeObject();
-            expect(exStatus).toHaveProperty('_slicer_stats.processed');
-            expect(exStatus).toHaveProperty('_slicer_stats.queued');
-            expect(exStatus).toHaveProperty('_slicer_stats.slicers');
+            expect(executionRecord).toBeObject();
+            expect(executionRecord).toHaveProperty('_slicer_stats.processed');
+            expect(executionRecord).toHaveProperty('_slicer_stats.queued');
+            expect(executionRecord).toHaveProperty('_slicer_stats.slicers');
 
             if (sliceFails || slicerFails) {
                 if (sliceFails) {
-                    expect(exStatus).toHaveProperty(
+                    expect(executionRecord).toHaveProperty(
                         '_failureReason',
                         `execution: ${exId} had 1 slice failure during processing`
                     );
-                    expect(exStatus._slicer_stats.failed).toEqual(count);
+                    expect(executionRecord._slicer_stats.failed).toEqual(count);
 
-                    expect(exStatus).toMatchObject({
+                    expect(executionRecord).toMatchObject({
                         _has_errors: true,
                         _status: 'failed'
                     });
                 }
 
                 if (slicerFails) {
-                    expect(exStatus._failureReason).toStartWith(
+                    expect(executionRecord._failureReason).toStartWith(
                         `TSError: slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`
                     );
-                    expect(exStatus._slicer_stats.failed).toEqual(0);
+                    expect(executionRecord._slicer_stats.failed).toEqual(0);
 
-                    expect(exStatus).toMatchObject({
+                    expect(executionRecord).toMatchObject({
                         _has_errors: true,
                         _status: 'failed'
                     });
                 }
             } else {
-                expect(exStatus).toMatchObject({
+                expect(executionRecord).toMatchObject({
                     _has_errors: false,
                     _status: 'completed'
                 });
 
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                    expect(exStatus._slicer_stats.processed).toEqual(count);
+                    expect(executionRecord._slicer_stats.processed).toEqual(count);
                 }
             }
 
-            expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
+            expect(executionRecord._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
 
             if (reconnect && slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);
+                expect(executionRecord._slicer_stats.workers_reconnected).toBeGreaterThan(0);
             }
 
             if (emitSlicerRangeExpansion) {
-                expect(exStatus._slicer_stats).toHaveProperty('slice_range_expansion', 1);
+                expect(executionRecord._slicer_stats).toHaveProperty('slice_range_expansion', 1);
             }
 
             if (emitSlicerRecursion) {
-                expect(exStatus._slicer_stats).toHaveProperty('subslices', 1);
+                expect(executionRecord._slicer_stats).toHaveProperty('subslices', 1);
             }
         });
 
         it('should update the execution metadata (from the context apis)', () => {
             const metadata = updateMetadata ? { slice_calls: count + 1 } : {};
-            expect(exStatus).toHaveProperty('metadata', metadata);
+            expect(executionRecord).toHaveProperty('metadata', metadata);
         });
     });
 });

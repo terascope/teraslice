@@ -1,15 +1,14 @@
-'use strict';
-
-import { pDelay } from '@terascope/utils');
-import { TestContext, cleanupAll } from '../helpers');
-import { findPort } from '../../../dist/src/lib/utils/port_utils');
-import ExecutionController from '../../../dist/src/lib/workers/execution-controller');
+import { pDelay, get, set } from '@terascope/utils';
+import { TestContext } from '../helpers';
+import { ExecutionStorage } from '../../../src/lib/storage';
+import { findPort } from '../../../src/lib/utils/port_utils';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller';
 
 describe('ExecutionController', () => {
     describe('when the execution context is invalid', () => {
-        let testContext;
-        let exController;
-        let exStore;
+        let testContext: TestContext;
+        let exController: ExecutionController;
+        let executionStorage!: ExecutionStorage;
 
         beforeEach(async () => {
             await TestContext.cleanupAll(true);
@@ -27,14 +26,14 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
 
-            exController.isExecutionFinished = true;
+            set(exController, 'isExecutionFinished', true);
 
             await testContext.addExStore();
 
-            ({ exStore } = testContext.stores);
+            executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
             testContext.attachCleanup(() => exController.shutdown().catch(() => {
                 /* ignore-error */
@@ -45,7 +44,7 @@ describe('ExecutionController', () => {
 
         describe('when the execution does not exist', () => {
             beforeEach(async () => {
-                await exStore.remove(testContext.exId);
+                await executionStorage.remove(testContext.exId);
             });
 
             it('should throw an error on initialize', async () => {
@@ -62,35 +61,35 @@ describe('ExecutionController', () => {
 
         describe('when the execution is set to running', () => {
             beforeEach(async () => {
-                await exStore.setStatus(testContext.exId, 'running');
+                await executionStorage.setStatus(testContext.exId, 'running');
             });
 
             it('should throw an error on initialize', async () => {
                 expect.hasAssertions();
                 await exController.initialize();
-                expect(exController.isInitialized).toBeFalse();
-                expect(exController.isShutdown).toBeTrue();
+                expect(get(exController, 'isInitialized')).toBeFalse();
+                expect(get(exController, 'isShutdown')).toBeTrue();
             });
         });
 
         describe('when the execution is in a terminal state', () => {
             beforeEach(async () => {
-                await exStore.setStatus(testContext.exId, 'completed');
+                await executionStorage.setStatus(testContext.exId, 'completed');
             });
 
             it('should throw an error on initialize', async () => {
                 expect.hasAssertions();
                 await exController.initialize();
-                expect(exController.isInitialized).toBeFalse();
-                expect(exController.isShutdown).toBeTrue();
+                expect(get(exController, 'isInitialized')).toBeFalse();
+                expect(get(exController, 'isShutdown')).toBeTrue();
             });
         });
     });
 
     describe('when the slice failure watch dog is started', () => {
-        let testContext;
-        let exStore;
-        let exController;
+        let testContext: TestContext;
+        let executionStorage: ExecutionStorage;
+        let exController: ExecutionController;
         const probationWindow = 500;
 
         beforeEach(async () => {
@@ -108,13 +107,13 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
 
             await exController.initialize();
 
             await testContext.addExStore();
-            ({ exStore } = testContext.stores);
+            executionStorage = testContext.stores.executionStorage as ExecutionStorage;
 
             testContext.attachCleanup(() => exController.shutdown().catch(() => {
                 /* ignore-error */
@@ -126,19 +125,21 @@ describe('ExecutionController', () => {
         it('should handle the probation period correctly', async () => {
             exController.executionAnalytics.increment('processed');
             exController.executionAnalytics.increment('failed');
-
+            // @ts-expect-error
             expect(exController.sliceFailureInterval).toBeNil();
+            // @ts-expect-error
             await exController._startSliceFailureWatchDog();
-
+            // @ts-expect-error
             expect(exController.sliceFailureInterval).not.toBeNil();
-
+            // @ts-expect-error
             // should be able to call slice watch again without resetting the interval
             const { sliceFailureInterval } = exController;
-
+            // @ts-expect-error
             await exController._startSliceFailureWatchDog();
+            // @ts-expect-error
             expect(exController.sliceFailureInterval).toBe(sliceFailureInterval);
 
-            await expect(exStore.getStatus(testContext.exId)).resolves.toEqual('failing');
+            await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('failing');
 
             await pDelay(probationWindow + 100);
 
@@ -147,18 +148,19 @@ describe('ExecutionController', () => {
 
             await pDelay(probationWindow + 100);
 
-            await expect(exStore.getStatus(testContext.exId)).resolves.toEqual('running');
-
+            await expect(executionStorage.getStatus(testContext.exId)).resolves.toEqual('running');
+            // @ts-expect-error
             expect(exController.sliceFailureInterval).toBeNil();
-
+            // @ts-expect-error
             await exController._startSliceFailureWatchDog();
+            // @ts-expect-error
             expect(exController.sliceFailureInterval).not.toBeNil();
         });
     });
 
     describe('when testing setFailingStatus', () => {
-        let testContext;
-        let exController;
+        let testContext: TestContext;
+        let exController: ExecutionController;
 
         beforeEach(async () => {
             await TestContext.waitForCleanup();
@@ -171,7 +173,7 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
         });
 
@@ -183,13 +185,12 @@ describe('ExecutionController', () => {
                 const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
                 const errMeta = { error: 'metadata' };
                 const executionMetaData = jest.fn().mockReturnValue(errMeta);
-
-                exController.stores = {
-                    exStore: {
-                        setStatus,
-                        executionMetaData
-                    }
+                // @ts-expect-error
+                exController.executionStorage = {
+                    setStatus,
+                    executionMetaData
                 };
+
                 exController.logger.error = logErr;
 
                 const stats = exController.executionAnalytics.getAnalytics();
@@ -206,8 +207,8 @@ describe('ExecutionController', () => {
     });
 
     describe('when testing _terminalError', () => {
-        let testContext;
-        let exController;
+        let testContext: TestContext;
+        let exController: ExecutionController;
 
         beforeEach(async () => {
             await TestContext.waitForCleanup();
@@ -220,7 +221,7 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
         });
 
@@ -233,18 +234,19 @@ describe('ExecutionController', () => {
                 const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
                 const errMeta = { error: 'metadata' };
                 const executionMetaData = jest.fn().mockReturnValue(errMeta);
-
-                exController.stores = {
-                    exStore: {
-                        setStatus,
-                        executionMetaData
-                    }
+                // @ts-expect-error
+                exController.executionStorage = {
+                    setStatus,
+                    executionMetaData
                 };
+
                 exController.logger.error = logErr;
                 exController.logger.fatal = logFatal;
 
                 const stats = exController.executionAnalytics.getAnalytics();
+                // @ts-expect-error
                 await exController._terminalError('Uh oh');
+                // @ts-expect-error
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
@@ -267,9 +269,9 @@ describe('ExecutionController', () => {
 
                 const logErr = jest.fn();
                 exController.logger.error = logErr;
-
+                // @ts-expect-error
                 await exController._terminalError();
-
+                // @ts-expect-error
                 expect(exController.slicerFailed).toBeFalsy();
                 expect(logErr).not.toHaveBeenCalled();
             });
@@ -277,8 +279,8 @@ describe('ExecutionController', () => {
     });
 
     describe('when testing shutdown', () => {
-        let testContext;
-        let exController;
+        let testContext: TestContext;
+        let exController: ExecutionController;
 
         beforeEach(async () => {
             await TestContext.waitForCleanup();
@@ -292,7 +294,7 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
 
             testContext.attachCleanup(() => exController.shutdown().catch(() => {
@@ -308,11 +310,13 @@ describe('ExecutionController', () => {
 
         describe('when initialized', () => {
             beforeEach(() => {
+                // @ts-expect-error
                 exController.isInitialized = true;
             });
 
             describe('when controller is already being shutdown', () => {
                 beforeEach(() => {
+                    // @ts-expect-error
                     exController.isShuttingDown = true;
                 });
 
@@ -333,27 +337,30 @@ describe('ExecutionController', () => {
 
             describe('when everything errors', () => {
                 beforeEach(() => {
+                    // @ts-expect-error
                     exController.isExecutionFinished = true;
-
-                    exController.stores = {};
-                    exController.stores.someStore = {
+                    // @ts-expect-error
+                    exController.executionStorage = {
                         shutdown: () => Promise.reject(new Error('Store Error'))
                     };
-
+                    // @ts-expect-error
                     exController.executionAnalytics = {};
                     exController.executionAnalytics.shutdown = () => Promise.reject(new Error('Execution Analytics Error'));
-
+                    // @ts-expect-error
                     exController.collectAnalytics = true;
+                    // @ts-expect-error
                     exController.slicerAnalytics = {};
+                    // @ts-expect-error
                     exController.slicerAnalytics.shutdown = () => Promise.reject(new Error('Slicer Analytics Error'));
-
+                    // @ts-expect-error
                     exController.scheduler = {};
+                    // @ts-expect-error
                     exController.scheduler.stop = () => {};
                     exController.scheduler.shutdown = () => Promise.reject(new Error('Scheduler Error'));
-
+                    // @ts-expect-error
                     exController.server = {};
                     exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
-
+                    // @ts-expect-error
                     exController.client = {};
                     exController.client.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
                 });

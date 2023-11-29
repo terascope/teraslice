@@ -23,15 +23,15 @@ export class Scheduler {
     recovering: boolean;
     readonly autorecover: boolean;
     private _creating = 0;
-    private ready = false;
-    private paused = true;
-    private stopped = false;
+    ready = false;
+    paused = true;
+    stopped = false;
     slicersDone = false;
     private slicersFailed = false;
     private queue = new Queue<Slice>();
     private recover: RecoveryModule;
-    private stateStore!: StateStorage;
-    private exStore!: ExecutionStorage;
+    private stateStorage!: StateStorage;
+    private executionStorage!: ExecutionStorage;
     private _resolveRun = noop;
     private _processCleanup = noop;
     private startingPoints: SlicerRecoveryData[] = [];
@@ -63,9 +63,9 @@ export class Scheduler {
      * initialized until the execution if finished and the cleanup
      * type is set.
     */
-    async initialize(stateStore: StateStorage, exStore: ExecutionStorage) {
-        this.stateStore = stateStore;
-        this.exStore = exStore;
+    async initialize(stateStorage: StateStorage, executionStorage: ExecutionStorage) {
+        this.stateStorage = stateStorage;
+        this.executionStorage = executionStorage;
 
         if (this.recoverExecution) {
             await this._initializeRecovery();
@@ -80,7 +80,7 @@ export class Scheduler {
     */
     async run() {
         if (this.recoverExecution) {
-            await this.exStore.setStatus(this.exId, 'recovering');
+            await this.executionStorage.setStatus(this.exId, 'recovering');
 
             this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
             this.ready = true;
@@ -96,7 +96,7 @@ export class Scheduler {
             await this._initializeExecution();
         }
 
-        await this.exStore.setStatus(this.exId, 'running');
+        await this.executionStorage.setStatus(this.exId, 'running');
         this.ready = true;
 
         const promise = new Promise((resolve) => {
@@ -413,7 +413,7 @@ export class Scheduler {
         this._creating += slices.length;
 
         try {
-            const count = await this.stateStore.createSlices(this.exId, slices);
+            const count = await this.stateStorage.createSlices(this.exId, slices);
             this.enqueueSlices(slices);
             this._creating -= count;
         } catch (err) {
@@ -427,9 +427,9 @@ export class Scheduler {
     }
 
     async _initializeRecovery() {
-        await this.recover.initialize(this.stateStore);
+        await this.recover.initialize(this.stateStorage);
 
-        const { slicers: prevSlicers } = await this.exStore.get(
+        const { slicers: prevSlicers } = await this.executionStorage.get(
             this.recoverFromExId as string
         );
 
@@ -468,8 +468,10 @@ export class Scheduler {
             return;
         }
 
-        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId as string);
-        this.startingPoints = await this.stateStore.getStartingPoints(
+        const { slicers: prevSlicers } = await this.executionStorage.get(
+            this.recoverFromExId as string
+        );
+        this.startingPoints = await this.stateStorage.getStartingPoints(
             this.recoverFromExId as string,
             prevSlicers,
         );

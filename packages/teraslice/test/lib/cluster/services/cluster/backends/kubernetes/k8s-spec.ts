@@ -1,14 +1,12 @@
-'use strict';
-
 // You can set the following environment variable to generate more verbose debug
 // output for nock
 //   env DEBUG='nock*' make test
 
-const fs = require('fs');
-const nock = require('nock');
-const path = require('path');
-const { debugLogger } = require('@terascope/job-components');
-const K8s = require('../../../../../../../dist/src/lib/cluster/services/cluster/backends/kubernetes/k8s');
+import fs from 'node:fs';
+import nock from 'nock';
+import path from 'node:path';
+import { debugLogger } from '@terascope/job-components';
+import { K8s } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8s';
 
 const logger = debugLogger('k8s-spec');
 
@@ -18,7 +16,7 @@ const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';
 
 describe('k8s', () => {
-    let k8s;
+    let k8s: K8s;
 
     beforeEach(async () => {
         nock(_url)
@@ -49,7 +47,7 @@ describe('k8s', () => {
             },
             insecureSkipTlsVerify: true,
         };
-        k8s = new K8s(logger, clientConfig);
+        k8s = new K8s(logger, clientConfig, null, 1, 1);
         await k8s.init();
     });
 
@@ -198,7 +196,7 @@ describe('k8s', () => {
     });
 
     describe('->scaleExecution', () => {
-        let scope;
+        let scope: nock.Scope;
 
         beforeEach(() => {
             scope = nock(_url)

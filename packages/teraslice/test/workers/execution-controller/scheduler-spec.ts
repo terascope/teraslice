@@ -1,20 +1,20 @@
-'use strict';
-
-import _ from 'lodash');
-import { v4: uuidv4 } from 'uuid');
-import { pDelay } from '@terascope/utils');
-import TestContext from '../helpers/test-context');
-import Scheduler from '../../../dist/src/lib/workers/execution-controller/scheduler');
+import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { pDelay } from '@terascope/utils';
+import { TestContext } from '../helpers/test-context';
+import { Scheduler } from '../../../src/lib/workers/execution-controller/scheduler';
 
 describe('Scheduler', () => {
     const slicers = 3;
     const countPerSlicer = 200;
-    let expectedCount;
-    let testContext;
-    let scheduler;
+    let expectedCount: number;
+    let testContext: TestContext;
+    let scheduler: Scheduler;
+    let stateStorage: any;
+    let executionStorage: any;
 
-    function getSlices() {
-        const slices = [];
+    function getSlices(): Promise<any[]> {
+        const slices: any[] = [];
 
         return new Promise((resolve) => {
             const intervalId = setInterval(() => {
@@ -46,16 +46,16 @@ describe('Scheduler', () => {
 
         await testContext.initialize();
 
-        scheduler = new Scheduler(testContext.context, testContext.executionContext);
+        scheduler = new Scheduler(testContext.context, testContext.executionContext as any);
 
-        scheduler.stateStore = {
-            async getStartingPoints(exId, numSlicers) {
+        stateStorage = {
+            async getStartingPoints(exId: string, numSlicers: any) {
                 if (numSlicers !== slicers) {
                     throw new Error(`Got invalid slicer ids, ${numSlicers.join(' ')}`);
                 }
             },
             createState: () => pDelay(0),
-            createSlices: async (exId, slices) => {
+            createSlices: async (exId: string, slices: any[]) => {
                 if (!exId || typeof exId !== 'string' || exId !== testContext.exId) {
                     throw new Error(`Got invalid ex_id ${exId}`);
                 }
@@ -64,7 +64,7 @@ describe('Scheduler', () => {
             }
         };
 
-        scheduler.exStore = {
+        executionStorage = {
             async get() {
                 return { slicers };
             },
@@ -77,7 +77,7 @@ describe('Scheduler', () => {
     afterEach(() => testContext.cleanup());
 
     describe('when testing a normal execution', () => {
-        beforeEach(() => scheduler.initialize());
+        beforeEach(() => scheduler.initialize(stateStorage, executionStorage));
 
         it('should be constructed wih the correct values', async () => {
             expect(scheduler.slicersDone).toBeFalse();
@@ -96,14 +96,14 @@ describe('Scheduler', () => {
                 {
                     slice_id: 2
                 }
-            ]);
+            ] as any[]);
 
-            scheduler.enqueueSlice({ slice_id: 1 });
+            scheduler.enqueueSlice({ slice_id: 1 } as any);
 
             scheduler.enqueueSlice(
                 {
                     slice_id: 3
-                },
+                } as any,
                 true
             );
 
@@ -122,7 +122,7 @@ describe('Scheduler', () => {
         });
 
         it(`should be able to schedule ${expectedCount} slices`, async () => {
-            let slices = [];
+            let slices: any[] = [];
 
             await Promise.all([
                 scheduler.run(),
@@ -139,7 +139,7 @@ describe('Scheduler', () => {
         });
 
         it('should handle pause and resume correctly', async () => {
-            let slices = [];
+            let slices: any[] = [];
 
             const pause = _.once(() => {
                 scheduler.pause();
@@ -184,17 +184,18 @@ describe('Scheduler', () => {
     });
 
     describe('when testing recovery', () => {
-        let recoveryRecords;
-        let emitDone;
+        let recoveryRecords: any[];
+        let emitDone: any;
         let exitAfterComplete = false;
 
         beforeEach(() => {
             emitDone = _.once(() => {
                 scheduler.events.emit('execution:recovery:complete', []);
             });
-
+            // @ts-expect-error
             scheduler.recoverExecution = true;
             scheduler.recovering = true;
+            // @ts-expect-error
             scheduler.recover = {
                 initialize() {
                     return Promise.resolve();
@@ -202,6 +203,7 @@ describe('Scheduler', () => {
                 shutdown() {
                     return Promise.resolve();
                 },
+                // @ts-expect-error
                 handle() {
                     return recoveryRecords.length === 0;
                 },
@@ -227,7 +229,7 @@ describe('Scheduler', () => {
                 }
             };
 
-            return scheduler.initialize();
+            return scheduler.initialize(stateStorage, executionStorage);
         });
 
         it('should handle recovery correctly and exit', async () => {
@@ -241,7 +243,7 @@ describe('Scheduler', () => {
                 _created: new Date().toISOString()
             }));
 
-            let slices = [];
+            let slices: any[] = [];
 
             expectedCount += recoveryRecords.length;
 
@@ -273,7 +275,7 @@ describe('Scheduler', () => {
                 _created: new Date().toISOString()
             }));
 
-            let slices = [];
+            let slices: any[] = [];
 
             expectedCount = recoveryRecords.length;
 

@@ -1,14 +1,22 @@
 import _ from 'lodash';
 import { pDelay, pDefer } from '@terascope/utils';
 
-interface MakeShutdownEarlyFnArgs {
+export interface MakeShutdownEarlyFnArgs {
     enabled?: boolean;
     exController: {
         shutdown: () => Promise<void>
     }
 }
 
-export function makeShutdownEarlyFn({ exController, enabled = false }: MakeShutdownEarlyFnArgs) {
+export interface ShutdownFn {
+    error: () => Error | { message: string }
+    wait: () => Promise<void>
+    shutdown: () => Promise<void>
+}
+
+export function makeShutdownEarlyFn(
+    { exController, enabled = false }: MakeShutdownEarlyFnArgs
+): ShutdownFn {
     let shutdownErr = {
         message: 'Shutdown never triggered'
     };

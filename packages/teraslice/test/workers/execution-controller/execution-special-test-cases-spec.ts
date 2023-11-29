@@ -1,14 +1,14 @@
-'use strict';
-
-import { v4: uuidv4 } from 'uuid');
-import { pDelay, times, random } from '@terascope/utils');
-import { RecoveryCleanupType } from '@terascope/job-components');
-import Messaging from '@terascope/teraslice-messaging');
-import { TestContext } from '../helpers');
-import { makeShutdownEarlyFn, getTestCases } from '../helpers/execution-controller-helper');
-import ExecutionController from '../../../dist/src/lib/workers/execution-controller');
-import { findPort } from '../../../dist/src/lib/utils/port_utils');
-import { newId } from '../../../dist/src/lib/utils/id_utils');
+import { v4 as uuidv4 } from 'uuid';
+import { pDelay, times, random } from '@terascope/utils';
+import { RecoveryCleanupType } from '@terascope/job-components';
+import Messaging from '@terascope/teraslice-messaging';
+import { ExecutionRecord } from '@terascope/types';
+import { TestContext } from '../helpers';
+import { makeShutdownEarlyFn, getTestCases, ShutdownFn } from '../helpers/execution-controller-helper';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller';
+import { findPort } from '../../../src/lib/utils/port_utils';
+import { newId } from '../../../src/lib/utils/id_utils';
+import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
@@ -341,13 +341,13 @@ describe('ExecutionController Special Tests', () => {
             recoverySlices = []
         } = options;
 
-        let exController;
-        let testContext;
-        let slices;
-        let exStore;
-        let stateStore;
-        let shutdownEarlyFn;
-        let exStatus;
+        let exController: ExecutionController;
+        let testContext: TestContext;
+        let slices: any;
+        let exStore: ExecutionStorage;
+        let stateStore: StateStorage;
+        let shutdownEarlyFn: ShutdownFn;
+        let executionRecord: ExecutionRecord;
 
         beforeAll(async () => {
             await TestContext.cleanupAll(true);
@@ -385,12 +385,13 @@ describe('ExecutionController Special Tests', () => {
             exStore = await testContext.addExStore();
 
             if (shutdownEarly) {
+                // @ts-expect-error TODO fix this
                 testContext.executionContext.slicer().maxQueueLength = () => 1;
             }
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext
+                testContext.executionContext as any
             );
 
             const {
@@ -420,9 +421,9 @@ describe('ExecutionController Special Tests', () => {
             shutdownEarlyFn = makeShutdownEarlyFn({
                 enabled: shutdownEarly,
                 exController
-            });
+            }) as any;
 
-            const workerClients = [];
+            const workerClients: any[] = [];
 
             clusterMaster.onExecutionFinished(() => {
                 workerClients.forEach((workerClient) => {
@@ -470,7 +471,7 @@ describe('ExecutionController Special Tests', () => {
 
                     slices.push(slice);
 
-                    const msg = { slice };
+                    const msg = { slice } as Record<string, any>;
 
                     if (analytics) {
                         msg.analytics = {
@@ -487,8 +488,7 @@ describe('ExecutionController Special Tests', () => {
 
                     async function completeSlice() {
                         await pDelay(0);
-                        await workerClient.sendSliceComplete(msg);
-
+                        await workerClient.sendSliceComplete(msg as any);
                         await shutdownEarlyFn.shutdown();
                     }
 
@@ -518,7 +518,7 @@ describe('ExecutionController Special Tests', () => {
 
             clearTimeout(requestAnayltics);
 
-            exStatus = await exStore.get(exId);
+            executionRecord = await exStore.get(exId);
         });
 
         afterAll(() => testContext.cleanup());
@@ -567,37 +567,37 @@ describe('ExecutionController Special Tests', () => {
 
         it('should have the correct execution status', () => {
             const { exId } = testContext.executionContext;
-            expect(exStatus).toBeObject();
-            expect(exStatus).toHaveProperty('_slicer_stats.processed');
-            expect(exStatus).toHaveProperty('_slicer_stats.queued');
-            expect(exStatus).toHaveProperty('_slicer_stats.slicers');
+            expect(executionRecord).toBeObject();
+            expect(executionRecord).toHaveProperty('_slicer_stats.processed');
+            expect(executionRecord).toHaveProperty('_slicer_stats.queued');
+            expect(executionRecord).toHaveProperty('_slicer_stats.slicers');
 
             if (shutdownEarly) {
-                expect(exStatus).toHaveProperty(
+                expect(executionRecord).toHaveProperty(
                     '_failureReason',
                     `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`
                 );
-                expect(exStatus._slicer_stats.failed).toEqual(0);
+                expect(executionRecord._slicer_stats.failed).toEqual(0);
 
-                expect(exStatus).toMatchObject({
+                expect(executionRecord).toMatchObject({
                     _has_errors: true,
                     _status: 'terminated'
                 });
             } else {
-                expect(exStatus).toMatchObject({
+                expect(executionRecord).toMatchObject({
                     _has_errors: false,
                     _status: 'completed'
                 });
 
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                    expect(exStatus._slicer_stats.processed).toEqual(processedSliceCount);
+                    expect(executionRecord._slicer_stats.processed).toEqual(processedSliceCount);
                 }
             }
 
-            expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
+            expect(executionRecord._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
 
             if (reconnect && slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);
+                expect(executionRecord._slicer_stats.workers_reconnected).toBeGreaterThan(0);
             }
         });
     });

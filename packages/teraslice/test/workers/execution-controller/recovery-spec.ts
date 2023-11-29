@@ -1,12 +1,10 @@
-'use strict';
+import { pDelay, pWhile } from '@terascope/utils';
+import { debugLogger } from '@terascope/job-components';
+import { EventEmitter } from 'node:events';
+import { RecoveryModule } from '../../../src/lib/workers/execution-controller/recovery';
 
-import eventsModule from 'events');
-import { pDelay, pWhile } from '@terascope/utils');
-import { debugLogger } from '@terascope/job-components');
-import recoveryCode from '../../../dist/src/lib/workers/execution-controller/recovery');
-
-const eventEmitter = new eventsModule.EventEmitter();
-const eventEmitter2 = new eventsModule.EventEmitter();
+const eventEmitter = new EventEmitter();
+const eventEmitter2 = new EventEmitter();
 
 describe('execution recovery', () => {
     const logger = debugLogger('execution-recovery');
@@ -24,7 +22,7 @@ describe('execution recovery', () => {
                 getSystemEvents: () => eventEmitter
             }
         }
-    };
+    } as any;
 
     const stateStore = {
         recoverSlices: () => {
@@ -32,7 +30,8 @@ describe('execution recovery', () => {
             testSlices = [];
             return Promise.resolve(data);
         }
-    };
+    } as any;
+
     const executionContext = {
         config: {
             slicers: 2,
@@ -40,13 +39,9 @@ describe('execution recovery', () => {
         },
         ex_id: '1234',
         job_id: '5678'
-    };
+    } as any;
 
-    let recoveryModule = recoveryCode(context, stateStore, executionContext);
-
-    let recovery = recoveryModule.__test_context();
-
-    function waitFor(fn, time) {
+    function waitFor(fn: () => void, time: number) {
         return new Promise((resolve) => {
             setTimeout(() => {
                 fn();
@@ -55,7 +50,7 @@ describe('execution recovery', () => {
         });
     }
 
-    function sendEvent(event, data, emitter) {
+    function sendEvent(event: string, data: any, emitter?: EventEmitter) {
         const events = emitter || eventEmitter;
         return () => {
             events.emit(event, data);
@@ -63,8 +58,9 @@ describe('execution recovery', () => {
     }
 
     it('has the proper methods', () => {
+        const recoveryModule = new RecoveryModule(context, executionContext);
+
         expect(recoveryModule.initialize).toBeFunction();
-        expect(recoveryModule.__test_context).toBeFunction();
         expect(recoveryModule.handle).toBeFunction();
         expect(recoveryModule.getSlice).toBeFunction();
         expect(recoveryModule.getSlices).toBeFunction();
@@ -73,57 +69,64 @@ describe('execution recovery', () => {
     });
 
     it('manages retry slice state', () => {
-        expect(recovery._retryState()).toEqual({});
-
-        recovery._setId({ slice_id: 1 });
-
-        expect(recovery._retryState()).toEqual({ 1: true });
-        expect(recovery._recoveryBatchCompleted()).toEqual(false);
-
-        recovery._sliceComplete({ slice: { slice_id: 1 } });
-
-        expect(recovery._retryState()).toEqual({ 1: false });
-        expect(recovery._recoveryBatchCompleted()).toEqual(true);
+        const recoveryModule = new RecoveryModule(context, executionContext);
+        // @ts-expect-error
+        expect(recoveryModule._retryState()).toEqual({});
+        // @ts-expect-error
+        recoveryModule._setId({ slice_id: 1 });
+        // @ts-expect-error
+        expect(recoveryModule._retryState()).toEqual({ 1: true });
+        // @ts-expect-error
+        expect(recoveryModule._recoveryBatchCompleted()).toEqual(false);
+        // @ts-expect-error
+        recoveryModule._sliceComplete({ slice: { slice_id: 1 } });
+        // @ts-expect-error
+        expect(recoveryModule._retryState()).toEqual({ 1: false });
+        // @ts-expect-error
+        expect(recoveryModule._recoveryBatchCompleted()).toEqual(true);
     });
 
-    it('initializes and sets up listeners', () => {
-        recoveryModule = recoveryCode(context, stateStore, executionContext);
+    it('initializes and sets up listeners', async () => {
+        const recoveryModule = new RecoveryModule(context, executionContext);
 
-        recovery = recoveryModule.__test_context();
-        recoveryModule.initialize();
-
-        expect(recovery._retryState()).toEqual({});
-        expect(recovery._recoveryBatchCompleted()).toEqual(true);
-
-        recovery._setId({ slice_id: 1 });
-        recovery._setId({ slice_id: 2 });
+        await recoveryModule.initialize(stateStore);
+        // @ts-expect-error
+        expect(recoveryModule._retryState()).toEqual({});
+        // @ts-expect-error
+        expect(recoveryModule._recoveryBatchCompleted()).toEqual(true);
+        // @ts-expect-error
+        recoveryModule._setId({ slice_id: 1 });
+        // @ts-expect-error
+        recoveryModule._setId({ slice_id: 2 });
 
         const sendSucess = sendEvent('slice:success', { slice: { slice_id: 1 } });
         const sendSucess2 = sendEvent('slice:success', { slice: { slice_id: 2 } });
 
         return Promise.all([
-            recovery._waitForRecoveryBatchCompletion(),
+            // @ts-expect-error
+            recoveryModule._waitForRecoveryBatchCompletion(),
             waitFor(sendSucess, 100),
             waitFor(sendSucess2, 250)
         ]).then(() => {
+            // @ts-expect-error
             expect(recovery._retryState()).toEqual({
                 1: false,
                 2: false
             });
+            // @ts-expect-error
             expect(recovery._recoveryBatchCompleted()).toEqual(true);
+            // @ts-expect-error
             return recovery._setId({ slice_id: 2 });
         });
     });
 
-    it('can recover slices', () => {
+    it('can recover slices', async () => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
-        recoveryModule = recoveryCode(context, stateStore, executionContext);
-
-        recovery = recoveryModule.__test_context();
+        const recoveryModule = new RecoveryModule(context, executionContext);
 
         expect(recoveryModule.recoveryComplete()).toEqual(true);
 
-        recoveryModule.initialize();
+        await recoveryModule.initialize(stateStore);
 
         const data1 = { slice_id: 1 };
         const data2 = { slice_id: 2 };

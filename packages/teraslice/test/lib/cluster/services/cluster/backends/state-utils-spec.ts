@@ -1,14 +1,12 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-
-const stateUtils = require('../../../../../../dist/src/lib/cluster/services/cluster/backends/state-utils');
+import fs from 'node:fs';
+import path from 'node:path';
+import * as stateUtils from '../../../../../../src/lib/cluster/services/cluster/backends/state-utils';
+import type { ClusterState } from '../../../../../../src/interfaces';
 
 const clusterStateFile = path.join(__dirname, 'files', 'sample-state.json');
 
 describe('stateUtils', () => {
-    let clusterState;
+    let clusterState: ClusterState;
 
     beforeEach(() => {
         clusterState = JSON.parse(fs.readFileSync(clusterStateFile, 'utf-8'));

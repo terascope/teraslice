@@ -18,7 +18,7 @@ export class K8s {
     constructor(
         logger: Logger,
         clientConfig: Record<string, any> | null,
-        defaultNamespace: string,
+        defaultNamespace: string | null,
         apiPollDelay: number,
         shutdownTimeout: number
     ) {
