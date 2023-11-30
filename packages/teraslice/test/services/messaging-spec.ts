@@ -287,7 +287,7 @@ describe('messaging module', () => {
         const msgId = 'someId';
         const nodeMsg = { __source: 'node_master', __msgId: msgId, message: 'someMessage' };
 
-        let emittedData = null;
+        let emittedData: any = null;
 
         eventEmitter.once(msgId, (data: Record<string, any>) => {
             emittedData = data;
@@ -303,8 +303,6 @@ describe('messaging module', () => {
     it('can getClientCounts', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = new Messaging(testContext, logger, io);
-
-        expect(messaging.getClientCounts()).toEqual(0);
 
         expect(messaging.getClientCounts()).toEqual(2);
         testContext.cleanup();
@@ -470,7 +468,7 @@ describe('messaging module', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = new Messaging(testContext, logger, io);
 
-        const socketSettings = [];
+        const socketSettings: any[] = [];
 
         expect(() => {
             messaging.register({
@@ -504,9 +502,9 @@ describe('messaging module', () => {
         testContext2.cleanup();
     });
 
-    it('sets up listerns', () => {
+    it('sets up listeners', () => {
         const testContext1 = getContext({ env: { assignment: 'node_master' } });
-        const messaging1 = new Messaging(testContext1, logger);
+        const messaging1 = new Messaging(testContext1, logger, io);
         const spy = jest.fn();
 
         messaging1.registerChildOnlineHook(spy);

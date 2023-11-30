@@ -231,7 +231,7 @@ export class Scheduler {
         if (this.queue.size() === 0) return [];
         if (limit < 1) return [];
 
-        const slices = [];
+        const slices: Slice[] = [];
 
         for (let i = 0; i < limit; i += 1) {
             const slice = this.queue.dequeue();
@@ -395,7 +395,7 @@ export class Scheduler {
 
     async _createSlices(allSlices: Slice[]) {
         // filter out anything that doesn't need to be created
-        const slices = [];
+        const slices: Slice[] = [];
 
         for (const slice of allSlices) {
             // In the case of recovery slices have already been

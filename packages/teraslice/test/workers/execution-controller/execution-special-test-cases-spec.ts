@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { pDelay, times, random } from '@terascope/utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
-import Messaging from '@terascope/teraslice-messaging';
+import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionRecord } from '@terascope/types';
 import { TestContext } from '../helpers';
 import { makeShutdownEarlyFn, getTestCases, ShutdownFn } from '../helpers/execution-controller-helper';
@@ -10,7 +10,7 @@ import { findPort } from '../../../src/lib/utils/port_utils';
 import { newId } from '../../../src/lib/utils/id_utils';
 import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
 
-const ExecutionControllerClient = Messaging.ExecutionController.Client;
+const ExecutionControllerClient = ExController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController Special Tests', () => {

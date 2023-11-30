@@ -324,13 +324,11 @@ export class WorkerExecutionContext
 
         if (status === 'completed') {
             this.sliceState.analytics = this.jobObserver.getAnalytics();
-            console.log('completed', this.sliceState.analytics)
             return;
         }
 
         if (status === 'flushed') {
             this.sliceState.analytics = this._mergeAnalytics();
-            console.log('flushed', this.sliceState.analytics)
         }
     }
 

@@ -500,7 +500,7 @@ export class Messaging {
     }
 
     listRooms() {
-        const connected = _.get(io, 'sockets.connected', {});
+        const connected = _.get(this.io, 'sockets.connected', {});
 
         if (_.isEmpty(connected)) return [];
 

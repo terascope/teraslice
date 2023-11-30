@@ -897,7 +897,7 @@ export class ExecutionController {
         this.verifyStoresInterval = setInterval(() => {
             if (this.isShuttingDown || this.isShutdown) return;
 
-            const invalid = [];
+            const invalid: string[] = [];
             try {
                 const valid = this.executionStorage.verifyClient();
                 if (!valid) {

@@ -9,7 +9,7 @@ import { getMajorVersion } from './asset_utils';
 
 const mutex = new Mutex();
 
-const packagePath = path.join(__dirname, '../../../../../../package.json');
+const packagePath = path.join(__dirname, '../../../../../package.json');
 
 export interface PackageJSON {
     name: string;

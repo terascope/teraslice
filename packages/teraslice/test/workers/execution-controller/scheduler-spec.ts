@@ -161,7 +161,7 @@ describe('Scheduler', () => {
         });
 
         it('should handle stop correctly', async () => {
-            let slices = [];
+            let slices: any[] = [];
 
             scheduler.events.once('slicer:done', () => scheduler.stop());
 

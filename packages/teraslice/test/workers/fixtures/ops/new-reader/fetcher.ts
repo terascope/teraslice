@@ -4,7 +4,7 @@ export default class ExampleFetcher extends Fetcher {
     async fetch() {
         const { countPerFetch } = this.opConfig;
 
-        const result = [];
+        const result: any[] = [];
 
         for (let i = 0; i < countPerFetch; i++) {
             result.push({

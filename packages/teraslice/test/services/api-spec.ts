@@ -14,15 +14,15 @@ describe('HTTP API', () => {
     const context = new TestContext('http-api') as any;
 
     context.stores = {
-        state: {},
-        execution: {},
-        jobs: {},
+        stateStorage: {},
+        executionStorage: {},
+        jobsStorage: {},
     } as any;
 
     context.services = {
-        cluster: {},
-        execution: {},
-        jobs: {},
+        clusterService: {},
+        executionService: {},
+        jobsService: {},
     };
 
     let api: ApiService;
