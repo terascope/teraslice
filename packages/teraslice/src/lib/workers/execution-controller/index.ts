@@ -438,20 +438,20 @@ export class ExecutionController {
             })(),
             (async () => {
                 await Promise.all([
-                    () => {
+                    (async () => {
                         try {
-                            this.stateStorage.shutdown(true);
+                            await this.stateStorage.shutdown(true);
                         } catch (err) {
                             pushError(err);
                         }
-                    },
-                    () => {
+                    })(),
+                    (async () => {
                         try {
-                            this.executionStorage.shutdown(true);
+                            await this.executionStorage.shutdown(true);
                         } catch (err) {
                             pushError(err);
                         }
-                    }
+                    })()
                 ]);
             })(),
             (async () => {

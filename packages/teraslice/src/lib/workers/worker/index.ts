@@ -259,20 +259,20 @@ export class Worker {
         await Promise.all([
             (async () => {
                 await Promise.all([
-                    () => {
+                    (async () => {
                         try {
-                            this.stateStorage.shutdown(true);
+                            await this.stateStorage.shutdown(true);
                         } catch (err) {
                             pushError(err);
                         }
-                    },
-                    () => {
+                    })(),
+                    (async () => {
                         try {
-                            this.analyticsStorage.shutdown(true);
+                            await this.analyticsStorage.shutdown(true);
                         } catch (err) {
                             pushError(err);
                         }
-                    }
+                    })()
                 ]);
             })(),
             (async () => {

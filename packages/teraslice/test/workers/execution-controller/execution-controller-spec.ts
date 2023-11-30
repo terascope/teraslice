@@ -339,30 +339,37 @@ describe('ExecutionController', () => {
                 beforeEach(() => {
                     // @ts-expect-error
                     exController.isExecutionFinished = true;
+                    exController.stateStorage = {
+                        // @ts-expect-error
+                        shutdown: () => Promise.resolve(true)
+                    };
                     // @ts-expect-error
                     exController.executionStorage = {
                         shutdown: () => Promise.reject(new Error('Store Error'))
                     };
                     // @ts-expect-error
-                    exController.executionAnalytics = {};
-                    exController.executionAnalytics.shutdown = () => Promise.reject(new Error('Execution Analytics Error'));
+                    exController.executionAnalytics = {
+                        shutdown: () => Promise.reject(new Error('Execution Analytics Error'))
+                    };
                     // @ts-expect-error
                     exController.collectAnalytics = true;
                     // @ts-expect-error
-                    exController.slicerAnalytics = {};
+                    exController.slicerAnalytics = {
+                        shutdown: () => Promise.reject(new Error('Slicer Analytics Error'))
+                    };
                     // @ts-expect-error
-                    exController.slicerAnalytics.shutdown = () => Promise.reject(new Error('Slicer Analytics Error'));
+                    exController.scheduler = {
+                        stop: () => {},
+                        shutdown: () => Promise.reject(new Error('Scheduler Error'))
+                    };
                     // @ts-expect-error
-                    exController.scheduler = {};
+                    exController.server = {
+                        shutdown: () => Promise.reject(new Error('Execution Controller Server Error'))
+                    };
                     // @ts-expect-error
-                    exController.scheduler.stop = () => {};
-                    exController.scheduler.shutdown = () => Promise.reject(new Error('Scheduler Error'));
-                    // @ts-expect-error
-                    exController.server = {};
-                    exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
-                    // @ts-expect-error
-                    exController.client = {};
-                    exController.client.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
+                    exController.client = {
+                        shutdown: () => Promise.reject(new Error('Cluster Master Client Error'))
+                    };
                 });
 
                 it('should reject with all of the errors', async () => {

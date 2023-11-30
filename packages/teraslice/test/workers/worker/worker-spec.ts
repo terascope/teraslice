@@ -428,21 +428,22 @@ describe('Worker', () => {
                 beforeEach(() => {
                     worker._waitForSliceToFinish = () => Promise.reject(new Error('Slice Finish Error'));
                     // @ts-expect-error
-                    worker.stateStorage = {};
-                    // @ts-expect-error
                     worker.stateStorage = {
                         shutdown: () => Promise.reject(new Error('Store Error'))
                     };
+                    worker.analyticsStorage = {
+                        // @ts-expect-error
+                        shutdown: async () => Promise.resolve(true)
+                    };
                     // @ts-expect-error
-                    worker.slice = {};
+                    worker.slice = {
+                        flush: () => Promise.reject(new Error('Flush Error')),
+                        shutdown: () => Promise.reject(new Error('Slice Error'))
+                    };
                     // @ts-expect-error
-
-                    worker.slice.flush = () => Promise.reject(new Error('Flush Error'));
-                    // @ts-expect-error
-                    worker.slice.shutdown = () => Promise.reject(new Error('Slice Error'));
-                    // @ts-expect-error
-                    worker.client = {};
-                    worker.client.shutdown = () => Promise.reject(new Error('Messenger Error'));
+                    worker.client = {
+                        shutdown: () => Promise.reject(new Error('Messenger Error'))
+                    };
                 });
 
                 it('should reject with all of the errors', async () => {
