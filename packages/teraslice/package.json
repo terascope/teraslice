@@ -78,14 +78,14 @@
     },
     "engines": {
         "node": ">=16.0.0",
-        "yarn": ">=1.16.0"
+        "yarn": ">=1.22.19"
     },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
     "terascope": {
-        "main": true,
+        "main": false,
         "enableTypedoc": false,
         "testSuite": "elasticsearch"
     }

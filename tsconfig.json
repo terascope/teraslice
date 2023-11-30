@@ -92,9 +92,6 @@
         },
         {
             "path": "packages/xpressions"
-        },
-        {
-            "path": "packages/teraslice"
         }
     ]
 }

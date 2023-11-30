@@ -53,7 +53,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             folderName,
             displayName: getName(pkg.name),
             engines: {
-                node: '>=14.17.0',
+                node: '>=16.0.0',
                 yarn: '>=1.22.19'
             },
             terascope: {
@@ -77,7 +77,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
                 url: '',
             },
             engines: {
-                node: '>=14.17.0',
+                node: '>=16.0.0',
                 yarn: '>=1.22.19'
             },
             terascope: {
