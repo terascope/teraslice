@@ -12,8 +12,8 @@ import {
     dockerStop,
     dockerPull,
     kindLoadServiceImage,
-    kindStartService,
-    kindStopService
+    k8sStartService,
+    k8sStopService
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
@@ -743,9 +743,9 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
 
     if (options.testPlatform === 'kubernetes') {
-        await kindStopService(service);
+        await k8sStopService(service);
         await kindLoadServiceImage(service, services[service].image, version);
-        await kindStartService(service, services[service].image, version);
+        await k8sStartService(service, services[service].image, version);
         return () => { };
     }
 

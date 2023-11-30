@@ -9,8 +9,7 @@
     },
     "workspaces": [
         "packages/*",
-        "e2e",
-        "k8se2e"
+        "e2e"
     ],
     "scripts": {
         "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
