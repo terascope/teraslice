@@ -1,12 +1,9 @@
-// import { debugLogger } from '@terascope/utils';
 import {
     createKindCluster,
-    createNamespace,
-    deployK8sTeraslice,
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
-    loadTerasliceImage
+    kindLoadTerasliceImage
 } from '../scripts';
 import { k8sEnvOptions } from './interfaces';
 import signale from '../signale';
@@ -15,18 +12,19 @@ import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import * as config from '../config';
 import { ensureServices } from '../test-runner/services';
-
-// const logger = debugLogger('ts-scripts:cmd:k8s-env');
+import { K8s } from './k8s';
 
 export async function launchK8sEnv(options: k8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
 
+    // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
         signale.error('Please install Kind before launching a k8s dev environment. https://kind.sigs.k8s.io/docs/user/quick-start');
         process.exit(1);
     }
 
+    // TODO: Remove once all kubectl commands are converted to k8s client
     const kubectlInstalled = await isKubectlInstalled();
     if (!kubectlInstalled) {
         signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
@@ -36,7 +34,9 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     signale.pending('Creating kind cluster');
     await createKindCluster('k8s-env');
     signale.success('Kind cluster created');
-    await createNamespace('services-ns.yaml');
+    const k8s = new K8s();
+
+    await k8s.createNamespace('services-ns.yaml', 'services');
 
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e`;
@@ -64,7 +64,9 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         signale.error(`Failed to tag docker image ${devImage} as ${e2eImage}.`, err);
     }
 
-    await loadTerasliceImage(e2eImage);
+    signale.pending('Loading teraslice docker image');
+    await kindLoadTerasliceImage(e2eImage);
+    signale.success('Teraslice docker image loaded');
 
     await ensureServices('k8s_env', {
         ...options,
@@ -81,6 +83,6 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         testPlatform: 'kubernetes'
     });
 
-    await deployK8sTeraslice(true);
-    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
+    await k8s.deployK8sTeraslice(true);
+    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\nDelete the kind k8s cluster: kind delete cluster --name k8se2e\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
 }

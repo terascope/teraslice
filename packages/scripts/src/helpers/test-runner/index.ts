@@ -16,7 +16,7 @@ import {
     isKindInstalled,
     isKubectlInstalled,
     createNamespace,
-    loadTerasliceImage,
+    kindLoadTerasliceImage,
     destroyKindCluster,
 } from '../scripts';
 import {
@@ -257,7 +257,7 @@ async function runE2ETest(
 
     if (options.testPlatform === 'kubernetes') {
         try {
-            await loadTerasliceImage(e2eImage);
+            await kindLoadTerasliceImage(e2eImage);
         } catch (err) {
             tracker.addError(err);
         }
