@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-
+import 'jest-extended';
 import { pDelay } from '@terascope/utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';
 import { Slice } from '@terascope/types';

@@ -3,7 +3,7 @@
         "baseUrl": ".",
         "module": "commonjs",
         "moduleResolution": "node",
-        "target": "es2022",
+        "target": "ES2019",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,
