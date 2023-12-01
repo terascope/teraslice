@@ -28,13 +28,14 @@ export class RecoveryModule {
     private readonly timeout: number;
 
     constructor(context: Context, executionContext: ExecutionContext) {
+        const { exId } = executionContext;
+
         this.events = context.apis.foundation.getSystemEvents();
         this.slicersToRecover = executionContext.config.slicers;
         this.recoveryQueue = new Queue<Slice>();
         this.cleanupType = executionContext.config.recovered_slice_type;
         this.recoverExecution = executionContext.config.recovered_execution;
         this.autorecover = Boolean(executionContext.config.autorecover);
-        const { exId } = executionContext;
         this.exId = exId;
         this.logger = makeLogger(context, 'execution_recovery');
         this.timeout = context.sysconfig.teraslice.shutdown_timeout;
@@ -75,12 +76,13 @@ export class RecoveryModule {
     }
 
     private _recoveryBatchCompleted() {
-        return Object.values(this.retryState).every((v) => v === false);
+        return [...this.retryState.values()].every((v) => v === false);
     }
 
     private _retryState() {
-        return { ...this.retryState };
+        return Object.fromEntries(this.retryState);
     }
+
     // TODO: refactor to use pwhile
     private async _waitForRecoveryBatchCompletion() {
         return new Promise((resolve) => {
@@ -183,15 +185,5 @@ export class RecoveryModule {
         if (this.autorecover) return false;
         if (!this.cleanupType) return false;
         return true;
-    }
-    // TODO: is this needed?
-    __test_context() {
-        return {
-            _retryState: this._retryState.bind(this),
-            _recoveryBatchCompleted: this._recoveryBatchCompleted.bind(this),
-            _setId: this._setId.bind(this),
-            _waitForRecoveryBatchCompletion: this._waitForRecoveryBatchCompletion.bind(this),
-            _sliceComplete: this._sliceComplete.bind(this),
-        };
     }
 }

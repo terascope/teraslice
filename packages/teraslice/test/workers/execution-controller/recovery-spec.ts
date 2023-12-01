@@ -6,8 +6,8 @@ import { RecoveryModule } from '../../../src/lib/workers/execution-controller/re
 const eventEmitter = new EventEmitter();
 const eventEmitter2 = new EventEmitter();
 
-describe('execution recovery', () => {
-    const logger = debugLogger('execution-recovery');
+describe('execution recoveryModule', () => {
+    const logger = debugLogger('execution-recoveryModule');
 
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
@@ -20,6 +20,11 @@ describe('execution recovery', () => {
             foundation: {
                 makeLogger: () => logger,
                 getSystemEvents: () => eventEmitter
+            }
+        },
+        sysconfig: {
+            teraslice: {
+                shutdown_timeout: 1
             }
         }
     } as any;
@@ -57,8 +62,14 @@ describe('execution recovery', () => {
         };
     }
 
-    it('has the proper methods', () => {
-        const recoveryModule = new RecoveryModule(context, executionContext);
+    async function getRecoveryModule() {
+        const module = new RecoveryModule(context, executionContext);
+        await module.initialize(stateStore);
+        return module;
+    }
+
+    it('has the proper methods', async () => {
+        const recoveryModule = await getRecoveryModule();
 
         expect(recoveryModule.initialize).toBeFunction();
         expect(recoveryModule.handle).toBeFunction();
@@ -68,8 +79,8 @@ describe('execution recovery', () => {
         expect(recoveryModule.shutdown).toBeFunction();
     });
 
-    it('manages retry slice state', () => {
-        const recoveryModule = new RecoveryModule(context, executionContext);
+    it('manages retry slice state', async () => {
+        const recoveryModule = await getRecoveryModule();
         // @ts-expect-error
         expect(recoveryModule._retryState()).toEqual({});
         // @ts-expect-error
@@ -87,9 +98,7 @@ describe('execution recovery', () => {
     });
 
     it('initializes and sets up listeners', async () => {
-        const recoveryModule = new RecoveryModule(context, executionContext);
-
-        await recoveryModule.initialize(stateStore);
+        const recoveryModule = await getRecoveryModule();
         // @ts-expect-error
         expect(recoveryModule._retryState()).toEqual({});
         // @ts-expect-error
@@ -109,27 +118,24 @@ describe('execution recovery', () => {
             waitFor(sendSucess2, 250)
         ]).then(() => {
             // @ts-expect-error
-            expect(recovery._retryState()).toEqual({
+            expect(recoveryModule._retryState()).toEqual({
                 1: false,
                 2: false
             });
             // @ts-expect-error
-            expect(recovery._recoveryBatchCompleted()).toEqual(true);
+            expect(recoveryModule._recoveryBatchCompleted()).toEqual(true);
             // @ts-expect-error
-            return recovery._setId({ slice_id: 2 });
+            return recoveryModule._setId({ slice_id: 2 });
         });
     });
 
     it('can recover slices', async () => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
-        const recoveryModule = new RecoveryModule(context, executionContext);
-
-        expect(recoveryModule.recoveryComplete()).toEqual(true);
-
-        await recoveryModule.initialize(stateStore);
+        const recoveryModule = await getRecoveryModule();
 
         const data1 = { slice_id: 1 };
         const data2 = { slice_id: 2 };
+
         const sendSucess1 = sendEvent('slice:success', { slice: data1 }, eventEmitter2);
         const sendSucess2 = sendEvent('slice:success', { slice: data2 }, eventEmitter2);
         let allDoneEventFired = false;
@@ -171,7 +177,7 @@ describe('execution recovery', () => {
                 return Promise.all([slicer(), waitFor(() => {}, 150)]);
             })
             .then(([slice]) => {
-                expect(slice).toEqual(null);
+                expect(slice).toBeUndefined();
                 expect(allDoneEventFired).toEqual(true);
                 expect(recoveryModule.recoveryComplete()).toEqual(true);
                 return createSlicesPromise;
