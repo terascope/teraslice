@@ -65,11 +65,13 @@ export class Server extends core.Server {
 
     dequeueWorker(slice: Slice): string | null {
         const requestedWorkerId = slice.request.request_worker;
+        console.log('dequeueWorker', requestedWorkerId)
         return this._workerDequeue(requestedWorkerId);
     }
 
     async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
         const isAvailable = this._clients[workerId] && this._clients[workerId].state === Available;
+        console.log('isAvailable ', isAvailable, this._clients)
         if (!isAvailable) {
             this.logger.warn(`worker ${workerId} is not available`);
             return false;
@@ -170,6 +172,9 @@ export class Server extends core.Server {
         let workerId: string | null;
 
         if (requestedWorkerId) {
+            console.log('_workerDequeue', requestedWorkerId, this._activeWorkers)
+            console.log('_workerDequeue 2', this.queue)
+
             const worker = this.queue.extract('workerId', requestedWorkerId);
             workerId = worker ? worker.workerId : null;
         } else {

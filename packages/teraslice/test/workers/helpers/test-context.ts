@@ -23,7 +23,6 @@ import { zipDirectory } from './zip-directory';
 
 import { TERASLICE_CLUSTER_NAME } from '../../test.config';
 
-const cleanups = {};
 const tmpAssetDir = createTempDirSync();
 const clusterName = `${TERASLICE_CLUSTER_NAME}`;
 
@@ -34,8 +33,6 @@ interface TestStoreContainer {
     executionStorage?: ExecutionStorage
     jobsStorage?: JobsStorage
 }
-
-const stores: TestStoreContainer = {};
 
 export interface TestContextArgs extends TestJobConfig {
     timeout?: number;
@@ -60,6 +57,8 @@ export class TestContext {
     executionContext!: ExecutionContext;
 
     clusterMaster!: ClusterMaster.Server;
+    _stores: TestStoreContainer = {};
+    cleanups = {};
 
     constructor(options: TestContextArgs = {}) {
         const {
@@ -85,22 +84,22 @@ export class TestContext {
 
         this.events = this.context.apis.foundation.getSystemEvents();
 
-        cleanups[this.setupId] = () => this.cleanup();
+        this.cleanups[this.setupId] = () => this.cleanup();
     }
 
     // make sure we cleanup if any test fails to cleanup properly
-    static async cleanupAll(withEs = false) {
-        const count = Object.keys(cleanups).length;
+    async cleanupAll(withEs = false) {
+        const count = Object.keys(this.cleanups).length;
         if (!count) return;
 
-        const fns = Object.keys(cleanups).map(async (name) => {
-            const fn = cleanups[name];
+        const fns = Object.keys(this.cleanups).map(async (name) => {
+            const fn = this.cleanups[name];
             try {
                 await fn();
             } catch (err) {
                 console.error(`Failed to cleanup ${name}`, err);
             }
-            delete cleanups[name];
+            delete this.cleanups[name];
         });
         await Promise.all(fns);
 
@@ -110,17 +109,17 @@ export class TestContext {
             console.error(err);
         }
 
-        if (withEs && Object.keys(stores).length) {
+        if (withEs && Object.keys(this._stores).length) {
             try {
-                await Promise.all(Object.values(stores).map((store) => store.shutdown(true)));
+                await Promise.all(Object.values(this._stores).map((store) => store.shutdown(true)));
             } catch (err) {
                 console.error(err);
             }
         }
     }
 
-    static async waitForCleanup() {
-        return pWhile(async () => !Object.keys(cleanups).length, {
+    async waitForCleanup() {
+        return pWhile(async () => !Object.keys(this.cleanups).length, {
             name: 'Test Context',
             timeoutMs: 3000
         });
@@ -137,7 +136,7 @@ export class TestContext {
             const { ex } = await initializeTestExecution(Object.assign({
                 context: this.context,
                 config: this.config,
-                stores,
+                stores: this._stores,
             }, initOptions) as any);
             this.config = ex;
         }
@@ -150,7 +149,7 @@ export class TestContext {
     }
 
     get stores() {
-        return stores;
+        return this._stores;
     }
 
     async addClusterMaster() {
@@ -197,11 +196,11 @@ export class TestContext {
 
         const assetZip = await zipDirectory(assetDir);
 
-        if (!stores.assetsStorage) {
+        if (!this._stores.assetsStorage) {
             throw new Error('Assets storage is not setup');
         }
 
-        const { assetId } = await stores.assetsStorage.save(assetZip);
+        const { assetId } = await this._stores.assetsStorage.save(assetZip);
 
         if (cleanup) {
             await fs.remove(path.join(this.assetDir, assetId));
@@ -213,65 +212,65 @@ export class TestContext {
     async newSlice() {
         const sliceConfig = newTestSlice({ request: { example: 'slice-data' } });
         await this.addStateStore();
-        await stores.stateStorage!.createState(this.exId, sliceConfig, 'start');
+        await this._stores.stateStorage!.createState(this.exId, sliceConfig, 'start');
 
         return sliceConfig;
     }
 
     async addAssetStore() {
-        if (stores.assetsStorage) {
-            return stores.assetsStorage;
+        if (this._stores.assetsStorage) {
+            return this._stores.assetsStorage;
         }
 
-        stores.assetsStorage = new AssetsStorage(this.context);
-        await stores.assetsStorage.initialize();
+        this._stores.assetsStorage = new AssetsStorage(this.context);
+        await this._stores.assetsStorage.initialize();
 
         delete this.context.apis.assets;
-        return stores.assetsStorage;
+        return this._stores.assetsStorage;
     }
 
     async addStateStore() {
-        if (stores.stateStorage) {
-            return stores.stateStorage;
+        if (this._stores.stateStorage) {
+            return this._stores.stateStorage;
         }
 
-        stores.stateStorage = new StateStorage(this.context);
-        await stores.stateStorage.initialize();
+        this._stores.stateStorage = new StateStorage(this.context);
+        await this._stores.stateStorage.initialize();
 
-        return stores.stateStorage;
+        return this._stores.stateStorage;
     }
 
     async addAnalyticsStore() {
-        if (stores.analyticsStorage) {
-            return stores.analyticsStorage;
+        if (this._stores.analyticsStorage) {
+            return this._stores.analyticsStorage;
         }
 
-        stores.analyticsStorage = new AnalyticsStorage(this.context);
-        await stores.analyticsStorage.initialize();
+        this._stores.analyticsStorage = new AnalyticsStorage(this.context);
+        await this._stores.analyticsStorage.initialize();
 
-        return stores.analyticsStorage;
+        return this._stores.analyticsStorage;
     }
 
     async addJobStore() {
-        if (stores.jobsStorage) {
-            return stores.jobsStorage;
+        if (this._stores.jobsStorage) {
+            return this._stores.jobsStorage;
         }
 
-        stores.jobsStorage = new JobsStorage(this.context);
-        await stores.jobsStorage.initialize();
+        this._stores.jobsStorage = new JobsStorage(this.context);
+        await this._stores.jobsStorage.initialize();
 
-        return stores.jobsStorage;
+        return this._stores.jobsStorage;
     }
 
     async addExStore() {
-        if (stores.executionStorage) {
-            return stores.executionStorage;
+        if (this._stores.executionStorage) {
+            return this._stores.executionStorage;
         }
 
-        stores.executionStorage = new ExecutionStorage(this.context);
-        await stores.executionStorage.initialize();
+        this._stores.executionStorage = new ExecutionStorage(this.context);
+        await this._stores.executionStorage.initialize();
 
-        return stores.executionStorage;
+        return this._stores.executionStorage;
     }
 
     async cleanup() {
@@ -282,7 +281,7 @@ export class TestContext {
 
         this.events.removeAllListeners();
 
-        delete cleanups[this.setupId];
+        delete this.cleanups[this.setupId];
 
         this.clean = true;
     }

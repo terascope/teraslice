@@ -15,8 +15,6 @@ describe('Worker', () => {
     }
 
     async function setupTest(options: any = {}): Promise<SetupTestResults> {
-        await TestContext.waitForCleanup();
-
         const slicerPort = await findPort();
         options.slicerPort = slicerPort;
 
@@ -384,8 +382,6 @@ describe('Worker', () => {
         let worker: Worker;
 
         beforeEach(async () => {
-            await TestContext.waitForCleanup();
-
             testContext = new TestContext();
 
             await testContext.initialize();

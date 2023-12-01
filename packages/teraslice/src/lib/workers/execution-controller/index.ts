@@ -145,6 +145,7 @@ export class ExecutionController {
         } catch (err) {
             verifiedErr = err;
         }
+
         if (!verified) {
             this.isShutdown = true;
 
@@ -258,9 +259,9 @@ export class ExecutionController {
             this._terminalError(err);
         });
 
-        Object.entries(this._handlers).forEach(([event, handler]) => {
+        for (const [event, handler] of this._handlers.entries()) {
             this.events.on(event, handler);
-        });
+        }
 
         if (this.collectAnalytics) {
             this.slicerAnalytics = new SliceAnalytics(this.context, this.executionContext);
@@ -354,6 +355,7 @@ export class ExecutionController {
         const error = new TSError(err, {
             reason: `slicer for ex ${this.exId} had an error, shutting down execution`
         });
+
         this.logger.error(error);
 
         const executionStats = this.executionAnalytics.getAnalytics();
@@ -402,10 +404,10 @@ export class ExecutionController {
         await this.scheduler.stop();
 
         // remove any listeners
-        Object.entries(this._handlers).forEach(([event, handler]) => {
+        for (const [event, handler] of this._handlers.entries()) {
             this.events.removeListener(event, handler);
             this._handlers[event] = null;
-        });
+        }
 
         this.isShuttingDown = true;
         this.isPaused = false;
@@ -537,6 +539,7 @@ export class ExecutionController {
             const dispatch: { workerId: string, slice: Slice }[] = [];
 
             const slices = this.scheduler.getSlices(this.server.workerQueueSize);
+
             slices.forEach((slice) => {
                 const workerId = this.server.dequeueWorker(slice);
                 if (!workerId) {

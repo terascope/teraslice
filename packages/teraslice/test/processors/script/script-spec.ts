@@ -19,7 +19,7 @@ xdescribe('script processor', () => {
     };
     // @ts-expect-error
     // Run the high level tests provided by the harness
-    harness.runProcessorSpecs(processor, processorName);
+    harness.runProcessorSpecs(processor, 'script processor');
 
     it('returns an object (Promise)', () => {
         const opConfig = {};

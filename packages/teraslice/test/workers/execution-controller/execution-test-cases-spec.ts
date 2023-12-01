@@ -1,4 +1,7 @@
-import { pDelay, times, random } from '@terascope/utils';
+import {
+    pDelay, times, random,
+    isNotNil
+} from '@terascope/utils';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionRecord } from '@terascope/types';
 import { TestContext } from '../helpers';
@@ -154,11 +157,7 @@ describe('ExecutionController Test Cases', () => {
         let executionRecord: ExecutionRecord;
 
         beforeAll(async () => {
-            await TestContext.cleanupAll(true);
-            await TestContext.waitForCleanup();
-
             slices = [];
-
             const port = await findPort();
 
             testContext = new TestContext({
@@ -174,12 +173,12 @@ describe('ExecutionController Test Cases', () => {
             });
 
             await testContext.addClusterMaster();
-
             await testContext.initialize(true);
 
             const { clusterMaster, exId } = testContext;
 
             stateStore = await testContext.addStateStore();
+
             exStore = await testContext.addExStore();
 
             exController = new ExecutionController(
@@ -220,7 +219,8 @@ describe('ExecutionController Test Cases', () => {
             });
 
             async function startWorker(n?: number) {
-                const workerId = n ? workerIds[n] : newId('worker');
+                const workerId = (workerIds.length && isNotNil(n)) ? workerIds[n as number] : newId('worker');
+
                 const workerClient = new ExecutionControllerClient({
                     executionControllerUrl: `http://localhost:${port}`,
                     workerId,

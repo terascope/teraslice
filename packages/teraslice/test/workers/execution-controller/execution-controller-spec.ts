@@ -11,9 +11,6 @@ describe('ExecutionController', () => {
         let executionStorage!: ExecutionStorage;
 
         beforeEach(async () => {
-            await TestContext.cleanupAll(true);
-            await TestContext.waitForCleanup();
-
             const port = await findPort();
 
             testContext = new TestContext({
@@ -93,7 +90,6 @@ describe('ExecutionController', () => {
         const probationWindow = 500;
 
         beforeEach(async () => {
-            await TestContext.waitForCleanup();
             const port = await findPort();
 
             testContext = new TestContext({
@@ -163,8 +159,6 @@ describe('ExecutionController', () => {
         let exController: ExecutionController;
 
         beforeEach(async () => {
-            await TestContext.waitForCleanup();
-
             testContext = new TestContext({
                 assignment: 'execution_controller'
             });
@@ -211,8 +205,6 @@ describe('ExecutionController', () => {
         let exController: ExecutionController;
 
         beforeEach(async () => {
-            await TestContext.waitForCleanup();
-
             testContext = new TestContext({
                 assignment: 'execution_controller'
             });
@@ -283,8 +275,6 @@ describe('ExecutionController', () => {
         let exController: ExecutionController;
 
         beforeEach(async () => {
-            await TestContext.waitForCleanup();
-
             testContext = new TestContext({
                 assignment: 'execution_controller',
                 shutdownTimeout: 100

@@ -350,9 +350,6 @@ describe('ExecutionController Special Tests', () => {
         let executionRecord: ExecutionRecord;
 
         beforeAll(async () => {
-            await TestContext.cleanupAll(true);
-            await TestContext.waitForCleanup();
-
             slices = [];
 
             const port = await findPort();
