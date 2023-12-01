@@ -1,5 +1,5 @@
 import { pDelay, times, random } from '@terascope/utils';
-import Messaging from '@terascope/teraslice-messaging';
+import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionRecord } from '@terascope/types';
 import { TestContext } from '../helpers';
 import { getTestCases } from '../helpers/execution-controller-helper';
@@ -8,7 +8,7 @@ import { newId } from '../../../src/lib/utils/id_utils';
 import { ExecutionController } from '../../../src/lib/workers/execution-controller';
 import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
 
-const ExecutionControllerClient = Messaging.ExecutionController.Client;
+const ExecutionControllerClient = ExController.Client;
 
 describe('ExecutionController Test Cases', () => {
     // [ message, config ]
