@@ -76,6 +76,9 @@
             "path": "packages/teraslice-messaging"
         },
         {
+            "path": "packages/teraslice"
+        },
+        {
             "path": "packages/teraslice-client-js"
         },
         {
