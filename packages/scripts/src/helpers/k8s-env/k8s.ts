@@ -13,9 +13,6 @@ import * as config from '../config';
 import { destroyKindCluster } from '../scripts';
 
 const logger = debugLogger('ts-scripts:k8s-env');
-// TODO: consider setting TS_PORT with an env variable or cmd option
-const TS_PORT = '5678';
-
 export class K8s {
     kc: k8sClient.KubeConfig;
     k8sAppsV1Api: k8sClient.AppsV1Api;
@@ -24,8 +21,9 @@ export class K8s {
     k8sSchedulingV1Api: k8sClient.SchedulingV1Api;
     terasliceNamespace: string;
     servicesNamespace: string;
+    tsPort: number;
 
-    constructor() {
+    constructor(tsPort: number) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 
@@ -35,6 +33,7 @@ export class K8s {
         this.k8sSchedulingV1Api = this.kc.makeApiClient(k8sClient.SchedulingV1Api);
         this.terasliceNamespace = 'default';
         this.servicesNamespace = 'default';
+        this.tsPort = tsPort;
     }
 
     async createNamespace(yamlFile: string, namespaceCategory: string) {
@@ -161,7 +160,7 @@ export class K8s {
             let terasliceRunning = false;
             try {
                 // TODO: switch to a teraslice client
-                const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${TS_PORT}`);
+                const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${this.tsPort}`);
                 response = JSON.parse(kubectlResponse.stdout);
                 if (response.clustering_type === 'kubernetes') {
                     terasliceRunning = true;

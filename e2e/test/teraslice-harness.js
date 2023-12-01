@@ -22,12 +22,15 @@ const { cleanupIndex } = ElasticsearchTestHelpers;
 
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
+const TERASLICE_PORT = 45678;
+const ELASTICSEARCH_PORT = 49200;
+
 module.exports = class TerasliceHarness {
     async init() {
         const { client } = await createClient({ node: TEST_HOST });
         this.client = client;
         this.teraslice = new TerasliceClient({
-            host: `http://${HOST_IP}:45678`,
+            host: `http://${HOST_IP}:${TERASLICE_PORT}`,
             timeout: 2 * 60 * 1000
         });
     }
@@ -90,7 +93,7 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState();
+                await showState(ELASTICSEARCH_PORT);
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;

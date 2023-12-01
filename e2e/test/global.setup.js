@@ -16,6 +16,8 @@ const {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM
 } = require('./config');
 
+const TERASLICE_PORT = 45678;
+
 module.exports = async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();
@@ -39,9 +41,9 @@ module.exports = async () => {
     ]);
 
     if (TEST_PLATFORM === 'kubernetes') {
-        await deployK8sTeraslice();
+        await deployK8sTeraslice(TERASLICE_PORT);
         await teraslice.waitForTeraslice();
-        await setAliasAndBaseAssets();
+        await setAliasAndBaseAssets(TERASLICE_PORT);
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
