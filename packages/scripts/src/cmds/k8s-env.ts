@@ -1,6 +1,6 @@
 import { CommandModule } from 'yargs';
 import * as config from '../helpers/config';
-import { launchK8sEnv } from '../helpers/k8s-env';
+import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env';
 import { kafkaVersionMapper } from '../helpers/mapper';
 
 const cmd: CommandModule = {
@@ -45,10 +45,35 @@ const cmd: CommandModule = {
                 description: 'Skip building the teraslice docker iamge',
                 type: 'boolean',
                 default: config.SKIP_DOCKER_BUILD_IN_K8S
+            })
+            .option('rebuild', {
+                description: 'Stop, rebuild, then restart the teraslice docker iamge',
+                type: 'boolean',
+                default: false
+            })
+            .option('ts-port', {
+                description: 'Port where teraslice api will be exposed.',
+                type: 'number',
+                default: 5678
             });
     },
     handler(argv) {
         const kafkaCPVersion = kafkaVersionMapper(argv.kafkaVersion as string);
+
+        if (Boolean(argv.rebuild) === true) {
+            return rebuildTeraslice({
+                elasticsearchVersion: argv.elasticsearchVersion as string,
+                kafkaVersion: argv.kafkaVersion as string,
+                kafkaImageVersion: kafkaCPVersion,
+                zookeeperVersion: kafkaCPVersion,
+                minioVersion: argv.minioVersion as string,
+                rabbitmqVersion: argv.rabbitmqVersion as string,
+                opensearchVersion: argv.opensearchVersion as string,
+                nodeVersion: argv['node-version'] as string,
+                skipBuild: Boolean(argv['skip-build']),
+                tsPort: argv['ts-port'] as number
+            });
+        }
 
         return launchK8sEnv({
             elasticsearchVersion: argv.elasticsearchVersion as string,
@@ -59,7 +84,8 @@ const cmd: CommandModule = {
             rabbitmqVersion: argv.rabbitmqVersion as string,
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
-            skipBuild: Boolean(argv['skip-build'])
+            skipBuild: Boolean(argv['skip-build']),
+            tsPort: argv['ts-port'] as number
         });
     },
 };
