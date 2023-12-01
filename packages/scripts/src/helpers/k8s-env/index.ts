@@ -52,6 +52,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         await buildAndTagTerasliceImage(options);
     } catch (err) {
         signale.error(err);
+        await destroyKindCluster();
         process.exit(1);
     }
 
