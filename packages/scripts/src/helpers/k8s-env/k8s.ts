@@ -189,7 +189,7 @@ export class K8s {
             const response = await this.k8sSchedulingV1Api.createPriorityClass(yamlPriorityClass);
             logger.debug('deployK8sTeraslice yamlPriorityClass: ', response.body);
         } catch (err) {
-            if (err.status !== 409) { // don't throw if priorityClass already exists
+            if (err.body.code !== 409) { // don't throw if priorityClass already exists
                 throw new Error(`Error creating priorityClass: ${err}`);
             }
         }
