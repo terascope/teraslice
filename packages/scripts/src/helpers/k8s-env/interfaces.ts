@@ -8,6 +8,7 @@ export interface k8sEnvOptions {
     opensearchVersion: string;
     nodeVersion: string;
     skipBuild: boolean;
+    tsPort: number
 }
 
 // TODO: create a common parent for each resource type,

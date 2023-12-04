@@ -13,7 +13,7 @@ const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
 const {
-    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM
+    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM, TERASLICE_PORT
 } = require('./config');
 
 module.exports = async () => {
@@ -39,9 +39,9 @@ module.exports = async () => {
     ]);
 
     if (TEST_PLATFORM === 'kubernetes') {
-        await deployK8sTeraslice();
+        await deployK8sTeraslice(TERASLICE_PORT);
         await teraslice.waitForTeraslice();
-        await setAliasAndBaseAssets();
+        await setAliasAndBaseAssets(TERASLICE_PORT);
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
