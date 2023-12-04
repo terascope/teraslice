@@ -13,10 +13,8 @@ const signale = require('./signale');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
 const {
-    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM
+    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM, TERASLICE_PORT
 } = require('./config');
-
-const TERASLICE_PORT = 45678;
 
 module.exports = async () => {
     const teraslice = new TerasliceHarness();
