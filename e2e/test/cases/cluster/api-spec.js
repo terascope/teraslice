@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const { cloneDeep } = require('@terascope/utils');
+const { cloneDeep, pDelay } = require('@terascope/utils');
 const TerasliceHarness = require('../../teraslice-harness');
 const { TEST_PLATFORM } = require('../../config');
 
@@ -88,6 +88,7 @@ describe('cluster api', () => {
         const ex = terasliceHarness.teraslice.executions.wrap(exId);
 
         await terasliceHarness.waitForExStatus(ex, 'completed', 100, 1000);
+        await pDelay(100);
 
         const result = await Promise.all([
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
