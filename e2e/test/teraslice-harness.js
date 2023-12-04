@@ -22,8 +22,6 @@ const { cleanupIndex } = ElasticsearchTestHelpers;
 
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
-const ELASTICSEARCH_PORT = 49200;
-
 module.exports = class TerasliceHarness {
     async init() {
         const { client } = await createClient({ node: TEST_HOST });
@@ -92,7 +90,7 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState(ELASTICSEARCH_PORT);
+                await showState(TERASLICE_PORT);
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;

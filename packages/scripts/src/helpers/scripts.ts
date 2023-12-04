@@ -13,7 +13,7 @@ import {
     pDelay,
     TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo } from './interfaces';
+import { TSCommands, PackageInfo, kindCluster } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
@@ -538,20 +538,33 @@ export async function yarnPublish(
     });
 }
 
-export async function createKindCluster(cmd = 'test'): Promise<void> {
+export async function createKindCluster(cmd = 'test', teraslicePort = 45678): Promise<void> {
     const e2eK8sDir = getE2eK8sDir();
     if (!e2eK8sDir) {
         throw new Error('Missing k8s e2e test directory');
     }
 
     let configPath: string;
+    let tempDir;
+
     if (cmd === 'k8s-env') {
         configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
+
+        const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as kindCluster;
+        configFile.nodes[0].extraPortMappings[1].hostPort = teraslicePort;
+        const updatedYaml = yaml.dump(configFile);
+
+        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
+        fs.writeFileSync(path.join(tempDir, 'kindConfigDefaultPorts.yaml'), updatedYaml);
+        configPath = `${path.join(tempDir, 'kindConfigDefaultPorts.yaml')}`;
     } else { // cmd === test
         configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
     }
     const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
     logger.debug(subprocess.stderr);
+    if (tempDir) {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+    }
 }
 
 export async function destroyKindCluster(): Promise<void> {
@@ -811,11 +824,11 @@ export async function deleteTerasliceNamespace() {
     }
 }
 
-export async function showState(esPort: number) {
+export async function showState(tsPort: number) {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     logger.debug(subprocess.stdout);
     await showESIndices();
-    await showAssets(esPort);
+    await showAssets(tsPort);
 }
 
 async function showESIndices() {
@@ -823,9 +836,9 @@ async function showESIndices() {
     logger.debug(subprocess.stdout);
 }
 
-async function showAssets(esPort: number) {
+async function showAssets(tsPort: number) {
     try {
-        const subprocess = await execa.command(`curl ${config.HOST_IP}:${esPort}/v1/assets`);
+        const subprocess = await execa.command(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
         logger.debug(subprocess.stdout);
     } catch (err) {
         logger.debug(err);

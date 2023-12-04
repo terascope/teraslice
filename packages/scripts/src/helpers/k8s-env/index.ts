@@ -36,7 +36,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     }
 
     signale.pending('Creating kind cluster');
-    await createKindCluster('k8s-env');
+    await createKindCluster('k8s-env', options.tsPort);
     signale.success('Kind cluster created');
 
     const k8s = new K8s(options.tsPort);
