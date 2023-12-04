@@ -80,7 +80,10 @@ export class JobsService {
         }
 
         const validJob = await this._validateJobSpec(jobSpec);
-        const job = await this.jobsStorage.create(validJob);
+
+        // We don't create with the fully parsed validJob as it changes the asset names
+        // to their asset id which we don't want stored as at the job level
+        const job = await this.jobsStorage.create(jobSpec as ValidatedJobConfig);
 
         if (!shouldRun) {
             return { job_id: job.job_id };

@@ -10,9 +10,7 @@ import { getMajorVersion } from './asset_utils';
 const mutex = new Mutex();
 
 const packagePath = path.join(process.cwd(), './package.json');
-console.log('process.cwd()', process.cwd())
 
-console.log('packagePath', packagePath)
 export interface PackageJSON {
     name: string;
     version: string;
