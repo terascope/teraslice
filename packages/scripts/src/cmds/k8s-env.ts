@@ -11,6 +11,7 @@ const cmd: CommandModule = {
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice and elasticsearch.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' SKIP_DOCKER_BUILD_IN_K8S=\'true\' $0 k8s-env', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
+            .example('$0 k8s-env --rebuild=\'true\'', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
