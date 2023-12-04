@@ -211,10 +211,10 @@ export class K8s {
             logger.debug('Teraslice namespace cannot be deleted. It might not yet exist: ', err.response.body);
         }
 
-        await this.confirmDeletion(terasliceNamespace, this.k8sCoreV1Api);
+        await this.confirmNamespaceDeletion(terasliceNamespace, this.k8sCoreV1Api);
     }
 
-    async confirmDeletion(terasliceNamespace: string, coreV1Api: k8sClient.CoreV1Api) {
+    async confirmNamespaceDeletion(terasliceNamespace: string, coreV1Api: k8sClient.CoreV1Api) {
         let existingNamespace: k8sClient.V1Namespace[];
         const timeoutMs = 120000;
         try {
