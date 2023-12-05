@@ -2318,6 +2318,11 @@
     lz4-asm "^0.4.2"
     node-gzip "^1.1.2"
 
+"@terascope/types@^0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.11.2.tgz#8439b04ba4c5d8357d00a7e20a831f4864ae4c81"
+  integrity sha512-oWrKZYm5HsZc2bCxirPnnYD6yu5wW74W7OTKD7Vm38KI/8TcfZPlr/U+gBwocQGVJrBM9jg0+jcjaxudLjfXiw==
+
 "@terascope/utils@^0.46.0":
   version "0.46.0"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.46.0.tgz#949ecbad7a1f678ad84861a6cde45d812f29dade"
