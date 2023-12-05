@@ -31,6 +31,8 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
 
 async function getGotESM() {
     if (gotESMModule) return gotESMModule;
+    // temporary hack as typescript will compile this to a require statement
+    // until we export esm modules, revert this back when we get there
     const module = await eval("import('gotESM')"); // eslint-disable-line
     gotESMModule = module.default;
     return module.default;

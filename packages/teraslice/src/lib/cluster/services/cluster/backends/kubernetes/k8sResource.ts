@@ -8,6 +8,8 @@ import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components
 import { safeEncode } from '../../../../../utils/encoding_utils';
 import { setMaxOldSpaceViaEnv } from './utils';
 
+const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetes/');
+
 interface K8sConfig {
     clusterName: string,
     clusterNameLabel: string,
@@ -155,7 +157,7 @@ export class K8sResource {
     }
 
     _makeTemplate(folder: string, fileName: string) {
-        const filePath = path.join(__dirname, folder, `${fileName}.hbs`);
+        const filePath = path.join(resourcePath, folder, `${fileName}.hbs`);
         const templateData = fs.readFileSync(filePath, 'utf-8');
         const templateKeys = ['{{', '}}'];
 
