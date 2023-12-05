@@ -13,7 +13,7 @@ const fse = require('fs-extra');
 const {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
-    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM
+    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT
 } = require('./config');
 const { scaleWorkers, getElapsed } = require('./docker-helpers');
 const signale = require('./signale');
@@ -27,7 +27,7 @@ module.exports = class TerasliceHarness {
         const { client } = await createClient({ node: TEST_HOST });
         this.client = client;
         this.teraslice = new TerasliceClient({
-            host: `http://${HOST_IP}:45678`,
+            host: `http://${HOST_IP}:${TERASLICE_PORT}`,
             timeout: 2 * 60 * 1000
         });
     }
@@ -90,7 +90,7 @@ module.exports = class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState();
+                await showState(TERASLICE_PORT);
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;

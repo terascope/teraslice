@@ -125,3 +125,28 @@ export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
 export type TSCommands = 'docs';
 
 export type GlobalCMDOptions = EmptyObject;
+
+export interface kindCluster {
+    kind: string;
+    apiVersion: string;
+    name: string;
+    nodes: [
+        {
+            role: string;
+            extraPortMappings: [
+                {
+                    containerPort: number;
+                    hostPort: number;
+                },
+                {
+                    containerPort: number;
+                    hostPort: number;
+                },
+                {
+                    containerPort: number;
+                    hostPort: number;
+                }
+            ]
+        }
+    ]
+}

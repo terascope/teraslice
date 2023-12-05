@@ -41,6 +41,9 @@ const {
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
 
+// TERASLICE_PORT must match e2e/docker-compose.yml
+const TERASLICE_PORT = 45678;
+
 function newId(prefix, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -80,5 +83,6 @@ module.exports = {
     newId,
     TEST_HOST,
     TEST_PLATFORM,
-    KEEP_OPEN
+    KEEP_OPEN,
+    TERASLICE_PORT
 };

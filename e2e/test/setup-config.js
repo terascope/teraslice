@@ -8,6 +8,7 @@ const {
     KAFKA_BROKER,
     ELASTICSEARCH_HOST,
     TEST_HOST,
+    TERASLICE_PORT,
     ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
     HOST_IP,
@@ -66,7 +67,7 @@ module.exports = async function setupTerasliceConfig() {
             assets_directory: '/app/assets',
             autoload_directory: '/app/autoload',
             workers: WORKERS_PER_NODE,
-            port: 45678,
+            port: TERASLICE_PORT,
             name: CLUSTER_NAME,
             master_hostname: HOST_IP,
             index_settings: {
