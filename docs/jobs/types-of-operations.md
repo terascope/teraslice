@@ -16,7 +16,7 @@ A `Slicer` runs on the Execution Controller and its primary function to create [
 
 ### Slicer
 
-The simpiliest varient of a "Slicer" that only handles on running "Slicer".
+The simplest varient of a "Slicer" that only handles one running "Slicer".
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
@@ -38,7 +38,7 @@ export default class ExampleSlicer extends Slicer {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/slicer.md) for more details.
+Check out the [API docs](../packages/job-components/api/classes/operations_slicer.default) for more details.
 
 ### Parallel Slicer
 
@@ -76,11 +76,11 @@ export default class ExampleSlicer extends ParallelSlicer {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/parallelslicer.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations_parallel_slicer) for more details.
 
 ## Fetchers
 
-A `Fetcher` runs on a Worker and its primary process [Slices](../packages/job-components/api/interfaces/slice.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
+A `Fetcher` runs on a Worker and its primary process [Slices](./slices.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md.FixMe) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
@@ -107,7 +107,7 @@ export default class ExampleSlicer extends Fetcher {
 
 ## Processors
 
-A Job is required to contain a least one Processor. The duty of a processor is it transform or write data to external service.
+A Job is required to contain a least one Processor. The duty of a processor is to transform or write data to an external service.
 
 To develop a processor, see the [docs](./development.md#processor).
 
@@ -140,11 +140,11 @@ export default class ExampleBatchProcessor extends BatchProcessor {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/batchprocessor.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations_batch_processor.md) for more details.
 
 ### Each Processor
 
-A variation of Processor that can process a single DataEntity at a time. This processor should have limit the side-effects on the data. If you are going to mutation the data use the [MapProcessor](#map-processor).
+A variation of Processor that can process a single DataEntity at a time. This processor should limit the side-effects on the data. If you are going to mutate the data use the [MapProcessor](#map-processor).
 
 **Example:**
 
@@ -166,7 +166,7 @@ export default class ExampleEachProcessor extends EachProcessor {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/eachprocessor.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations_each_processor) for more details.
 
 ### Map Processor
 
@@ -191,7 +191,7 @@ export default class ExampleMapProcessor extends MapProcessor {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/mapprocessor.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations_map_processor) for more details.
 
 ### Filter Processor
 
@@ -217,7 +217,7 @@ export default class ExampleFilterProcessor extends FilterProcessor {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/filterprocessor.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations_filter_processor) for more details.
 
 ## APIs
 
@@ -255,7 +255,7 @@ export default class ExampleOperationAPI extends OperationAPI {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/operationapi.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations#operationapi) for more details.
 
 ### Observer
 
@@ -284,4 +284,4 @@ export default class ExampleObserver extends Observer {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Check out the [API docs](../packages/job-components/api/classes/observer.md) for more details.
+Check out the [API docs](../packages/job-components/api/modules/operations#observer) for more details.

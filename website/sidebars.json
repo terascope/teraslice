@@ -33,6 +33,7 @@
             "development/releases",
             "development/tests",
             "development/e2e",
+            "development/k8s",
             "development/contributing"
         ]
     },
