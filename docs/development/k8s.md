@@ -49,7 +49,7 @@ tests.
 
 ## Kubernetes Development Environment
 
-You can launch a Teraslice using Kind in Docker locally and start a Teraslice
+You can launch Teraslice using Kind in Docker locally and start a Teraslice
 job with the following commands (NOTE: `earl` is an alternative name for the
 `teraslice-cli`).
 
