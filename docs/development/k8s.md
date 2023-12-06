@@ -246,16 +246,35 @@ it's parent ReplicaSet.  In most cases, you should use the Teraslice API to
 interact with the Teraslice job and only fall back to directly using `kubectl`
 when problems arise.
 
+When you're done, don't forget to stop the Teraslice job:
+
+```bash
+# stop the test job
+earl tjm stop examples/jobs/data_generator.json
+```
+
+### Cleanup or Rebuild
+
+When you're done and want to clean everything up, you can delete it all with a
+single Kind command and reset the modified job file as follows:
+
+```bash
+kind delete cluster -n k8se2e
+git checkout examples/jobs/data_generator.json
+```
+
+If you are iterating on development changes to Teraslice itself and need to
+rebuild and redeploy the Teraslice master, you can use the following command:
+
+```bash
+yarn run ts-scripts k8s-env --rebuild
+```
+
+## Extras
+
 ### Teraslice Kubernetes Job Structure
 
 A Teraslice job in Kubernetes is comprised of the following Kubernetes
 resources:
 
 ![Teraslice Kubernetes Job Structure](/teraslice/docs/assets/Teraslice-K8s-Job.png)
-
-### Manual Teardown
-
-```bash
-kind delete cluster -n k8se2e
-git checkout examples/jobs/data_generator.json
-```
