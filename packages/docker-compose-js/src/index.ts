@@ -63,7 +63,7 @@ export class Compose {
 
             debug('docker-compose', args);
 
-            /// runs a spawn instance of either 'docker compose or 'docker-compose'
+            /// runs a spawn instance of either 'docker compose' or 'docker-compose'
             function runCommand(sCommand:string, a:Array<string>) {
                 const cmd = spawn(sCommand, a, {
                     env: process.env
@@ -82,8 +82,6 @@ export class Compose {
                         runCommand('docker-compose', args);
                     } else {
                         throw new Error('docker compose not found. Please install it and try again');
-                        // console.error(error.message);
-                        // process.exit();
                     }
                 });
                 cmd.on('close', (code) => {
