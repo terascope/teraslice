@@ -34,7 +34,11 @@ following things will happen:
 - Build a Teraslice Docker image from the current working directory
 - Copy image into Kind and run Teraslice master
 
+NOTE: These `yarn` commands must be run from the `e2e` subdirectory:
+
 ```bash
+# change into the e2e subdirectory
+cd e2e
 # use the default version of nodejs
 yarn test:k8s
 # test against a specific version of nodejs
