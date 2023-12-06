@@ -2,9 +2,9 @@
 title: Slices
 ---
 
-Slices are a like heartbeat within teraslice, each heartbeat tracks metadata around the work being down.
+Slices are like heartbeats within teraslice, each heartbeat tracks metadata around the work being down.
 
-A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and the Execution Controller wraps the request with [Slice Metadata](#slice-metadata) stores in the state store in Teraslice and distributes the slice to the available Workers.
+A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and the Execution Controller wraps the request with [Slice Metadata](#slice-metadata) stored in the state store in Teraslice and distributes the slice to the available Workers.
 
 ## Slice Metadata
 
@@ -73,7 +73,7 @@ Called after the slice has been marked as "Failed"
 
 Called after the operation failed to process the slice but before the slice is retried.
 
-**NOTE:** A retry can be stopped by throw any error inside this function.
+**NOTE:** A retry can be stopped by throwing any error inside this function.
 
 ### `->onOperationStart`
 
@@ -98,7 +98,7 @@ See [WorkerOperationLifeCycle](../packages/job-components/api/interfaces/workero
 
 ## Flushing
 
-A "flush" is event used to persist any in-memory state or to push any additional data through the pipeline. This is currently only done on shutdown but that may change. Before a "flush" starts the [onFlushStart](#-onFlushStart) is called. Then the previously known "slice" is passed through the pipeline, at that time the processors should persist or pass-along their in-memory state. When the "flush" completes, [onFlushEnd](#-onFlushEnd) is called. The flush always happens before `shutdown` is called.
+A "flush" is an event used to persist any in-memory state or to push any additional data through the pipeline. This is currently only done on shutdown but that may change. Before a "flush" starts the [onFlushStart](#-onFlushStart) is called. Then the previously known "slice" is passed through the pipeline, at that time the processors should persist or pass-along their in-memory state. When the "flush" completes, [onFlushEnd](#-onFlushEnd) is called. The flush always happens before `shutdown` is called.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
