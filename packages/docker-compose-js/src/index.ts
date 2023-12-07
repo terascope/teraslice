@@ -62,31 +62,46 @@ export class Compose {
             args.push(...extraParams.map((param) => `${param}`));
 
             debug('docker-compose', args);
-            const cmd = spawn('docker-compose', args, {
-                env: process.env
-            });
 
-            cmd.stdout.on('data', (data) => {
-                debug('stdout', data.toString());
-                stdout += data;
-            });
-
-            cmd.stderr.on('data', (data) => {
-                debug('stderr', data.toString());
-                stderr += data;
-            });
-
-            cmd.on('close', (code) => {
-                debug('close with code', code);
-                if (code !== 0) {
-                    const error = new Error(`Command exited: ${code}\n${stderr}`);
-                    // @ts-expect-error
-                    error.stdout = stdout;
-                    reject(error);
-                } else {
-                    resolve(stdout);
-                }
-            });
+            /// runs a spawn instance of either 'docker compose' or 'docker-compose'
+            function runCommand(sCommand:string, a:Array<string>) {
+                const cmd = spawn(sCommand, a, {
+                    env: process.env
+                });
+                cmd.stdout.on('data', (data) => {
+                    debug('stdout', data.toString());
+                    stdout += data;
+                });
+                cmd.stderr.on('data', (data) => {
+                    debug('stderr', data.toString());
+                    stderr += data;
+                });
+                cmd.on('error', (err) => {
+                    /// check to see if the error is related to a missing 'docker compose' command
+                    if (err.message.includes('ENOENT') && !err.message.includes('compose')) {
+                        runCommand('docker-compose', args);
+                    } else {
+                        throw new Error('docker compose not found. Please install it and try again');
+                    }
+                });
+                cmd.on('close', (code) => {
+                    debug('close with code', code);
+                    /// Do not throw an error if 'docker compose' fails
+                    if (code !== 0 && sCommand !== 'docker') {
+                        const error = new Error(`Command exited: ${code}\n${stderr}`);
+                        // @ts-expect-error
+                        error.stdout = stdout;
+                        reject(error);
+                    /// In the senario that the docker command exists but the compose arg is invalid
+                    } else if (code === 125 && a[0] === 'compose') {
+                        runCommand('docker-compose', args);
+                    } else {
+                        resolve(stdout);
+                    }
+                });
+            }
+            /// try running spawn with 'docker compose' first
+            runCommand('docker', ['compose', ...args]);
         });
     }
 
