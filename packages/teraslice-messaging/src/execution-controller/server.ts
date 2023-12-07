@@ -1,4 +1,5 @@
 import { isNumber, get, Queue } from '@terascope/utils';
+import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -6,7 +7,7 @@ const { Available, Unavailable } = core.ClientState;
 
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
-    queue: Queue<i.EnqueuedWorker>;
+    queue: Queue<EnqueuedWorker>;
 
     constructor(opts: i.ServerOptions) {
         const {
@@ -62,13 +63,14 @@ export class Server extends core.Server {
         await super.shutdown();
     }
 
-    dequeueWorker(slice: i.Slice): string | null {
+    dequeueWorker(slice: Slice): string | null {
         const requestedWorkerId = slice.request.request_worker;
         return this._workerDequeue(requestedWorkerId);
     }
 
-    async dispatchSlice(slice: i.Slice, workerId: string): Promise<boolean> {
+    async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
         const isAvailable = this._clients[workerId] && this._clients[workerId].state === Available;
+
         if (!isAvailable) {
             this.logger.warn(`worker ${workerId} is not available`);
             return false;
@@ -100,13 +102,13 @@ export class Server extends core.Server {
         return dispatched;
     }
 
-    onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => void): void {
+    onSliceSuccess(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
         this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
         });
     }
 
-    onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => void): void {
+    onSliceFailure(fn: (workerId: string, payload: SliceCompletePayload) => void): void {
         this.on('slice:failure', (msg) => {
             fn(msg.scope, msg.payload);
         });

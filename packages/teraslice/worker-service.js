@@ -3,12 +3,12 @@
 const {
     logError, get, isEmpty, isPlainObject
 } = require('@terascope/utils');
-const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
-const { safeDecode } = require('./lib/utils/encoding_utils');
-const makeExecutionContext = require('./lib/workers/context/execution-context');
-const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
-const ExecutionController = require('./lib/workers/execution-controller');
-const Worker = require('./lib/workers/worker');
+const { shutdownHandler } = require('./dist/src/lib/workers/helpers/worker-shutdown');
+const { safeDecode } = require('./dist/src/lib/utils/encoding_utils');
+const { makeExecutionContext } = require('./dist/src/lib/workers/context/execution-context');
+const { makeTerafoundationContext } = require('./dist/src/lib/workers/context/terafoundation-context');
+const { ExecutionController } = require('./dist/src/lib/workers/execution-controller');
+const { Worker } = require('./dist/src/lib/workers/worker');
 
 class Service {
     constructor(context) {

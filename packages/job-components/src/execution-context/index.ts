@@ -25,8 +25,10 @@ export function isSlicerExecutionContext(context: unknown): context is SlicerExe
     return context instanceof SlicerExecutionContext;
 }
 
+export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function makeExecutionContext(config: ExecutionContextConfig) {
+export function makeExecutionContext(config: ExecutionContextConfig): ExecutionContext {
     if (isSlicerContext(config.context)) {
         return new SlicerExecutionContext(config);
     }

@@ -1,4 +1,5 @@
 import { isString, withoutNil, isNumber } from '@terascope/utils';
+import { SliceCompletePayload, Slice } from '@terascope/types';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -80,7 +81,7 @@ export class Client extends core.Client {
         this.on('execution:finished', fn);
     }
 
-    sendSliceComplete(payload: i.SliceCompletePayload) {
+    sendSliceComplete(payload: SliceCompletePayload) {
         return this.send('worker:slice:complete', withoutNil(payload), {
             response: true,
             volatile: false,
@@ -90,7 +91,7 @@ export class Client extends core.Client {
     async waitForSlice(
         fn: i.WaitUntilFn = () => false,
         timeoutMs = 2 * ONE_MIN
-    ): Promise<i.Slice | undefined> {
+    ): Promise<Slice | undefined> {
         this.sendAvailable();
 
         const startTime = Date.now();
@@ -115,10 +116,10 @@ export class Client extends core.Client {
             }, 100);
 
             function onMessage(msg: core.EventMessage) {
-                finish(msg.payload as i.Slice);
+                finish(msg.payload as Slice);
             }
 
-            function finish(finishedSlice?: i.Slice) {
+            function finish(finishedSlice?: Slice) {
                 clearInterval(intervalId);
                 resolve(finishedSlice);
             }
@@ -126,6 +127,6 @@ export class Client extends core.Client {
 
         if (!slice) return;
 
-        return slice as i.Slice;
+        return slice as Slice;
     }
 }

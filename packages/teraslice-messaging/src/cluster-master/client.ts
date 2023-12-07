@@ -1,4 +1,5 @@
 import { isString, isNumber } from '@terascope/utils';
+import { AggregatedExecutionAnalytics } from '@terascope/types';
 import * as i from './interfaces';
 import * as core from '../messenger';
 
@@ -49,7 +50,7 @@ export class Client extends core.Client {
         await this.connect();
     }
 
-    sendClusterAnalytics(stats: i.ClusterExecutionAnalytics, timeout?: number) {
+    sendClusterAnalytics(stats: AggregatedExecutionAnalytics, timeout?: number) {
         return this.send(
             'cluster:analytics',
             {

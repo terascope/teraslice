@@ -4,7 +4,7 @@ import isIP from 'is-ip';
 import {
     isInfiniteMin, isInfiniteMax, ParsedRange
 } from 'xlucene-parser';
-import { isString } from '@terascope/utils';
+import { isString, isNonZeroCidr } from '@terascope/utils';
 import { BooleanCB } from '../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -37,7 +37,7 @@ export function ipTerm(value: unknown): BooleanCB {
     }
 
     return function isIPTerm(ip: string) {
-        if (isCidr(ip) > 0) {
+        if (isNonZeroCidr(ip)) {
             const argRange = ip6addr.createCIDR(ip);
             return argRange.contains(`${value}`);
         }
@@ -82,7 +82,7 @@ function checkCidr(ip: string, range: any) {
 
 function pRangeTerm(range: any) {
     return function checkIP(ip: string) {
-        if (isCidr(ip) > 0) {
+        if (isNonZeroCidr(ip)) {
             return checkCidr(ip, range);
         }
         if (isIP(ip)) return range.contains(ip);

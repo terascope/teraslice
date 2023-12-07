@@ -1,11 +1,16 @@
 import _isIP from 'is-ip';
 import IPCIDR from 'ip-cidr';
+import isCidr from 'is-cidr';
 import ipaddr, { IPv4, IPv6 } from 'ipaddr.js';
 import { parse, stringify } from 'ip-bigint';
 import ip6addr from 'ip6addr';
 import { isString } from './strings';
-import { toInteger, isNumberLike, toBigIntOrThrow } from './numbers';
+import {
+    toInteger, isNumberLike, toBigIntOrThrow,
+    isNumber
+} from './numbers';
 import { getTypeOf } from './deps';
+import { isBoolean } from './booleans';
 
 export function isIP(input: unknown): input is string {
     return isString(input) && _isIP(input);
@@ -293,6 +298,7 @@ function _validSuffix(ipVersion: number | undefined, suffix: number | string): b
     if (isNumberLike(suffix)) {
         const asInt = toInteger(suffix);
 
+        if (isBoolean(asInt)) return false;
         if (asInt < 0) return false;
         if (ipVersion === 4) return asInt <= 32;
         if (ipVersion === 6) return asInt <= 128;
@@ -307,6 +313,12 @@ function createCIDR(input: string, suffix?: number): ip6addr.CIDR {
     }
 
     return ip6addr.createCIDR(input);
+}
+
+export function isNonZeroCidr(input: string): boolean {
+    const cidrValue = isCidr(input);
+    if (isNumber(cidrValue) && cidrValue > 0) return true;
+    return false;
 }
 
 export function ipToInt(input: unknown): bigint {

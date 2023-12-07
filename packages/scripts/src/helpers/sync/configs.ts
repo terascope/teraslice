@@ -34,6 +34,8 @@ export async function generateTSConfig(
             resolveJsonModule: true,
             forceConsistentCasingInFileNames: true,
             suppressImplicitAnyIndexErrors: true,
+            ignoreDeprecations: '5.0',
+
             // Require project settings
             composite: true,
             declaration: true,

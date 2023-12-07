@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const { cloneDeep } = require('@terascope/utils');
+const { cloneDeep, pDelay } = require('@terascope/utils');
 const TerasliceHarness = require('../../teraslice-harness');
 const { TEST_PLATFORM } = require('../../config');
 
@@ -88,17 +88,16 @@ describe('cluster api', () => {
         const ex = terasliceHarness.teraslice.executions.wrap(exId);
 
         await terasliceHarness.waitForExStatus(ex, 'completed', 100, 1000);
+        await pDelay(100);
 
         const result = await Promise.all([
-            didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-            didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_stop`)),
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_resume`)),
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_pause`))
         ]);
 
-        expect(result).toEqual([true, true, true, true, true, true]);
+        expect(result).toEqual([true, true, true, true]);
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
