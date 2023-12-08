@@ -340,13 +340,15 @@ export class ApiService {
         v1routes.post(['/jobs/:jobId/_stop', '/ex/:exId/_stop'], (req, res) => {
             const {
                 timeout,
-                blocking = true
-            } = req.query as unknown as { timeout: number, blocking: boolean };
+                blocking = true,
+                force = false
+            } = req.query as unknown as { timeout: number, blocking: boolean, force: boolean };
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not stop execution');
             requestHandler(async () => {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest);
-                await executionService.stopExecution(exId, timeout as number);
+                await executionService
+                    .stopExecution(exId, { timeout, force });
                 return this._waitForStop(exId, blocking);
             });
         });

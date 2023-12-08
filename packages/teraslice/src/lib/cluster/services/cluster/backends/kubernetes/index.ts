@@ -8,6 +8,7 @@ import { K8sResource } from './k8sResource';
 import { gen } from './k8sState';
 import { K8s } from './k8s';
 import { getRetryConfig } from './utils';
+import { StopExecutionOptions } from '../../../interfaces';
 
 /*
  Execution Life Cycle for _status
@@ -205,12 +206,14 @@ export class KubernetesClusterBackend {
 
     /**
      * Stops all workers for exId
-     * @param  {string} exId    The execution ID of the Execution to stop
+     * @param  {String}                 exId      The execution ID of the Execution to stop
+     * @param  {StopExecutionOptions} options     force, timeout, and excludeNode
+     *                                    force: stop all related pod, deployment, and job resources
+     *                                    timeout and excludeNode are not used in k8s clustering.
      * @return {Promise}
      */
-
-    async stopExecution(exId: string) {
-        return this.k8s.deleteExecution(exId);
+    async stopExecution(exId: string, options?: StopExecutionOptions) {
+        return this.k8s.deleteExecution(exId, options?.force);
     }
 
     async shutdown() {

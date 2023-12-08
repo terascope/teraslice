@@ -11,6 +11,7 @@ import { makeLogger } from '../../../../../workers/helpers/terafoundation';
 import { findWorkersByExecutionID } from '../state-utils';
 import { Messaging } from './messaging';
 import { ExecutionStorage } from '../../../../../storage';
+import { StopExecutionOptions } from '../../../interfaces';
 
 /*
  Execution Life Cycle for _status
@@ -604,16 +605,15 @@ export class NativeClustering {
 
     clusterAvailable() {}
 
-    async stopExecution(exId: string, timeout?: number | null | undefined, exclude?: string) {
+    async stopExecution(exId: string, options?:StopExecutionOptions) {
         // we are allowing stopExecution to be non blocking, we block at api level
-        const excludeNode = exclude ?? undefined;
         this.pendingWorkerRequests.remove(exId, 'ex_id');
         const sendingMessage = { message: 'cluster:execution:stop' } as Record<string, any>;
 
-        if (timeout) {
-            sendingMessage.timeout = timeout;
+        if (options?.timeout) {
+            sendingMessage.timeout = options.timeout;
         }
-        return this._notifyNodesWithExecution(exId, sendingMessage, excludeNode);
+        return this._notifyNodesWithExecution(exId, sendingMessage, options?.excludeNode);
     }
 
     async shutdown() {

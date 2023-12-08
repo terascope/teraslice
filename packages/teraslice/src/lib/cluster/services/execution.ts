@@ -15,6 +15,7 @@ import type {
 } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
 import type { ClusterServiceType } from './cluster';
+import { StopExecutionOptions } from './interfaces';
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -168,7 +169,7 @@ export class ExecutionService {
             // need to exclude sending a stop to cluster master host, the shutdown event
             // has already been propagated this can cause a condition of it waiting for
             // stop to return but it already has which pauses this service shutdown
-            await this.stopExecution(exId, null, hostname);
+            await this.stopExecution(exId, { excludeNode: hostname });
             await this.waitForExecutionStatus(exId, 'terminated');
         }));
     }
@@ -254,7 +255,7 @@ export class ExecutionService {
         }
     }
 
-    async stopExecution(exId: string, timeout?: number | null | undefined, excludeNode?: string) {
+    async stopExecution(exId: string, options: StopExecutionOptions) {
         const execution = await this.getExecutionContext(exId);
 
         if (!execution) {
@@ -263,22 +264,26 @@ export class ExecutionService {
 
         const isTerminal = this.isExecutionTerminal(execution);
 
-        if (isTerminal) {
-            this.logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
-            return;
+        if (this.isNative || !options.force) {
+            if (isTerminal) {
+                this.logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
+                return;
+            }
+
+            if (execution._status === 'stopping') {
+                this.logger.info('execution is already stopping...');
+                // we are kicking this off in the background, not part of the promise chain
+                this.waitForExecutionStatus(exId);
+                return;
+            }
+
+            this.logger.debug(`stopping execution ${exId}...`, withoutNil(options));
+            await this.executionStorage.setStatus(exId, 'stopping');
+        } else {
+            this.logger.debug(`force stopping execution ${exId}...`, withoutNil(options));
         }
 
-        if (execution._status === 'stopping') {
-            this.logger.info('execution is already stopping...');
-            // we are kicking this off in the background, not part of the promise chain
-            this.waitForExecutionStatus(exId);
-            return;
-        }
-
-        this.logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
-
-        await this.executionStorage.setStatus(exId, 'stopping');
-        await this.clusterService.stopExecution(exId, timeout, excludeNode);
+        await this.clusterService.stopExecution(exId, options);
         // we are kicking this off in the background, not part of the promise chain
         this.waitForExecutionStatus(exId);
     }

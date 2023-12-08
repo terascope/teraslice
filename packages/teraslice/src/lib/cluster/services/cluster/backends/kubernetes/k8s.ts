@@ -296,35 +296,52 @@ export class K8s {
 
     /**
      * Deletes k8s object of specified objType
-     * @param  {String} name     Name of the deployment to delete
-     * @param  {String} objType  Type of k8s object to get, valid options:
-     *                           'deployments', 'services', 'jobs'
-     * @return {Object}          body of k8s delete response.
+     * @param  {String} name              Name of the deployment to delete
+     * @param  {String} objType           Type of k8s object to get, valid options:
+     *                                    'deployments', 'services', 'jobs'
+     * @param  {Object}  forcePodList     List of all related pod, deployment, and job resources
+     *                                    to be forcefully stopped.
+     * @return {Array}                    Array of k8s delete response objects.
      */
-    async delete(name: string, objType: string) {
-        let response;
+    async delete(name: string, objType: string, forcePodList?: any) {
+        const responses = [];
 
         try {
             if (objType === 'services') {
-                response = await pRetry(() => this.client
+                responses.push(await pRetry(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).services(name)
-                    .delete(), getRetryConfig());
+                    .delete(), getRetryConfig()));
             } else if (objType === 'deployments') {
-                response = await pRetry(() => this.client
+                responses.push(await pRetry(() => this.client
                     .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
-                    .delete(), getRetryConfig());
+                    .delete(), getRetryConfig()));
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
-                // include a body like the one below with the delete request
-                response = await pRetry(() => this.client
+                // include a body like the one below with the delete request.
+                // Setting gracePeriodSeconds to 1 will send a SIGKILL command to the resource
+
+                const deleteOptions: DeleteOptions = {
+                    body: {
+                        apiVersion: 'v1',
+                        kind: 'DeleteOptions',
+                        propagationPolicy: 'Background'
+                    }
+                };
+
+                if (forcePodList) {
+                    deleteOptions.body.gracePeriodSeconds = 1;
+
+                    for (const pod of forcePodList.items) {
+                        const podName = pod.metadata.name;
+                        responses.push(await pRetry(() => this.client
+                            .api.v1.namespaces(this.defaultNamespace).pods(podName)
+                            .delete(deleteOptions), getRetryConfig()));
+                    }
+                }
+
+                responses.push(await pRetry(() => this.client
                     .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
-                    .delete({
-                        body: {
-                            apiVersion: 'v1',
-                            kind: 'DeleteOptions',
-                            propagationPolicy: 'Background'
-                        }
-                    }), getRetryConfig());
+                    .delete(deleteOptions), getRetryConfig()));
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -334,14 +351,15 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        if (response.statusCode >= 400) {
-            const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
-            this.logger.error(err);
-            err.code = response.statusCode;
-            return Promise.reject(err);
+        for (const response of responses) {
+            if (response.statusCode >= 400) {
+                const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
+                this.logger.error(err);
+                err.code = response.statusCode;
+                return Promise.reject(err);
+            }
         }
-
-        return response.body;
+        return responses;
     }
 
     /**
@@ -351,16 +369,16 @@ export class K8s {
      * deployment as a transitional measure, for running jobs started by other
      * versions.
      *
-     * @param  {String}  exId ID of the execution
+     * @param  {String}   exId    ID of the execution
+     * @param  {Boolean}  force   Forcefully stop all related pod, deployment, and job resources
      * @return {Promise}
      */
-    async deleteExecution(exId: string) {
+    async deleteExecution(exId: string, force = false) {
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
         }
 
-        await this._deleteObjByExId(exId, 'execution_controller', 'jobs');
-
+        await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
         // In the future we will remove the following block and just rely on k8s
         // garbage collection to remove the worker deployment when the execution
         // controller job is deleted.  We leave this here for the transition
@@ -382,21 +400,33 @@ export class K8s {
      *                            'worker', 'execution_controller'
      * @param  {String}  objType  valid object type: `services`, `deployments`,
      *                            'jobs'
+     * @param  {Boolean}  force    Forcefully stop all related pod, deployment, and job resources
      * @return {Promise}
      */
-    async _deleteObjByExId(exId: string, nodeType: string, objType: string) {
+    async _deleteObjByExId(exId: string, nodeType: string, objType: string, force?: boolean) {
         let objList;
+        let forcePodsList;
         let deleteResponse;
 
         try {
             objList = await this.list(`app.kubernetes.io/component=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
         } catch (e) {
-            const err = new Error(`Request list in _deleteObjByExId with app.kubernetes.io/component: ${nodeType} and exId: ${exId} failed with: ${e}`);
+            const err = new Error(`Request ${objType} list in _deleteObjByExId with app.kubernetes.io/component: ${nodeType} and exId: ${exId} failed with: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
 
-        if (isEmpty(objList.items)) {
+        if (force) {
+            try {
+                forcePodsList = await this.list(`teraslice.terascope.io/exId=${exId}`, 'pods');
+            } catch (e) {
+                const err = new Error(`Request pods list in _deleteObjByExId with exId: ${exId} failed with: ${e}`);
+                this.logger.error(err);
+                return Promise.reject(err);
+            }
+        }
+
+        if (isEmpty(objList.items) && isEmpty(forcePodsList)) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} has already been deleted`);
             return Promise.resolve();
         }
@@ -405,7 +435,7 @@ export class K8s {
         this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
         try {
-            deleteResponse = await this.delete(name, objType);
+            deleteResponse = await this.delete(name, objType, forcePodsList);
         } catch (e) {
             const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -456,5 +486,14 @@ export class K8s {
         const patchResponseBody = await this.patch(scalePatch, workerDeployment.metadata.name);
         this.logger.debug(`k8s.scaleExecution patchResponseBody: ${JSON.stringify(patchResponseBody)}`);
         return patchResponseBody;
+    }
+}
+
+interface DeleteOptions {
+    body: {
+        apiVersion: string,
+        kind: string,
+        propagationPolicy: string,
+        gracePeriodSeconds?: number
     }
 }
