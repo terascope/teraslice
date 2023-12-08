@@ -9,10 +9,7 @@ export async function generateTSConfig(
 ): Promise<void> {
     const rootInfo = getRootInfo();
     const references = pkgInfos
-        .filter((pkgInfo) => {
-            if (pkgInfo.terascope?.main) return false;
-            return fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'));
-        })
+        .filter((pkgInfo) => fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json')))
         .map((pkgInfo) => ({
             path: pkgInfo.relativeDir.replace(/^\.\//, '')
         }));
