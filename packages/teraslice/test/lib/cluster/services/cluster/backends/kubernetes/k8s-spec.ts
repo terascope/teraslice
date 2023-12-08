@@ -173,7 +173,7 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'deployments');
-            expect(response).toEqual({});
+            expect(response).toEqual({ statusCode: 200, body: {} });
         });
 
         it('can delete a service by name', async () => {
@@ -182,7 +182,7 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'services');
-            expect(response).toEqual({});
+            expect(response).toEqual({ statusCode: 200, body: {} });
         });
 
         it('can delete a job by name', async () => {
@@ -191,7 +191,28 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'jobs');
-            expect(response).toEqual({});
+            expect(response).toEqual({ statusCode: 200, body: {} });
+        });
+
+        it('can force delete a job by name', async () => {
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/testEx1')
+                .reply(200, {});
+
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/testWkr1')
+                .reply(200, {});
+
+            nock(_url)
+                .delete('/apis/batch/v1/namespaces/default/jobs/test1')
+                .reply(200, {});
+
+            const response = await k8s.delete('test1', 'jobs', { items: [{ metadata: { name: 'testEx1' } }, { metadata: { name: 'testWkr1' } }] });
+            expect(response).toEqual({
+                statusCode: 200,
+                body: {},
+                deletePodResponses: [{ statusCode: 200, body: {} }, { statusCode: 200, body: {} }]
+            });
         });
     });
 

@@ -301,20 +301,20 @@ export class K8s {
      *                                    'deployments', 'services', 'jobs'
      * @param  {Object}  forcePodList     List of all related pod, deployment, and job resources
      *                                    to be forcefully stopped.
-     * @return {Array}                    Array of k8s delete response objects.
+     * @return {Object}                   k8s delete response.
      */
     async delete(name: string, objType: string, forcePodList?: any) {
-        const responses = [];
+        let response;
 
         try {
             if (objType === 'services') {
-                responses.push(await pRetry(() => this.client
+                response = await pRetry(() => this.client
                     .api.v1.namespaces(this.defaultNamespace).services(name)
-                    .delete(), getRetryConfig()));
+                    .delete(), getRetryConfig());
             } else if (objType === 'deployments') {
-                responses.push(await pRetry(() => this.client
+                response = await pRetry(() => this.client
                     .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
-                    .delete(), getRetryConfig()));
+                    .delete(), getRetryConfig());
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
                 // include a body like the one below with the delete request.
@@ -328,20 +328,25 @@ export class K8s {
                     }
                 };
 
+                const deletePodResponses = [];
                 if (forcePodList) {
                     deleteOptions.body.gracePeriodSeconds = 1;
 
                     for (const pod of forcePodList.items) {
                         const podName = pod.metadata.name;
-                        responses.push(await pRetry(() => this.client
+                        deletePodResponses.push(await pRetry(() => this.client
                             .api.v1.namespaces(this.defaultNamespace).pods(podName)
                             .delete(deleteOptions), getRetryConfig()));
                     }
                 }
 
-                responses.push(await pRetry(() => this.client
+                response = await pRetry(() => this.client
                     .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
-                    .delete(deleteOptions), getRetryConfig()));
+                    .delete(deleteOptions), getRetryConfig());
+
+                if (deletePodResponses.length > 0) {
+                    response.deletePodResponses = deletePodResponses;
+                }
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -351,15 +356,30 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        for (const response of responses) {
-            if (response.statusCode >= 400) {
-                const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
-                this.logger.error(err);
-                err.code = response.statusCode;
-                return Promise.reject(err);
+        let potentialError = checkResponseCode(response, this.logger);
+        if (potentialError) {
+            return Promise.reject(potentialError);
+        }
+
+        if (response?.deletePodResponses) {
+            for (const podResponse of response.deletePodResponses) {
+                potentialError = checkResponseCode(podResponse, this.logger);
+                if (potentialError) {
+                    return Promise.reject(potentialError);
+                }
             }
         }
-        return responses;
+
+        return response;
+
+        function checkResponseCode(res: any, logger: Logger) {
+            if (res.statusCode >= 400) {
+                const err = new TSError(`Unexpected response code (${res.statusCode}), when deleting name: ${name}`);
+                logger.error(err);
+                err.code = res.statusCode;
+                return err;
+            }
+        }
     }
 
     /**
