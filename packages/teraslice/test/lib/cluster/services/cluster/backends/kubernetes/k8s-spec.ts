@@ -173,7 +173,7 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'deployments');
-            expect(response).toEqual({ statusCode: 200, body: {} });
+            expect(response).toEqual({});
         });
 
         it('can delete a service by name', async () => {
@@ -182,7 +182,7 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'services');
-            expect(response).toEqual({ statusCode: 200, body: {} });
+            expect(response).toEqual({});
         });
 
         it('can delete a job by name', async () => {
@@ -191,7 +191,7 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'jobs');
-            expect(response).toEqual({ statusCode: 200, body: {} });
+            expect(response).toEqual({});
         });
 
         it('can delete a pod by name', async () => {
