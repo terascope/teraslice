@@ -296,15 +296,30 @@ export class K8s {
 
     /**
      * Deletes k8s object of specified objType
-     * @param  {String} name              Name of the deployment to delete
-     * @param  {String} objType           Type of k8s object to get, valid options:
-     *                                    'deployments', 'services', 'jobs'
-     * @param  {Object}  forcePodList     List of all related pod, deployment, and job resources
-     *                                    to be forcefully stopped.
-     * @return {Object}                   k8s delete response.
+     * @param  {String}  name          Name of the resource to delete
+     * @param  {String}  objType       Type of k8s object to get, valid options:
+     *                                 'deployments', 'services', 'jobs'
+     * @param  {Boolean} force         Forcefully delete resource by setting gracePeriodSeconds to 1
+     *                                 to be forcefully stopped.
+     * @return {Object}                k8s delete response body.
      */
-    async delete(name: string, objType: string, forcePodList?: any) {
+    async delete(name: string, objType: string, force?: boolean) {
         let response;
+
+        // To get a Job to remove the associated pods you have to
+        // include a body like the one below with the delete request.
+        // To force Setting gracePeriodSeconds to 1 will send a SIGKILL command to the resource
+        const deleteOptions: DeleteOptions = {
+            body: {
+                apiVersion: 'v1',
+                kind: 'DeleteOptions',
+                propagationPolicy: 'Background'
+            }
+        };
+
+        if (force) {
+            deleteOptions.body.gracePeriodSeconds = 1;
+        }
 
         try {
             if (objType === 'services') {
@@ -316,37 +331,13 @@ export class K8s {
                     .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
                     .delete(), getRetryConfig());
             } else if (objType === 'jobs') {
-                // To get a Job to remove the associated pods you have to
-                // include a body like the one below with the delete request.
-                // Setting gracePeriodSeconds to 1 will send a SIGKILL command to the resource
-
-                const deleteOptions: DeleteOptions = {
-                    body: {
-                        apiVersion: 'v1',
-                        kind: 'DeleteOptions',
-                        propagationPolicy: 'Background'
-                    }
-                };
-
-                const deletePodResponses = [];
-                if (forcePodList) {
-                    deleteOptions.body.gracePeriodSeconds = 1;
-
-                    for (const pod of forcePodList.items) {
-                        const podName = pod.metadata.name;
-                        deletePodResponses.push(await pRetry(() => this.client
-                            .api.v1.namespaces(this.defaultNamespace).pods(podName)
-                            .delete(deleteOptions), getRetryConfig()));
-                    }
-                }
-
                 response = await pRetry(() => this.client
                     .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
                     .delete(deleteOptions), getRetryConfig());
-
-                if (deletePodResponses.length > 0) {
-                    response.deletePodResponses = deletePodResponses;
-                }
+            } else if (objType === 'pods') {
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(this.defaultNamespace).pods(name)
+                    .delete(deleteOptions), getRetryConfig());
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -356,30 +347,14 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        let potentialError = checkResponseCode(response, this.logger);
-        if (potentialError) {
-            return Promise.reject(potentialError);
+        if (response.statusCode >= 400) {
+            const err = new TSError(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
+            this.logger.error(err);
+            err.code = response.statusCode;
+            return Promise.reject(err);
         }
 
-        if (response?.deletePodResponses) {
-            for (const podResponse of response.deletePodResponses) {
-                potentialError = checkResponseCode(podResponse, this.logger);
-                if (potentialError) {
-                    return Promise.reject(potentialError);
-                }
-            }
-        }
-
-        return response;
-
-        function checkResponseCode(res: any, logger: Logger) {
-            if (res.statusCode >= 400) {
-                const err = new TSError(`Unexpected response code (${res.statusCode}), when deleting name: ${name}`);
-                logger.error(err);
-                err.code = res.statusCode;
-                return err;
-            }
-        }
+        return response.body;
     }
 
     /**
@@ -451,16 +426,30 @@ export class K8s {
             return Promise.resolve();
         }
 
+        const deletePodResponses = [];
+        for (const pod of forcePodsList.items) {
+            const podName = pod.metadata.name;
+            try {
+                deletePodResponses.push(await this.delete(podName, 'pods', force));
+            } catch (e) {
+                const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${podName} failed with: ${e}`);
+                this.logger.error(err);
+                return Promise.reject(err);
+            }
+        }
+
         const name = get(objList, 'items[0].metadata.name');
         this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
         try {
-            deleteResponse = await this.delete(name, objType, forcePodsList);
+            deleteResponse = await this.delete(name, objType, force);
         } catch (e) {
             const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
+
+        deleteResponse.deletePodResponses = deletePodResponses;
         return deleteResponse;
     }
 
