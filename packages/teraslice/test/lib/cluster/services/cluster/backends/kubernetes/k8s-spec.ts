@@ -204,7 +204,7 @@ describe('k8s', () => {
         });
     });
 
-    describe('-> _deletObjByExId', () => {
+    describe('->_deletObjByExId', () => {
         it('can force delete a job', async () => {
             nock(_url)
                 .get('/apis/batch/v1/namespaces/default/jobs/')
