@@ -421,20 +421,23 @@ export class K8s {
             }
         }
 
-        if (isEmpty(objList.items) && isEmpty(forcePodsList)) {
+        if (isEmpty(objList.items) && isEmpty(forcePodsList?.items)) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} has already been deleted`);
             return Promise.resolve();
         }
 
         const deletePodResponses = [];
-        for (const pod of forcePodsList.items) {
-            const podName = pod.metadata.name;
-            try {
-                deletePodResponses.push(await this.delete(podName, 'pods', force));
-            } catch (e) {
-                const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${podName} failed with: ${e}`);
-                this.logger.error(err);
-                return Promise.reject(err);
+        if (forcePodsList?.items) {
+            for (const pod of forcePodsList.items) {
+                const podName = pod.metadata.name;
+
+                try {
+                    deletePodResponses.push(await this.delete(podName, 'pods', force));
+                } catch (e) {
+                    const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${podName} failed with: ${e}`);
+                    this.logger.error(err);
+                    return Promise.reject(err);
+                }
             }
         }
 
@@ -449,7 +452,9 @@ export class K8s {
             return Promise.reject(err);
         }
 
-        deleteResponse.deletePodResponses = deletePodResponses;
+        if (deletePodResponses.length > 0) {
+            deleteResponse.deletePodResponses = deletePodResponses;
+        }
         return deleteResponse;
     }
 
