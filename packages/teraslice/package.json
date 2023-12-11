@@ -85,7 +85,7 @@
         "registry": "https://registry.npmjs.org/"
     },
     "terascope": {
-        "main": false,
+        "main": true,
         "enableTypedoc": false,
         "testSuite": "elasticsearch"
     }
