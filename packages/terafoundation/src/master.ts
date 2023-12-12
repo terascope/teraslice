@@ -36,7 +36,7 @@ export default function masterModule<
 
         let workersAlive = 0;
         let funcRun = 0;
-        let shutdownInterval: NodeJS.Timer;
+        let shutdownInterval: NodeJS.Timeout;
 
         const emitShutdown = once(() => {
             // optional hook for shutdown sequences
