@@ -43,12 +43,12 @@ const cmd: CommandModule = {
                 default: config.NODE_VERSION
             })
             .option('skip-build', {
-                description: 'Skip building the teraslice docker iamge',
+                description: 'Skip building the teraslice docker image',
                 type: 'boolean',
                 default: config.SKIP_DOCKER_BUILD_IN_K8S
             })
             .option('rebuild', {
-                description: 'Stop, rebuild, then restart the teraslice docker iamge',
+                description: 'Stop, rebuild, then restart the teraslice docker image',
                 type: 'boolean',
                 default: false
             })

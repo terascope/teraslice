@@ -349,14 +349,15 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_star
 
 ## POST /v1/jobs/{jobId}/_stop
 
-Issues a stop command which will shutdown the execution controllers and workers, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetcher exit will vary.
+Issues a stop command which will shutdown execution controller and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetchers take to exit will vary. In a Kubernetes environment the force option will immediately kill all jobs, deployments, execution controllers and workers associated with the job.
 
-**Note:** the timeout your provide will be added to the `network_latency_buffer` for the final timeout used.
+**Note:** The timeout your provide will be added to the `network_latency_buffer` for the final timeout used.
 
 **Query Options:**
 
-- `timeout: number`
+- `timeout: number (native clustering only)`
 - `blocking: boolean = true`
+- `force: boolean = false (Kubernetes clustering only)`
 
 **Usage:**
 
@@ -730,14 +731,15 @@ $ curl 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/errors'
 
 ## POST /v1/ex/{exId}/_stop
 
-Issues a stop command which will shutdown execution controller and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetchers will exit will vary.
+Issues a stop command which will shutdown execution controller and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetchers take to exit will vary. In a Kubernetes environment the force option will immediately kill all jobs, deployments, execution controllers and workers associated with the job.
 
 **Note:** The timeout your provide will be added to the `network_latency_buffer` for the final timeout used.
 
 **Query Options:**
 
-- `timeout: number`
+- `timeout: number (native clustering only)`
 - `blocking: boolean = true`
+- `force: boolean = false (Kubernetes clustering only)`
 
 **Usage:**
 
