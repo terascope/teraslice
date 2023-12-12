@@ -15,4 +15,4 @@ export * as Elasticsearch from './elasticsearch-interfaces';
 export * as Geo from './geo-interfaces';
 export * as SearchClient from './elasticsearch-client';
 export * as Teraslice from './teraslice';
-export * as Foundation from './terafoundation';
+export * as Terafoundation from './terafoundation';

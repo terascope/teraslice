@@ -370,7 +370,7 @@ export interface IndexRolloverFrequency {
     analytics: RolloverFrequency;
 }
 
-export interface TerasliceConfig {
+export interface Config {
     action_timeout: number|300000;
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;

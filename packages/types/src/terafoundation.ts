@@ -23,7 +23,7 @@ interface SchemaObj<T = any> {
     [key: string]: any;
 }
 
-export type FoundationConfig<
+export type Config<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string
@@ -32,15 +32,15 @@ export type FoundationConfig<
     config_schema?: any;
     schema_formats?: Format[];
     default_config_file?: string;
-    cluster_name?: string|((sysconfig: FoundationSysConfig<S>) => string);
-    script?: (context: FoundationContext<S, A, D>) => void|Promise<void>;
+    cluster_name?: string|((sysconfig: SysConfig<S>) => string);
+    script?: (context: Context<S, A, D>) => void|Promise<void>;
     descriptors?: Record<D, string>;
     master?: (
-        context: FoundationContext<S, A, D>,
-        config: FoundationConfig<S, A, D>
+        context: Context<S, A, D>,
+        config: Config<S, A, D>
     ) => void|Promise<void>;
     worker?: (
-        context: FoundationContext<S, A, D>
+        context: Context<S, A, D>
     ) => void|Promise<void>;
     start_workers?: boolean;
     shutdownMessaging?: boolean;
@@ -110,7 +110,7 @@ export type Cluster = Overwrite<NodeJSCluster, {
     };
 }>;
 
-export type FoundationSysConfig<S> = {
+export type SysConfig<S> = {
     _nodeName: string;
     terafoundation: {
         workers: number;
@@ -122,12 +122,12 @@ export type FoundationSysConfig<S> = {
     };
 } & S;
 
-export type FoundationContext<
+export type Context<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string
 > = {
-    sysconfig: FoundationSysConfig<S>;
+    sysconfig: SysConfig<S>;
     apis: ContextAPIs & A;
     foundation: LegacyFoundationApis;
     logger: Logger;
