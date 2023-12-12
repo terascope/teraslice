@@ -1,3 +1,5 @@
+export type ClusterManagerType = 'native'|'kubernetes';
+
 export interface AssetRecord {
     blob: BinaryType;
     name: string;
@@ -91,9 +93,21 @@ export interface AggregatedExecutionAnalytics {
     workers_disconnected: number,
 }
 
+/**
+ * A trackable set of work to be preformed by a "Worker"
+ */
 export interface Slice {
+    /**
+     * A unique identifier for the slice
+     */
     slice_id: string;
+    /**
+     * A reference to the slicer that created the slice.
+     */
     slicer_id: number;
+    /**
+     * A reference to the slicer
+     */
     slicer_order: number;
     request: SliceRequest;
     _created: string;
@@ -267,3 +281,142 @@ export interface APIConfig {
     _dead_letter_action?: DeadLetterAction;
     [prop: string]: any;
 }
+
+export interface ApiRootResponse {
+    arch: string;
+    clustering_type: ClusterManagerType;
+    name: string;
+    node_version: string;
+    platform: string;
+    teraslice_version: string;
+}
+
+export interface ApiJobCreateResponse {
+    job_id: string;
+    ex_id?: string;
+}
+
+export interface ApiPausedResponse {
+    status: ExecutionStatus.paused;
+}
+
+export interface ApiResumeResponse {
+    status: ExecutionStatus.running;
+}
+
+export interface ApiStoppedResponse {
+    status: ExecutionStatus.stopped | ExecutionStatus.stopping;
+}
+
+export interface ApiChangeWorkerResponse {
+    message: string;
+}
+
+export interface ApiAssetStatusResponse {
+    available: boolean;
+}
+
+/*
+    Execution Context
+*/
+
+export enum ExecutionStatus {
+    pending = 'pending',
+    scheduling = 'scheduling',
+    initializing = 'initializing',
+
+    running = 'running',
+    recovering = 'recovering',
+    failing = 'failing',
+    paused = 'paused',
+    stopping = 'stopping',
+
+    completed = 'completed',
+    stopped = 'stopped',
+    rejected = 'rejected',
+    failed = 'failed',
+    terminated = 'terminated'
+}
+
+export type ExecutionInitStatus =
+    ExecutionStatus.pending |
+    ExecutionStatus.scheduling |
+    ExecutionStatus.recovering;
+
+export type ExecutionRunningStatus =
+    ExecutionStatus.recovering |
+    ExecutionStatus.running |
+    ExecutionStatus.failing |
+    ExecutionStatus.paused |
+    ExecutionStatus.stopping;
+
+export type ExecutionTerminalStatus =
+    ExecutionStatus.completed |
+    ExecutionStatus.stopped |
+    ExecutionStatus.rejected |
+    ExecutionStatus.failed |
+    ExecutionStatus.terminated;
+
+export interface ExecutionControllerTargets {
+    key: string;
+    value: string;
+}
+
+export type RolloverFrequency = 'daily'|'montly'|'yearly';
+
+// TODO: is this really double?
+export interface IndexRolloverFrequency {
+    state: RolloverFrequency;
+    analytics: RolloverFrequency;
+}
+
+export interface TerasliceConfig {
+    action_timeout: number|300000;
+    analytics_rate: number|60000;
+    api_response_timeout?: number|300000;
+    assets_directory?: string[] | string;
+    assets_volume?: string;
+    cluster_manager_type: ClusterManagerType;
+    /** This will only be available in the context of k8s */
+    cpu?: number;
+    /** This will only be available in the context of k8s */
+    cpu_execution_controller?: number|0.5;
+    /** This will only be available in the context of k8s */
+    ephemeral_storage?: boolean|false;
+    execution_controller_targets?: ExecutionControllerTargets[];
+    hostname: string;
+    index_rollover_frequency: IndexRolloverFrequency;
+    kubernetes_api_poll_delay?: number|1000;
+    kubernetes_config_map_name?: string|'teraslice-worker';
+    kubernetes_image_pull_secret?: string|'';
+    kubernetes_image?: string|'terascope/teraslice';
+    kubernetes_namespace?: string|'default';
+    kubernetes_overrides_enabled?: boolean|false;
+    kubernetes_priority_class_name?: string|'';
+    kubernetes_worker_antiaffinity?: boolean|false;
+    master_hostname: string|'localhost';
+    master: boolean|false;
+    /** This will only be available in the context of k8s */
+    memory?: number;
+    /** This will only be available in the context of k8s */
+    memory_execution_controller?: number|512000000; // 512 MB
+    name: string|'teracluster';
+    network_latency_buffer: number|15000;
+    node_disconnect_timeout: number|300000;
+    node_state_interval: number|5000;
+    port: number|5678;
+    shutdown_timeout: number|number;
+    slicer_allocation_attempts: number|3;
+    slicer_port_range: string|'45679:46678';
+    slicer_timeout: number|180000;
+    state: ClusterStateConfig;
+    env_vars: { [key: string]: string };
+    worker_disconnect_timeout: number|300000;
+    workers: number|4;
+}
+
+export interface ClusterStateConfig {
+    connection: string|'default';
+}
+
+export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
