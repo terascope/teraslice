@@ -98,66 +98,35 @@ export default class ExampleFetcher extends Fetcher {
 ```js
 'use strict';
 
-const { Fetcher } = require('@terascope/job-components');
+const { ConvictSchema } = require('@terascope/job-components');
 
-class ExampleFetcher extends Fetcher {
-    constructor(...args) {
-        super(...args);
-        this._initialized = false;
-        this._shutdown = false;
-    }
-
-    async initialize() {
-        this._initialized = true;
-        return super.initialize();
-    }
-
-    async shutdown() {
-        this._shutdown = true;
-        return super.shutdown();
-    }
-
-    async fetch() {
-        const result = [];
-        for (let i = 0; i < 10; i++) {
-            result.push({
-                id: i,
-                data: [Math.random(), Math.random(), Math.random()],
-            });
-        }
-        return result;
+class ExampleSchema extends ConvictSchema {
+    build() {
+        return {
+            type: {
+                doc: 'An example of a property schema',
+                default: 'string',
+                format: 'String',
+            }
+        };
     }
 }
 
-module.exports = ExampleFetcher;
+module.exports = ExampleSchema;
 ```
 <!--TypeScript-->
 ```ts
-import { Fetcher } from '@terascope/job-components';
+import { ConvictSchema } from '@terascope/job-components';
 
-export default class ExampleFetcher extends Fetcher {
-    _initialized = false;
-    _shutdown = false;
-
-    async initialize() {
-        this._initialized = true;
-        return super.initialize();
-    }
-
-    async shutdown() {
-        this._shutdown = true;
-        return super.shutdown();
-    }
-
-    async fetch() {
-        const result = [];
-        for (let i = 0; i < 10; i++) {
-            result.push({
-                id: i,
-                data: [Math.random(), Math.random(), Math.random()],
-            });
-        }
-        return result;
+export default class ExampleSchema extends ConvictSchema {
+    build() {
+        return {
+            type: {
+                doc: 'An example of a property schema',
+                default: 'string',
+                format: 'String',
+            }
+        };
     }
 }
 ```

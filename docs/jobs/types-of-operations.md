@@ -87,7 +87,7 @@ A `Fetcher` runs on a Worker and its primary process [Slices](./slices.md). When
 ```ts
 const { Fetcher } = require('@terascope/job-components');
 
-export default class ExampleSlicer extends Fetcher {
+export default class ExampleFetcher extends Fetcher {
     // This where you fetch the Data from a particular Data Source
     // you don't need to call DataEntity.makeArray because
     // the framework will do this for you
