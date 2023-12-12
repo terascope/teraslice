@@ -89,27 +89,27 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
-        const app = new Application();
-        app.options.addReader(new TSConfigReader());
-        app.bootstrap({
-            name: pkgInfo.name,
-            tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
-            theme: 'markdown',
-            exclude: ['test', 'node_modules'],
-            excludePrivate: true,
-            excludeExternals: true,
-            hideGenerator: true,
-            readme: 'none',
-        });
-
-        app.options.setValue('entryPoints', './src');
-        app.options.setValue('entryPointStrategy', 'expand');
+        const app = await Application.bootstrapWithPlugins(
+            {
+                name: pkgInfo.name,
+                tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
+                plugin: ['typedoc-plugin-markdown'],
+                entryPoints: ['./src'],
+                entryPointStrategy: 'expand',
+                exclude: ['test', 'node_modules'],
+                excludePrivate: true,
+                excludeExternals: true,
+                hideGenerator: true,
+                readme: 'none',
+            },
+            [new TSConfigReader()]
+        );
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);
             return;
         }
-        const project = app.convert();
+        const project = await app.convert();
         if (!project) {
             signale.error(`invalid typedocs for package ${pkgInfo.name}`);
             return;
