@@ -16,7 +16,7 @@ There are a few built-in actions available:
 
 The `kafka-assets` bundle includes a [kafka dead letter queue](https://github.com/terascope/kafka-assets/blob/master/README.md#kafka-dead-letter) which can be configured to store all records in a Kafka topic.
 
-Additionally the `Fetcher` or `Processor` will need to call the approperiate methods to ensure the record is sent to the dead letter queue. There are two methods avalable on the [OperationCore](../packages/job-components/api/classes/operationcore.md):
+Additionally the `Fetcher` or `Processor` will need to call the approperiate methods to ensure the record is sent to the dead letter queue. There are two methods avalable on the [OperationCore](../packages/job-components/api/classes/operations_core_operation_core.md):
 
 - `rejectRecord(input: any, err: Error)` a simple method that will place an invalid record into with an error into the dead letter queue.
 - `tryRecord(fn: (record) => record)` a utility method curry a transformating or serialization function and automatically reject the record if needed. This uses `rejectRecord` under the hood.
