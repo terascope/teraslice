@@ -18,7 +18,7 @@ teraslice:
 # ...
 ```
 
-This directory must contain a `package.json`, a `assets` directory with your
+This directory must contain a `package.json`, an `asset` directory with your
 custom operations, and the `node_modules` required by your custom code. It
 will look something like this:
 
@@ -27,15 +27,17 @@ will look something like this:
 ├── node_modules
 │   └── lodash
 ├── package.json
-└── assets
+└── asset
     ├── asset.json
     └── count
         ├── processor.js
         └── schema.js
 ```
 
-In order to decrease the size of your asset bundle keepy the `devDependencies` and any test files at the top-level of the asset bundle
-and not within the `assets` directory.
+Assets can be easily created with the proper structure by using `teraslice-cli assets init` and following the prompts.  See the README.md file within the newly created asset for more details.
+
+In order to decrease the size of your asset bundle keep the `devDependencies` and any test files at the top-level of the asset bundle
+and not within the `asset` directory.
 
 An `asset.json` is used to define a bundle of operations, it contains a name and version.
 
@@ -46,7 +48,7 @@ An `asset.json` is used to define a bundle of operations, it contains a name and
 }
 ```
 
-An `asset.json` can also contain `node_version`, `platform` and `arch` which will be used to restrict the asset for a given environment, which will allowing upgrades to the `node` without breaking jobs. If the value for those restrictions are not specified or are *falsey*, teraslice will not consider it a restricted. This is useful for making an asset bundle that isn't by locked down by node version or os.
+An `asset.json` can also contain `node_version`, `platform` and `arch` which will be used to restrict the asset for a given environment, which will allowing upgrades to the `node` without breaking jobs. If the value for those restrictions are not specified or are *falsey*, teraslice will not consider it as restricted. This is useful for making an asset bundle that isn't locked down by node version or os.
 
 A job configuration that makes use of a custom operator would simply call the
 operator just like any other operator, as shown below:
@@ -157,3 +159,21 @@ export default class Schema extends ConvictSchema {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 See the [teraslice-cli](../packages/teraslice-cli#assets) documentation for assets.
+
+**Register an operation:**
+
+Before an operator can be used, it must be added to the registry at `asset/index.js`.
+
+```sh
+.
+├── node_modules
+│   └── lodash
+├── package.json
+└── asset
+    ├── asset.json
+    └── count
+    │   ├── processor.js
+    │   └── schema.js
+    ├── index.js
+```
+Running `teraslice-cli assets init --registry` will create the registry file and register all operations.
