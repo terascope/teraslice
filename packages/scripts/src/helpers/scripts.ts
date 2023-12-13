@@ -13,12 +13,13 @@ import {
     pDelay,
     TSError
 } from '@terascope/utils';
-import { TSCommands, PackageInfo, kindCluster } from './interfaces';
+import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
 import * as config from './config';
 import { getE2eK8sDir } from '../helpers/packages';
 import { yamlDeploymentResource, yamlServiceResource } from './k8s-env/interfaces';
+import { Kind } from './kind';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -538,40 +539,6 @@ export async function yarnPublish(
     });
 }
 
-export async function createKindCluster(cmd = 'test', teraslicePort = 45678): Promise<void> {
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
-    }
-
-    let configPath: string;
-    let tempDir;
-
-    if (cmd === 'k8s-env') {
-        configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
-
-        const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as kindCluster;
-        configFile.nodes[0].extraPortMappings[1].hostPort = teraslicePort;
-        const updatedYaml = yaml.dump(configFile);
-
-        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));
-        fs.writeFileSync(path.join(tempDir, 'kindConfigDefaultPorts.yaml'), updatedYaml);
-        configPath = `${path.join(tempDir, 'kindConfigDefaultPorts.yaml')}`;
-    } else { // cmd === test
-        configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
-    }
-    const subprocess = await execa.command(`kind create cluster --config ${configPath}`);
-    logger.debug(subprocess.stderr);
-    if (tempDir) {
-        fs.rmSync(tempDir, { recursive: true, force: true });
-    }
-}
-
-export async function destroyKindCluster(): Promise<void> {
-    const subprocess = await execa.command('kind delete cluster --name k8se2e');
-    logger.debug(subprocess.stderr);
-}
-
 export async function isKindInstalled(): Promise<boolean> {
     try {
         const subprocess = await execa.command('command -v kind');
@@ -587,24 +554,6 @@ export async function isKubectlInstalled(): Promise<boolean> {
         return !!subprocess.stdout;
     } catch (err) {
         return false;
-    }
-}
-
-// TODO: check that image is loaded before we continue
-export async function kindLoadTerasliceImage(terasliceImage: string): Promise<void> {
-    const subprocess = await execa.command(`kind load docker-image ${terasliceImage} --name k8se2e`);
-    logger.debug(subprocess.stderr);
-}
-
-// TODO: check that image is loaded before we continue
-export async function kindLoadServiceImage(
-    serviceName: string, serviceImage: string, version: string
-): Promise<void> {
-    try {
-        const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name k8se2e`);
-        logger.debug(subprocess.stderr);
-    } catch (err) {
-        logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
     }
 }
 
@@ -625,7 +574,7 @@ export async function k8sStopService(serviceName: string): Promise<void> {
 }
 
 export async function k8sStartService(
-    serviceName: string, image: string, version: string
+    serviceName: string, image: string, version: string, kind: Kind
 ): Promise<void> {
     // services that have an available k8s deployment yaml file
     const availableServices = [
@@ -635,7 +584,7 @@ export async function k8sStartService(
     if (!availableServices.includes(serviceName)) {
         signale.error(`Service ${serviceName} is not available. No kubernetes deployment yaml file in 'e2e/k8s' directory.`);
         signale.info(`Remove ${serviceName} from the services list by running 'unset TEST_${serviceName.toUpperCase()}' in your terminal.`);
-        await destroyKindCluster();
+        await kind.destroyCluster();
         process.exit(1);
     }
 
@@ -804,14 +753,14 @@ export async function setAliasAndBaseAssets(tsPort: number) {
 }
 
 async function setAlias(tsPort: number) {
-    let subprocess = await execa.command('earl aliases remove k8se2e 2> /dev/null || true', { shell: true });
+    let subprocess = await execa.command('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
     logger.debug(subprocess.stdout);
-    subprocess = await execa.command(`earl aliases add k8se2e http://${config.HOST_IP}:${tsPort}`);
+    subprocess = await execa.command(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
     logger.debug(subprocess.stdout);
 }
 
 async function deployAssets(assetName: string) {
-    const subprocess = await execa.command(`earl assets deploy k8se2e --blocking terascope/${assetName}-assets`);
+    const subprocess = await execa.command(`earl assets deploy k8s-e2e --blocking terascope/${assetName}-assets`);
     logger.debug(subprocess.stdout);
 }
 

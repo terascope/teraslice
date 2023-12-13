@@ -10,15 +10,13 @@ import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
-    createKindCluster,
     runJest,
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
     createNamespace,
-    kindLoadTerasliceImage,
-    destroyKindCluster,
 } from '../scripts';
+import { Kind } from '../kind';
 import {
     getArgs, filterBySuite, globalTeardown,
     reportCoverage, logE2E, getEnv,
@@ -203,6 +201,7 @@ async function runE2ETest(
 
     const suite = 'e2e';
     let startedTest = false;
+    let kind;
 
     const e2eDir = getE2EDir();
     if (!e2eDir) {
@@ -223,7 +222,8 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            await createKindCluster();
+            kind = new Kind(options.clusterName);
+            await kind.createCluster();
             await createNamespace('services-ns.yaml');
         } catch (err) {
             tracker.addError(err);
@@ -255,9 +255,9 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' && kind) {
         try {
-            await kindLoadTerasliceImage(e2eImage);
+            await kind.loadTerasliceImage(e2eImage);
         } catch (err) {
             tracker.addError(err);
         }
@@ -322,8 +322,8 @@ async function runE2ETest(
         });
     }
 
-    if (options.testPlatform === 'kubernetes' && !options.keepOpen) {
-        await destroyKindCluster();
+    if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {
+        await kind.destroyCluster();
     }
 }
 

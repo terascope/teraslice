@@ -166,6 +166,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
+        const clusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : undefined;
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -193,7 +194,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             reportCoverage,
             jestArgs,
             ignoreMount,
-            testPlatform
+            testPlatform,
+            clusterName
         });
     },
 };
