@@ -193,6 +193,56 @@ describe('k8s', () => {
             const response = await k8s.delete('test1', 'jobs');
             expect(response).toEqual({});
         });
+
+        it('can delete a pod by name', async () => {
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/test1')
+                .reply(200, {});
+
+            const response = await k8s.delete('test1', 'pods');
+            expect(response).toEqual({});
+        });
+    });
+
+    describe('->_deletObjByExId', () => {
+        it('can force delete a job', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
+                .reply(200, {
+                    kind: 'JobList',
+                    items: [
+                        { metadata: { name: 'testJob1' } }
+                    ]
+                });
+
+            nock(_url)
+                .get('/api/v1/namespaces/default/pods/')
+                .query({ labelSelector: /teraslice\.terascope\.io\/exId=.*/ })
+                .reply(200, {
+                    kind: 'PodList',
+                    items: [
+                        { metadata: { name: 'testEx1' } }, { metadata: { name: 'testWkr1' } }
+                    ]
+                });
+
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/testEx1')
+                .reply(200, {});
+
+            nock(_url)
+                .delete('/api/v1/namespaces/default/pods/testWkr1')
+                .reply(200, {});
+
+            nock(_url)
+                .delete('/apis/batch/v1/namespaces/default/jobs/testJob1')
+                .reply(200, {});
+
+            const response = await k8s._deleteObjByExId('testJob1', 'execution_controller', 'jobs', true);
+            expect(response).toEqual({
+                deletePodResponses: [{}, {}]
+            });
+        });
     });
 
     describe('->scaleExecution', () => {
