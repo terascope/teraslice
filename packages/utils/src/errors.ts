@@ -1,4 +1,4 @@
-import { Logger } from './logger-interface';
+import { Logger } from '@terascope/types';
 import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
 import { getFirst } from './arrays';

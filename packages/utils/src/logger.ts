@@ -1,8 +1,8 @@
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
+import { Logger } from '@terascope/types';
 import { isPlainObject } from './deps';
 import { toString, isString, trimAndToLower } from './strings';
-import { Logger } from './logger-interface';
 import { uniq } from './arrays';
 import { isTest } from './env';
 

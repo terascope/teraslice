@@ -8,3 +8,4 @@ export * from './utility';
 export * from './xlucene-interfaces';
 export * from './elasticsearch-client';
 export * from './teraslice';
+export * from './logger';
