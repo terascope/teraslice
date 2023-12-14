@@ -61,6 +61,11 @@ const cmd: CommandModule = {
                 description: 'Name of the kind kubernetes cluster.',
                 type: 'string',
                 default: 'k8s-env'
+            })
+            .option('k8s-version', {
+                description: 'Version of kubernetes to use in the kind cluster.',
+                type: 'string',
+                default: config.K8S_VERSION
             });
     },
     handler(argv) {
@@ -76,7 +81,8 @@ const cmd: CommandModule = {
             nodeVersion: argv['node-version'] as string,
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as number,
-            clusterName: argv['cluster-name'] as string
+            clusterName: argv['cluster-name'] as string,
+            k8sVersion: argv['k8s-version'] as string
         };
 
         if (Boolean(argv.rebuild) === true) {

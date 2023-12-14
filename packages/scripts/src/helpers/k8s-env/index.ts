@@ -19,7 +19,7 @@ const e2eImage = `${rootInfo.name}:e2e`;
 export async function launchK8sEnv(options: k8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
 
-    const kind = new Kind(options.clusterName);
+    const kind = new Kind(options.k8sVersion, options.clusterName);
     // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -35,7 +35,13 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     }
 
     signale.pending('Creating kind cluster');
-    await kind.createCluster(options.tsPort);
+    try {
+        await kind.createCluster(options.tsPort);
+    } catch (err) {
+        signale.fatal(err);
+        await kind.destroyCluster();
+        process.exit(1);
+    }
     signale.success('Kind cluster created');
 
     const k8s = new K8s(options.tsPort, options.clusterName);
@@ -50,7 +56,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     try {
         await buildAndTagTerasliceImage(options);
     } catch (err) {
-        signale.error(err);
+        signale.fatal(err);
         await kind.destroyCluster();
         process.exit(1);
     }
@@ -83,7 +89,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
 }
 
 export async function rebuildTeraslice(options: k8sEnvOptions) {
-    const kind = new Kind(options.clusterName);
+    const kind = new Kind(options.k8sVersion, options.clusterName);
     let k8s: K8s;
     try {
         k8s = new K8s(options.tsPort, options.clusterName);

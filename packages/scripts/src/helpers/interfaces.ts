@@ -133,6 +133,7 @@ export interface kindCluster {
     nodes: [
         {
             role: string;
+            image?: string;
             extraPortMappings: [
                 {
                     containerPort: number;

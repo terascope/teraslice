@@ -222,8 +222,14 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            kind = new Kind(options.clusterName);
-            await kind.createCluster();
+            kind = new Kind(options.k8sVersion, options.clusterName);
+            try {
+                await kind.createCluster();
+            } catch (err) {
+                signale.error(err);
+                await kind.destroyCluster();
+                process.exit(1);
+            }
             await createNamespace('services-ns.yaml');
         } catch (err) {
             tracker.addError(err);

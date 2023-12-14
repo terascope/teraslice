@@ -24,6 +24,7 @@ export type TestOptions = {
     ignoreMount: boolean;
     testPlatform: string;
     clusterName?: string;
+    k8sVersion?: string;
 };
 
 export type GroupedPackages = {
