@@ -92,7 +92,7 @@ export class Kind {
     }
 }
 
-const map = {
+const kindToK8sVersionMap = {
     '0.20.0': {
         '1.28.0': 'kindest/node:v1.28.0@sha256:b7a4cad12c197af3ba43202d3efe03246b3f0793f162afb40a33c923952d5b31',
         '1.27.3': 'kindest/node:v1.27.3@sha256:3966ac761ae0136263ffdb6cfd4db23ef8a83cba8a463690e98317add2c9ba72',
@@ -125,12 +125,12 @@ const map = {
 };
 
 function kindToK8sImageMap(kindVersion: string, k8sVersion: string): string {
-    if (!map[kindVersion]) {
-        throw new Error(`Version ${kindVersion} of kind is not supported. Please use one of the following: ${Object.keys(map)}`);
+    if (!kindToK8sVersionMap[kindVersion]) {
+        throw new Error(`Version ${kindVersion} of kind is not supported. Please use one of the following: ${Object.keys(kindToK8sVersionMap)}`);
     }
-    if (!map[kindVersion][k8sVersion]) {
-        throw new Error(`Version ${k8sVersion} of k8s is not supported in kind version ${kindVersion}. Please use one of the following: ${Object.keys(map[kindVersion])}`);
+    if (!kindToK8sVersionMap[kindVersion][k8sVersion]) {
+        throw new Error(`Version ${k8sVersion} of k8s is not supported in kind version ${kindVersion}. Please use one of the following: ${Object.keys(kindToK8sVersionMap[kindVersion])}`);
     }
-    const version = map[kindVersion][k8sVersion];
+    const version = kindToK8sVersionMap[kindVersion][k8sVersion];
     return version;
 }
