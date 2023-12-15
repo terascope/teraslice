@@ -33,6 +33,12 @@ class Service {
 
         const executionContext = await makeExecutionContext(this.context, this.executionConfig);
 
+        if (this.executionConfig.log_level) {
+            const loggerOptions = { level: this.executionConfig.log_level };
+            // executionContext.logger = this.logger.child(loggerOptions);
+            executionContext.context.logger = this.logger.child(loggerOptions);
+        }
+
         if (assignment === 'worker') {
             this.instance = new Worker(executionContext.context, executionContext);
         } else if (assignment === 'execution_controller') {
