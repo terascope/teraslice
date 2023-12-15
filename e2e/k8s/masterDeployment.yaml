@@ -16,7 +16,7 @@ spec:
       labels:
         app.kubernetes.io/name: teraslice
         app.kubernetes.io/component: master
-        app.kubernetes.io/instance: k8se2e
+        app.kubernetes.io/instance: k8s-e2e
     spec:
       containers:
       - name: teraslice-master

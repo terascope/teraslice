@@ -56,27 +56,21 @@ const cmd: CommandModule = {
                 description: 'Port where teraslice api will be exposed.',
                 type: 'number',
                 default: 5678
+            })
+            .option('cluster-name', {
+                description: 'Name of the kind kubernetes cluster.',
+                type: 'string',
+                default: 'k8s-env'
+            })
+            .option('k8s-version', {
+                description: 'Version of kubernetes to use in the kind cluster.',
+                type: 'string',
+                default: config.K8S_VERSION
             });
     },
     handler(argv) {
         const kafkaCPVersion = kafkaVersionMapper(argv.kafkaVersion as string);
-
-        if (Boolean(argv.rebuild) === true) {
-            return rebuildTeraslice({
-                elasticsearchVersion: argv.elasticsearchVersion as string,
-                kafkaVersion: argv.kafkaVersion as string,
-                kafkaImageVersion: kafkaCPVersion,
-                zookeeperVersion: kafkaCPVersion,
-                minioVersion: argv.minioVersion as string,
-                rabbitmqVersion: argv.rabbitmqVersion as string,
-                opensearchVersion: argv.opensearchVersion as string,
-                nodeVersion: argv['node-version'] as string,
-                skipBuild: Boolean(argv['skip-build']),
-                tsPort: argv['ts-port'] as number
-            });
-        }
-
-        return launchK8sEnv({
+        const k8sEnvOptions = {
             elasticsearchVersion: argv.elasticsearchVersion as string,
             kafkaVersion: argv.kafkaVersion as string,
             kafkaImageVersion: kafkaCPVersion,
@@ -86,8 +80,16 @@ const cmd: CommandModule = {
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
             skipBuild: Boolean(argv['skip-build']),
-            tsPort: argv['ts-port'] as number
-        });
+            tsPort: argv['ts-port'] as number,
+            clusterName: argv['cluster-name'] as string,
+            k8sVersion: argv['k8s-version'] as string
+        };
+
+        if (Boolean(argv.rebuild) === true) {
+            return rebuildTeraslice(k8sEnvOptions);
+        }
+
+        return launchK8sEnv(k8sEnvOptions);
     },
 };
 

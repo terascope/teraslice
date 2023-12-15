@@ -263,7 +263,7 @@ When you're done and want to clean everything up, you can delete it all with a
 single Kind command and reset the modified job file as follows:
 
 ```bash
-kind delete cluster -n k8se2e
+kind delete cluster -n k8s-env
 git checkout examples/jobs/data_generator.json
 ```
 

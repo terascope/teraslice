@@ -177,4 +177,7 @@ export const SEARCH_TEST_HOST = testHost;
 // This overrides the value in the Dockerfile
 export const NODE_VERSION = process.env.NODE_VERSION || '18.18.2';
 
-export const { TEST_PLATFORM = 'native' } = process.env;
+export const {
+    TEST_PLATFORM = 'native',
+    K8S_VERSION = undefined
+} = process.env;

@@ -71,7 +71,7 @@
         "tests": {
             "suites": {
                 "e2e": [],
-                "k8se2e": [],
+                "k8s-e2e": [],
                 "elasticsearch": [],
                 "search": [],
                 "restrained": [],
@@ -79,7 +79,7 @@
                 "_for_testing_": [
                     "elasticsearch"
                 ],
-                "k8s_env": []
+                "k8s-env": []
             }
         },
         "docker": {

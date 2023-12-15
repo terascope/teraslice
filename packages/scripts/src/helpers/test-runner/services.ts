@@ -11,10 +11,10 @@ import {
     getContainerInfo,
     dockerStop,
     dockerPull,
-    kindLoadServiceImage,
     k8sStartService,
     k8sStopService
 } from '../scripts';
+import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
 import * as config from '../config';
@@ -743,9 +743,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
 
     if (options.testPlatform === 'kubernetes') {
+        const kind = new Kind(options.k8sVersion, options.clusterName);
+        await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);
-        await kindLoadServiceImage(service, services[service].image, version);
-        await k8sStartService(service, services[service].image, version);
+        await k8sStartService(service, services[service].image, version, kind);
         return () => { };
     }
 
