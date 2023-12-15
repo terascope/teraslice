@@ -214,7 +214,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'the log level to be set on all loggers associated with the job',
             format(level: string) {
                 const levels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-                if (levels.includes(level)) {
+                if (!levels.includes(level)) {
                     throw new Error(`log_level must be one of the following: ${levels}`);
                 }
             }
