@@ -2757,10 +2757,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/graphlib@^2.1.7":
-  version "2.1.9"
-  resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.9.tgz#f04eb400a7279a933bcbc5ade3d26164c0e7c723"
-  integrity sha512-Dw4pES7GQBvJ8NNw2UuX7r12qk1Uj1Sa6/mw4zRtaYKxbsmf01BqrrgMR+9dD+xJ+sKVHXrnevk6/KZuJwjIBQ==
+"@types/graphlib@^2.1.12":
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.12.tgz#089d1218bafe2277c98b12597abb24c3b73965aa"
+  integrity sha512-abRfQWMphT2qlXwppQa+CTCtUz/GqxBeozQcMjnOFD/WOKD6sRgxkfG8vq1yagV03447BBzCYhuJ0wiNb+/r+Q==
 
 "@types/http-cache-semantics@*":
   version "4.0.1"
