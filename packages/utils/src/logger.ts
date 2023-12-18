@@ -14,7 +14,7 @@ interface DebugParamObj {
 
 type DebugParam = DebugParamObj | string;
 let logLevel = process.env.DEBUG_LOG_LEVEL || 'debug';
-const levels = {
+export const logLevels = {
     trace: 10,
     debug: 20,
     info: 30,
@@ -71,7 +71,7 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
     // @ts-expect-error
     logger.level = (value: Logger.LogLevel): number|undefined => {
         if (value) {
-            for (const [level, code] of Object.entries(levels)) {
+            for (const [level, code] of Object.entries(logLevels)) {
                 if (value === level || value === code) {
                     logLevel = level;
                     return undefined;
@@ -80,12 +80,12 @@ export function debugLogger(testName: string, param?: DebugParam, otherName?: st
             return undefined;
         }
         // eslint-disable-next-line
-        return levels[logLevel] || 20;
+        return logLevels[logLevel] || 20;
     };
     // @ts-expect-error
     logger.levels = () => logger.level();
 
-    for (const [level, code] of Object.entries(levels)) {
+    for (const [level, code] of Object.entries(logLevels)) {
         const fLevel = `[${level.toUpperCase()}]`;
         const debug = debugFn(name);
 

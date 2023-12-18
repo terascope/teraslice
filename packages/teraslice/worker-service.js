@@ -35,7 +35,6 @@ class Service {
 
         if (this.executionConfig.log_level) {
             const loggerOptions = { level: this.executionConfig.log_level };
-            // executionContext.logger = this.logger.child(loggerOptions);
             executionContext.context.logger = this.logger.child(loggerOptions);
         }
 

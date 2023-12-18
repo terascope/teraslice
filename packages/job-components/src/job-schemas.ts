@@ -12,6 +12,7 @@ import {
     isNumber,
     isPlainObject,
     isString,
+    logLevels,
 } from '@terascope/utils';
 import { Context } from './interfaces';
 
@@ -194,11 +195,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
         env_vars: {
             default: {},
             doc: 'environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
-            format(obj: any[]) {
+            format(obj: unknown) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');
                 }
-                Object.entries(obj).forEach(([key, val]) => {
+                Object.entries(obj as Record<string, any>).forEach(([key, val]) => {
                     if (key == null || key === '') {
                         throw new Error('key must be not empty');
                     }
@@ -212,10 +213,13 @@ export function jobSchema(context: Context): convict.Schema<any> {
         log_level: {
             default: 'info',
             doc: 'the log level to be set on all loggers associated with the job',
-            format(level: string) {
-                const levels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-                if (!levels.includes(level)) {
-                    throw new Error(`log_level must be one of the following: ${levels}`);
+            format(level: unknown) {
+                if (typeof level !== 'string') {
+                    throw new Error('must be of type string');
+                }
+                const logLevelStrings = Object.keys(logLevels);
+                if (!logLevelStrings.includes(level)) {
+                    throw new Error(`must be one of the following: ${logLevelStrings}`);
                 }
             }
         }
