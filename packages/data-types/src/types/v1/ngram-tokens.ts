@@ -4,7 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class NgramTokens extends BaseType {
     toESMapping(): TypeESMapping {
-        this.validateESMapping();
+        this._validateESMapping();
         return {
             mapping: {
                 [this.field]: {

@@ -4,7 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class GeoPointType extends BaseType {
     toESMapping(): TypeESMapping {
-        this.validateESMapping();
+        this._validateESMapping();
         return {
             mapping: {
                 [this.field]: this.config.indexed === false ? {

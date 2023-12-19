@@ -4,7 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Hostname extends BaseType {
     toESMapping(): TypeESMapping {
-        this.validateESMapping();
+        this._validateESMapping();
         return {
             mapping: {
                 [this.field]: {

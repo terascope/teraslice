@@ -1,6 +1,4 @@
-import {
-    DataTypeConfig, DataTypeFields, DataTypeVersion, FieldType
-} from '@terascope/types';
+import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
 import {
     isEmpty, isPlainObject, isString, toInteger, trim, unescapeString
 } from '@terascope/utils';
@@ -69,14 +67,3 @@ export function validateField(field: unknown): boolean {
     if (!_testFieldRegex(field)) return false;
     return !field.includes('..');
 }
-
-export const indexedRequiredFieldTypes = {
-    [FieldType.Domain]: true,
-    [FieldType.GeoJSON]: true,
-    [FieldType.Hostname]: true,
-    [FieldType.KeywordCaseInsensitive]: true,
-    [FieldType.KeywordPathAnalyzer]: true,
-    [FieldType.KeywordTokensCaseInsensitive]: true,
-    [FieldType.KeywordTokens]: true,
-    [FieldType.NgramTokens]: true,
-};

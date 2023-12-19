@@ -1,8 +1,9 @@
-import { ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
+import {
+    ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig, indexedRequiredFieldTypes
+} from '@terascope/types';
 import { castArray } from '@terascope/utils';
 import { GraphQLType, TypeESMapping } from '../interfaces';
 import { formatGQLComment } from '../graphql-helper';
-import { indexedRequiredFieldTypes } from '../utils';
 
 export interface IBaseType {
     new(field: string, config: DataTypeFieldConfig): BaseType;
@@ -26,10 +27,10 @@ export default abstract class BaseType {
         this.config = config;
     }
 
-    validateESMapping() {
+    protected _validateESMapping() {
         if (this.config.indexed === false) {
-            if (this.constructor.name in indexedRequiredFieldTypes) {
-                throw new Error(`${this.constructor.name} is required to be indexed`);
+            if (this.config.type in indexedRequiredFieldTypes) {
+                throw new Error(`${this.config.type} is required to be indexed`);
             }
         }
     }
