@@ -1,4 +1,4 @@
-import { DataEncoding, AnyObject, Logger } from '@terascope/utils';
+import { DataEncoding, AnyObject } from '@terascope/utils';
 
 /**
  * OpConfig is the configuration that user specifies
@@ -96,7 +96,7 @@ export interface ValidatedJobConfig {
     slicers: number;
     workers: number;
     stateful?: boolean;
-    log_level?: Logger.LogLevelString;
+    log_level?: string;
     /** This will only be available in the context of k8s */
     labels?: { [key: string]: string };
     /** This will only be available in the context of k8s */

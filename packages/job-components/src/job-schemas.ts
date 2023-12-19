@@ -211,7 +211,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             },
         },
         log_level: {
-            default: 'info',
+            default: undefined,
             doc: 'the log level to be set on all loggers associated with the job',
             format(level: unknown) {
                 if (typeof level !== 'string') {
