@@ -4,6 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class BooleanType extends BaseType {
     toESMapping(): TypeESMapping {
+        this.validateESMapping();
         return {
             mapping: {
                 [this.field]: this.config.indexed === false ? {

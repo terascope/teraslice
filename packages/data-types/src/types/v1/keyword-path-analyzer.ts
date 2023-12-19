@@ -4,9 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class KeywordPathAnalyzer extends BaseType {
     toESMapping(): TypeESMapping {
-        if (this.config.indexed === false) {
-            throw new Error(`${this.constructor.name} is required to be indexed`);
-        }
+        this.validateESMapping();
         return {
             mapping: {
                 [this.field]: {

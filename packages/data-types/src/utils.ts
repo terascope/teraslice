@@ -1,5 +1,9 @@
-import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
-import * as ts from '@terascope/utils';
+import {
+    DataTypeConfig, DataTypeFields, DataTypeVersion, FieldType
+} from '@terascope/types';
+import {
+    isEmpty, isPlainObject, isString, toInteger, trim, unescapeString
+} from '@terascope/utils';
 import { mapping } from './types/mapping';
 
 type ConcatStrType = string|undefined|((string|undefined)[])
@@ -8,11 +12,11 @@ export function concatUniqueStrings(...values: ConcatStrType[]): string[] {
     values.forEach((vals) => {
         if (Array.isArray(vals)) {
             vals.forEach((val) => {
-                const v = ts.trim(val);
+                const v = trim(val);
                 if (v) set.add(v);
             });
         } else if (vals) {
-            const v = ts.trim(vals);
+            const v = trim(vals);
             if (v) set.add(v);
         }
     });
@@ -24,27 +28,27 @@ export function joinStrings(...values: ConcatStrType[]): string {
 }
 
 export function validateDataTypeConfig(config: DataTypeConfig): DataTypeConfig {
-    if (!config || ts.isEmpty(config)) {
+    if (!config || isEmpty(config)) {
         throw new Error('Missing data type config');
     }
     if (config.version == null) {
         throw new Error('Missing version in data type config');
     }
-    const version = ts.toInteger(config.version) as DataTypeVersion | false;
+    const version = toInteger(config.version) as DataTypeVersion | false;
     if (!version || mapping[version] == null) {
         throw new Error(`Unknown data type version ${version}`);
     }
-    if (!config.fields || !ts.isPlainObject(config.fields)) {
+    if (!config.fields || !isPlainObject(config.fields)) {
         throw new Error('Invalid fields was specified in data type config');
     }
 
     const fields: DataTypeFields = {};
     for (const [_field, typeDef] of Object.entries(config.fields)) {
-        const field = _field ? ts.unescapeString(_field).trim() : '';
+        const field = _field ? unescapeString(_field).trim() : '';
         if (!field || !validateField(field)) {
             throw new Error(`Invalid field "${field}" in data type config`);
         }
-        if (!typeDef || !ts.isPlainObject(typeDef) || !typeDef.type) {
+        if (!typeDef || !isPlainObject(typeDef) || !typeDef.type) {
             throw new Error(`Invalid type config for field "${field}" in data type config`);
         }
         fields[field] = typeDef;
@@ -61,7 +65,18 @@ function _testFieldRegex(field: string) {
 }
 
 export function validateField(field: unknown): boolean {
-    if (!field || !ts.isString(field)) return false;
+    if (!field || !isString(field)) return false;
     if (!_testFieldRegex(field)) return false;
     return !field.includes('..');
 }
+
+export const indexedRequiredFieldTypes = {
+    [FieldType.Domain]: true,
+    [FieldType.GeoJSON]: true,
+    [FieldType.Hostname]: true,
+    [FieldType.KeywordCaseInsensitive]: true,
+    [FieldType.KeywordPathAnalyzer]: true,
+    [FieldType.KeywordTokensCaseInsensitive]: true,
+    [FieldType.KeywordTokens]: true,
+    [FieldType.NgramTokens]: true,
+};

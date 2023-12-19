@@ -7,6 +7,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class DateType extends BaseType {
     toESMapping(): TypeESMapping {
+        this.validateESMapping();
         let format: string|undefined;
 
         if (this.config.format && (

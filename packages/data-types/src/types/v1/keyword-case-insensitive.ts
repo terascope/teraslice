@@ -4,9 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class KeywordCaseInsensitive extends BaseType {
     toESMapping(): TypeESMapping {
-        if (this.config.indexed === false) {
-            throw new Error(`${this.constructor.name} is required to be indexed`);
-        }
+        this.validateESMapping();
         return {
             mapping: {
                 [this.field]: this.config.use_fields_hack ? {
