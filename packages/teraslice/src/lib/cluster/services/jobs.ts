@@ -138,6 +138,12 @@ export class JobsService {
             });
         }
 
+        const clusterType = this.context.sysconfig.teraslice.cluster_manager_type;
+        const currentResources = await this.executionService.listResourcesForJobId(jobId);
+        if (currentResources.length > 0 && clusterType === 'kubernetes') {
+            throw new TSError(`There are orphaned resources for job ${jobId}. Use curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true to remove orphaned resources.`);
+        }
+
         const jobSpec = await this.jobsStorage.get(jobId);
         const validJob = await this._validateJobSpec(jobSpec) as JobRecord;
 
