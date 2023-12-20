@@ -220,6 +220,24 @@ export class KubernetesClusterBackend {
         clearInterval(this.clusterStateInterval);
     }
 
+    /**
+     * Returns a list of all k8s resources associated with a job ID
+     * @param {string}         jobId   The job ID of the job to list associated resources
+     * @returns {Array<any>}
+     */
+    async listResourcesForJobId(jobId: string) {
+        const resources = [];
+        const resourceTypes = ['pods', 'deployments', 'services', 'jobs'];
+        for (const type of resourceTypes) {
+            const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);
+            if (list.items.length > 0) {
+                resources.push(list.items);
+            }
+        }
+
+        return resources;
+    }
+
     async initialize() {
         this.logger.info('kubernetes clustering initializing');
 
