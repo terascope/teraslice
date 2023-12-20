@@ -349,7 +349,12 @@ export class ApiService {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest);
                 await executionService
                     .stopExecution(exId, { timeout, force });
-                return this._waitForStop(exId, blocking);
+                const statusPromise = this._waitForStop(exId, blocking);
+                if (force) {
+                    const status = await statusPromise;
+                    return `Force stop complete for exId ${exId}, job status: ${status.status}`;
+                }
+                return statusPromise;
             });
         });
 
