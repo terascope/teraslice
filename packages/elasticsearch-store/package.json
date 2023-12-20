@@ -46,7 +46,7 @@
         "xlucene-translator": "^0.37.1"
     },
     "devDependencies": {
-        "@types/uuid": "^8.3.4"
+        "@types/uuid": "^9.0.7"
     },
     "engines": {
         "node": ">=14.17.0",
