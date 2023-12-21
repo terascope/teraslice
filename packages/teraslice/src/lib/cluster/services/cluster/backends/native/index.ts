@@ -640,6 +640,6 @@ export class NativeClustering {
                 }
             }
         }
-        return [];
+        return resources;
     }
 }
