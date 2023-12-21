@@ -33,7 +33,7 @@ export function createRootLogger(
     const foundationConfig = context.sysconfig.terafoundation;
     const logLevel = getLogLevel(foundationConfig.log_level);
 
-    if (useDebugLogger) {
+    if (useDebugLogger && process.env.TESTING_LOG_LEVEL !== 'true') {
         return ts.debugLogger(`${filename}:${name}`);
     }
 

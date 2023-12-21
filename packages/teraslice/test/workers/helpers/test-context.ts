@@ -39,7 +39,8 @@ export interface TestContextArgs extends TestJobConfig {
     actionTimeout?: number;
     shutdownTimeout?: number;
     clusterMasterPort?: number;
-    assignment?: string
+    assignment?: string;
+    log_level_terafoundation?: string;
 }
 
 export class TestContext {
@@ -62,7 +63,7 @@ export class TestContext {
 
     constructor(options: TestContextArgs = {}) {
         const {
-            clusterMasterPort, shutdownTimeout, actionTimeout, timeout
+            clusterMasterPort, shutdownTimeout, actionTimeout, timeout, log_level_terafoundation
         } = options;
 
         this.setupId = newId('setup', true);
@@ -74,14 +75,18 @@ export class TestContext {
             clusterMasterPort,
             actionTimeout,
             timeout,
-            shutdownTimeout
+            shutdownTimeout,
+            log_level_terafoundation
         });
 
         this.config = newConfig(options);
 
         this.context = makeTerafoundationContext({ sysconfig: this.sysconfig });
         this.context.assignment = options.assignment || 'worker';
-
+        if (options.log_level) {
+            const loggerOptions = { level: options.log_level };
+            this.context.logger = this.context.logger.child(loggerOptions);
+        }
         this.events = this.context.apis.foundation.getSystemEvents();
 
         this.cleanups[this.setupId] = () => this.cleanup();

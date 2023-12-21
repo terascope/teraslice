@@ -121,6 +121,7 @@ export interface SystemConfig {
     shutdownTimeout?: number;
     assetDir?: string;
     clusterMasterPort?: number;
+    log_level_terafoundation?: string;
 }
 
 const newSysConfig = (options: SystemConfig) => {
@@ -130,12 +131,14 @@ const newSysConfig = (options: SystemConfig) => {
         actionTimeout = 2000,
         shutdownTimeout = 4000,
         assetDir,
-        clusterMasterPort
+        clusterMasterPort,
+        log_level_terafoundation = 'info',
     } = options;
 
     return {
         terafoundation: {
             environment: 'development',
+            log_level: log_level_terafoundation,
             connectors: {
                 elasticsearch: {
                     default: {

@@ -380,4 +380,106 @@ describe('ExecutionController', () => {
             });
         });
     });
+
+    describe('when testing log_level', () => {
+        beforeAll(() => {
+            process.env.TESTING_LOG_LEVEL = 'true';
+            return;
+        });
+
+        describe('when there is no log_level set in either job configuration or terafoundation', () => {
+            let testContext: TestContext;
+            let exController: ExecutionController;
+
+            beforeEach(async () => {
+                testContext = new TestContext({
+                    assignment: 'execution_controller',
+                    shutdownTimeout: 100
+                });
+
+                await testContext.initialize();
+
+                exController = new ExecutionController(
+                    testContext.context,
+                    testContext.executionContext as any
+                );
+
+                testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                    /* ignore-error */
+                }));
+            });
+
+            it('should have a logger with log_level info', async () => {
+                expect(exController.executionContext.context.logger.level()).toBe(30);
+            });
+
+            afterEach(() => testContext.cleanup());
+        });
+
+        describe('when no log_level is set in job configuration and terafoundation log level is error', () => {
+            let testContext: TestContext;
+            let exController: ExecutionController;
+
+            beforeEach(async () => {
+                testContext = new TestContext({
+                    assignment: 'execution_controller',
+                    shutdownTimeout: 100,
+                    log_level_terafoundation: 'error'
+                });
+
+                await testContext.initialize();
+
+                exController = new ExecutionController(
+                    testContext.context,
+                    testContext.executionContext as any
+                );
+
+                testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                    /* ignore-error */
+                }));
+            });
+
+            it('should have a logger with log_level error', async () => {
+                expect(exController.executionContext.context.logger.level()).toBe(50);
+            });
+
+            afterEach(() => testContext.cleanup());
+        });
+
+        describe('when log_level set to trace in job configuration and terafoundation is set to error', () => {
+            let testContext: TestContext;
+            let exController: ExecutionController;
+
+            beforeEach(async () => {
+                testContext = new TestContext({
+                    assignment: 'execution_controller',
+                    shutdownTimeout: 100,
+                    log_level: 'trace',
+                    log_level_terafoundation: 'error'
+                });
+
+                await testContext.initialize();
+
+                exController = new ExecutionController(
+                    testContext.context,
+                    testContext.executionContext as any
+                );
+
+                testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                    /* ignore-error */
+                }));
+            });
+
+            it('should have a logger with log_level trace', async () => {
+                expect(exController.executionContext.context.logger.level()).toBe(10);
+            });
+
+            afterEach(() => testContext.cleanup());
+        });
+
+        afterAll(() => {
+            process.env.TESTING_LOG_LEVEL = 'false';
+            return;
+        });
+    });
 });
