@@ -35,6 +35,7 @@ export interface TestJobConfig {
     slicerQueueLength?: number,
     opErrorAt?: number[],
     opResults?: any[],
+    log_level?: string
 }
 
 const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
