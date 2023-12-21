@@ -352,7 +352,10 @@ export class ApiService {
                 const statusPromise = this._waitForStop(exId, blocking);
                 if (force) {
                     const status = await statusPromise;
-                    return `Force stop complete for exId ${exId}, job status: ${status.status}`;
+                    return {
+                        message: `Force stop complete for exId ${exId}`,
+                        status: status.status
+                    };
                 }
                 return statusPromise;
             });
