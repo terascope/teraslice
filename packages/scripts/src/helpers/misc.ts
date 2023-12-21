@@ -128,8 +128,15 @@ export function getServicesForSuite(suite: string): Service[] {
     return services;
 }
 
-export function getDevDockerImage(): string {
-    if (DEV_DOCKER_IMAGE) return DEV_DOCKER_IMAGE;
+function getDevPostFix(nodeVersion?: string, postFix?: string) {
+    // if (DEV_POST_FIX === null || !nodeVersion) return '';
+    if (postFix === 'false' || !nodeVersion) return '';
+    return postFix || `-nodev${nodeVersion}`;
+}
+
+export function getDevDockerImage(nodeVersion?: string, postFix?: string): string {
+    const devPostFix = getDevPostFix(nodeVersion, postFix);
+    if (DEV_DOCKER_IMAGE) return `${DEV_DOCKER_IMAGE}${devPostFix}`;
 
     const rootInfo = getRootInfo();
     const [registry] = rootInfo.terascope.docker.registries;

@@ -90,9 +90,10 @@ export async function formatDailyTag(): Promise<string> {
 
 export async function buildDevDockerImage(
     publishOptions: PublishOptions,
-    cacheFromPrev?: boolean
+    cacheFromPrev?: boolean,
+    postfix?: string
 ): Promise<string> {
-    const devImage = `${getDevDockerImage()}-nodev${publishOptions.nodeVersion}`;
+    const devImage = getDevDockerImage(publishOptions.nodeVersion, postfix);
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 

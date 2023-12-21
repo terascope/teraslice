@@ -29,6 +29,7 @@ type Options = {
     'ignore-mount': boolean;
     'test-platform': string;
     'k8s-version': string | undefined;
+    'dev-image-post-fix'?: string;
 };
 
 const jestArgs = getExtraArgs();
@@ -142,6 +143,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.K8S_VERSION
             })
+            .option('dev-image-post-fix', {
+                alias: 'postfix',
+                description: 'Postfix for the dev image name, will automatically set based on node version unless this or "false" is passed',
+                type: 'string'
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -174,6 +180,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
         const clusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : undefined;
         const k8sVersion = hoistJestArg(argv, 'k8s-version', 'string');
+        const devImagePostFix = hoistJestArg(argv, 'dev-image-post-fix', 'string');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -204,6 +211,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             testPlatform,
             clusterName,
             k8sVersion,
+            devImagePostFix
         });
     },
 };
