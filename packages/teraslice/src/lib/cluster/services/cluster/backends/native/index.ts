@@ -6,9 +6,7 @@ import {
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionRecord } from '@terascope/types';
-import type {
-    ClusterMasterContext, NodeState, ExecutionNode, WorkerNode
-} from '../../../../../../interfaces';
+import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation';
 import { findWorkersByExecutionID } from '../state-utils';
 import { Messaging } from './messaging';
@@ -32,7 +30,7 @@ interface StateMessage {
     __source: string;
 }
 
-type Message = StateMessage
+ type Message = StateMessage
 
 export class NativeClustering {
     context: ClusterMasterContext;
@@ -605,9 +603,9 @@ export class NativeClustering {
         return this._availableWorkers() >= 2;
     }
 
-    clusterAvailable() { }
+    clusterAvailable() {}
 
-    async stopExecution(exId: string, options?: StopExecutionOptions) {
+    async stopExecution(exId: string, options?:StopExecutionOptions) {
         // we are allowing stopExecution to be non blocking, we block at api level
         this.pendingWorkerRequests.remove(exId, 'ex_id');
         const sendingMessage = { message: 'cluster:execution:stop' } as Record<string, any>;
@@ -629,17 +627,7 @@ export class NativeClustering {
         }
     }
 
-    async listResourcesForJobId(jobId: string) {
-        const resources = [];
-        const nodeStates = Object.values(this.clusterState);
-        for (const nodeState of nodeStates) {
-            const processNodes = nodeState.active;
-            for (const processNode of processNodes) {
-                if ((processNode as ExecutionNode | WorkerNode).job_id === jobId) {
-                    resources.push(processNode);
-                }
-            }
-        }
-        return resources;
+    async listResourcesForJobId() {
+        return [];
     }
 }

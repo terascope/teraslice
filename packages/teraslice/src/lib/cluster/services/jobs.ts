@@ -138,9 +138,21 @@ export class JobsService {
             });
         }
 
-        const currentResources = await this.executionService.listResourcesForJobId(jobId);
+        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+
         if (currentResources.length > 0) {
-            throw new TSError(`There are orphaned resources for job ${jobId}. Use curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true to remove orphaned resources.`);
+            currentResources = currentResources.flat();
+            const exIdsSet = new Set<string>();
+            for (const resource of currentResources) {
+                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            }
+            const exIdsArr = Array.from(exIdsSet);
+            const exIdsString = exIdsArr.join(', ');
+            throw new TSError(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.
+            To remove orphaned resources:
+                curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true
+                Or:
+                curl -XPOST <teraslice host>/v1/ex/${exIdsArr[0]}/_stop?force=true`);
         }
 
         const jobSpec = await this.jobsStorage.get(jobId);

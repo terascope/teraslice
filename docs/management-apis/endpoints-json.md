@@ -372,7 +372,8 @@ Remove orphaned pods from a failed job:
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop?force=true'
 {
-    Force stop complete for exId 041a00a9-a474-4355-96aa-03e5ecf9b246, job status: failed
+    "message": "Force stop complete for exId: 041a00a9-a474-4355-96aa-03e5ecf9b246",
+    "status": "failed"
 }
 ```
 
@@ -762,7 +763,8 @@ Remove orphaned pods from a failed job:
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop?force=true'
 {
-    Force stop complete for exId 863678b3-daf3-4ea9-8cb0-88b846cd7e57, job status: failed
+    "message": "Force stop complete for exId: 863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+    "status": "failed"
 }
 ```
 
