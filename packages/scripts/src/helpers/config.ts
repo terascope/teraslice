@@ -105,8 +105,6 @@ export const DEV_TAG = toSafeString((
 */
 export const DEV_DOCKER_IMAGE = process.env.DEV_DOCKER_IMAGE || undefined;
 
-export const DEV_POST_FIX = process.env.DEV_POST_FIX || undefined;
-
 /**
  * Use this to skip the docker build command in e2e tests, this might be
  * useful if you pull down a cache image outside of this and you know it

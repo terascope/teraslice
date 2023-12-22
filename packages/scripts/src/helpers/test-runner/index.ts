@@ -246,7 +246,7 @@ async function runE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = getDevDockerImage(options.nodeVersion, options.devImagePostFix);
+            const devImage = getDevDockerImage(options.nodeVersion);
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
@@ -254,9 +254,7 @@ async function runE2ETest(
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
-            const devImage = await buildDevDockerImage(
-                publishOptions, undefined, options.devImagePostFix
-            );
+            const devImage = await buildDevDockerImage(publishOptions);
             await dockerTag(devImage, e2eImage);
         }
     } catch (err) {

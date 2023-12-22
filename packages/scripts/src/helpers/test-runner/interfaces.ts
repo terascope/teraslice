@@ -25,7 +25,6 @@ export type TestOptions = {
     testPlatform: string;
     clusterName?: string;
     k8sVersion?: string;
-    devImagePostFix?: string;
 };
 
 export type GroupedPackages = {
