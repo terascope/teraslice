@@ -146,7 +146,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('dev-image-post-fix', {
                 alias: 'postfix',
                 description: 'Postfix for the dev image name, will automatically set based on node version unless this or "false" is passed',
-                type: 'string'
+                type: 'string',
+                default: config.DEV_POST_FIX
             })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',

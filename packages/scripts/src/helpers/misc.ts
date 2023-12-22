@@ -128,6 +128,7 @@ export function getServicesForSuite(suite: string): Service[] {
     return services;
 }
 
+// TODO see below don't think need this
 function getDevPostFix(nodeVersion?: string, postFix?: string) {
     // if (DEV_POST_FIX === null || !nodeVersion) return '';
     if (postFix === 'false' || !nodeVersion) return '';
@@ -136,11 +137,17 @@ function getDevPostFix(nodeVersion?: string, postFix?: string) {
 
 export function getDevDockerImage(nodeVersion?: string, postFix?: string): string {
     const devPostFix = getDevPostFix(nodeVersion, postFix);
+
+    // TODO i could be wrong but doesn't look like teraslice uses DEV_DOCKER_IMAGE so
+    // maybe don't need a postfix variable so like...
+    // if (DEV_DOCKER_IMAGE) return DEV_DOCKER_IMAGE
+    // else `${registry}:dev-${DEV_TAG}-nodev${nodeVersion}`
+
     if (DEV_DOCKER_IMAGE) return `${DEV_DOCKER_IMAGE}${devPostFix}`;
 
     const rootInfo = getRootInfo();
     const [registry] = rootInfo.terascope.docker.registries;
-    return `${registry}:dev-${DEV_TAG}`;
+    return `${registry}:dev-${DEV_TAG}${devPostFix}`;
 }
 
 export function getName(input: string): string {
