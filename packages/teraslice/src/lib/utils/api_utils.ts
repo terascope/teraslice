@@ -3,7 +3,7 @@ import {
     parseErrorInfo, parseList, logError,
     isString, get, toInteger, Logger, TSError,
 } from '@terascope/utils';
-import { TerasliceRequest, TerasliceResponse } from '../../interfaces';
+import { TerasliceRequest, TerasliceResponse } from '../../interfaces.js';
 
 export function makeTable(
     req: TerasliceRequest,

@@ -3,12 +3,12 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
-import { makeLogger } from '../../../../../workers/helpers/terafoundation';
-import { K8sResource } from './k8sResource';
-import { gen } from './k8sState';
-import { K8s } from './k8s';
-import { getRetryConfig } from './utils';
-import { StopExecutionOptions } from '../../../interfaces';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import { K8sResource } from './k8sResource.js';
+import { gen } from './k8sState.js';
+import { K8s } from './k8s.js';
+import { getRetryConfig } from './utils.js';
+import { StopExecutionOptions } from '../../../interfaces.js';
 
 /*
  Execution Life Cycle for _status

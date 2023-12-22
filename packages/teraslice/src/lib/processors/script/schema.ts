@@ -1,5 +1,5 @@
 import { ConvictSchema } from '@terascope/job-components';
-import { ScriptConfig } from './interfaces';
+import { ScriptConfig } from './interfaces.js';
 
 export default class Schema extends ConvictSchema<ScriptConfig> {
     build() {

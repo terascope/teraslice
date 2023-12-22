@@ -1,2 +1,2 @@
-export * from './loader';
-export * from './spawn';
+export * from './loader.js';
+export * from './spawn.js';

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { EachProcessor, WorkerContext, ExecutionConfig } from '@terascope/job-components';
-import { SaveFileConfig } from './interfaces';
+import { SaveFileConfig } from './interfaces.js';
 
 export default class SaveFile extends EachProcessor<SaveFileConfig> {
     filePath: string;

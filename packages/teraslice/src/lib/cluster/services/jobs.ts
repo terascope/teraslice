@@ -1,4 +1,4 @@
-import defaultsDeep from 'lodash/defaultsDeep';
+import defaultsDeep from 'lodash/defaultsDeep.js';
 import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
@@ -9,12 +9,12 @@ import {
     ValidatedJobConfig
 } from '@terascope/job-components';
 import { JobRecord, ExecutionRecord } from '@terascope/types';
-import { ClusterMasterContext } from '../../../interfaces';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { spawnAssetLoader } from '../../workers/assets/spawn';
-import { terasliceOpPath } from '../../config';
-import { JobsStorage, ExecutionStorage } from '../../storage';
-import type { ExecutionService } from './execution';
+import { ClusterMasterContext } from '../../../interfaces.js';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { spawnAssetLoader } from '../../workers/assets/spawn.js';
+import { terasliceOpPath } from '../../config/index.js';
+import { JobsStorage, ExecutionStorage } from '../../storage/index.js';
+import type { ExecutionService } from './execution.js';
 
 /**
  * New execution result

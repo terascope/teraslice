@@ -13,6 +13,7 @@
     },
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "files": [

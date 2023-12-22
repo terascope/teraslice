@@ -4,8 +4,8 @@ import {
     Slice, JobConfig
 } from '@terascope/job-components';
 import { ExecutionRecord, JobRecord } from '@terascope/types';
-import { terasliceOpPath } from '../../config';
-import { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
+import { terasliceOpPath } from '../../config/index.js';
+import { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 
 // TODO: fix type here
 export async function validateJob(context: Context, jobSpec: JobConfig) {

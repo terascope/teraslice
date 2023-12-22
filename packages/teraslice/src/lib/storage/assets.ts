@@ -7,13 +7,13 @@ import {
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import { saveAsset, AssetMetadata } from '../utils/file_utils';
+import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import { saveAsset, AssetMetadata } from '../utils/file_utils.js';
 import {
     findMatchingAsset, findSimilarAssets, toVersionQuery,
     getInCompatibilityReason
-} from '../utils/asset_utils';
+} from '../utils/asset_utils.js';
 
 function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     return async function checkMeta(meta: AssetMetadata): Promise<AssetMetadata> {

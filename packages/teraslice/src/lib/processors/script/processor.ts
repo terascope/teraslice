@@ -2,7 +2,7 @@ import { BatchProcessor } from '@terascope/job-components';
 import { TSError } from '@terascope/utils';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import { ScriptConfig } from './interfaces';
+import { ScriptConfig } from './interfaces.js';
 
 export default class Scripts extends BatchProcessor<ScriptConfig> {
     command!: string;

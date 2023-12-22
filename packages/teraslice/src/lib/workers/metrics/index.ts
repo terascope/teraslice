@@ -30,22 +30,25 @@ export class Metrics extends EventEmitter {
         this.eventLoopInterval = isTest ? 100 : 5000;
         this._intervals = [];
         this._typesCollectedAt = {};
+    }
 
+    async initialize() {
         // never cause an unwanted error
         try {
-            this.gcStats = require('gc-stats')();
+            // @ts-expect-error
+            const stats = await import('gc-stats');
+            console.log('stats', stats);
+            this.gcStats = stats();
         } catch (err) {
             this.logger.error(err, 'Failure to construct gc-stats');
         }
 
         try {
-            this.eventLoopStats = require('event-loop-stats');
+            this.eventLoopStats = await import('event-loop-stats');
         } catch (err) {
             this.logger.error(err, 'Failure to construct event-loop-stats');
         }
-    }
 
-    async initialize() {
         const gcEnabled = this.gcStats != null;
         const loopEnabled = this.eventLoopStats != null;
 

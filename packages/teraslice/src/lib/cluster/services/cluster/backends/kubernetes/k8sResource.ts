@@ -5,8 +5,8 @@ import barbe from 'barbe';
 import _ from 'lodash';
 import { isNumber, Logger } from '@terascope/utils';
 import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components';
-import { safeEncode } from '../../../../../utils/encoding_utils';
-import { setMaxOldSpaceViaEnv } from './utils';
+import { safeEncode } from '../../../../../utils/encoding_utils.js';
+import { setMaxOldSpaceViaEnv } from './utils.js';
 
 const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetes/');
 

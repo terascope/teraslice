@@ -15,7 +15,7 @@ describe('ExecutionController', () => {
 
             testContext = new TestContext({
                 assignment: 'execution_controller',
-                slicerPort: port
+                slicerPort: port,
             });
 
             await testContext.initialize(true);

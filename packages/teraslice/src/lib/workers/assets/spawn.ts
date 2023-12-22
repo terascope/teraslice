@@ -1,12 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fork } from 'node:child_process';
 import { isEmpty, get, has } from '@terascope/utils';
 import type { Context } from '@terascope/job-components';
-import { makeLogger } from '../helpers/terafoundation';
-import { safeEncode } from '../../utils/encoding_utils';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { safeEncode } from '../../utils/encoding_utils.js';
 
-const loaderPath = path.join(__dirname, './loader-executable');
+const filePath = fileURLToPath(new URL('.', import.meta.url));
+const loaderPath = path.join(filePath, './loader-executable');
 
 interface AssetMessage {
     success: boolean;

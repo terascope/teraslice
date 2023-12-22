@@ -6,15 +6,15 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger
 } from '@terascope/utils';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
     sendError, handleTerasliceRequest, getSearchOptions,
-} from '../../utils/api_utils';
-import { getPackageJSON } from '../../utils/file_utils';
+} from '../../utils/api_utils.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 

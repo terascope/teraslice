@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { BatchProcessor } from '@terascope/job-components';
-import { StdoutConfig } from './interfaces';
+import { StdoutConfig } from './interfaces.js';
 
 export default class Stdout extends BatchProcessor<StdoutConfig> {
     async onBatch(data: any) {

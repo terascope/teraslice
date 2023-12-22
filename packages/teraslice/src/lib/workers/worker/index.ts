@@ -6,11 +6,11 @@ import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import type { Context, WorkerExecutionContext } from '@terascope/job-components';
 import type { SliceCompletePayload } from '@terascope/types';
-import { StateStorage, AnalyticsStorage } from '../../storage';
-import { generateWorkerId, makeLogger } from '../helpers/terafoundation';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import { Metrics } from '../metrics';
-import { SliceExecution } from './slice';
+import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
+import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { Metrics } from '../metrics/index.js';
+import { SliceExecution } from './slice.js';
 
 export class Worker {
     stateStorage: StateStorage;

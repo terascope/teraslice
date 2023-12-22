@@ -3,8 +3,7 @@ import {
     getFirst, joinList
 } from '@terascope/utils';
 import { AssetRecord } from '@terascope/types';
-
-const semver = require('semver');
+import * as semver from 'semver';
 
 export function findMatchingAsset(
     records: AssetRecord[],
