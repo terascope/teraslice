@@ -203,7 +203,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             ignoreMount,
             testPlatform,
             clusterName,
-            k8sVersion
+            k8sVersion,
         });
     },
 };

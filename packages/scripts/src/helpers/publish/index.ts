@@ -88,7 +88,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    const devImage = await buildDevDockerImage(options);
+    const devImage = await buildDevDockerImage(options, undefined);
 
     let err: any|undefined;
     for (const registry of registries) {
