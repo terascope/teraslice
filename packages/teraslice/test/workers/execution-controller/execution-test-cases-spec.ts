@@ -4,12 +4,12 @@ import {
 } from '@terascope/utils';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionRecord } from '@terascope/types';
-import { TestContext } from '../helpers';
-import { getTestCases } from '../helpers/execution-controller-helper';
-import { findPort } from '../../../src/lib/utils/port_utils';
-import { newId } from '../../../src/lib/utils/id_utils';
-import { ExecutionController } from '../../../src/lib/workers/execution-controller';
-import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
+import { TestContext } from '../helpers/index.js';
+import { getTestCases } from '../helpers/execution-controller-helper.js';
+import { findPort } from '../../../src/lib/utils/port_utils.js';
+import { newId } from '../../../src/lib/utils/id_utils.js';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller/index.js';
+import { ExecutionStorage, StateStorage } from '../../../src/lib/storage/index.js';
 
 const ExecutionControllerClient = ExController.Client;
 

@@ -1,8 +1,8 @@
 import { pDelay, get, set } from '@terascope/utils';
-import { TestContext } from '../helpers';
-import { ExecutionStorage } from '../../../src/lib/storage';
-import { findPort } from '../../../src/lib/utils/port_utils';
-import { ExecutionController } from '../../../src/lib/workers/execution-controller';
+import { TestContext } from '../helpers/index.js';
+import { ExecutionStorage } from '../../../src/lib/storage/index.js';
+import { findPort } from '../../../src/lib/utils/port_utils.js';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller/index.js';
 
 describe('ExecutionController', () => {
     describe('when the execution context is invalid', () => {

@@ -1,7 +1,7 @@
 import {
     makeTemplate, getMaxOldSpace
-} from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/utils';
-import { safeEncode } from '../../../../../../../src/lib/utils/encoding_utils';
+} from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/utils.js';
+import { safeEncode } from '../../../../../../../src/lib/utils/encoding_utils.js';
 
 describe('K8s Utils', () => {
     describe('->makeTemplate', () => {

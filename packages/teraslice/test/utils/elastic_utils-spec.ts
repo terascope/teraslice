@@ -1,4 +1,4 @@
-import { dateOptions } from '../../src/lib/utils/date_utils';
+import { dateOptions } from '../../src/lib/utils/date_utils.js';
 
 describe('elastic_utils', () => {
     it('has methods dateOptions and processInterval', () => {

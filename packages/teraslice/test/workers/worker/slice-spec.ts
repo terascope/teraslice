@@ -1,6 +1,6 @@
 import times from 'lodash/times';
-import { SliceExecution } from '../../../src/lib/workers/worker/slice';
-import { TestContext } from '../helpers';
+import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
+import { TestContext } from '../helpers/index.js';
 
 describe('Slice', () => {
     async function setupSlice(testContext: any, eventMocks = {}): Promise<SliceExecution> {

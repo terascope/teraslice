@@ -1,4 +1,4 @@
-import { makePrometheus, isPrometheusTerasliceRequest } from '../../src/lib/utils/api_utils';
+import { makePrometheus, isPrometheusTerasliceRequest } from '../../src/lib/utils/api_utils.js';
 
 describe('apiUtils', () => {
     it('should be able make a prometheus text format', () => {

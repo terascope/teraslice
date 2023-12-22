@@ -1,6 +1,6 @@
 import path from 'node:path';
 import opHarness from '@terascope/teraslice-op-test-harness';
-import processor from '../../../src/lib/processors/script/processor';
+import processor from '../../../src/lib/processors/script/processor.js';
 
 // eslint-disable-next-line
 xdescribe('script processor', () => {

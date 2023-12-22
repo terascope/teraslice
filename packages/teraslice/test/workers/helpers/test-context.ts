@@ -12,16 +12,16 @@ import { ClusterMaster } from '@terascope/teraslice-messaging';
 import {
     AssetsStorage, StateStorage, AnalyticsStorage,
     ExecutionStorage, JobsStorage
-} from '../../../src/lib/storage';
-import { initializeTestExecution } from '../../../src/lib/workers/helpers/job';
-import { makeTerafoundationContext } from '../../../src/lib/workers/context/terafoundation-context';
-import { makeExecutionContext } from '../../../src/lib/workers/context/execution-context';
-import { newId } from '../../../src/lib/utils/id_utils';
-import { findPort } from '../../../src/lib/utils/port_utils';
-import { newConfig, newSysConfig, TestJobConfig } from './configs';
-import { zipDirectory } from './zip-directory';
+} from '../../../src/lib/storage/index.js';
+import { initializeTestExecution } from '../../../src/lib/workers/helpers/job.js';
+import { makeTerafoundationContext } from '../../../src/lib/workers/context/terafoundation-context.js';
+import { makeExecutionContext } from '../../../src/lib/workers/context/execution-context.js';
+import { newId } from '../../../src/lib/utils/id_utils.js';
+import { findPort } from '../../../src/lib/utils/port_utils.js';
+import { newConfig, newSysConfig, TestJobConfig } from './configs.js';
+import { zipDirectory } from './zip-directory.js';
 
-import { TERASLICE_CLUSTER_NAME } from '../../test.config';
+import { TERASLICE_CLUSTER_NAME } from '../../test.config.js';
 
 const tmpAssetDir = createTempDirSync();
 const clusterName = `${TERASLICE_CLUSTER_NAME}`;
