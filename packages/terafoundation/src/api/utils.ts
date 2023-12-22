@@ -27,13 +27,14 @@ function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
 export function createRootLogger(
     context: i.FoundationContext<Record<string, any>>
 ): ts.Logger {
-    const useDebugLogger = ts.toBoolean(process.env.USE_DEBUG_LOGGER || ts.isTest);
+    const useDebugLogger = (ts.toBoolean(process.env.USE_DEBUG_LOGGER) || ts.isTest)
+                        && !ts.toBoolean(process.env.TESTING_LOG_LEVEL);
     const filename = context.name;
     const name = context.assignment || filename;
     const foundationConfig = context.sysconfig.terafoundation;
     const logLevel = getLogLevel(foundationConfig.log_level);
 
-    if (useDebugLogger && process.env.TESTING_LOG_LEVEL !== 'true') {
+    if (useDebugLogger) {
         return ts.debugLogger(`${filename}:${name}`);
     }
 

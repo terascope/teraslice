@@ -34,6 +34,7 @@ export class Worker {
 
     constructor(context: Context, executionContext: WorkerExecutionContext) {
         const workerId = generateWorkerId(context);
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
 

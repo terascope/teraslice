@@ -61,6 +61,7 @@ export class ExecutionController {
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;

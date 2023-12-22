@@ -89,7 +89,8 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
         autorecover = false,
         recoveredExecution,
         recoveredSliceType,
-        probationWindow = 5000
+        probationWindow = 5000,
+        log_level
     } = options;
 
     return {
@@ -110,7 +111,8 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
         node_id: newId('node-id', true),
         slicer_port: slicerPort,
         slicer_hostname: 'localhost',
-        probation_window: probationWindow
+        probation_window: probationWindow,
+        log_level
     } as unknown as ValidatedJobConfig;
 };
 

@@ -83,10 +83,6 @@ export class TestContext {
 
         this.context = makeTerafoundationContext({ sysconfig: this.sysconfig });
         this.context.assignment = options.assignment || 'worker';
-        if (options.log_level) {
-            const loggerOptions = { level: options.log_level };
-            this.context.logger = this.context.logger.child(loggerOptions);
-        }
         this.events = this.context.apis.foundation.getSystemEvents();
 
         this.cleanups[this.setupId] = () => this.cleanup();
