@@ -150,7 +150,7 @@ export class JobsService {
             const exIdsString = exIdsArr.join(', ');
             throw new TSError(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.
             To remove orphaned resources:
-                curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true
+                curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true`);
         }
 
         const jobSpec = await this.jobsStorage.get(jobId);
