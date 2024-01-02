@@ -246,7 +246,7 @@ async function runE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
+            const devImage = getDevDockerImage(options.nodeVersion);
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
