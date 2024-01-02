@@ -264,7 +264,7 @@ export class ExecutionService {
 
         const isTerminal = this.isExecutionTerminal(execution);
 
-        if (this.isNative || !options.force) {
+        if (!options.force) {
             if (isTerminal) {
                 this.logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
                 return;
@@ -280,7 +280,7 @@ export class ExecutionService {
             this.logger.debug(`stopping execution ${exId}...`, withoutNil(options));
             await this.executionStorage.setStatus(exId, 'stopping');
         } else {
-            this.logger.debug(`force stopping execution ${exId}...`, withoutNil(options));
+            this.logger.info(`force stopping execution ${exId}...`, withoutNil(options));
         }
 
         await this.clusterService.stopExecution(exId, options);
@@ -510,5 +510,9 @@ export class ExecutionService {
         } catch (err) {
             this.logger.error(err, 'failure reaping executions');
         }
+    }
+
+    async listResourcesForJobId(jobId: string) {
+        return this.clusterService.listResourcesForJobId(jobId);
     }
 }
