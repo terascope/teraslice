@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs-extra';
+import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
@@ -7,7 +8,7 @@ import helpers from 'yeoman-test';
 jest.setTimeout(10000);
 
 describe('new asset generator should', () => {
-    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-asset');
+    const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-asset'));
     const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');
     const assetAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset', 'asset');
 
@@ -25,7 +26,7 @@ describe('new asset generator should', () => {
         }));
 
     afterAll(() => {
-        fs.removeSync(rootAssetPath);
+        fs.rmSync(testAssetBasePath, { recursive: true, force: true });
     });
 
     it('should create the correct asset dir tree and put files in the correct dir', () => {

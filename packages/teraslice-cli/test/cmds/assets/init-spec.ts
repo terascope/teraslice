@@ -2,6 +2,7 @@ import 'jest-extended';
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs-extra';
+import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
@@ -49,7 +50,7 @@ describe('assets deploy', () => {
     });
 
     describe('-> handler', () => {
-        const testAssetBasePath = path.join(__dirname, '..', '..', 'fixtures', 'generate-new-asset');
+        const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-asset'));
         const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');
 
         const deps = [
@@ -66,7 +67,7 @@ describe('assets deploy', () => {
             }));
 
         afterAll(() => {
-            fs.removeSync(rootAssetPath);
+            fs.rmSync(testAssetBasePath, { recursive: true, force: true });
         });
 
         it('should create new asset from cmd', async () => {
