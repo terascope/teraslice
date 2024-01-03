@@ -14,6 +14,7 @@ export enum PublishAction {
 export interface PublishOptions {
     type: PublishType;
     dryRun: boolean;
+    nodeSuffix: boolean;
     /**
      * Publish packages that may have newer versions
     */
