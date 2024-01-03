@@ -35,6 +35,7 @@ export interface TestJobConfig {
     slicerQueueLength?: number,
     opErrorAt?: number[],
     opResults?: any[],
+    log_level?: string
 }
 
 const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
@@ -88,7 +89,8 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
         autorecover = false,
         recoveredExecution,
         recoveredSliceType,
-        probationWindow = 5000
+        probationWindow = 5000,
+        log_level
     } = options;
 
     return {
@@ -109,7 +111,8 @@ const newConfig = (options: TestJobConfig = {}): ValidatedJobConfig => {
         node_id: newId('node-id', true),
         slicer_port: slicerPort,
         slicer_hostname: 'localhost',
-        probation_window: probationWindow
+        probation_window: probationWindow,
+        log_level
     } as unknown as ValidatedJobConfig;
 };
 
@@ -120,6 +123,7 @@ export interface SystemConfig {
     shutdownTimeout?: number;
     assetDir?: string;
     clusterMasterPort?: number;
+    log_level_terafoundation?: string;
 }
 
 const newSysConfig = (options: SystemConfig) => {
@@ -129,12 +133,14 @@ const newSysConfig = (options: SystemConfig) => {
         actionTimeout = 2000,
         shutdownTimeout = 4000,
         assetDir,
-        clusterMasterPort
+        clusterMasterPort,
+        log_level_terafoundation = 'info',
     } = options;
 
     return {
         terafoundation: {
             environment: 'development',
+            log_level: log_level_terafoundation,
             connectors: {
                 elasticsearch: {
                     default: {

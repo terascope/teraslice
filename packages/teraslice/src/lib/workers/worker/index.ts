@@ -34,6 +34,11 @@ export class Worker {
 
     constructor(context: Context, executionContext: WorkerExecutionContext) {
         const workerId = generateWorkerId(context);
+        // Use the bunyan logger.level() function to set the log level of context.logger equal
+        // to the log level of executionContext.logger.
+        // If a log_level was given in the job config, it will have overwritten the default
+        // log_level in the execution context.
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
 

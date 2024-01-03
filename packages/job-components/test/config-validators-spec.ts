@@ -5,7 +5,8 @@ import {
     validateJobConfig,
     validateOpConfig,
     TestContext,
-    validateAPIConfig
+    validateAPIConfig,
+    logLevels
 } from '../src';
 
 describe('when using native clustering', () => {
@@ -500,7 +501,7 @@ describe('when using native clustering', () => {
             });
         });
 
-        describe('when testing env_vars with a invalid config', () => {
+        describe('when testing env_vars with an invalid config', () => {
             it('should throw an error when given an non-object', () => {
                 const schema = jobSchema(context);
                 const job = {
@@ -553,6 +554,73 @@ describe('when using native clustering', () => {
                 expect(() => validateJobConfig(schema, job)).toThrowError(
                     'value for key "foo" must be not empty'
                 );
+            });
+        });
+
+        describe('when testing log_level with a valid config', () => {
+            it('should return a completed and valid jobConfig', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    log_level: 'trace',
+                    operations: [
+                        {
+                            _op: 'noop',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                const validJob = {
+                    analytics: true,
+                    lifecycle: 'once',
+                    max_retries: 3,
+                    name: 'Custom Job',
+                    apis: [],
+                    log_level: 'trace',
+                    operations: [{ _op: 'noop' }, { _op: 'noop' }],
+                    slicers: 1,
+                };
+
+                const jobConfig = validateJobConfig(schema, job);
+                delete (jobConfig as any).workers;
+                expect(jobConfig).toMatchObject(validJob);
+            });
+        });
+
+        describe('when testing log_level with an invalid config', () => {
+            const logLevelStrings = Object.keys(logLevels);
+
+            it('should throw an error when given non-string', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    log_level: 10,
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
+            });
+
+            it('should throw an error when given a string that isn\'t a log level', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    log_level: 'errror',
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
             });
         });
 

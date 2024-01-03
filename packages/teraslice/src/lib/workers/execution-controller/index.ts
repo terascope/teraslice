@@ -61,6 +61,11 @@ export class ExecutionController {
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
+        // Use the bunyan logger.level() function to set the log level of context.logger equal
+        // to the log level of executionContext.logger.
+        // If a log_level was given in the job config, it will have overwritten the default
+        // log_level in the execution context.
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;

@@ -179,6 +179,7 @@ export interface ValidatedJobConfig {
     probation_window: number;
     performance_metrics?: boolean;
     env_vars: { [key: string]: string };
+    log_level?: string;
     slicers: number;
     workers: number;
     stateful?: boolean;
