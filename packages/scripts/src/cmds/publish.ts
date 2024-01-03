@@ -11,6 +11,7 @@ interface Options {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
+    'node-suffix': boolean;
     'publish-outdated-packages': boolean;
     'node-version': string;
 }
@@ -26,6 +27,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '-n 18.18.2 -t latest docker')
             .example('$0 publish', '--dry-run docker')
             .example('$0 publish', '-n 18.18.2 --dry-run docker')
+            .example('$0 publish', '-t tag --node-suffix=false docker')
             .example('$0 publish', '-t tag npm')
             .example('$0 publish', '-t latest npm')
             .example('$0 publish', '--dry-run npm')
@@ -34,6 +36,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: "For testing purposes, don't pushing or publishing",
                 type: 'boolean',
                 default: !isCI,
+            })
+            .option('node-suffix', {
+                description: 'Choose whether to include or exclude a node suffix with a docker image tag',
+                type: 'boolean',
+                default: true,
             })
             .option('publish-outdated-packages', {
                 description: 'Publish packages that may have newer versions',
@@ -68,6 +75,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
+            nodeSuffix: argv['node-suffix'],
             publishOutdatedPackages: argv['publish-outdated-packages'],
             nodeVersion: argv['node-version'],
         });

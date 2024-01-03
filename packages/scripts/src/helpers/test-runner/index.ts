@@ -251,6 +251,7 @@ async function runE2ETest(
         } else {
             const publishOptions: PublishOptions = {
                 dryRun: true,
+                nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };

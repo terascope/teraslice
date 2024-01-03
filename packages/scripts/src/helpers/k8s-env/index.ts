@@ -128,6 +128,7 @@ async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
         try {
             const publishOptions: PublishOptions = {
                 dryRun: true,
+                nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
