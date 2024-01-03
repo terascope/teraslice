@@ -27,6 +27,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '-n 18.18.2 -t latest docker')
             .example('$0 publish', '--dry-run docker')
             .example('$0 publish', '-n 18.18.2 --dry-run docker')
+            .example('$0 publish', '-t tag --node-suffix=false docker')
             .example('$0 publish', '-t tag npm')
             .example('$0 publish', '-t latest npm')
             .example('$0 publish', '--dry-run npm')
