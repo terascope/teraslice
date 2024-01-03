@@ -589,6 +589,8 @@ describe('when using native clustering', () => {
         });
 
         describe('when testing log_level with an invalid config', () => {
+            const logLevelStrings = Object.keys(logLevels);
+
             it('should throw an error when given non-string', () => {
                 const schema = jobSchema(context);
                 const job = {
@@ -602,7 +604,7 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrow('must be of type string');
+                expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
             });
 
             it('should throw an error when given a string that isn\'t a log level', () => {
@@ -618,7 +620,6 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                const logLevelStrings = Object.keys(logLevels);
                 expect(() => validateJobConfig(schema, job)).toThrow(`must be one of the following: ${logLevelStrings}`);
             });
         });

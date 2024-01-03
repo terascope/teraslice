@@ -214,11 +214,8 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: undefined,
             doc: 'the log level to be set on all loggers associated with the job',
             format(level: unknown) {
-                if (typeof level !== 'string') {
-                    throw new Error('must be of type string');
-                }
                 const logLevelStrings = Object.keys(logLevels);
-                if (!logLevelStrings.includes(level)) {
+                if (typeof level !== 'string' || !logLevelStrings.includes(level)) {
                     throw new Error(`must be one of the following: ${logLevelStrings}`);
                 }
             }
