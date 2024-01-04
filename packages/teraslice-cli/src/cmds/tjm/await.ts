@@ -25,7 +25,7 @@ const cmd: CMD = {
     async handler(argv: any): Promise<void> {
         const cliConfig = new Config(argv);
 
-        validateAndUpdateCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig, 'await');
 
         const jobs = new Jobs(cliConfig);
 

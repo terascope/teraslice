@@ -47,13 +47,16 @@ export function getJobConfigFromFile(
     }
 }
 
-export function validateAndUpdateCliConfig(cliConfig: Config) {
+export function validateAndUpdateCliConfig(cliConfig: Config, context: string) {
+    const job = new Jobs(cliConfig);
     for (const jobFile of cliConfig.args.jobFile) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
 
         validateJobFile(jobConfig);
         fileMetadataToCliArgs(cliConfig, jobConfig);
+        job.verifyK8sImageContinuity(jobConfig, context);
     }
+    return job;
 }
 
 function fileMetadataToCliArgs(cliConfig: Config, jobConfig: JobConfigFile) {
@@ -108,6 +111,7 @@ export async function registerJobToCluster(cliConfig: Config) {
         const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
 
         validateJobFile(jobConfig);
+        job.verifyK8sImageContinuity(jobConfig, 'register');
 
         if (hasMetadata(jobConfig)) {
             const regCluster = get(jobConfig, '__metadata.cli.cluster');

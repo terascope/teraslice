@@ -23,7 +23,7 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        validateAndUpdateCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig, 'pause');
 
         const jobs = new Jobs(cliConfig);
 
