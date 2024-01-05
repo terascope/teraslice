@@ -4,7 +4,7 @@ import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
-    TSError, startsWith, Logger
+    TSError, startsWith, Logger, toBoolean
 } from '@terascope/utils';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces';
 import { makeLogger } from '../../workers/helpers/terafoundation';
@@ -338,11 +338,12 @@ export class ApiService {
         });
 
         v1routes.post(['/jobs/:jobId/_stop', '/ex/:exId/_stop'], (req, res) => {
-            const {
-                timeout,
-                blocking = true,
-                force = false
-            } = req.query as unknown as { timeout: number, blocking: boolean, force: boolean };
+            let timeout: number | undefined;
+            if (req.query.timeout) {
+                timeout = Number(req.query.timeout);
+            }
+            const blocking = toBoolean(req.query.blocking);
+            const force = toBoolean(req.query.force);
 
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not stop execution');
             requestHandler(async () => {
