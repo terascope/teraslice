@@ -416,23 +416,32 @@ export default class Jobs {
         action: 'stop' | 'pause'
     ): Promise<void> {
         const executionStatus = action === 'pause' ? ExecutionStatus.paused : ExecutionStatus.stopped;
+        const acceptableForceStatuses = [ExecutionStatus.terminated, ExecutionStatus.failed];
+        let statusToExpect;
 
         if (job.status === executionStatus) {
             this.logUpdate({ action: display.setAction(action, 'past'), job });
             return;
         }
 
-        if (this.inTerminalStatus(job)) {
+        if (this.inTerminalStatus(job) && !this.config.args.force) {
             this.logUpdate({ action: `cannot_${action}`, job });
             return;
         }
 
         this.logUpdate({ action: display.setAction(action, 'present'), job });
 
-        job.api[action]()
-            .catch((e) => reply.fatal(e.message));
+        if (this.config.args.force) {
+            job.api[action]({ force: this.config.args.force })
+                .catch((e) => reply.fatal(e.message));
+            statusToExpect = acceptableForceStatuses;
+        } else {
+            job.api[action]()
+                .catch((e) => reply.fatal(e.message));
+            statusToExpect = executionStatus;
+        }
 
-        const statusUpdate = await this.waitStatusChange(job, executionStatus);
+        const statusUpdate = await this.waitStatusChange(job, statusToExpect);
 
         job.status = statusUpdate.newStatus!;
 
@@ -440,7 +449,9 @@ export default class Jobs {
             this.commandFailed(statusUpdate.errorMessage as string, job);
         }
 
-        if (statusUpdate.newStatus === executionStatus) {
+        const acceptibleForce = this.config.args.force && statusUpdate.newStatus
+        && acceptableForceStatuses?.includes(statusUpdate.newStatus);
+        if (statusUpdate.newStatus === executionStatus || acceptibleForce) {
             this.logUpdate({ action: display.setAction(action, 'past'), job });
         } else {
             this.commandFailed(`Could not ${action} job, job status is ${job.status}`, job);
@@ -736,7 +747,7 @@ export default class Jobs {
 
         if ((action === 'stopped' || action === 'stopTerminal')
             && (this.config.args._action === 'restart'
-            || this.config.args._action === 'update')) return false;
+                || this.config.args._action === 'update')) return false;
 
         return true;
     }

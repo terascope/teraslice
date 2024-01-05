@@ -14,9 +14,11 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.options('force', yargsOptions.buildOption('force'));
         yargs
             .example('$0 tjm stop JOB_FILE.json', 'stops job')
-            .example('$0 tjm stop JOB_FILE.json JOB_FILE2.json', 'stops multiple jobs');
+            .example('$0 tjm stop JOB_FILE.json JOB_FILE2.json', 'stops multiple jobs')
+            .example('$0 tjm stop JOB_FILE.json --force', 'stops job on the cluster and forcefully kills any resources belonging to the job');
         return yargs;
     },
     async handler(argv) {

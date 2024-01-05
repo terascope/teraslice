@@ -302,6 +302,7 @@ export interface StoppedResponse {
 export interface StopQuery {
     timeout?: number;
     blocking?: boolean;
+    force?: boolean;
 }
 
 export interface AssetUploadQuery {
