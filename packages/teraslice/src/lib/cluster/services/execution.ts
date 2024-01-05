@@ -256,6 +256,7 @@ export class ExecutionService {
     }
 
     async stopExecution(exId: string, options: StopExecutionOptions) {
+        let status = 'stopped';
         const execution = await this.getExecutionContext(exId);
 
         if (!execution) {
@@ -281,11 +282,12 @@ export class ExecutionService {
             await this.executionStorage.setStatus(exId, 'stopping');
         } else {
             this.logger.info(`force stopping execution ${exId}...`, withoutNil(options));
+            status = execution._status === 'running' ? 'terminated' : execution._status;
         }
 
         await this.clusterService.stopExecution(exId, options);
         // we are kicking this off in the background, not part of the promise chain
-        this.waitForExecutionStatus(exId);
+        this.waitForExecutionStatus(exId, status);
     }
 
     async pauseExecution(exId: string) {
