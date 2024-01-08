@@ -227,6 +227,12 @@ export default class Options {
             describe: 'Silence non-error logging.',
             type: 'boolean'
         }),
+        force: () => ({
+            alias: 'f',
+            describe: 'Stops job on the cluster and forcefully kills any resources belonging to the job.',
+            default: false,
+            type: 'boolean'
+        }),
     };
 
     private positionals: Record<string, (...args: any[]) => yargs.PositionalOptions> = {
