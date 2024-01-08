@@ -28,6 +28,9 @@ export = {
         return yargs;
     },
     async handler(argv: any) {
+        if (argv.force === true && argv.jobId.includes('all')) {
+            reply.fatal('Force option cannot be used with the positional argument "all".');
+        }
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
 
