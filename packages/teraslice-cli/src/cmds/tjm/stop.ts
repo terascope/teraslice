@@ -21,7 +21,7 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        const jobs = validateAndUpdateCliConfig(cliConfig, 'stop');
+        const jobs = validateAndUpdateCliConfig(cliConfig);
 
         await jobs.initialize();
 

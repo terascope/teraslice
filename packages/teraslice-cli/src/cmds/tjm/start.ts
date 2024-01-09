@@ -26,7 +26,8 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
 
-        const jobs = validateAndUpdateCliConfig(cliConfig, 'start');
+        const jobs = validateAndUpdateCliConfig(cliConfig);
+        jobs.verifyK8sImageContinuity(cliConfig);
 
         await jobs.initialize();
 
