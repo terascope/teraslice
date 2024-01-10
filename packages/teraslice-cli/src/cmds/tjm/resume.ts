@@ -1,7 +1,6 @@
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
-import Jobs from '../../helpers/jobs';
 import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
 
 const yargsOptions = new YargsOptions();
