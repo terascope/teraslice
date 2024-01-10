@@ -71,7 +71,7 @@ FROM node:${NODE_VERSION}-bookworm-slim
 COPY --from=base /app /app
 
 RUN apt-get update && \
-     apt-get install -y libcurl4
+     apt-get install -y libcurl4 tini
 
 WORKDIR /app/source
 
@@ -86,5 +86,8 @@ EXPOSE 5678
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
+
+# Use tini to handle sigterm and zombie processes
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["node", "service.js"]
