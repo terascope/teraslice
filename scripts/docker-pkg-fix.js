@@ -2,6 +2,9 @@
 
 'use strict';
 
+// We are unsure what this does and it can probably be deleted, looks like something left
+// from the migration from Node 10 to Node 12
+
 const fs = require('fs');
 
 const tmpPkgJSONPath = '/tmp/package.json';
