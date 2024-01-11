@@ -1,7 +1,42 @@
 # NODE_VERSION is set by default in the config.ts, the following value will only
 # be used if you build images by default with docker build
 ARG NODE_VERSION=18.18.2
-FROM terascope/node-base:${NODE_VERSION}
+FROM node:${NODE_VERSION}-bookworm as base
+
+ENV NPM_CONFIG_LOGLEVEL error
+# Do not use SASL authentication with kafka
+ENV WITH_SASL 0
+
+RUN node --version
+RUN yarn --version
+RUN npm --version
+
+RUN mkdir -p /app/source
+
+# Install bunyan
+RUN yarn global add \
+    --ignore-optional \
+    --no-progress \
+    --no-emoji \
+    --no-cache \
+    bunyan
+
+# Install any built-in connectors in /app/
+# use npm because there isn't a package.json
+WORKDIR /app
+
+RUN npm init --yes &> /dev/null \
+    && npm install \
+    --build \
+    --no-package-lock \
+    --no-optional \
+    'terafoundation_kafka_connector@~0.11.1' \
+    && npm cache clean --force
+
+WORKDIR /app/source
+
+# verify node-rdkafka is installed right
+RUN node --print --eval "require('node-rdkafka')"
 
 ENV NODE_ENV production
 
@@ -24,14 +59,14 @@ RUN yarn --prod=false --frozen-lockfile \
       --ignore-scripts \
     && yarn cache clean
 
-
 COPY service.js /app/source/
 
-# verify node-rdkafka is installed right
-RUN node -e "require('node-rdkafka')"
 
-# verify teraslice is installed right
-RUN node -e "require('teraslice')"
+FROM node:${NODE_VERSION}-bookworm-slim
+
+# Affects garbage collection. This default gets overwritten by the memory setting in kubernetes
+ENV NODE_OPTIONS "--max-old-space-size=2048"
+ENV NODE_ENV production
 
 EXPOSE 5678
 
@@ -39,4 +74,26 @@ EXPOSE 5678
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
+# Use tini to handle sigterm and zombie processes
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
 CMD ["node", "service.js"]
+
+RUN apt-get update && \
+     apt-get install -y libcurl4 tini && \
+       apt-get autoremove -y && \
+       apt-get clean -y && \
+       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# this can most likely be removed. Looks to be related to node10->12 transition.
+COPY scripts/docker-pkg-fix.js /usr/local/bin/docker-pkg-fix
+COPY scripts/wait-for-it.sh /usr/local/bin/wait-for-it
+COPY --from=base /app /app
+
+WORKDIR /app/source
+
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
+
+# verify teraslice is installed right
+RUN node -e "require('teraslice')"
