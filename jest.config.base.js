@@ -87,20 +87,16 @@ module.exports = (projectDir) => {
     config.transform = {};
 
     if (isTypescript) {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
+        // config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+        //     isolatedModules: true,
+        //     tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
+        //     diagnostics: true,
+        //     pretty: true,
+        //     useESM: true
+        // }];
+        config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
     } else {
-        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
-            isolatedModules: true,
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }];
+        config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
     }
 
     config.roots = [`${packageRoot}/test`];

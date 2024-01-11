@@ -1,3 +1,18 @@
-'use strict';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-module.exports = require('../../jest.config.base')(__dirname);
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+const configModulePath = path.join(dirPath, '../../jest.config.base.js');
+
+const module = await import(configModulePath);
+
+const config = module.default(dirPath);
+
+config.preset = "ts-jest/presets/default-esm";
+config.extensionsToTreatAsEsm = ['.ts'];
+config.moduleNameMapper = {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+};
+config.testTimeout = 60 * 1000;
+
+export default config;
