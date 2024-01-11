@@ -4,6 +4,7 @@ ARG NODE_VERSION=18.18.2
 FROM node:${NODE_VERSION}-bookworm as base
 
 ENV NPM_CONFIG_LOGLEVEL error
+# Do not use SASL authentication with kafka
 ENV WITH_SASL 0
 
 RUN node --version
@@ -37,11 +38,6 @@ WORKDIR /app/source
 # verify node-rdkafka is installed right
 RUN node --print --eval "require('node-rdkafka')"
 
-COPY scripts/docker-pkg-fix.js /usr/local/bin/docker-pkg-fix
-COPY scripts/wait-for-it.sh /usr/local/bin/wait-for-it
-
-ENV NODE_OPTIONS "--max-old-space-size=2048"
-
 ENV NODE_ENV production
 
 ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
@@ -63,23 +59,14 @@ RUN yarn --prod=false --frozen-lockfile \
       --ignore-scripts \
     && yarn cache clean
 
-
 COPY service.js /app/source/
+
 
 FROM node:${NODE_VERSION}-bookworm-slim
 
-COPY --from=base /app /app
-
-RUN apt-get update && \
-     apt-get install -y libcurl4 tini
-
-WORKDIR /app/source
-
-# verify node-rdkafka is installed right
-RUN node -e "require('node-rdkafka')"
-
-# verify teraslice is installed right
-RUN node -e "require('teraslice')"
+# Affects garbage collection. This default gets overwritten by the memory setting in kubernetes
+ENV NODE_OPTIONS "--max-old-space-size=2048"
+ENV NODE_ENV production
 
 EXPOSE 5678
 
@@ -91,3 +78,19 @@ ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["node", "service.js"]
+
+RUN apt-get update && \
+     apt-get install -y libcurl4 tini
+
+# this can most likely be removed. Looks to be related to node10->12 transition.
+COPY scripts/docker-pkg-fix.js /usr/local/bin/docker-pkg-fix
+COPY scripts/wait-for-it.sh /usr/local/bin/wait-for-it
+COPY --from=base /app /app
+
+WORKDIR /app/source
+
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
+
+# verify teraslice is installed right
+RUN node -e "require('teraslice')"
