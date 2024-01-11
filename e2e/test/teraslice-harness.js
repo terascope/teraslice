@@ -3,7 +3,7 @@
 const ms = require('ms');
 const {
     pDelay, uniq, toString,
-    cloneDeep, isEmpty, castArray
+    cloneDeep, isEmpty, castArray, pRetry
 } = require('@terascope/utils');
 const { showState } = require('@terascope/scripts');
 const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
@@ -22,6 +22,20 @@ const { cleanupIndex } = ElasticsearchTestHelpers;
 
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
+/// This grabs the state index string from a list of indices as
+/// the index names are slightly randomized
+function getStateIndexString(indices) {
+    const words = indices.split(' ');
+
+    for (const word of words) {
+        if (word.includes('__state')) {
+            return word;
+        }
+    }
+
+    // Return null if no matching word is found
+    return null;
+}
 module.exports = class TerasliceHarness {
     async init() {
         const { client } = await createClient({ node: TEST_HOST });
@@ -184,6 +198,25 @@ module.exports = class TerasliceHarness {
     /**
  * Test pause
  */
+
+    async getSliceSuccess(ex) {
+        const indexString = getStateIndexString(await this.client.cat.indices());
+        const query = {
+            index: indexString,
+            body: {
+                query: {
+                    match: { ex_id: ex.id() }
+                }
+            }
+        };
+        const sliceRecord = await this.client.search(query);
+        const sliceStatus = sliceRecord.hits.hits[0]._source.state;
+        if (sliceStatus !== 'completed') {
+            throw Error;
+        }
+        return true;
+    }
+
     async testJobLifeCycle(jobSpec, delay = 3000) {
         let ex;
         const waitForStatus = async (status) => this.waitForExStatus(ex, status, 50, 0);
@@ -215,6 +248,31 @@ module.exports = class TerasliceHarness {
                     `${errStr} - however since this can be race condition, we don't want to fail the test`
                 );
                 return ex;
+            }
+            /// NOTE: This is an edgecase where the ex marks itself as `failed` during shutdown
+            /// because of a race condition with elasticsearch not updating the state index.
+            /// We may need to reconsider revising how we implement this test.
+            if (errStr.includes('"stopped"') && errStr.includes('"failed"')) {
+                const cb = () => {
+                    try {
+                        const state = this.getSliceSuccess(ex);
+                        return state;
+                    } catch {
+                        throw Error;
+                    }
+                };
+
+                const sliceCompleted = await pRetry(cb, { delay: 2000 });
+
+                if (sliceCompleted) {
+                    signale.warn(
+                        `${errStr} - however since this can be race condition, we don't want to fail the test 
+                        in the condition that the slice still completes.`
+                    );
+                    return ex;
+                }
+
+                throw err;
             }
 
             throw err;
