@@ -80,7 +80,10 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "service.js"]
 
 RUN apt-get update && \
-     apt-get install -y libcurl4 tini
+     apt-get install -y libcurl4 tini && \
+       apt-get autoremove -y && \
+       apt-get clean -y && \
+       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # this can most likely be removed. Looks to be related to node10->12 transition.
 COPY scripts/docker-pkg-fix.js /usr/local/bin/docker-pkg-fix
