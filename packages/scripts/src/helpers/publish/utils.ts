@@ -107,3 +107,7 @@ export async function buildDevDockerImage(
     signale.success(`built docker image ${devImage}, took ${toHumanTime(Date.now() - startTime)}`);
     return devImage;
 }
+
+export function removeNodeSuffixFromTag(tag: string) {
+    return tag.split('-').filter((part) => !part.startsWith('nodev')).join('-');
+}
