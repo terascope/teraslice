@@ -25,13 +25,18 @@ import {
 const display = new Display();
 
 /// Extracts verison of teraslice out of kubernetes image name
-function getK8sJobVersion(inputString: string | any): string {
-    const startIndex = inputString.indexOf('v');
-    const endIndex = inputString.indexOf('-');
-    if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
-        return inputString.slice(startIndex, endIndex);
-    }
-    return 'null';
+function getK8sJobVersion(imageTag: string | any): string {
+    // Define the version number regex pattern
+    const versionRegex = /v(\d+\.\d+\.\d+)/;
+
+    // Use match to find the first match in the input string
+    // It's important that the teraslice version is first in
+    // the image tag or it will give an incorrect verion number
+    const match = imageTag.match(versionRegex);
+
+    // If a match is found, return the entire matched version
+    // otherwise, return error string
+    return match ? match[0] : 'Version number not available';
 }
 
 export default class Jobs {
