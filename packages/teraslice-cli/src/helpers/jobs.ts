@@ -94,9 +94,9 @@ export default class Jobs {
             ) {
                 const k8sJobVersion = getK8sJobVersion(jobConfig.kubernetes_image);
                 reply.warning('--------');
-                reply.warning('Teraslice Master is running a different version of teraslice than this job');
-                reply.warning(`Job Name: ${jobConfig.name}`);
-                reply.warning(`Teraslice Master -> ${clusterStats.teraslice_version} || Current Job -> ${k8sJobVersion}`);
+                reply.warning('Teraslice Cluster is using a different version of teraslice than this job');
+                reply.warning(`Cluster: ${this.teraslice.config.clusterUrl}, TS version: ${clusterStats.teraslice_version}`);
+                reply.warning(`Job: ${jobConfig.name}, TS Version: ${k8sJobVersion}`);
                 reply.warning('--------');
             }
         }
