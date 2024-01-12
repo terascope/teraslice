@@ -31,6 +31,8 @@ module.exports = (projectDir) => {
         rootDir = '../../';
     }
 
+    const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
+
     const coverageReporters = ['lcov', 'html'];
     if (!isCI) {
         coverageReporters.push('text-summary');
@@ -84,7 +86,22 @@ module.exports = (projectDir) => {
     };
     config.transform = {};
 
-    config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
+    if (isTypescript) {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+            isolatedModules: true,
+            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
+            diagnostics: true,
+            pretty: true,
+            useESM: true
+        }];
+    } else {
+        config.transform['\\.[jt]sx?$'] = ['ts-jest', {
+            isolatedModules: true,
+            diagnostics: true,
+            pretty: true,
+            useESM: true
+        }];
+    }
 
     config.roots = [`${packageRoot}/test`];
 
