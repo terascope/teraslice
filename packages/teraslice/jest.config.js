@@ -14,6 +14,8 @@ config.moduleNameMapper = {
     '^(\\.{1,2}/.*)\\.js$': '$1',
 };
 config.testTimeout = 60 * 1000;
+config.transform = {};
+
 config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
 
 export default config;
