@@ -2,6 +2,7 @@ import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
 import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
+import Jobs from '../../helpers/jobs';
 
 const yargsOptions = new YargsOptions();
 
@@ -20,7 +21,9 @@ const cmd: CMD = {
     async handler(argv): Promise <void> {
         const cliConfig = new Config(argv);
 
-        const jobs = validateAndUpdateCliConfig(cliConfig);
+        validateAndUpdateCliConfig(cliConfig);
+
+        const jobs = new Jobs(cliConfig);
 
         await jobs.initialize();
 
