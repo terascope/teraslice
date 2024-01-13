@@ -12,14 +12,32 @@ import { JobConfig } from '@terascope/job-components';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
 import reply from '../helpers/reply';
+import { getJobConfigFromFile } from './tjm-util';
+import Config from './config';
 
 import {
     JobMetadata,
+    JobConfigFile,
     StatusUpdate,
     RegisteredStatus
 } from '../interfaces';
 
 const display = new Display();
+
+/// Extracts verison of teraslice out of kubernetes image name
+function getK8sJobVersion(imageTag: string | any): string {
+    // Define the version number regex pattern
+    const versionRegex = /v(\d+\.\d+\.\d+)/;
+
+    // Use match to find the first match in the input string
+    // It's important that the teraslice version is first in
+    // the image tag or it will give an incorrect verion number
+    const match = imageTag.match(versionRegex);
+
+    // If a match is found, return the entire matched version
+    // otherwise, return error string
+    return match ? match[0] : 'Version number not available';
+}
 
 export default class Jobs {
     /**
@@ -65,6 +83,27 @@ export default class Jobs {
             return this.teraslice.client.jobs.submit(jobConfig, true);
         } catch (e) {
             reply.fatal(e);
+        }
+    }
+
+    async verifyK8sImageContinuity(cliConfig: Config) {
+        /// Grab all job files and verify each
+        const clusterStats = await this.teraslice.client.cluster.info();
+        for (const jobFile of cliConfig.args.jobFile) {
+            const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
+            if (
+                clusterStats.clustering_type === 'kubernetes'
+                && jobConfig.kubernetes_image !== undefined
+                && !jobConfig.kubernetes_image?.includes(clusterStats.teraslice_version)
+                && !jobConfig.kubernetes_image?.includes('dev-')
+            ) {
+                const k8sJobVersion = getK8sJobVersion(jobConfig.kubernetes_image);
+                reply.warning('--------');
+                reply.warning('Teraslice Cluster is using a different version of teraslice than this job');
+                reply.warning(`Cluster: ${this.teraslice.config.clusterUrl}, TS version: ${clusterStats.teraslice_version}`);
+                reply.warning(`Job: ${jobConfig.name}, TS Version: ${k8sJobVersion}`);
+                reply.warning('--------');
+            }
         }
     }
 
