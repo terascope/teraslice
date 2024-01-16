@@ -6,8 +6,6 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger
 } from '@terascope/utils';
-// @ts-expect-error TODO: make sure all client are the same
-import got from 'gotESM';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -21,6 +19,16 @@ import { getPackageJSON } from '../../utils/file_utils.js';
 const terasliceVersion = getPackageJSON().version;
 
 let gotESMModule: any;
+
+async function getGotESM() {
+    if (gotESMModule) return gotESMModule;
+    // temporary hack as typescript will compile this to a require statement
+    // until we export esm modules, revert this back when we get there
+    // @ts-expect-error
+    const module = await import('gotESM');
+    gotESMModule = module.default;
+    return module.default;
+}
 
 function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -129,6 +137,8 @@ export class ApiService {
     }
 
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
+        const module = await getGotESM();
+
         const options = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -145,7 +155,7 @@ export class ApiService {
         try {
             await streamPipeline(
                 req,
-                got.stream[method](uri, options),
+                module.stream[method](uri, options),
                 res,
             );
         } catch (err) {
