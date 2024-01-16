@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'os';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';
 // @ts-expect-error
@@ -7,7 +8,7 @@ import helpers from 'yeoman-test';
 jest.setTimeout(10000);
 
 describe('processor generator with no new flag', () => {
-    const exampleAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
+    const exampleAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-processor'));
     const processPath = path.join(exampleAssetBasePath, 'example-asset', 'asset');
     const testPath = path.join(exampleAssetBasePath, 'example-asset', 'test');
     const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'new-processor');
@@ -18,8 +19,7 @@ describe('processor generator with no new flag', () => {
         .withArguments(['example-asset']));
 
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'example-asset', 'asset', 'example'));
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'example-asset', 'spec', 'example-spec.js'));
+        fs.rmSync(exampleAssetBasePath, { recursive: true, force: true });
     });
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {
@@ -56,7 +56,7 @@ describe('processor generator with no new flag', () => {
 });
 
 describe('processor generator with new flag', () => {
-    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
+    const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-processor'));
     const processPath = path.join(testAssetBasePath, 'test-asset', 'asset');
     const testPath = path.join(testAssetBasePath, 'test-asset', 'test');
     const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'new-processor');
@@ -71,8 +71,7 @@ describe('processor generator with new flag', () => {
         }));
 
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'asset', 'good_processor'));
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'test', 'good_processor-spec.js'));
+        fs.rmSync(testAssetBasePath, { recursive: true, force: true });
     });
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {

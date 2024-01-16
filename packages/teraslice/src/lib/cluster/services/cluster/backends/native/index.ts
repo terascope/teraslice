@@ -626,4 +626,8 @@ export class NativeClustering {
             await pDelay(100);
         }
     }
+
+    async listResourcesForJobId() {
+        return [];
+    }
 }

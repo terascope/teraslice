@@ -56,6 +56,11 @@ describe('Domain V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('should be indexed to create ES Mappings', () => {
+        const domain = new Domain(field, { ...typeConfig, indexed: false });
+        expect(() => domain.toESMapping()).toThrowError('Domain is required to be indexed');
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new Domain(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String`, customTypes: [] };

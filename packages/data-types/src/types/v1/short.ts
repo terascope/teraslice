@@ -4,6 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Short extends BaseType {
     toESMapping(): TypeESMapping {
+        this._validateESMapping();
         return {
             mapping: {
                 [this.field]: this.config.indexed === false ? {

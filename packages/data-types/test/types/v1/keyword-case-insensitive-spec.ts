@@ -33,6 +33,11 @@ describe('KeywordCaseInsensitive V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('should be indexed to create ES Mappings', () => {
+        const domain = new KeywordCaseInsensitive(field, { ...typeConfig, indexed: false });
+        expect(() => domain.toESMapping()).toThrowError('KeywordCaseInsensitive is required to be indexed');
+    });
+
     it('can get proper ES Mappings with a fields hack', () => {
         const esMapping = new KeywordCaseInsensitive(field, {
             ...typeConfig,

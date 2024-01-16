@@ -128,7 +128,8 @@ export interface DataTypeFieldConfig {
     /**
      * Specifies whether the field is index in elasticsearch
      *
-     * (Not supported by some field types)
+     * (Not supported by some field types...
+     * see indexedRequiredFieldTypes for types that cannot be false)
      * @default true
     */
     indexed?: boolean;
@@ -199,3 +200,14 @@ export type ReadonlyDataTypeConfig = Readonly<Overwrite<DataTypeConfig, {
     */
     fields: ReadonlyDataTypeFields
 }>>;
+
+export const indexedRequiredFieldTypes = {
+    [FieldType.Domain]: true,
+    [FieldType.GeoJSON]: true,
+    [FieldType.Hostname]: true,
+    [FieldType.KeywordCaseInsensitive]: true,
+    [FieldType.KeywordPathAnalyzer]: true,
+    [FieldType.KeywordTokensCaseInsensitive]: true,
+    [FieldType.KeywordTokens]: true,
+    [FieldType.NgramTokens]: true,
+};

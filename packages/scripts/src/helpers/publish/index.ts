@@ -8,6 +8,7 @@ import {
     shouldNPMPublish,
     formatDailyTag,
     buildDevDockerImage,
+    removeNodeSuffixFromTag
 } from './utils';
 import {
     yarnPublish,
@@ -96,7 +97,7 @@ async function publishToDocker(options: PublishOptions) {
         const nodeVersionSuffix = `nodev${options.nodeVersion}`;
 
         if (options.type === PublishType.Latest) {
-            imageToBuild = `${registry}:latest`;
+            imageToBuild = `${registry}:latest-${nodeVersionSuffix}`;
         } else if (options.type === PublishType.Tag || options.type === PublishType.Prerelease) {
             const mainPkgInfo = getMainPackageInfo();
             if (!mainPkgInfo) {
@@ -110,8 +111,11 @@ async function publishToDocker(options: PublishOptions) {
                 }
             }
 
-            const image = `${registry}:v${mainPkgInfo.version}`;
-            const exists = await remoteDockerImageExists(`${image}-${nodeVersionSuffix}`);
+            let image = `${registry}:v${mainPkgInfo.version}-${nodeVersionSuffix}`;
+            if (!options.nodeSuffix) {
+                image = removeNodeSuffixFromTag(image);
+            }
+            const exists = await remoteDockerImageExists(image);
             if (exists) {
                 err = new Error(`Docker Image ${image} already exists`);
                 continue;
@@ -119,9 +123,9 @@ async function publishToDocker(options: PublishOptions) {
             imageToBuild = image;
         } else if (options.type === PublishType.Daily) {
             const tag = await formatDailyTag();
-            imageToBuild = `${registry}:${tag}`;
+            imageToBuild = `${registry}:${tag}-${nodeVersionSuffix}`;
         } else if (options.type === PublishType.Dev) {
-            imageToBuild = getDevDockerImage();
+            imageToBuild = getDevDockerImage(options.nodeVersion);
         }
 
         const startTime = Date.now();
@@ -129,7 +133,9 @@ async function publishToDocker(options: PublishOptions) {
         // TODO: perhaps this should be moved inside the block above and
         // repeated for each conditional branch to avoid the duplication on line
         // 113, I cant' decide which is worse.
-        imageToBuild = `${imageToBuild}-${nodeVersionSuffix}`;
+        if (!options.nodeSuffix) {
+            imageToBuild = removeNodeSuffixFromTag(imageToBuild);
+        }
         signale.debug(`building docker image ${imageToBuild}`);
 
         await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);

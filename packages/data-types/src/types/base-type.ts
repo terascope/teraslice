@@ -1,8 +1,8 @@
-import { ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
-import * as ts from '@terascope/utils';
 import {
-    GraphQLType, TypeESMapping
-} from '../interfaces';
+    ClientMetadata, DataTypeFieldConfig, xLuceneTypeConfig, indexedRequiredFieldTypes
+} from '@terascope/types';
+import { castArray } from '@terascope/utils';
+import { GraphQLType, TypeESMapping } from '../interfaces';
 import { formatGQLComment } from '../graphql-helper';
 
 export interface IBaseType {
@@ -27,6 +27,13 @@ export default abstract class BaseType {
         this.config = config;
     }
 
+    protected _validateESMapping() {
+        if (this.config.indexed === false) {
+            if (this.config.type in indexedRequiredFieldTypes) {
+                throw new Error(`${this.config.type} is required to be indexed`);
+            }
+        }
+    }
     abstract toESMapping(config: ClientMetadata): TypeESMapping;
     abstract toGraphQL(options?: ToGraphQLOptions): GraphQLType;
     abstract toXlucene(): xLuceneTypeConfig;
@@ -60,7 +67,7 @@ export default abstract class BaseType {
 
 function makeCustomTypes(customType?: string|(string[])): string[] {
     if (!customType?.length) return [];
-    return ts.castArray(customType);
+    return castArray(customType);
 }
 
 export function formatGQLType(type: string, desc?: string):string {

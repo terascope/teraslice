@@ -123,11 +123,12 @@ export async function rebuildTeraslice(options: k8sEnvOptions) {
 async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
     let devImage;
     if (options.skipBuild) {
-        devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
+        devImage = getDevDockerImage(options.nodeVersion);
     } else {
         try {
             const publishOptions: PublishOptions = {
                 dryRun: true,
+                nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
