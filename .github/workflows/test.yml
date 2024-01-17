@@ -243,12 +243,7 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
         
       - name: Set Up contained image store
-        shell: bash
-        run: |
-        cat /etc/docker/daemon.json | jq '. | .+{"features": {"containerd-snapshotter": true}}' | sudo tee /etc/docker/daemon.json
-        cat /etc/docker/daemon.json
-        sudo systemctl restart docker
-        docker info -f '{{ .DriverStatus }}'
+        run: ./scripts/setup-image-store-ci.sh
 
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
