@@ -246,7 +246,7 @@ jobs:
         run: ./scripts/setup-image-store-ci.sh
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
+        run: docker info -f '{{ .DriverStatus }}' | yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
         working-directory: ./e2e
   
   e2e-k8s-tests:
