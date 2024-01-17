@@ -406,20 +406,20 @@ export async function dockerBuild(
     /// Build multi-platform images if running in CI
     if (isCI) {
         /// Create context builder first
-        await fork({
-            cmd: 'docker',
-            args: ['context', 'create', 'builder'],
-        });
-        /// setup multisrch container
-        await fork({
-            cmd: 'docker',
-            args: ['run', '--rm', '--privileged', 'multiarch/qemu-user-static', '--reset', '-p', 'yes'],
-        });
+        // await fork({
+        //     cmd: 'docker',
+        //     args: ['context', 'create', 'builder'],
+        // });
+        // /// setup multisrch container
+        // await fork({
+        //     cmd: 'docker',
+        //     args: ['run', '--rm', '--privileged', 'multiarch/qemu-user-static', '--reset', '-p', 'yes'],
+        // });
 
-        await fork({
-            cmd: 'docker',
-            args: ['buildx', 'create', 'builder', '--use'],
-        });
+        // await fork({
+        //     cmd: 'docker',
+        //     args: ['buildx', 'create', 'builder', '--use'],
+        // });
 
         await fork({
             cmd: 'docker',
