@@ -75,6 +75,7 @@ const cmd: CommandModule = {
     async handler(argv) {
         const release = getRelease(argv);
         const rootInfo = getRootInfo();
+        // Hello
 
         await syncAll({
             verify: true,
