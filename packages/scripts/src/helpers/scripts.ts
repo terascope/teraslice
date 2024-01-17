@@ -411,10 +411,10 @@ export async function dockerBuild(
         //     args: ['context', 'create', 'builder'],
         // });
         // /// setup multisrch container
-        // await fork({
-        //     cmd: 'docker',
-        //     args: ['run', '--rm', '--privileged', 'multiarch/qemu-user-static', '--reset', '-p', 'yes'],
-        // });
+        await fork({
+            cmd: 'docker',
+            args: ['run', '--rm', '--privileged', 'multiarch/qemu-user-static', '--reset', '-p', 'yes'],
+        });
 
         // await fork({
         //     cmd: 'docker',
