@@ -3,11 +3,6 @@
 const path = require('path');
 const fse = require('fs-extra');
 const { v4: uuidv4 } = require('uuid');
-const {
-    initializeTestExecution,
-    makeTerafoundationContext
-} = require('teraslice');
-
 const { ASSETS_PATH, CONFIG_PATH } = require('../../config');
 const TerasliceHarness = require('../../teraslice-harness');
 const { TEST_PLATFORM } = require('../../config');
@@ -26,8 +21,15 @@ describe('recovery', () => {
     */
     let job;
     let terasliceHarness;
+    let initializeTestExecution;
+    let makeTerafoundationContext;
 
     beforeAll(async () => {
+        const module = await import('teraslice');
+
+        initializeTestExecution = module.default.initializeTestExecution;
+        makeTerafoundationContext = module.default.makeTerafoundationContext;
+
         terasliceHarness = new TerasliceHarness();
         await terasliceHarness.init();
         await terasliceHarness.resetState();
