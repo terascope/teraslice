@@ -8,7 +8,7 @@ import { makeLogger } from '../helpers/terafoundation.js';
 import { safeEncode } from '../../utils/encoding_utils.js';
 
 const filePath = fileURLToPath(new URL('.', import.meta.url));
-const loaderPath = path.join(filePath, './loader-executable');
+const loaderPath = path.join(filePath, './loader-executable.js');
 
 interface AssetMessage {
     success: boolean;
@@ -20,6 +20,7 @@ export async function spawnAssetLoader(
     context?: Context
 ): Promise<string[]> {
     // if assets is empty return early
+    console.log('1', assets)
     if (isEmpty(assets)) {
         return [];
     }

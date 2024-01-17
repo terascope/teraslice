@@ -12,7 +12,9 @@ async function loadAssets(context: Context, assets?: string[]) {
 
 if (import.meta.url.startsWith('file:')) {
     const modulePath = fileURLToPath(import.meta.url);
-    if (process.argv[1] === modulePath) {
+    const executePath = process.argv[1];
+
+    if (executePath === modulePath) {
         const context = makeTerafoundationContext() as unknown as Context;
         const assets = safeDecode(process.env.ASSETS as string);
 
