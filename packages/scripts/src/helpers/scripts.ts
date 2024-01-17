@@ -423,7 +423,7 @@ export async function dockerBuild(
 
         await fork({
             cmd: 'docker',
-            args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', '--load', tag, '.'],
+            args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', tag, '--load', '.'],
         });
     } else {
         await fork({
