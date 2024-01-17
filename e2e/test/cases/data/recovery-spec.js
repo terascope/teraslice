@@ -25,7 +25,9 @@ describe('recovery', () => {
     let makeTerafoundationContext;
 
     beforeAll(async () => {
-        const module = await import('teraslice');
+        // TODO: remove when this can deal with modules
+        // eslint-disable-next-line no-eval
+        const module = await eval("import('teraslice')");
 
         initializeTestExecution = module.default.initializeTestExecution;
         makeTerafoundationContext = module.default.makeTerafoundationContext;
