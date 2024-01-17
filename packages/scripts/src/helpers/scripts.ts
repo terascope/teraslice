@@ -8,6 +8,7 @@ import yaml from 'js-yaml';
 import {
     debugLogger,
     isString,
+    isCI,
     get,
     pWhile,
     pDelay,
@@ -402,11 +403,34 @@ export async function dockerBuild(
 
     const targetArgs: string[] = target ? ['--target', target] : [];
     const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
+    /// Build multi-platform images if running in CI
+    if (isCI) {
+        /// Create context builder first
+        await fork({
+            cmd: 'docker',
+            args: ['context', 'create', 'builder'],
+        });
+        /// setup multisrch container
+        await fork({
+            cmd: 'docker',
+            args: ['run', '--rm', '--privileged', 'multiarch/qemu-user-static', '--reset', '-p', 'yes'],
+        });
 
-    await fork({
-        cmd: 'docker',
-        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, '.'],
-    });
+        await fork({
+            cmd: 'docker',
+            args: ['buildx', 'create', 'builder', '--use'],
+        });
+
+        await fork({
+            cmd: 'docker',
+            args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', '--load', tag, '.'],
+        });
+    } else {
+        await fork({
+            cmd: 'docker',
+            args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, '.'],
+        });
+    }
 }
 
 export async function dockerPush(image: string): Promise<void> {
