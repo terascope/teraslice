@@ -309,7 +309,7 @@ jobs:
       - name: Install and build packages
         run: yarn setup
         env:
-          YARN_SETUP_ARGS: "--prod=false --silent --network-timeout 1000000"
+          YARN_SETUP_ARGS: "--prod=false --silent --network-timeout=1000000"
 
       - name: Publish to docker
         run: yarn ts-scripts publish -t tag -n ${{ matrix.node-version }} docker
