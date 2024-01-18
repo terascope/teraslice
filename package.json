@@ -27,7 +27,7 @@
         "k8s:rebuild": "ts-scripts k8s-env --rebuild='true'",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint --fix && yarn sync",
-        "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
+        "setup": "yarn install $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
         "start:dev": "yarn build && env NODE_ENV=development node service.js",
         "sync": "ts-scripts sync",
