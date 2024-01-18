@@ -49,14 +49,14 @@ COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 COPY types /app/source/types
 
-RUN yarn --prod=false --frozen-lockfile \
+RUN yarn --prod=false --frozen-lockfile --network-timeout 600000 \
     && yarn build \
     && yarn \
       --prod=true \
       --silent \
       --frozen-lockfile \
       --skip-integrity-check \
-      --network-timeout 300000 \
+      --network-timeout 600000 \
       --verbose \
       --ignore-scripts \
     && yarn cache clean
