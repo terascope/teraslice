@@ -156,16 +156,16 @@ async function publishToDocker(options: PublishOptions) {
         return;
     }
 
-    if (options.dryRun) {
-        signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
-    } else {
-        signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await pMap(concat(
-            imagesToPush,
-            devImage,
-        ), dockerPush, {
-            concurrency: 1,
-            stopOnError: false,
-        });
-    }
+    // if (options.dryRun) {
+    //     signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
+    // } else {
+    //     signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
+    //     await pMap(concat(
+    //         imagesToPush,
+    //         devImage,
+    //     ), dockerPush, {
+    //         concurrency: 1,
+    //         stopOnError: false,
+    //     });
+    // }
 }
