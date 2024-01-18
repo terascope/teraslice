@@ -14,7 +14,7 @@ import {
     yarnPublish,
     yarnRun,
     remoteDockerImageExists,
-    dockerBuild,
+    dockerBuildPush,
     dockerPush,
     yarnPublishV2
 } from '../scripts';
@@ -138,7 +138,7 @@ async function publishToDocker(options: PublishOptions) {
         }
         signale.debug(`building docker image ${imageToBuild}`);
 
-        await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
+        await dockerBuildPush(options.dryRun, imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);
