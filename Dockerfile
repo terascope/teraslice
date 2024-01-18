@@ -49,7 +49,7 @@ COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 COPY types /app/source/types
 
-RUN yarn --prod=false --frozen-lockfile --network-timeout 600000 \
+RUN yarn --prod=false --frozen-lockfile --network-timeout 600000 --verbose \
     && yarn build \
     && yarn \
       --prod=true \
