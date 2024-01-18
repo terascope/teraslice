@@ -437,9 +437,9 @@ export async function dockerBuildPush(
         args: ['buildx', 'inspect', '--bootstrap'],
     });
     /// Build multi-platform image and push to docker registry
-    if (dryRun) {
+    if (true) {
         /// Create a mock registry on port 5000 to push into
-        signale.info(`[DRY RUN] - simulating build and publish of docker image ${tag}`);
+        signale.info(`[DRY RUN] - simulating build and publish of docker image localhost:5000/${tag}`);
         await fork({
             cmd: 'docker',
             args: ['run', '-d', '-p', '5000:5000', '--restart=always', '--name', 'registry', 'registry:latest'],

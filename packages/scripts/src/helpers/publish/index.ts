@@ -1,5 +1,5 @@
 import {
-    get, concat, pMap, isString, toHumanTime
+    get, pMap, isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
@@ -15,7 +15,6 @@ import {
     yarnRun,
     remoteDockerImageExists,
     dockerBuildPush,
-    dockerPush,
     yarnPublishV2
 } from '../scripts';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc';
