@@ -56,7 +56,7 @@ RUN yarn --prod=false --frozen-lockfile \
       --silent \
       --frozen-lockfile \
       --skip-integrity-check \
-      --network-timeout=1000000 \
+      --network-timeout 1000000 \
       --ignore-scripts \
     && yarn cache clean
 
