@@ -428,7 +428,7 @@ export async function dockerBuildPush(
     /// NOTE: Add --driver-opt network=host for local registry
     await fork({
         cmd: 'docker',
-        args: ['buildx', 'create', '--use', '--platform=linux/arm64,linux/amd64', '--driver-opt', 'network=host', '--name', 'multi-platform-builder'],
+        args: ['buildx', 'create', '--use', '--platform=linux/arm64,linux/amd64', '--driver-opt', 'network=host', '--name', 'multi-platform-builder', '--config', './scripts/buildkitd.toml'],
     });
     /// Then inspect the builder instance and perform any necessary setup or configuration
     /// Also initizalize builder container if not ready
