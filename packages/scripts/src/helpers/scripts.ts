@@ -460,6 +460,12 @@ export async function dockerBuildPush(
             args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', tag, '--push', '.'],
         });
     }
+
+    /// Delete builder
+    await fork({
+        cmd: 'docker',
+        args: ['buildx', 'rm', 'multi-platform-builder'],
+    });
 }
 
 export async function dockerPush(image: string): Promise<void> {
