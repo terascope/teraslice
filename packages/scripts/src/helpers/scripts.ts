@@ -409,6 +409,67 @@ export async function dockerBuild(
     });
 }
 
+export async function dockerBuildPush(
+    dryRun: boolean,
+    tag: string,
+    cacheFrom?: string[],
+    target?: string,
+    buildArg?: string
+): Promise<void> {
+    const cacheFromArgs: string[] = [];
+
+    cacheFrom?.forEach((image) => {
+        cacheFromArgs.push('--cache-from', image);
+    });
+
+    const targetArgs: string[] = target ? ['--target', target] : [];
+    const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
+    /// Create and use new builder instance that that supports arm64/amd64
+    /// NOTE: Add --driver-opt network=host for local registry
+    await fork({
+        cmd: 'docker',
+        args: ['buildx', 'create', '--use', '--platform=linux/arm64,linux/amd64', '--driver-opt', 'network=host', '--name', 'multi-platform-builder', '--config', './scripts/buildkitd.toml'],
+    });
+    /// Then inspect the builder instance and perform any necessary setup or configuration
+    /// Also initizalize builder container if not ready
+    await fork({
+        cmd: 'docker',
+        args: ['buildx', 'inspect', '--bootstrap'],
+    });
+    /// Build multi-platform image and push to docker registry
+    if (true) {
+        /// Create a mock registry on port 5000 to push into
+        signale.info(`[DRY RUN] - simulating build and publish of docker image localhost:5000/${tag}`);
+        await fork({
+            cmd: 'docker',
+            args: ['run', '-d', '-p', '5000:5000', '--restart=always', '--name', 'registry', 'registry:latest'],
+        });
+        /// Build and push into local registry
+        await fork({
+            cmd: 'docker',
+            args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', `localhost:5000/${tag}`, '--push', '.'],
+        });
+        /// Clean up and remove local registry
+        await fork({
+            cmd: 'docker',
+            args: ['rm', '-f', 'registry'],
+        });
+    } else {
+        /// Build and push to public registry
+        signale.info(`Building and publishing docker image ${tag}`);
+        await fork({
+            cmd: 'docker',
+            args: ['buildx', 'build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--platform', 'linux/arm64/v8,linux/amd64', '--tag', tag, '--push', '.'],
+        });
+    }
+
+    /// Delete builder
+    await fork({
+        cmd: 'docker',
+        args: ['buildx', 'rm', 'multi-platform-builder'],
+    });
+}
+
 export async function dockerPush(image: string): Promise<void> {
     const subprocess = await execa.command(
         `docker push ${image}`,

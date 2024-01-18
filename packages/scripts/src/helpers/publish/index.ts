@@ -1,5 +1,5 @@
 import {
-    get, concat, pMap, isString, toHumanTime
+    get, pMap, isString, toHumanTime
 } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
@@ -14,8 +14,7 @@ import {
     yarnPublish,
     yarnRun,
     remoteDockerImageExists,
-    dockerBuild,
-    dockerPush,
+    dockerBuildPush,
     yarnPublishV2
 } from '../scripts';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc';
@@ -138,7 +137,7 @@ async function publishToDocker(options: PublishOptions) {
         }
         signale.debug(`building docker image ${imageToBuild}`);
 
-        await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
+        await dockerBuildPush(options.dryRun, imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);
@@ -156,16 +155,16 @@ async function publishToDocker(options: PublishOptions) {
         return;
     }
 
-    if (options.dryRun) {
-        signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
-    } else {
-        signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await pMap(concat(
-            imagesToPush,
-            devImage,
-        ), dockerPush, {
-            concurrency: 1,
-            stopOnError: false,
-        });
-    }
+    // if (options.dryRun) {
+    //     signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
+    // } else {
+    //     signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
+    //     await pMap(concat(
+    //         imagesToPush,
+    //         devImage,
+    //     ), dockerPush, {
+    //         concurrency: 1,
+    //         stopOnError: false,
+    //     });
+    // }
 }
