@@ -163,7 +163,9 @@ describe('recovery', () => {
         // job = terasliceHarness.teraslice.jobs.wrap(exConfig.job_id);
     });
 
-    it('tests are disabled', () => true);
+    it('tests are disabled', () => {
+        expect(true).toEqual(true);
+    });
 
     // it('can support different recovery mode cleanup=errors', async () => {
     //     const newEx = await recoverFromEx.recover({ cleanup: 'errors' });
