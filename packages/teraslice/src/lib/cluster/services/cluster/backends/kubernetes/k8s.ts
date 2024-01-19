@@ -37,7 +37,7 @@ export class K8s {
             // configures the client when running inside k8s
             const kubeconfig = new KubeConfig();
             kubeconfig.loadFromCluster();
-            const backend = new Request({ kubeconfig: {} });
+            const backend = new Request({ kubeconfig });
             this.client = new Client({ backend });
         } else {
             // configures the client from .kube/config file
