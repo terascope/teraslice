@@ -66,6 +66,11 @@ const cmd: CommandModule = {
                 description: 'Version of kubernetes to use in the kind cluster.',
                 type: 'string',
                 default: config.K8S_VERSION
+            })
+            .option('teraslice-image', {
+                description: 'Skip build and run teraslice using this image.',
+                type: 'string',
+                default: config.TERASLICE_IMAGE
             });
     },
     handler(argv) {
@@ -82,7 +87,8 @@ const cmd: CommandModule = {
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as number,
             clusterName: argv['cluster-name'] as string,
-            k8sVersion: argv['k8s-version'] as string
+            k8sVersion: argv['k8s-version'] as string,
+            terasliceImage: argv['teraslice-image'] as string
         };
 
         if (Boolean(argv.rebuild) === true) {

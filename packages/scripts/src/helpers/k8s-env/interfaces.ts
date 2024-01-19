@@ -11,6 +11,7 @@ export interface k8sEnvOptions {
     tsPort: number;
     clusterName: string;
     k8sVersion: string;
+    terasliceImage?: string;
 }
 
 // TODO: create a common parent for each resource type,
