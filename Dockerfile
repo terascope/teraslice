@@ -1,42 +1,7 @@
 # NODE_VERSION is set by default in the config.ts, the following value will only
 # be used if you build images by default with docker build
 ARG NODE_VERSION=18.18.2
-FROM node:${NODE_VERSION}-bookworm as base
-
-ENV NPM_CONFIG_LOGLEVEL error
-# Do not use SASL authentication with kafka
-ENV WITH_SASL 0
-
-RUN node --version
-RUN yarn --version
-RUN npm --version
-
-RUN mkdir -p /app/source
-
-# Install bunyan
-RUN yarn global add \
-    --ignore-optional \
-    --no-progress \
-    --no-emoji \
-    --no-cache \
-    bunyan
-
-# Install any built-in connectors in /app/
-# use npm because there isn't a package.json
-WORKDIR /app
-
-RUN npm init --yes &> /dev/null \
-    && npm install \
-    --build \
-    --no-package-lock \
-    --no-optional \
-    'terafoundation_kafka_connector@~0.11.1' \
-    && npm cache clean --force
-
-WORKDIR /app/source
-
-# verify node-rdkafka is installed right
-RUN node --print --eval "require('node-rdkafka')"
+FROM terascope/node-base:${NODE_VERSION}
 
 ENV NODE_ENV production
 
@@ -59,23 +24,20 @@ RUN yarn --prod=false --frozen-lockfile \
       --ignore-scripts \
     && yarn cache clean
 
+
 COPY service.js /app/source/
 
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
 
-FROM node:${NODE_VERSION}-bookworm-slim
-
-# Affects garbage collection. This default gets overwritten by the memory setting in kubernetes
-ENV NODE_OPTIONS "--max-old-space-size=2048"
-ENV NODE_ENV production
+# verify teraslice is installed right
+RUN node -e "require('teraslice')"
 
 EXPOSE 5678
 
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
-
-# Use tini to handle sigterm and zombie processes
-ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["node", "service.js"]
 

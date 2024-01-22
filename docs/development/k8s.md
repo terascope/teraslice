@@ -58,8 +58,43 @@ job with the following commands (NOTE: `earl` is an alternative name for the
 `teraslice-cli`).
 
 ```bash
-# launch teraslice and services
+# build teraslice from local repository and launch teraslice and elasticsearch
+# from the teraslice root directory:
 yarn k8s
+
+# from any other directory:
+TEST_ELASTICSEARCH='true' ELASTICSEARCH_PORT='9200' yarn run ts-scripts k8s-env
+```
+
+If running on an ARM based processor the default elasticsearch (6.8.6) will fail.
+Set the ELASTICSEARCH_VERSION env variable to a version with an arm image.
+
+```bash
+# from the teraslice root directory:
+ELASTICSEARCH_VERSION=7.9.3 yarn k8s
+
+# from any other directory:
+ELASTICSEARCH_VERSION=7.9.3 TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 yarn run ts-scripts k8s-env
+```
+
+If you want to run a specific teraslice docker image, instead of building from your local repository:
+
+```bash
+# from the teraslice root directory:
+yarn k8s --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
+
+# from any other directory:
+TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2
+```
+
+If you want to run additional services you must set the appropriate environmental variables. Currently only elasticsearch and kafka are supported (see issue [#3530](https://github.com/terascope/teraslice/issues/3530)).
+
+```bash
+# from the teraslice root directory:
+yarn k8s:kafka
+
+# from any other directory:
+TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env
 ```
 
 After about 5 minutes, Teraslice will be running and listening on port `5678`
@@ -270,8 +305,26 @@ git checkout examples/jobs/data_generator.json
 If you are iterating on development changes to Teraslice itself and need to
 rebuild and redeploy the Teraslice master, you can use the following command:
 
+NOTE: this does not reset state in the elasticsearch store
+
 ```bash
+# from the teraslice root directory:
+yarn k8s:rebuild
+
+# from any other directory:
 yarn run ts-scripts k8s-env --rebuild
+```
+
+If you need to restart Teraslice without rebuilding you can use the following command:
+
+NOTE: this does not reset state in the elasticsearch store
+
+```bash
+# from the teraslice root directory:
+yarn k8s:restart
+
+# from any other directory:
+yarn run ts-scripts k8s-env --rebuild --skip-build
 ```
 
 ## Extras

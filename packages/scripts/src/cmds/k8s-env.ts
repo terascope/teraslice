@@ -8,10 +8,11 @@ const cmd: CommandModule = {
     describe: 'Run a local kubernetes dev environment using kind.',
     builder(yargs) {
         return yargs
-            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice and elasticsearch.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice from your local repository and elasticsearch.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2', 'Start a kind kubernetes cluster running teraslice from a specific docker image and elasticsearch.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
-            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' SKIP_DOCKER_BUILD_IN_K8S=\'true\' $0 k8s-env', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
-            .example('$0 k8s-env --rebuild=\'true\'', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
+            .example('$0 k8s-env --rebuild', 'Rebuild teraslice and redeploy to k8s cluster. ES store data is retained.')
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
@@ -66,6 +67,11 @@ const cmd: CommandModule = {
                 description: 'Version of kubernetes to use in the kind cluster.',
                 type: 'string',
                 default: config.K8S_VERSION
+            })
+            .option('teraslice-image', {
+                description: 'Skip build and run teraslice using this image.',
+                type: 'string',
+                default: config.TERASLICE_IMAGE
             });
     },
     handler(argv) {
@@ -82,7 +88,8 @@ const cmd: CommandModule = {
             skipBuild: Boolean(argv['skip-build']),
             tsPort: argv['ts-port'] as number,
             clusterName: argv['cluster-name'] as string,
-            k8sVersion: argv['k8s-version'] as string
+            k8sVersion: argv['k8s-version'] as string,
+            terasliceImage: argv['teraslice-image'] as string
         };
 
         if (Boolean(argv.rebuild) === true) {

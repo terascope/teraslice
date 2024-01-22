@@ -177,5 +177,6 @@ export const NODE_VERSION = process.env.NODE_VERSION || '18.18.2';
 
 export const {
     TEST_PLATFORM = 'native',
-    K8S_VERSION = undefined
+    K8S_VERSION = undefined,
+    TERASLICE_IMAGE = undefined
 } = process.env;
