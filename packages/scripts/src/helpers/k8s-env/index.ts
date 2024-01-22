@@ -121,9 +121,11 @@ export async function rebuildTeraslice(options: k8sEnvOptions) {
 }
 
 async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
-    let devImage;
-    if (options.skipBuild) {
-        devImage = getDevDockerImage(options.nodeVersion);
+    let runImage;
+    if (options.terasliceImage) {
+        runImage = options.terasliceImage;
+    } else if (options.skipBuild) {
+        runImage = getDevDockerImage(options.nodeVersion);
     } else {
         try {
             const publishOptions: PublishOptions = {
@@ -132,15 +134,17 @@ async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
-            devImage = await buildDevDockerImage(publishOptions);
+            runImage = await buildDevDockerImage(publishOptions);
         } catch (err) {
             throw new Error(`Docker image build failed: ${err}`);
         }
     }
 
     try {
-        await dockerTag(devImage, e2eImage);
+        signale.pending(`Tagging image ${runImage} as ${e2eImage}`);
+        await dockerTag(runImage, e2eImage);
+        signale.success(`Image ${runImage} re-tagged as ${e2eImage}`);
     } catch (err) {
-        throw new Error(`Failed to tag docker image ${devImage} as ${e2eImage}: ${err}`);
+        throw new Error(`Failed to tag docker image ${runImage} as ${e2eImage}: ${err}`);
     }
 }
