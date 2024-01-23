@@ -1,10 +1,7 @@
 /* eslint-disable no-console */
 import { EventEmitter } from 'node:events';
 import {
-    // TODO: fix this
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pDelay, debugLogger, isTest,
-    Logger
+    debugLogger, isTest, Logger
 } from '@terascope/utils';
 
 const defaultLogger = debugLogger('metrics');
