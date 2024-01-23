@@ -8,13 +8,13 @@ import {
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { getClientAsync, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { timeseriesIndex } from '../../utils/date_utils';
-import analyticsSchema from './mappings/analytics.json';
-import assetSchema from './mappings/asset.json';
-import executionSchema from './mappings/ex.json';
-import jobsSchema from './mappings/job.json';
-import stateSchema from './mappings/state.json';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { timeseriesIndex } from '../../utils/date_utils.js';
+import analyticsSchema from './mappings/analytics.json' assert { type: 'json' };
+import assetSchema from './mappings/asset.json' assert { type: 'json' };
+import executionSchema from './mappings/ex.json' assert { type: 'json' };
+import jobsSchema from './mappings/job.json' assert { type: 'json' };
+import stateSchema from './mappings/state.json' assert { type: 'json' };
 
 function validateId(recordId: string, recordType: string) {
     if (!recordId || !isString(recordId)) {

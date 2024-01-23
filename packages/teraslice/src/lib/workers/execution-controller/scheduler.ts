@@ -8,9 +8,9 @@ import type {
     Context, SlicerExecutionContext, Slice,
     SlicerRecoveryData
 } from '@terascope/job-components';
-import { RecoveryModule } from './recovery';
-import { makeLogger } from '../helpers/terafoundation';
-import type { StateStorage, ExecutionStorage } from '../../storage';
+import { RecoveryModule } from './recovery.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import type { StateStorage, ExecutionStorage } from '../../storage/index.js';
 
 export class Scheduler {
     readonly context: Context;

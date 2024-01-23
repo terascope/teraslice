@@ -1,5 +1,5 @@
 import convict from 'convict';
-import { config_schema } from '../../../src/lib/config/schemas/system';
+import { config_schema } from '../../../src/lib/config/schemas/system.js';
 // load any convict schema
 import('@terascope/job-components');
 

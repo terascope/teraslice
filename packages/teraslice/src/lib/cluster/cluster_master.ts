@@ -5,12 +5,12 @@ import {
     parseError, Logger
 } from '@terascope/utils';
 import { ClusterMaster as ClusterMasterMessaging } from '@terascope/teraslice-messaging';
-import { makeLogger } from '../workers/helpers/terafoundation';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
 import {
     ExecutionService, ApiService, JobsService, makeClustering
-} from './services';
-import { JobsStorage, ExecutionStorage, StateStorage } from '../storage';
-import { ClusterMasterContext } from '../../interfaces';
+} from './services/index.js';
+import { JobsStorage, ExecutionStorage, StateStorage } from '../storage/index.js';
+import { ClusterMasterContext } from '../../interfaces.js';
 
 export class ClusterMaster {
     context: ClusterMasterContext;

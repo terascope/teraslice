@@ -5,7 +5,7 @@ import {
 import type { Context, ExecutionContext, OpConfig } from '@terascope/job-components';
 import type { SliceAnalyticsData, SliceCompletePayload } from '@terascope/types';
 import type { EventEmitter } from 'node:events';
-import { makeLogger } from '../helpers/terafoundation';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 interface SliceOperationStat {
     min: number;

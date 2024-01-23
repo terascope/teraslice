@@ -4,7 +4,7 @@ import {
     toSemverRange, findMatchingAsset,
     getMajorVersion, toVersionQuery,
     findSimilarAssets, getInCompatibilityReason,
-} from '../../src/lib/utils/asset_utils';
+} from '../../src/lib/utils/asset_utils.js';
 
 describe('Asset Utils', () => {
     describe('->toSemverRange', () => {

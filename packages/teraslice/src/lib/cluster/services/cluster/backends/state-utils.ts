@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import type { ClusterState } from '../../../../../interfaces';
+import type { ClusterState } from '../../../../../interfaces.js';
 
 export function iterateState(clusterState: ClusterState, cb: (input: any) => boolean) {
     // I clone here, because the code below accidentally modifies clusterState.

@@ -3,9 +3,9 @@ import 'jest-extended';
 import { pDelay } from '@terascope/utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';
 import { Slice } from '@terascope/types';
-import { findPort } from '../../../src/lib/utils/port_utils';
-import { Worker } from '../../../src/lib/workers/worker';
-import { TestContext } from '../helpers';
+import { findPort } from '../../../src/lib/utils/port_utils.js';
+import { Worker } from '../../../src/lib/workers/worker/index.js';
+import { TestContext } from '../helpers/index.js';
 
 describe('Worker', () => {
     interface SetupTestResults {

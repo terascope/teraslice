@@ -3,7 +3,7 @@ import {
     isString
 } from '@terascope/utils';
 import { makeContextLogger, Context } from '@terascope/job-components';
-import { safeDecode } from '../../utils/encoding_utils';
+import { safeDecode } from '../../utils/encoding_utils.js';
 
 export function generateWorkerId(context: Context) {
     const { hostname } = context.sysconfig.teraslice;

@@ -3,12 +3,12 @@ import { pDelay, times, random } from '@terascope/utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
 import { ExecutionRecord } from '@terascope/types';
-import { TestContext } from '../helpers';
-import { makeShutdownEarlyFn, getTestCases, ShutdownFn } from '../helpers/execution-controller-helper';
-import { ExecutionController } from '../../../src/lib/workers/execution-controller';
-import { findPort } from '../../../src/lib/utils/port_utils';
-import { newId } from '../../../src/lib/utils/id_utils';
-import { ExecutionStorage, StateStorage } from '../../../src/lib/storage';
+import { TestContext } from '../helpers/index.js';
+import { makeShutdownEarlyFn, getTestCases, ShutdownFn } from '../helpers/execution-controller-helper.js';
+import { ExecutionController } from '../../../src/lib/workers/execution-controller/index.js';
+import { findPort } from '../../../src/lib/utils/port_utils.js';
+import { newId } from '../../../src/lib/utils/id_utils.js';
+import { ExecutionStorage, StateStorage } from '../../../src/lib/storage/index.js';
 
 const ExecutionControllerClient = ExController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';

@@ -1,6 +1,6 @@
 import times from 'lodash/times';
-import { SliceExecution } from '../../../src/lib/workers/worker/slice';
-import { TestContext } from '../helpers';
+import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
+import { TestContext } from '../helpers/index.js';
 
 describe('Slice', () => {
     async function setupSlice(testContext: any, eventMocks = {}): Promise<SliceExecution> {
@@ -114,7 +114,7 @@ describe('Slice', () => {
                 expect(results).toEqual(times(10, () => ({ hi: true })));
 
                 // should have have the analytics data
-                expect(slice).not.toHaveProperty('analyticsData');
+                expect(slice.analyticsData).toBeUndefined();
 
                 // should call the correct events
                 expect(eventMocks['slice:success']).toHaveBeenCalledTimes(1);
@@ -161,7 +161,7 @@ describe('Slice', () => {
                 expect(results).toEqual(times(10, () => ({ hi: true })));
 
                 // should have have the analytics data
-                expect(slice).not.toHaveProperty('analyticsData');
+                expect(slice.analyticsData).toBeUndefined();
 
                 // should call the correct events
                 expect(eventMocks['slice:retry']).toHaveBeenCalledTimes(1);

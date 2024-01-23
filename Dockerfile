@@ -31,7 +31,7 @@ COPY service.js /app/source/
 RUN node -e "require('node-rdkafka')"
 
 # verify teraslice is installed right
-RUN node -e "require('teraslice')"
+RUN node -e "import('teraslice')"
 
 EXPOSE 5678
 

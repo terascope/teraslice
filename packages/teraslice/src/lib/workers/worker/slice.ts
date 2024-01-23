@@ -8,9 +8,9 @@ import {
     RunSliceResult
 } from '@terascope/job-components';
 import { SliceAnalyticsData } from '@terascope/types';
-import { SliceState, StateStorage, AnalyticsStorage } from '../../storage';
-import { makeLogger } from '../helpers/terafoundation';
-import { logOpStats } from '../helpers/op-analytics';
+import { SliceState, StateStorage, AnalyticsStorage } from '../../storage/index.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { logOpStats } from '../helpers/op-analytics.js';
 
 export class SliceExecution {
     private context: Context;

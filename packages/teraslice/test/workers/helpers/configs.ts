@@ -3,7 +3,7 @@ import path from 'path';
 import Chance from 'chance';
 import pickBy from 'lodash/pickBy';
 import { ValidatedJobConfig } from '@terascope/types';
-import { newId } from '../../../src/lib/utils/id_utils';
+import { newId } from '../../../src/lib/utils/id_utils.js';
 
 const { SEARCH_TEST_HOST, ELASTICSEARCH_API_VERSION } = process.env;
 

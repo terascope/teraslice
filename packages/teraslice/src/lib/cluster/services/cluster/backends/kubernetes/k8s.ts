@@ -2,18 +2,20 @@ import {
     TSError, get, isEmpty,
     pDelay, pRetry, Logger
 } from '@terascope/utils';
+import KubeClient from 'kubernetes-client';
 // @ts-expect-error
-import { Client, KubeConfig } from 'kubernetes-client';
+import Request from 'kubernetes-client/backends/request/index.js';
+import { getRetryConfig } from './utils.js';
+
 // @ts-expect-error
-import Request from 'kubernetes-client/backends/request';
-import { getRetryConfig } from './utils';
+const { Client, KubeConfig } = KubeClient;
 
 export class K8s {
     logger: Logger;
     apiPollDelay: number;
     defaultNamespace: string;
     shutdownTimeout: number;
-    client: Client;
+    client: any;
 
     constructor(
         logger: Logger,

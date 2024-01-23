@@ -6,12 +6,12 @@ import {
 } from '@terascope/utils';
 import type { EventEmitter } from 'node:events';
 import { ExecutionRecord } from '@terascope/types';
-import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces';
-import { makeLogger } from '../../../../../workers/helpers/terafoundation';
-import { findWorkersByExecutionID } from '../state-utils';
-import { Messaging } from './messaging';
-import { ExecutionStorage } from '../../../../../storage';
-import { StopExecutionOptions } from '../../../interfaces';
+import type { ClusterMasterContext, NodeState } from '../../../../../../interfaces.js';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import { findWorkersByExecutionID } from '../state-utils.js';
+import { Messaging } from './messaging.js';
+import { ExecutionStorage } from '../../../../../storage/index.js';
+import { StopExecutionOptions } from '../../../interfaces.js';
 
 /*
  Execution Life Cycle for _status

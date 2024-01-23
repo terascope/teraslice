@@ -1,6 +1,8 @@
 {
     "extends": "../../tsconfig",
     "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
         "outDir": "dist",
         "rootDir": "."
     },
@@ -10,7 +12,6 @@
         "./src/lib/storage/backends/mappings/**.json",
         "./src/lib/cluster/services/cluster/backends/kubernetes/jobs/**.hbs",
         "./src/lib/cluster/services/cluster/backends/kubernetes/deployments/**.hbs",
-        "./test/lib/processors/scripts/test_scripts/**.py",
         "./test/lib/cluster/services/cluster/backends/files/**.json",
         "./test/lib/cluster/services/cluster/backends/kubernetes/files/**.json"
     ]

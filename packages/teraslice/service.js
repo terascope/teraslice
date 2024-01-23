@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-
-'use strict';
-
-const util = require('util');
-const { ClusterContext } = require('terafoundation');
-const { safeEncode, safeDecode } = require('./dist/src/lib/utils/encoding_utils');
-const { nodeMaster } = require('./dist/src/lib/cluster/node_master');
-const { getTerasliceConfig } = require('./dist/src/lib/config');
+import util from 'node:util';
+import { ClusterContext } from 'terafoundation';
+import { safeEncode, safeDecode } from './dist/src/lib/utils/encoding_utils.js';
+import { nodeMaster } from './dist/src/lib/cluster/node_master.js';
+import { getTerasliceConfig } from './dist/src/lib/config/index.js';
 
 const assignment = process.env.assignment || process.env.NODE_TYPE;
 
@@ -20,12 +17,12 @@ if (['execution_controller', 'worker'].includes(assignment)) {
         process.env.EX = safeEncode(JSON.parse(process.env.job));
     }
 
-    require('./worker-service');
+    import('./worker-service.js');
 } else if (['cluster_master', 'assets_service'].includes(assignment)) {
     process.env.assignment = assignment;
     process.env.NODE_TYPE = assignment;
 
-    require('./cluster-service');
+    import('./cluster-service.js');
 } else {
     process.env.assignment = 'node_master';
     process.env.NODE_TYPE = 'node_master';

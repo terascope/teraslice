@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import yaml from 'js-yaml';
 import { debugLogger } from '@terascope/utils';
-import { K8sResource } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sResource';
+import { K8sResource } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8sResource.js';
 
 describe('k8sResource', () => {
     const logger = debugLogger('k8sResource');
