@@ -20,7 +20,6 @@ export async function spawnAssetLoader(
     context?: Context
 ): Promise<string[]> {
     // if assets is empty return early
-    console.log('1', assets)
     if (isEmpty(assets)) {
         return [];
     }

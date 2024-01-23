@@ -33,9 +33,8 @@ export class Metrics extends EventEmitter {
         // never cause an unwanted error
         try {
             // @ts-expect-error
-            const stats = await import('gc-stats');
-            console.log('stats', stats);
-            this.gcStats = stats();
+            const module = await import('gc-stats');
+            this.gcStats = module.default();
         } catch (err) {
             this.logger.error(err, 'Failure to construct gc-stats');
         }

@@ -8,7 +8,6 @@ const module = await import(configModulePath);
 
 const config = module.default(dirPath);
 
-config.preset = "ts-jest/presets/default-esm";
 config.extensionsToTreatAsEsm = ['.ts'];
 config.moduleNameMapper = {
     '^(\\.{1,2}/.*)\\.js$': '$1',
