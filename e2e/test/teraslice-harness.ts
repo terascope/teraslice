@@ -1,22 +1,20 @@
-'use strict';
-
-const ms = require('ms');
-const {
+import ms from 'ms';
+import {
     pDelay, uniq, toString,
     cloneDeep, isEmpty, castArray, pRetry
-} = require('@terascope/utils');
-const { showState } = require('@terascope/scripts');
-const { createClient, ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { TerasliceClient } = require('teraslice-client-js');
-const path = require('path');
-const fse = require('fs-extra');
-const {
+} from '@terascope/utils';
+import { showState } from '@terascope/scripts';
+import { createClient, ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
+import { TerasliceClient } from 'teraslice-client-js';
+import path from 'path';
+import fse from 'fs-extra';
+import {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT
-} = require('./config');
-const { scaleWorkers, getElapsed } = require('./docker-helpers');
-const signale = require('./signale');
+} from './config';
+import { scaleWorkers, getElapsed } from './docker-helpers';
+import signale from './signale';
 
 const { cleanupIndex } = ElasticsearchTestHelpers;
 
@@ -24,7 +22,7 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
 /// This grabs the state index string from a list of indices as
 /// the index names are slightly randomized
-function getStateIndexString(indices) {
+function getStateIndexString(indices: string) {
     const words = indices.split(' ');
 
     for (const word of words) {
@@ -36,7 +34,10 @@ function getStateIndexString(indices) {
     // Return null if no matching word is found
     return null;
 }
-module.exports = class TerasliceHarness {
+export class TerasliceHarness {
+    client!: Client;
+    teraslice!: TerasliceClient;
+
     async init() {
         const { client } = await createClient({ node: TEST_HOST });
         this.client = client;
@@ -45,13 +46,14 @@ module.exports = class TerasliceHarness {
             timeout: 2 * 60 * 1000
         });
     }
+    // TODO: look at types here
 
-    async logExErrors(ex, exId) {
+    async logExErrors(ex: any, exId: string) {
         const errors = await ex.errors();
         this.warn(`waitForStatus: ${exId} errors`, errors);
     }
-
-    warn(msg, obj) {
+    // TODO: look at types here
+    warn(msg: string, obj: any) {
         if (isEmpty(obj)) return;
         signale.warn(`${msg}: ${JSON.stringify(obj, null, 2)}`);
     }
@@ -61,12 +63,18 @@ module.exports = class TerasliceHarness {
         this.warn('Cluster State on Job Failure', state);
     }
 
-    async logExStatus(ex) {
+    async logExStatus(ex: any) {
         const config = await ex.config();
         this.warn('ex status', config);
     }
+    // TODO: look at types here
 
-    async waitForExStatus(ex, status, interval = 100, endDelay = 50) {
+    async waitForExStatus(
+        ex: any,
+        status: string,
+        interval = 100,
+        endDelay = 50
+    ) {
         const exId = ex._exId;
         const start = Date.now();
 
@@ -119,7 +127,7 @@ module.exports = class TerasliceHarness {
                 pDelay(800),
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`),
                 (async () => {
-                    const cleanupExIds = [];
+                    const cleanupExIds: string[] = [];
                     Object.values(state).forEach((node) => {
                         const { assignment, ex_id: exId } = node;
 
@@ -157,7 +165,7 @@ module.exports = class TerasliceHarness {
         }
     }
 
-    async submitAndStart(jobSpec, delay) {
+    async submitAndStart(jobSpec: any, delay?: number) {
         if (delay) {
             this.injectDelay(jobSpec, delay);
         }
@@ -167,7 +175,7 @@ module.exports = class TerasliceHarness {
         return ex;
     }
 
-    async indexStats(indexName) {
+    async indexStats(indexName: string) {
         // delay for 100ms because sometimes the execution
         // is marked as complete but the indices stats is one off
         // because it happened too quickly
@@ -179,7 +187,7 @@ module.exports = class TerasliceHarness {
         return stats._all.total.docs;
     }
 
-    async runEsJob(jobSpec, index, delay) {
+    async runEsJob(jobSpec: any, index: string, delay?: number) {
         if (delay) {
             this.injectDelay(jobSpec, delay);
         }
@@ -189,7 +197,7 @@ module.exports = class TerasliceHarness {
 
         try {
             const stats = await this.indexStats(index);
-            return stats.count;
+            return stats?.count;
         } catch (err) {
             throw new Error(`Unable to get stats for index ${index}`);
         }
@@ -199,8 +207,10 @@ module.exports = class TerasliceHarness {
  * Test pause
  */
 
-    async getSliceSuccess(ex) {
-        const indexString = getStateIndexString(await this.client.cat.indices());
+    async getSliceSuccess(ex: any) {
+        // TODO: this seems wrong
+        const indices = await this.client.cat.indices();
+        const indexString = getStateIndexString(indices as any);
         const query = {
             index: indexString,
             body: {
@@ -209,7 +219,8 @@ module.exports = class TerasliceHarness {
                 }
             }
         };
-        const sliceRecord = await this.client.search(query);
+        const sliceRecord = await this.client.search(query as any);
+        // @ts-expect-error
         const sliceStatus = sliceRecord.hits.hits[0]._source.state;
         if (sliceStatus !== 'completed') {
             throw Error;
@@ -217,9 +228,9 @@ module.exports = class TerasliceHarness {
         return true;
     }
 
-    async testJobLifeCycle(jobSpec, delay = 3000) {
-        let ex;
-        const waitForStatus = async (status) => this.waitForExStatus(ex, status, 50, 0);
+    async testJobLifeCycle(jobSpec: any, delay = 3000) {
+        let ex: any;
+        const waitForStatus = async (status: string) => this.waitForExStatus(ex, status, 50, 0);
 
         if (delay) {
             this.injectDelay(jobSpec, delay);
@@ -266,7 +277,7 @@ module.exports = class TerasliceHarness {
 
                 if (sliceCompleted) {
                     signale.warn(
-                        `${errStr} - however since this can be race condition, we don't want to fail the test 
+                        `${errStr} - however since this can be race condition, we don't want to fail the test
                         in the condition that the slice still completes.`
                     );
                     return ex;
@@ -283,11 +294,11 @@ module.exports = class TerasliceHarness {
         return ex;
     }
 
-    newSpecIndex(name) {
+    newSpecIndex(name: string) {
         return newId(`${SPEC_INDEX_PREFIX}-${name}`, true, 4);
     }
 
-    injectDelay(jobSpec, time = 1000) {
+    injectDelay(jobSpec: any, time = 1000) {
         jobSpec.operations = [
             jobSpec.operations[0],
             {
@@ -302,7 +313,7 @@ module.exports = class TerasliceHarness {
  * Waits for the promise returned by 'func' to resolve to an array
  * then waits for the length of that array to match 'value'.
  */
-    async forLength(func, value, iterations) {
+    async forLength(func: any, value: any, iterations?: number) {
         async function _forLength() {
             const result = await func();
             return result.length;
@@ -317,7 +328,7 @@ module.exports = class TerasliceHarness {
  * time for the value to match before the returned promise will
  * reject.
  */
-    async forValue(func, value, iterations = 100) {
+    async forValue(func: any, value: any, iterations = 100) {
         let counter = 0;
 
         const multiplier = 2;
@@ -373,7 +384,10 @@ module.exports = class TerasliceHarness {
         await pDelay(500);
 
         const state = await this.teraslice.cluster.state();
-        if (Object.keys(state) === workerCount) return state;
+        // TODO: this seems wrong
+        if (Object.keys(state).length === workerCount) {
+            return state;
+        }
 
         await scaleWorkers(workersToAdd);
         await this.forWorkers(workerCount);
@@ -382,7 +396,7 @@ module.exports = class TerasliceHarness {
         return this.teraslice.cluster.state();
     }
 
-    newJob(name) {
+    newJob(name: string) {
         return cloneDeep(require(`./fixtures/jobs/${name}.json`));
     }
 
@@ -393,7 +407,7 @@ module.exports = class TerasliceHarness {
  * TODO: Implement a more generic function that waits for states other than
  * 'joined'
  */
-    forWorkersJoined(exId, workerCount, iterations) {
+    forWorkersJoined(exId: string, workerCount: number, iterations?: number) {
         const _forWorkersJoined = async () => {
             const controllers = await this.teraslice.cluster.controllers();
             const controller = controllers.find((s) => s.ex_id === exId);
@@ -407,7 +421,7 @@ module.exports = class TerasliceHarness {
     waitForClusterState(timeoutMs = 120000) {
         const endAt = Date.now() + timeoutMs;
 
-        const _waitForClusterState = async () => {
+        const _waitForClusterState = async (): Promise<number> => {
             if (Date.now() > endAt) {
                 throw new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`);
             }
@@ -435,7 +449,11 @@ module.exports = class TerasliceHarness {
         return _waitForClusterState();
     }
 
-    async waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
+    async waitForIndexCount(
+        index: string,
+        expected: number,
+        remainingMs = 30 * 1000
+    ): Promise<number> {
         if (remainingMs <= 0) {
             throw new Error(`Timeout waiting for ${index} to have count of ${expected}`);
         }
@@ -444,6 +462,7 @@ module.exports = class TerasliceHarness {
         let count = 0;
 
         try {
+            // @ts-expect-error
             ({ count } = await this.indexStats(index));
             if (count >= expected) {
                 return count;
@@ -476,15 +495,16 @@ module.exports = class TerasliceHarness {
         }
     }
 
-    async postJob(jobSpec) {
+    async postJob(jobSpec: any) {
         return this.teraslice.executions.submit(jobSpec);
     }
 
-    async generate(count, hex) {
+    async generate(count: number, hex?: string[]) {
         if (generateOnly && generateOnly !== count) return;
 
         const genStartTime = Date.now();
         let indexName = this.getExampleIndex(count);
+
         if (hex) {
             indexName += '-hex';
         }
@@ -507,7 +527,7 @@ module.exports = class TerasliceHarness {
                     size: 1000
                 }
             ]
-        };
+        } as any;
 
         try {
             if (TEST_PLATFORM === 'kubernetes') {
@@ -515,10 +535,12 @@ module.exports = class TerasliceHarness {
                 jobSpec.resources_requests_cpu = 0.05;
                 jobSpec.cpu_execution_controller = 0.4;
             }
+
             if (hex) {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
                 jobSpec.operations[1].id_field = 'id';
+
                 const result = await Promise.all(hex.map((letter) => {
                     jobSpec.name = `Generate: ${indexName}[${letter}]`;
                     jobSpec.operations[0].id_start_key = letter;
@@ -538,7 +560,7 @@ module.exports = class TerasliceHarness {
         }
     }
 
-    getExampleIndex(size) {
+    getExampleIndex(size: number) {
         if (!EXAMPLE_INDEX_SIZES.includes(size)) {
             throw new Error(`No example index with ${size}`);
         }
@@ -570,4 +592,4 @@ module.exports = class TerasliceHarness {
             signale.debug(`Deleted asset with id ${response._id}`);
         }
     }
-};
+}

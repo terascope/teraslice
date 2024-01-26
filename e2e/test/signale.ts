@@ -1,8 +1,6 @@
-'use strict';
+import { Signale } from 'signale';
 
-const { Signale } = require('signale');
-
-module.exports = new Signale({
+export default new Signale({
     logLevel: 'info',
     stream: process.stderr,
     types: {
@@ -13,4 +11,4 @@ module.exports = new Signale({
             badge: '*'
         }
     }
-});
+} as any);

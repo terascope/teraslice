@@ -1,10 +1,8 @@
-'use strict';
-
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config';
 
 describe('job state', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();

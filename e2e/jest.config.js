@@ -7,6 +7,8 @@ const config = require('../jest.config.base')(__dirname);
 // Second array is for tests skipped in native.
 config.testPathIgnorePatterns = process.env.TEST_PLATFORM === 'kubernetes' ? ['data/recovery-spec', 'cluster/worker-allocation-spec', 'cluster/state-spec'] : [];
 config.collectCoverage = false;
+config.testTimeout = 3 * 60 * 1000;
+
 delete config.transform;
 // config.moduleNameMapper = {
 //     '^(\\.{1,2}/.*)\\.js$': '$1',

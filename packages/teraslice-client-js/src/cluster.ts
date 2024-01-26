@@ -3,7 +3,6 @@ import util from 'util';
 import autoBind from 'auto-bind';
 import Client from './client';
 import {
-    TxtType,
     RootResponse,
     ClusterState,
     ClusterStats,
@@ -42,7 +41,7 @@ export default class Cluster extends Client {
         return this.get('/cluster/controllers');
     }
 
-    async txt(type: TxtType): Promise<string> {
+    async txt(type: string): Promise<string> {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
         const isValid = validTypes.some((validType) => startsWith(type, validType));
         if (!isValid) {

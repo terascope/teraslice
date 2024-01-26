@@ -1,11 +1,9 @@
-'use strict';
-
-const { get, times } = require('@terascope/utils');
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { get, times } from '@terascope/utils';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('reindex', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();

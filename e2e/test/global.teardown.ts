@@ -1,22 +1,21 @@
-'use strict';
-
-const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { deleteTerasliceNamespace } = require('@terascope/scripts');
-const fse = require('fs-extra');
-const {
-    KEEP_OPEN, CONFIG_PATH, ASSETS_PATH, TEST_INDEX_PREFIX, TEST_PLATFORM
-} = require('./config');
-const { tearDown } = require('./docker-helpers');
-const signale = require('./signale');
+import { ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
+import { deleteTerasliceNamespace } from '@terascope/scripts';
+import fse from 'fs-extra';
+import {
+    KEEP_OPEN, CONFIG_PATH, ASSETS_PATH,
+    TEST_INDEX_PREFIX, TEST_PLATFORM
+} from './config.js';
+import { tearDown } from './docker-helpers.js';
+import signale from './signale.js';
 
 const { cleanupIndex, makeClient } = ElasticsearchTestHelpers;
 
-async function getClient(client) {
-    if (client && client.delete) return client;
+async function getClient(client?: Client) {
+    if (client) return client;
     return makeClient();
 }
 
-async function globalTeardown(testClient) {
+async function globalTeardown(testClient?: Client) {
     if (KEEP_OPEN) {
         return;
     }
@@ -49,6 +48,6 @@ async function globalTeardown(testClient) {
     }
 }
 
-module.exports = async (client) => {
+export default async (client: Client) => {
     await globalTeardown(client);
 };

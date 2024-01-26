@@ -1,8 +1,6 @@
-'use strict';
-
-const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { customAlphabet } = require('nanoid');
-const path = require('path');
+import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { customAlphabet } from 'nanoid';
+import path from 'node:path';
 
 const {
     TEST_INDEX_PREFIX,
@@ -35,7 +33,8 @@ const {
     HOST_IP = '127.0.0.1',
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
-    TEST_PLATFORM = 'native'
+    TEST_PLATFORM = 'native',
+    KEEP_OPEN = false
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -43,7 +42,7 @@ const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
 // TERASLICE_PORT must match e2e/docker-compose.yml
 const TERASLICE_PORT = 45678;
 
-function newId(prefix, lowerCase = false, length = 15) {
+function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
 
     if (!lowerCase) {
@@ -59,7 +58,7 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
-module.exports = {
+export {
     EXAMPLE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
@@ -82,5 +81,6 @@ module.exports = {
     newId,
     TEST_HOST,
     TEST_PLATFORM,
-    TERASLICE_PORT
+    TERASLICE_PORT,
+    KEEP_OPEN
 };

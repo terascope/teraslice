@@ -1,22 +1,20 @@
-'use strict';
+import { pDelay } from '@terascope/utils';
+import {
+    deployK8sTeraslice, setAliasAndBaseAssets
+} from '@terascope/scripts';
+import fse from 'fs-extra';
+import { TerasliceHarness } from './teraslice-harness.js';
+import globalTeardown from './global.teardown.js';
+import { dockerUp } from './docker-helpers.js';
+import signale from './signale.js';
+import setupTerasliceConfig from './setup-config.js';
+import { downloadAssets } from './download-assets.js';
+import {
+    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
+    TERASLICE_PORT
+} from './config.js';
 
-const { pDelay } = require('@terascope/utils');
-const {
-    deployK8sTeraslice,
-    setAliasAndBaseAssets
-} = require('@terascope/scripts');
-const fse = require('fs-extra');
-const TerasliceHarness = require('./teraslice-harness');
-const globalTeardown = require('./global.teardown');
-const { dockerUp } = require('./docker-helpers');
-const signale = require('./signale');
-const setupTerasliceConfig = require('./setup-config');
-const downloadAssets = require('./download-assets');
-const {
-    CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM, TERASLICE_PORT
-} = require('./config');
-
-module.exports = async () => {
+export default async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 

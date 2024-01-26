@@ -1,12 +1,10 @@
-'use strict';
-
-const { pDelay, flatten } = require('@terascope/utils');
-const signale = require('../../signale');
-const TerasliceHarness = require('../../teraslice-harness');
-const { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } = require('../../config');
+import { pDelay, flatten } from '@terascope/utils';
+import signale from '../../signale';
+import { TerasliceHarness } from '../../teraslice-harness';
+import { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } from '../../config';
 
 describe('cluster state', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -14,7 +12,7 @@ describe('cluster state', () => {
         await terasliceHarness.resetState();
     });
 
-    function findWorkers(nodes, type, exId) {
+    function findWorkers(nodes: any[], type?: string, exId?: string) {
         return nodes.filter((worker) => {
             if (exId) {
                 if (type) {
@@ -28,17 +26,17 @@ describe('cluster state', () => {
         });
     }
 
-    function checkState(state, type, exId) {
+    function checkState(state: any[], type?: string, exId?: string) {
         const nodes = Object.values(state);
         return flatten(nodes.map((node) => findWorkers(node.active, type, exId))).length;
     }
 
-    function verifyClusterMaster(state) {
+    function verifyClusterMaster(state: any) {
         // verify that the cluster master worker exists within the state
-        const nodes = Object.values(state).filter((node) => {
+        const nodes = Object.values(state).filter((node:any) => {
             const cms = findWorkers(node.active, 'cluster_master');
             return cms.length > 0;
-        });
+        }) as any;
 
         expect(nodes).toBeArrayOfSize(1);
 
@@ -55,10 +53,10 @@ describe('cluster state', () => {
         expect(amWorkers[0].assignment).toEqual('assets_service');
     }
 
-    function verifyClusterState(state, workersAdded = 0) {
+    function verifyClusterState(state: any[], workersAdded = 0) {
         expect(Object.values(state)).toBeArrayOfSize(DEFAULT_NODES + workersAdded);
 
-        // verify each node
+        // verify each node TODO: fix types here
         Object.values(state).forEach((node) => {
             expect(node.total).toBe(WORKERS_PER_NODE);
             expect(node.node_id).toBeDefined();

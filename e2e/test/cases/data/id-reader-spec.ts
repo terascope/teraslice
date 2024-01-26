@@ -1,7 +1,5 @@
-'use strict';
-
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 /**
  * The id reader don't work in 6.x and greater
@@ -12,7 +10,7 @@ const { TEST_PLATFORM } = require('../../config');
  */
 // eslint-disable-next-line jest/no-disabled-tests
 xdescribe('id reader', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();

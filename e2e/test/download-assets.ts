@@ -1,10 +1,9 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const semver = require('semver');
-const { downloadRelease } = require('@terascope/fetch-github-release');
-const signale = require('./signale');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import semver from 'semver';
+import { downloadRelease } from '@terascope/fetch-github-release';
+import signale from './signale.js';
 
 /**
  * This will get the correct teraslice node version so
@@ -40,7 +39,7 @@ const bundles = [
     }
 ];
 
-function assetFileInfo(assetName) {
+function assetFileInfo(assetName: string) {
     const [name, version] = assetName.split('-');
     return {
         name,
@@ -51,20 +50,21 @@ function assetFileInfo(assetName) {
     };
 }
 
-function getOlderAsset(assets, assetName) {
+function getOlderAsset(assets: any[], assetName: string) {
     const { name, version } = assetFileInfo(assetName);
 
     return assets.find((a) => {
         if (a.name !== name) return false;
+        // @ts-expect-error TODO: fix this
         return semver.gt(version, a.version) && a.bundle;
     });
 }
 
-function filterRelease(release) {
+function filterRelease(release: any) {
     return !release.draft;
 }
 
-function filterAsset(asset) {
+function filterAsset(asset: any) {
     // if it includes the bundle choose that
     return asset.name.includes(`node-${nodeVersion}-bundle.zip`);
 }
@@ -79,11 +79,13 @@ function listAssets() {
         .map(assetFileInfo);
 }
 
-function count(arr, fn) {
+function count(arr: any[], fn:(arg: any) => boolean) {
     let c = 0;
+
     for (const v of arr) {
         if (fn(v)) c++;
     }
+
     return c;
 }
 
@@ -101,14 +103,15 @@ function deleteOlderAssets() {
                 older.newerVersion = current.version;
                 return acc;
             }
+            // @ts-expect-error
             return acc.concat([current]);
         }, [])
         .filter(({ name, newerVersion, bundle }, index, arr) => {
             if (newerVersion == null && bundle) {
-                return arr.find((a, i) => i !== index && a.name === name && a.bundle);
+                return arr.find((a: any, i) => i !== index && a.name === name && a.bundle);
             }
             return newerVersion == null;
-        });
+        }) as any[];
 
     for (const asset of olderAssets) {
         const b = asset.bundle ? ' [bundle]' : ' [non-bundle]';
@@ -130,7 +133,7 @@ function logAssets() {
 /**
  * @todo change this to not download both the bundled and non-bundled versions
 */
-async function downloadAssets() {
+export async function downloadAssets() {
     await Promise.all(bundles.map(({ repo }) => downloadRelease(
         'terascope',
         repo,
@@ -145,8 +148,12 @@ async function downloadAssets() {
     logAssets();
 }
 
-if (require.main === module) {
-    downloadAssets();
-} else {
-    module.exports = downloadAssets;
+// TODO: review this, see if we can seperate it out
+if (import.meta.url.startsWith('file:')) {
+    const modulePath = fileURLToPath(import.meta.url);
+    const executePath = process.argv[1];
+
+    if (executePath === modulePath) {
+        downloadAssets();
+    }
 }

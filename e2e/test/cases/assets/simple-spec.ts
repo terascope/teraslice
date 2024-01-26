@@ -1,11 +1,10 @@
-'use strict';
-
-const fs = require('fs');
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import 'jest-extended';
+import { createReadStream } from 'node:fs';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('assets', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -24,8 +23,8 @@ describe('assets', () => {
      * @param {string}   jobSpecName the name of job to run
      * @param {string}   assetPath   the relative path to the asset file
      */
-    async function submitAndValidateAssetJob(jobSpecName, assetPath) {
-        const fileStream = fs.createReadStream(assetPath);
+    async function submitAndValidateAssetJob(jobSpecName: string, assetPath: string) {
+        const fileStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
@@ -50,7 +49,7 @@ describe('assets', () => {
     }
 
     it('after uploading an asset, it can be deleted', async () => {
-        const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
+        const testStream = createReadStream('test/fixtures/assets/example_asset_1.zip');
 
         const result = await terasliceHarness.teraslice.assets.upload(
             testStream,
@@ -72,7 +71,7 @@ describe('assets', () => {
     // {"error":"asset.json was not found in root directory of asset bundle
     //    nor any immediate sub directory"}
     it('uploading a bad asset returns an error', async () => {
-        const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
+        const testStream = createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
         try {
             await terasliceHarness.teraslice.assets.upload(testStream, { blocking: true });
@@ -106,7 +105,7 @@ describe('assets', () => {
     it('can update an asset bundle and use the new asset', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
 
-        const fileStream = fs.createReadStream(assetPath);
+        const fileStream = createReadStream(assetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI

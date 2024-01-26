@@ -1,12 +1,10 @@
-'use strict';
-
-const { v4: uuidv4 } = require('uuid');
-const TerasliceHarness = require('../../teraslice-harness');
-const signale = require('../../signale');
-const { TEST_PLATFORM } = require('../../config');
+import { v4 as uuidv4 } from 'uuid';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import signale from '../../signale.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('kafka', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();

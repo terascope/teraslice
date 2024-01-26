@@ -1,12 +1,10 @@
-'use strict';
-
-const fs = require('fs');
-const { cloneDeep, pDelay } = require('@terascope/utils');
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { createReadStream } from 'node:fs';
+import { cloneDeep, pDelay } from '@terascope/utils';
+import { TerasliceHarness } from '../../teraslice-harness';
+import { TEST_PLATFORM } from '../../config';
 
 describe('cluster api', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -16,7 +14,7 @@ describe('cluster api', () => {
 
     it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
-        const testStream = fs.createReadStream(assetPath);
+        const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
@@ -72,7 +70,7 @@ describe('cluster api', () => {
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        async function didError(p) {
+        async function didError(p: Promise<void>) {
             try {
                 await p;
                 return false;
