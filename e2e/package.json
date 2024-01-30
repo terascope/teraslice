@@ -4,6 +4,7 @@
     "version": "0.2.0",
     "private": true,
     "description": "Teraslice integration test suite",
+    "type": "module",
     "keywords": [
         "docker-compose",
         "elasticsearch",
@@ -24,6 +25,8 @@
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn --silent",
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
         "test": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:debug": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --debug --",
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",

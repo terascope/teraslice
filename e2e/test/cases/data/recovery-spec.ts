@@ -145,7 +145,7 @@ describe('recovery', () => {
                 }
             ],
             lastStatus: 'failed'
-        });
+        } as any);
 
         recoverFromId = exConfig.ex_id;
         recoverFromEx = terasliceHarness.teraslice.executions.wrap(recoverFromId);

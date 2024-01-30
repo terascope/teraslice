@@ -462,7 +462,6 @@ export class TerasliceHarness {
         let count = 0;
 
         try {
-            // @ts-expect-error
             ({ count } = await this.indexStats(index));
             if (count >= expected) {
                 return count;

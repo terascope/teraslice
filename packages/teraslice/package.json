@@ -25,6 +25,8 @@
         "start": "node service.js",
         "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test --debug . --",
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",

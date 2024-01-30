@@ -80,12 +80,14 @@ describe('cluster state', () => {
     }
 
     it('should match default configuration', async () => {
-        const state = await terasliceHarness.teraslice.cluster.state();
+        const state = await terasliceHarness.teraslice.cluster.state() as any;
         verifyClusterState(state);
     });
 
     it('should update after adding and removing a worker node', async () => {
+        // @ts-expect-error
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait(1), 1);
+        // @ts-expect-error
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait());
     });
 
@@ -112,7 +114,7 @@ describe('cluster state', () => {
 
         const complete = terasliceHarness.waitForExStatus(ex, 'completed');
 
-        const nodes = Object.keys(state);
+        const nodes = Object.keys(state) as any[];
 
         nodes.forEach((node) => {
             expect(state[node].total).toBe(WORKERS_PER_NODE);
@@ -124,6 +126,7 @@ describe('cluster state', () => {
             if (state[node].active.length > 2) {
                 expect(findWorkers(state[node].active, 'worker', exId)).toBeArrayOfSize(1);
             }
+            // @ts-expect-error
             expect(checkState(state, null, exId)).toBe(2);
         });
 
@@ -162,7 +165,7 @@ describe('cluster state', () => {
 
             // Both nodes should have at least one worker.
             expect(findWorkers(state[node].active, 'worker', exId).length).toBeGreaterThan(0);
-
+            // @ts-expect-error
             expect(checkState(state, null, exId)).toBe(5);
         });
 
