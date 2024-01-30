@@ -95,9 +95,6 @@
         },
         {
             "path": "packages/xpressions"
-        },
-        {
-            "path": "./e2e"
         }
     ]
 }
