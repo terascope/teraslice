@@ -142,6 +142,7 @@ describe('Teraslice Cluster', () => {
             });
 
             it('should resolve the plain test results from Teraslice', async () => {
+                // @ts-expect-error TODO: fixme
                 const results = await cluster.txt('assets/assetName');
                 expect(results).toEqual('assets-txt-response');
             });
@@ -157,6 +158,7 @@ describe('Teraslice Cluster', () => {
                 expect.hasAssertions();
                 const errMsg = '"invalid" is not a valid type. Must be one of ["assets","slicers","ex","jobs","nodes","workers"]';
                 try {
+                    // @ts-expect-error
                     await cluster.txt('invalid');
                 } catch (err) {
                     expect(err.message).toEqual(errMsg);

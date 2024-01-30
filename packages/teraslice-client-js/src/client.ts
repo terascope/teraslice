@@ -45,7 +45,7 @@ export default class Client {
         return this._makeRequest<T>('get', endpoint, options);
     }
 
-    async post<T = any>(endpoint: string, data?: unknown, options?: RequestOptions): Promise<T> {
+    async post<T = any>(endpoint: string, data: unknown, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('post', endpoint, options, data);
     }
 
