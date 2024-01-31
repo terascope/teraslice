@@ -21,6 +21,10 @@ describe('reindex', () => {
         jobSpec.name = 'basic reindex';
         const specIndex = terasliceHarness.newSpecIndex('reindex');
 
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
@@ -37,6 +41,11 @@ describe('reindex', () => {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].query = 'bytes:>=99999999';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
@@ -77,6 +86,11 @@ describe('reindex', () => {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[0].interval = '1s';
         jobSpec.operations[1].index = specIndex;
@@ -102,6 +116,11 @@ describe('reindex', () => {
             jobSpec.resources_requests_cpu = 0.1;
             jobSpec.cpu_execution_controller = 0.4;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         // Job needs to be able to run long enough to cycle
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = index;

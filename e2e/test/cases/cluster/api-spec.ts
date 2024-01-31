@@ -1,7 +1,7 @@
 import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/utils';
-import { TerasliceHarness } from '../../teraslice-harness';
-import { TEST_PLATFORM } from '../../config';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('cluster api', () => {
     let terasliceHarness: TerasliceHarness;
@@ -67,6 +67,11 @@ describe('cluster api', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.05;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 

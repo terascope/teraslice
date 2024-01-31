@@ -1,5 +1,5 @@
 import { TerasliceHarness } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('job state', () => {
     let terasliceHarness: TerasliceHarness;
@@ -20,6 +20,11 @@ describe('job state', () => {
             jobSpec2.resources_requests_cpu = 0.05;
             jobSpec2.cpu_execution_controller = 0.4;
         }
+
+        if (!jobSpec2.operations) {
+            jobSpec2.operations = [];
+        }
+
         jobSpec2.operations[1].name = 'second_generator';
 
         const [ex1, ex2] = await Promise.all([

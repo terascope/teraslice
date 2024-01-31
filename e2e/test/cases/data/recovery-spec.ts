@@ -51,6 +51,11 @@ describe('recovery', () => {
         jobSpec.assets = files.filter((asset) => asset.length === 40);
 
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
 

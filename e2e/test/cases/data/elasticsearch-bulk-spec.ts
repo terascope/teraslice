@@ -18,6 +18,11 @@ describe('elasticsearch bulk', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'multisend';
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
 

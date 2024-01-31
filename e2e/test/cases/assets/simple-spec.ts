@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { createReadStream } from 'node:fs';
-import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';
 
 describe('assets', () => {
@@ -23,7 +23,7 @@ describe('assets', () => {
      * @param {string}   jobSpecName the name of job to run
      * @param {string}   assetPath   the relative path to the asset file
      */
-    async function submitAndValidateAssetJob(jobSpecName: string, assetPath: string) {
+    async function submitAndValidateAssetJob(jobSpecName: JobFixtureNames, assetPath: string) {
         const fileStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
         // Set resource constraints on workers within CI
@@ -42,7 +42,7 @@ describe('assets', () => {
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const r = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
+        const r = await terasliceHarness.forWorkersJoined(ex.id(), workers as number, 25);
         expect(r).toEqual(workers);
 
         await ex.stop({ blocking: true });
@@ -121,7 +121,11 @@ describe('assets', () => {
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const waitResponse = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
+        const waitResponse = await terasliceHarness.forWorkersJoined(
+            ex.id(),
+            workers as number,
+            25
+        );
         expect(waitResponse).toEqual(workers);
 
         const execution = await ex.config();
@@ -144,7 +148,11 @@ describe('assets', () => {
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
 
-        const waitResponse = await terasliceHarness.forWorkersJoined(ex.id(), workers, 25);
+        const waitResponse = await terasliceHarness.forWorkersJoined(
+            ex.id(),
+            workers as number,
+            25
+        );
         expect(waitResponse).toEqual(workers);
 
         const execution = await ex.config();

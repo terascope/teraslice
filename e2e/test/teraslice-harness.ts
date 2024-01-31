@@ -4,17 +4,39 @@ import {
     cloneDeep, isEmpty, castArray, pRetry
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
+import { JobConfig } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
 import { TerasliceClient } from 'teraslice-client-js';
-import path from 'path';
+import path from 'node:path';
 import fse from 'fs-extra';
 import {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
     EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT
-} from './config';
-import { scaleWorkers, getElapsed } from './docker-helpers';
-import signale from './signale';
+} from './config.js';
+import { scaleWorkers, getElapsed } from './docker-helpers.js';
+import signale from './signale.js';
+import generatorToESJob from './fixtures/jobs/generate-to-es.json' assert { type: 'json' };
+import generatorAssetJob from './fixtures/jobs/generator-asset.json' assert { type: 'json' };
+import generatorJob from './fixtures/jobs/generator.json' assert { type: 'json' };
+import idJob from './fixtures/jobs/id.json' assert { type: 'json' };
+import kafkaReaderJob from './fixtures/jobs/kafka-reader.json' assert { type: 'json' };
+import kafkaSenderJob from './fixtures/jobs/kafka-sender.json' assert { type: 'json' };
+import multisendJob from './fixtures/jobs/multisend.json' assert { type: 'json' };
+import reindexJob from './fixtures/jobs/reindex.json' assert { type: 'json' };
+
+const JobDict = Object.freeze({
+    'generate-to-es': generatorToESJob,
+    'generator-asset': generatorAssetJob,
+    generator: generatorJob,
+    id: idJob,
+    'kafka-reader': kafkaReaderJob,
+    'kafka-sender': kafkaSenderJob,
+    multisend: multisendJob,
+    reindex: reindexJob,
+});
+
+export type JobFixtureNames = keyof typeof JobDict;
 
 const { cleanupIndex } = ElasticsearchTestHelpers;
 
@@ -396,8 +418,14 @@ export class TerasliceHarness {
         return this.teraslice.cluster.state();
     }
 
-    newJob(name: string) {
-        return cloneDeep(require(`./fixtures/jobs/${name}.json`));
+    newJob(name: JobFixtureNames): JobConfig {
+        const job = JobDict[name];
+
+        if (!job) {
+            throw new Error(`Invalid job reference ${name} does not exist`);
+        }
+
+        return cloneDeep(job) as JobConfig;
     }
 
     /*

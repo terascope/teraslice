@@ -29,6 +29,14 @@ describe('kafka', () => {
             readerSpec.cpu_execution_controller = 0.4;
         }
 
+        if (!senderSpec.operations) {
+            senderSpec.operations = [];
+        }
+
+        if (!readerSpec.operations) {
+            readerSpec.operations = [];
+        }
+
         senderSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         senderSpec.operations[1].topic = topic;
 

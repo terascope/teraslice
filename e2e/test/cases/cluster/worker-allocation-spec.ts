@@ -14,6 +14,11 @@ async function workersTest(
         jobSpec.resources_requests_cpu = 0.1;
     }
     jobSpec.name = 'worker allocation';
+
+    if (!jobSpec.operations) {
+        jobSpec.operations = [];
+    }
+
     jobSpec.operations[0].index = harness.getExampleIndex(records);
     jobSpec.operations[0].size = 100;
     jobSpec.operations[1].index = specIndex;

@@ -16,6 +16,11 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[1].index = ''; // index selector
 
         return terasliceHarness.teraslice
@@ -32,6 +37,11 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = ''; // reader
 
         return terasliceHarness.teraslice
@@ -97,6 +107,7 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+        // @ts-expect-error
         jobSpec.lifecycle = 'invalid';
 
         return terasliceHarness.teraslice
