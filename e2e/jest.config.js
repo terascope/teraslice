@@ -1,6 +1,12 @@
-'use strict';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const config = require('../jest.config.base')(__dirname);
+const dirPath = fileURLToPath(new URL('.', import.meta.url));
+const configModulePath = path.join(dirPath, '../jest.config.base.js');
+
+const module = await import(configModulePath);
+
+const config = module.default(dirPath);
 
 // TODO: update arrays to run tests specific to platform.
 // First array is for tests skipped in kubernetes.
@@ -9,31 +15,31 @@ config.testPathIgnorePatterns = process.env.TEST_PLATFORM === 'kubernetes' ? ['d
 config.collectCoverage = false;
 config.testTimeout = 3 * 60 * 1000;
 
-delete config.transform;
-// config.moduleNameMapper = {
-//     '^(\\.{1,2}/.*)\\.js$': '$1',
-// };
+config.extensionsToTreatAsEsm = ['.ts'];
+config.moduleNameMapper = {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+};
 config.transform = {};
-// config.transformIgnorePatterns = [];
-// config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
-//     jsc: {
-//         loose: true,
-//         parser: {
-//             syntax: 'typescript',
-//             tsx: false,
-//             decorators: true
-//         },
-//         transform: {
-//             legacyDecorator: true,
-//             decoratorMetadata: true
-//         },
-//         target: 'es2022'
-//     },
-//     module: {
-//         type: 'commonjs',
-//         strictMode: false,
-//         noInterop: false
-//     }
-// }];
 
-module.exports = config;
+config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
+    jsc: {
+        loose: true,
+        parser: {
+            syntax: 'typescript',
+            tsx: false,
+            decorators: true
+        },
+        transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+        },
+        target: 'es2022'
+    },
+    module: {
+        "type": "es6",
+        strictMode: false,
+        noInterop: false
+    }
+}];
+
+export default config;
