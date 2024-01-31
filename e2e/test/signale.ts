@@ -1,6 +1,6 @@
-import { Signale } from 'signale';
+import signale from 'signale';
 
-export default new Signale({
+export default new signale.Signale({
     logLevel: 'info',
     stream: process.stderr,
     types: {

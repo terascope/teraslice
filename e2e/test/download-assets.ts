@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import semver from 'semver';
 import { downloadRelease } from '@terascope/fetch-github-release';
 import signale from './signale.js';
+import { AUTOLOAD_PATH } from './config.js';
 
 /**
  * This will get the correct teraslice node version so
@@ -20,7 +21,6 @@ function getNodeVersion() {
 
 const nodeVersion = getNodeVersion();
 
-const autoloadDir = path.join(__dirname, '..', 'autoload');
 const leaveZipped = true;
 const disableLogging = true;
 
@@ -71,7 +71,7 @@ function filterAsset(asset: any) {
 
 function listAssets() {
     return fs
-        .readdirSync(autoloadDir)
+        .readdirSync(AUTOLOAD_PATH)
         .filter((file) => {
             const ext = path.extname(file);
             return ext === '.zip';
@@ -116,7 +116,7 @@ function deleteOlderAssets() {
     for (const asset of olderAssets) {
         const b = asset.bundle ? ' [bundle]' : ' [non-bundle]';
         signale.warn(`Deleting asset ${asset.name}@v${asset.version} in-favor of existing v${asset.newerVersion || asset.version}${b}`);
-        fs.unlinkSync(path.join(autoloadDir, asset.fileName));
+        fs.unlinkSync(path.join(AUTOLOAD_PATH, asset.fileName));
     }
 }
 
@@ -137,7 +137,7 @@ export async function downloadAssets() {
     await Promise.all(bundles.map(({ repo }) => downloadRelease(
         'terascope',
         repo,
-        autoloadDir,
+        AUTOLOAD_PATH,
         filterRelease,
         filterAsset,
         leaveZipped,

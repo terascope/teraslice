@@ -7,12 +7,12 @@ import { showState } from '@terascope/scripts';
 import { JobConfig } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
 import { TerasliceClient } from 'teraslice-client-js';
-import path from 'node:path';
 import fse from 'fs-extra';
 import {
     TEST_HOST, HOST_IP, SPEC_INDEX_PREFIX,
     DEFAULT_NODES, newId, DEFAULT_WORKERS, GENERATE_ONLY,
-    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT
+    EXAMPLE_INDEX_SIZES, EXAMPLE_INDEX_PREFIX, TEST_PLATFORM, TERASLICE_PORT,
+    LOG_PATH
 } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
@@ -56,6 +56,7 @@ function getStateIndexString(indices: string) {
     // Return null if no matching word is found
     return null;
 }
+
 export class TerasliceHarness {
     client!: Client;
     teraslice!: TerasliceClient;
@@ -505,8 +506,7 @@ export class TerasliceHarness {
     }
 
     async resetLogs() {
-        const logPath = path.join(__dirname, '..', 'logs', 'teraslice.log');
-        await fse.writeFile(logPath, '');
+        return fse.writeFile(LOG_PATH, '');
     }
 
     async waitForTeraslice() {
