@@ -68,13 +68,13 @@ module.exports = (projectDir) => {
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
         config.globalSetup = `${packageRoot}/test/global.setup.js`;
     } else if (fs.existsSync(path.join(projectDir, 'test/global.setup.ts'))) {
-        config.globalSetup = `${packageRoot}/test/global.setup.ts`;
+        config.globalSetup = `${packageRoot}/dist/test/global.setup.js',`;
     }
 
     if (fs.existsSync(path.join(projectDir, 'test/global.teardown.js'))) {
         config.globalTeardown = `${packageRoot}/test/global.teardown.js`;
     } else if (fs.existsSync(path.join(projectDir, 'test/global.teardown.ts'))) {
-        config.globalTeardown = `${packageRoot}/test/global.teardown.ts`;
+        config.globalTeardown = `${packageRoot}/dist/test/global.setup.js',`;
     }
 
     if (fs.existsSync(path.join(projectDir, 'test/test.setup.js'))) {
