@@ -2,6 +2,8 @@ import {
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
+    k8sStartService,
+    k8sStopService,
 } from '../scripts';
 import { Kind } from '../kind';
 import { k8sEnvOptions } from './interfaces';
@@ -38,8 +40,11 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     try {
         await kind.createCluster(options.tsPort);
     } catch (err) {
-        signale.fatal(err);
-        await kind.destroyCluster();
+        signale.error(err);
+        // Do not destroy existing cluster if that was the cause of failure
+        if (!err.stderr.includes('node(s) already exist for a cluster with the name')) {
+            await kind.destroyCluster();
+        }
         process.exit(1);
     }
     signale.success('Kind cluster created');
@@ -110,6 +115,13 @@ export async function rebuildTeraslice(options: k8sEnvOptions) {
     signale.pending('Loading Teraslice Docker image');
     await kind.loadTerasliceImage(e2eImage);
     signale.success('Teraslice Docker image loaded');
+
+    if (options.resetStore) {
+        signale.pending('Resetting the elasticsearch service');
+        await k8sStopService('elasticsearch');
+        await k8sStartService('elasticsearch', config.ELASTICSEARCH_DOCKER_IMAGE, config.ELASTICSEARCH_VERSION, kind);
+        signale.success('elasticsearch service reset');
+    }
 
     try {
         await k8s.deployK8sTeraslice(true);
