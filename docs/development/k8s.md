@@ -315,6 +315,16 @@ yarn k8s:rebuild
 yarn run ts-scripts k8s-env --rebuild
 ```
 
+If you would like to reset the elasticsearch store at the same time:
+
+```bash
+# from the teraslice root directory:
+yarn k8s:rebuild --reset-store
+
+# from any other directory:
+yarn run ts-scripts k8s-env --rebuild --reset-store
+```
+
 If you need to restart Teraslice without rebuilding you can use the following command:
 
 NOTE: this does not reset state in the elasticsearch store
@@ -325,6 +335,16 @@ yarn k8s:restart
 
 # from any other directory:
 yarn run ts-scripts k8s-env --rebuild --skip-build
+```
+
+If you would like to reset the elasticsearch store at the same time:
+
+```bash
+# from the teraslice root directory:
+yarn k8s:restart --reset-store
+
+# from any other directory:
+yarn run ts-scripts k8s-env --rebuild --skip-build --reset-store
 ```
 
 ## Extras
