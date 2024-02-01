@@ -715,7 +715,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
     const kafkaBroker = config.KAFKA_BROKER;
     const retryCount = 5;
     const retryTime = 10000;
-    const totalTime = retryCount*retryTime;
+    const totalTime = retryCount * retryTime;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
@@ -735,13 +735,13 @@ async function checkKafka(options: TestOptions, startTime: number) {
             maxRetryTime: retryTime,
             factor: 0,
             retries: retryCount
-          }
-        });
+        }
+    });
     const producer = kafka.producer();
     const took = ts.toHumanTime(Date.now() - startTime);
     try {
         await producer.connect();
-    } catch(err) {
+    } catch (err) {
         if (err.message.includes('ENOTFOUND') && err.message.includes(config.KAFKA_BROKER)) {
             throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
         } else if (err.message.includes('ECONNREFUSED') && err.message.includes(config.KAFKA_BROKER)) {
