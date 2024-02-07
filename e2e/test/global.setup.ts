@@ -4,7 +4,6 @@ import {
 } from '@terascope/scripts';
 import fse from 'fs-extra';
 import { TerasliceHarness } from './teraslice-harness.js';
-import globalTeardown from './global.teardown.js';
 import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
 import setupTerasliceConfig from './setup-config.js';
@@ -13,12 +12,13 @@ import {
     CONFIG_PATH, ASSETS_PATH, TEST_PLATFORM,
     TERASLICE_PORT
 } from './config.js';
+import { teardown } from './teardown.js';
 
 export default async () => {
     const teraslice = new TerasliceHarness();
     await teraslice.init();
 
-    await globalTeardown(teraslice.client);
+    await teardown(teraslice.client);
     await teraslice.resetLogs();
 
     process.stdout.write('\n');

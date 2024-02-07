@@ -15,7 +15,7 @@ const {
 const BASE_PATH = fileURLToPath(new URL('../../', import.meta.url));
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '.assets');
-const AUTOLOAD_PATH = path.join(BASE_PATH, '.autoload');
+const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
