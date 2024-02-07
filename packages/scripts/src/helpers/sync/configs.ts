@@ -9,7 +9,11 @@ export async function generateTSConfig(
 ): Promise<void> {
     const rootInfo = getRootInfo();
     const references = pkgInfos
-        .filter((pkgInfo) => fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json')))
+        .filter((pkgInfo) => {
+            const hasTsconfig = fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'));
+            // e2e is not part of teraslice but a testing framework compiled when ran
+            return hasTsconfig && pkgInfo.name !== 'e2e';
+        })
         .map((pkgInfo) => ({
             path: pkgInfo.relativeDir.replace(/^\.\//, '')
         }));
