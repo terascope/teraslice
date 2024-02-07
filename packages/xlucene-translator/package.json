@@ -30,7 +30,7 @@
     "dependencies": {
         "@terascope/types": "^0.12.2",
         "@terascope/utils": "^0.53.1",
-        "@types/elasticsearch": "^5.0.40",
+        "@types/elasticsearch": "^5.0.43",
         "xlucene-parser": "^0.52.1"
     },
     "devDependencies": {
