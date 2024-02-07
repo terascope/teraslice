@@ -3,6 +3,7 @@
     "displayName": "Teraslice",
     "version": "0.93.0",
     "private": true,
+    "type": "module",
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
