@@ -36,6 +36,8 @@ async function dockerUp() {
         'force-recreate': ''
     });
     signale.success('Docker environment is good to go', getElapsed(startTime));
+    const e2eNodeVersion = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
+    signale.info('teraslice node version: ', e2eNodeVersion);
 }
 
 function getElapsed(time) {
