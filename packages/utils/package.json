@@ -60,15 +60,15 @@
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.21",
-        "mnemonist": "^0.39.5",
+        "mnemonist": "^0.39.8",
         "p-map": "^4.0.0",
         "shallow-clone": "^3.0.1",
         "validator": "^13.11.0"
     },
     "devDependencies": {
-        "@types/debug": "^4.1.8",
+        "@types/debug": "^4.1.12",
         "@types/is-plain-object": "^2.0.4",
-        "@types/js-string-escape": "^1.0.1",
+        "@types/js-string-escape": "^1.0.3",
         "benchmark": "^2.1.4"
     },
     "engines": {

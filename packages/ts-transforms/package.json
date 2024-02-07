@@ -48,11 +48,11 @@
         "yargs": "^17.7.2"
     },
     "devDependencies": {
-        "@types/graphlib": "^2.1.7",
-        "@types/jexl": "^2.3.1",
-        "@types/valid-url": "^1.0.4",
-        "@types/validator": "^13.11.7",
-        "@types/yargs": "^17.0.24",
+        "@types/graphlib": "^2.1.12",
+        "@types/jexl": "^2.3.4",
+        "@types/valid-url": "^1.0.7",
+        "@types/validator": "^13.11.9",
+        "@types/yargs": "^17.0.32",
         "execa": "^5.1.0"
     },
     "engines": {

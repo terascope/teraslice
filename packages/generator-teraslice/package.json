@@ -31,7 +31,7 @@
         "yosay": "^2.0.1"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.195"
+        "@types/lodash": "^4.14.202"
     },
     "engines": {
         "node": ">=14.17.0",

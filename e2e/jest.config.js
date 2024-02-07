@@ -35,11 +35,12 @@ config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
         },
         target: 'es2022'
     },
-    module: {
-        type: "es6",
-        strictMode: false,
-        noInterop: false
-    }
+    // module: {
+    //     type: "es6",
+    //     strictMode: false,
+    //     noInterop: false,
+    //     ignoreDynamic: true
+    // }
 }];
 
 export default config;
