@@ -172,9 +172,9 @@ if (testElasticsearch) {
 
 export const SEARCH_TEST_HOST = testHost;
 
+export const defaultNodeVersion = '18.18.2';
 // This overrides the value in the Dockerfile
-// keep default in sync with NODE_VERSION in Dockerfile and e2e/test/config.js
-export const NODE_VERSION = process.env.NODE_VERSION || '18.18.2';
+export const NODE_VERSION = process.env.NODE_VERSION || defaultNodeVersion;
 
 export const {
     TEST_PLATFORM = 'native',

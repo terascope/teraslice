@@ -3,6 +3,7 @@
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { customAlphabet } = require('nanoid');
 const path = require('path');
+const defaultNodeVersion = require('../../packages/scripts/src/helpers/config.ts');
 
 const {
     TEST_INDEX_PREFIX,
@@ -36,7 +37,7 @@ const {
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
     TEST_PLATFORM = 'native',
-    NODE_VERSION = '18.18.2' // keep in sync with NODE_VERSION in packages/scripts/src/helpers/config.ts
+    NODE_VERSION = defaultNodeVersion
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
