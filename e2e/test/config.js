@@ -3,6 +3,7 @@
 const { ElasticsearchTestHelpers } = require('elasticsearch-store');
 const { customAlphabet } = require('nanoid');
 const path = require('path');
+const defaultNodeVersion = require('../../packages/scripts/src/helpers/config.ts');
 
 const {
     TEST_INDEX_PREFIX,
@@ -35,7 +36,8 @@ const {
     HOST_IP = '127.0.0.1',
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
-    TEST_PLATFORM = 'native'
+    TEST_PLATFORM = 'native',
+    NODE_VERSION = defaultNodeVersion
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -82,5 +84,6 @@ module.exports = {
     newId,
     TEST_HOST,
     TEST_PLATFORM,
-    TERASLICE_PORT
+    TERASLICE_PORT,
+    NODE_VERSION
 };

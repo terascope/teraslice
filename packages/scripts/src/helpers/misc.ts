@@ -129,7 +129,7 @@ export function getServicesForSuite(suite: string): Service[] {
 }
 
 export function getDevDockerImage(nodeVersion?: string): string {
-    if (DEV_DOCKER_IMAGE) return DEV_DOCKER_IMAGE; // an override so shouldn't change
+    if (DEV_DOCKER_IMAGE) return `${DEV_DOCKER_IMAGE}-nodev${nodeVersion}`;
 
     const rootInfo = getRootInfo();
     const [registry] = rootInfo.terascope.docker.registries;

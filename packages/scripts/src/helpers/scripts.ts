@@ -200,11 +200,12 @@ export async function dockerStop(name: string): Promise<void> {
 }
 
 export async function dockerTag(from: string, to: string): Promise<void> {
-    logger.debug(`dockerTag: ${from} -> ${to}`);
+    signale.pending(`Tagging image ${from} as ${to}`);
     await exec({
         cmd: 'docker',
         args: ['tag', from, to],
     });
+    signale.success(`Image ${from} re-tagged as ${to}`);
 }
 
 export async function getContainerInfo(name: string): Promise<any> {
