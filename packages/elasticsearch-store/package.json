@@ -34,7 +34,7 @@
         "@terascope/data-types": "^0.44.0",
         "@terascope/types": "^0.12.1",
         "@terascope/utils": "^0.53.0",
-        "ajv": "^6.12.6",
+        "ajv": "^7.2.4",
         "elasticsearch": "^15.4.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
