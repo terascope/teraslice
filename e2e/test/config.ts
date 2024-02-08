@@ -12,7 +12,17 @@ const {
     OPENSEARCH_VERSION,
 } = ElasticsearchTestHelpers;
 
-const BASE_PATH = fileURLToPath(new URL('../../', import.meta.url));
+const filePath =  fileURLToPath(new URL(import.meta.url));
+/*
+from the execution of the test from how its called internally and externally it deviates
+"some/path/terascope/teraslice/e2e/test/config.ts
+            vs
+"some/path/terascope/teraslice/e2e/dist/test/config.js
+so we search for the e2e part and slice that off to make both work
+*/
+const pathLength = filePath.lastIndexOf('e2e') + 3;
+
+const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '.assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');

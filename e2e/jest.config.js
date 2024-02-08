@@ -21,28 +21,29 @@ config.moduleNameMapper = {
 };
 config.transform = {};
 
-config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
 
-// config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
-//     jsc: {
-//         loose: true,
-//         parser: {
-//             syntax: 'typescript',
-//             tsx: false,
-//             decorators: true
-//         },
-//         transform: {
-//             legacyDecorator: true,
-//             decoratorMetadata: true
-//         },
-//         target: 'es2022'
-//     },
-//     module: {
-//         type: "es6",
-//         strictMode: false,
-//         noInterop: false,
-//         ignoreDynamic: true
-//     }
-// }];
+config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
+    jsc: {
+        loose: true,
+        parser: {
+            syntax: 'typescript',
+            tsx: false,
+            decorators: true
+        },
+        transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+        },
+        target: 'esnext'
+    },
+    module: {
+        type: "es6",
+        strictMode: false,
+        noInterop: false,
+        ignoreDynamic: true
+    }
+}];
+config.transformIgnorePatterns = [];
+config.preset = '';
 
 export default config;
