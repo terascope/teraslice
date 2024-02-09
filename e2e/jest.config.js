@@ -1,3 +1,4 @@
+/* eslint-disable import/no-import-module-exports */
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -20,8 +21,6 @@ config.moduleNameMapper = {
     '^(\\.{1,2}/.*)\\.js$': '$1',
 };
 config.transform = {};
-
-
 config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
     jsc: {
         loose: true,
@@ -37,7 +36,7 @@ config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
         target: 'esnext'
     },
     module: {
-        type: "es6",
+        type: 'es6',
         strictMode: false,
         noInterop: false,
         ignoreDynamic: true

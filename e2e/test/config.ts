@@ -12,7 +12,7 @@ const {
     OPENSEARCH_VERSION,
 } = ElasticsearchTestHelpers;
 
-const filePath =  fileURLToPath(new URL(import.meta.url));
+const filePath = fileURLToPath(new URL(import.meta.url));
 /*
 from the execution of the test from how its called internally and externally it deviates
 "some/path/terascope/teraslice/e2e/test/config.ts
