@@ -1,7 +1,5 @@
-'use strict';
-
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 /**
  * The id reader don't work in 6.x and greater
@@ -12,7 +10,7 @@ const { TEST_PLATFORM } = require('../../config');
  */
 // eslint-disable-next-line jest/no-disabled-tests
 xdescribe('id reader', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -27,6 +25,11 @@ xdescribe('id reader', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.name = 'reindex by id';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
@@ -43,6 +46,11 @@ xdescribe('id reader', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'reindex by hex id';
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].key_type = 'hexadecimal';
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000); // add hex
         jobSpec.operations[1].index = specIndex;
@@ -59,6 +67,11 @@ xdescribe('id reader', () => {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'reindex by hex id (range=a..e)';
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].key_type = 'hexadecimal';
         jobSpec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000); // add hex
@@ -78,6 +91,11 @@ xdescribe('id reader', () => {
         }
         // Job needs to be able to run long enough to cycle
         jobSpec.name = 'id-reader (with recovery)';
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
 

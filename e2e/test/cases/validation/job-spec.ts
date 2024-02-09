@@ -1,10 +1,8 @@
-'use strict';
-
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('job validation', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -18,6 +16,11 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[1].index = ''; // index selector
 
         return terasliceHarness.teraslice
@@ -34,6 +37,11 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = ''; // reader
 
         return terasliceHarness.teraslice
@@ -69,7 +77,9 @@ describe('job validation', () => {
 
         return terasliceHarness.teraslice
             .jobs.submit(jobSpec)
-            .then(() => new Promise(new Error('Submission should not succeed when slicers == -1'))) // This should throw a validation error.
+            .then(() => {
+                throw new Error('Submission should not succeed when slicers == -1');
+            }) // This should throw a validation error.
             .catch((err) => {
                 expect(err.error).toBe(500);
             });
@@ -97,6 +107,7 @@ describe('job validation', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
+        // @ts-expect-error
         jobSpec.lifecycle = 'invalid';
 
         return terasliceHarness.teraslice

@@ -1,12 +1,10 @@
-'use strict';
-
-const fs = require('fs');
-const { cloneDeep, pDelay } = require('@terascope/utils');
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
+import { createReadStream } from 'node:fs';
+import { cloneDeep, pDelay } from '@terascope/utils';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
 describe('cluster api', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -16,7 +14,7 @@ describe('cluster api', () => {
 
     it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
-        const testStream = fs.createReadStream(assetPath);
+        const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
@@ -69,10 +67,15 @@ describe('cluster api', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.05;
         }
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        async function didError(p) {
+        async function didError(p: Promise<void>) {
             try {
                 await p;
                 return false;
@@ -91,9 +94,13 @@ describe('cluster api', () => {
         await pDelay(100);
 
         const result = await Promise.all([
+            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
+            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
+            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_resume`)),
+            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_pause`))
         ]);
 
@@ -136,11 +143,13 @@ describe('cluster api', () => {
     });
 
     it('api end point /txt/assets/assetName should return a text table', async () => {
+        // @ts-expect-error
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1');
         expect(response).toBeString();
     });
 
     it('api end point /txt/assets/assetName/version should return a text table', async () => {
+        // @ts-expect-error
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
     });

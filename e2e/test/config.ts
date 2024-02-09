@@ -1,9 +1,7 @@
-'use strict';
-
-const { ElasticsearchTestHelpers } = require('elasticsearch-store');
-const { customAlphabet } = require('nanoid');
-const path = require('path');
-const defaultNodeVersion = require('../../packages/scripts/src/helpers/config.ts');
+import { ElasticsearchTestHelpers } from 'elasticsearch-store';
+import { customAlphabet } from 'nanoid';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 const {
     TEST_INDEX_PREFIX,
@@ -14,9 +12,21 @@ const {
     OPENSEARCH_VERSION,
 } = ElasticsearchTestHelpers;
 
-const BASE_PATH = path.join(__dirname, '..');
+const filePath = fileURLToPath(new URL(import.meta.url));
+/*
+from the execution of the test from how its called internally and externally it deviates
+"some/path/terascope/teraslice/e2e/test/config.ts
+            vs
+"some/path/terascope/teraslice/e2e/dist/test/config.js
+so we search for the e2e part and slice that off to make both work
+*/
+const pathLength = filePath.lastIndexOf('e2e') + 3;
+
+const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '.assets');
+const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
+const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
 const EXAMPLE_INDEX_SIZES = [100, 1000];
@@ -37,7 +47,8 @@ const {
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
     TEST_PLATFORM = 'native',
-    NODE_VERSION = defaultNodeVersion
+    KEEP_OPEN = false,
+    NODE_VERSION
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -45,7 +56,7 @@ const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
 // TERASLICE_PORT must match e2e/docker-compose.yml
 const TERASLICE_PORT = 45678;
 
-function newId(prefix, lowerCase = false, length = 15) {
+function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
 
     if (!lowerCase) {
@@ -61,7 +72,7 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
-module.exports = {
+export {
     EXAMPLE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
@@ -78,6 +89,8 @@ module.exports = {
     BASE_PATH,
     CONFIG_PATH,
     ASSETS_PATH,
+    LOG_PATH,
+    AUTOLOAD_PATH,
     OPENSEARCH_HOST,
     OPENSEARCH_VERSION,
     GENERATE_ONLY,
@@ -85,5 +98,6 @@ module.exports = {
     TEST_HOST,
     TEST_PLATFORM,
     TERASLICE_PORT,
+    KEEP_OPEN,
     NODE_VERSION
 };

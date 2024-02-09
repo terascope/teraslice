@@ -1,9 +1,12 @@
-'use strict';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { TEST_PLATFORM } from '../../config.js';
 
-const TerasliceHarness = require('../../teraslice-harness');
-const { TEST_PLATFORM } = require('../../config');
-
-async function workersTest(harness, workers, workersExpected, records) {
+async function workersTest(
+    harness: TerasliceHarness,
+    workers: number,
+    workersExpected: number,
+    records: number
+) {
     const jobSpec = harness.newJob('reindex');
     const specIndex = harness.newSpecIndex('worker-allocation');
     // Set resource constraints on workers within CI
@@ -11,6 +14,11 @@ async function workersTest(harness, workers, workersExpected, records) {
         jobSpec.resources_requests_cpu = 0.1;
     }
     jobSpec.name = 'worker allocation';
+
+    if (!jobSpec.operations) {
+        jobSpec.operations = [];
+    }
+
     jobSpec.operations[0].index = harness.getExampleIndex(records);
     jobSpec.operations[0].size = 100;
     jobSpec.operations[1].index = specIndex;
@@ -32,7 +40,7 @@ async function workersTest(harness, workers, workersExpected, records) {
 }
 
 describe('worker allocation', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();

@@ -18,9 +18,8 @@ import {
 } from '../scripts';
 import { Kind } from '../kind';
 import {
-    getArgs, filterBySuite, globalTeardown,
-    reportCoverage, logE2E, getEnv,
-    groupBySuite
+    getArgs, filterBySuite, reportCoverage,
+    logE2E, getEnv, groupBySuite
 } from './utils';
 import signale from '../signale';
 import {
@@ -163,18 +162,8 @@ async function runTestSuite(
             tracker.ended += pkgs.length;
             tracker.addError(err.message);
 
-            const teardownPkgs = pkgs.map((pkg) => ({
-                name: pkg.name,
-                dir: pkg.dir,
-                suite: pkg.terascope.testSuite
-            }));
-
             const cleanupKey = `${suite}:teardown:${pkgs.map((pkg) => pkg.folderName).join(',')}`;
             cleanupKeys.push(cleanupKey);
-            tracker.addCleanup(cleanupKey, async () => {
-                options.keepOpen = false;
-                await globalTeardown(options, teardownPkgs);
-            });
 
             if (options.bail || isCI) {
                 signale.error('Bailing out of tests due to error');
@@ -316,17 +305,6 @@ async function runE2ETest(
                 })
             );
         }
-    }
-
-    if (tracker.hasErrors()) {
-        tracker.addCleanup('e2e:teardown', async () => {
-            options.keepOpen = false;
-            await globalTeardown(options, [{
-                name: suite,
-                dir: e2eDir,
-                suite,
-            }]);
-        });
     }
 
     if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {

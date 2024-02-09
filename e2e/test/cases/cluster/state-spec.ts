@@ -1,12 +1,10 @@
-'use strict';
-
-const { pDelay, flatten } = require('@terascope/utils');
-const signale = require('../../signale');
-const TerasliceHarness = require('../../teraslice-harness');
-const { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } = require('../../config');
+import { pDelay, flatten } from '@terascope/utils';
+import signale from '../../signale.js';
+import { TerasliceHarness } from '../../teraslice-harness.js';
+import { WORKERS_PER_NODE, DEFAULT_NODES, TEST_PLATFORM } from '../../config.js';
 
 describe('cluster state', () => {
-    let terasliceHarness;
+    let terasliceHarness: TerasliceHarness;
 
     beforeAll(async () => {
         terasliceHarness = new TerasliceHarness();
@@ -14,7 +12,7 @@ describe('cluster state', () => {
         await terasliceHarness.resetState();
     });
 
-    function findWorkers(nodes, type, exId) {
+    function findWorkers(nodes: any[], type?: string, exId?: string) {
         return nodes.filter((worker) => {
             if (exId) {
                 if (type) {
@@ -28,17 +26,17 @@ describe('cluster state', () => {
         });
     }
 
-    function checkState(state, type, exId) {
+    function checkState(state: any[], type?: string, exId?: string) {
         const nodes = Object.values(state);
         return flatten(nodes.map((node) => findWorkers(node.active, type, exId))).length;
     }
 
-    function verifyClusterMaster(state) {
+    function verifyClusterMaster(state: any) {
         // verify that the cluster master worker exists within the state
-        const nodes = Object.values(state).filter((node) => {
+        const nodes = Object.values(state).filter((node:any) => {
             const cms = findWorkers(node.active, 'cluster_master');
             return cms.length > 0;
-        });
+        }) as any;
 
         expect(nodes).toBeArrayOfSize(1);
 
@@ -55,10 +53,10 @@ describe('cluster state', () => {
         expect(amWorkers[0].assignment).toEqual('assets_service');
     }
 
-    function verifyClusterState(state, workersAdded = 0) {
+    function verifyClusterState(state: any[], workersAdded = 0) {
         expect(Object.values(state)).toBeArrayOfSize(DEFAULT_NODES + workersAdded);
 
-        // verify each node
+        // verify each node TODO: fix types here
         Object.values(state).forEach((node) => {
             expect(node.total).toBe(WORKERS_PER_NODE);
             expect(node.node_id).toBeDefined();
@@ -82,12 +80,14 @@ describe('cluster state', () => {
     }
 
     it('should match default configuration', async () => {
-        const state = await terasliceHarness.teraslice.cluster.state();
+        const state = await terasliceHarness.teraslice.cluster.state() as any;
         verifyClusterState(state);
     });
 
     it('should update after adding and removing a worker node', async () => {
+        // @ts-expect-error
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait(1), 1);
+        // @ts-expect-error
         verifyClusterState(await terasliceHarness.scaleWorkersAndWait());
     });
 
@@ -101,6 +101,11 @@ describe('cluster state', () => {
         }
         jobSpec.name = 'cluster state with 1 worker';
         jobSpec.workers = 1;
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
@@ -114,7 +119,7 @@ describe('cluster state', () => {
 
         const complete = terasliceHarness.waitForExStatus(ex, 'completed');
 
-        const nodes = Object.keys(state);
+        const nodes = Object.keys(state) as any[];
 
         nodes.forEach((node) => {
             expect(state[node].total).toBe(WORKERS_PER_NODE);
@@ -126,6 +131,7 @@ describe('cluster state', () => {
             if (state[node].active.length > 2) {
                 expect(findWorkers(state[node].active, 'worker', exId)).toBeArrayOfSize(1);
             }
+            // @ts-expect-error
             expect(checkState(state, null, exId)).toBe(2);
         });
 
@@ -144,6 +150,11 @@ describe('cluster state', () => {
         }
         jobSpec.name = 'cluster state with 4 workers';
         jobSpec.workers = 4;
+
+        if (!jobSpec.operations) {
+            jobSpec.operations = [];
+        }
+
         jobSpec.operations[0].index = terasliceHarness.getExampleIndex(1000);
         jobSpec.operations[0].size = 20;
         jobSpec.operations[1].index = specIndex;
@@ -164,7 +175,7 @@ describe('cluster state', () => {
 
             // Both nodes should have at least one worker.
             expect(findWorkers(state[node].active, 'worker', exId).length).toBeGreaterThan(0);
-
+            // @ts-expect-error
             expect(checkState(state, null, exId)).toBe(5);
         });
 
