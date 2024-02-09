@@ -47,7 +47,8 @@ const {
     GENERATE_ONLY,
     TEST_OPENSEARCH = false,
     TEST_PLATFORM = 'native',
-    KEEP_OPEN = false
+    KEEP_OPEN = false,
+    NODE_VERSION
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -97,5 +98,6 @@ export {
     TEST_HOST,
     TEST_PLATFORM,
     TERASLICE_PORT,
-    KEEP_OPEN
+    KEEP_OPEN,
+    NODE_VERSION
 };

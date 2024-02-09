@@ -1,6 +1,7 @@
 import { Compose } from '@terascope/docker-compose-js';
 import ms from 'ms';
-import { DEFAULT_WORKERS } from './config.js';
+import semver from 'semver';
+import { DEFAULT_WORKERS, NODE_VERSION } from './config.js';
 import signale from './signale.js';
 
 const compose = new Compose('docker-compose.yml');
@@ -34,6 +35,17 @@ export async function dockerUp() {
         'force-recreate': ''
     });
     signale.success('Docker environment is good to go', getElapsed(startTime));
+
+    let e2eNodeVersion = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
+    signale.info('Teraslice node version: ', e2eNodeVersion);
+    const parsedVersion = semver.parse(e2eNodeVersion);
+    if (parsedVersion?.version) {
+        e2eNodeVersion = parsedVersion.version;
+    }
+    if (e2eNodeVersion !== NODE_VERSION) {
+        signale.error(`Expected node version(${NODE_VERSION}) does not match teraslice node version(${e2eNodeVersion})`);
+        process.exit(1);
+    }
 }
 
 export function getElapsed(time: number) {

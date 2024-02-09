@@ -153,9 +153,7 @@ async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
     }
 
     try {
-        signale.pending(`Tagging image ${runImage} as ${e2eImage}`);
         await dockerTag(runImage, e2eImage);
-        signale.success(`Image ${runImage} re-tagged as ${e2eImage}`);
     } catch (err) {
         throw new Error(`Failed to tag docker image ${runImage} as ${e2eImage}: ${err}`);
     }
