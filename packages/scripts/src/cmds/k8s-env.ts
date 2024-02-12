@@ -2,7 +2,7 @@ import { CommandModule } from 'yargs';
 import * as config from '../helpers/config';
 import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env';
 import { kafkaVersionMapper } from '../helpers/mapper';
-import { k8sEnvOptions } from '../helpers/k8s-env/interfaces';
+import { K8sEnvOptions } from '../helpers/k8s-env/interfaces';
 
 const cmd: CommandModule = {
     command: 'k8s-env',
@@ -64,8 +64,8 @@ const cmd: CommandModule = {
             })
             .option('ts-port', {
                 description: 'Port where teraslice api will be exposed.',
-                type: 'number',
-                default: 5678
+                type: 'string',
+                default: '5678'
             })
             .option('cluster-name', {
                 description: 'Name of the kind kubernetes cluster.',
@@ -85,7 +85,7 @@ const cmd: CommandModule = {
     },
     handler(argv) {
         const kafkaCPVersion = kafkaVersionMapper(argv.kafkaVersion as string);
-        const k8sOptions: k8sEnvOptions = {
+        const k8sOptions: K8sEnvOptions = {
             elasticsearchVersion: argv.elasticsearchVersion as string,
             kafkaVersion: argv.kafkaVersion as string,
             kafkaImageVersion: kafkaCPVersion,
@@ -95,8 +95,8 @@ const cmd: CommandModule = {
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
             skipBuild: Boolean(argv['skip-build']),
-            tsPort: argv['ts-port'] as number,
-            clusterName: argv['cluster-name'] as string,
+            tsPort: argv['ts-port'] as string,
+            kindClusterName: argv['cluster-name'] as string,
             k8sVersion: argv['k8s-version'] as string,
             terasliceImage: argv['teraslice-image'] as string
         };

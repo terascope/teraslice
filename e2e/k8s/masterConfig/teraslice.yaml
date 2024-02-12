@@ -23,7 +23,7 @@ teraslice:
     cluster_manager_type: "kubernetes"
     master: true
     master_hostname: "127.0.0.1"
-    kubernetes_image: "teraslice-workspace:e2e"
+    kubernetes_image: "teraslice-workspace:e2e-nodev18.18.2"
     kubernetes_image_pull_secrets:
         - "docker-tera1-secret"
     kubernetes_namespace: "ts-dev1"

@@ -12,6 +12,7 @@ export const FORCE_COLOR = toBoolean(forceColor)
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
+export const TERASLICE_PORT = '45678';
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
 export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 'true');

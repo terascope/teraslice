@@ -23,7 +23,7 @@ export type TestOptions = {
     jestArgs?: string[];
     ignoreMount: boolean;
     testPlatform: string;
-    clusterName?: string;
+    kindClusterName: string;
     k8sVersion?: string;
 };
 

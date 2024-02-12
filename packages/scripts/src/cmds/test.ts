@@ -172,7 +172,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
-        const clusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : undefined;
+        const kindClusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : 'default';
         const k8sVersion = hoistJestArg(argv, 'k8s-version', 'string');
 
         if (debug && watch) {
@@ -202,7 +202,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             jestArgs,
             ignoreMount,
             testPlatform,
-            clusterName,
+            kindClusterName,
             k8sVersion,
         });
     },

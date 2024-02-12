@@ -48,13 +48,12 @@ const {
     TEST_OPENSEARCH = false,
     TEST_PLATFORM = 'native',
     KEEP_OPEN = false,
-    NODE_VERSION
+    NODE_VERSION,
+    KIND_CLUSTER = 'k8s-e2e',
+    TERASLICE_PORT = '45678'
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
-
-// TERASLICE_PORT must match e2e/docker-compose.yml
-const TERASLICE_PORT = 45678;
 
 function newId(prefix?: string, lowerCase = false, length = 15) {
     let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -99,5 +98,6 @@ export {
     TEST_PLATFORM,
     TERASLICE_PORT,
     KEEP_OPEN,
-    NODE_VERSION
+    NODE_VERSION,
+    KIND_CLUSTER
 };
