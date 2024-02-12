@@ -4,6 +4,7 @@ import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'path';
 import * as ts from '@terascope/utils';
+import { Kafka } from 'kafkajs';
 import { getServicesForSuite, getRootDir } from '../misc';
 import {
     dockerRun,
@@ -11,10 +12,10 @@ import {
     getContainerInfo,
     dockerStop,
     dockerPull,
-    kindLoadServiceImage,
     k8sStartService,
     k8sStopService
 } from '../scripts';
+import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
 import * as config from '../config';
@@ -710,8 +711,45 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
 }
 
 async function checkKafka(options: TestOptions, startTime: number) {
+    const host = config.KAFKA_HOSTNAME;
+    const kafkaBroker = config.KAFKA_BROKER;
+    const retryCount = 5;
+    const retryTime = 10000;
+    const totalTime = retryCount * retryTime;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.KAFKA_HOSTNAME)) return;
+
+    if (options.trace) {
+        signale.debug(`checking kafka at ${host}`);
+    } else {
+        logger.debug(`checking kafka at ${host}`);
+    }
+
+    const kafka = new Kafka({
+        clientId: 'tera-test',
+        brokers: [kafkaBroker],
+        logLevel: 0,
+        retry: {
+            initialRetryTime: retryTime,
+            maxRetryTime: retryTime,
+            factor: 0,
+            retries: retryCount
+        }
+    });
+    const producer = kafka.producer();
     const took = ts.toHumanTime(Date.now() - startTime);
-    signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
+    try {
+        await producer.connect();
+    } catch (err) {
+        if (err.message.includes('ENOTFOUND') && err.message.includes(config.KAFKA_BROKER)) {
+            throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
+        } else if (err.message.includes('ECONNREFUSED') && err.message.includes(config.KAFKA_BROKER)) {
+            throw new Error(`Unable to connect to kafka broker after ${totalTime}ms at ${kafkaBroker}`);
+        }
+        throw new Error(err.message);
+    }
+    signale.success(`kafka@${options.kafkaVersion} is running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
 async function checkZookeeper(options: TestOptions, startTime: number) {
@@ -743,9 +781,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
 
     if (options.testPlatform === 'kubernetes') {
+        const kind = new Kind(options.k8sVersion, options.clusterName);
+        await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);
-        await kindLoadServiceImage(service, services[service].image, version);
-        await k8sStartService(service, services[service].image, version);
+        await k8sStartService(service, services[service].image, version, kind);
         return () => { };
     }
 

@@ -2,9 +2,9 @@
 import { Context, WorkerExecutionContext } from '@terascope/job-components';
 import { pMap, Logger } from '@terascope/utils';
 import { Slice, SliceAnalyticsData } from '@terascope/types';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
+import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to

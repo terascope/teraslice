@@ -4,7 +4,7 @@ import random from 'lodash/random';
 import BufferStreams from 'bufferstreams';
 // @ts-expect-error
 import archiver from 'archiver';
-import { newId } from '../../../src/lib/utils/id_utils';
+import { newId } from '../../../src/lib/utils/id_utils.js';
 
 export function zipDirectory(dir: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {

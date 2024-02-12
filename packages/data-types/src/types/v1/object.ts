@@ -4,8 +4,9 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class ObjectType extends BaseType {
     toESMapping(): TypeESMapping {
-        const type = this.config.array ? 'nested' : 'object';
+        this._validateESMapping();
 
+        const type = this.config.array ? 'nested' : 'object';
         const typeConfig: ESTypeMapping = { type };
 
         if (this.config.indexed === false) {

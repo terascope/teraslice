@@ -1,9 +1,8 @@
 import path from 'path';
 import fse from 'fs-extra';
 import {
-    debugLogger, get, TSError,
-    isFunction, flatten, isCI,
-    toString
+    debugLogger, get, flatten,
+    isCI, toString
 } from '@terascope/utils';
 import {
     ArgsMap, ExecEnv, exec,
@@ -67,7 +66,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         NODE_ENV: 'test',
         FORCE_COLOR: config.FORCE_COLOR,
         TEST_NAMESPACE: config.TEST_NAMESPACE,
-        TZ: 'utc'
+        TZ: 'utc',
+        NODE_VERSION: options.nodeVersion
     };
 
     if (config.DOCKER_NETWORK_NAME) {
@@ -248,44 +248,6 @@ export function groupBySuite(
     }
 
     return groups;
-}
-
-function _getTeardownFile(dir: string): string|undefined {
-    let filePath = path.join(dir, 'test/global.teardown.js');
-    if (fse.existsSync(filePath)) return filePath;
-    filePath = path.join(dir, 'dist/test/global.teardown.js');
-    if (fse.existsSync(filePath)) return filePath;
-    filePath = path.join(dir, 'dist/global.teardown.js');
-    if (fse.existsSync(filePath)) return filePath;
-    return undefined;
-}
-
-type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
-export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg): Promise<void> {
-    for (const { name, dir, suite } of pkgs) {
-        const filePath = _getTeardownFile(dir);
-        if (filePath) {
-            const cwd = process.cwd();
-            setEnv(options, suite);
-            signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
-            process.chdir(dir);
-
-            try {
-                const teardownFn = require(filePath);
-                if (isFunction(teardownFn)) {
-                    await teardownFn();
-                }
-            } catch (err) {
-                signale.error(
-                    new TSError(err, {
-                        reason: `Failed to teardown test for "${name}"`,
-                    })
-                );
-            } finally {
-                process.chdir(cwd);
-            }
-        }
-    }
 }
 
 async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {

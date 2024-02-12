@@ -2,8 +2,8 @@ import {
     makeExecutionContext as makeEx, Context, ExecutionConfig,
     ExecutionContextConfig
 } from '@terascope/job-components';
-import { terasliceOpPath } from '../../config';
-import { spawnAssetLoader } from '../assets/spawn';
+import { terasliceOpPath } from '../../config/index.js';
+import { spawnAssetLoader } from '../assets/spawn.js';
 
 export async function makeExecutionContext(
     context: Context,

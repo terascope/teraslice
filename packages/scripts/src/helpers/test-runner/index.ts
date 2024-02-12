@@ -10,19 +10,16 @@ import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
-    createKindCluster,
     runJest,
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
     createNamespace,
-    kindLoadTerasliceImage,
-    destroyKindCluster,
 } from '../scripts';
+import { Kind } from '../kind';
 import {
-    getArgs, filterBySuite, globalTeardown,
-    reportCoverage, logE2E, getEnv,
-    groupBySuite
+    getArgs, filterBySuite, reportCoverage,
+    logE2E, getEnv, groupBySuite
 } from './utils';
 import signale from '../signale';
 import {
@@ -165,18 +162,8 @@ async function runTestSuite(
             tracker.ended += pkgs.length;
             tracker.addError(err.message);
 
-            const teardownPkgs = pkgs.map((pkg) => ({
-                name: pkg.name,
-                dir: pkg.dir,
-                suite: pkg.terascope.testSuite
-            }));
-
             const cleanupKey = `${suite}:teardown:${pkgs.map((pkg) => pkg.folderName).join(',')}`;
             cleanupKeys.push(cleanupKey);
-            tracker.addCleanup(cleanupKey, async () => {
-                options.keepOpen = false;
-                await globalTeardown(options, teardownPkgs);
-            });
 
             if (options.bail || isCI) {
                 signale.error('Bailing out of tests due to error');
@@ -203,6 +190,7 @@ async function runE2ETest(
 
     const suite = 'e2e';
     let startedTest = false;
+    let kind;
 
     const e2eDir = getE2EDir();
     if (!e2eDir) {
@@ -223,7 +211,14 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            await createKindCluster();
+            kind = new Kind(options.k8sVersion, options.clusterName);
+            try {
+                await kind.createCluster();
+            } catch (err) {
+                signale.error(err);
+                await kind.destroyCluster();
+                process.exit(1);
+            }
             await createNamespace('services-ns.yaml');
         } catch (err) {
             tracker.addError(err);
@@ -240,11 +235,12 @@ async function runE2ETest(
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = `${getDevDockerImage()}-nodev${options.nodeVersion}`;
+            const devImage = getDevDockerImage(options.nodeVersion);
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
                 dryRun: true,
+                nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
                 type: PublishType.Dev
             };
@@ -255,9 +251,9 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' && kind) {
         try {
-            await kindLoadTerasliceImage(e2eImage);
+            await kind.loadTerasliceImage(e2eImage);
         } catch (err) {
             tracker.addError(err);
         }
@@ -311,19 +307,8 @@ async function runE2ETest(
         }
     }
 
-    if (tracker.hasErrors()) {
-        tracker.addCleanup('e2e:teardown', async () => {
-            options.keepOpen = false;
-            await globalTeardown(options, [{
-                name: suite,
-                dir: e2eDir,
-                suite,
-            }]);
-        });
-    }
-
-    if (options.testPlatform === 'kubernetes' && !options.keepOpen) {
-        await destroyKindCluster();
+    if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {
+        await kind.destroyCluster();
     }
 }
 

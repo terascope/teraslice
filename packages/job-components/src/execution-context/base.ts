@@ -55,7 +55,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         this.exId = executionConfig.ex_id;
         this.jobId = executionConfig.job_id;
 
-        this.logger = this.api.makeLogger(loggerName);
+        this.logger = this.api.makeLogger(loggerName, { level: executionConfig.log_level });
     }
 
     /**

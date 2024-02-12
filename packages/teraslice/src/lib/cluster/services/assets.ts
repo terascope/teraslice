@@ -4,13 +4,13 @@ import {
     toBoolean, Logger
 } from '@terascope/utils';
 import type { Context } from '@terascope/job-components';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { AssetsStorage } from '../../storage';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { AssetsStorage } from '../../storage/index.js';
 import {
     makeTable, handleTerasliceRequest, getSearchOptions,
     sendError,
-} from '../../utils/api_utils';
-import { TerasliceRequest, TerasliceResponse } from '../../../interfaces';
+} from '../../utils/api_utils.js';
+import { TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 
 export class AssetsService {
     context: Context;

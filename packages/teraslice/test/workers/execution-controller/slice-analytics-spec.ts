@@ -1,5 +1,5 @@
 import events from 'node:events';
-import { SliceAnalytics } from '../../../src/lib/workers/execution-controller/slice-analytics';
+import { SliceAnalytics } from '../../../src/lib/workers/execution-controller/slice-analytics.js';
 
 const eventEmitter = new events.EventEmitter();
 

@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig",
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "outDir": "dist",
+        "rootDir": "."
+    },
+    "include": [
+        "test",
+        "./test/fixtures/jobs/**.json",
+        "./test/fixtures/assets/**.zip"
+    ]
+}

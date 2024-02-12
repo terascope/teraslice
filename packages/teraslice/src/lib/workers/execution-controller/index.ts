@@ -10,13 +10,13 @@ import {
     pWhile, makeISODate, Logger
 } from '@terascope/utils';
 import { Context, SlicerExecutionContext, Slice } from '@terascope/job-components';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import { StateStorage, ExecutionStorage, SliceState } from '../../storage';
-import { makeLogger, generateWorkerId } from '../helpers/terafoundation';
-import { ExecutionAnalytics } from './execution-analytics';
-import { SliceAnalytics } from './slice-analytics';
-import { Scheduler } from './scheduler';
-import { Metrics } from '../metrics';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { StateStorage, ExecutionStorage, SliceState } from '../../storage/index.js';
+import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
+import { ExecutionAnalytics } from './execution-analytics.js';
+import { SliceAnalytics } from './slice-analytics.js';
+import { Scheduler } from './scheduler.js';
+import { Metrics } from '../metrics/index.js';
 
 export class ExecutionController {
     readonly context: Context;
@@ -61,6 +61,11 @@ export class ExecutionController {
 
     constructor(context: Context, executionContext: SlicerExecutionContext) {
         const workerId = generateWorkerId(context);
+        // Use the bunyan logger.level() function to set the log level of context.logger equal
+        // to the log level of executionContext.logger.
+        // If a log_level was given in the job config, it will have overwritten the default
+        // log_level in the execution context.
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;

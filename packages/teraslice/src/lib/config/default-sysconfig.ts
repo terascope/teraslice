@@ -1,14 +1,3 @@
-// TODO: see if I can fix this
-function hasKafkaConnector() {
-    try {
-        // eslint-disable-next-line
-        require('terafoundation_kafka_connector');
-        return true;
-    } catch (err) {
-        return false;
-    }
-}
-
 function getConnectors() {
     const connectors: Record<string, Record<string, any>> = {
         elasticsearch: {
@@ -20,16 +9,13 @@ function getConnectors() {
             default: {
                 node: ['localhost:9200']
             }
-        }
-    };
-
-    if (hasKafkaConnector()) {
-        connectors.kafka = {
+        },
+        kafka: {
             default: {
                 brokers: ['localhost:9092']
             }
-        };
-    }
+        }
+    };
 
     return connectors;
 }

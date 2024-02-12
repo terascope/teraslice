@@ -4,6 +4,7 @@ import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class AnyType extends BaseType {
     toESMapping(): TypeESMapping {
+        this._validateESMapping();
         return {
             mapping: { [this.field]: { enabled: false } }
         };

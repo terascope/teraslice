@@ -6,11 +6,11 @@ import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import type { Context, WorkerExecutionContext } from '@terascope/job-components';
 import type { SliceCompletePayload } from '@terascope/types';
-import { StateStorage, AnalyticsStorage } from '../../storage';
-import { generateWorkerId, makeLogger } from '../helpers/terafoundation';
-import { waitForWorkerShutdown } from '../helpers/worker-shutdown';
-import { Metrics } from '../metrics';
-import { SliceExecution } from './slice';
+import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
+import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
+import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
+import { Metrics } from '../metrics/index.js';
+import { SliceExecution } from './slice.js';
 
 export class Worker {
     stateStorage: StateStorage;
@@ -34,6 +34,11 @@ export class Worker {
 
     constructor(context: Context, executionContext: WorkerExecutionContext) {
         const workerId = generateWorkerId(context);
+        // Use the bunyan logger.level() function to set the log level of context.logger equal
+        // to the log level of executionContext.logger.
+        // If a log_level was given in the job config, it will have overwritten the default
+        // log_level in the execution context.
+        context.logger.level(executionContext.logger.level());
         const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
 

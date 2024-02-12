@@ -4,9 +4,9 @@ import {
     isRetryableError, parseErrorInfo, isTest,
     times, getFullErrorStack, Logger
 } from '@terascope/utils';
-import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils';
-import { makeLogger } from '../workers/helpers/terafoundation';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store';
+import { timeseriesIndex, TimeseriesFormat } from '../utils/date_utils.js';
+import { makeLogger } from '../workers/helpers/terafoundation.js';
+import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
 
 export const SliceState = Object.freeze({
     pending: 'pending',

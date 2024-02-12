@@ -3,10 +3,8 @@ import BaseType from '../base-type';
 import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Domain extends BaseType {
-    toESMapping(): TypeESMapping {
-        if (this.config.indexed === false) {
-            throw new Error(`${this.constructor.name} is required to be indexed`);
-        }
+    override toESMapping(): TypeESMapping {
+        this._validateESMapping();
         return {
             mapping: {
                 [this.field]: {

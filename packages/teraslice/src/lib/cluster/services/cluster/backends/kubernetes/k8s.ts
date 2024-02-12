@@ -2,18 +2,20 @@ import {
     TSError, get, isEmpty,
     pDelay, pRetry, Logger
 } from '@terascope/utils';
+import KubeClient from 'kubernetes-client';
 // @ts-expect-error
-import { Client, KubeConfig } from 'kubernetes-client';
+import Request from 'kubernetes-client/backends/request/index.js';
+import { getRetryConfig } from './utils.js';
+
 // @ts-expect-error
-import Request from 'kubernetes-client/backends/request';
-import { getRetryConfig } from './utils';
+const { Client, KubeConfig } = KubeClient;
 
 export class K8s {
     logger: Logger;
     apiPollDelay: number;
     defaultNamespace: string;
     shutdownTimeout: number;
-    client: Client;
+    client: any;
 
     constructor(
         logger: Logger,
@@ -359,11 +361,6 @@ export class K8s {
 
     /**
      * Delete all of Kubernetes resources related to the specified exId
-     *
-     * The process deletes the ExecutionController Job first then the Worker
-     * deployment as a transitional measure, for running jobs started by other
-     * versions.
-     *
      * @param  {String}   exId    ID of the execution
      * @param  {Boolean}  force   Forcefully stop all related pod, deployment, and job resources
      * @return {Promise}
@@ -374,18 +371,6 @@ export class K8s {
         }
 
         await this._deleteObjByExId(exId, 'execution_controller', 'jobs', force);
-        // In the future we will remove the following block and just rely on k8s
-        // garbage collection to remove the worker deployment when the execution
-        // controller job is deleted.  We leave this here for the transition
-        // period when users may have teraslice jobs that don't yet have those
-        // relationships.
-        // So you may see warnings from the delete below failing.  They may be
-        // ignored.
-        try {
-            await this._deleteObjByExId(exId, 'worker', 'deployments');
-        } catch (e) {
-            this.logger.warn(`Ignoring the following error when deleting exId ${exId}: ${e}`);
-        }
     }
 
     /**
@@ -428,6 +413,7 @@ export class K8s {
 
         const deletePodResponses = [];
         if (forcePodsList?.items) {
+            this.logger.info(`k8s._deleteObjByExId: ${exId} force deleting all pods`);
             for (const pod of forcePodsList.items) {
                 const podName = pod.metadata.name;
 

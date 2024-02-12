@@ -6,19 +6,29 @@ import {
     parseErrorInfo, parseList, logError,
     TSError, startsWith, Logger
 } from '@terascope/utils';
-import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { ExecutionService, JobsService, ClusterServiceType } from '../services';
-import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage';
+import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
+import type { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 import {
     makePrometheus, isPrometheusTerasliceRequest, makeTable,
     sendError, handleTerasliceRequest, getSearchOptions,
-} from '../../utils/api_utils';
-import { getPackageJSON } from '../../utils/file_utils';
+} from '../../utils/api_utils.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
 
 let gotESMModule: any;
+
+async function getGotESM() {
+    if (gotESMModule) return gotESMModule;
+    // temporary hack as typescript will compile this to a require statement
+    // until we export esm modules, revert this back when we get there
+    // @ts-expect-error
+    const module = await import('gotESM');
+    gotESMModule = module.default;
+    return module.default;
+}
 
 function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -27,15 +37,6 @@ function validateCleanupType(cleanupType: RecoveryCleanupType) {
             statusCode: 400
         });
     }
-}
-
-async function getGotESM() {
-    if (gotESMModule) return gotESMModule;
-    // temporary hack as typescript will compile this to a require statement
-    // until we export esm modules, revert this back when we get there
-    const module = await eval("import('gotESM')"); // eslint-disable-line
-    gotESMModule = module.default;
-    return module.default;
 }
 
 export class ApiService {
@@ -349,7 +350,15 @@ export class ApiService {
                 const exId = await this._getExIdFromRequest(req as TerasliceRequest);
                 await executionService
                     .stopExecution(exId, { timeout, force });
-                return this._waitForStop(exId, blocking);
+                const statusPromise = this._waitForStop(exId, blocking);
+                if (force) {
+                    const status = await statusPromise;
+                    return {
+                        message: `Force stop complete for exId ${exId}`,
+                        status: status.status
+                    };
+                }
+                return statusPromise;
             });
         });
 

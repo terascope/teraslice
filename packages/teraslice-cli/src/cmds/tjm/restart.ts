@@ -1,8 +1,8 @@
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Config from '../../helpers/config';
-import Jobs from '../../helpers/jobs';
 import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
+import Jobs from '../../helpers/jobs';
 
 const yargsOptions = new YargsOptions();
 
@@ -26,7 +26,6 @@ export = {
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
-
         validateAndUpdateCliConfig(cliConfig);
 
         const jobs = new Jobs(cliConfig);

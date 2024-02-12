@@ -21,8 +21,9 @@ export class K8s {
     terasliceNamespace: string;
     servicesNamespace: string;
     tsPort: number;
+    kindClusterName: string;
 
-    constructor(tsPort: number) {
+    constructor(tsPort: number, kindClusterName: string) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 
@@ -33,6 +34,7 @@ export class K8s {
         this.terasliceNamespace = 'default';
         this.servicesNamespace = 'default';
         this.tsPort = tsPort;
+        this.kindClusterName = kindClusterName;
     }
 
     async createNamespace(yamlFile: string, namespaceCategory: string) {
@@ -98,6 +100,9 @@ export class K8s {
         try {
             /// Creates master deployment for teraslice
             const yamlTSMasterDeployment = this.loadYamlFile('masterDeployment.yaml') as k8sClient.V1Deployment;
+            if (yamlTSMasterDeployment.spec?.template.metadata?.labels) {
+                yamlTSMasterDeployment.spec.template.metadata.labels['app.kubernetes.io/instance'] = this.kindClusterName;
+            }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
             logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);
         } catch (err) {

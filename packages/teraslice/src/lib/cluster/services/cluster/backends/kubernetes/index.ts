@@ -3,12 +3,12 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
-import { makeLogger } from '../../../../../workers/helpers/terafoundation';
-import { K8sResource } from './k8sResource';
-import { gen } from './k8sState';
-import { K8s } from './k8s';
-import { getRetryConfig } from './utils';
-import { StopExecutionOptions } from '../../../interfaces';
+import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
+import { K8sResource } from './k8sResource.js';
+import { gen } from './k8sState.js';
+import { K8s } from './k8s.js';
+import { getRetryConfig } from './utils.js';
+import { StopExecutionOptions } from '../../../interfaces.js';
 
 /*
  Execution Life Cycle for _status
@@ -218,6 +218,24 @@ export class KubernetesClusterBackend {
 
     async shutdown() {
         clearInterval(this.clusterStateInterval);
+    }
+
+    /**
+     * Returns a list of all k8s resources associated with a job ID
+     * @param {string}         jobId   The job ID of the job to list associated resources
+     * @returns {Array<any>}
+     */
+    async listResourcesForJobId(jobId: string) {
+        const resources = [];
+        const resourceTypes = ['pods', 'deployments', 'services', 'jobs'];
+        for (const type of resourceTypes) {
+            const list = await this.k8s.list(`teraslice.terascope.io/jobId=${jobId}`, type);
+            if (list.items.length > 0) {
+                resources.push(list.items);
+            }
+        }
+
+        return resources;
     }
 
     async initialize() {

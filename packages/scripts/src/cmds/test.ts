@@ -28,6 +28,7 @@ type Options = {
     packages?: PackageInfo[];
     'ignore-mount': boolean;
     'test-platform': string;
+    'k8s-version': string | undefined;
 };
 
 const jestArgs = getExtraArgs();
@@ -136,6 +137,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.TEST_PLATFORM,
             })
+            .option('k8s-version', {
+                description: 'Version of kubernetes to use in the kind cluster.',
+                type: 'string',
+                default: config.K8S_VERSION
+            })
             .positional('packages', {
                 description: 'Runs the tests for one or more package and/or an asset, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -166,6 +172,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
         const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
+        const clusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : undefined;
+        const k8sVersion = hoistJestArg(argv, 'k8s-version', 'string');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -193,7 +201,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             reportCoverage,
             jestArgs,
             ignoreMount,
-            testPlatform
+            testPlatform,
+            clusterName,
+            k8sVersion,
         });
     },
 };

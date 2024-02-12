@@ -6,10 +6,10 @@
  *      For best results teraslice with an exact semver match, i.e "0.38.0".
 */
 
-import * as config from './lib/config';
-import * as stores from './lib/storage';
-import { makeTerafoundationContext } from './lib/workers/context/terafoundation-context';
-import { initializeTestExecution } from './lib/workers/helpers/job';
+import * as config from './lib/config/index.js';
+import * as stores from './lib/storage/index.js';
+import { makeTerafoundationContext } from './lib/workers/context/terafoundation-context.js';
+import { initializeTestExecution } from './lib/workers/helpers/job.js';
 
 export {
     initializeTestExecution,

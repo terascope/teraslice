@@ -6,7 +6,7 @@ import type { EventEmitter } from 'node:events';
 import type { Context, ExecutionContext } from '@terascope/job-components';
 import type { ClusterMaster } from '@terascope/teraslice-messaging';
 import { ExecutionAnalytics as EStats, AggregatedExecutionAnalytics } from '@terascope/types';
-import { makeLogger } from '../helpers/terafoundation';
+import { makeLogger } from '../helpers/terafoundation.js';
 
 /**
  * @typedef ExecutionStats

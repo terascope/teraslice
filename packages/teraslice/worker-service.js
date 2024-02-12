@@ -1,14 +1,12 @@
-'use strict';
-
-const {
+import {
     logError, get, isEmpty, isPlainObject
-} = require('@terascope/utils');
-const { shutdownHandler } = require('./dist/src/lib/workers/helpers/worker-shutdown');
-const { safeDecode } = require('./dist/src/lib/utils/encoding_utils');
-const { makeExecutionContext } = require('./dist/src/lib/workers/context/execution-context');
-const { makeTerafoundationContext } = require('./dist/src/lib/workers/context/terafoundation-context');
-const { ExecutionController } = require('./dist/src/lib/workers/execution-controller');
-const { Worker } = require('./dist/src/lib/workers/worker');
+} from '@terascope/utils';
+import { shutdownHandler } from './dist/src/lib/workers/helpers/worker-shutdown.js';
+import { safeDecode } from './dist/src/lib/utils/encoding_utils.js';
+import { makeExecutionContext } from './dist/src/lib/workers/context/execution-context.js';
+import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
+import { ExecutionController } from './dist/src/lib/workers/execution-controller/index.js';
+import { Worker } from './dist/src/lib/workers/worker/index.js';
 
 class Service {
     constructor(context) {

@@ -1758,7 +1758,7 @@ export interface NodesThreadCount {
 
 export interface IndicesStatsIndexStats {
     completion?: CompletionStats
-    docs?: DocStats
+    docs: DocStats
     fielddata?: FielddataStats
     flush?: FlushStats
     get?: GetStats

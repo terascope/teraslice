@@ -128,12 +128,12 @@ export function getServicesForSuite(suite: string): Service[] {
     return services;
 }
 
-export function getDevDockerImage(): string {
-    if (DEV_DOCKER_IMAGE) return DEV_DOCKER_IMAGE;
+export function getDevDockerImage(nodeVersion?: string): string {
+    if (DEV_DOCKER_IMAGE) return `${DEV_DOCKER_IMAGE}-nodev${nodeVersion}`;
 
     const rootInfo = getRootInfo();
     const [registry] = rootInfo.terascope.docker.registries;
-    return `${registry}:dev-${DEV_TAG}`;
+    return `${registry}:dev-${DEV_TAG}-nodev${nodeVersion}`;
 }
 
 export function getName(input: string): string {

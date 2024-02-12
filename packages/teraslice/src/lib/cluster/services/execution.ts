@@ -1,4 +1,4 @@
-import sortBy from 'lodash/sortBy';
+import sortBy from 'lodash/sortBy.js';
 import {
     Queue, TSError, getFullErrorStack,
     logError, get, withoutNil,
@@ -8,14 +8,14 @@ import {
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
 import { ExecutionRecord, JobRecord } from '@terascope/types';
-import type { ExecutionStorage, StateStorage } from '../../storage';
+import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
     ClusterMasterContext, NodeState, ExecutionNodeWorker,
     ControllerStats
-} from '../../../interfaces';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import type { ClusterServiceType } from './cluster';
-import { StopExecutionOptions } from './interfaces';
+} from '../../../interfaces.js';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import type { ClusterServiceType } from './cluster/index.js';
+import { StopExecutionOptions } from './interfaces.js';
 /**
  * New execution result
  * @typedef NewExecutionResult
@@ -264,7 +264,7 @@ export class ExecutionService {
 
         const isTerminal = this.isExecutionTerminal(execution);
 
-        if (this.isNative || !options.force) {
+        if (!options.force) {
             if (isTerminal) {
                 this.logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
                 return;
@@ -280,7 +280,7 @@ export class ExecutionService {
             this.logger.debug(`stopping execution ${exId}...`, withoutNil(options));
             await this.executionStorage.setStatus(exId, 'stopping');
         } else {
-            this.logger.debug(`force stopping execution ${exId}...`, withoutNil(options));
+            this.logger.info(`force stopping execution ${exId}...`, withoutNil(options));
         }
 
         await this.clusterService.stopExecution(exId, options);
@@ -510,5 +510,9 @@ export class ExecutionService {
         } catch (err) {
             this.logger.error(err, 'failure reaping executions');
         }
+    }
+
+    async listResourcesForJobId(jobId: string) {
+        return this.clusterService.listResourcesForJobId(jobId);
     }
 }

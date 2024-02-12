@@ -2,9 +2,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { get, isEmpty, Logger } from '@terascope/utils';
 import type { Context } from '@terascope/job-components';
-import { AssetsStorage } from '../../storage';
-import { makeLogger } from '../helpers/terafoundation';
-import { saveAsset } from '../../utils/file_utils';
+import { AssetsStorage } from '../../storage/index.js';
+import { makeLogger } from '../helpers/terafoundation.js';
+import { saveAsset } from '../../utils/file_utils.js';
 
 export class AssetLoader {
     readonly context: Context;

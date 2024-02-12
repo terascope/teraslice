@@ -1,10 +1,7 @@
 /* eslint-disable no-console */
 import { EventEmitter } from 'node:events';
 import {
-    // TODO: fix this
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pDelay, debugLogger, isTest,
-    Logger
+    debugLogger, isTest, Logger
 } from '@terascope/utils';
 
 const defaultLogger = debugLogger('metrics');
@@ -30,22 +27,24 @@ export class Metrics extends EventEmitter {
         this.eventLoopInterval = isTest ? 100 : 5000;
         this._intervals = [];
         this._typesCollectedAt = {};
+    }
 
+    async initialize() {
         // never cause an unwanted error
         try {
-            this.gcStats = require('gc-stats')();
+            // @ts-expect-error
+            const module = await import('gc-stats');
+            this.gcStats = module.default();
         } catch (err) {
             this.logger.error(err, 'Failure to construct gc-stats');
         }
 
         try {
-            this.eventLoopStats = require('event-loop-stats');
+            this.eventLoopStats = await import('event-loop-stats');
         } catch (err) {
             this.logger.error(err, 'Failure to construct event-loop-stats');
         }
-    }
 
-    async initialize() {
         const gcEnabled = this.gcStats != null;
         const loopEnabled = this.eventLoopStats != null;
 

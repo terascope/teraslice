@@ -1,6 +1,6 @@
-import { NativeClustering } from './backends/native';
-import { KubernetesClusterBackend } from './backends/kubernetes';
-import { ClusterMasterContext } from '../../../../interfaces';
+import { NativeClustering } from './backends/native/index.js';
+import { KubernetesClusterBackend } from './backends/kubernetes/index.js';
+import { ClusterMasterContext } from '../../../../interfaces.js';
 
 export type ClusterServiceType = NativeClustering | KubernetesClusterBackend;
 

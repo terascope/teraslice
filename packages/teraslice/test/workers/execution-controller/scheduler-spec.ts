@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { pDelay } from '@terascope/utils';
-import { TestContext } from '../helpers/test-context';
-import { Scheduler } from '../../../src/lib/workers/execution-controller/scheduler';
+import { TestContext } from '../helpers/test-context.js';
+import { Scheduler } from '../../../src/lib/workers/execution-controller/scheduler.js';
 
 describe('Scheduler', () => {
     const slicers = 3;

@@ -92,7 +92,7 @@ export async function buildDevDockerImage(
     publishOptions: PublishOptions,
     cacheFromPrev?: boolean
 ): Promise<string> {
-    const devImage = `${getDevDockerImage()}-nodev${publishOptions.nodeVersion}`;
+    const devImage = getDevDockerImage(publishOptions.nodeVersion);
     const startTime = Date.now();
     signale.pending(`building docker image ${devImage}`);
 
@@ -106,4 +106,8 @@ export async function buildDevDockerImage(
 
     signale.success(`built docker image ${devImage}, took ${toHumanTime(Date.now() - startTime)}`);
     return devImage;
+}
+
+export function removeNodeSuffixFromTag(tag: string) {
+    return tag.split('-').filter((part) => !part.startsWith('nodev')).join('-');
 }

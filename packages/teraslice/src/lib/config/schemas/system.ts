@@ -4,8 +4,9 @@ import {
     isPlainObject, isString, isArray,
     isInteger
 } from '@terascope/utils';
+import { cpus } from 'node:os';
 
-const workerCount = require('os').cpus().length;
+const workerCount = cpus().length;
 
 /**
  * This schema object is for the Teraslice configuration settings coming from

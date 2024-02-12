@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { EventEmitter } from 'events';
 import { debugLogger } from '@terascope/job-components';
 import Socket from 'socket.io';
-import { nodeMaster } from '../src/lib/cluster/node_master';
+import { nodeMaster } from '../src/lib/cluster/node_master.js';
 
 process.env.assignment = 'node_master';
 
@@ -10,6 +10,25 @@ describe('Node master', () => {
     let eventEmitter: EventEmitter;
 
     const logger = debugLogger('node-master-spec');
+
+    const jobJson = {
+        name: 'Data Generator',
+        lifecycle: 'persistent',
+        workers: 1,
+        assets: ['elasticsearch', 'standard'],
+        operations: [
+            {
+                _op: 'data_generator',
+                size: 5000
+            },
+            {
+                _op: 'elasticsearch_bulk',
+                index: 'example-logs',
+                type: 'events',
+                size: 5000
+            }
+        ]
+    };
 
     const context = {
         sysconfig: {
@@ -33,7 +52,7 @@ describe('Node master', () => {
         },
         cluster: {} as Record<string, any>,
         logger,
-        __test_job: JSON.stringify(require('../../../examples/jobs/data_generator.json')),
+        __test_job: JSON.stringify(jobJson),
         __test_assignment: 'worker'
     };
 

@@ -8,8 +8,8 @@ import type {
 } from '@terascope/job-components';
 import { SliceCompletePayload } from '@terascope/types';
 import type { EventEmitter } from 'node:events';
-import { makeLogger } from '../helpers/terafoundation';
-import type { StateStorage } from '../../storage/state';
+import { makeLogger } from '../helpers/terafoundation.js';
+import type { StateStorage } from '../../storage/state.js';
 
 export class RecoveryModule {
     logger: Logger;

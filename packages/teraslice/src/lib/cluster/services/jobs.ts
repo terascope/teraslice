@@ -1,4 +1,4 @@
-import defaultsDeep from 'lodash/defaultsDeep';
+import defaultsDeep from 'lodash/defaultsDeep.js';
 import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
@@ -9,12 +9,12 @@ import {
     ValidatedJobConfig
 } from '@terascope/job-components';
 import { JobRecord, ExecutionRecord } from '@terascope/types';
-import { ClusterMasterContext } from '../../../interfaces';
-import { makeLogger } from '../../workers/helpers/terafoundation';
-import { spawnAssetLoader } from '../../workers/assets/spawn';
-import { terasliceOpPath } from '../../config';
-import { JobsStorage, ExecutionStorage } from '../../storage';
-import type { ExecutionService } from './execution';
+import { ClusterMasterContext } from '../../../interfaces.js';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
+import { spawnAssetLoader } from '../../workers/assets/spawn.js';
+import { terasliceOpPath } from '../../config/index.js';
+import { JobsStorage, ExecutionStorage } from '../../storage/index.js';
+import type { ExecutionService } from './execution.js';
 
 /**
  * New execution result
@@ -136,6 +136,21 @@ export class JobsService {
             throw new TSError(`Job ${jobId} is currently running, cannot have the same job concurrently running`, {
                 statusCode: 409
             });
+        }
+
+        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+
+        if (currentResources.length > 0) {
+            currentResources = currentResources.flat();
+            const exIdsSet = new Set<string>();
+            for (const resource of currentResources) {
+                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            }
+            const exIdsArr = Array.from(exIdsSet);
+            const exIdsString = exIdsArr.join(', ');
+            throw new TSError(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.
+            To remove orphaned resources:
+                curl -XPOST <teraslice host>/v1/jobs/${jobId}/_stop?force=true`);
         }
 
         const jobSpec = await this.jobsStorage.get(jobId);

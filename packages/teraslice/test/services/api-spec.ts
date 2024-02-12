@@ -2,9 +2,9 @@ import got from 'got';
 import express from 'express';
 import http from 'node:http';
 import { TestContext } from '@terascope/job-components';
-import { findPort } from '../../src/lib/utils/port_utils';
-import { ApiService } from '../../src/lib/cluster/services/api';
-import { getPackageJSON } from '../../src/lib/utils/file_utils';
+import { findPort } from '../../src/lib/utils/port_utils.js';
+import { ApiService } from '../../src/lib/cluster/services/api.js';
+import { getPackageJSON } from '../../src/lib/utils/file_utils.js';
 
 describe('HTTP API', () => {
     const { version } = getPackageJSON();
