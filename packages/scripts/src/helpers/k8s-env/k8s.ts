@@ -106,7 +106,7 @@ export class K8s {
             if (yamlTSMasterDeployment.spec?.template.metadata?.labels) {
                 yamlTSMasterDeployment.spec.template.metadata.labels['app.kubernetes.io/instance'] = this.kindClusterName;
             }
-            if (yamlTSMasterDeployment.spec?.template.spec?.containers[0].image) {
+            if (yamlTSMasterDeployment.spec?.template.spec?.containers[0]) {
                 yamlTSMasterDeployment.spec.template.spec.containers[0].image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
