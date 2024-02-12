@@ -13,8 +13,7 @@ import {
     runJest,
     dockerTag,
     isKindInstalled,
-    isKubectlInstalled,
-    createNamespace,
+    isKubectlInstalled
 } from '../scripts';
 import { Kind } from '../kind';
 import {
@@ -28,7 +27,8 @@ import {
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
-import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E } from '../config';
+import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config';
+import { K8s } from '../k8s-env/k8s';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -211,7 +211,7 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            kind = new Kind(options.k8sVersion, options.clusterName);
+            kind = new Kind(options.k8sVersion, options.kindClusterName);
             try {
                 await kind.createCluster();
             } catch (err) {
@@ -219,14 +219,15 @@ async function runE2ETest(
                 await kind.destroyCluster();
                 process.exit(1);
             }
-            await createNamespace('services-ns.yaml');
+            const k8s = new K8s(TERASLICE_PORT, options.kindClusterName);
+            await k8s.createNamespace('services-ns.yaml', 'services');
         } catch (err) {
             tracker.addError(err);
         }
     }
 
     const rootInfo = getRootInfo();
-    const e2eImage = `${rootInfo.name}:e2e`;
+    const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
     if (isCI && options.testPlatform === 'native') {
         // pull the services first in CI

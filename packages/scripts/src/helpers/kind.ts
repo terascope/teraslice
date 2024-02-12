@@ -6,7 +6,8 @@ import yaml from 'js-yaml';
 import { Logger, debugLogger } from '@terascope/utils';
 import signale from './signale';
 import { getE2eK8sDir } from '../helpers/packages';
-import { kindCluster } from './interfaces';
+import { KindCluster } from './interfaces';
+import { TERASLICE_PORT } from './config';
 
 export class Kind {
     clusterName: string;
@@ -14,14 +15,14 @@ export class Kind {
     kindVersion: string | undefined;
     k8sVersion: string | undefined;
 
-    constructor(k8sVersion: string | undefined, clusterName = 'default') {
+    constructor(k8sVersion: string | undefined, clusterName: string) {
         this.clusterName = clusterName;
         this.logger = debugLogger('ts-scripts:Kind');
         this.kindVersion = undefined;
         this.k8sVersion = k8sVersion;
     }
 
-    async createCluster(teraslicePort = 45678): Promise<void> {
+    async createCluster(teraslicePort = TERASLICE_PORT): Promise<void> {
         this.kindVersion = await this.getKindVersion();
 
         const e2eK8sDir = getE2eK8sDir();
@@ -41,11 +42,11 @@ export class Kind {
             process.exit(1);
         }
 
-        const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as kindCluster;
+        const configFile = yaml.load(fs.readFileSync(configPath, 'utf8')) as KindCluster;
         if (this.k8sVersion) {
             configFile.nodes[0].image = kindToK8sImageMap(this.kindVersion, this.k8sVersion);
         }
-        configFile.nodes[0].extraPortMappings[1].hostPort = teraslicePort;
+        configFile.nodes[0].extraPortMappings[1].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
 
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tempYaml'));

@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: teraslice-master
   labels:
-      app.kubernetes.io/name: teraslice
-      app.kubernetes.io/component: master
+    app.kubernetes.io/name: teraslice
+    app.kubernetes.io/component: master
 spec:
   replicas: 1
   selector:
-      matchLabels:
-          app.kubernetes.io/name: teraslice
-          app.kubernetes.io/component: master
+    matchLabels:
+      app.kubernetes.io/name: teraslice
+      app.kubernetes.io/component: master
   template:
     metadata:
       labels:
@@ -20,11 +20,11 @@ spec:
     spec:
       containers:
       - name: teraslice-master
-        image: teraslice-workspace:e2e
+        image: "" # set dynamically w/ scripts/src/helpers/config.ts NODE_VERSION: teraslice-workspace:e2e-nodev${NODE_VERSION}
         ports:
         - containerPort: 5678
         volumeMounts:
-          - mountPath: /app/config  # defines the directory
+          - mountPath: /app/config # defines the directory
             name: config
       volumes:
         - name: config
@@ -32,6 +32,6 @@ spec:
             name: teraslice-master
             items:
               - key: teraslice.yaml
-                path: teraslice.yaml  # the filename that the configMap gets written to, inside the matching mountPath
+                path: teraslice.yaml # the filename that the configMap gets written to, inside the matching mountPath
       imagePullSecrets:
         - name: docker-tera1-secret

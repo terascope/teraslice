@@ -126,7 +126,7 @@ export type TSCommands = 'docs';
 
 export type GlobalCMDOptions = EmptyObject;
 
-export interface kindCluster {
+export type KindCluster = {
     kind: string;
     apiVersion: string;
     name: string;

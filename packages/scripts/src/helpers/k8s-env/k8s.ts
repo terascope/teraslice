@@ -4,6 +4,7 @@ import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
 import {
+    AnyObject,
     debugLogger, pDelay,
     // pDelay,
 } from '@terascope/utils';
@@ -20,10 +21,10 @@ export class K8s {
     k8sSchedulingV1Api: k8sClient.SchedulingV1Api;
     terasliceNamespace: string;
     servicesNamespace: string;
-    tsPort: number;
+    tsPort: string;
     kindClusterName: string;
 
-    constructor(tsPort: number, kindClusterName: string) {
+    constructor(tsPort: string, kindClusterName: string) {
         this.kc = new k8sClient.KubeConfig();
         this.kc.loadFromDefault();
 
@@ -74,7 +75,8 @@ export class K8s {
         try {
             /// Creates configmap for teraslice-master
             const masterConfigMap = baseConfigMap;
-            const masterTerafoundation: object = this.loadYamlFile('masterConfig/teraslice.yaml');
+            const masterTerafoundation: AnyObject = this.loadYamlFile('masterConfig/teraslice.yaml');
+            masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
             const response = await this.k8sCoreV1Api
@@ -87,7 +89,8 @@ export class K8s {
         try {
             /// Creates configmap for teraslice-worker
             const workerConfigMap = baseConfigMap;
-            const workerTerafoundation: object = this.loadYamlFile('workerConfig/teraslice.yaml');
+            const workerTerafoundation: AnyObject = this.loadYamlFile('workerConfig/teraslice.yaml');
+            workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
             const response = await this.k8sCoreV1Api
@@ -102,6 +105,9 @@ export class K8s {
             const yamlTSMasterDeployment = this.loadYamlFile('masterDeployment.yaml') as k8sClient.V1Deployment;
             if (yamlTSMasterDeployment.spec?.template.metadata?.labels) {
                 yamlTSMasterDeployment.spec.template.metadata.labels['app.kubernetes.io/instance'] = this.kindClusterName;
+            }
+            if (yamlTSMasterDeployment.spec?.template.spec?.containers[0]) {
+                yamlTSMasterDeployment.spec.template.spec.containers[0].image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
             logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);

@@ -22,7 +22,8 @@ describe('services', () => {
         opensearchVersion: 'very-bad-version',
         nodeVersion: 'very-bad-version',
         ignoreMount: false,
-        testPlatform: 'native'
+        testPlatform: 'native',
+        kindClusterName: 'default'
     };
 
     describe('pullServices', () => {

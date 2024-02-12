@@ -28,7 +28,8 @@ describe('Test Runner Helpers', () => {
         opensearchVersion: '',
         nodeVersion: '',
         ignoreMount: true,
-        testPlatform: 'native'
+        testPlatform: 'native',
+        kindClusterName: 'default'
     };
 
     function makeTestOptions(input: Partial<TestOptions>): TestOptions {

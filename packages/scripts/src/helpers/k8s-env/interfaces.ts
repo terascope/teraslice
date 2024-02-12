@@ -1,4 +1,4 @@
-export interface k8sEnvOptions {
+export interface K8sEnvOptions {
     elasticsearchVersion: string;
     kafkaVersion: string;
     kafkaImageVersion: string,
@@ -8,8 +8,8 @@ export interface k8sEnvOptions {
     opensearchVersion: string;
     nodeVersion: string;
     skipBuild: boolean;
-    tsPort: number;
-    clusterName: string;
+    tsPort: string;
+    kindClusterName: string;
     k8sVersion: string;
     terasliceImage?: string;
     resetStore?: boolean;
@@ -17,7 +17,7 @@ export interface k8sEnvOptions {
 
 // TODO: create a common parent for each resource type,
 // or use types from k8s-client when implemented.
-export interface yamlDeploymentResource {
+export interface YamlDeploymentResource {
     apiVersion: string;
     kind: string;
     metadata: {
@@ -69,7 +69,7 @@ export interface yamlDeploymentResource {
     };
 }
 
-export interface yamlServiceResource {
+export interface YamlServiceResource {
     kind: string;
     apiVersion: string;
     metadata: {

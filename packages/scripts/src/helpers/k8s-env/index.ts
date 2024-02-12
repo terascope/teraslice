@@ -6,7 +6,7 @@ import {
     k8sStopService,
 } from '../scripts';
 import { Kind } from '../kind';
-import { k8sEnvOptions } from './interfaces';
+import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import { getDevDockerImage, getRootInfo } from '../misc';
 import { buildDevDockerImage } from '../publish/utils';
@@ -16,12 +16,12 @@ import { ensureServices } from '../test-runner/services';
 import { K8s } from './k8s';
 
 const rootInfo = getRootInfo();
-const e2eImage = `${rootInfo.name}:e2e`;
+const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
-export async function launchK8sEnv(options: k8sEnvOptions) {
+export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
 
-    const kind = new Kind(options.k8sVersion, options.clusterName);
+    const kind = new Kind(options.k8sVersion, options.kindClusterName);
     // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -49,7 +49,7 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     }
     signale.success('Kind cluster created');
 
-    const k8s = new K8s(options.tsPort, options.clusterName);
+    const k8s = new K8s(options.tsPort, options.kindClusterName);
     try {
         await k8s.createNamespace('services-ns.yaml', 'services');
     } catch (err) {
@@ -80,7 +80,8 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
         useExistingServices: false,
         elasticsearchAPIVersion: config.ELASTICSEARCH_API_VERSION,
         ignoreMount: false,
-        testPlatform: 'kubernetes'
+        testPlatform: 'kubernetes',
+        kindClusterName: options.kindClusterName
     });
 
     try {
@@ -93,11 +94,11 @@ export async function launchK8sEnv(options: k8sEnvOptions) {
     signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\nDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
 }
 
-export async function rebuildTeraslice(options: k8sEnvOptions) {
-    const kind = new Kind(options.k8sVersion, options.clusterName);
+export async function rebuildTeraslice(options: K8sEnvOptions) {
+    const kind = new Kind(options.k8sVersion, options.kindClusterName);
     let k8s: K8s;
     try {
-        k8s = new K8s(options.tsPort, options.clusterName);
+        k8s = new K8s(options.tsPort, options.kindClusterName);
     } catch (err) {
         signale.error('k8s-env --rebuild command failed. Do you have a running k8s cluster?');
         process.exit(1);
@@ -132,7 +133,7 @@ export async function rebuildTeraslice(options: k8sEnvOptions) {
     signale.timeEnd('Rebuild teraslice');
 }
 
-async function buildAndTagTerasliceImage(options:k8sEnvOptions) {
+async function buildAndTagTerasliceImage(options:K8sEnvOptions) {
     let runImage;
     if (options.terasliceImage) {
         runImage = options.terasliceImage;
