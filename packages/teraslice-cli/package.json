@@ -35,6 +35,9 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "isbinaryfile": "5.0.0"
+    },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",
         "@terascope/utils": "^0.54.0",
