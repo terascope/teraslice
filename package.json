@@ -37,7 +37,7 @@
     "resolutions": {
         "@types/lodash": "^4.14.202",
         "debug": "^4.3.4",
-        "isbinaryfile": "5.0.0",
+        "yeoman-environment/**/isbinaryfile": "<5.0.1",
         "ms": "^2.1.3"
     },
     "devDependencies": {
