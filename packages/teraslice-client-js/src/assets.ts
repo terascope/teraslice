@@ -1,17 +1,9 @@
 import { TSError, isEmpty, isString } from '@terascope/job-components';
+import { Teraslice } from '@terascope/types';
 import path from 'path';
 import autoBind from 'auto-bind';
 import Client from './client';
-import {
-    SearchQuery,
-    PostData,
-    AssetIDResponse,
-    SearchOptions,
-    AssetUploadQuery,
-    TxtSearchParams,
-    ClientConfig,
-    Asset
-} from './interfaces';
+import { PostData, SearchOptions, ClientConfig } from './interfaces';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
@@ -19,7 +11,10 @@ export default class Assets extends Client {
         autoBind(this);
     }
 
-    async upload(data: PostData, query: AssetUploadQuery = {}): Promise<AssetIDResponse> {
+    async upload(
+        data: PostData,
+        query: Teraslice.AssetUploadQuery = {}
+    ): Promise<Teraslice.AssetIDResponse> {
         if (isEmpty(data)) {
             throw new TSError('Asset stream must not be empty', {
                 statusCode: 400
@@ -29,28 +24,37 @@ export default class Assets extends Client {
         const results = await this.post('/assets', data, {
             searchParams: query as Record<string, any>
         });
+
         return this.parse(results);
     }
 
-    async remove(id: string, searchOptions: SearchOptions = {}): Promise<AssetIDResponse> {
+    async remove(
+        id: string,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.AssetIDResponse> {
         if (isEmpty(id)) {
             throw new TSError('Asset delete requires a ID', {
                 statusCode: 400
             });
         }
+
         const results = await this.delete(`/assets/${id}`, searchOptions);
         return this.parse(results);
     }
 
     async list(
-        query: SearchQuery = {},
+        query: Teraslice.SearchQuery = {},
         searchOptions: SearchOptions = {}
-    ): Promise<Asset[]> {
+    ): Promise<Teraslice.AssetRecord[]> {
         const options = { ...searchOptions, searchParams: query };
         return this.get('/assets', options);
     }
 
-    async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<Asset[]> {
+    async getAsset(
+        name: string,
+        version = '',
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.AssetRecord[]> {
         if (!name || !isString(name)) {
             throw new TSError('Name is required, and must be of type string', {
                 statusCode: 400
@@ -62,14 +66,15 @@ export default class Assets extends Client {
             });
         }
 
-        const pathing = path.join('/assets', name, version);
-        return this.get(pathing, searchOptions);
+        const assetUrl = path.join('/assets', name, version);
+
+        return this.get(assetUrl, searchOptions);
     }
 
     async txt(
         name = '',
         version = '',
-        query: TxtSearchParams = {},
+        query: Teraslice.TxtSearchParams = {},
         searchOptions: SearchOptions = {}
     ): Promise<string> {
         if (name && !isString(name)) {

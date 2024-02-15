@@ -7,30 +7,12 @@ import {
     TSError,
     Assignment,
     toHumanTime,
-    JobConfig,
 } from '@terascope/job-components';
+import { Teraslice } from '@terascope/types';
 import {
     ClientConfig,
-    SearchQuery,
-    ExecutionStatus,
-    ChangeWorkerQueryParams,
-    ClusterState,
-    ClusterProcess,
-    ControllerState,
-    StateErrors,
-    WorkerJobProcesses,
     SearchOptions,
-    ChangeWorkerResponse,
-    RequestOptions,
-    ExecutionIDResponse,
-    RecoverQuery,
-    ResumeResponse,
-    StoppedResponse,
-    PausedResponse,
-    JobIDResponse,
-    StopQuery,
-    Execution,
-    JobConfiguration
+    RequestOptions
 } from './interfaces';
 import Client from './client';
 
@@ -41,7 +23,7 @@ import Client from './client';
  * Depending on how usage of this API develops we may want to reconsider this.
  */
 
-function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
+function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
     return util.deprecate(fn, msg);
 }
@@ -63,78 +45,92 @@ export default class Job extends Client {
 
     id(): string { return this._jobId; }
 
-    async slicer(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+    async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
         return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);
     }
 
-    async controller(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+    async controller(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
         return this.get(`/jobs/${this._jobId}/controller`, requestOptions);
     }
 
-    async start(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<JobIDResponse> {
+    async start(
+        query?: Teraslice.SearchQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiJobCreateResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_start`, null, options);
     }
 
-    async stop(query?: StopQuery, searchOptions: SearchOptions = {}): Promise<StoppedResponse> {
+    async stop(
+        query?: Teraslice.StopQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiStoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_stop`, null, options);
     }
 
-    async pause(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<PausedResponse> {
+    async pause(
+        query?: Teraslice.SearchQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiPausedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_pause`, null, options);
     }
 
-    async resume(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<ResumeResponse> {
+    async resume(
+        query?: Teraslice.SearchQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_resume`, null, options);
     }
 
     async recover(
-        query: RecoverQuery = {},
+        query: Teraslice.RecoverQuery = {},
         searchOptions: SearchOptions = {}
-    ): Promise<JobIDResponse> {
+    ): Promise<Teraslice.ApiJobCreateResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: JobConfiguration): Promise<JobConfiguration> {
+    async update(jobSpec: Teraslice.JobRecord): Promise<Teraslice.JobRecord> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
-    async updatePartial(jobSpec: Partial<JobConfiguration|JobConfig>): Promise<JobConfiguration> {
+    async updatePartial(
+        jobSpec: Partial<Teraslice.JobRecord>
+    ): Promise<Teraslice.JobRecord> {
         const current = await this.config();
-        const body: JobConfiguration = Object.assign({}, current, jobSpec);
+        const body: Teraslice.JobRecord = Object.assign({}, current, jobSpec);
         return this.update(body);
     }
 
-    async execution(requestOptions: RequestOptions = {}): Promise<Execution> {
+    async execution(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionRecord> {
         return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
-    async exId(requestOptions: RequestOptions = {}): Promise<ExecutionIDResponse> {
+    async exId(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionIDResponse> {
         const { ex_id: exId } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return exId;
     }
 
-    async status(requestOptions: RequestOptions = {}): Promise<ExecutionStatus> {
+    async status(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionStatus> {
         const { _status: status } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return status;
     }
 
     async waitForStatus(
-        target: ExecutionStatus[] | ExecutionStatus,
+        target: Teraslice.ExecutionStatus[] | Teraslice.ExecutionStatus,
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
-    ): Promise<ExecutionStatus> {
+    ): Promise<Teraslice.ExecutionStatus> {
         const terminal = {
-            [ExecutionStatus.terminated]: true,
-            [ExecutionStatus.failed]: true,
-            [ExecutionStatus.rejected]: true,
-            [ExecutionStatus.completed]: true,
-            [ExecutionStatus.stopped]: true,
+            [Teraslice.ExecutionStatus.terminated]: true,
+            [Teraslice.ExecutionStatus.failed]: true,
+            [Teraslice.ExecutionStatus.rejected]: true,
+            [Teraslice.ExecutionStatus.completed]: true,
+            [Teraslice.ExecutionStatus.stopped]: true,
         };
 
         const startTime = Date.now();
@@ -144,7 +140,7 @@ export default class Job extends Client {
         }, requestOptions);
         let exId: string;
 
-        const checkStatus = async (): Promise<ExecutionStatus> => {
+        const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {
             let result;
             try {
                 const ex = await this.get(`/jobs/${this._jobId}/ex`, options);
@@ -190,24 +186,27 @@ export default class Job extends Client {
         return checkStatus();
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<JobConfiguration> {
+    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.JobRecord> {
         return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 
-    async errors(query: SearchQuery = {}, searchOptions: SearchOptions = {}): Promise<StateErrors> {
+    async errors(
+        query: Teraslice.SearchQuery = {},
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ErrorRecord[]> {
         return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
-    async workers(requestOptions: RequestOptions = {}): Promise<WorkerJobProcesses[]> {
-        const state: ClusterState = await this.get('/cluster/state', requestOptions);
-        return filterProcesses<WorkerJobProcesses>(state, this._jobId, 'worker');
+    async workers(requestOptions: RequestOptions = {}): Promise<Teraslice.WorkerNode[]> {
+        const state: Teraslice.ClusterState = await this.get('/cluster/state', requestOptions);
+        return filterProcesses<Teraslice.WorkerNode>(state, this._jobId, 'worker');
     }
 
     async changeWorkers(
-        action: ChangeWorkerQueryParams,
+        action: Teraslice.ChangeWorkerQueryParams,
         workerNum: number,
         requestOptions: RequestOptions = {}
-    ): Promise<ChangeWorkerResponse | string> {
+    ): Promise<Teraslice.ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
             throw new TSError('Change workers requires action and count', {
                 statusCode: 400
@@ -237,16 +236,18 @@ export default class Job extends Client {
     }
 }
 
-function filterProcesses<T>(state: ClusterState, jobId: string, type: Assignment) {
+function filterProcesses<T>(state: Teraslice.ClusterState, jobId: string, type: Assignment) {
     const results: T[] = [];
 
     for (const [, node] of Object.entries(state)) {
-        node.active.forEach((child: ClusterProcess) => {
-            const { assignment, job_id: procJobId } = child;
-            if ((assignment && assignment === type) && (procJobId && procJobId === jobId)) {
-                const jobProcess = Object.assign({}, child, { node_id: node.node_id });
-                // @ts-expect-error
-                results.push(jobProcess);
+        // TODO: fix this
+        node.active.forEach((child: any) => {
+            if (child.job_id) {
+                const { assignment, job_id: procJobId } = child;
+                if ((assignment && assignment === type) && (procJobId && procJobId === jobId)) {
+                    const jobProcess = Object.assign({}, child, { node_id: node.node_id });
+                    results.push(jobProcess);
+                }
             }
         });
     }

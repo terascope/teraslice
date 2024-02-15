@@ -1,13 +1,7 @@
 import nock from 'nock';
-import { RecoveryCleanupType, newTestJobConfig } from '@terascope/job-components';
+import { Teraslice } from '@terascope/types';
+import { newTestJobConfig } from '@terascope/job-components';
 import Job from '../src/job';
-import {
-    ExecutionStatus,
-    Execution,
-    ClusterStateNative,
-    WorkerJobProcesses,
-    JobConfiguration
-} from '../src/interfaces';
 
 describe('Teraslice Job', () => {
     let scope: nock.Scope;
@@ -20,7 +14,7 @@ describe('Teraslice Job', () => {
 
     const requestOptions = { headers: { 'Some-Header': 'yes' } };
 
-    const clusterState: ClusterStateNative = {
+    const clusterState: any = {
         'some-node-id': {
             hostname: 'host',
             pid: 111,
@@ -83,7 +77,7 @@ describe('Teraslice Job', () => {
     };
     const date = new Date().toISOString();
 
-    const executionResults: Execution[] = [
+    const executionResults: Teraslice.ExecutionRecord[] = [
         {
             active: true,
             analytics: false,
@@ -103,11 +97,14 @@ describe('Teraslice Job', () => {
             _created: date,
             _updated: date,
             _context: 'ex',
-            _status: ExecutionStatus.running,
+            _status: Teraslice.ExecutionStatus.running,
             ex_id: '123456789',
             job_id: '123456789',
             slicer_hostname: 'hostname',
-            slicer_port: 5673
+            slicer_port: 5673,
+            _has_errors: false,
+            _slicer_stats: {},
+            _failureReason: ''
         },
     ];
 
@@ -252,7 +249,7 @@ describe('Teraslice Job', () => {
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'foo-bar');
                 const results = await job.recover({
-                    cleanup: RecoveryCleanupType.errors
+                    cleanup: Teraslice.RecoveryCleanupType.errors
                 });
                 expect(results).toEqual({ job_id: 'foo-bar' });
             });
@@ -271,7 +268,7 @@ describe('Teraslice Job', () => {
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.recover({
-                    cleanup: RecoveryCleanupType.errors
+                    cleanup: Teraslice.RecoveryCleanupType.errors
                 }, requestOptions);
                 expect(results).toEqual({
                     key: 'some-other-key'
@@ -314,7 +311,7 @@ describe('Teraslice Job', () => {
         describe('when updating the whole config', () => {
             const body = newTestJobConfig({
                 name: 'hello',
-            }) as JobConfiguration;
+            }) as Teraslice.JobRecord;
             body.job_id = 'some-job-id';
             body._created = 'hello';
             body._updated = 'hello';
@@ -336,7 +333,7 @@ describe('Teraslice Job', () => {
         describe('when updating a partial config', () => {
             const body = newTestJobConfig({
                 name: 'hello',
-            }) as JobConfiguration;
+            }) as Teraslice.JobRecord;
             body.job_id = 'some-job-id';
             body._created = 'hello';
             body._updated = 'hello';
@@ -489,15 +486,14 @@ describe('Teraslice Job', () => {
     });
 
     describe('->workers', () => {
-        const workerData: WorkerJobProcesses[] = [];
+        const workerData: Teraslice.WorkerNode[] = [];
 
         const jobId = 'some-job-id';
         for (const [nodeName, node] of Object.entries(clusterState)) {
+            // @ts-expect-error TODO: fixme
             node.active.forEach((child) => {
                 if (child.assignment === 'worker' && child.job_id === jobId) {
-                    // @ts-expect-error
                     child.node_id = nodeName;
-                    // @ts-expect-error
                     workerData.push(child);
                 }
             });
@@ -626,14 +622,14 @@ describe('Teraslice Job', () => {
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.waitForStatus(ExecutionStatus.running);
-                expect(results).toEqual(ExecutionStatus.running);
+                const results = await job.waitForStatus(Teraslice.ExecutionStatus.running);
+                expect(results).toEqual(Teraslice.ExecutionStatus.running);
             });
         });
 
@@ -642,18 +638,18 @@ describe('Teraslice Job', () => {
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.waitForStatus([
-                    ExecutionStatus.failing,
-                    ExecutionStatus.running
+                    Teraslice.ExecutionStatus.failing,
+                    Teraslice.ExecutionStatus.running
                 ]);
 
-                expect(results).toEqual(ExecutionStatus.running);
+                expect(results).toEqual(Teraslice.ExecutionStatus.running);
             });
         });
 
@@ -665,19 +661,19 @@ describe('Teraslice Job', () => {
                     .matchHeader('Some-Header', 'yes')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.waitForStatus(
-                    ExecutionStatus.running,
+                    Teraslice.ExecutionStatus.running,
                     1000,
                     0,
                     searchOptions
                 );
-                expect(results).toEqual(ExecutionStatus.running);
+                expect(results).toEqual(Teraslice.ExecutionStatus.running);
             });
         });
 
@@ -686,20 +682,20 @@ describe('Teraslice Job', () => {
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
 
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.completed
+                        _status: Teraslice.ExecutionStatus.completed
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.waitForStatus(ExecutionStatus.completed);
-                expect(results).toEqual(ExecutionStatus.completed);
+                const results = await job.waitForStatus(Teraslice.ExecutionStatus.completed);
+                expect(results).toEqual(Teraslice.ExecutionStatus.completed);
             });
         });
 
@@ -708,25 +704,25 @@ describe('Teraslice Job', () => {
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
 
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.terminated
+                        _status: Teraslice.ExecutionStatus.terminated
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.waitForStatus([
-                    ExecutionStatus.completed,
-                    ExecutionStatus.failed,
-                    ExecutionStatus.terminated
+                    Teraslice.ExecutionStatus.completed,
+                    Teraslice.ExecutionStatus.failed,
+                    Teraslice.ExecutionStatus.terminated
                 ]);
 
-                expect(results).toEqual(ExecutionStatus.terminated);
+                expect(results).toEqual(Teraslice.ExecutionStatus.terminated);
             });
         });
 
@@ -736,14 +732,14 @@ describe('Teraslice Job', () => {
                     .times(1)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.initializing
+                        _status: Teraslice.ExecutionStatus.initializing
                     });
 
                 scope.get('/jobs/some-job-id/ex')
                     .times(11)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
@@ -751,7 +747,7 @@ describe('Teraslice Job', () => {
                 expect.hasAssertions();
                 const job = new Job({ baseUrl }, 'some-job-id');
                 try {
-                    await job.waitForStatus(ExecutionStatus.completed, 100, 1000);
+                    await job.waitForStatus(Teraslice.ExecutionStatus.completed, 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Job status failed to change from status "running" to "completed" within 1000ms');
                 }
@@ -764,14 +760,14 @@ describe('Teraslice Job', () => {
                     .times(1)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.initializing
+                        _status: Teraslice.ExecutionStatus.initializing
                     });
 
                 scope.get('/jobs/some-job-id/ex')
                     .times(11)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
@@ -780,9 +776,9 @@ describe('Teraslice Job', () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 try {
                     await job.waitForStatus([
-                        ExecutionStatus.completed,
-                        ExecutionStatus.failed,
-                        ExecutionStatus.stopped
+                        Teraslice.ExecutionStatus.completed,
+                        Teraslice.ExecutionStatus.failed,
+                        Teraslice.ExecutionStatus.stopped
                     ], 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Job status failed to change from status "running" to "completed,failed,stopped" within 1000ms');
@@ -796,20 +792,24 @@ describe('Teraslice Job', () => {
                     .delay(1100)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.initializing
+                        _status: Teraslice.ExecutionStatus.initializing
                     });
 
                 scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatus.running
                     });
             });
 
             it('should resolve with the correct status', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const status = await job.waitForStatus(ExecutionStatus.running, 100, 1500);
-                expect(status).toEqual(ExecutionStatus.running);
+                const status = await job.waitForStatus(
+                    Teraslice.ExecutionStatus.running,
+                    100,
+                    1500
+                );
+                expect(status).toEqual(Teraslice.ExecutionStatus.running);
             });
         });
 
@@ -818,7 +818,7 @@ describe('Teraslice Job', () => {
                 scope.get('/jobs/other-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.failed
+                        _status: Teraslice.ExecutionStatus.failed
                     });
             });
 
@@ -826,7 +826,7 @@ describe('Teraslice Job', () => {
                 expect.hasAssertions();
                 const job = new Job({ baseUrl }, 'other-job-id');
                 try {
-                    await job.waitForStatus(ExecutionStatus.completed, 100, 1000);
+                    await job.waitForStatus(Teraslice.ExecutionStatus.completed, 100, 1000);
                 } catch (err) {
                     const errMsg = 'Job cannot reach the target status, "completed", because it is in the terminal state, "failed"';
                     expect(err.message).toEqual(errMsg);

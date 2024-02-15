@@ -1,8 +1,8 @@
 import 'jest-extended';
 import nock from 'nock';
+import { Teraslice } from '@terascope/types';
 import Job from '../src/job';
 import Jobs from '../src/jobs';
-import { ExecutionStatus, JobConfiguration } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;
@@ -22,7 +22,7 @@ describe('Teraslice Jobs', () => {
 
     const date = new Date().toISOString();
 
-    const list: JobConfiguration[] = [
+    const list: Teraslice.JobRecord[] = [
         {
             job_id: 'some-random-job-id',
             active: true,
@@ -183,19 +183,19 @@ describe('Teraslice Jobs', () => {
         describe('when called with a string', () => {
             beforeEach(() => {
                 scope.get('/jobs')
-                    .query({ status: ExecutionStatus.running })
+                    .query({ status: Teraslice.ExecutionStatus.running })
                     .reply(200, list);
             });
 
             it('should resolve json result from Teraslice', async () => {
-                const results = await jobs.list(ExecutionStatus.running);
+                const results = await jobs.list(Teraslice.ExecutionStatus.running);
                 expect(results).toEqual(list);
             });
         });
 
         describe('when called with an object', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
-            const queryOptions = { status: ExecutionStatus.running, size: 10 };
+            const queryOptions = { status: Teraslice.ExecutionStatus.running, size: 10 };
 
             beforeEach(() => {
                 scope.get('/jobs')

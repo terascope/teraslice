@@ -84,10 +84,10 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     metadata: Record<string, any>;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
-    _status: ExecutionStatus;
+    _status: string;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
-    _failureReason?: string
+    _failureReason: string
     slicer_port?: number;
     slicer_hostname: string;
 }
@@ -101,11 +101,6 @@ export interface StateRecord {
     _created: string|Date;
     _updated: string|Date;
     error?: string;
-}
-
-export interface ErrorRecord extends StateRecord {
-    state: 'error';
-    error: string;
 }
 
 export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
@@ -137,10 +132,6 @@ export interface AggregatedExecutionAnalytics {
 export interface ClusterStats {
     controllers: AggregatedExecutionAnalytics;
     slicer: AggregatedExecutionAnalytics;
-}
-
-export interface ExecutionIDResponse {
-    ex_id: string;
 }
 
 /**
@@ -335,11 +326,6 @@ export interface APIConfig {
     [prop: string]: any;
 }
 
-export interface StopQuery {
-    timeout?: number;
-    blocking?: boolean;
-}
-
 export interface ApiRootResponse {
     arch: string;
     clustering_type: ClusterManagerType;
@@ -372,10 +358,6 @@ export interface ApiChangeWorkerResponse {
 
 export interface ApiAssetStatusResponse {
     available: boolean;
-}
-
-export interface RecoverQuery {
-    cleanup?: RecoveryCleanupType;
 }
 
 /*
@@ -534,10 +516,4 @@ export interface NodeState {
 
 export interface ClusterState {
     [nodeId: string] : NodeState
-}
-
-export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';
-
-export interface ChangeWorkerResponse {
-    message: string;
 }

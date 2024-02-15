@@ -1,8 +1,8 @@
 import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
+import { AssetRecord, AssetIDResponse } from '@terascope/types';
 import Assets from '../src/assets';
-import { AssetIDResponse, Asset } from '../src/interfaces';
 
 describe('Teraslice Assets', () => {
     let assets: Assets;
@@ -22,17 +22,19 @@ describe('Teraslice Assets', () => {
 
     const date = new Date();
 
-    const assetVersion1: Asset = {
+    const assetVersion1: AssetRecord = {
         id: 'someId',
         version: '1.0',
         name: 'iAmAnAsset',
+        blob: Buffer.from(''),
         _created: date.toISOString()
     };
 
-    const assetVersion2: Asset = {
+    const assetVersion2: AssetRecord = {
         id: 'someId',
         version: '2.0',
         name: 'iAmAnAsset',
+        blob: Buffer.from(''),
         _created: new Date(date.getTime() + 500000).toISOString()
     };
 
@@ -83,7 +85,7 @@ describe('Teraslice Assets', () => {
     });
 
     describe('->list', () => {
-        const assetList: Asset[] = [
+        const assetList: AssetRecord[] = [
             assetVersion1,
             assetVersion2
         ];

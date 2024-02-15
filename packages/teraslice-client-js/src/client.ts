@@ -109,7 +109,6 @@ export default class Client {
         return tryParseJSON(results);
     }
 
-    // TODO: make better types for this
     protected makeOptions(
         searchParams: Record<string, any>|undefined, options: RequestOptions | SearchOptions
     ): RequestOptions {
@@ -164,15 +163,18 @@ interface OldErrorOutput extends TSError {
 
 function makeErrorFromResponse(response: any): OldErrorOutput {
     const { statusCode } = response;
-    const stuff = getErrorFromResponse(response);
+    const parsedError = getErrorFromResponse(response);
     const {
         message = STATUS_CODES[statusCode],
         code = statusCode
-    } = stuff;
+    } = parsedError;
+
     const error: Partial<OldErrorOutput> = new Error(message);
+
     error.error = code; // for legacy support
     error.code = code;
     error.statusCode = code;
+
     return error as OldErrorOutput;
 }
 

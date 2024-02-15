@@ -7,12 +7,12 @@ export * from './typed-arrays';
 export * from './utility';
 export * from './xlucene-interfaces';
 export * from './elasticsearch-client';
-export * from './teraslice';
+export * from './teraslice.js';
 export * from './logger';
 
 export * as DataTypes from './data-types';
 export * as Elasticsearch from './elasticsearch-interfaces';
 export * as Geo from './geo-interfaces';
 export * as SearchClient from './elasticsearch-client';
-export * as Teraslice from './teraslice';
+export * as Teraslice from './teraslice.js';
 export * as Terafoundation from './terafoundation';
