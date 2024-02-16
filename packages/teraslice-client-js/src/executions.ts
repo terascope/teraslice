@@ -1,10 +1,6 @@
 import {
-    isString,
-    isPlainObject,
-    JobConfig,
-    TSError,
-    unset
-} from '@terascope/job-components';
+    isString, isPlainObject, TSError, unset
+} from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -23,7 +19,7 @@ export default class Executions extends Client {
     /**
      * Similar to jobs.submit but returns an instance of Ex not a Job
     */
-    async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Ex> {
+    async submit(jobSpec: Teraslice.JobConfig, shouldNotStart?: boolean): Promise<Ex> {
         if (!jobSpec) {
             throw new TSError('Submit requires a jobSpec', {
                 statusCode: 400

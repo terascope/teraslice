@@ -84,7 +84,7 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     metadata: Record<string, any>;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
-    _status: ExecutionStatus;
+    _status: keyof typeof ExecutionStatus;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
     _failureReason?: string
@@ -512,6 +512,16 @@ export interface WorkerNode extends BaseWorkerNode {
     assignment: ProcessAssignment.worker;
     ex_id: string;
     job_id: string;
+}
+
+type ExecutionProcess = ExecutionNode | WorkerNode
+
+export function isExecutionProcess(node: ProcessNode): node is ExecutionProcess {
+    const { assignment: type } = node;
+    if (type === ProcessAssignment.execution_controller || type === ProcessAssignment.worker) {
+        return true;
+    }
+    return false;
 }
 
 export type ProcessNode = ClusterNode

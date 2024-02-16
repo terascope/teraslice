@@ -1,4 +1,4 @@
-import { Omit } from '@terascope/job-components';
+import { Omit } from '@terascope/utils';
 import * as got from 'got';
 
 export interface ClientConfig {

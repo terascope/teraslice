@@ -1,13 +1,9 @@
 import util from 'util';
 import autoBind from 'auto-bind';
 import {
-    pDelay,
-    isString,
-    toString,
-    TSError,
-    Assignment,
-    toHumanTime,
-} from '@terascope/job-components';
+    pDelay, isString, toString,
+    TSError, toHumanTime,
+} from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import {
     ClientConfig,
@@ -236,7 +232,11 @@ export default class Job extends Client {
     }
 }
 
-function filterProcesses<T>(state: Teraslice.ClusterState, jobId: string, type: Assignment) {
+function filterProcesses<T>(
+    state: Teraslice.ClusterState,
+    jobId: string,
+    type: Teraslice.Assignment
+) {
     const results: T[] = [];
 
     for (const [, node] of Object.entries(state)) {

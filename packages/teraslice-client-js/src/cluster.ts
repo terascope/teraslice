@@ -1,4 +1,4 @@
-import { startsWith } from '@terascope/job-components';
+import { startsWith } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import util from 'util';
 import autoBind from 'auto-bind';

@@ -1,4 +1,4 @@
-import { isString, TSError } from '@terascope/job-components';
+import { isString, TSError } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -17,6 +17,7 @@ export default class Jobs extends Client {
                 statusCode: 400
             });
         }
+
         const job: Teraslice.ApiJobCreateResponse = await this.post('/jobs', jobSpec, {
             searchParams: { start: !shouldNotStart }
         });

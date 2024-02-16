@@ -1,26 +1,22 @@
-import { RecoveryCleanupType, ExecutionStatus } from './base.js';
+import {
+    ExecutionStatus, ClusterManagerType
+} from './base.js';
 
-export interface RecoverQuery {
-    /** @deprecated use `cleanup_type` */
-    cleanup?: RecoveryCleanupType;
-    cleanup_type?: RecoveryCleanupType;
+export interface JobCreate {
+    job_id: string;
+    ex_id?: string;
 }
 
-export interface PausedResponse {
+export interface Paused {
     status: ExecutionStatus.paused;
 }
 
-export interface ResumeResponse {
+export interface Resume {
     status: ExecutionStatus.running;
 }
 
-export interface StoppedResponse {
+export interface Stopped {
     status: ExecutionStatus.stopped | ExecutionStatus.stopping;
-}
-
-export interface StopQuery {
-    timeout?: number;
-    blocking?: boolean;
 }
 
 export interface ChangeWorkerResponse {
@@ -29,4 +25,21 @@ export interface ChangeWorkerResponse {
 
 export interface ExecutionIDResponse {
     ex_id: string;
+}
+
+export interface AssetStatusResponse {
+    available: boolean;
+}
+
+export type AssetIDResponse = {
+    _id: string;
+}
+
+export interface RootResponse {
+    arch: string;
+    clustering_type: ClusterManagerType;
+    name: string;
+    node_version: string;
+    platform: string;
+    teraslice_version: string;
 }

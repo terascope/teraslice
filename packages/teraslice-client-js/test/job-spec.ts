@@ -1,6 +1,5 @@
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import { newTestJobConfig } from '@terascope/job-components';
 import Job from '../src/job';
 
 describe('Teraslice Job', () => {
@@ -309,12 +308,25 @@ describe('Teraslice Job', () => {
 
     describe('->update', () => {
         describe('when updating the whole config', () => {
-            const body = newTestJobConfig({
+            const body: Teraslice.JobRecord = {
                 name: 'hello',
-            }) as Teraslice.JobRecord;
-            body.job_id = 'some-job-id';
-            body._created = 'hello';
-            body._updated = 'hello';
+                apis: [],
+                operations: [],
+                active: true,
+                analytics: false,
+                autorecover: false,
+                assets: [],
+                lifecycle: 'once',
+                max_retries: 0,
+                probation_window: 30000,
+                slicers: 1,
+                workers: 1,
+                env_vars: {},
+                _context: 'job',
+                job_id: 'some-job-id',
+                _created: 'hello',
+                _updated: 'hello',
+            };
 
             beforeEach(() => {
                 scope.put('/jobs/some-job-id', body as any)
@@ -331,12 +343,26 @@ describe('Teraslice Job', () => {
 
     describe('->updatePartial', () => {
         describe('when updating a partial config', () => {
-            const body = newTestJobConfig({
+            const body: Teraslice.JobRecord = {
                 name: 'hello',
-            }) as Teraslice.JobRecord;
-            body.job_id = 'some-job-id';
-            body._created = 'hello';
-            body._updated = 'hello';
+                apis: [],
+                operations: [],
+                active: true,
+                analytics: false,
+                autorecover: false,
+                assets: [],
+                lifecycle: 'once',
+                max_retries: 0,
+                probation_window: 30000,
+                slicers: 1,
+                workers: 1,
+                env_vars: {},
+                _context: 'job',
+                job_id: 'some-job-id',
+                _created: 'hello',
+                _updated: 'hello',
+            };
+
             const expected = {
                 ...body,
                 name: 'howdy'

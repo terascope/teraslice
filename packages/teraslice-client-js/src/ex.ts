@@ -1,11 +1,7 @@
 import {
-    isString,
-    TSError,
-    toString,
-    pDelay,
-    Assignment,
-    toHumanTime
-} from '@terascope/job-components';
+    isString, TSError, toString,
+    pDelay, toHumanTime
+} from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -65,7 +61,7 @@ export default class Ex extends Client {
         return new Ex(this._config, result.ex_id);
     }
 
-    async status(requestOptions?: RequestOptions): Promise<Teraslice.ExecutionStatus> {
+    async status(requestOptions?: RequestOptions): Promise<keyof typeof Teraslice.ExecutionStatus> {
         const { _status: status } = await this.config(requestOptions);
         return status;
     }
@@ -127,11 +123,11 @@ export default class Ex extends Client {
     }
 
     async waitForStatus(
-        target: Teraslice.ExecutionStatus,
+        target: keyof typeof Teraslice.ExecutionStatus,
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
-    ): Promise<Teraslice.ExecutionStatus> {
+    ): Promise<keyof typeof Teraslice.ExecutionStatus> {
         const terminal = {
             [Teraslice.ExecutionStatus.terminated]: true,
             [Teraslice.ExecutionStatus.failed]: true,
@@ -146,7 +142,7 @@ export default class Ex extends Client {
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
 
-        const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {
+        const checkStatus = async (): Promise<keyof typeof Teraslice.ExecutionStatus> => {
             let result;
             try {
                 result = await this.status(options);
@@ -201,7 +197,11 @@ function validateExId(exId?: string) {
     }
 }
 
-function filterProcesses<T>(state: Teraslice.ClusterState, exId: string, type: Assignment) {
+function filterProcesses<T>(
+    state: Teraslice.ClusterState,
+    exId: string,
+    type: Teraslice.Assignment
+) {
     const results: T[] = [];
 
     for (const node of Object.values(state)) {

@@ -12,13 +12,6 @@ export interface AssetRecord {
     _created: string|Date;
 }
 
-export interface AssetStatusResponse {
-    available: boolean;
-}
-
-export type AssetIDResponse = {
-    _id: string;
-}
 // On asset upload
 export interface AssetUploadQuery {
     blocking?: boolean;
@@ -84,10 +77,10 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     metadata: Record<string, any>;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
-    _status: string;
+    _status: keyof typeof ExecutionStatus;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
-    _failureReason: string
+    _failureReason?: string
     slicer_port?: number;
     slicer_hostname: string;
 }
@@ -101,6 +94,11 @@ export interface StateRecord {
     _created: string|Date;
     _updated: string|Date;
     error?: string;
+}
+
+export interface ErrorRecord extends StateRecord {
+    state: 'error';
+    error: string;
 }
 
 export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
@@ -326,13 +324,9 @@ export interface APIConfig {
     [prop: string]: any;
 }
 
-export interface ApiRootResponse {
-    arch: string;
-    clustering_type: ClusterManagerType;
-    name: string;
-    node_version: string;
-    platform: string;
-    teraslice_version: string;
+export interface StopQuery {
+    timeout?: number;
+    blocking?: boolean;
 }
 
 export interface ApiJobCreateResponse {
@@ -340,9 +334,7 @@ export interface ApiJobCreateResponse {
     ex_id?: string;
 }
 
-export interface ApiPausedResponse {
-    status: ExecutionStatus.paused;
-}
+
 
 export interface ApiResumeResponse {
     status: ExecutionStatus.running;
@@ -358,6 +350,10 @@ export interface ApiChangeWorkerResponse {
 
 export interface ApiAssetStatusResponse {
     available: boolean;
+}
+
+export interface RecoverQuery {
+    cleanup?: RecoveryCleanupType;
 }
 
 /*
@@ -516,4 +512,10 @@ export interface NodeState {
 
 export interface ClusterState {
     [nodeId: string] : NodeState
+}
+
+export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';
+
+export interface ChangeWorkerResponse {
+    message: string;
 }

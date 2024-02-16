@@ -144,7 +144,6 @@ describe('cluster api', () => {
     });
 
     it('api end point /txt/assets/assetName/version should return a text table', async () => {
-        // @ts-expect-error
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
     });

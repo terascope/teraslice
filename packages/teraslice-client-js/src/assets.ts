@@ -1,4 +1,4 @@
-import { TSError, isEmpty, isString } from '@terascope/job-components';
+import { TSError, isEmpty, isString } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import path from 'path';
 import autoBind from 'auto-bind';

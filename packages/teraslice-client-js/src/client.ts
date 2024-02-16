@@ -1,12 +1,8 @@
 import {
-    isString,
-    TSError,
-    isPlainObject,
-    isTest,
-    trimStart,
-    tryParseJSON,
+    isString, TSError, isPlainObject,
+    isTest, trimStart, tryParseJSON,
     withoutNil,
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
 import got, { Got } from 'got';
@@ -45,7 +41,7 @@ export default class Client {
         return this._makeRequest<T>('get', endpoint, options);
     }
 
-    async post<T = any>(endpoint: string, data: unknown, options?: RequestOptions): Promise<T> {
+    async post<T = any>(endpoint: string, data?: unknown, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('post', endpoint, options, data);
     }
 
