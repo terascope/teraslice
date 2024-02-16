@@ -1,7 +1,7 @@
 {
     "name": "generator-teraslice",
     "displayName": "Generator Teraslice",
-    "version": "0.33.0",
+    "version": "0.33.1",
     "description": "Generate teraslice related packages and code",
     "keywords": [
         "teraslice",
