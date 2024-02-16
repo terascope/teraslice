@@ -37,7 +37,7 @@
     },
     "resolutions": {
         "yeoman-environment/isbinaryfile": "^4.0.10",
-        "yeoman-environment/mem-fs-editor/isbinaryfile": "5.0.0"
+        "isbinaryfile": "<5.0.1"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",
