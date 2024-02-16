@@ -36,8 +36,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "isbinaryfile": "<5.0.1",
-        "yeoman-environment/isbinaryfile": "^4.0.10"
+        "yeoman-environment/isbinaryfile": "^4.0.10",
+        "isbinaryfile": "<5.0.1"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",
