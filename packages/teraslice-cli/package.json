@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.61.4",
+    "version": "0.61.5",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -36,8 +36,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "resolutions": {
-        "yeoman-environment/isbinaryfile": "^4.0.10",
-        "yeoman-environment/mem-fs-editor/isbinaryfile": "5.0.0"
+        "isbinaryfile": "<5.0.1",
+        "yeoman-environment/isbinaryfile": "^4.0.10"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",
