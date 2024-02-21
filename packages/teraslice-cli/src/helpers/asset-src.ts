@@ -56,7 +56,7 @@ export class AssetSrc {
         devMode = false,
         debug = false,
         bundle = true,
-        bundleTarget = 'node14',
+        bundleTarget = 'node18',
         overwrite = false
     ) {
         if (bundle === false) {
