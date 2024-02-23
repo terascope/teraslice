@@ -10,3 +10,6 @@ nodes:
     hostPort: 45678
   - containerPort: 30092 # Map internal kafka service to host port
     hostPort: 49092
+  extraMounts:
+  - hostPath: ./e2e/autoload
+    containerPath: /autoload

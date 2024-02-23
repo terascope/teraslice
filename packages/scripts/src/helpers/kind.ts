@@ -46,6 +46,9 @@ export class Kind {
         if (this.k8sVersion) {
             configFile.nodes[0].image = kindToK8sImageMap(this.kindVersion, this.k8sVersion);
         }
+        if (configFile.nodes[0].extraMounts) {
+            configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
+        }
         configFile.nodes[0].extraPortMappings[1].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
 

@@ -26,6 +26,9 @@ spec:
         volumeMounts:
           - mountPath: /app/config # defines the directory
             name: config
+          - mountPath: /app/autoload # defines the directory
+            name: autoload
+            readOnly: true
       volumes:
         - name: config
           configMap:
@@ -33,5 +36,9 @@ spec:
             items:
               - key: teraslice.yaml
                 path: teraslice.yaml # the filename that the configMap gets written to, inside the matching mountPath
+        - name: autoload
+          hostPath:
+            path: /autoload
+            type: Directory
       imagePullSecrets:
         - name: docker-tera1-secret
