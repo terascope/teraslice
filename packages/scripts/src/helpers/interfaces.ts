@@ -148,6 +148,12 @@ export type KindCluster = {
                     hostPort: number;
                 }
             ]
+            extraMounts?: [
+                {
+                    hostPath: string;
+                    containerPath: string;
+                }
+            ];
         }
     ]
 }
