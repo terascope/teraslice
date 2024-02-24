@@ -76,7 +76,9 @@ export class TSError extends Error {
             value: this.constructor.name,
         });
 
-        Error.captureStackTrace(this, TSError);
+        if (Error?.captureStackTrace) {
+            Error.captureStackTrace(this, TSError);
+        }
     }
 
     getCause(): any {
