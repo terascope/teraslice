@@ -26,7 +26,7 @@ describe('Teraslice Assets', () => {
         id: 'someId',
         version: '1.0',
         name: 'iAmAnAsset',
-        blob: Buffer.from(''),
+        blob: '',
         _created: date.toISOString()
     };
 
@@ -34,7 +34,7 @@ describe('Teraslice Assets', () => {
         id: 'someId',
         version: '2.0',
         name: 'iAmAnAsset',
-        blob: Buffer.from(''),
+        blob: '',
         _created: new Date(date.getTime() + 500000).toISOString()
     };
 
