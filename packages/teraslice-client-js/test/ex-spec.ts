@@ -498,14 +498,14 @@ describe('Teraslice Ex', () => {
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         job_id: 'example-job-id',
-                        _status: Teraslice.ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
-                const results = await ex.waitForStatus(Teraslice.ExecutionStatus.running);
-                expect(results).toEqual(Teraslice.ExecutionStatus.running);
+                const results = await ex.waitForStatus(Teraslice.ExecutionStatusEnum.running);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -518,19 +518,19 @@ describe('Teraslice Ex', () => {
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         job_id: 'example-job-id',
-                        _status: Teraslice.ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
                 const results = await ex.waitForStatus(
-                    Teraslice.ExecutionStatus.running,
+                    Teraslice.ExecutionStatusEnum.running,
                     1000,
                     0,
                     searchOptions
                 );
-                expect(results).toEqual(Teraslice.ExecutionStatus.running);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -539,20 +539,20 @@ describe('Teraslice Ex', () => {
                 scope.get('/ex/other-ex-id')
                     .reply(200, {
                         ex_id: 'other-ex-id',
-                        _status: Teraslice.ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
 
                 scope.get('/ex/other-ex-id')
                     .reply(200, {
                         ex_id: 'other-ex-id',
-                        _status: Teraslice.ExecutionStatus.completed
+                        _status: Teraslice.ExecutionStatusEnum.completed
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'other-ex-id');
-                const results = await ex.waitForStatus(Teraslice.ExecutionStatus.completed);
-                expect(results).toEqual(Teraslice.ExecutionStatus.completed);
+                const results = await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.completed);
             });
         });
 
@@ -562,7 +562,7 @@ describe('Teraslice Ex', () => {
                     .times(12)
                     .reply(200, {
                         ex_id: 'foo-bar-ex-id',
-                        _status: Teraslice.ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
@@ -570,7 +570,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'foo-bar-ex-id');
                 try {
-                    await ex.waitForStatus(Teraslice.ExecutionStatus.completed, 100, 1000);
+                    await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed, 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Execution status failed to change from status "running" to "completed" within 1000ms');
                 }
@@ -583,20 +583,24 @@ describe('Teraslice Ex', () => {
                     .delay(1100)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: Teraslice.ExecutionStatus.initializing
+                        _status: Teraslice.ExecutionStatusEnum.initializing
                     });
 
                 scope.get('/ex/some-job-id')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: Teraslice.ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve with the correct status', async () => {
                 const ex = new Ex({ baseUrl }, 'some-job-id');
-                const status = await ex.waitForStatus(Teraslice.ExecutionStatus.running, 100, 1500);
-                expect(status).toEqual(Teraslice.ExecutionStatus.running);
+                const status = await ex.waitForStatus(
+                    Teraslice.ExecutionStatusEnum.running,
+                    100,
+                    1500
+                );
+                expect(status).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -605,7 +609,7 @@ describe('Teraslice Ex', () => {
                 scope.get('/ex/example-ex-id')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: Teraslice.ExecutionStatus.failed
+                        _status: Teraslice.ExecutionStatusEnum.failed
                     });
             });
 
@@ -613,7 +617,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
                 try {
-                    await ex.waitForStatus(Teraslice.ExecutionStatus.completed, 100, 1000);
+                    await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed, 100, 1000);
                 } catch (err) {
                     const errMsg = 'Execution cannot reach the target status, "completed", because it is in the terminal state, "failed"';
                     expect(err.message).toEqual(errMsg);

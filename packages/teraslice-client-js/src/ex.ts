@@ -61,7 +61,7 @@ export default class Ex extends Client {
         return new Ex(this._config, result.ex_id);
     }
 
-    async status(requestOptions?: RequestOptions): Promise<keyof typeof Teraslice.ExecutionStatus> {
+    async status(requestOptions?: RequestOptions): Promise<Teraslice.ExecutionStatus> {
         const { _status: status } = await this.config(requestOptions);
         return status;
     }
@@ -123,17 +123,17 @@ export default class Ex extends Client {
     }
 
     async waitForStatus(
-        target: keyof typeof Teraslice.ExecutionStatus,
+        target: Teraslice.ExecutionStatus,
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
-    ): Promise<keyof typeof Teraslice.ExecutionStatus> {
+    ): Promise<Teraslice.ExecutionStatus> {
         const terminal = {
-            [Teraslice.ExecutionStatus.terminated]: true,
-            [Teraslice.ExecutionStatus.failed]: true,
-            [Teraslice.ExecutionStatus.rejected]: true,
-            [Teraslice.ExecutionStatus.completed]: true,
-            [Teraslice.ExecutionStatus.stopped]: true,
+            [Teraslice.ExecutionStatusEnum.terminated]: true,
+            [Teraslice.ExecutionStatusEnum.failed]: true,
+            [Teraslice.ExecutionStatusEnum.rejected]: true,
+            [Teraslice.ExecutionStatusEnum.completed]: true,
+            [Teraslice.ExecutionStatusEnum.stopped]: true,
         };
 
         const startTime = Date.now();
@@ -142,7 +142,7 @@ export default class Ex extends Client {
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
 
-        const checkStatus = async (): Promise<keyof typeof Teraslice.ExecutionStatus> => {
+        const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {
             let result;
             try {
                 result = await this.status(options);

@@ -183,19 +183,19 @@ describe('Teraslice Jobs', () => {
         describe('when called with a string', () => {
             beforeEach(() => {
                 scope.get('/jobs')
-                    .query({ status: Teraslice.ExecutionStatus.running })
+                    .query({ status: Teraslice.ExecutionStatusEnum.running })
                     .reply(200, list);
             });
 
             it('should resolve json result from Teraslice', async () => {
-                const results = await jobs.list(Teraslice.ExecutionStatus.running);
+                const results = await jobs.list(Teraslice.ExecutionStatusEnum.running);
                 expect(results).toEqual(list);
             });
         });
 
         describe('when called with an object', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
-            const queryOptions = { status: Teraslice.ExecutionStatus.running, size: 10 };
+            const queryOptions = { status: Teraslice.ExecutionStatusEnum.running, size: 10 };
 
             beforeEach(() => {
                 scope.get('/jobs')

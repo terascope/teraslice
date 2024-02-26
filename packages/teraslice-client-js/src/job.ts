@@ -122,11 +122,11 @@ export default class Job extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<Teraslice.ExecutionStatus> {
         const terminal = {
-            [Teraslice.ExecutionStatus.terminated]: true,
-            [Teraslice.ExecutionStatus.failed]: true,
-            [Teraslice.ExecutionStatus.rejected]: true,
-            [Teraslice.ExecutionStatus.completed]: true,
-            [Teraslice.ExecutionStatus.stopped]: true,
+            [Teraslice.ExecutionStatusEnum.terminated]: true,
+            [Teraslice.ExecutionStatusEnum.failed]: true,
+            [Teraslice.ExecutionStatusEnum.rejected]: true,
+            [Teraslice.ExecutionStatusEnum.completed]: true,
+            [Teraslice.ExecutionStatusEnum.stopped]: true,
         };
 
         const startTime = Date.now();

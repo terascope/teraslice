@@ -1,7 +1,7 @@
 export type ClusterManagerType = 'native'|'kubernetes';
 
 export interface AssetRecord {
-    blob: Buffer | string
+    blob: SharedArrayBuffer | string | Buffer
     name: string;
     version: string;
     id: string;
@@ -84,7 +84,7 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     metadata: Record<string, any>;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
-    _status: keyof typeof ExecutionStatus;
+    _status: ExecutionStatus;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
     _failureReason?: string
@@ -117,11 +117,15 @@ export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
     subslice_by_key: number,
     started: undefined | string | number | Date,
     queuing_complete: undefined | string | number | Date,
-    ex_id: string;
-    job_id: string;
 }
 
-export type ExecutionList = ExecutionAnalytics[]
+export interface ExecutionAnalyticsResponse extends ExecutionAnalytics {
+    ex_id: string;
+    job_id: string;
+    name: string
+}
+
+export type ExecutionList = ExecutionAnalyticsResponse[]
 
 // TODO: better description here of what this is
 export interface AggregatedExecutionAnalytics {
@@ -355,15 +359,15 @@ export interface ApiJobCreateResponse {
 }
 
 export interface ApiPausedResponse {
-    status: ExecutionStatus.paused;
+    status: ExecutionStatusEnum.paused;
 }
 
 export interface ApiResumeResponse {
-    status: ExecutionStatus.running;
+    status: ExecutionStatusEnum.running;
 }
 
 export interface ApiStoppedResponse {
-    status: ExecutionStatus.stopped | ExecutionStatus.stopping;
+    status: ExecutionStatusEnum.stopped | ExecutionStatusEnum.stopping;
 }
 
 export interface ApiChangeWorkerResponse {
@@ -382,7 +386,7 @@ export interface RecoverQuery {
     Execution Context
 */
 
-export enum ExecutionStatus {
+export enum ExecutionStatusEnum {
     pending = 'pending',
     scheduling = 'scheduling',
     initializing = 'initializing',
@@ -400,24 +404,26 @@ export enum ExecutionStatus {
     terminated = 'terminated'
 }
 
+export type ExecutionStatus = keyof typeof ExecutionStatusEnum
+
 export type ExecutionInitStatus =
-    ExecutionStatus.pending |
-    ExecutionStatus.scheduling |
-    ExecutionStatus.recovering;
+ExecutionStatusEnum.pending |
+ExecutionStatusEnum.scheduling |
+ExecutionStatusEnum.recovering;
 
 export type ExecutionRunningStatus =
-    ExecutionStatus.recovering |
-    ExecutionStatus.running |
-    ExecutionStatus.failing |
-    ExecutionStatus.paused |
-    ExecutionStatus.stopping;
+ExecutionStatusEnum.recovering |
+ExecutionStatusEnum.running |
+ExecutionStatusEnum.failing |
+ExecutionStatusEnum.paused |
+ExecutionStatusEnum.stopping;
 
 export type ExecutionTerminalStatus =
-    ExecutionStatus.completed |
-    ExecutionStatus.stopped |
-    ExecutionStatus.rejected |
-    ExecutionStatus.failed |
-    ExecutionStatus.terminated;
+ExecutionStatusEnum.completed |
+ExecutionStatusEnum.stopped |
+ExecutionStatusEnum.rejected |
+ExecutionStatusEnum.failed |
+ExecutionStatusEnum.terminated;
 
 export interface ExecutionControllerTargets {
     key: string;

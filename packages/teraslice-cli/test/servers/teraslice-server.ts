@@ -1,8 +1,8 @@
 import nock from 'nock';
-import { RootResponse, AssetIDResponse } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
 
 // TODO: take note of node_version
-const rootResponse: RootResponse = {
+const rootResponse: Teraslice.ApiRootResponse = {
     arch: 'x64',
     clustering_type: 'native',
     name: 'teracluster',
@@ -11,16 +11,10 @@ const rootResponse: RootResponse = {
     teraslice_version: 'v0.56.3'
 };
 
-const postAssetResponse: AssetIDResponse = {
+const postAssetResponse: Teraslice.AssetIDResponse = {
     _id: 'assset_test_id'
 };
 
-/**
- * @jsnoble FIXME: this is not a good way to test. This doesn't tests that the correct
- * data was sent and the api is too limiting.
- * Why not just nock directly? Also using `http://localhost:5678` is missleading and
- * can lead to requests hitting a local teraslice if misconfigured
-*/
 export default class TerasliceServer {
     init(): nock.Scope {
         const scope = nock('http://localhost:5678')
