@@ -104,7 +104,7 @@ export const toTimeZoneUsingLocationConfig: FieldTransformConfig<toTimeZoneUsing
             },
             field: 'testField',
             input: '2020-01-03T19:41:00.000Z',
-            output: isNode18 ? '2020-01-03T12:41:00.000-07:00' : null,
+            output: '2020-01-03T12:41:00.000-07:00',
         }
     ],
     create({ args: { location } }) {
