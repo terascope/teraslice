@@ -79,12 +79,14 @@ export class TSError extends Error {
         if (Error?.captureStackTrace) {
             Error.captureStackTrace(this, TSError);
         } else {
-            Object.defineProperty(this, 'stack', {
-                enumerable: false,
-                value: Error(message).stack,
-                writable: true,
-                configurable: true
-            });
+            const value = Error(message).stack;
+            if (value) {
+                Object.defineProperty(this, 'stack', {
+                    value,
+                    writable: true,
+                    configurable: true
+                });
+            }
         }
     }
 
