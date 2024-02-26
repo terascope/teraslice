@@ -648,51 +648,30 @@ function waitForKafkaRunning(timeoutMs = 120000): Promise<void> {
     return _waitForKafkaRunning();
 }
 
-export async function createNamespace(namespaceYaml: string) {
-    const e2eK8sDir = getE2eK8sDir();
-    if (!e2eK8sDir) {
-        throw new Error('Missing k8s e2e test directory');
-    }
-    const subprocess = await execa.command(`kubectl create -f ${path.join(e2eK8sDir, namespaceYaml)}`);
-    logger.debug(subprocess.stdout);
-}
-
-export async function setAliasAndBaseAssets(tsPort: string) {
-    await setAlias(tsPort);
-    await deployAssets('elasticsearch');
-    await deployAssets('standard');
-    await deployAssets('kafka');
-}
-
-async function setAlias(tsPort: string) {
+export async function setAlias(tsPort: string) {
     let subprocess = await execa.command('earl aliases remove k8s-e2e 2> /dev/null || true', { shell: true });
     logger.debug(subprocess.stdout);
     subprocess = await execa.command(`earl aliases add k8s-e2e http://${config.HOST_IP}:${tsPort}`);
     logger.debug(subprocess.stdout);
 }
 
-async function deployAssets(assetName: string) {
-    const subprocess = await execa.command(`earl assets deploy k8s-e2e --blocking terascope/${assetName}-assets`);
-    logger.debug(subprocess.stdout);
-}
-
 export async function showState(tsPort: string) {
     const subprocess = await execa.command('kubectl get deployments,po,svc --all-namespaces --show-labels -o wide');
     logger.debug(subprocess.stdout);
-    await showESIndices();
-    await showAssets(tsPort);
+    logger.debug(await showESIndices());
+    logger.debug(await showAssets(tsPort));
 }
 
 async function showESIndices() {
     const subprocess = await execa.command(`curl ${config.HOST_IP}:${config.ELASTICSEARCH_PORT}/_cat/indices?v`);
-    logger.debug(subprocess.stdout);
+    return subprocess.stdout;
 }
 
 async function showAssets(tsPort: string) {
     try {
         const subprocess = await execa.command(`curl ${config.HOST_IP}:${tsPort}/v1/assets`);
-        logger.debug(subprocess.stdout);
+        return subprocess.stdout;
     } catch (err) {
-        logger.debug(err);
+        return err;
     }
 }

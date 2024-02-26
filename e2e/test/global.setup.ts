@@ -1,6 +1,6 @@
 import { pDelay } from '@terascope/utils';
 import fse from 'fs-extra';
-import { K8s, setAliasAndBaseAssets } from '@terascope/scripts';
+import { K8s, setAlias } from '@terascope/scripts';
 import { TerasliceHarness } from './teraslice-harness.js';
 import { dockerUp } from './docker-helpers.js';
 import signale from './signale.js';
@@ -35,10 +35,11 @@ export default async () => {
     ]);
 
     if (TEST_PLATFORM === 'kubernetes') {
+        await downloadAssets();
         const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
         await k8s.deployK8sTeraslice(true);
         await teraslice.waitForTeraslice();
-        await setAliasAndBaseAssets(TERASLICE_PORT);
+        await setAlias(TERASLICE_PORT);
     } else {
         await Promise.all([setupTerasliceConfig(), downloadAssets()]);
         await dockerUp();
