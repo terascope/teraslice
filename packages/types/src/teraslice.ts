@@ -543,7 +543,7 @@ export interface NodeState {
     node_version: string;
     teraslice_version: string;
     total: number;
-    state: string; // ??
+    state: string;
     available: number;
     active: ProcessNode[];
 }
