@@ -38,8 +38,6 @@ import {
     toTimeZoneUsingLocationFP,
 } from '../src/dates';
 
-const isNode18 = process.version.includes('v18');
-
 describe('date utils', () => {
     describe('isISO8601', () => {
         test.each([
