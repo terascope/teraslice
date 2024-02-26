@@ -76,7 +76,18 @@ export class TSError extends Error {
             value: this.constructor.name,
         });
 
-        Error.captureStackTrace(this, TSError);
+        if (Error?.captureStackTrace) {
+            Error.captureStackTrace(this, TSError);
+        } else {
+            const value = Error(message).stack;
+            if (value) {
+                Object.defineProperty(this, 'stack', {
+                    value,
+                    writable: true,
+                    configurable: true
+                });
+            }
+        }
     }
 
     getCause(): any {
