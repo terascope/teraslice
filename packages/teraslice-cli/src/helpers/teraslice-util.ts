@@ -1,5 +1,6 @@
 import { has } from '@terascope/utils';
-import TerasliceClient, { RootResponse } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
+import TerasliceClient from 'teraslice-client-js';
 
 export default class TerasliceUtil {
     config: any;
@@ -11,13 +12,14 @@ export default class TerasliceUtil {
         return new TerasliceClient({ host: this.config.clusterUrl });
     }
 
-    async info(): Promise<RootResponse> {
+    async info(): Promise<Teraslice.ApiRootResponse> {
         return this.client.cluster.info();
     }
 
-    async type(): Promise<string> {
+    async type(): Promise<Teraslice.ClusterManagerType> {
         let clusterInfo = {};
-        let clusteringType = 'native';
+        let clusteringType: Teraslice.ClusterManagerType = 'native';
+
         try {
             clusterInfo = await this.info();
             if (has(clusterInfo, 'clustering_type')) {
@@ -31,6 +33,7 @@ export default class TerasliceUtil {
                 clusteringType = 'native';
             }
         }
+
         return clusteringType;
     }
 }

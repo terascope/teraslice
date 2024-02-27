@@ -4,7 +4,7 @@ import {
     cloneDeep, isEmpty, castArray, pRetry
 } from '@terascope/utils';
 import { showState } from '@terascope/scripts';
-import { JobConfig } from '@terascope/types';
+import { JobConfig, Teraslice } from '@terascope/types';
 import { createClient, ElasticsearchTestHelpers, Client } from 'elasticsearch-store';
 import { TerasliceClient } from 'teraslice-client-js';
 import fse from 'fs-extra';
@@ -152,12 +152,11 @@ export class TerasliceHarness {
                 (async () => {
                     const cleanupExIds: string[] = [];
                     Object.values(state).forEach((node) => {
-                        const { assignment, ex_id: exId } = node;
-
-                        const isWorker = ['execution_controller', 'worker'].includes(assignment);
-                        if (isWorker) {
-                            cleanupExIds.push(exId);
-                        }
+                        node.active.filter(Teraslice.isExecutionProcess)
+                            .forEach((process) => {
+                                const { ex_id: exId } = process;
+                                cleanupExIds.push(exId);
+                            });
                     });
 
                     await Promise.all(

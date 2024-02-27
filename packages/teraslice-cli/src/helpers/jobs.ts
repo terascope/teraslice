@@ -2,13 +2,8 @@ import fs from 'fs-extra';
 import {
     has, toString, pDelay, pMap,
 } from '@terascope/utils';
-import {
-    ExecutionStatus,
-    Execution,
-    ControllerState,
-    Job
-} from 'teraslice-client-js';
-import { JobConfig } from '@terascope/job-components';
+import { Teraslice } from '@terascope/types';
+import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util';
 import Display from '../helpers/display';
 import reply from '../helpers/reply';
@@ -19,8 +14,11 @@ import {
     JobMetadata,
     JobConfigFile,
     StatusUpdate,
-    RegisteredStatus
+    RegisteredStatusEnum,
+    AllStatusTypes
 } from '../interfaces';
+
+const statusEnum = Teraslice.ExecutionStatusEnum;
 
 const display = new Display();
 
@@ -52,7 +50,7 @@ export default class Jobs {
     allJobsStopped: boolean;
     activeStatus: string[];
     jobsListChecked: string[];
-    terminalStatuses: (ExecutionStatus | RegisteredStatus)[];
+    terminalStatuses: (AllStatusTypes)[];
     concurrency: number; // this should probably come from a config file?
 
     constructor(cliConfig: Record<string, any>) {
@@ -65,12 +63,12 @@ export default class Jobs {
         this.jobsListChecked = [];
         this.concurrency = 4;
         this.terminalStatuses = [
-            ExecutionStatus.stopped,
-            ExecutionStatus.completed,
-            ExecutionStatus.terminated,
-            ExecutionStatus.failed,
-            ExecutionStatus.rejected,
-            RegisteredStatus.no_execution
+            Teraslice.ExecutionStatusEnum.stopped,
+            Teraslice.ExecutionStatusEnum.completed,
+            Teraslice.ExecutionStatusEnum.terminated,
+            Teraslice.ExecutionStatusEnum.failed,
+            Teraslice.ExecutionStatusEnum.rejected,
+            RegisteredStatusEnum.no_execution
         ];
     }
 
@@ -78,7 +76,7 @@ export default class Jobs {
         return this.jobs;
     }
 
-    async submitJobConfig(jobConfig: JobConfig) {
+    async submitJobConfig(jobConfig: Teraslice.JobConfig) {
         try {
             return this.teraslice.client.jobs.submit(jobConfig, true);
         } catch (e) {
@@ -127,7 +125,7 @@ export default class Jobs {
         for (const job of this.jobs) {
             const { status } = this.getJobIdentifiers(job);
 
-            if (this.terminalStatuses.includes(status as ExecutionStatus)) {
+            if (this.terminalStatuses.includes(status)) {
                 this.logUpdate({ action: 'adjustWorkersTerminal', job });
                 return;
             }
@@ -149,7 +147,7 @@ export default class Jobs {
         for (const job of this.jobs) {
             const { status } = this.getJobIdentifiers(job);
 
-            if (status !== ExecutionStatus.failed) {
+            if (status !== Teraslice.ExecutionStatusEnum.failed) {
                 this.logUpdate({ action: 'recoverNotFailed', job });
                 continue;
             }
@@ -201,7 +199,7 @@ export default class Jobs {
         await Promise.all(this.jobs.map((job) => this.await(job, wantedStatus)));
     }
 
-    private async await(job: JobMetadata, wantedStatus: ExecutionStatus[]) {
+    private async await(job: JobMetadata, wantedStatus: Teraslice.ExecutionStatus[]) {
         const statusUpdate = await this.waitStatusChange(job, wantedStatus);
 
         const newStatus = statusUpdate.newStatus!;
@@ -241,7 +239,9 @@ export default class Jobs {
         state[job.id] = { execution, controller };
     }
 
-    private async getJobState(job: JobMetadata): Promise<[Execution, ControllerState]> {
+    private async getJobState(
+        job: JobMetadata
+    ): Promise<[Teraslice.ExecutionRecord, Teraslice.ExecutionList]> {
         try {
             return Promise.all([job.api.execution(), job.api.controller()]);
         } catch (e) {
@@ -303,7 +303,7 @@ export default class Jobs {
             return;
         }
 
-        if (status === ExecutionStatus.running) {
+        if (status === statusEnum.running) {
             this.logUpdate({ action: 'running', job });
             return;
         }
@@ -355,10 +355,10 @@ export default class Jobs {
     private async verifyJobRunning(job: JobMetadata) {
         const statusUpdate = await this.waitStatusChange(
             job,
-            ExecutionStatus.running
+            statusEnum.running
         );
 
-        const newStatus = statusUpdate.newStatus! as ExecutionStatus;
+        const newStatus = statusUpdate.newStatus! as Teraslice.ExecutionStatus;
 
         // update job status incase of further job processes
         job.status = newStatus;
@@ -367,7 +367,7 @@ export default class Jobs {
             this.commandFailed(statusUpdate.errorMessage as string, job);
         }
 
-        if (newStatus === ExecutionStatus.running) {
+        if (newStatus === statusEnum.running) {
             this.logUpdate({ action: 'running', job });
             return;
         }
@@ -454,7 +454,7 @@ export default class Jobs {
         job: JobMetadata,
         action: 'stop' | 'pause'
     ): Promise<void> {
-        const executionStatus = action === 'pause' ? ExecutionStatus.paused : ExecutionStatus.stopped;
+        const executionStatus = action === 'pause' ? statusEnum.paused : statusEnum.stopped;
 
         if (job.status === executionStatus) {
             this.logUpdate({ action: display.setAction(action, 'past'), job });
@@ -487,7 +487,7 @@ export default class Jobs {
     }
 
     private inTerminalStatus(job: JobMetadata): boolean {
-        return this.terminalStatuses.includes(job.status as ExecutionStatus);
+        return this.terminalStatuses.includes(job.status);
     }
 
     private correctNumberWorkers(currentWorkers: number, requestedWorkers: number): boolean {
@@ -498,7 +498,7 @@ export default class Jobs {
 
     private async waitStatusChange(
         job: JobMetadata,
-        action: ExecutionStatus | ExecutionStatus[]
+        action: Teraslice.ExecutionStatus | Teraslice.ExecutionStatus[]
     ): Promise<StatusUpdate> {
         const { timeout, interval } = this.config.args;
 
@@ -593,26 +593,26 @@ export default class Jobs {
         }
     }
 
-    async getStatus(jobApi: Job) {
-        let status: ExecutionStatus | RegisteredStatus = RegisteredStatus.no_execution;
+    async getStatus(jobApi: Job): Promise<AllStatusTypes> {
+        let status: AllStatusTypes;
 
         try {
             status = await jobApi.status();
         } catch (e) {
             if (e.message.includes('No execution was found for job')) {
                 // Indicates that job is registered but not ran yet
-                status = RegisteredStatus.no_execution;
+                status = RegisteredStatusEnum.no_execution;
             } else {
                 reply.fatal(e);
             }
         }
-
+        // @ts-expect-error
         return status;
     }
 
     statusCheck(
-        statusList: (ExecutionStatus | RegisteredStatus)[] | undefined,
-        status: ExecutionStatus | RegisteredStatus
+        statusList: (AllStatusTypes)[] | undefined,
+        status: AllStatusTypes
     ): boolean {
         if (statusList && statusList.length) {
             return statusList.includes(status);

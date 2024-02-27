@@ -1,35 +1,11 @@
 import {
-    isString,
-    TSError,
-    toString,
-    pDelay,
-    Assignment,
-    toHumanTime
-} from '@terascope/job-components';
+    isString, TSError, toString,
+    pDelay, toHumanTime
+} from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
 import Client from './client';
-
-import {
-    ClientConfig,
-    SearchQuery,
-    SearchOptions,
-    PausedResponse,
-    StoppedResponse,
-    StopQuery,
-    Execution,
-    ResumeResponse,
-    ExecutionStatus,
-    StateErrors,
-    RequestOptions,
-    RecoverQuery,
-    ControllerState,
-    ClusterState,
-    WorkerJobProcesses,
-    ClusterProcess,
-    ChangeWorkerResponse,
-    ChangeWorkerQueryParams,
-    JobIDResponse
-} from './interfaces';
+import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Ex extends Client {
     private readonly _exId: string;
@@ -45,27 +21,36 @@ export default class Ex extends Client {
 
     id(): string { return this._exId; }
 
-    async stop(query?: StopQuery, searchOptions: SearchOptions = {}): Promise<StoppedResponse> {
+    async stop(
+        query?: Teraslice.StopQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiStoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_stop`, null, options);
     }
 
-    async pause(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<PausedResponse> {
+    async pause(
+        query?: Teraslice.SearchQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiPausedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_pause`, null, options);
     }
 
-    async resume(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<ResumeResponse> {
+    async resume(
+        query?: Teraslice.SearchQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<Teraslice.ApiResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/ex/${this._exId}/_resume`, null, options);
     }
 
     async recover(
-        query: RecoverQuery = {},
+        query: Teraslice.RecoverQuery = {},
         searchOptions: SearchOptions = {}
     ): Promise<Ex> {
         const options = this.makeOptions(query, searchOptions);
-        const result: JobIDResponse = await this.post(`/ex/${this._exId}/_recover`, null, options);
+        const result: Teraslice.ApiJobCreateResponse = await this.post(`/ex/${this._exId}/_recover`, null, options);
 
         // support older version of teraslice
         if (!result.ex_id) {
@@ -76,39 +61,39 @@ export default class Ex extends Client {
         return new Ex(this._config, result.ex_id);
     }
 
-    async status(requestOptions?: RequestOptions): Promise<ExecutionStatus> {
+    async status(requestOptions?: RequestOptions): Promise<Teraslice.ExecutionStatus> {
         const { _status: status } = await this.config(requestOptions);
         return status;
     }
 
-    async slicer(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+    async slicer(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
         return this.get(`/ex/${this._exId}/slicer`, requestOptions);
     }
 
-    async controller(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+    async controller(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionList> {
         return this.get(`/ex/${this._exId}/controller`, requestOptions);
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<Execution> {
+    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionRecord> {
         return this.get(`/ex/${this._exId}`, requestOptions);
     }
 
-    async workers(requestOptions: RequestOptions = {}): Promise<WorkerJobProcesses[]> {
-        const state: ClusterState = await this.get('/cluster/state', requestOptions);
-        return filterProcesses<WorkerJobProcesses>(state, this._exId, 'worker');
+    async workers(requestOptions: RequestOptions = {}): Promise<Teraslice.WorkerNode[]> {
+        const state: Teraslice.ClusterState = await this.get('/cluster/state', requestOptions);
+        return filterProcesses<Teraslice.WorkerNode>(state, this._exId, 'worker');
     }
 
-    async errors(options?: SearchQuery): Promise<StateErrors> {
+    async errors(options?: Teraslice.SearchQuery): Promise<Teraslice.ErrorRecord[]> {
         return this.get(`/ex/${this._exId}/errors`, {
             searchParams: options,
         } as SearchOptions);
     }
 
     async changeWorkers(
-        action: ChangeWorkerQueryParams,
+        action: Teraslice.ChangeWorkerQueryParams,
         workerNum: number,
         requestOptions: RequestOptions = {}
-    ): Promise<ChangeWorkerResponse | string> {
+    ): Promise<Teraslice.ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
             throw new TSError('Change workers requires action and count', {
                 statusCode: 400
@@ -138,17 +123,17 @@ export default class Ex extends Client {
     }
 
     async waitForStatus(
-        target: ExecutionStatus,
+        target: Teraslice.ExecutionStatus,
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
-    ): Promise<ExecutionStatus> {
+    ): Promise<Teraslice.ExecutionStatus> {
         const terminal = {
-            [ExecutionStatus.terminated]: true,
-            [ExecutionStatus.failed]: true,
-            [ExecutionStatus.rejected]: true,
-            [ExecutionStatus.completed]: true,
-            [ExecutionStatus.stopped]: true,
+            [Teraslice.ExecutionStatusEnum.terminated]: true,
+            [Teraslice.ExecutionStatusEnum.failed]: true,
+            [Teraslice.ExecutionStatusEnum.rejected]: true,
+            [Teraslice.ExecutionStatusEnum.completed]: true,
+            [Teraslice.ExecutionStatusEnum.stopped]: true,
         };
 
         const startTime = Date.now();
@@ -157,7 +142,7 @@ export default class Ex extends Client {
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
 
-        const checkStatus = async (): Promise<ExecutionStatus> => {
+        const checkStatus = async (): Promise<Teraslice.ExecutionStatus> => {
             let result;
             try {
                 result = await this.status(options);
@@ -212,11 +197,16 @@ function validateExId(exId?: string) {
     }
 }
 
-function filterProcesses<T>(state: ClusterState, exId: string, type: Assignment) {
+function filterProcesses<T>(
+    state: Teraslice.ClusterState,
+    exId: string,
+    type: Teraslice.Assignment
+) {
     const results: T[] = [];
 
     for (const node of Object.values(state)) {
-        node.active.forEach((child: ClusterProcess) => {
+        // TODO: fixme
+        node.active.forEach((child: any) => {
             const { assignment, ex_id: procExId } = child;
             if ((assignment && assignment === type) && (procExId && procExId === exId)) {
                 const jobProcess = Object.assign({}, child, { node_id: node.node_id });

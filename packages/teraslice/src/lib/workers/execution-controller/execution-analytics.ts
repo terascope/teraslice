@@ -71,7 +71,7 @@ export class ExecutionAnalytics {
             subslice_by_key: 0,
             started: undefined,
             queuing_complete: undefined
-        } as EStats;
+        };
 
         this.pushedAnalytics = {
             processed: 0,
@@ -81,7 +81,7 @@ export class ExecutionAnalytics {
             workers_joined: 0,
             workers_disconnected: 0,
             workers_reconnected: 0
-        } as AggregatedExecutionAnalytics;
+        };
 
         this._registerHandlers();
 

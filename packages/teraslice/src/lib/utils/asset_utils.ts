@@ -63,7 +63,7 @@ const SYSTEM_NODE_VERSION = getMajorVersion(process.version);
 /**
  * This just compares the major version
 */
-function isCompatibleNodeVersion(version: string|number) {
+function isCompatibleNodeVersion(version: string|number | undefined) {
     if (version == null) return true;
 
     // anything less than or equal to current node version

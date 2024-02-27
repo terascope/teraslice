@@ -1,4 +1,4 @@
-import { JobConfiguration } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
@@ -20,7 +20,7 @@ export = {
         return yargs;
     },
     async handler(argv: any) {
-        let response: JobConfiguration[];
+        let response: Teraslice.JobConfig[];
         const active = false;
         const parse = true;
         const cliConfig = new Config(argv);

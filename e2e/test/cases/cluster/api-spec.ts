@@ -94,13 +94,9 @@ describe('cluster api', () => {
         await pDelay(100);
 
         const result = await Promise.all([
-            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
-            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_resume`)),
-            // @ts-expect-error
             didError(terasliceHarness.teraslice.cluster.post(`/ex/${exId}/_pause`))
         ]);
 
@@ -143,13 +139,11 @@ describe('cluster api', () => {
     });
 
     it('api end point /txt/assets/assetName should return a text table', async () => {
-        // @ts-expect-error
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1');
         expect(response).toBeString();
     });
 
     it('api end point /txt/assets/assetName/version should return a text table', async () => {
-        // @ts-expect-error
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
     });

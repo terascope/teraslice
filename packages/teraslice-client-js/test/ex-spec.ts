@@ -1,11 +1,6 @@
 import nock from 'nock';
-import { RecoveryCleanupType } from '@terascope/job-components';
+import { Teraslice } from '@terascope/types';
 import Ex from '../src/ex';
-import {
-    ExecutionStatus,
-    ClusterStateNative,
-    WorkerJobProcesses
-} from '../src/interfaces';
 
 describe('Teraslice Ex', () => {
     let scope: nock.Scope;
@@ -18,7 +13,7 @@ describe('Teraslice Ex', () => {
 
     const requestOptions = { headers: { 'Random-Header': 'true' } };
 
-    const clusterState: ClusterStateNative = {
+    const clusterState: any = {
         'some-node-id': {
             hostname: 'host',
             pid: 111,
@@ -223,7 +218,7 @@ describe('Teraslice Ex', () => {
         describe('when called with a query', () => {
             beforeEach(() => {
                 scope.post('/ex/some-ex-id/_recover')
-                    .query({ cleanup: RecoveryCleanupType.errors })
+                    .query({ cleanup: Teraslice.RecoveryCleanupType.errors })
                     .reply(200, {
                         job_id: 'some-job-key',
                         ex_id: 'some-ex-key'
@@ -232,7 +227,9 @@ describe('Teraslice Ex', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const instance = await ex.recover({ cleanup: RecoveryCleanupType.errors });
+                const instance = await ex.recover({
+                    cleanup: Teraslice.RecoveryCleanupType.errors
+                });
 
                 expect(instance).toBeInstanceOf(Ex);
                 expect(instance.id()).toEqual('some-ex-key');
@@ -253,7 +250,7 @@ describe('Teraslice Ex', () => {
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
                 const instance = await ex.recover({
-                    cleanup: RecoveryCleanupType.errors
+                    cleanup: Teraslice.RecoveryCleanupType.errors
                 }, requestOptions);
 
                 expect(instance).toBeInstanceOf(Ex);
@@ -364,15 +361,14 @@ describe('Teraslice Ex', () => {
     });
 
     describe('->workers', () => {
-        const workerData: WorkerJobProcesses[] = [];
+        const workerData: Teraslice.WorkerNode[] = [];
 
         const exId = 'some-ex-id';
         for (const [nodeName, node] of Object.entries(clusterState)) {
-            node.active.forEach((child) => {
+            // @ts-expect-error TODO: fixme
+            node.active.forEach((child: any) => {
                 if (child.assignment === 'worker' && child.ex_id === exId) {
-                    // @ts-expect-error
                     child.node_id = nodeName;
-                    // @ts-expect-error
                     workerData.push(child);
                 }
             });
@@ -502,14 +498,14 @@ describe('Teraslice Ex', () => {
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         job_id: 'example-job-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
-                const results = await ex.waitForStatus(ExecutionStatus.running);
-                expect(results).toEqual(ExecutionStatus.running);
+                const results = await ex.waitForStatus(Teraslice.ExecutionStatusEnum.running);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -522,19 +518,19 @@ describe('Teraslice Ex', () => {
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         job_id: 'example-job-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
                 const results = await ex.waitForStatus(
-                    ExecutionStatus.running,
+                    Teraslice.ExecutionStatusEnum.running,
                     1000,
                     0,
                     searchOptions
                 );
-                expect(results).toEqual(ExecutionStatus.running);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -543,20 +539,20 @@ describe('Teraslice Ex', () => {
                 scope.get('/ex/other-ex-id')
                     .reply(200, {
                         ex_id: 'other-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
 
                 scope.get('/ex/other-ex-id')
                     .reply(200, {
                         ex_id: 'other-ex-id',
-                        _status: ExecutionStatus.completed
+                        _status: Teraslice.ExecutionStatusEnum.completed
                     });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'other-ex-id');
-                const results = await ex.waitForStatus(ExecutionStatus.completed);
-                expect(results).toEqual(ExecutionStatus.completed);
+                const results = await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed);
+                expect(results).toEqual(Teraslice.ExecutionStatusEnum.completed);
             });
         });
 
@@ -566,7 +562,7 @@ describe('Teraslice Ex', () => {
                     .times(12)
                     .reply(200, {
                         ex_id: 'foo-bar-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
@@ -574,7 +570,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'foo-bar-ex-id');
                 try {
-                    await ex.waitForStatus(ExecutionStatus.completed, 100, 1000);
+                    await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed, 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Execution status failed to change from status "running" to "completed" within 1000ms');
                 }
@@ -587,20 +583,24 @@ describe('Teraslice Ex', () => {
                     .delay(1100)
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.initializing
+                        _status: Teraslice.ExecutionStatusEnum.initializing
                     });
 
                 scope.get('/ex/some-job-id')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.running
+                        _status: Teraslice.ExecutionStatusEnum.running
                     });
             });
 
             it('should resolve with the correct status', async () => {
                 const ex = new Ex({ baseUrl }, 'some-job-id');
-                const status = await ex.waitForStatus(ExecutionStatus.running, 100, 1500);
-                expect(status).toEqual(ExecutionStatus.running);
+                const status = await ex.waitForStatus(
+                    Teraslice.ExecutionStatusEnum.running,
+                    100,
+                    1500
+                );
+                expect(status).toEqual(Teraslice.ExecutionStatusEnum.running);
             });
         });
 
@@ -609,7 +609,7 @@ describe('Teraslice Ex', () => {
                 scope.get('/ex/example-ex-id')
                     .reply(200, {
                         ex_id: 'example-ex-id',
-                        _status: ExecutionStatus.failed
+                        _status: Teraslice.ExecutionStatusEnum.failed
                     });
             });
 
@@ -617,7 +617,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'example-ex-id');
                 try {
-                    await ex.waitForStatus(ExecutionStatus.completed, 100, 1000);
+                    await ex.waitForStatus(Teraslice.ExecutionStatusEnum.completed, 100, 1000);
                 } catch (err) {
                     const errMsg = 'Execution cannot reach the target status, "completed", because it is in the terminal state, "failed"';
                     expect(err.message).toEqual(errMsg);
