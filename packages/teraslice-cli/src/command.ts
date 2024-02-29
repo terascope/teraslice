@@ -1,12 +1,12 @@
 import yargs from 'yargs';
-import aliases from './cmds/aliases';
-import assets from './cmds/assets';
-import jobs from './cmds/jobs';
-import ex from './cmds/ex';
-import nodes from './cmds/nodes';
-import workers from './cmds/workers';
-import controllers from './cmds/controllers';
-import tjm from './cmds/tjm';
+import aliases from './cmds/aliases/index.js';
+import assets from './cmds/assets/index.js';
+import jobs from './cmds/jobs/index.js';
+import ex from './cmds/ex/index.js';
+import nodes from './cmds/nodes/index.js';
+import workers from './cmds/workers/index.js';
+import controllers from './cmds/controllers/index.js';
+import tjm from './cmds/tjm/index.js';
 
 // eslint-disable-next-line
 yargs

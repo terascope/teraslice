@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'jobs',
     describe: 'commands to manage job',
     exclude: 'lib',

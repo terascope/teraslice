@@ -1,12 +1,12 @@
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import { validateJobFile, saveConfig } from '../../helpers/tjm-util';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import { validateJobFile, saveConfig } from '../../helpers/tjm-util.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'init <job-file...>',
     describe: 'Create a new job config file with example job definitions',
     builder(yargs) {

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import os from 'os';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';

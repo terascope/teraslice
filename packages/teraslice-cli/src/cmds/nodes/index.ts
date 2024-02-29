@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'nodes <command>',
     describe: 'commands to list nodes',
     builder(yargs) {

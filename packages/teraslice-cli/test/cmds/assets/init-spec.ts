@@ -1,6 +1,6 @@
 import 'jest-extended';
 import yargs from 'yargs';
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import os from 'os';
 import assert from 'yeoman-assert';

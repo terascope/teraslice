@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import {
     has,
@@ -6,12 +6,12 @@ import {
     unset,
     get
 } from '@terascope/utils';
-import Config from './config';
-import Jobs from './jobs';
-import { getPackage } from '../../src/helpers/utils';
-import { JobConfigFile } from '../interfaces';
+import Config from './config.js';
+import Jobs from './jobs.js';
+import { getPackage } from './utils.js';
+import { JobConfigFile } from '../interfaces.js';
 
-import reply from '../helpers/reply';
+import reply from './reply.js';
 
 /**
  * Functions to handle job config files

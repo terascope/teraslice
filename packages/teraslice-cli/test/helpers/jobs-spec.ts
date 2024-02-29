@@ -1,15 +1,15 @@
 /* eslint-disable jest/no-focused-tests */
 import nock from 'nock';
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
-import Jobs from '../../src/helpers/jobs';
+import Jobs from '../../src/helpers/jobs.js';
 import {
     makeJobIds,
     testJobConfig,
     buildCLIConfig,
     clusterControllers,
     getJobExecution
-} from './helpers';
+} from './helpers.js';
 
 // args, cli config, teraslice server
 const tsHost = 'http://test-host';

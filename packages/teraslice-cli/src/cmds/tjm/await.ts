@@ -1,13 +1,13 @@
 /* eslint-disable import/no-import-module-exports */
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import Config from '../../helpers/config';
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Config from '../../helpers/config.js';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'await <job-file...>',
     describe: 'Waits until a job or jobs reach a specified status or timeout expires',
     builder(yargs: any) {
@@ -33,6 +33,4 @@ const cmd: CMD = {
 
         await jobs.awaitStatus();
     }
-};
-
-module.exports = cmd;
+} as CMD;

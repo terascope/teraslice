@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'ex <command>',
     describe: 'commands to manage execution ids',
     builder(yargs) {

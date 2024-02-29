@@ -1,8 +1,8 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { AssetSrc } from '../../src/helpers/asset-src';
+import { AssetSrc } from '../../src/helpers/asset-src.js';
 
 describe('AssetSrc', () => {
     const srcDir = path.join(__dirname, '../fixtures/testAsset');

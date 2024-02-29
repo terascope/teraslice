@@ -1,4 +1,4 @@
-import Url from '../../src/helpers/url';
+import Url from '../../src/helpers/url.js';
 
 describe('Url', () => {
     let url: any;

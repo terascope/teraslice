@@ -1,11 +1,11 @@
-import { CMD } from '../../interfaces';
-import { updateJobConfig, validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
+import { CMD } from '../../interfaces.js';
+import { updateJobConfig, validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'update <job-file...>',
     describe: 'Update a job config by referencing the job config file',
     builder(yargs) {
@@ -39,6 +39,4 @@ const cmd: CMD = {
             }
         }
     }
-};
-
-export = cmd;
+} as CMD;

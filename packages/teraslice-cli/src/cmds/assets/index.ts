@@ -1,6 +1,6 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
 
-export = {
+export default {
     command: 'assets <command>',
     describe: 'commands to manage assets',
     exclude: 'lib',

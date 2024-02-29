@@ -1,12 +1,12 @@
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
-import reply from '../../helpers/reply';
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
+import reply from '../../helpers/reply.js';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'await <cluster-alias>  <job-id...>',
     describe: 'waits until job or jobs reaches a specified status or timeout expires',
     builder(yargs: any) {
@@ -34,6 +34,4 @@ const cmd: CMD = {
             reply.fatal(e.message);
         }
     }
-};
-
-export = cmd;
+} as CMD;

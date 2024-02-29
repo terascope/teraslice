@@ -1,11 +1,11 @@
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import Config from '../../helpers/config';
-import { convertOldTJMFiles } from '../../helpers/tjm-util';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Config from '../../helpers/config.js';
+import { convertOldTJMFiles } from '../../helpers/tjm-util.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'convert <job-file...>',
     describe: 'Converts job files that used the previous version of tjm to be compatible with teraslice-cli\n',
     builder(yargs) {

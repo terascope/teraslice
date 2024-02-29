@@ -1,12 +1,12 @@
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'start <job-file...>',
     describe: 'Start a job by referencing the job file',
     aliases: ['run'],

@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import Config from '../../helpers/config';
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Config from '../../helpers/config.js';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'restart <job-file...>',
     describe: 'Restart a job by referencing the job config file',
     builder(yargs) {

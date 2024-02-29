@@ -9,18 +9,18 @@ import {
     Job
 } from 'teraslice-client-js';
 import { JobConfig } from '@terascope/job-components';
-import TerasliceUtil from './teraslice-util';
-import Display from '../helpers/display';
-import reply from '../helpers/reply';
-import { getJobConfigFromFile } from './tjm-util';
-import Config from './config';
+import TerasliceUtil from './teraslice-util.js';
+import Display from './display.js';
+import reply from './reply.js';
+import { getJobConfigFromFile } from './tjm-util.js';
+import Config from './config.js';
 
 import {
     JobMetadata,
     JobConfigFile,
     StatusUpdate,
     RegisteredStatus
-} from '../interfaces';
+} from '../interfaces.js';
 
 const display = new Display();
 

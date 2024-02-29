@@ -1,5 +1,5 @@
-import TerasliceUtil from './teraslice-util';
-import reply from '../helpers/reply';
+import TerasliceUtil from './teraslice-util.js';
+import reply from './reply.js';
 
 export default class Executions {
     config: Record<string, any>;
