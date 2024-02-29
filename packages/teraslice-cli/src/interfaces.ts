@@ -1,10 +1,6 @@
 import yargs from 'yargs';
-import {
-    Job,
-    ExecutionStatus,
-    JobConfiguration,
-} from 'teraslice-client-js';
-import { JobConfig } from '@terascope/job-components';
+import { Job } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
 
 export type CMD = yargs.CommandModule;
 
@@ -19,17 +15,17 @@ export interface GithubAssetConfig {
 export interface JobMetadata {
     id: string;
     api: Job;
-    config: JobConfiguration;
-    status: ExecutionStatus | RegisteredStatus;
+    config: Teraslice.JobRecord;
+    status: Teraslice.ExecutionStatus | RegisteredStatus;
 }
 
 export interface StatusUpdate {
-    newStatus?: ExecutionStatus;
+    newStatus?: Teraslice.ExecutionStatus;
     error: boolean;
     errorMessage?: string;
 }
 
-export interface JobConfigFile extends JobConfig {
+export interface JobConfigFile extends Teraslice.JobConfig {
     __metadata: {
         cli: {
             cluster: string;
@@ -40,6 +36,10 @@ export interface JobConfigFile extends JobConfig {
     }
 }
 
-export enum RegisteredStatus {
+export enum RegisteredStatusEnum {
     no_execution = 'no_execution'
 }
+
+export type RegisteredStatus = keyof typeof RegisteredStatusEnum;
+
+export type AllStatusTypes = Teraslice.ExecutionStatus | RegisteredStatus

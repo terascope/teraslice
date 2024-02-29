@@ -1,6 +1,6 @@
 import { v4 as uuidV4 } from 'uuid';
 import path from 'node:path';
-import { ControllerState, SlicerStats } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
 import Config from '../../src/helpers/config.js';
 
 export function makeJobIds(n: number): string[] {
@@ -56,14 +56,18 @@ export function getJobExecution(jobId: string) {
     };
 }
 
-export function clusterControllers(jobIds: string[]): ControllerState {
+export function clusterControllers(jobIds: string[]): Teraslice.ExecutionList {
     return jobIds.map((id) => {
-        const slicerStats = {
+        const slicerStats: Teraslice.ExecutionAnalyticsResponse = {
             ex_id: `${id}-ex-id`,
             job_id: id,
             processed: Math.round(Math.random() * 100),
             failed: 0,
             queued: Math.round(Math.random() * 100),
+            subslices: 0,
+            slice_range_expansion: 0,
+            subslice_by_key: 0,
+            started: new Date().toISOString(),
             job_duration: 10000,
             name: 'test-job',
             workers_joined: 5,
@@ -73,7 +77,7 @@ export function clusterControllers(jobIds: string[]): ControllerState {
             workers_active: 2,
             slicers: 1,
             queuing_complete: ''
-        } as unknown as SlicerStats;
+        };
 
         return slicerStats;
     });

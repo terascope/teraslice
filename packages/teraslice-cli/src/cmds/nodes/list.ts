@@ -1,9 +1,8 @@
-import { ClusterState } from 'teraslice-client-js';
+import { Teraslice } from '@terascope/types';
 import { CMD } from '../../interfaces.js';
 import Config from '../../helpers/config.js';
 import YargsOptions from '../../helpers/yargs-options.js';
 import TerasliceUtil from '../../helpers/teraslice-util.js';
-
 import reply from '../../helpers/reply.js';
 import Display from '../../helpers/display.js';
 
@@ -21,7 +20,7 @@ export default {
         return yargs;
     },
     async handler(argv: any) {
-        let response: ClusterState;
+        let response: Teraslice.ClusterState;
         const active = false;
         const parse = true;
         const cliConfig = new Config(argv);
@@ -35,11 +34,11 @@ export default {
         } catch (err) {
             reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        // @ts-expect-error
+
         if (Object.keys(response).length === 0) {
             reply.fatal(`> No nodes on ${cliConfig.args.clusterAlias}`);
         }
-        // @ts-expect-error
+
         await display.display(header, response, format, active, parse);
     }
 } as CMD;

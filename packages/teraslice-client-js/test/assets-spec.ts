@@ -1,8 +1,8 @@
 import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
+import { AssetRecord, AssetIDResponse } from '@terascope/types';
 import Assets from '../src/assets';
-import { AssetIDResponse, Asset } from '../src/interfaces';
 
 describe('Teraslice Assets', () => {
     let assets: Assets;
@@ -22,17 +22,19 @@ describe('Teraslice Assets', () => {
 
     const date = new Date();
 
-    const assetVersion1: Asset = {
+    const assetVersion1: AssetRecord = {
         id: 'someId',
         version: '1.0',
         name: 'iAmAnAsset',
+        blob: '',
         _created: date.toISOString()
     };
 
-    const assetVersion2: Asset = {
+    const assetVersion2: AssetRecord = {
         id: 'someId',
         version: '2.0',
         name: 'iAmAnAsset',
+        blob: '',
         _created: new Date(date.getTime() + 500000).toISOString()
     };
 
@@ -64,7 +66,11 @@ describe('Teraslice Assets', () => {
             });
         });
 
-        describe('when called with a stream', () => {
+        // This test hangs in node version 20.10.0 and above.
+        // See issue: https://github.com/nock/nock/issues/2595
+        // teraslice/e2e/test/cases/assets/simple-spec.ts covers this test case
+        // eslint-disable-next-line jest/no-disabled-tests
+        xdescribe('when called with a stream', () => {
             const testFilePath = path.join(__dirname, 'fixtures', 'test.txt');
             const contents = fs.readFileSync(testFilePath, 'utf-8');
             const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
@@ -83,7 +89,7 @@ describe('Teraslice Assets', () => {
     });
 
     describe('->list', () => {
-        const assetList: Asset[] = [
+        const assetList: AssetRecord[] = [
             assetVersion1,
             assetVersion2
         ];

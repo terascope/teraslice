@@ -1,15 +1,47 @@
 export type ClusterManagerType = 'native'|'kubernetes';
 
 export interface AssetRecord {
-    blob: BinaryType;
+    blob: SharedArrayBuffer | string | Buffer
     name: string;
     version: string;
     id: string;
     description?: string;
     arch?: string;
     platform?: string;
-    node_version: number;
+    node_version?: number;
     _created: string|Date;
+}
+
+export interface AssetStatusResponse {
+    available: boolean;
+}
+
+export type AssetIDResponse = {
+    _id: string;
+}
+// On asset upload
+export interface AssetUploadQuery {
+    blocking?: boolean;
+}
+
+export interface JobSearchParams extends APISearchParams {
+    status: SearchJobStatus;
+}
+
+export type SearchQuery = APISearchParams & Record<string, any>;
+
+export type JobListStatusQuery = SearchJobStatus | JobSearchParams;
+
+export type SearchJobStatus = '*' | ExecutionStatus;
+
+export interface APISearchParams {
+    size?: number;
+    from?: number;
+    sort?: string;
+}
+
+export interface TxtSearchParams extends APISearchParams {
+    fields?: string | string[];
 }
 
 export interface AnalyticsRecord {
@@ -52,10 +84,10 @@ export interface ExecutionRecord extends ValidatedJobConfig {
     metadata: Record<string, any>;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
-    _status: string;
+    _status: ExecutionStatus;
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
-    _failureReason: string
+    _failureReason?: string
     slicer_port?: number;
     slicer_hostname: string;
 }
@@ -71,6 +103,11 @@ export interface StateRecord {
     error?: string;
 }
 
+export interface ErrorRecord extends StateRecord {
+    state: 'error';
+    error: string;
+}
+
 export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
     workers_available: number,
     workers_active: number,
@@ -82,6 +119,14 @@ export interface ExecutionAnalytics extends AggregatedExecutionAnalytics {
     queuing_complete: undefined | string | number | Date,
 }
 
+export interface ExecutionAnalyticsResponse extends ExecutionAnalytics {
+    ex_id: string;
+    job_id: string;
+    name: string
+}
+
+export type ExecutionList = ExecutionAnalyticsResponse[]
+
 // TODO: better description here of what this is
 export interface AggregatedExecutionAnalytics {
     processed: number,
@@ -91,6 +136,15 @@ export interface AggregatedExecutionAnalytics {
     workers_joined: number,
     workers_reconnected: number,
     workers_disconnected: number,
+}
+
+export interface ClusterStats {
+    controllers: AggregatedExecutionAnalytics;
+    slicer: AggregatedExecutionAnalytics;
+}
+
+export interface ExecutionIDResponse {
+    ex_id: string;
 }
 
 /**
@@ -137,7 +191,9 @@ export interface SliceCompletePayload {
 
 export type LifeCycle = 'once' | 'persistent';
 
-export type JobConfig = Partial<ValidatedJobConfig>;
+export interface JobConfig extends Partial<ValidatedJobConfig> {
+    operations: OpConfig[];
+}
 
 /**
  * Available data encoding types for a DataEntity
@@ -283,6 +339,11 @@ export interface APIConfig {
     [prop: string]: any;
 }
 
+export interface StopQuery {
+    timeout?: number;
+    blocking?: boolean;
+}
+
 export interface ApiRootResponse {
     arch: string;
     clustering_type: ClusterManagerType;
@@ -298,15 +359,15 @@ export interface ApiJobCreateResponse {
 }
 
 export interface ApiPausedResponse {
-    status: ExecutionStatus.paused;
+    status: ExecutionStatusEnum.paused;
 }
 
 export interface ApiResumeResponse {
-    status: ExecutionStatus.running;
+    status: ExecutionStatusEnum.running;
 }
 
 export interface ApiStoppedResponse {
-    status: ExecutionStatus.stopped | ExecutionStatus.stopping;
+    status: ExecutionStatusEnum.stopped | ExecutionStatusEnum.stopping;
 }
 
 export interface ApiChangeWorkerResponse {
@@ -317,11 +378,15 @@ export interface ApiAssetStatusResponse {
     available: boolean;
 }
 
+export interface RecoverQuery {
+    cleanup?: RecoveryCleanupType;
+}
+
 /*
     Execution Context
 */
 
-export enum ExecutionStatus {
+export enum ExecutionStatusEnum {
     pending = 'pending',
     scheduling = 'scheduling',
     initializing = 'initializing',
@@ -339,24 +404,26 @@ export enum ExecutionStatus {
     terminated = 'terminated'
 }
 
+export type ExecutionStatus = keyof typeof ExecutionStatusEnum
+
 export type ExecutionInitStatus =
-    ExecutionStatus.pending |
-    ExecutionStatus.scheduling |
-    ExecutionStatus.recovering;
+ExecutionStatusEnum.pending |
+ExecutionStatusEnum.scheduling |
+ExecutionStatusEnum.recovering;
 
 export type ExecutionRunningStatus =
-    ExecutionStatus.recovering |
-    ExecutionStatus.running |
-    ExecutionStatus.failing |
-    ExecutionStatus.paused |
-    ExecutionStatus.stopping;
+ExecutionStatusEnum.recovering |
+ExecutionStatusEnum.running |
+ExecutionStatusEnum.failing |
+ExecutionStatusEnum.paused |
+ExecutionStatusEnum.stopping;
 
 export type ExecutionTerminalStatus =
-    ExecutionStatus.completed |
-    ExecutionStatus.stopped |
-    ExecutionStatus.rejected |
-    ExecutionStatus.failed |
-    ExecutionStatus.terminated;
+ExecutionStatusEnum.completed |
+ExecutionStatusEnum.stopped |
+ExecutionStatusEnum.rejected |
+ExecutionStatusEnum.failed |
+ExecutionStatusEnum.terminated;
 
 export interface ExecutionControllerTargets {
     key: string;
@@ -410,14 +477,83 @@ export interface Config {
     slicer_allocation_attempts: number|3;
     slicer_port_range: string|'45679:46678';
     slicer_timeout: number|180000;
-    state: ClusterStateConfig;
+    state: ConnectionConfig;
     env_vars: { [key: string]: string };
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }
 
-export interface ClusterStateConfig {
+export interface ConnectionConfig {
     connection: string|'default';
 }
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
+
+interface BaseWorkerNode {
+    worker_id: number;
+    pid: number;
+}
+
+export enum ProcessAssignment {
+    cluster_master = 'cluster_master',
+    assets_service = 'assets_service',
+    execution_controller = 'execution_controller',
+    worker = 'worker'
+}
+
+export interface ClusterNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.cluster_master
+}
+
+export interface AssetNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.assets_service
+}
+
+export interface ExecutionNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.execution_controller;
+    ex_id: string;
+    job_id: string;
+}
+export interface WorkerNode extends BaseWorkerNode {
+    assignment: ProcessAssignment.worker;
+    ex_id: string;
+    job_id: string;
+}
+
+type ExecutionProcess = ExecutionNode | WorkerNode
+
+export function isExecutionProcess(node: ProcessNode): node is ExecutionProcess {
+    const { assignment: type } = node;
+    if (type === ProcessAssignment.execution_controller || type === ProcessAssignment.worker) {
+        return true;
+    }
+    return false;
+}
+
+export type ProcessNode = ClusterNode
+| AssetNode
+| ExecutionNode
+| WorkerNode
+
+// TODO: find out about state
+export interface NodeState {
+    node_id: string;
+    hostname: string;
+    pid: number;
+    node_version: string;
+    teraslice_version: string;
+    total: number;
+    state: string;
+    available: number;
+    active: ProcessNode[];
+}
+
+export interface ClusterState {
+    [nodeId: string] : NodeState
+}
+
+export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';
+
+export interface ChangeWorkerResponse {
+    message: string;
+}

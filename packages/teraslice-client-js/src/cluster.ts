@@ -1,16 +1,10 @@
-import { startsWith } from '@terascope/job-components';
+import { startsWith } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import util from 'util';
 import autoBind from 'auto-bind';
 import Client from './client';
-import {
-    TxtType,
-    RootResponse,
-    ClusterState,
-    ClusterStats,
-    ControllerState
-} from './interfaces';
 
-function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
+function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
     return util.deprecate(fn, msg);
 }
@@ -22,27 +16,27 @@ export default class Cluster extends Client {
         autoBind(this);
     }
 
-    async info(): Promise<RootResponse> {
+    async info(): Promise<Teraslice.ApiRootResponse> {
         return this.get('/');
     }
 
-    async state(): Promise<ClusterState> {
+    async state(): Promise<Teraslice.ClusterState> {
         return this.get('/cluster/state');
     }
 
-    async stats(): Promise<ClusterStats> {
+    async stats(): Promise<Teraslice.ClusterStats> {
         return this.get('/cluster/stats');
     }
 
-    async slicers(): Promise<ControllerState> {
+    async slicers(): Promise<Teraslice.ExecutionList> {
         return this.get('/cluster/slicers');
     }
 
-    async controllers(): Promise<ControllerState> {
+    async controllers(): Promise<Teraslice.ExecutionList> {
         return this.get('/cluster/controllers');
     }
 
-    async txt(type: TxtType): Promise<string> {
+    async txt(type: string): Promise<string> {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
         const isValid = validTypes.some((validType) => startsWith(type, validType));
         if (!isValid) {

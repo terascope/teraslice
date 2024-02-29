@@ -54,7 +54,7 @@ export class AssetLoader {
                 const assetRecord = await this.assetsStorage.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
 
-                const buff = Buffer.from(assetRecord.blob, 'base64');
+                const buff = Buffer.from(assetRecord.blob as string, 'base64');
                 const saveResult = await saveAsset(
                     this.logger,
                     this.assetsDirectory,

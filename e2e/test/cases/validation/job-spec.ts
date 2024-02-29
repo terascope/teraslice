@@ -119,7 +119,7 @@ describe('job validation', () => {
     });
 
     it('should be rejected if empty', () => {
-        const jobSpec = {};
+        const jobSpec = {} as any;
 
         return terasliceHarness.teraslice
             .jobs.submit(jobSpec)

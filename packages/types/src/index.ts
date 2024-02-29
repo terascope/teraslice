@@ -13,6 +13,6 @@ export * from './logger';
 export * as DataTypes from './data-types';
 export * as Elasticsearch from './elasticsearch-interfaces';
 export * as Geo from './geo-interfaces';
-export * as SearchClient from './elasticsearch-client';
+export * as ESLikeClient from './elasticsearch-client';
 export * as Teraslice from './teraslice';
 export * as Terafoundation from './terafoundation';
