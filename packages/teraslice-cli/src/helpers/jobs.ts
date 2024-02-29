@@ -3,6 +3,7 @@ import {
     has, toString, pDelay, pMap,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
+import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
 import reply from './reply.js';
@@ -322,7 +323,7 @@ export default class Jobs {
         }
 
         let batchWorkerCount = 0;
-        let batch = [];
+        let batch: JobMetadata[] = [];
 
         for (const job of this.jobs) {
             const { workers } = job.config;
