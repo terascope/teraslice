@@ -10,6 +10,7 @@ export enum FunctionDefinitionType {
     FIELD_TRANSFORM = 'FIELD_TRANSFORM',
     RECORD_TRANSFORM = 'RECORD_TRANSFORM',
     FIELD_VALIDATION = 'FIELD_VALIDATION',
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
     RECORD_VALIDATION = 'RECORD_TRANSFORM'
 }
 

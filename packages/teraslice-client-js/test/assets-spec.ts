@@ -66,7 +66,11 @@ describe('Teraslice Assets', () => {
             });
         });
 
-        describe('when called with a stream', () => {
+        // This test hangs in node version 20.10.0 and above.
+        // See issue: https://github.com/nock/nock/issues/2595
+        // teraslice/e2e/test/cases/assets/simple-spec.ts covers this test case
+        // eslint-disable-next-line jest/no-disabled-tests
+        xdescribe('when called with a stream', () => {
             const testFilePath = path.join(__dirname, 'fixtures', 'test.txt');
             const contents = fs.readFileSync(testFilePath, 'utf-8');
             const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
