@@ -743,4 +743,4 @@ export default [
         zipball_url: 'https://api.github.com/repos/terascope/elasticsearch-assets/zipball/v9.9.9',
         body: ''
     }
-]
+];
