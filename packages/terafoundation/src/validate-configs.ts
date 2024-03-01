@@ -108,6 +108,16 @@ export default function validateConfigs<
                         connectionConfig as any
                     );
                 }
+                if (connector === 's3' && result[schemaKey].asset_storage_connector) {
+                    const s3Connections = Object.keys(connectorConfig);
+                    if (!s3Connections.includes(result[schemaKey].asset_storage_connector)) {
+                        throw new TSError(`asset_storage_connector ${result[schemaKey].asset_storage_connector} not found in s3 connectors list`);
+                    }
+
+                    if (result[schemaKey].asset_storage_bucket === undefined) {
+                        result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
+                    }
+                }
             }
         }
     }
