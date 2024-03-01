@@ -33,12 +33,12 @@ export default {
             response = await teraslice.client.cluster.state();
         } catch (err) {
             reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
-            process.exit(1);
+            return;
         }
 
         if (Object.keys(response).length === 0) {
             reply.fatal(`> No nodes on ${cliConfig.args.clusterAlias}`);
-            process.exit(1);
+            return;
         }
 
         await display.display(header, response, format, active, parse);

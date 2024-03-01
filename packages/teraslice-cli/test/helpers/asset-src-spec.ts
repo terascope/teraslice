@@ -99,6 +99,8 @@ describe('AssetSrc', () => {
     });
 
     it('can build a node 18 bundle', async () => {
+        expect.hasAssertions();
+
         const devMode = false;
         const debug = false;
         const bundle = true;
@@ -115,7 +117,9 @@ describe('AssetSrc', () => {
             resp = await myTestAsset.build();
             expect(resp.name).toContain('node-18');
         } finally {
-            await fs.remove(resp.name);
+            if (resp) {
+                await fs.remove(resp.name);
+            }
         }
     });
 });
