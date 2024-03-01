@@ -63,6 +63,8 @@ export interface TerasliceConfig {
 
 export interface TerafoundationConfig {
     connectors: Record<string, any>;
+    asset_storage_connection?: string;
+    asset_storage_bucket?: string;
 }
 
 export interface SysConfig {
