@@ -44,16 +44,17 @@ function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
 // get the final result.
 export class AssetsStorage {
     readonly assetsPath: string;
-    private backend: TerasliceElasticsearchStorage;
+    private esBackend: TerasliceElasticsearchStorage;
     private readonly context: Context;
     logger: Logger;
+    private s3Backend?: S3Store; // new class to save assets in s3
 
     constructor(context: Context) {
         const logger = makeLogger(context, 'assets_storage');
         const config = context.sysconfig.teraslice;
         const indexName = `${config.name}__assets`;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const esBackendConfig: TerasliceStorageConfig = {
             context,
             indexName,
             recordType: 'asset',
@@ -67,12 +68,22 @@ export class AssetsStorage {
         this.logger = logger;
         // TODO: verify this behavior of string vs string[] and undefined
         this.assetsPath = config.assets_directory as string;
-        this.backend = new TerasliceElasticsearchStorage(backendConfig);
+        this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
+
+        if (context.sysconfig.terafoundation.asset_storage_connector) {
+            const s3BackendConfig: TerasliceS3StorageConfig = {
+                connector: context.sysconfig.terafoundation.asset_storage_connector,
+                bucket: context.sysconfig.terafoundation.asset_storage_bucket,
+                // other stuff???
+            };
+            this.s3Backend = new S3Store(s3BackendConfig);
+        }
     }
 
     async initialize() {
         await this.ensureAssetDir();
-        await this.backend.initialize();
+        await this.esBackend.initialize();
+        await this.s3Backend.initialize(); // ????
         this.logger.info('assets storage initialized');
     }
 
@@ -91,7 +102,7 @@ export class AssetsStorage {
 
     private async _assetExistsInES(id: string): Promise<boolean> {
         try {
-            const result = await this.backend.get(id, undefined, ['id', 'name']);
+            const result = await this.esBackend.get(id, undefined, ['id', 'name']);
             return result != null;
         } catch (err) {
             if (err.statusCode === 404) {
@@ -103,6 +114,7 @@ export class AssetsStorage {
         }
     }
 
+    // if asset is in s3 it will have metadata is ES, so do we need to check s3 at all?
     private async _assetExists(id: string) {
         const [readable, exists] = await Promise.all([
             this._assetExistsInFS(id),
@@ -124,27 +136,44 @@ export class AssetsStorage {
             this.assetsPath,
             id,
             data,
-            _metaIsUnique(this.backend)
+            _metaIsUnique(this.esBackend) // all metadata on assets saved in es, so this will work on S3 assets
         );
 
+        let emptyBlob = false;
+        // add save to s3 here
+        if (this.s3Backend) {
+            if (blocking) {
+                const elapsed = Date.now() - startTime;
+                const remaining = responseTimeout - elapsed;
+                await this.s3Backend.save(id, data, remaining);
+            } else {
+                await this.s3Backend.save(id, data, responseTimeout);
+            }
+            emptyBlob = true;
+
+            this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to s3 store`);
+        }
+
+        const blobContents = emptyBlob ? '' : esData;
+
         const assetRecord = Object.assign({
-            blob: esData,
+            blob: blobContents, // send no blob if using s3
             _created: new Date().toISOString()
         }, metaData);
 
         if (blocking) {
             const elapsed = Date.now() - startTime;
             const remaining = responseTimeout - elapsed;
-            await this.backend.indexWithId(id, assetRecord, undefined, remaining);
+            await this.esBackend.indexWithId(id, assetRecord, undefined, remaining);
         } else {
-            await this.backend.indexWithId(id, assetRecord, undefined, responseTimeout);
+            await this.esBackend.indexWithId(id, assetRecord, undefined, responseTimeout);
         }
 
         this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
     }
 
     /**
-     * Save an asset to disk and upload to elasticsearch
+     * Save an asset to disk and upload to elasticsearch or s3
      *
      * @param data {Buffer} A buffer of the asset file (zipped)
      * @param blocking {boolean=true} If false, save the asset in the background
@@ -179,6 +208,8 @@ export class AssetsStorage {
         };
     }
 
+    // this will work, but wont return the blob containing the asset. It doesn't seem needed.
+    // if blob is needed update to get the asset from s3, then convert it and put in the blob field?
     async search(
         query: string | Record<string, any>,
         from?: number,
@@ -186,7 +217,7 @@ export class AssetsStorage {
         sort?: string,
         fields?: string | string[]
     ): Promise<ClientResponse.SearchResponse<AssetRecord>> {
-        return this.backend.search(
+        return this.esBackend.search(
             query, from, size, sort, fields
         ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
@@ -194,13 +225,24 @@ export class AssetsStorage {
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
     async get(id: string): Promise<AssetRecord> {
-        return this.backend.get(id);
+        if (this.s3Backend) {
+            // does this bog down ES still, or is the query lighter w/o the blob????
+            const record: AssetRecord = await this.esBackend.get(id);
+            // get zipped asset
+            const s3Data: Buffer = await this.s3Backend.get(id);
+            // convert zip buffer to base 64
+            const esData = s3Data.toString('base64');
+            record.blob = esData;
+            return record;
+        } else {
+            return this.esBackend.get(id);
+        }
     }
 
     private async _getAssetId(assetIdentifier: string) {
         // is full _id
         if (assetIdentifier.length === 40) {
-            const count = await this.backend.count(`id:"${assetIdentifier}"`);
+            const count = await this.esBackend.count(`id:"${assetIdentifier}"`);
             if (count === 1) return assetIdentifier;
         }
 
@@ -208,7 +250,7 @@ export class AssetsStorage {
         const sort = '_created:desc';
         const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
-        const response = await this.backend.search(
+        const response = await this.esBackend.search(
             `name:"${name}" AND ${toVersionQuery(version)}`,
             undefined,
             10000,
@@ -242,12 +284,12 @@ export class AssetsStorage {
 
     async shutdown(forceShutdown: boolean) {
         this.logger.info('shutting asset store down.');
-        return this.backend.shutdown(forceShutdown);
+        return this.esBackend.shutdown(forceShutdown);
     }
 
     async remove(assetId: string) {
         try {
-            await this.backend.get(assetId, undefined, ['name']);
+            await this.esBackend.get(assetId, undefined, ['name']);
         } catch (err) {
             if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
@@ -258,7 +300,7 @@ export class AssetsStorage {
             }
             throw err;
         }
-        await this.backend.remove(assetId);
+        await this.esBackend.remove(assetId);
         await fse.remove(path.join(this.assetsPath, assetId));
     }
 
@@ -314,10 +356,10 @@ export class AssetsStorage {
     }
 
     verifyClient() {
-        return this.backend.verifyClient();
+        return this.esBackend.verifyClient();
     }
 
     async waitForClient() {
-        return this.backend.waitForClient();
+        return this.esBackend.waitForClient();
     }
 }
