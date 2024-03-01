@@ -136,7 +136,7 @@ export class AssetsStorage {
             this.assetsPath,
             id,
             data,
-            _metaIsUnique(this.esBackend) // all metadata on assets saved in es, so this will work on S3 assets
+            _metaIsUnique(this.esBackend)
         );
 
         let emptyBlob = false;
