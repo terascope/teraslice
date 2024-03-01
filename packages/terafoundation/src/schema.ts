@@ -67,7 +67,7 @@ export = {
         doc: 'Number of workers per server',
         default: workerCount
     },
-    asset_storage_connector: {
+    asset_storage_connection: {
         doc: 'Name of the S3 connector used to store assets',
         default: undefined,
         format: String

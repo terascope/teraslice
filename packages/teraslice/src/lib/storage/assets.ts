@@ -70,9 +70,9 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        if (context.sysconfig.terafoundation.asset_storage_connector) {
+        if (context.sysconfig.terafoundation.asset_storage_connection) {
             const s3BackendConfig: TerasliceS3StorageConfig = {
-                connector: context.sysconfig.terafoundation.asset_storage_connector,
+                connector: context.sysconfig.terafoundation.asset_storage_connection,
                 bucket: context.sysconfig.terafoundation.asset_storage_bucket,
                 // other stuff???
             };

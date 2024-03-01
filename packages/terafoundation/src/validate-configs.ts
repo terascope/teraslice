@@ -108,15 +108,20 @@ export default function validateConfigs<
                         connectionConfig as any
                     );
                 }
-                if (connector === 's3' && result[schemaKey].asset_storage_connector) {
-                    const s3Connections = Object.keys(connectorConfig);
-                    if (!s3Connections.includes(result[schemaKey].asset_storage_connector)) {
-                        throw new TSError(`asset_storage_connector ${result[schemaKey].asset_storage_connector} not found in s3 connectors list`);
-                    }
+            }
 
-                    if (result[schemaKey].asset_storage_bucket === undefined) {
-                        result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
-                    }
+            // FIXME: use a schema and convict for these tests
+            if (result[schemaKey].asset_storage_connection) {
+                const [connectorNames] = Object.keys(connectors);
+                if (!connectorNames.includes('s3')) {
+                    throw new TSError('The asset_storage_connection options requires an s3 connector in terafoundation');
+                }
+                const s3Connections = Object.keys(connectors.s3);
+                if (!s3Connections.includes(result[schemaKey].asset_storage_connection)) {
+                    throw new TSError(`asset_storage_connection ${result[schemaKey].asset_storage_connection} not found in s3 connector`);
+                }
+                if (result[schemaKey].asset_storage_bucket === undefined) {
+                    result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
                 }
             }
         }
