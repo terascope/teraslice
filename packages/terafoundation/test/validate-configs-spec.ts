@@ -198,28 +198,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given an logging config', () => {
-        const configFile = {
-            terafoundation: {
-                log_level: 'uhoh',
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
-        });
-    });
-
-    describe('when given an invalid log_level', () => {
+    describe('when given an invalid logging config', () => {
         const configFile = {
             terafoundation: {
                 logging: 'hello'
@@ -236,7 +215,127 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid log_level', () => {
+        const configFile = {
+            terafoundation: {
+                log_level: 'uhoh',
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid asset_storage_bucket', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_bucket: 123,
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid asset_storage_connection', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection: 123,
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an asset_storage_connection and no s3 connector exists', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection: 'minio1',
+                connectors: {
+                    elasticsearch: {
+                        default: {}
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('The asset_storage_connection options requires an s3 connector in terafoundation');
+        });
+    });
+
+    describe('when given an asset_storage_connection that does not exist on s3', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection: 'minio1',
+                connectors: {
+                    s3: {
+                        default: {
+                            accessKeyId: 'minioAdmin',
+                            secretAccessKey: 'minioAdmin'
+                        }
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow(`asset_storage_connection ${configFile.terafoundation.asset_storage_connection} not found in s3 connector`);
         });
     });
 });
