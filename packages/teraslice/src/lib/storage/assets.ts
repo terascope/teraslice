@@ -284,7 +284,10 @@ export class AssetsStorage {
 
     async shutdown(forceShutdown: boolean) {
         this.logger.info('shutting asset store down.');
-        return this.esBackend.shutdown(forceShutdown);
+        return Promise.all([
+            this.esBackend.shutdown(forceShutdown),
+            this.s3Backend.shutdown(forceShutdown)
+        ]);
     }
 
     async remove(assetId: string) {
@@ -301,6 +304,7 @@ export class AssetsStorage {
             throw err;
         }
         await this.esBackend.remove(assetId);
+        await this.s3Backend.remove(assetId);
         await fse.remove(path.join(this.assetsPath, assetId));
     }
 
@@ -356,10 +360,10 @@ export class AssetsStorage {
     }
 
     verifyClient() {
-        return this.esBackend.verifyClient();
+        return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
     }
 
     async waitForClient() {
-        return this.esBackend.waitForClient();
+        return Promise.all([this.esBackend.waitForClient(), this.esBackend.waitForClient()]);
     }
 }
