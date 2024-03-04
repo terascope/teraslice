@@ -8,6 +8,7 @@ import {
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
 import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { saveAsset, AssetMetadata } from '../utils/file_utils.js';
 import {
@@ -72,6 +73,8 @@ export class AssetsStorage {
 
         if (context.sysconfig.terafoundation.asset_storage_connection) {
             const s3BackendConfig: TerasliceS3StorageConfig = {
+                // context: context,
+                terafoundation: context.sysconfig.terafoundation,
                 connector: context.sysconfig.terafoundation.asset_storage_connection,
                 bucket: context.sysconfig.terafoundation.asset_storage_bucket,
                 // other stuff???
@@ -83,7 +86,9 @@ export class AssetsStorage {
     async initialize() {
         await this.ensureAssetDir();
         await this.esBackend.initialize();
-        await this.s3Backend.initialize(); // ????
+        if (this.s3Backend) {
+            await this.s3Backend.initialize(); // ????
+        }
         this.logger.info('assets storage initialized');
     }
 
@@ -228,11 +233,8 @@ export class AssetsStorage {
         if (this.s3Backend) {
             // does this bog down ES still, or is the query lighter w/o the blob????
             const record: AssetRecord = await this.esBackend.get(id);
-            // get zipped asset
-            const s3Data: Buffer = await this.s3Backend.get(id);
-            // convert zip buffer to base 64
-            const esData = s3Data.toString('base64');
-            record.blob = esData;
+            const s3Data: string = await this.s3Backend.get(id);
+            record.blob = s3Data;
             return record;
         } else {
             return this.esBackend.get(id);
@@ -284,9 +286,14 @@ export class AssetsStorage {
 
     async shutdown(forceShutdown: boolean) {
         this.logger.info('shutting asset store down.');
+        if (this.s3Backend) {
+            return Promise.all([
+                this.esBackend.shutdown(forceShutdown),
+                this.s3Backend.shutdown(forceShutdown)
+            ]);  
+        }
         return Promise.all([
-            this.esBackend.shutdown(forceShutdown),
-            this.s3Backend.shutdown(forceShutdown)
+            this.esBackend.shutdown(forceShutdown)
         ]);
     }
 
@@ -304,7 +311,9 @@ export class AssetsStorage {
             throw err;
         }
         await this.esBackend.remove(assetId);
-        await this.s3Backend.remove(assetId);
+        if (this.s3Backend) {
+            await this.s3Backend.remove(assetId);
+        }
         await fse.remove(path.join(this.assetsPath, assetId));
     }
 
@@ -360,7 +369,11 @@ export class AssetsStorage {
     }
 
     verifyClient() {
-        return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
+        // if (this.s3Backend) {
+        //     /// I need to add verify client to s3 
+        //     return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
+        // }
+        return this.esBackend.verifyClient();
     }
 
     async waitForClient() {
