@@ -60,7 +60,7 @@ export function getArgs(options: TestOptions): ArgsMap {
     return args;
 }
 
-export function getEnv(options: TestOptions, suite?: string): ExecEnv {
+export function getEnv(options: TestOptions, suite: string): ExecEnv {
     const env: ExecEnv = {
         HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
@@ -69,7 +69,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         TZ: 'utc',
         NODE_VERSION: options.nodeVersion,
         KIND_CLUSTER: options.kindClusterName,
-        TERASLICE_PORT: config.TERASLICE_PORT
+        TERASLICE_PORT: config.TERASLICE_PORT,
+        TJM_TEST_MODE: suite !== 'e2e' ? 'true' : 'false'
     };
 
     if (config.DOCKER_NETWORK_NAME) {
@@ -177,14 +178,6 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
     }
 
     return env;
-}
-
-export function setEnv(options: TestOptions, suite?: string): void {
-    const env = getEnv(options, suite);
-
-    for (const [key, value] of Object.entries(env)) {
-        process.env[key] = value;
-    }
 }
 
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
