@@ -13,8 +13,8 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "dist/src/command.js",
     "type": "module",
+    "main": "dist/src/command.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
         "earl": "bin/teraslice-cli.js",
