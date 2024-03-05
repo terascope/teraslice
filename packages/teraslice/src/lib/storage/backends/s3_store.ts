@@ -1,30 +1,16 @@
 /* eslint-disable default-param-last */
-import ms from 'ms';
 import {
-    TSError, parseError, isTest, pDelay,
-    pRetry, logError, pWhile, isString, getTypeOf,
-    get, random, isInteger, Logger
+    TSError
 } from '@terascope/utils';
-import { 
-    CreateBucketCommand, 
-    PutObjectCommand, 
-    DeleteObjectCommand, 
+import {
+    CreateBucketCommand,
+    PutObjectCommand,
+    DeleteObjectCommand,
     GetObjectCommand,
     ListObjectsV2Command
 } from '@aws-sdk/client-s3';
-import elasticsearchApi from '@terascope/elasticsearch-api';
-import { getClientAsync, Context, TerafoundationConfig } from '@terascope/job-components';
-import { ClientParams } from '@terascope/types';
-import { makeLogger } from '../../workers/helpers/terafoundation.js';
-import { timeseriesIndex } from '../../utils/date_utils.js';
-import analyticsSchema from './mappings/analytics.json' assert { type: 'json' };
-import assetSchema from './mappings/asset.json' assert { type: 'json' };
-import executionSchema from './mappings/ex.json' assert { type: 'json' };
-import jobsSchema from './mappings/job.json' assert { type: 'json' };
-import stateSchema from './mappings/state.json' assert { type: 'json' };
-import { TerasliceStorageOptions, TerasliceStorageConfig } from './elasticsearch_store';
+import { TerafoundationConfig } from '@terascope/job-components';
 import { createS3Client, S3Client, S3ClientConfig } from '@terascope/file-asset-apis';
-
 
 export interface TerasliceS3StorageConfig {
     // context: Context;
@@ -68,7 +54,7 @@ export class S3Store {
             forcePathStyle: this.terafoundation.connectors.s3[this.connector].forcePathStyle,
             sslEnabled: this.terafoundation.connectors.s3[this.connector].sslEnabled,
             region: this.terafoundation.connectors.s3[this.connector].region
-        }
+        };
     }
 
     async initialize() {
@@ -76,7 +62,7 @@ export class S3Store {
         this.api = await createS3Client(this.config);
         /// create bucket for assets
         const input = {
-            "Bucket": this.bucket
+            Bucket: this.bucket
         };
         const command = new CreateBucketCommand(input);
         const response = await this.api.send(command);
@@ -86,18 +72,17 @@ export class S3Store {
     async get(recordId: string) {
         /// Get an asset
         const command = new GetObjectCommand({
-            Bucket: this.bucket, 
+            Bucket: this.bucket,
             Key: `${recordId}.zip`
         });
         const response = await this.api.send(command);
         const s3File = await response.Body?.transformToString('base64');
         console.log('GET response: ', response);
         console.log(`Grabbed ${recordId}.zip from ${this.bucket} bucket`);
-        if (typeof s3File === 'string') {
-            return s3File as string;
-        } else {
+        if (typeof s3File !== 'string') {
             throw new TSError(`Unable to get asset ${recordId} from s3`);
         }
+        return s3File as string;
     }
 
     async save(recordId: string, data: Buffer, timeout: number) {
@@ -115,7 +100,7 @@ export class S3Store {
     async remove(recordId: string) {
         /// remove an asset
         const command = new DeleteObjectCommand({
-            Bucket: this.bucket, 
+            Bucket: this.bucket,
             Key: `${recordId}.zip`
         });
         const response = await this.api.send(command);
@@ -133,7 +118,7 @@ export class S3Store {
         console.log('LIST response: ', response);
         const contentsList = response.Contents?.map((c) => ` • ${c.Key}`).join("\n");
         console.log(`Keys inside ${this.bucket}: \n`, contentsList);
-        /// We need to figure out exactly how we want to format this or 
+        /// We need to figure out exactly how we want to format this or
         /// if we just want to pass each key inside an array and have something else
         // format it.
         return contentsList;

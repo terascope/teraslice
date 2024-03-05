@@ -7,7 +7,7 @@ import {
 } from '@terascope/utils';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { getClientAsync, Context } from '@terascope/job-components';
-import { ClientParams } from '@terascope/types';
+import { AssetRecord, ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
 import analyticsSchema from './mappings/analytics.json' assert { type: 'json' };
@@ -212,7 +212,11 @@ export class TerasliceElasticsearchStorage {
         }, random(9000, 11000));
     }
 
-    async get(recordId: string, index = this.defaultIndexName, fields?: string| string[]) {
+    async get(
+        recordId: string,
+        index = this.defaultIndexName,
+        fields?: string| string[]
+    ): Promise<Partial<AssetRecord>> {
         validateId(recordId, this.recordType);
         this.logger.trace(`getting record id: ${recordId}`);
 

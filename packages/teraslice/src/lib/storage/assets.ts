@@ -229,16 +229,17 @@ export class AssetsStorage {
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
-    async get(id: string): Promise<AssetRecord> {
+    async get(id: string): Promise<Partial<AssetRecord>> {
+        let record;
         if (this.s3Backend) {
             // does this bog down ES still, or is the query lighter w/o the blob????
-            const record: AssetRecord = await this.esBackend.get(id);
+            record = await this.esBackend.get(id);
             const s3Data: string = await this.s3Backend.get(id);
             record.blob = s3Data;
-            return record;
         } else {
-            return this.esBackend.get(id);
+            record = this.esBackend.get(id);
         }
+        return record;
     }
 
     private async _getAssetId(assetIdentifier: string) {
@@ -290,7 +291,7 @@ export class AssetsStorage {
             return Promise.all([
                 this.esBackend.shutdown(forceShutdown),
                 this.s3Backend.shutdown(forceShutdown)
-            ]);  
+            ]);
         }
         return Promise.all([
             this.esBackend.shutdown(forceShutdown)
@@ -370,7 +371,7 @@ export class AssetsStorage {
 
     verifyClient() {
         // if (this.s3Backend) {
-        //     /// I need to add verify client to s3 
+        //     /// I need to add verify client to s3
         //     return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
         // }
         return this.esBackend.verifyClient();
