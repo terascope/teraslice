@@ -1,4 +1,8 @@
 import { CMD } from '../../interfaces.js';
+import add from './add.js';
+import list from './list.js';
+import remove from './remove.js';
+import update from './update.js';
 
 export default {
     command: 'aliases <command>',
@@ -6,7 +10,7 @@ export default {
     exclude: 'lib',
     builder: function builder(yargs) {
         return yargs.strict()
-            .commandDir('.')
+            .command([add, list, remove, update])
             .demandCommand(2);
     },
     handler: () => {}

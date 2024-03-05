@@ -9,14 +9,13 @@ import Display from './display.js';
 import reply from './reply.js';
 import { getJobConfigFromFile } from './tjm-util.js';
 import Config from './config.js';
-
 import {
     JobMetadata,
     JobConfigFile,
     StatusUpdate,
     RegisteredStatusEnum,
     AllStatusTypes
-} from '../interfaces';
+} from '../interfaces.js';
 
 const statusEnum = Teraslice.ExecutionStatusEnum;
 
