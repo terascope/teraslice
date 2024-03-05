@@ -32,20 +32,24 @@ describe('DataType (graphql)', () => {
                         lon: String!
                     }
 
-                    # My test data type
-                    # some extra desc
+                    """
+                    My test data type
+                    some extra desc
+                    """
                     type myType {
                         date: String
-                        # example obj test
+                        " example obj test "
                         example_obj: JSONObject
-                        # # hello
+                        """
+                        ## hello
                         # test
+                        """
                         hello: String
-                        # ip test
+                        " ip test "
                         ip: String
-                        # location test
+                        " location test "
                         location: DTGeoPointV1
-                        # some number test
+                        " some number test "
                         someNum: Float
                     }
                 `);
@@ -79,12 +83,12 @@ describe('DataType (graphql)', () => {
                             foo: String
                         }
 
-                        # nested field test description
+                        """ nested field test description """
                         type ObjType {
                             example: DTObjTypeExampleV1
                         }
 
-                        # Input for ObjType - nested field test description
+                        """ Input for ObjType - nested field test description """
                         input ObjTypeInput {
                             example: DTObjTypeExampleInputV1
                         }
@@ -137,7 +141,7 @@ describe('DataType (graphql)', () => {
 
             expect(() => {
                 new DataType(typeConfig).toGraphQL();
-            }).toThrowError('No typeName was specified to create the graphql type representing this data structure');
+            }).toThrow('No typeName was specified to create the graphql type representing this data structure');
         });
     });
 
@@ -274,7 +278,7 @@ describe('DataType (graphql)', () => {
                     someNum: Float
                 }
 
-                # Input for first_type
+                """ Input for first_type """
                 input first_type_input {
                     date: String
                     hello: String
@@ -291,7 +295,7 @@ describe('DataType (graphql)', () => {
                     otherLocation: [[DTGeoBoundaryV1]]
                 }
 
-                # Input for second_type
+                """ Input for second_type """
                 input second_type_input {
                     bool: Boolean
                     foo: DT_second_type_foo_input_V1
@@ -332,7 +336,7 @@ describe('DataType (graphql)', () => {
                     name: String
                 }
 
-                # Input for TestRecord
+                """ Input for TestRecord """
                 input TestRecordInput {
                     description: String
                     name: String
@@ -399,7 +403,7 @@ describe('DataType (graphql)', () => {
 
             expect(() => {
                 DataType.mergeGraphQLDataTypes(types, { removeScalars: true });
-            }).toThrowError(/Unable to process duplicate DataType "Hello"/);
+            }).toThrow(/Unable to process duplicate DataType "Hello"/);
         });
 
         it('should throw when given a type without a type name', () => {
@@ -416,7 +420,7 @@ describe('DataType (graphql)', () => {
 
             expect(() => {
                 DataType.mergeGraphQLDataTypes(types);
-            }).toThrowError(/Unable to process DataType with missing type name/);
+            }).toThrow(/Unable to process DataType with missing type name/);
         });
 
         it('should be able to combine mulitple types together with references', () => {
@@ -471,7 +475,7 @@ describe('DataType (graphql)', () => {
 
                     type Info {
                         id: String
-                        # references and virtual fields
+                        """ references and virtual fields """
                         info(query: String): Info
                     }
 
@@ -481,7 +485,7 @@ describe('DataType (graphql)', () => {
                         ip: String
                         location: DTGeoPointV1
                         long_number: Float
-                        # references and virtual fields
+                        """ references and virtual fields """
                         info(query: String): Info
                         num_parents: Int
                     }
@@ -491,7 +495,7 @@ describe('DataType (graphql)', () => {
                         obj: JSONObject
                         other_location: DTGeoPointV1
                         some_date: String
-                        # references and virtual fields
+                        """ references and virtual fields """
                         info(query: String): Info
                         children: ChildType
                     }
