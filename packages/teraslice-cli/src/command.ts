@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers'
+import { hideBin } from 'yargs/helpers';
 import aliases from './cmds/aliases/index.js';
 import assets from './cmds/assets/index.js';
 import jobs from './cmds/jobs/index.js';
