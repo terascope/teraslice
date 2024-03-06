@@ -52,7 +52,7 @@ function _getTimeout(timeout: number | string | undefined) {
     return undefined;
 }
 
-export interface TerasliceStorageConfig {
+export interface TerasliceESStorageConfig {
     context: Context;
     indexName: string;
     recordType: string;
@@ -91,7 +91,7 @@ export class TerasliceElasticsearchStorage {
     readonly mapping: Record<string, any>;
     api!: elasticsearchApi.Client;
 
-    constructor(backendConfig: TerasliceStorageConfig) {
+    constructor(backendConfig: TerasliceESStorageConfig) {
         const {
             context, indexName, recordType,
             idField, storageName, bulkSize = 1000,

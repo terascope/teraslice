@@ -6,7 +6,7 @@ import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
 import { JobRecord, ExecutionRecord } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
@@ -28,7 +28,7 @@ export class ExecutionStorage {
         const jobType = 'ex';
         const indexName = `${config.name}__ex`;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const backendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType: 'ex',
