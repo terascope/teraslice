@@ -112,7 +112,7 @@ export default function validateConfigs<
 
             // FIXME: use a schema and convict for these tests
             if (result[schemaKey].asset_storage_connection) {
-                const [connectorNames] = Object.keys(connectors);
+                const connectorNames = Object.keys(connectors);
                 if (!connectorNames.includes('s3')) {
                     throw new TSError('The asset_storage_connection options requires an s3 connector in terafoundation');
                 }
@@ -120,9 +120,9 @@ export default function validateConfigs<
                 if (!s3Connections.includes(result[schemaKey].asset_storage_connection)) {
                     throw new TSError(`asset_storage_connection ${result[schemaKey].asset_storage_connection} not found in s3 connector`);
                 }
-                if (result[schemaKey].asset_storage_bucket === undefined) {
-                    result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
-                }
+                // if (result[schemaKey].asset_storage_bucket === undefined) {
+                //     result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
+                // }
             }
         }
     }
