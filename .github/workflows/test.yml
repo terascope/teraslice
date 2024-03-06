@@ -50,6 +50,8 @@ jobs:
 
       - name: Test
         run: yarn --silent test -- --suite unit --
+        env:
+          MAX_PROJECTS_PER_BATCH: 3
 
   teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
