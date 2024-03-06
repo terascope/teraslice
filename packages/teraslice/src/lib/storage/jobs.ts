@@ -3,7 +3,7 @@ import { TSError, makeISODate, Logger } from '@terascope/utils';
 import { Context, ValidatedJobConfig, JobConfig } from '@terascope/job-components';
 import { JobRecord } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
 export class JobsStorage {
     private backend: TerasliceElasticsearchStorage;
@@ -17,7 +17,7 @@ export class JobsStorage {
         const jobType = 'job';
         const indexName = `${config.name}__jobs`;
 
-        const backendConfig: TerasliceStorageConfig = {
+        const backendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType: 'job',

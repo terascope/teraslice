@@ -1,6 +1,6 @@
 /* eslint-disable default-param-last */
 import {
-    TSError, pDelay, pWhile
+    Logger, TSError, pDelay, pWhile
 } from '@terascope/utils';
 import {
     CreateBucketCommand,
@@ -8,19 +8,20 @@ import {
     DeleteObjectCommand,
     GetObjectCommand,
     ListObjectsV2Command,
-    BucketAlreadyOwnedByYou,
-    BucketAlreadyExists
+    BucketAlreadyOwnedByYou
 } from '@aws-sdk/client-s3';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import { createS3Client, S3Client, S3ClientConfig } from '@terascope/file-asset-apis';
 import { HttpHandlerOptions } from '@smithy/types';
 import ms from 'ms';
+import { makeLogger } from '../../workers/helpers/terafoundation.js';
 
 export interface TerasliceS3StorageConfig {
     context: Context;
     terafoundation: TerafoundationConfig;
     connector: string;
     bucket?: string;
+    logger?: Logger
 }
 
 export class S3Store {
@@ -30,6 +31,7 @@ export class S3Store {
     readonly connector: string;
     readonly terafoundation: TerafoundationConfig;
     private isShuttingDown: boolean;
+    logger: Logger;
     api!: S3Client;
 
     constructor(backendConfig: TerasliceS3StorageConfig) {
@@ -37,13 +39,15 @@ export class S3Store {
             context,
             terafoundation,
             connector,
-            bucket
+            bucket,
+            logger
 
         } = backendConfig;
 
         this.bucket = bucket || `tera-assets-${context.sysconfig.teraslice.name}`;
         this.connector = connector;
         this.isShuttingDown = false;
+        this.logger = logger ?? makeLogger(context, 's3_backend', { storageName: this.bucket });
         this.terafoundation = terafoundation;
         /// Will need to make config flexable for missing fields
         this.config = {

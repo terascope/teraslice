@@ -7,7 +7,7 @@ import {
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
-import { TerasliceElasticsearchStorage, TerasliceStorageConfig } from './backends/elasticsearch_store.js';
+import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { saveAsset, AssetMetadata } from '../utils/file_utils.js';
@@ -48,14 +48,14 @@ export class AssetsStorage {
     private esBackend: TerasliceElasticsearchStorage;
     private readonly context: Context;
     logger: Logger;
-    private s3Backend?: S3Store; // new class to save assets in s3
+    private s3Backend?: S3Store;
 
     constructor(context: Context) {
         const logger = makeLogger(context, 'assets_storage');
         const config = context.sysconfig.teraslice;
         const indexName = `${config.name}__assets`;
 
-        const esBackendConfig: TerasliceStorageConfig = {
+        const esBackendConfig: TerasliceESStorageConfig = {
             context,
             indexName,
             recordType: 'asset',
@@ -77,6 +77,7 @@ export class AssetsStorage {
                 terafoundation: context.sysconfig.terafoundation,
                 connector: context.sysconfig.terafoundation.asset_storage_connection,
                 bucket: context.sysconfig.terafoundation.asset_storage_bucket,
+                logger
             };
             this.s3Backend = new S3Store(s3BackendConfig);
         }
