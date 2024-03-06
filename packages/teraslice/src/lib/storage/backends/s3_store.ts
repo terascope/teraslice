@@ -9,7 +9,8 @@ import {
     CreateBucketCommand, 
     PutObjectCommand, 
     DeleteObjectCommand, 
-    GetObjectCommand 
+    GetObjectCommand,
+    ListObjectsV2Command
 } from '@aws-sdk/client-s3';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { getClientAsync, Context, TerafoundationConfig } from '@terascope/job-components';
@@ -38,6 +39,7 @@ export class S3Store {
     readonly bucket: string;
     readonly config: S3ClientConfig;
     readonly terafoundation: TerafoundationConfig;
+    private isShuttingDown: boolean;
     api!: S3Client;
 
     constructor(backendConfig: TerasliceS3StorageConfig) {
@@ -51,6 +53,7 @@ export class S3Store {
 
         // this.context = context;
         // this.terafoundation = this.context.sysconfig.terafoundation;
+        this.isShuttingDown = false;
         this.terafoundation = terafoundation;
         this.connector = connector;
         this.bucket = bucket || 'tera-assets';
@@ -120,9 +123,26 @@ export class S3Store {
         console.log(`Deleted ${recordId}.zip from ${this.bucket} bucket`);
     }
 
+    async list() {
+        /// list all asset keys in bucket
+        const command = new ListObjectsV2Command({
+            Bucket: this.bucket,
+            // MaxKeys: 1000  // Default is 1000
+        });
+        const response = await this.api.send(command);
+        console.log('LIST response: ', response);
+        const contentsList = response.Contents?.map((c) => ` • ${c.Key}`).join("\n");
+        console.log(`Keys inside ${this.bucket}: \n`, contentsList);
+        /// We need to figure out exactly how we want to format this or 
+        /// if we just want to pass each key inside an array and have something else
+        // format it.
+        return contentsList;
+    }
+
 
     async shutdown(forceShutdown = false) {
         /// close the connection
         this.api.destroy();
+        this.isShuttingDown = true;
     }
 }
