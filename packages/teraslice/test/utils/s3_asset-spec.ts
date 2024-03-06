@@ -33,7 +33,7 @@ describe('S3 backend test', () => {
         s3Backend = new S3Store({
             terafoundation: mockTerafoundation,
             connector: 'default',
-            bucket: 'tera-asset2'
+            bucket: 'tera-asset'
         });
 
         await s3Backend.initialize();
@@ -47,9 +47,12 @@ describe('S3 backend test', () => {
     it('should be able to write in a zip file to tera_assets bucket', async () => {
         const filePath = `${process.cwd()}/e2e/autoload/elasticsearch-v3.5.4-node-18-bundle.zip`;
         await s3Backend.save('asset123',  fse.readFileSync(filePath), 1000);
+        const result = await s3Backend.list();
+        console.log('result1: ', result);
+        expect(result).toInclude('asset123');
     });
 
-    it('should be able to write in a zip file to tera_assets bucket', async () => {
+    it('should be able to delete zip file in tera_assets bucket', async () => {
         const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.2-node-18-bundle.zip`;
         await s3Backend.save('asset007',  fse.readFileSync(filePath), 1000);
 
@@ -57,5 +60,27 @@ describe('S3 backend test', () => {
         await s3Backend.remove('asset007');
         await s3Backend.remove('asset123');
 
+        const result = await s3Backend.list();
+        console.log('result2: ', result);
+        /// We need to fix this to return an empty string
+        expect(result).toBe(undefined);
+        // expect(result).not.toInclude('asset123');
+        // expect(result).not.toInclude('asset007');
+
     });
+
+    it('should be able to download asset', async () => {
+        const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.2-node-18-bundle.zip`;
+        await s3Backend.save('asset444',  fse.readFileSync(filePath), 1000);
+
+        const result = await s3Backend.get('asset444');
+
+        expect(typeof result).toBe('string');
+        /// Weak test, should create temp folder and save into file.
+        /// It may also be useful to look at and very the asset.json contents
+        /// Note: I can kill two birds with one stone by creating a large asset 
+        /// for this test.
+
+    });
+
 });
