@@ -73,11 +73,10 @@ export class AssetsStorage {
 
         if (context.sysconfig.terafoundation.asset_storage_connection) {
             const s3BackendConfig: TerasliceS3StorageConfig = {
-                // context: context,
+                context,
                 terafoundation: context.sysconfig.terafoundation,
                 connector: context.sysconfig.terafoundation.asset_storage_connection,
                 bucket: context.sysconfig.terafoundation.asset_storage_bucket,
-                // other stuff???
             };
             this.s3Backend = new S3Store(s3BackendConfig);
         }
@@ -87,7 +86,7 @@ export class AssetsStorage {
         await this.ensureAssetDir();
         await this.esBackend.initialize();
         if (this.s3Backend) {
-            await this.s3Backend.initialize(); // ????
+            await this.s3Backend.initialize();
         }
         this.logger.info('assets storage initialized');
     }
@@ -145,7 +144,6 @@ export class AssetsStorage {
         );
 
         let emptyBlob = false;
-        // add save to s3 here
         if (this.s3Backend) {
             if (blocking) {
                 const elapsed = Date.now() - startTime;
@@ -229,10 +227,9 @@ export class AssetsStorage {
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
-    async get(id: string): Promise<Partial<AssetRecord>> {
+    async get(id: string): Promise<AssetRecord> {
         let record;
         if (this.s3Backend) {
-            // does this bog down ES still, or is the query lighter w/o the blob????
             record = await this.esBackend.get(id);
             const s3Data: string = await this.s3Backend.get(id);
             record.blob = s3Data;
@@ -370,14 +367,16 @@ export class AssetsStorage {
     }
 
     verifyClient() {
-        // if (this.s3Backend) {
-        //     /// I need to add verify client to s3
-        //     return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
-        // }
+        if (this.s3Backend) {
+            return this.esBackend.verifyClient() && this.s3Backend.verifyClient();
+        }
         return this.esBackend.verifyClient();
     }
 
     async waitForClient() {
-        return Promise.all([this.esBackend.waitForClient(), this.esBackend.waitForClient()]);
+        if (this.s3Backend) {
+            return Promise.all([this.esBackend.waitForClient(), this.s3Backend.waitForClient()]);
+        }
+        return this.esBackend.waitForClient();
     }
 }
