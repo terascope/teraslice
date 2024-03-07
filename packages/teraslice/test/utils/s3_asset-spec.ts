@@ -86,7 +86,7 @@ describe('S3 backend test', () => {
         });
 
         it('should be able to write in a zip file to tera_assets bucket', async () => {
-            const filePath = `${process.cwd()}/e2e/autoload/elasticsearch-v3.5.4-node-18-bundle.zip`;
+            const filePath = `${process.cwd()}/e2e/autoload/elasticsearch-v3.5.7-node-18-bundle.zip`;
             await s3Backend.save('asset123', fse.readFileSync(filePath), 1000);
             const result = await s3Backend.list();
             console.log('result1: ', result);
@@ -94,7 +94,7 @@ describe('S3 backend test', () => {
         });
 
         it('should be able to delete zip file in tera_assets bucket', async () => {
-            const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.2-node-18-bundle.zip`;
+            const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.5-node-18-bundle.zip`;
             await s3Backend.save('asset007', fse.readFileSync(filePath), 1000);
 
             // now delete it
@@ -110,7 +110,7 @@ describe('S3 backend test', () => {
         });
 
         it('should be able to download asset', async () => {
-            const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.2-node-18-bundle.zip`;
+            const filePath = `${process.cwd()}/e2e/autoload/kafka-v3.5.5-node-18-bundle.zip`;
             await s3Backend.save('asset444', fse.readFileSync(filePath), 1000);
 
             const result = await s3Backend.get('asset444');

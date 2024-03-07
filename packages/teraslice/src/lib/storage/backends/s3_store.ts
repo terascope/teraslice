@@ -1,14 +1,16 @@
 /* eslint-disable default-param-last */
 import {
-    Logger, TSError, pDelay, pWhile
+    Logger, TSError, isTest, logError, pDelay, pWhile, random
 } from '@terascope/utils';
 import {
+    BucketAlreadyExists,
+    BucketAlreadyOwnedByYou,
     CreateBucketCommand,
-    PutObjectCommand,
     DeleteObjectCommand,
     GetObjectCommand,
     ListObjectsV2Command,
-    BucketAlreadyOwnedByYou
+    NoSuchKey,
+    PutObjectCommand
 } from '@aws-sdk/client-s3';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import { createS3Client, S3Client, S3ClientConfig } from '@terascope/file-asset-apis';
@@ -71,16 +73,39 @@ export class S3Store {
             Bucket: this.bucket
         };
         const command = new CreateBucketCommand(input);
-        try {
-            const response = await this.api.send(command);
-            console.log('Bucket creation response: ', response);
-        } catch (err) {
-            // console.log(err);
-            // console.log(err.message);
-            if (!(err instanceof BucketAlreadyOwnedByYou)) {
-                throw new TSError('Error creating S3 bucket: ', err.message);
+
+        await pWhile(async () => {
+            try {
+                const response = await this.api.send(command);
+                console.log('Bucket creation response: ', response);
+                const isReady = await this.verifyClient();
+                return isReady;
+            } catch (err) {
+                // console.log('@@@@ this.config: ', this.config);
+                // console.log('@@@@ err: ', err);
+                // console.log('@@@@ err code: ', err.Code);
+                // console.log('@@@@ err.message: ', err.message);
+                if (err instanceof BucketAlreadyOwnedByYou) {
+                    const isReady = await this.verifyClient();
+                    return isReady;
+                }
+                if (err.Code === 'InvalidAccessKeyId') {
+                    throw new TSError(`accessKeyId specified in ${this.connector} does not exit: ${err.message}`);
+                }
+                if (err.Code === 'SignatureDoesNotMatch') {
+                    throw new TSError(`secretAccessKey specified in ${this.connector} does not match: ${err.message}`);
+                }
+                if (err instanceof BucketAlreadyExists) {
+                    throw new TSError(`Bucket name not available. Do you have the right credentials? ${err.message}`);
+                }
+
+                logError(this.logger, err, `Failed attempt connecting to S3 bucket: ${this.bucket} (will retry)`);
+
+                await pDelay(isTest ? 0 : random(2000, 4000));
+
+                return false;
             }
-        }
+        });
     }
 
     async get(recordId: string) {
@@ -89,40 +114,61 @@ export class S3Store {
             Bucket: this.bucket,
             Key: `${recordId}.zip`
         });
-        const response = await this.api.send(command);
-        const s3File = await response.Body?.transformToString('base64');
-        console.log('GET response: ', response);
-        console.log(`Grabbed ${recordId}.zip from ${this.bucket} bucket`);
-        if (typeof s3File !== 'string') {
-            throw new TSError(`Unable to get asset ${recordId} from s3`);
+        try {
+            this.logger.trace(`getting record id: ${recordId}`);
+
+            const response = await this.api.send(command);
+            const s3File = await response.Body?.transformToString('base64');
+            console.log('GET response: ', response);
+            console.log(`Grabbed ${recordId}.zip from ${this.bucket} bucket`);
+            if (typeof s3File !== 'string') {
+                throw new TSError(`Unable to get asset ${recordId} from s3`);
+            }
+            return s3File;
+        } catch (err) {
+            if (err instanceof NoSuchKey) {
+                throw new TSError(`Asset with id: ${recordId} does not exist in S3 asset store`);
+            }
+            throw new TSError(`Retrieval of asset with id: ${recordId} from s3 store failed: `, err);
         }
-        return s3File;
     }
 
     async save(recordId: string, data: Buffer, timeout: number) {
-        /// Save the asset
-        const command = new PutObjectCommand({
-            Bucket: this.bucket,
-            Key: `${recordId}.zip`,
-            Body: data
-        });
-        const options: HttpHandlerOptions = {
-            requestTimeout: timeout // FIXME: this is only related to time it takes to connect, not get a response
-        };
-        const response = await this.api.send(command, options);
-        console.log('SAVE response: ', response);
-        console.log(`Upladed ${recordId}.zip to ${this.bucket} bucket`);
+        try {
+            this.logger.trace(`saving record id: ${recordId} to S3 bucket`);
+
+            /// Save the asset
+            const command = new PutObjectCommand({
+                Bucket: this.bucket,
+                Key: `${recordId}.zip`,
+                Body: data
+            });
+            const options: HttpHandlerOptions = {
+                requestTimeout: timeout // FIXME: this is only related to time it takes to connect, not get a response
+            };
+            const response = await this.api.send(command, options);
+            console.log('SAVE response: ', response);
+            console.log(`Upladed ${recordId}.zip to ${this.bucket} bucket`);
+        } catch (err) {
+            throw new TSError(`Error saving asset to S3: ${err}`);
+        }
     }
 
     async remove(recordId: string) {
-        /// remove an asset
-        const command = new DeleteObjectCommand({
-            Bucket: this.bucket,
-            Key: `${recordId}.zip`
-        });
-        const response = await this.api.send(command);
-        console.log('REMOVE response: ', response);
-        console.log(`Deleted ${recordId}.zip from ${this.bucket} bucket`);
+        try {
+            this.logger.trace(`removing record ${recordId} from S3`);
+
+            /// remove an asset
+            const command = new DeleteObjectCommand({
+                Bucket: this.bucket,
+                Key: `${recordId}.zip`
+            });
+            const response = await this.api.send(command);
+            console.log('REMOVE response: ', response);
+            console.log(`Deleted ${recordId}.zip from ${this.bucket} bucket`);
+        } catch (err) {
+            throw new TSError(`Error deleting asset from S3: ${err}`);
+        }
     }
 
     async list() {
@@ -172,7 +218,7 @@ export class S3Store {
         }, { timeoutMs });
     }
 
-    async shutdown(forceShutdown = false) {
+    async shutdown() {
         /// close the connection
         this.api.destroy();
         this.isShuttingDown = true;

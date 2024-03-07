@@ -3,7 +3,7 @@ import fse from 'fs-extra';
 import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
-    toString, filterObject, Logger
+    toString, filterObject, Logger, pDelay
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
@@ -107,8 +107,12 @@ export class AssetsStorage {
 
     private async _assetExistsInES(id: string): Promise<boolean> {
         try {
-            const result = await this.esBackend.get(id, undefined, ['id', 'name']);
-            return result != null;
+            const inES = await this.esBackend.get(id, undefined, ['id', 'name']);
+            if (this.s3Backend) {
+                const inS3 = await this.s3Backend.get(id);
+                return inES != null && inS3 != null;
+            }
+            return inES != null;
         } catch (err) {
             if (err.statusCode === 404) {
                 return false;
@@ -119,7 +123,6 @@ export class AssetsStorage {
         }
     }
 
-    // if asset is in s3 it will have metadata is ES, so do we need to check s3 at all?
     private async _assetExists(id: string) {
         const [readable, exists] = await Promise.all([
             this._assetExistsInFS(id),
@@ -128,8 +131,7 @@ export class AssetsStorage {
 
         return readable && exists;
     }
-    // data is the buffer form of asset, stored in filesystem
-    // esData is the base64 version which is stored in elasticsearch
+
     private async _saveAndUpload({
         id, data, esData, blocking
     }: { id: string, data: Buffer, esData: string, blocking: boolean }) {
@@ -262,7 +264,7 @@ export class AssetsStorage {
         const assets = response.hits.hits.map((doc) => doc._source);
 
         if (!assets.length) {
-            throw new TSError(`No assets found for "${assetIdentifier}`, {
+            throw new TSError(`No assets found for "${assetIdentifier}"`, {
                 statusCode: 404
             });
         }
@@ -288,7 +290,7 @@ export class AssetsStorage {
         if (this.s3Backend) {
             return Promise.all([
                 this.esBackend.shutdown(forceShutdown),
-                this.s3Backend.shutdown(forceShutdown)
+                this.s3Backend.shutdown()
             ]);
         }
         return Promise.all([
@@ -298,7 +300,12 @@ export class AssetsStorage {
 
     async remove(assetId: string) {
         try {
-            await this.esBackend.get(assetId, undefined, ['name']);
+            if (this.s3Backend) {
+                await this.esBackend.get(assetId, undefined, ['name']);
+                await this.s3Backend.get(assetId);
+            } else {
+                await this.esBackend.get(assetId, undefined, ['name']);
+            }
         } catch (err) {
             if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
@@ -309,11 +316,29 @@ export class AssetsStorage {
             }
             throw err;
         }
-        await this.esBackend.remove(assetId);
-        if (this.s3Backend) {
-            await this.s3Backend.remove(assetId);
+        let readable = true;
+        let exists = true;
+        let delayMS = 100;
+        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
+        setTimeout(() => { throw new TSError('Timeout deleting assets'); }, responseTimeout);
+        while (readable || exists) {
+            try {
+                await this.esBackend.remove(assetId);
+                if (this.s3Backend) {
+                    await this.s3Backend.remove(assetId);
+                }
+                await fse.remove(path.join(this.assetsPath, assetId));
+
+                [readable, exists] = await Promise.all([
+                    this._assetExistsInFS(assetId),
+                    this._assetExistsInES(assetId)
+                ]);
+            } catch (err) {
+                this.logger.error(err, `Failure deleting asset ${assetId}: ${err}`);
+                await pDelay(delayMS);
+                if (delayMS < 50000) delayMS *= 2;
+            }
         }
-        await fse.remove(path.join(this.assetsPath, assetId));
     }
 
     private async ensureAssetDir() {
