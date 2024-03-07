@@ -16,6 +16,5 @@ config.testTimeout = 60 * 1000;
 config.transform = {};
 
 config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
-config.maxWorkers = '50%';
 
 export default config;
