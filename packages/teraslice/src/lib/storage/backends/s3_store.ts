@@ -179,7 +179,7 @@ export class S3Store {
         });
         const response = await this.api.send(command);
         console.log('LIST response: ', response);
-        let contentsList: Record<string, any>[] = [];
+        const contentsList: Record<string, any>[] = [];
         // response.Contents?.map((c) => ` • ${c.Key}`).join('\n');
         response.Contents?.map((c) => {
             const s3Record = {
