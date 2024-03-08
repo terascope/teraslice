@@ -120,6 +120,7 @@ describe('S3 backend test', () => {
             /// It may also be useful to look at and very the asset.json contents
             /// Note: I can kill two birds with one stone by creating a large asset
             /// for this test.
+            await s3Backend.remove('asset444');
         });
     });
 });

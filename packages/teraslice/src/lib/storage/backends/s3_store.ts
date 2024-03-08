@@ -127,7 +127,9 @@ export class S3Store {
             return s3File;
         } catch (err) {
             if (err instanceof NoSuchKey) {
-                throw new TSError(`Asset with id: ${recordId} does not exist in S3 asset store`);
+                throw new TSError(`Asset with id: ${recordId} does not exist in S3 asset store`, {
+                    statusCode: 404
+                });
             }
             throw new TSError(`Retrieval of asset with id: ${recordId} from s3 store failed: `, err);
         }
@@ -181,7 +183,7 @@ export class S3Store {
         console.log('LIST response: ', response);
         const contentsList: Record<string, any>[] = [];
         // response.Contents?.map((c) => ` • ${c.Key}`).join('\n');
-        response.Contents?.map((c) => {
+        response.Contents?.forEach((c) => {
             const s3Record = {
                 File: c.Key,
                 Size: c.Size,
