@@ -13,8 +13,10 @@ config.moduleNameMapper = {
     '^(\\.{1,2}/.*)\\.js$': '$1',
 };
 config.testTimeout = 60 * 1000;
-config.transform = {};
 
-config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
-
+// using swc for some reason throws rust file not found errors,
+// seems like a bug on their end, hope to change back later
+// config.transform = {};
+// config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
+// console.dir({ finalConfig: config }, { depth: 40 })
 export default config;

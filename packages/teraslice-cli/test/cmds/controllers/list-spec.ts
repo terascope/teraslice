@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import list from '../../../src/cmds/controllers/list';
+import list from '../../../src/cmds/controllers/list.js';
 
 describe('controllers list', () => {
     describe('-> parse', () => {

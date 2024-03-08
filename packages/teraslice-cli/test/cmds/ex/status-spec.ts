@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import status from '../../../src/cmds/ex/status';
+import status from '../../../src/cmds/ex/status.js';
 
 describe('ex status', () => {
     describe('-> parse', () => {

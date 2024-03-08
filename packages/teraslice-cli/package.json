@@ -32,9 +32,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TJM_TEST_MODE='true' ts-scripts test . --",
-        "test:debug": "TJM_TEST_MODE='true' ts-scripts test --debug . --",
-        "test:watch": "TJM_TEST_MODE='true' ts-scripts test --watch . --"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",

@@ -6,9 +6,7 @@ import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
-import init from '../../../src/cmds/assets/init';
-
-jest.setTimeout(10000);
+import init from '../../../src/cmds/assets/init.js';
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;

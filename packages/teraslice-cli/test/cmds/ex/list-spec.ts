@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import list from '../../../src/cmds/ex/list';
+import list from '../../../src/cmds/ex/list.js';
 
 describe('ex list', () => {
     describe('-> parse', () => {

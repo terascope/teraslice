@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-focused-tests */
 import nock from 'nock';
 import path from 'node:path';
 import fs from 'fs-extra';

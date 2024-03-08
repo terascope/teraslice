@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import errors from '../../../src/cmds/jobs/errors';
+import errors from '../../../src/cmds/jobs/errors.js';
 
 describe('jobs errors', () => {
     describe('-> parse', () => {

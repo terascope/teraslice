@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import pause from '../../../src/cmds/jobs/pause';
+import pause from '../../../src/cmds/jobs/pause.js';
 
 describe('jobs pause', () => {
     describe('-> parse', () => {

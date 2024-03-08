@@ -34,7 +34,6 @@ module.exports = {
     rootDir: '.',
     verbose: true,
     projects,
-    maxWorkers: '50%',
     globals: {
         availableExtensions: ['.js', '.ts', 'mjs']
     },

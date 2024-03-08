@@ -2,7 +2,6 @@ import 'jest-extended';
 import path from 'node:path';
 import fs from 'node:fs';
 import { createTempDirSync } from 'jest-fixtures';
-
 import Aliases from '../../src/helpers/aliases.js';
 
 describe('Aliases', () => {
