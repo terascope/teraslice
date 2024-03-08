@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fse from 'fs-extra';
+import os from 'os';
 import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
@@ -7,6 +8,7 @@ import {
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
+import archiver from 'archiver';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
@@ -88,6 +90,7 @@ export class AssetsStorage {
         await this.esBackend.initialize();
         if (this.s3Backend) {
             await this.s3Backend.initialize();
+            // await this.syncStorage();
         }
         this.logger.info('assets storage initialized');
     }
@@ -132,19 +135,57 @@ export class AssetsStorage {
         return readable && exists;
     }
 
+    private async syncStorage() {
+        // get all assetIds in ES
+        if (!this.s3Backend) return;
+        const results = await this.search('id:*');
+        const assetsInES = results.hits.hits.map((asset: any) => asset._id);
+        console.log('@@@@ assetsInES: ', assetsInES);
+        // get all assetIds in S3
+        const s3List = await this.s3Backend.list();
+        const assetsInS3: string[] = s3List?.map((record) => record.File.slice(0, -4));
+        console.log('@@@@ assetsInS3: ', assetsInS3);
+        // add missing to S3
+        const missingFromS3 = assetsInES.filter((id) => !assetsInS3.includes(id));
+        for (const assetId of missingFromS3) {
+            console.log('@@@ id: ', assetId);
+            // try to get asset from fs
+            if (await this._assetExistsInFS(assetId)) {
+                const tempAssetDir = fse.mkdtempSync(path.join(os.tmpdir(), 'asset'));
+                const unzippedAssetPath = path.join(this.assetsPath, assetId);
+                const zippedAssetPath = path.join(tempAssetDir, `${assetId}.zip`);
+                const output = fse.createWriteStream(zippedAssetPath);
+                console.log('@@@@ tempAssetDir: ', tempAssetDir);
+                const archive = archiver('zip', { zlib: { level: 9 } });
+                output.on('close', () => {
+                    console.log(`${archive.pointer()} total bytes`);
+                    console.log('archiver has been finalized and the output file descriptor has closed.');
+                });
+                output.on('end', () => {
+                    console.log('Data has been drained');
+                });
+                archive.pipe(output);
+                // console.log('@@@@ assetPath: ', assetPath);
+
+                archive.directory(unzippedAssetPath, assetId);
+                await archive.finalize();
+                this.save(await fse.readFile(zippedAssetPath), true);
+                if (tempAssetDir) {
+                    // fse.rmSync(tempAssetDir, { recursive: true, force: true });
+                }
+            }
+        }
+        // const extraInS3 = assetsInS3.filter((id) => !assetsInES.includes(id));
+        // for (const assetId of extraInS3) {
+        //     this.s3Backend.remove(assetId);
+        // }
+    }
+
     private async _saveAndUpload({
         id, data, esData, blocking
     }: { id: string, data: Buffer, esData: string, blocking: boolean }) {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
-
-        const metaData = await saveAsset(
-            this.logger,
-            this.assetsPath,
-            id,
-            data,
-            _metaIsUnique(this.esBackend)
-        );
 
         let emptyBlob = false;
         if (this.s3Backend) {
@@ -157,13 +198,21 @@ export class AssetsStorage {
             }
             emptyBlob = true;
 
-            this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to s3 store`);
+            this.logger.info(`asset id: ${id} has been saved to s3 store`);
         }
+
+        const metaData = await saveAsset(
+            this.logger,
+            this.assetsPath,
+            id,
+            data,
+            _metaIsUnique(this.esBackend)
+        );
 
         const blobContents = emptyBlob ? '' : esData;
 
         const assetRecord = Object.assign({
-            blob: blobContents, // send no blob if using s3
+            blob: blobContents,
             _created: new Date().toISOString()
         }, metaData);
 
@@ -304,12 +353,7 @@ export class AssetsStorage {
 
     async remove(assetId: string) {
         try {
-            if (this.s3Backend) {
-                await this.esBackend.get(assetId, undefined, ['name']);
-                await this.s3Backend.get(assetId);
-            } else {
-                await this.esBackend.get(assetId, undefined, ['name']);
-            }
+            await this.esBackend.get(assetId, undefined, ['name']);
         } catch (err) {
             if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
