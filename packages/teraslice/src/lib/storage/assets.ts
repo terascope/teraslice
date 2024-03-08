@@ -227,6 +227,10 @@ export class AssetsStorage {
             query, from, size, sort, fields
         ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
+
+    async grabS3Info(): Promise<Record<string, any>[]> {
+        return await this.s3Backend?.list() as Record<string, any>[];
+    }
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false

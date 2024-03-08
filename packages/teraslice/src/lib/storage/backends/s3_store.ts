@@ -171,7 +171,7 @@ export class S3Store {
         }
     }
 
-    async list() {
+    async list(): Promise<Record<string, any>[]> {
         /// list all asset keys in bucket
         const command = new ListObjectsV2Command({
             Bucket: this.bucket,
@@ -179,11 +179,21 @@ export class S3Store {
         });
         const response = await this.api.send(command);
         console.log('LIST response: ', response);
-        const contentsList = response.Contents?.map((c) => ` • ${c.Key}`).join('\n');
+        let contentsList: Record<string, any>[] = [];
+        // response.Contents?.map((c) => ` • ${c.Key}`).join('\n');
+        response.Contents?.map((c) => {
+            const s3Record = {
+                File: c.Key,
+                Size: c.Size,
+                // Created: c.LastModified
+            };
+            contentsList.push(s3Record);
+        });
         console.log(`Keys inside ${this.bucket}: \n`, contentsList);
         /// We need to figure out exactly how we want to format this or
         /// if we just want to pass each key inside an array and have something else
         // format it.
+        /// returns string array
         return contentsList;
     }
 
