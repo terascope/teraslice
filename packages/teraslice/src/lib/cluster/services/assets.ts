@@ -164,6 +164,12 @@ export class AssetsService {
             'arch'
         ];
 
+        const s3Defaults = [
+            'File',
+            'es_record_exists',
+            'Size'
+        ]
+
         function mapping(item: Record<string, any>) {
             return (field: string) => {
                 if (field === 'description') {
@@ -172,6 +178,26 @@ export class AssetsService {
                 return item[field];
             };
         }
+
+        function existsInEs(
+            s3List: Record<string, any>[], 
+            esList: Record<string, any>[]
+            ) {
+                let result: Record<string, any>[] = [...s3List];
+                for (let i = 0; i < result.length; i++) {
+                    /// s3AssetId is just the file name without the .zip
+                    const s3AssetId = result[i].File.slice(0, -4);
+                    console.log('@@@ s3AssetId: ', s3AssetId);
+                    result[i].es_record_exists = 'no';
+                    for (let j = 0; j < esList.length; j++) {
+                        if (s3AssetId === esList[j].id) {
+                            result[i].es_record_exists = 'yes';
+                            break;
+                        }
+                    }
+                }
+                return result as Record<string, any>[];
+            }
 
         const requestHandler = handleTerasliceRequest(req, res, 'Could not get assets');
         requestHandler(async () => {
@@ -184,6 +210,15 @@ export class AssetsService {
                 record.id = asset._id;
                 return record;
             });
+
+            if (this.context.sysconfig.terafoundation.asset_storage_connection) {
+                const s3Assets = await this.assetsStorage.grabS3Info();
+                const theTable = makeTable(req, defaults, assets, mapping);
+                const updateds3Assets = existsInEs(s3Assets, assets);
+                console.log('@@@ updateds3Assets: ', updateds3Assets);
+                const s3Table = makeTable(req, s3Defaults, updateds3Assets);
+                return `${theTable}\n${s3Table}\n`;
+            }
 
             return makeTable(req, defaults, assets, mapping);
         });
