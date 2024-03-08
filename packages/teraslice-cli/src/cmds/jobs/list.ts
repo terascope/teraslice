@@ -1,15 +1,15 @@
 import { Teraslice } from '@terascope/types';
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import TerasliceUtil from '../../helpers/teraslice-util';
-import reply from '../../helpers/reply';
-import Display from '../../helpers/display';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import TerasliceUtil from '../../helpers/teraslice-util.js';
+import reply from '../../helpers/reply.js';
+import Display from '../../helpers/display.js';
 
 const display = new Display();
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'list <cluster-alias>',
     describe: 'List the jobs on the cluster. Defaults to 10 jobs.',
     builder(yargs: any) {

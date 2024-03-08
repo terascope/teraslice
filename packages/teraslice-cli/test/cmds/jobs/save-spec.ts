@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import save from '../../../src/cmds/jobs/save';
+import save from '../../../src/cmds/jobs/save.js';
 
 describe('jobs save', () => {
     describe('-> parse', () => {

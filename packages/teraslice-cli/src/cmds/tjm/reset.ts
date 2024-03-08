@@ -1,11 +1,11 @@
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import { resetConfigFile } from '../../helpers/tjm-util';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { resetConfigFile } from '../../helpers/tjm-util.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'reset <job-file...>',
     describe: 'Removes cli metadata so job can be registerd on another cluster',
     builder(yargs) {

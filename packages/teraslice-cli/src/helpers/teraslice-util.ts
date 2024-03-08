@@ -1,6 +1,6 @@
 import { has } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
-import TerasliceClient from 'teraslice-client-js';
+import { TerasliceClient } from 'teraslice-client-js';
 
 export default class TerasliceUtil {
     config: any;

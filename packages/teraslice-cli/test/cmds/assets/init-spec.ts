@@ -1,14 +1,12 @@
 import 'jest-extended';
 import yargs from 'yargs';
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
-import init from '../../../src/cmds/assets/init';
-
-jest.setTimeout(10000);
+import init from '../../../src/cmds/assets/init.js';
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;

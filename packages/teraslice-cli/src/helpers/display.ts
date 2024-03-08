@@ -139,7 +139,7 @@ export default class Display {
     async display(
         // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
         header: any,
-        items: any[],
+        items: any[] | any,
         type: string,
         active?: boolean,
         parse?: boolean,

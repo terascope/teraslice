@@ -6,9 +6,9 @@ import {
     toSnakeCase,
     toCamelCase
 } from '@terascope/utils';
-import TerasliceClient from 'teraslice-client-js';
-import fs from 'fs';
-import path from 'path';
+import { TerasliceClient } from 'teraslice-client-js';
+import fs from 'node:fs';
+import path from 'node:path';
 
 function sanitize(str: string) {
     return str.replace(/[?$#@_-]/g, ' ');

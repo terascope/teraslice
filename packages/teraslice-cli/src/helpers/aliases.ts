@@ -1,7 +1,7 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { AnyObject, has } from '@terascope/utils';
 import yaml from 'js-yaml';
-import Display from '../helpers/display';
+import Display from './display.js';
 
 const display = new Display();
 

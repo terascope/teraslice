@@ -2,7 +2,7 @@ import execa from 'execa';
 import prettyBytes from 'pretty-bytes';
 import glob from 'glob-promise';
 import fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import tmp from 'tmp';
 import { build } from 'esbuild';
 
@@ -15,8 +15,8 @@ import {
     toUpperCase
 } from '@terascope/utils';
 
-import reply from './reply';
-import { wasmPlugin, getPackage } from '../helpers/utils';
+import reply from './reply.js';
+import { wasmPlugin, getPackage } from './utils.js';
 
 interface ZipResults {
     name: string;

@@ -1,8 +1,8 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { AssetSrc } from '../../src/helpers/asset-src';
+import { AssetSrc } from '../../src/helpers/asset-src.js';
 
 describe('AssetSrc', () => {
     const srcDir = path.join(__dirname, '../fixtures/testAsset');
@@ -99,6 +99,8 @@ describe('AssetSrc', () => {
     });
 
     it('can build a node 18 bundle', async () => {
+        expect.hasAssertions();
+
         const devMode = false;
         const debug = false;
         const bundle = true;
@@ -115,7 +117,9 @@ describe('AssetSrc', () => {
             resp = await myTestAsset.build();
             expect(resp.name).toContain('node-18');
         } finally {
-            await fs.remove(resp.name);
+            if (resp) {
+                await fs.remove(resp.name);
+            }
         }
     });
 });

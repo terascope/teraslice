@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import stop from '../../../src/cmds/jobs/stop';
+import stop from '../../../src/cmds/jobs/stop.js';
 
 describe('jobs stop', () => {
     describe('-> parse', () => {

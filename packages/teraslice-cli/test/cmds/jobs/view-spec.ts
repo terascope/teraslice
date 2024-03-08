@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import view from '../../../src/cmds/jobs/view';
+import view from '../../../src/cmds/jobs/view.js';
 
 describe('jobs view', () => {
     describe('-> parse', () => {

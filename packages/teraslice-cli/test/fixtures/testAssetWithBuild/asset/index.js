@@ -1,5 +1,3 @@
-'use strict';
-
 const procProcessor = require('./proc/processor');
 const procSchema = require('./proc/schema');
 const procSlicer = require('./proc/slicer');

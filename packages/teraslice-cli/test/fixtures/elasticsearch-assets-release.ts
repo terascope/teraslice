@@ -1,4 +1,4 @@
-export = [
+export default [
     {
         url: 'https://api.github.com/repos/terascope/elasticsearch-assets/releases/19638570',
         assets_url: 'https://api.github.com/repos/terascope/elasticsearch-assets/releases/19638570/assets',
@@ -743,4 +743,4 @@ export = [
         zipball_url: 'https://api.github.com/repos/terascope/elasticsearch-assets/zipball/v9.9.9',
         body: ''
     }
-]
+];

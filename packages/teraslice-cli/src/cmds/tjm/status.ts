@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import Config from '../../helpers/config';
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Config from '../../helpers/config.js';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'status <job-file...>',
     describe: 'View status of a job by referencing the job file',
     builder(yargs) {
@@ -30,6 +30,4 @@ const cmd: CMD = {
 
         await jobs.checkStatus();
     }
-};
-
-export = cmd;
+} as CMD;

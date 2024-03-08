@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { TSError } from '@terascope/utils';
 import { downloadRelease } from '@terascope/fetch-github-release';
-import { GithubAssetConfig } from '../interfaces';
+import { GithubAssetConfig } from '../interfaces.js';
 
 export default class GithubAsset {
     arch: string;

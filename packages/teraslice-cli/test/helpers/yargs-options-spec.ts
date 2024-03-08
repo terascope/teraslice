@@ -1,4 +1,4 @@
-import Options from '../../src/helpers/yargs-options';
+import Options from '../../src/helpers/yargs-options.js';
 
 describe('options', () => {
     let options: any;

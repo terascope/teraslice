@@ -1,7 +1,7 @@
 import { v4 as uuidV4 } from 'uuid';
-import path from 'path';
+import path from 'node:path';
 import { Teraslice } from '@terascope/types';
-import Config from '../../src/helpers/config';
+import Config from '../../src/helpers/config.js';
 
 export function makeJobIds(n: number): string[] {
     return [...new Array(n)].map(() => uuidV4());
