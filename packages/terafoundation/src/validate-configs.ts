@@ -9,7 +9,7 @@ import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchema } from './connector-utils';
-import foundationSchema from './schema';
+import { foundationSchema } from './schema';
 import * as i from './interfaces';
 
 addFormats(convict_format_with_validator);
@@ -77,7 +77,7 @@ export default function validateConfigs<
     }
 
     const schema = extractSchema(config.config_schema, sysconfig);
-    schema.terafoundation = foundationSchema;
+    schema.terafoundation = foundationSchema(sysconfig);
     const result: any = {};
 
     if (config.schema_formats) {
@@ -108,21 +108,6 @@ export default function validateConfigs<
                         connectionConfig as any
                     );
                 }
-            }
-
-            // FIXME: use a schema and convict for these tests
-            if (result[schemaKey].asset_storage_connection) {
-                const connectorNames = Object.keys(connectors);
-                if (!connectorNames.includes('s3')) {
-                    throw new TSError('The asset_storage_connection options requires an s3 connector in terafoundation');
-                }
-                const s3Connections = Object.keys(connectors.s3);
-                if (!s3Connections.includes(result[schemaKey].asset_storage_connection)) {
-                    throw new TSError(`asset_storage_connection ${result[schemaKey].asset_storage_connection} not found in s3 connector`);
-                }
-                // if (result[schemaKey].asset_storage_bucket === undefined) {
-                //     result[schemaKey].asset_storage_bucket = `ts-asset-${result.teraslice.name}`;
-                // }
             }
         }
     }

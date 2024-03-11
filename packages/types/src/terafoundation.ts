@@ -119,6 +119,7 @@ export type SysConfig<S> = {
         log_path: string;
         log_level: LogLevelConfig;
         logging: LogType[];
+        asset_storage_connector?: string;
         asset_storage_connection?: string;
         asset_storage_bucket?: string;
     };
