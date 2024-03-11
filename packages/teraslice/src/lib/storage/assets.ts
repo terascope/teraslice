@@ -73,15 +73,17 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        if (context.sysconfig.terafoundation.asset_storage_connection) {
-            const s3BackendConfig: TerasliceS3StorageConfig = {
-                context,
-                terafoundation: context.sysconfig.terafoundation,
-                connector: context.sysconfig.terafoundation.asset_storage_connection,
-                bucket: context.sysconfig.terafoundation.asset_storage_bucket,
-                logger
-            };
-            this.s3Backend = new S3Store(s3BackendConfig);
+        if (context.sysconfig.terafoundation.asset_storage_connector === 's3') {
+            if (context.sysconfig.terafoundation.asset_storage_connection) {
+                const s3BackendConfig: TerasliceS3StorageConfig = {
+                    context,
+                    terafoundation: context.sysconfig.terafoundation,
+                    connection: context.sysconfig.terafoundation.asset_storage_connection,
+                    bucket: context.sysconfig.terafoundation.asset_storage_bucket,
+                    logger
+                };
+                this.s3Backend = new S3Store(s3BackendConfig);
+            }
         }
     }
 
@@ -90,7 +92,6 @@ export class AssetsStorage {
         await this.esBackend.initialize();
         if (this.s3Backend) {
             await this.s3Backend.initialize();
-            // await this.syncStorage();
         }
         this.logger.info('assets storage initialized');
     }
@@ -135,51 +136,6 @@ export class AssetsStorage {
         return readable && exists;
     }
 
-    private async syncStorage() {
-        // get all assetIds in ES
-        if (!this.s3Backend) return;
-        const results = await this.search('id:*');
-        const assetsInES = results.hits.hits.map((asset: any) => asset._id);
-        console.log('@@@@ assetsInES: ', assetsInES);
-        // get all assetIds in S3
-        const s3List = await this.s3Backend.list();
-        const assetsInS3: string[] = s3List?.map((record) => record.File.slice(0, -4));
-        console.log('@@@@ assetsInS3: ', assetsInS3);
-        // add missing to S3
-        const missingFromS3 = assetsInES.filter((id) => !assetsInS3.includes(id));
-        for (const assetId of missingFromS3) {
-            console.log('@@@ id: ', assetId);
-            // try to get asset from fs
-            if (await this._assetExistsInFS(assetId)) {
-                const tempAssetDir = fse.mkdtempSync(path.join(os.tmpdir(), 'asset'));
-                const unzippedAssetPath = path.join(this.assetsPath, assetId);
-                const zippedAssetPath = path.join(tempAssetDir, `${assetId}.zip`);
-                const output = fse.createWriteStream(zippedAssetPath);
-                console.log('@@@@ tempAssetDir: ', tempAssetDir);
-                const archive = archiver('zip', { zlib: { level: 9 } });
-                output.on('close', () => {
-                    console.log(`${archive.pointer()} total bytes`);
-                    console.log('archiver has been finalized and the output file descriptor has closed.');
-                });
-                output.on('end', () => {
-                    console.log('Data has been drained');
-                });
-                archive.pipe(output);
-                // console.log('@@@@ assetPath: ', assetPath);
-
-                archive.directory(unzippedAssetPath, assetId);
-                await archive.finalize();
-                this.save(await fse.readFile(zippedAssetPath), true);
-                if (tempAssetDir) {
-                    // fse.rmSync(tempAssetDir, { recursive: true, force: true });
-                }
-            }
-        }
-        // const extraInS3 = assetsInS3.filter((id) => !assetsInES.includes(id));
-        // for (const assetId of extraInS3) {
-        //     this.s3Backend.remove(assetId);
-        // }
-    }
 
     private async _saveAndUpload({
         id, data, esData, blocking

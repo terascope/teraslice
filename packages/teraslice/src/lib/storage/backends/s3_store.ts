@@ -21,7 +21,7 @@ import { makeLogger } from '../../workers/helpers/terafoundation.js';
 export interface TerasliceS3StorageConfig {
     context: Context;
     terafoundation: TerafoundationConfig;
-    connector: string;
+    connection: string;
     bucket?: string;
     logger?: Logger
 }
@@ -40,7 +40,7 @@ export class S3Store {
         const {
             context,
             terafoundation,
-            connector,
+            connection: connector,
             bucket,
             logger
 
@@ -150,7 +150,7 @@ export class S3Store {
             };
             const response = await this.api.send(command, options);
             console.log('SAVE response: ', response);
-            console.log(`Upladed ${recordId}.zip to ${this.bucket} bucket`);
+            console.log(`Uploaded ${recordId}.zip to ${this.bucket} bucket`);
         } catch (err) {
             throw new TSError(`Error saving asset to S3: ${err}`);
         }

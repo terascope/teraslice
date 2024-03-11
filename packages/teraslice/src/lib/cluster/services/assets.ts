@@ -260,7 +260,7 @@ export class AssetsService {
                 return record;
             });
 
-            if (this.context.sysconfig.terafoundation.asset_storage_connection) {
+            if (this.context.sysconfig.terafoundation.asset_storage_connector === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 // const theTable = makeTable(req, defaults, assets, mapping);
                 const updatedAssets = this.getAssetStatus(s3Assets, assets);

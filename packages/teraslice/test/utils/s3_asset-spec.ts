@@ -33,7 +33,7 @@ describe('S3 backend test', () => {
             s3Backend = new S3Store({
                 context,
                 terafoundation: mockTerafoundation,
-                connector: 'default',
+                connection: 'default',
                 bucket: 'tera-assets'
             });
 
@@ -70,7 +70,7 @@ describe('S3 backend test', () => {
             s3Backend = new S3Store({
                 context,
                 terafoundation: mockTerafoundation,
-                connector: 'default',
+                connection: 'default',
                 bucket: 'tera-assets'
             });
 
