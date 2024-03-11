@@ -150,6 +150,25 @@ export class AssetsService {
         }
     }
 
+    private getAssetStatus(
+        s3List: Record<string, any>[],
+        esList: Record<string, any>[]
+    ) {
+        const result: Record<string, any>[] = [...esList];
+        for (const esRecord of result) {
+            esRecord.external_storage = 'missing';
+            for (const s3Record of s3List) {
+                /// s3AssetId is just the file name without the .zip
+                const s3AssetId = s3Record.File.slice(0, -4);
+                if (s3AssetId === esRecord.id) {
+                    esRecord.external_storage = 'available';
+                    break;
+                }
+            }
+        }
+        return result as Record<string, any>[];
+    }
+
     private createAssetTable(query: string, req: TerasliceRequest, res: TerasliceResponse) {
         const { size, from, sort } = getSearchOptions(req, '_created:desc');
 
@@ -210,24 +229,24 @@ export class AssetsService {
         //         return result as Record<string, any>[];
         //     }
 
-        function getAssetStatus(
-            s3List: Record<string, any>[],
-            esList: Record<string, any>[]
-        ) {
-            const result: Record<string, any>[] = [...esList];
-            for (const esRecord of result) {
-                esRecord.external_storage = 'missing';
-                for (const s3Record of s3List) {
-                    /// s3AssetId is just the file name without the .zip
-                    const s3AssetId = s3Record.File.slice(0, -4);
-                    if (s3AssetId === esRecord.id) {
-                        esRecord.external_storage = 'available';
-                        break;
-                    }
-                }
-            }
-            return result as Record<string, any>[];
-        }
+        // function getAssetStatus(
+        //     s3List: Record<string, any>[],
+        //     esList: Record<string, any>[]
+        // ) {
+        //     const result: Record<string, any>[] = [...esList];
+        //     for (const esRecord of result) {
+        //         esRecord.external_storage = 'missing';
+        //         for (const s3Record of s3List) {
+        //             /// s3AssetId is just the file name without the .zip
+        //             const s3AssetId = s3Record.File.slice(0, -4);
+        //             if (s3AssetId === esRecord.id) {
+        //                 esRecord.external_storage = 'available';
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     return result as Record<string, any>[];
+        // }
 
         const requestHandler = handleTerasliceRequest(req, res, 'Could not get assets');
         requestHandler(async () => {
@@ -244,7 +263,7 @@ export class AssetsService {
             if (this.context.sysconfig.terafoundation.asset_storage_connection) {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 // const theTable = makeTable(req, defaults, assets, mapping);
-                const updatedAssets = getAssetStatus(s3Assets, assets);
+                const updatedAssets = this.getAssetStatus(s3Assets, assets);
                 // const s3Table = makeTable(req, s3Defaults, updateds3Assets);
                 // return `${theTable}\n${s3Table}\n`;
                 return makeTable(req, s3Defaults, updatedAssets, mapping);
@@ -265,11 +284,19 @@ export class AssetsService {
                 query, from, size, sort as string, fields
             ) as Record<string, any>;
 
-            return results.hits.hits.map((asset: any) => {
+            const mappedRecords = results.hits.hits.map((asset: any) => {
                 const record = asset._source;
                 record.id = asset._id;
                 return record;
             });
+
+            if (this.context.sysconfig.terafoundation.asset_storage_connection) {
+                const s3Assets = await this.assetsStorage.grabS3Info();
+                const updatedAssets = this.getAssetStatus(s3Assets, mappedRecords);
+                return updatedAssets;
+            }
+
+            return mappedRecords;
         });
     }
 
