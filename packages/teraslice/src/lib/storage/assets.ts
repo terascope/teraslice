@@ -1,6 +1,5 @@
 import path from 'node:path';
 import fse from 'fs-extra';
-import os from 'os';
 import crypto from 'node:crypto';
 import {
     TSError, uniq, isString,
@@ -8,7 +7,6 @@ import {
 } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
 import { ClientResponse, AssetRecord } from '@terascope/types';
-import archiver from 'archiver';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 import { S3Store, TerasliceS3StorageConfig } from './backends/s3_store.js';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
@@ -135,7 +133,6 @@ export class AssetsStorage {
 
         return readable && exists;
     }
-
 
     private async _saveAndUpload({
         id, data, esData, blocking
