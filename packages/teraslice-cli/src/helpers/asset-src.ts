@@ -3,6 +3,7 @@ import prettyBytes from 'pretty-bytes';
 import glob from 'glob-promise';
 import fs from 'fs-extra';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import tmp from 'tmp';
 import { build } from 'esbuild';
 
@@ -253,11 +254,15 @@ export class AssetSrc {
         // version is the same as the buildTarget
         if (this.bundleTarget?.replace('node', '') === process.version.split('.', 1)[0].substr(1)) {
             try {
+                const require = createRequire(import.meta.url);
                 const modulePath = require.resolve(bundleDir.name);
+
                 reply.info(`* doing a test require of ${modulePath}`);
-                const requireOut = require(modulePath).ASSETS;
+
+                const module = await import(modulePath);
+
                 if (this.debug) {
-                    reply.warning(JSON.stringify(requireOut, null, 2));
+                    reply.warning(JSON.stringify(module.ASSETS, null, 2));
                 }
             } catch (err) {
                 reply.fatal(`Bundled asset failed to require: ${err}`);
