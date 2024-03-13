@@ -96,7 +96,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit",
+        "testSuite": "cli",
         "enableTypedoc": true
     }
 }
