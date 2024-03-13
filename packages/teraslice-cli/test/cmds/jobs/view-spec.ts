@@ -4,7 +4,7 @@ import view from '../../../src/cmds/jobs/view.js';
 describe('jobs view', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 view.command,
                 view.describe,

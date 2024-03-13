@@ -4,7 +4,7 @@ import awaitJob from '../../../src/cmds/jobs/await.js';
 describe('jobs await', () => {
     describe('-> parse', () => {
         it('should parse properly with a job id', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 awaitJob.command,
                 awaitJob.describe,
@@ -21,7 +21,7 @@ describe('jobs await', () => {
         });
 
         it('should parse properly with options', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 awaitJob.command,
                 awaitJob.describe,

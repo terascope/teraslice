@@ -4,7 +4,7 @@ import start from '../../../src/cmds/jobs/start.js';
 describe('jobs start', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 start.command,
                 start.describe,
@@ -18,7 +18,7 @@ describe('jobs start', () => {
         });
 
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 start.command,
                 start.describe,

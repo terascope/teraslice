@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;
     beforeEach(() => {
-        yargsCmd = yargs.command(
+        yargsCmd = yargs().command(
             // @ts-expect-error
             init.command,
             init.describe,

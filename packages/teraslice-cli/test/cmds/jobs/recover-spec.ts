@@ -4,7 +4,7 @@ import recover from '../../../src/cmds/jobs/recover.js';
 describe('jobs recover', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 recover.command,
                 recover.describe,

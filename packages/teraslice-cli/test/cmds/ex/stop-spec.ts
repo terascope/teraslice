@@ -4,7 +4,7 @@ import stop from '../../../src/cmds/ex/stop.js';
 describe('ex stop', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 stop.command,
                 stop.describe,

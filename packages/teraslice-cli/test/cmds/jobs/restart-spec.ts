@@ -4,7 +4,7 @@ import restart from '../../../src/cmds/jobs/restart.js';
 describe('jobs restart', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 restart.command,
                 restart.describe,
@@ -17,7 +17,7 @@ describe('jobs restart', () => {
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 restart.command,
                 restart.describe,

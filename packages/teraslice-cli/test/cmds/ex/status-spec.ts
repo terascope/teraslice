@@ -4,7 +4,7 @@ import status from '../../../src/cmds/ex/status.js';
 describe('ex status', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 status.command,
                 status.describe,
