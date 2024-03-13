@@ -4,7 +4,8 @@
         "target": "ESNext",
         "module": "ESNext",
         "outDir": "dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "esModuleInterop": true
     },
     "include": [
         "src",
