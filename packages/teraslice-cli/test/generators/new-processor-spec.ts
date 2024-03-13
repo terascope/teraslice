@@ -6,13 +6,13 @@ import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('processor generator with no new flag', () => {
     const exampleAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-processor'));
     const processPath = path.join(exampleAssetBasePath, 'example-asset', 'asset');
     const testPath = path.join(exampleAssetBasePath, 'example-asset', 'test');
-    const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'new-processor');
+    const helpersPath = path.join(dirname, '..', '..', 'src', 'generators', 'new-processor');
 
     beforeAll(() => helpers.run(helpersPath)
         .inDir(exampleAssetBasePath)
@@ -60,7 +60,7 @@ describe('processor generator with new flag', () => {
     const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-processor'));
     const processPath = path.join(testAssetBasePath, 'test-asset', 'asset');
     const testPath = path.join(testAssetBasePath, 'test-asset', 'test');
-    const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'new-processor');
+    const helpersPath = path.join(dirname, '..', '..', 'src', 'generators', 'new-processor');
 
     beforeAll(() => helpers.run(helpersPath)
         .inDir(testAssetBasePath)

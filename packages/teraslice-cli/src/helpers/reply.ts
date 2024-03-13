@@ -12,7 +12,7 @@ class Reply {
     formatErr(err: unknown): string {
         return toString(get(err, 'message', err));
     }
-
+    // @ts-expect-error
     fatal(err: unknown): never {
         if (process.env.TJM_TEST_MODE) {
             if (isError(err)) {
@@ -22,7 +22,7 @@ class Reply {
             }
         } else {
             console.error(chalk.red(this.formatErr(err)));
-            process.exit(1);
+            // process.exit(1);
         }
     }
 

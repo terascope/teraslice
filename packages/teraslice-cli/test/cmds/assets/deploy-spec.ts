@@ -6,7 +6,7 @@ import nock from 'nock';
 import { GithubServer } from '../../servers/index.js';
 import deploy from '../../../src/cmds/assets/deploy.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;
@@ -45,8 +45,8 @@ describe('assets deploy', () => {
     });
 
     describe('-> handler', () => {
-        const assetPath = path.join(__dirname, '../../fixtures/regularAsset.zip');
-        const configDir = path.join(__dirname, '../../fixtures/config_dir');
+        const assetPath = path.join(dirname, '../../fixtures/regularAsset.zip');
+        const configDir = path.join(dirname, '../../fixtures/config_dir');
         const githubServer = new GithubServer();
         const { handler } = deploy;
         let tmpDir: tmp.DirResult;

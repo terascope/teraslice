@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Teraslice } from '@terascope/types';
 import Config from '../../src/helpers/config.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function makeJobIds(n: number): string[] {
     return [...new Array(n)].map(() => uuidV4());
@@ -116,9 +116,9 @@ export function testJobConfig(id: string) {
 export function buildCLIConfig(action: string, overwrite = {}) {
     let testArgs = {
         _: ['jobs', action],
-        'config-dir': path.join(__dirname, '..', 'fixtures', 'job_saves'),
-        d: path.join(__dirname, '..', 'fixtures', 'job_saves'),
-        configDir: path.join(__dirname, '..', 'fixtures', 'job_saves'),
+        'config-dir': path.join(dirname, '..', 'fixtures', 'job_saves'),
+        d: path.join(dirname, '..', 'fixtures', 'job_saves'),
+        configDir: path.join(dirname, '..', 'fixtures', 'job_saves'),
         output: 'txt',
         o: 'txt',
         status: [],

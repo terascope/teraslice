@@ -9,7 +9,7 @@ import assert from 'yeoman-assert';
 import helpers from 'yeoman-test';
 import init from '../../../src/cmds/assets/init.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;
@@ -58,7 +58,7 @@ describe('assets deploy', () => {
             [helpers.createDummyGenerator(), 'addExampleProcessor: app']
         ];
 
-        beforeAll(() => helpers.run(path.join(__dirname, '..', '..', '..', 'src', 'generators', 'new-asset'))
+        beforeAll(() => helpers.run(path.join(dirname, '..', '..', '..', 'src', 'generators', 'new-asset'))
             .inDir(testAssetBasePath)
             .withGenerators(deps)
             .withArguments(['generated-asset'])

@@ -555,9 +555,9 @@ export default class Jobs {
 
             return this.getActiveJobIds();
         }
-
-        reply.warning('bye!');
-        process.exit(0);
+        throw new Error('what');
+        // reply.warning('bye!');
+        // process.exit(0);
     }
 
     private async getJobIdsFromSavedState() {

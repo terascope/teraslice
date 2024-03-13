@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { createTempDirSync } from 'jest-fixtures';
 import Aliases from '../../src/helpers/aliases.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Aliases', () => {
     let aliases: Aliases;
@@ -69,7 +69,7 @@ describe('Aliases', () => {
             test('should remove an alias from the file', () => {
                 const tmpDir = createTempDirSync();
                 const aliasesFile = path.join(tmpDir, 'aliases-test1.yaml');
-                fs.copyFileSync(path.join(__dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
+                fs.copyFileSync(path.join(dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
                 aliases = new Aliases(aliasesFile);
                 aliases.remove('test1');
                 const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
@@ -91,7 +91,7 @@ describe('Aliases', () => {
             test('should update an alias from the file', () => {
                 const tmpDir = createTempDirSync();
                 const aliasesFile = path.join(tmpDir, 'aliases-test1.yaml');
-                fs.copyFileSync(path.join(__dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
+                fs.copyFileSync(path.join(dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
                 aliases = new Aliases(aliasesFile);
                 aliases.update('test1', 'http://test1.net:9999');
                 const aliasesOutput = Aliases.readSync(aliases.aliasesFile);

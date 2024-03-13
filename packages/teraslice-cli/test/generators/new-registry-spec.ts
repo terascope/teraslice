@@ -5,17 +5,17 @@ import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('processor generator with no new flag', () => {
-    const testAssetPath = path.join(__dirname, '..', 'fixtures', 'testAsset');
-    const helpersPath = path.join(__dirname, '..', '..', 'src', 'generators', 'registry');
+    const testAssetPath = path.join(dirname, '..', 'fixtures', 'testAsset');
+    const helpersPath = path.join(dirname, '..', '..', 'src', 'generators', 'registry');
 
     beforeAll(() => helpers.run(helpersPath)
         .withArguments([testAssetPath]));
 
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'testAsset', 'asset', 'index.js'));
+        fs.removeSync(path.join(dirname, '..', 'fixtures', 'testAsset', 'asset', 'index.js'));
     });
 
     it('should create an index.js in the testAsset dir', () => {

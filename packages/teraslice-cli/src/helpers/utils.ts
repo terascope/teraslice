@@ -9,6 +9,9 @@ import {
 import { TerasliceClient } from 'teraslice-client-js';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function sanitize(str: string) {
     return str.replace(/[?$#@_-]/g, ' ');
@@ -27,9 +30,9 @@ export function camelCase(str: string): string {
 }
 
 export function getPackage(filePath?: string): any {
-    let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
+    let dataPath = filePath || path.join(dirname, '../..', 'package.json');
     if (!fs.existsSync(dataPath)) {
-        dataPath = path.join(__dirname, '../../../', 'package.json');
+        dataPath = path.join(dirname, '../../../', 'package.json');
     }
     const file = fs.readFileSync(dataPath, 'utf8');
     return JSON.parse(file);

@@ -11,7 +11,7 @@ import {
     getJobExecution
 } from './helpers.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // args, cli config, teraslice server
 const tsHost = 'http://test-host';
@@ -604,7 +604,7 @@ describe('Job helper class', () => {
         });
 
         it('should start a job based on locally saved state file', async () => {
-            const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves', 'job_state_files', 'testerTest.json');
+            const localStatePath = path.join(dirname, '..', 'fixtures', 'job_saves', 'job_state_files', 'testerTest.json');
 
             const [jobId] = makeJobIds(1);
 
@@ -688,7 +688,7 @@ describe('Job helper class', () => {
     describe('save', () => {
         const action = 'save';
 
-        const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves');
+        const localStatePath = path.join(dirname, '..', 'fixtures', 'job_saves');
 
         afterAll(async () => {
             await fs.remove(path.join(localStatePath, 'job_state_files'));
@@ -815,7 +815,7 @@ describe('Job helper class', () => {
         const cliArgs = {
             'cluster-manager-type': 'native',
             'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirname, '../fixtures/config_dir'),
             'cluster-alias': 'localhost',
             args: {}
         };
@@ -864,7 +864,7 @@ describe('Job helper class', () => {
         const cliArgs = {
             'cluster-manager-type': 'native',
             'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirname, '../fixtures/config_dir'),
             'cluster-alias': 'localhost',
             args: {}
         };
