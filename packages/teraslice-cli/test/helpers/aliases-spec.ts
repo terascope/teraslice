@@ -1,8 +1,11 @@
 import 'jest-extended';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import { createTempDirSync } from 'jest-fixtures';
 import Aliases from '../../src/helpers/aliases.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Aliases', () => {
     let aliases: Aliases;

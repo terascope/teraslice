@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import nock from 'nock';
 import elasticsearhReleaseJSON from '../fixtures/elasticsearch-assets-release.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const regAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/regularAsset.zip'));
 export const versionedAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/versionAsset.zip'));

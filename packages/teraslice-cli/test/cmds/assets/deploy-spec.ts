@@ -1,9 +1,12 @@
 import yargs from 'yargs';
 import tmp from 'tmp';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import nock from 'nock';
 import { GithubServer } from '../../servers/index.js';
 import deploy from '../../../src/cmds/assets/deploy.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;

@@ -1,5 +1,6 @@
 import nock from 'nock';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import Jobs from '../../src/helpers/jobs.js';
 import {
@@ -9,6 +10,8 @@ import {
     clusterControllers,
     getJobExecution
 } from './helpers.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // args, cli config, teraslice server
 const tsHost = 'http://test-host';

@@ -16,7 +16,7 @@ config.testTimeout = 60 * 1000;
 
 // using swc for some reason throws rust file not found errors,
 // seems like a bug on their end, hope to change back later
-config.transform = {};
-config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
+// config.transform = {};
+// config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
 
 export default config;

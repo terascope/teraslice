@@ -1,11 +1,12 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import os from 'os';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 
-jest.setTimeout(10000);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('processor generator with no new flag', () => {
     const exampleAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-processor'));

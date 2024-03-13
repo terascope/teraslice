@@ -1,12 +1,15 @@
 import 'jest-extended';
 import yargs from 'yargs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 import init from '../../../src/cmds/assets/init.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;

@@ -1,11 +1,12 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import os from 'os';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 
-jest.setTimeout(10000);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('new asset generator should', () => {
     const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-asset'));

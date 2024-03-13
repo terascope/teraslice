@@ -1,8 +1,11 @@
 import 'jest-extended';
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createTempDirSync } from 'jest-fixtures';
 import Config from '../../src/helpers/config.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const tmpDir = createTempDirSync();
 

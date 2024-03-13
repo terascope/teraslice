@@ -1,10 +1,11 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';
 // @ts-expect-error
 import helpers from 'yeoman-test';
 
-jest.setTimeout(20000);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('processor generator with no new flag', () => {
     const testAssetPath = path.join(__dirname, '..', 'fixtures', 'testAsset');
