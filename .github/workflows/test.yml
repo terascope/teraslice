@@ -73,8 +73,8 @@ jobs:
 
       - name: Test
         run: yarn --silent test -- --suite cli --
-        # env:
-          # NODE_OPTIONS: '--experimental-vm-modules'
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
 
 
   teraslice-elasticsearch-tests:

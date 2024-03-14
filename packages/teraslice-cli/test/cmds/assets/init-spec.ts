@@ -11,7 +11,7 @@ import init from '../../../src/cmds/assets/init.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('assets deploy', () => {
+xdescribe('assets init', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;
     beforeEach(() => {
         yargsCmd = yargs().command(

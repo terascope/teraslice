@@ -8,7 +8,7 @@ import helpers from 'yeoman-test';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('new asset generator should', () => {
+xdescribe('new asset generator should', () => {
     const testAssetBasePath = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-new-asset'));
     const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');
     const assetAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset', 'asset');

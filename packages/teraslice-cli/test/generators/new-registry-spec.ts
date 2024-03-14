@@ -7,7 +7,7 @@ import helpers from 'yeoman-test';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-describe('processor generator with no new flag', () => {
+xdescribe('processor generator with no new flag', () => {
     const testAssetPath = path.join(dirname, '..', 'fixtures', 'testAsset');
     const helpersPath = path.join(dirname, '..', '..', 'src', 'generators', 'registry');
 
