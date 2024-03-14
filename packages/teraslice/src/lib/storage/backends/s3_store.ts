@@ -27,7 +27,6 @@ export interface TerasliceS3StorageConfig {
 
 export class S3Store {
     readonly bucket: string;
-    readonly config: S3ClientConfig;
     readonly connector: string;
     readonly terafoundation: TerafoundationConfig;
     private isShuttingDown: boolean;
@@ -49,22 +48,10 @@ export class S3Store {
         this.isShuttingDown = false;
         this.logger = logger ?? makeLogger(context, 's3_backend', { storageName: this.bucket });
         this.terafoundation = terafoundation;
-        /// Will need to make config flexable for missing fields
-        this.config = {
-            endpoint: this.terafoundation.connectors.s3[this.connector].endpoint,
-            credentials: {
-                accessKeyId: this.terafoundation.connectors.s3[this.connector].accessKeyId,
-                secretAccessKey: this.terafoundation.connectors.s3[this.connector].secretAccessKey,
-            },
-            maxAttempts: 4,
-            forcePathStyle: this.terafoundation.connectors.s3[this.connector].forcePathStyle,
-            sslEnabled: this.terafoundation.connectors.s3[this.connector].sslEnabled,
-            region: this.terafoundation.connectors.s3[this.connector].region,
-        };
     }
 
     async initialize() {
-        this.api = await createS3Client(this.config);
+        this.api = await createS3Client(this.terafoundation.connectors.s3[this.connector] as S3ClientConfig);
         const input = {
             Bucket: this.bucket
         };
