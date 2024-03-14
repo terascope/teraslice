@@ -89,7 +89,6 @@ describe('S3 backend test', () => {
             const filePath = `${process.cwd()}/e2e/autoload/elasticsearch-v3.5.7-node-18-bundle.zip`;
             await s3Backend.save('asset123', fse.readFileSync(filePath), 1000);
             const result = await s3Backend.list();
-            console.log('result1: ', result);
             expect(result).toInclude('asset123');
         });
 
@@ -102,7 +101,6 @@ describe('S3 backend test', () => {
             await s3Backend.remove('asset123');
 
             const result = await s3Backend.list();
-            console.log('result2: ', result);
             /// We need to fix this to return an empty string
             expect(result).toBe(undefined);
             // expect(result).not.toInclude('asset123');
