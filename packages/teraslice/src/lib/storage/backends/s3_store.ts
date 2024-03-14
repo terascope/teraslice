@@ -15,7 +15,6 @@ import {
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import { createS3Client, S3Client, S3ClientConfig } from '@terascope/file-asset-apis';
 import { HttpHandlerOptions } from '@smithy/types';
-import ms from 'ms';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 
 export interface TerasliceS3StorageConfig {
@@ -27,7 +26,6 @@ export interface TerasliceS3StorageConfig {
 }
 
 export class S3Store {
-    // readonly context: Context;
     readonly bucket: string;
     readonly config: S3ClientConfig;
     readonly connector: string;
@@ -46,7 +44,7 @@ export class S3Store {
 
         } = backendConfig;
 
-        this.bucket = bucket || `tera-assets-${context.sysconfig.teraslice.name}`;
+        this.bucket = bucket || 'tera-assets';
         this.connector = connector;
         this.isShuttingDown = false;
         this.logger = logger ?? makeLogger(context, 's3_backend', { storageName: this.bucket });
@@ -66,9 +64,7 @@ export class S3Store {
     }
 
     async initialize() {
-        /// create client
         this.api = await createS3Client(this.config);
-        /// create bucket for assets
         const input = {
             Bucket: this.bucket
         };
@@ -76,15 +72,10 @@ export class S3Store {
 
         await pWhile(async () => {
             try {
-                const response = await this.api.send(command);
-                console.log('Bucket creation response: ', response);
+                await this.api.send(command);
                 const isReady = await this.verifyClient();
                 return isReady;
             } catch (err) {
-                // console.log('@@@@ this.config: ', this.config);
-                // console.log('@@@@ err: ', err);
-                // console.log('@@@@ err code: ', err.Code);
-                // console.log('@@@@ err.message: ', err.message);
                 if (err instanceof BucketAlreadyOwnedByYou) {
                     const isReady = await this.verifyClient();
                     return isReady;
@@ -109,18 +100,15 @@ export class S3Store {
     }
 
     async get(recordId: string) {
-        /// Get an asset
         const command = new GetObjectCommand({
             Bucket: this.bucket,
             Key: `${recordId}.zip`
         });
         try {
-            this.logger.trace(`getting record id: ${recordId}`);
+            this.logger.trace(`getting record with id: ${recordId} from ${this.bucket} bucket`);
 
             const response = await this.api.send(command);
             const s3File = await response.Body?.transformToString('base64');
-            console.log('GET response: ', response);
-            console.log(`Grabbed ${recordId}.zip from ${this.bucket} bucket`);
             if (typeof s3File !== 'string') {
                 throw new TSError(`Unable to get asset ${recordId} from s3`);
             }
@@ -137,20 +125,18 @@ export class S3Store {
 
     async save(recordId: string, data: Buffer, timeout: number) {
         try {
-            this.logger.trace(`saving record id: ${recordId} to S3 bucket`);
+            this.logger.trace(`saving record id: ${recordId} to ${this.bucket} bucket`);
 
-            /// Save the asset
             const command = new PutObjectCommand({
                 Bucket: this.bucket,
                 Key: `${recordId}.zip`,
                 Body: data
             });
             const options: HttpHandlerOptions = {
-                requestTimeout: timeout // FIXME: this is only related to time it takes to connect, not get a response
+                // FIXME: this is only related to time it takes to connect, not get a response
+                requestTimeout: timeout
             };
-            const response = await this.api.send(command, options);
-            console.log('SAVE response: ', response);
-            console.log(`Uploaded ${recordId}.zip to ${this.bucket} bucket`);
+            await this.api.send(command, options);
         } catch (err) {
             throw new TSError(`Error saving asset to S3: ${err}`);
         }
@@ -158,16 +144,13 @@ export class S3Store {
 
     async remove(recordId: string) {
         try {
-            this.logger.trace(`removing record ${recordId} from S3`);
+            this.logger.trace(`removing record ${recordId} from ${this.bucket} bucket`);
 
-            /// remove an asset
             const command = new DeleteObjectCommand({
                 Bucket: this.bucket,
                 Key: `${recordId}.zip`
             });
-            const response = await this.api.send(command);
-            console.log('REMOVE response: ', response);
-            console.log(`Deleted ${recordId}.zip from ${this.bucket} bucket`);
+            await this.api.send(command);
         } catch (err) {
             throw new TSError(`Error deleting asset from S3: ${err}`);
         }
@@ -180,14 +163,11 @@ export class S3Store {
             // MaxKeys: 1000  // Default is 1000
         });
         const response = await this.api.send(command);
-        console.log('LIST response: ', response);
         const contentsList: Record<string, any>[] = [];
-        // response.Contents?.map((c) => ` • ${c.Key}`).join('\n');
         response.Contents?.forEach((c) => {
             const s3Record = {
                 File: c.Key,
                 Size: c.Size,
-                // Created: c.LastModified
             };
             contentsList.push(s3Record);
         });
@@ -199,27 +179,29 @@ export class S3Store {
         return contentsList;
     }
 
+    /*
+    * The S3 client has no built in functionality to determine if the client is connected.
+    * If we can make a request to ListObjectsV2Command then we know that the bucket exists and
+    * credentials are valid.
+    */
     async verifyClient() {
         if (this.isShuttingDown) return false;
-        // if we can list objects then we know the bucket exists and credentials work
         const command = new ListObjectsV2Command({
             Bucket: this.bucket,
             MaxKeys: 0
         });
-        // the request should throw if connection to client fails
         try {
-            const response = await this.api.send(command);
-            console.log('verifyClient response: ', response);
+            await this.api.send(command);
+            this.logger.trace('Client verification successful');
             return true;
         } catch (err) {
-            console.log('verifyClient error: ', err);
+            this.logger.trace('Client verification failed: ', err);
             return false;
         }
     }
 
     async waitForClient() {
-        const timeoutMs = ms(process.env.SERVICE_UP_TIMEOUT ?? '2m');
-        console.log('waiting for s3 client');
+        this.logger.trace('waiting for s3 client');
         if (await this.verifyClient()) return;
 
         await pWhile(async () => {
@@ -227,12 +209,11 @@ export class S3Store {
             if (await this.verifyClient()) return true;
             await pDelay(100);
             return false;
-        }, { timeoutMs });
+        });
     }
 
     async shutdown() {
-        /// close the connection
-        this.api.destroy();
         this.isShuttingDown = true;
+        this.api.destroy();
     }
 }
