@@ -158,7 +158,7 @@ export class S3Store {
 
     async list(): Promise<Record<string, any>[]> {
         /// list all asset keys in bucket
-        let objectList: Record<string, any>[] = [];
+        const objectList: Record<string, any>[] = [];
         let nextContinuationToken;
         let continuePagination = true;
 
@@ -183,7 +183,7 @@ export class S3Store {
             } else {
                 nextContinuationToken = response.NextContinuationToken;
             }
-        } while(continuePagination);
+        } while (continuePagination);
         return objectList;
     }
 
