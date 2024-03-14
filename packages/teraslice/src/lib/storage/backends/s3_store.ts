@@ -158,25 +158,33 @@ export class S3Store {
 
     async list(): Promise<Record<string, any>[]> {
         /// list all asset keys in bucket
-        const command = new ListObjectsV2Command({
-            Bucket: this.bucket,
-            // MaxKeys: 1000  // Default is 1000
-        });
-        const response = await this.api.send(command);
-        const contentsList: Record<string, any>[] = [];
-        response.Contents?.forEach((c) => {
-            const s3Record = {
-                File: c.Key,
-                Size: c.Size,
-            };
-            contentsList.push(s3Record);
-        });
-        console.log(`Keys inside ${this.bucket}: \n`, contentsList);
-        /// We need to figure out exactly how we want to format this or
-        /// if we just want to pass each key inside an array and have something else
-        // format it.
-        /// returns string array
-        return contentsList;
+        let objectList: Record<string, any>[] = [];
+        let nextContinuationToken;
+        let continuePagination = true;
+
+        do {
+            const command = new ListObjectsV2Command({
+                Bucket: this.bucket,
+                ContinuationToken: nextContinuationToken || undefined,
+                // MaxKeys: 1000  // Default is 1000
+            });
+            const response: any = await this.api.send(command);
+            response.Contents?.forEach((c: any) => {
+                const s3Record = {
+                    File: c.Key,
+                    Size: c.Size,
+                    // Created: c.LastModified
+                };
+                objectList.push(s3Record);
+            });
+            if (!response.IsTruncated) {
+                continuePagination = false;
+                nextContinuationToken = undefined;
+            } else {
+                nextContinuationToken = response.NextContinuationToken;
+            }
+        } while(continuePagination);
+        return objectList;
     }
 
     /*
