@@ -56,7 +56,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when using using connectors that exist', () => {
+    describe('when using connectors that exist', () => {
         const configFile = {
             terafoundation: {
                 log_level: [
@@ -282,10 +282,10 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given an asset_storage_connection that does not exist on the connector', () => {
+    describe('when given an asset_storage_connection that does not exist on that connection type', () => {
         const configFile = {
             terafoundation: {
-                asset_storage_connector: 's3',
+                asset_storage_connection_type: 's3',
                 asset_storage_connection: 'minio2',
                 connectors: {
                     'elasticsearch-next': {
@@ -309,47 +309,14 @@ describe('Validate Configs', () => {
 
         it('should throw an error', () => {
             expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in s3 connector: value was "minio2"');
+                .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
         });
     });
 
-    describe('when given an asset_storage_connection and no asset_storage_connector', () => {
+    describe('when given an invalid asset_storage_connection_type', () => {
         const configFile = {
             terafoundation: {
-                asset_storage_connection: 'minio1',
-                connectors: {
-                    'elasticsearch-next': {
-                        default: {}
-                    },
-                    s3: {
-                        default: {
-                            accessKeyId: 'minioAdmin',
-                            secretAccessKey: 'minioAdmin'
-                        }
-                    }
-                }
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('An asset_storage_connector must be specified if specifying asset_storage_connection');
-        });
-    });
-
-    describe('when given an invalid asset_storage_connector', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connector: 123,
+                asset_storage_connection_type: 123,
             },
             other: {}
         };
@@ -367,15 +334,13 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given an asset_storage_connector that does not exist', () => {
+    describe('when given an asset_storage_connection_type that does not exist', () => {
         const configFile = {
             terafoundation: {
-                asset_storage_connector: 's3',
+                asset_storage_connection_type: 's3',
                 connectors: {
-                    connectors: {
-                        'elasticsearch-next': {
-                            default: {}
-                        }
+                    'elasticsearch-next': {
+                        default: {}
                     }
                 }
             },
@@ -392,7 +357,36 @@ describe('Validate Configs', () => {
 
         it('should throw an error', () => {
             expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('asset_storage_connector not found in terafoundation connectors list');
+                .toThrow('asset_storage_connection_type not found in terafoundation.connectors');
+        });
+    });
+    describe('when given an asset_storage_connection_type that is invalid', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection_type: 'kafka',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    },
+                    kafka: {
+                        default: {}
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,elasticsearch,s3: value was "kafka"');
         });
     });
 });

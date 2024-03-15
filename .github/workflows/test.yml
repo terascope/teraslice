@@ -351,6 +351,6 @@ jobs:
         run: yarn build
         working-directory: ./e2e
 
-      - name: Test k8s opensearch1
+      - name: Test external Asset Storage opensearch1
         run: yarn --silent test:externalAssetStorage --node-version ${{ matrix.node-version }}
         working-directory: ./e2e

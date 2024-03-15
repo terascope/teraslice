@@ -70,34 +70,35 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Number of workers per server',
             default: workerCount
         },
-        asset_storage_connector: {
-            doc: 'Name of the connector used to store assets',
+        asset_storage_connection_type: {
+            doc: 'Name of the connection type used to store assets',
             default: 'elasticsearch-next',
-            format(connectorName: any): void {
-                const connectorList = Object.keys(sysconfig.terafoundation.connectors);
-                if (typeof connectorName !== 'string') {
-                    throw new Error('asset_storage_connector must be a string');
+            format(connectionTypeName: any): void {
+                const validConnectionTypes = ['elasticsearch-next', 'elasticsearch', 's3'];
+                const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
+                if (typeof connectionTypeName !== 'string') {
+                    throw new Error('asset_storage_connection_type must be a string');
                 }
-                if (!connectorList.includes(connectorName)) {
-                    throw new Error('asset_storage_connector not found in terafoundation connectors list');
+                if (!connectionTypesPresent.includes(connectionTypeName)) {
+                    throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
+                }
+                if (!validConnectionTypes.includes(connectionTypeName)) { // FIXME: add test
+                    throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
                 }
             }
         },
         asset_storage_connection: {
-            doc: 'Name of the connection used to store assets. Required when specifying an asset storage besides the default.',
-            default: undefined,
+            doc: 'Name of the connection used to store assets.',
+            default: 'default',
             format(connectionName: any): void {
-                const assetStorageConnector = sysconfig.terafoundation.asset_storage_connector;
+                const connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 if (typeof connectionName !== 'string') {
                     throw new Error('asset_storage_connection must be a string');
                 }
-                if (assetStorageConnector === undefined) {
-                    throw new Error('An asset_storage_connector must be specified if specifying asset_storage_connection');
-                }
 
-                const connectionsList = Object.keys(sysconfig.terafoundation.connectors[`${assetStorageConnector}`]);
-                if (!connectionsList.includes(connectionName)) {
-                    throw new Error(`${connectionName} not found in ${assetStorageConnector} connector`);
+                const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
+                if (!connectionsPresent.includes(connectionName)) {
+                    throw new Error(`${connectionName} not found in terafoundation.connectors.${connectionType}`);
                 }
             }
         },
@@ -105,12 +106,12 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connector" is "s3".',
             default: undefined,
             format(bucketName: any): void {
-                const connectorType = sysconfig.terafoundation.asset_storage_connector;
+                const connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 if (typeof bucketName !== 'string') {
                     throw new Error('asset_storage_bucket must be a string');
                 }
-                if (connectorType !== 's3') {
-                    throw new Error('asset_storage_bucket can only be used if asset_storage_connector is set to "s3"');
+                if (connectionType !== 's3') {
+                    throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
                 }
                 // FixMe: add regex to check if valid bucket name
             }
