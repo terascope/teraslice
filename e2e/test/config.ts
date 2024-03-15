@@ -51,8 +51,8 @@ const {
     NODE_VERSION,
     KIND_CLUSTER = 'k8s-e2e',
     TERASLICE_PORT = '45678',
-    ASSET_STORAGE_CONNECTOR = 'elasticsearch-next',
-    ASSET_STORAGE_CONNECTION,
+    ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next',
+    ASSET_STORAGE_CONNECTION = 'default',
     MINIO_HOST = 'http://127.0.0.1:49000'
 } = process.env;
 
@@ -103,7 +103,7 @@ export {
     KEEP_OPEN,
     NODE_VERSION,
     KIND_CLUSTER,
-    ASSET_STORAGE_CONNECTOR,
+    ASSET_STORAGE_CONNECTION_TYPE,
     ASSET_STORAGE_CONNECTION,
     MINIO_HOST
 };
