@@ -71,7 +71,7 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        if (context.sysconfig.terafoundation.asset_storage_connector === 's3') {
+        if (context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
             if (context.sysconfig.terafoundation.asset_storage_connection) {
                 const s3BackendConfig: TerasliceS3StorageConfig = {
                     context,
@@ -107,7 +107,7 @@ export class AssetsStorage {
         }
     }
 
-    private async _assetExistsInES(id: string): Promise<boolean> {
+    private async _assetExistsInStorage(id: string): Promise<boolean> {
         try {
             const inES = await this.esBackend.get(id, undefined, ['id', 'name']);
             if (this.s3Backend) {
@@ -128,19 +128,59 @@ export class AssetsStorage {
     private async _assetExists(id: string) {
         const [readable, exists] = await Promise.all([
             this._assetExistsInFS(id),
-            this._assetExistsInES(id)
+            this._assetExistsInStorage(id)
         ]);
 
         return readable && exists;
     }
 
+    private async _saveToEs(
+        id: string,
+        assetRecord: Partial<AssetRecord>,
+        blocking: boolean,
+        responseTimeout: number,
+        startTime: number
+    ) {
+        if (blocking) {
+            const elapsed = Date.now() - startTime;
+            const remaining = responseTimeout - elapsed;
+            await this.esBackend.indexWithId(id, assetRecord, undefined, remaining);
+        } else {
+            await this.esBackend.indexWithId(id, assetRecord, undefined, responseTimeout);
+        }
+    }
+
+    // data is the buffer form of asset, stored in filesystem
+    // esData is the base64 version which is stored in elasticsearch
     private async _saveAndUpload({
         id, data, esData, blocking
     }: { id: string, data: Buffer, esData: string, blocking: boolean }) {
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
         const startTime = Date.now();
 
-        let emptyBlob = false;
+        const metaData = await saveAsset(
+            this.logger,
+            this.assetsPath,
+            id,
+            data,
+            _metaIsUnique(this.esBackend)
+        );
+
+        const assetRecord = Object.assign({
+            blob: esData,
+            _created: new Date().toISOString()
+        }, metaData);
+
+        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
+        this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+    }
+
+    private async _saveAndUploadS3({
+        id, data, blocking
+    }: { id: string, data: Buffer, blocking: boolean }) {
+        const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
+        const startTime = Date.now();
+
         if (this.s3Backend) {
             if (blocking) {
                 const elapsed = Date.now() - startTime;
@@ -149,7 +189,6 @@ export class AssetsStorage {
             } else {
                 await this.s3Backend.save(id, data, responseTimeout);
             }
-            emptyBlob = true;
 
             this.logger.info(`asset id: ${id} has been saved to s3 store`);
         }
@@ -162,21 +201,11 @@ export class AssetsStorage {
             _metaIsUnique(this.esBackend)
         );
 
-        const blobContents = emptyBlob ? '' : esData;
-
         const assetRecord = Object.assign({
-            blob: blobContents,
             _created: new Date().toISOString()
         }, metaData);
 
-        if (blocking) {
-            const elapsed = Date.now() - startTime;
-            const remaining = responseTimeout - elapsed;
-            await this.esBackend.indexWithId(id, assetRecord, undefined, remaining);
-        } else {
-            await this.esBackend.indexWithId(id, assetRecord, undefined, responseTimeout);
-        }
-
+        await this._saveToEs(id, assetRecord, blocking, responseTimeout, startTime);
         this.logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
     }
 
@@ -196,15 +225,27 @@ export class AssetsStorage {
         if (exists) {
             this.logger.info(`asset id: ${id} already exists`);
         } else if (blocking) {
-            await this._saveAndUpload({
-                id, data, esData, blocking
-            });
-        } else {
-            // kick this of in the background since it is not blocking
-            try {
+            if (this.s3Backend) {
+                await this._saveAndUploadS3({
+                    id, data, blocking
+                });
+            } else {
                 await this._saveAndUpload({
                     id, data, esData, blocking
                 });
+            }
+        } else {
+            // kick this of in the background since it is not blocking
+            try {
+                if (this.s3Backend) {
+                    await this._saveAndUploadS3({
+                        id, data, blocking
+                    });
+                } else {
+                    await this._saveAndUpload({
+                        id, data, esData, blocking
+                    });
+                }
             } catch (err) {
                 this.logger.error(err, `Failure saving asset: ${id}`);
             }
@@ -240,8 +281,7 @@ export class AssetsStorage {
         let record;
         if (this.s3Backend) {
             record = await this.esBackend.get(id);
-            const s3Data: string = await this.s3Backend.get(id);
-            record.blob = s3Data;
+            record.blob = await this.s3Backend.get(id);
         } else {
             record = this.esBackend.get(id);
         }
@@ -317,12 +357,13 @@ export class AssetsStorage {
             }
             throw err;
         }
-        let readable = true;
-        let exists = true;
+        let inFS = true;
+        let inStorage = true;
         let delayMS = 100;
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
-        setTimeout(() => { throw new TSError('Timeout deleting assets'); }, responseTimeout);
-        while (readable || exists) {
+        // FIXME
+        const timeoutID = setTimeout(() => { throw new TSError('Timeout deleting assets'); }, responseTimeout);
+        while (inFS || inStorage) {
             try {
                 await this.esBackend.remove(assetId);
                 if (this.s3Backend) {
@@ -330,16 +371,17 @@ export class AssetsStorage {
                 }
                 await fse.remove(path.join(this.assetsPath, assetId));
 
-                [readable, exists] = await Promise.all([
+                [inFS, inStorage] = await Promise.all([
                     this._assetExistsInFS(assetId),
-                    this._assetExistsInES(assetId)
+                    this._assetExistsInStorage(assetId)
                 ]);
             } catch (err) {
-                this.logger.error(err, `Failure deleting asset ${assetId}: ${err}`);
+                this.logger.error(err, `Failure deleting asset ${assetId} from S3: ${err}`);
                 await pDelay(delayMS);
-                if (delayMS < 50000) delayMS *= 2;
+                if (delayMS < 300000) delayMS *= 2;
             }
         }
+        clearTimeout(timeoutID);
     }
 
     private async ensureAssetDir() {
