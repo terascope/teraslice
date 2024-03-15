@@ -103,7 +103,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             }
         },
         asset_storage_bucket: {
-            doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connector" is "s3".',
+            doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
             default: undefined,
             format(bucketName: any): void {
                 const connectionType = sysconfig.terafoundation.asset_storage_connection_type;

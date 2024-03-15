@@ -5,7 +5,7 @@ import {
     WORKERS_PER_NODE, KAFKA_BROKER, ELASTICSEARCH_HOST,
     TEST_HOST, TERASLICE_PORT, ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME, HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
-    ASSET_STORAGE_CONNECTOR, MINIO_HOST
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST
 } from './config.js';
 
 const baseConfig = {
@@ -20,7 +20,7 @@ const baseConfig = {
             'file'
         ],
         log_path: '/app/logs',
-        asset_storage_connector: ASSET_STORAGE_CONNECTOR,
+        asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
         asset_storage_connection: ASSET_STORAGE_CONNECTION,
         connectors: {
             elasticsearch: {

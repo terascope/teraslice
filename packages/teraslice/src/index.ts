@@ -10,10 +10,12 @@ import * as config from './lib/config/index.js';
 import * as stores from './lib/storage/index.js';
 import { makeTerafoundationContext } from './lib/workers/context/terafoundation-context.js';
 import { initializeTestExecution } from './lib/workers/helpers/job.js';
+import { S3Store } from './lib/storage/backends/s3_store.js';
 
 export {
     initializeTestExecution,
     makeTerafoundationContext,
     config,
     stores,
+    S3Store
 };
