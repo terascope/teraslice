@@ -11,12 +11,7 @@ import {
 import {
     BucketAlreadyExists,
     BucketAlreadyOwnedByYou,
-    CreateBucketCommand,
-    DeleteObjectCommand,
-    GetObjectCommand,
-    ListObjectsV2Command,
-    NoSuchKey,
-    PutObjectCommand
+    NoSuchKey
 } from '@aws-sdk/client-s3';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
@@ -43,31 +38,35 @@ export interface TerasliceS3StorageConfig {
 
 export class S3Store {
     readonly bucket: string;
-    readonly connector: string;
+    readonly connection: string;
     readonly terafoundation: TerafoundationConfig;
     private isShuttingDown: boolean;
     logger: Logger;
     api!: S3Client;
+    context: Context;
 
     constructor(backendConfig: TerasliceS3StorageConfig) {
         const {
             context,
             terafoundation,
-            connection: connector,
+            connection,
             bucket,
             logger
 
         } = backendConfig;
 
-        this.bucket = bucket || 'tera-assets';
-        this.connector = connector;
+        this.context = context;
+        this.bucket = bucket || this.createDefaultBucketName();
+        this.connection = connection;
         this.isShuttingDown = false;
         this.logger = logger ?? makeLogger(context, 's3_backend', { storageName: this.bucket });
         this.terafoundation = terafoundation;
     }
 
     async initialize() {
-        this.api = await createS3Client(this.terafoundation.connectors.s3[this.connector] as S3ClientConfig);
+        this.api = await createS3Client(
+            this.terafoundation.connectors.s3[this.connection] as S3ClientConfig
+        );
         // const input = {
         //     Bucket: this.bucket
         // };
@@ -97,11 +96,15 @@ export class S3Store {
                     return isReady;
                 }
                 if (err.Code === 'InvalidAccessKeyId') {
-                    throw new TSError(`accessKeyId specified in ${this.connector} does not exit: ${err.message}`);
+                    throw new TSError(`accessKeyId specified in ${this.connection} does not exit: ${err.message}`);
                 }
                 if (err.Code === 'SignatureDoesNotMatch') {
-                    throw new TSError(`secretAccessKey specified in ${this.connector} does not match: ${err.message}`);
+                    throw new TSError(`secretAccessKey specified in ${this.connection} does not match: ${err.message}`);
                 }
+                if (err.Code === 'InvalidBucketName') {
+                    throw new TSError(`Bucket name does not follow S3 naming rules: ${err.message}`);
+                }
+                // FIXME: should certain errors stop the pWhile?
                 if (err instanceof BucketAlreadyExists) {
                     throw new TSError(`Bucket name not available. Do you have the right credentials? ${err.message}`);
                 }
@@ -199,14 +202,13 @@ export class S3Store {
             const command = {
                 Bucket: this.bucket,
                 Key: `${recordId}.zip`
-            }
+            };
             const client = this.api;
             await s3RequestWithRetry({
                 client,
                 func: deleteS3Object,
                 params: command
             });
-
         } catch (err) {
             throw new TSError(`Error deleting asset from S3: ${err}`);
         }
@@ -229,7 +231,7 @@ export class S3Store {
                     Bucket: this.bucket,
                     ContinuationToken: nextContinuationToken || undefined,
                     // MaxKeys: 1000  // Default is 1000
-                }
+                };
                 const client = this.api;
                 const response: any = await s3RequestWithRetry({
                     client,
@@ -276,7 +278,7 @@ export class S3Store {
         };
         try {
             // await this.api.send(command);
-            const client = this.api
+            const client = this.api;
             await s3RequestWithRetry({
                 client,
                 func: listS3Objects,
@@ -305,5 +307,10 @@ export class S3Store {
     async shutdown() {
         this.isShuttingDown = true;
         this.api.destroy();
+    }
+
+    createDefaultBucketName(): string {
+        const safeName = this.context.sysconfig.teraslice.name.replaceAll('_', '-');
+        return `tera-assets-${safeName}`;
     }
 }
