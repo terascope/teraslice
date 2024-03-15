@@ -16,7 +16,29 @@ config.testTimeout = 60 * 1000;
 
 // using swc for some reason throws rust file not found errors,
 // seems like a bug on their end, hope to change back later
-// config.transform = {};
-// config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
-// console.dir({ finalConfig: config }, { depth: 40 })
+config.transform = {};
+config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
+    jsc: {
+        loose: true,
+        parser: {
+            syntax: 'typescript',
+            tsx: false,
+            decorators: true
+        },
+        transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+        },
+        target: 'esnext'
+    },
+    module: {
+        type: 'es6',
+        strictMode: false,
+        noInterop: false,
+        ignoreDynamic: true
+    }
+}];
+
+config.transformIgnorePatterns = [];
+config.preset = '';
 export default config;

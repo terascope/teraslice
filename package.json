@@ -79,6 +79,7 @@
                 "search": [],
                 "restrained": [],
                 "unit": [],
+                "cli": [],
                 "_for_testing_": [
                     "elasticsearch"
                 ],

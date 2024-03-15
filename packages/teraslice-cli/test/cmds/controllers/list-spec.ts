@@ -4,7 +4,7 @@ import list from '../../../src/cmds/controllers/list.js';
 describe('controllers list', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 list.command,
                 list.describe,

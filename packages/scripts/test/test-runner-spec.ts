@@ -92,8 +92,14 @@ describe('Test Runner Helpers', () => {
                     suite: ['unit']
                 }));
 
+                const cliTests = filterBySuite(packages, makeTestOptions({
+                    all: true,
+                    suite: ['cli']
+                }));
+
                 const unitAndESPackages = [
                     ...unitTests,
+                    ...cliTests,
                     ...restrainedTests,
                     ...opensearchTests,
                     ...elasticsearchTests

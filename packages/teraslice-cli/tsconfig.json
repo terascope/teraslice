@@ -4,10 +4,20 @@
         "target": "ESNext",
         "module": "ESNext",
         "outDir": "dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "esModuleInterop": true
     },
     "include": [
         "src",
-        "test"
+        "test",
+        "./test/fixtures/**.zip",
+        "./test/fixtures/**.json",
+        "./test/fixtures/**.yaml",
+        "./test/fixtures/**/**.zip",
+        "./test/fixtures/**/**.json",
+        "./test/fixtures/**/**.yaml",
+        "./test/fixtures/**/**/**.zip",
+        "./test/fixtures/**/**/**.json",
+        "./test/fixtures/**/**/**.yaml",
     ]
 }
