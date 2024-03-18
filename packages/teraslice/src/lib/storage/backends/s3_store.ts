@@ -218,6 +218,7 @@ export class S3Store {
             Bucket: this.bucket,
             MaxKeys: 0
         };
+        const config = this.terafoundation.connectors.s3[this.connection];
         try {
             const client = this.api;
             await s3RequestWithRetry({
@@ -225,10 +226,10 @@ export class S3Store {
                 func: listS3Objects,
                 params: command
             });
-            this.logger.debug('Client verification successful');
+            this.logger.debug(`S3 Client verification succeeded. Connection: ${this.connection}, endpoint: ${config.endpoint}`);
             return true;
         } catch (err) {
-            this.logger.debug('Client verification failed: ', err);
+            this.logger.debug(`S3 Client verification failed. Connection: ${this.connection}, endpoint: ${config.endpoint}: `, err);
             return false;
         }
     }

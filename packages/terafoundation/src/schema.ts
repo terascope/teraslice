@@ -91,7 +91,12 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of the connection used to store assets.',
             default: 'default',
             format(connectionName: any): void {
-                const connectionType = sysconfig.terafoundation.asset_storage_connection_type;
+                let connectionType;
+                if (sysconfig.terafoundation.asset_storage_connection_type) {
+                    connectionType = sysconfig.terafoundation.asset_storage_connection_type;
+                } else {
+                    connectionType = 'elasticsearch-next';
+                }
                 if (typeof connectionName !== 'string') {
                     throw new Error('asset_storage_connection must be a string');
                 }
@@ -106,7 +111,12 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
             default: undefined,
             format(bucketName: any): void {
-                const connectionType = sysconfig.terafoundation.asset_storage_connection_type;
+                let connectionType;
+                if (sysconfig.terafoundation.asset_storage_connection_type) {
+                    connectionType = sysconfig.terafoundation.asset_storage_connection_type;
+                } else {
+                    connectionType = 'elasticsearch-next';
+                }
                 if (typeof bucketName !== 'string') {
                     throw new Error('asset_storage_bucket must be a string');
                 }
