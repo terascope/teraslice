@@ -82,7 +82,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (!connectionTypesPresent.includes(connectionTypeName)) {
                     throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
                 }
-                if (!validConnectionTypes.includes(connectionTypeName)) { // FIXME: add test
+                if (!validConnectionTypes.includes(connectionTypeName)) {
                     throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
                 }
             }
@@ -113,7 +113,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (connectionType !== 's3') {
                     throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
                 }
-                // FixMe: add regex to check if valid bucket name
+                // TODO: add regex to check if valid bucket name
             }
         }
     };

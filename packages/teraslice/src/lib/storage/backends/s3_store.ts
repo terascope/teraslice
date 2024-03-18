@@ -1,31 +1,20 @@
-/* eslint-disable default-param-last */
 import {
     Logger, TSError, isTest, logError, pDelay, pWhile, random
 } from '@terascope/utils';
-/*
-    ******* NOTE *******
-
-    We need to remove the @aws-sdk/client-s3
-    after I figure the rest of this out
-*/
-import {
-    BucketAlreadyExists,
-    BucketAlreadyOwnedByYou,
-    NoSuchKey
-} from '@aws-sdk/client-s3';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
+    S3ClientResponse,
+    createS3Bucket,
     createS3Client,
-    S3Client,
-    S3ClientConfig,
-    s3RequestWithRetry,
+    deleteS3Object,
+    doesBucketExist,
+    getS3Object,
     listS3Objects,
     putS3Object,
-    getS3Object,
-    deleteS3Object,
-    createS3Bucket
+    S3Client,
+    S3ClientConfig,
+    s3RequestWithRetry
 } from '@terascope/file-asset-apis';
-import { HttpHandlerOptions } from '@smithy/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 
 export interface TerasliceS3StorageConfig {
@@ -67,34 +56,17 @@ export class S3Store {
         this.api = await createS3Client(
             this.terafoundation.connectors.s3[this.connection] as S3ClientConfig
         );
-        // const input = {
-        //     Bucket: this.bucket
-        // };
-        // const command = new CreateBucketCommand(input);
-        const command = {
-            Bucket: this.bucket
-        };
 
         await pWhile(async () => {
             try {
-                // await this.api.send(command);
-
-                /*
-                    ******* NOTE *******
-
-                    There is also a `doesBucketExist` method in
-                    the s3Helpers. Maybe consider using it here?
-
-                */
                 const client = this.api;
-                createS3Bucket(client, command);
+                const exists = await doesBucketExist(client, { Bucket: this.bucket });
+                if (!exists) {
+                    await createS3Bucket(client, { Bucket: this.bucket });
+                }
                 const isReady = await this.verifyClient();
                 return isReady;
             } catch (err) {
-                if (err instanceof BucketAlreadyOwnedByYou) {
-                    const isReady = await this.verifyClient();
-                    return isReady;
-                }
                 if (err.Code === 'InvalidAccessKeyId') {
                     throw new TSError(`accessKeyId ${this.terafoundation.connectors.s3[this.connection].accessKeyId} specified in S3 ${this.connection} does not exit: ${err.message}`);
                 }
@@ -104,8 +76,7 @@ export class S3Store {
                 if (err.Code === 'InvalidBucketName') {
                     throw new TSError(`Bucket name does not follow S3 naming rules: ${err.message}`);
                 }
-                // FIXME: should certain errors stop the pWhile?
-                if (err instanceof BucketAlreadyExists) {
+                if (err instanceof S3ClientResponse.BucketAlreadyExists) {
                     throw new TSError(`Bucket name ${this.bucket} not available. accessKeyId ${this.terafoundation.connectors.s3[this.connection].accessKeyId} does not own this bucket. ${err.message}`);
                 }
 
@@ -137,7 +108,7 @@ export class S3Store {
             }
             return s3File;
         } catch (err) {
-            if (err instanceof NoSuchKey) {
+            if (err instanceof S3ClientResponse.NoSuchKey) {
                 throw new TSError(`Asset with id: ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {
                     statusCode: 404
                 });
@@ -150,11 +121,6 @@ export class S3Store {
         try {
             this.logger.debug(`saving record id: ${recordId} to s3 ${this.connection} connection, ${this.bucket} bucket.`);
 
-            // const command2 = new PutObjectCommand({
-            //     Bucket: this.bucket,
-            //     Key: `${recordId}.zip`,
-            //     Body: data
-            // });
             const command = {
                 Bucket: this.bucket,
                 Key: `${recordId}.zip`,
@@ -174,15 +140,6 @@ export class S3Store {
             } finally {
                 clearTimeout(timeoutID);
             }
-
-            /*
-                ******* FIXME *******
-
-                await this.api.send(command, options);
-
-                This used to return `PutObjectCommandOutput`
-                but now returns GetObjectCommandOutput
-            */
         } catch (err) {
             throw new TSError(`Error saving asset to S3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
@@ -192,18 +149,6 @@ export class S3Store {
         try {
             this.logger.debug(`removing record ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
 
-            // const command = new DeleteObjectCommand({
-            //     Bucket: this.bucket,
-            //     Key: `${recordId}.zip`
-            // });
-            // await this.api.send(command);
-
-            /*
-                ******* FIXME *******
-
-                This used to return `DeleteObjectCommandOutput`
-                but now returns GetObjectCommandOutput
-            */
             const command = {
                 Bucket: this.bucket,
                 Key: `${recordId}.zip`
@@ -226,12 +171,6 @@ export class S3Store {
         let continuePagination = true;
         try {
             do {
-                // const command = new ListObjectsV2Command({
-                //     Bucket: this.bucket,
-                //     ContinuationToken: nextContinuationToken || undefined,
-                //     // MaxKeys: 1000  // Default is 1000
-                // });
-                // const response: any = await this.api.send(command);
                 const command = {
                     Bucket: this.bucket,
                     ContinuationToken: nextContinuationToken || undefined,
@@ -257,7 +196,10 @@ export class S3Store {
                 } else {
                     nextContinuationToken = response.NextContinuationToken;
                 }
+                const recordsReceived = response.Contents?.length || 0;
+                this.logger.debug(`Received ${recordsReceived} records from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             } while (continuePagination);
+            this.logger.info(`Found ${objectList.length} records in s3 ${this.connection} connection, ${this.bucket} bucket.`);
         } catch (err) {
             throw new TSError(`Error listing assets from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
@@ -266,23 +208,17 @@ export class S3Store {
 
     /*
     * The S3 client has no built in functionality to determine if the client is connected.
-    * If we can make a request to ListObjectsV2Command then we know that the bucket exists and
+    * If we can make a request to ListS3Objects then we know that the bucket exists and
     * credentials are valid.
     */
     async verifyClient() {
         if (this.isShuttingDown) return false;
-
-        // const command = new ListObjectsV2Command({
-        //     Bucket: this.bucket,
-        //     MaxKeys: 0
-        // });
 
         const command = {
             Bucket: this.bucket,
             MaxKeys: 0
         };
         try {
-            // await this.api.send(command);
             const client = this.api;
             await s3RequestWithRetry({
                 client,
@@ -316,6 +252,6 @@ export class S3Store {
 
     createDefaultBucketName(): string {
         const safeName = this.context.sysconfig.teraslice.name.replaceAll('_', '-');
-        return `tera-assets-${safeName}`;
+        return `ts-assets-${safeName}`;
     }
 }
