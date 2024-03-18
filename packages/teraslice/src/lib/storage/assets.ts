@@ -224,16 +224,14 @@ export class AssetsStorage {
 
         if (exists) {
             this.logger.info(`asset id: ${id} already exists`);
-        } else if (blocking) {
-            if (this.s3Backend) {
-                await this._saveAndUploadS3({
-                    id, data, blocking
-                });
-            } else {
-                await this._saveAndUpload({
-                    id, data, esData, blocking
-                });
-            }
+        } else if (blocking && this.s3Backend) {
+            await this._saveAndUploadS3({
+                id, data, blocking
+            });
+        } else if (blocking && !this.s3Backend) {
+            await this._saveAndUpload({
+                id, data, esData, blocking
+            });
         } else {
             // kick this of in the background since it is not blocking
             try {
@@ -361,8 +359,7 @@ export class AssetsStorage {
         let inStorage = true;
         let delayMS = 100;
         const responseTimeout = this.context.sysconfig.teraslice.api_response_timeout as number;
-        // FIXME
-        const timeoutID = setTimeout(() => { throw new TSError('Timeout deleting assets'); }, responseTimeout);
+        const timeoutID = setTimeout(() => { throw new TSError(`Timeout deleting asset ${assetId}`); }, responseTimeout);
         while (inFS || inStorage) {
             try {
                 await this.esBackend.remove(assetId);
@@ -379,9 +376,10 @@ export class AssetsStorage {
                 this.logger.error(err, `Failure deleting asset ${assetId} from S3: ${err}`);
                 await pDelay(delayMS);
                 if (delayMS < 300000) delayMS *= 2;
+            } finally {
+                clearTimeout(timeoutID);
             }
         }
-        clearTimeout(timeoutID);
     }
 
     private async ensureAssetDir() {

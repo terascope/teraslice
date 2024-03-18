@@ -96,20 +96,20 @@ export class S3Store {
                     return isReady;
                 }
                 if (err.Code === 'InvalidAccessKeyId') {
-                    throw new TSError(`accessKeyId specified in ${this.connection} does not exit: ${err.message}`);
+                    throw new TSError(`accessKeyId ${this.terafoundation.connectors.s3[this.connection].accessKeyId} specified in S3 ${this.connection} does not exit: ${err.message}`);
                 }
                 if (err.Code === 'SignatureDoesNotMatch') {
-                    throw new TSError(`secretAccessKey specified in ${this.connection} does not match: ${err.message}`);
+                    throw new TSError(`secretAccessKey specified in S3 ${this.connection} does not match accessKeyId: ${err.message}`);
                 }
                 if (err.Code === 'InvalidBucketName') {
                     throw new TSError(`Bucket name does not follow S3 naming rules: ${err.message}`);
                 }
                 // FIXME: should certain errors stop the pWhile?
                 if (err instanceof BucketAlreadyExists) {
-                    throw new TSError(`Bucket name not available. Do you have the right credentials? ${err.message}`);
+                    throw new TSError(`Bucket name ${this.bucket} not available. accessKeyId ${this.terafoundation.connectors.s3[this.connection].accessKeyId} does not own this bucket. ${err.message}`);
                 }
 
-                logError(this.logger, err, `Failed attempt connecting to S3 bucket: ${this.bucket} (will retry)`);
+                logError(this.logger, err, `Failed attempt connecting to S3 ${this.connection} connection, ${this.bucket} bucket (will retry)`);
 
                 await pDelay(isTest ? 0 : random(2000, 4000));
 
@@ -124,7 +124,7 @@ export class S3Store {
             Key: `${recordId}.zip`
         };
         try {
-            this.logger.trace(`getting record with id: ${recordId} from ${this.bucket} bucket`);
+            this.logger.debug(`getting record with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             const client = this.api;
             const response = await s3RequestWithRetry({
                 client,
@@ -133,22 +133,22 @@ export class S3Store {
             });
             const s3File = await response.Body?.transformToString('base64');
             if (typeof s3File !== 'string') {
-                throw new TSError(`Unable to get asset ${recordId} from s3`);
+                throw new TSError(`Unable to get asset ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             }
             return s3File;
         } catch (err) {
             if (err instanceof NoSuchKey) {
-                throw new TSError(`Asset with id: ${recordId} does not exist in S3 asset store`, {
+                throw new TSError(`Asset with id: ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {
                     statusCode: 404
                 });
             }
-            throw new TSError(`Retrieval of asset with id: ${recordId} from s3 store failed: `, err);
+            throw new TSError(`Retrieval of asset with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
         }
     }
 
     async save(recordId: string, data: Buffer, timeout: number) {
         try {
-            this.logger.trace(`saving record id: ${recordId} to ${this.bucket} bucket`);
+            this.logger.debug(`saving record id: ${recordId} to s3 ${this.connection} connection, ${this.bucket} bucket.`);
 
             // const command2 = new PutObjectCommand({
             //     Bucket: this.bucket,
@@ -160,16 +160,21 @@ export class S3Store {
                 Key: `${recordId}.zip`,
                 Body: data
             };
-            const options: HttpHandlerOptions = {
-                // FIXME: this is only related to time it takes to connect, not get a response
-                requestTimeout: timeout
-            };
-            const client = this.api;
-            await s3RequestWithRetry({
-                client,
-                func: putS3Object,
-                params: command
-            });
+
+            const timeoutID = setTimeout(() => { throw new TSError(`Timeout saving asset ${recordId}`); }, timeout);
+            try {
+                const client = this.api;
+                await s3RequestWithRetry({
+                    client,
+                    func: putS3Object,
+                    params: command
+                });
+            } catch (err) {
+                throw new TSError(`Failure saving asset ${recordId} to S3: ${err}`);
+            } finally {
+                clearTimeout(timeoutID);
+            }
+
             /*
                 ******* FIXME *******
 
@@ -179,13 +184,13 @@ export class S3Store {
                 but now returns GetObjectCommandOutput
             */
         } catch (err) {
-            throw new TSError(`Error saving asset to S3: ${err}`);
+            throw new TSError(`Error saving asset to S3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
     }
 
     async remove(recordId: string) {
         try {
-            this.logger.trace(`removing record ${recordId} from ${this.bucket} bucket`);
+            this.logger.debug(`removing record ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
 
             // const command = new DeleteObjectCommand({
             //     Bucket: this.bucket,
@@ -210,7 +215,7 @@ export class S3Store {
                 params: command
             });
         } catch (err) {
-            throw new TSError(`Error deleting asset from S3: ${err}`);
+            throw new TSError(`Error deleting asset from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
     }
 
@@ -254,7 +259,7 @@ export class S3Store {
                 }
             } while (continuePagination);
         } catch (err) {
-            throw new TSError(`Error listing assets from S3: ${err}`);
+            throw new TSError(`Error listing assets from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
         return objectList;
     }
@@ -284,16 +289,16 @@ export class S3Store {
                 func: listS3Objects,
                 params: command
             });
-            this.logger.trace('Client verification successful');
+            this.logger.debug('Client verification successful');
             return true;
         } catch (err) {
-            this.logger.trace('Client verification failed: ', err);
+            this.logger.debug('Client verification failed: ', err);
             return false;
         }
     }
 
     async waitForClient() {
-        this.logger.trace('waiting for s3 client');
+        this.logger.debug('waiting for s3 client');
         if (await this.verifyClient()) return;
 
         await pWhile(async () => {
