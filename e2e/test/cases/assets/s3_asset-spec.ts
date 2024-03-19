@@ -122,15 +122,17 @@ if (!process.env.TEST_MINIO) {
         });
 
         describe('when bucket name is not defined', () => {
+            let bucketToCleanUp: string;
+
             afterAll(async () => {
                 const command = new DeleteBucketCommand({
-                    Bucket: 'ts-assets-teracluster'
+                    Bucket: bucketToCleanUp
                 });
                 await s3Backend.api.send(command);
                 await s3Backend.shutdown();
             });
 
-            it('should create a bucket name containing the terafoundation teraslice name', async () => {
+            it('should create a bucket name containing terafoundation.teraslice.name', async () => {
                 s3Backend = new S3Store({
                     context,
                     terafoundation: mockTerafoundation,
@@ -140,7 +142,25 @@ if (!process.env.TEST_MINIO) {
 
                 await s3Backend.initialize();
 
-                expect(s3Backend.bucket).toBe('ts-assets-teracluster');
+                expect(s3Backend.bucket).toBe('ts-assets-s3-backend-test');
+
+                bucketToCleanUp = 'ts-assets-s3-backend-test';
+            });
+
+            it('should create a bucket name where underscores in teraslice.name are replaced by dashes', async () => {
+                const contextWithUnderscoreName = new TestContext('s3_backend_underscores') as any;
+                s3Backend = new S3Store({
+                    context: contextWithUnderscoreName,
+                    terafoundation: mockTerafoundation,
+                    connection: 'default',
+                    bucket: undefined
+                });
+
+                await s3Backend.initialize();
+
+                expect(s3Backend.bucket).toBe('ts-assets-s3-backend-underscores');
+
+                bucketToCleanUp = 'ts-assets-s3-backend-underscores';
             });
         });
     });
