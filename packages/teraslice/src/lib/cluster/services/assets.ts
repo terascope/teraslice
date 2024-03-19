@@ -183,17 +183,7 @@ export class AssetsService {
             'arch'
         ];
 
-        const s3Defaults = [
-            'name',
-            'version',
-            'id',
-            '_created',
-            'description',
-            'node_version',
-            'external_storage',
-            'platform',
-            'arch'
-        ];
+        const s3Defaults = [...defaults, 'external_storage'];
 
         function mapping(item: Record<string, any>) {
             return (field: string) => {
