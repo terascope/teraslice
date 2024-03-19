@@ -13,8 +13,8 @@ The configuration file is provided to the Teraslice process at startup using the
 #### Example Config
 
 ```yaml
-```yaml
 terafoundation:
+    log_level: info
     connectors:
         elasticsearch:
             default:
@@ -38,6 +38,10 @@ teraslice:
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
+| **asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
+| **asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
+| **asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `elasticsearch`, `s3`.        |
+| **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
 | **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
 |  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
@@ -126,7 +130,7 @@ terafoundation:
 # ...
 ```
 
-In this example we specify two different connector types: `elasticsearch`, `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
+In this example we specify three different connector types: `elasticsearch`, `elasticsearch-next` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
 
 These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
 
@@ -183,3 +187,48 @@ terafoundation:
                 node:
                     - YOUR_ELASTICSEARCH_IP:9200"
 ```
+
+## Configuration Asset Storage
+
+By default asset bundles are stored in Elasticsearch when uploaded. To store assets external to Elasticsearch you must define the `asset_storage_connection_type` within `terafoundation`. If using a connection besides `default`, specify it with the `asset_storage_connection` field.
+Currently S3 is the only external asset storage type enabled. To specify the S3 bucket to store assets within use the `asset_storage_bucket` field. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the unzipped asset.
+
+**Note**: All asset metadata will always be stored in Elasticsearch.
+
+
+```yaml
+terafoundation:
+    asset_storage_connection_type: s3
+    asset_storage_connection: minio1
+    asset_storage_bucket: ts-assets
+    log_level: info
+    connectors:
+        elasticsearch:
+            default:
+                host:
+                    - localhost:9200
+        elasticsearch-next:
+            default:
+                node:
+                    - "http://localhost:9200"
+        s3:
+            default:
+                endpoint: "http://minio:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+            minio1:
+                endpoint: "http://minio:9000"
+                accessKeyId: "minioadmin"
+                secretAccessKey: "minioadmin"
+                forcePathStyle: true
+                sslEnabled: false
+                region: "us-east-1"
+teraslice:
+    workers: 8
+    master: true
+    master_hostname: 127.0.0.1
+    name: teraslice
+    hostname: 127.0.0.1
