@@ -352,5 +352,5 @@ jobs:
         working-directory: ./e2e
 
       - name: Test external Asset Storage opensearch1
-        run: yarn --silent test:externalAssetStorage --node-version ${{ matrix.node-version }}
+        run: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
         working-directory: ./e2e
