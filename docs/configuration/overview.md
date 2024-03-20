@@ -192,7 +192,7 @@ terafoundation:
 
 By default asset bundles are stored in Elasticsearch when uploaded. Defining the `asset_storage_connection_type` will allow Teraslice to store assets in an external storage medium. If using a connection besides `default`, specify it with the `asset_storage_connection` field.
 
-Currently S3 is the only external asset storage type enabled. Use the `asset_storage_bucket` field to specify the S3 bucket where assets will be stored. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the unzipped asset.
+Currently S3 is the only external asset storage type enabled. Use the `asset_storage_bucket` field to specify the S3 bucket where assets will be stored. Assets will be stored in S3 as `<AssetID>.zip` where AssetID is a hash of the zipped asset.
 
 **Note**: All asset metadata will always be stored in Elasticsearch.
 

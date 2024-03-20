@@ -75,7 +75,9 @@
             "suites": {
                 "e2e": [],
                 "k8s-e2e": [],
-                "elasticsearch": [],
+                "elasticsearch": [
+                    "minio"
+                ],
                 "search": [],
                 "restrained": [],
                 "unit": [],

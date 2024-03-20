@@ -53,7 +53,9 @@ const {
     TERASLICE_PORT = '45678',
     ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next',
     ASSET_STORAGE_CONNECTION = 'default',
-    MINIO_HOST = 'http://127.0.0.1:49000'
+    MINIO_HOST = 'http://127.0.0.1:49000',
+    MINIO_ACCESS_KEY = 'minioadmin',
+    MINIO_SECRET_KEY = 'minioadmin'
 } = process.env;
 
 const TEST_HOST = TEST_OPENSEARCH ? OPENSEARCH_HOST : ELASTICSEARCH_HOST;
@@ -105,5 +107,7 @@ export {
     KIND_CLUSTER,
     ASSET_STORAGE_CONNECTION_TYPE,
     ASSET_STORAGE_CONNECTION,
-    MINIO_HOST
+    MINIO_HOST,
+    MINIO_ACCESS_KEY,
+    MINIO_SECRET_KEY
 };

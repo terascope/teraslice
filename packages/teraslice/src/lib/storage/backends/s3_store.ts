@@ -104,22 +104,22 @@ export class S3Store {
             });
             const s3File = await response.Body?.transformToString('base64');
             if (typeof s3File !== 'string') {
-                throw new TSError(`Unable to get asset ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
+                throw new TSError(`Unable to get recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             }
             return s3File;
         } catch (err) {
             if (err instanceof S3ClientResponse.NoSuchKey) {
-                throw new TSError(`Asset with id: ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {
+                throw new TSError(`recordId ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {
                     statusCode: 404
                 });
             }
-            throw new TSError(`Retrieval of asset with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
+            throw new TSError(`Retrieval of recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket failed: `, err);
         }
     }
 
     async save(recordId: string, data: Buffer, timeout: number) {
         try {
-            this.logger.debug(`saving record id: ${recordId} to s3 ${this.connection} connection, ${this.bucket} bucket.`);
+            this.logger.debug(`saving recordId ${recordId} to s3 ${this.connection} connection, ${this.bucket} bucket.`);
 
             const command = {
                 Bucket: this.bucket,
@@ -127,7 +127,7 @@ export class S3Store {
                 Body: data
             };
 
-            const timeoutID = setTimeout(() => { throw new TSError(`Timeout saving asset ${recordId}`); }, timeout);
+            const timeoutID = setTimeout(() => { throw new TSError(`Timeout saving recordId ${recordId}`); }, timeout);
             try {
                 const client = this.api;
                 await s3RequestWithRetry({
@@ -136,12 +136,12 @@ export class S3Store {
                     params: command
                 });
             } catch (err) {
-                throw new TSError(`Failure saving asset ${recordId} to S3: ${err}`);
+                throw new TSError(`Failure saving recordId ${recordId} to S3: ${err}`);
             } finally {
                 clearTimeout(timeoutID);
             }
         } catch (err) {
-            throw new TSError(`Error saving asset to S3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
+            throw new TSError(`Error saving recordId ${recordId} to S3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
     }
 
@@ -160,12 +160,12 @@ export class S3Store {
                 params: command
             });
         } catch (err) {
-            throw new TSError(`Error deleting asset from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
+            throw new TSError(`Error deleting recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
     }
 
     async list(): Promise<Record<string, any>[]> {
-        /// list all asset keys in bucket
+        /// list all keys in bucket
         const objectList: Record<string, any>[] = [];
         let nextContinuationToken;
         let continuePagination = true;
@@ -201,7 +201,7 @@ export class S3Store {
             } while (continuePagination);
             this.logger.info(`Found ${objectList.length} records in s3 ${this.connection} connection, ${this.bucket} bucket.`);
         } catch (err) {
-            throw new TSError(`Error listing assets from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
+            throw new TSError(`Error listing records from s3 ${this.connection} connection, ${this.bucket} bucket: ${err}`);
         }
         return objectList;
     }
@@ -251,6 +251,8 @@ export class S3Store {
         this.api.destroy();
     }
 
+    // TODO: Use more generic bucket prefix (not related to assets)
+    // or pass in prefix from calling class
     createDefaultBucketName(): string {
         const safeName = this.context.sysconfig.teraslice.name.replaceAll('_', '-');
         return `ts-assets-${safeName}`;
