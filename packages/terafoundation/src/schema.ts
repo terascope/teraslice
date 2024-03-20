@@ -3,6 +3,7 @@ import { cpus } from 'os';
 import { SysConfig } from 'packages/types/dist/src/terafoundation';
 
 const workerCount = cpus().length;
+const defaultAssetStorageConnectionType = 'elasticsearch-next';
 
 export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any> {
     const schema: convict.Schema<any> = {
@@ -72,13 +73,10 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
         },
         asset_storage_connection_type: {
             doc: 'Name of the connection type used to store assets',
-            default: 'elasticsearch-next',
+            default: defaultAssetStorageConnectionType,
             format(connectionTypeName: any): void {
                 const validConnectionTypes = ['elasticsearch-next', 'elasticsearch', 's3'];
                 const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
-                if (typeof connectionTypeName !== 'string') {
-                    throw new Error('asset_storage_connection_type must be a string');
-                }
                 if (!connectionTypesPresent.includes(connectionTypeName)) {
                     throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
                 }
@@ -95,10 +93,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (sysconfig.terafoundation.asset_storage_connection_type) {
                     connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 } else {
-                    connectionType = 'elasticsearch-next';
-                }
-                if (typeof connectionName !== 'string') {
-                    throw new Error('asset_storage_connection must be a string');
+                    connectionType = defaultAssetStorageConnectionType;
                 }
 
                 const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
@@ -115,7 +110,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (sysconfig.terafoundation.asset_storage_connection_type) {
                     connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 } else {
-                    connectionType = 'elasticsearch-next';
+                    connectionType = defaultAssetStorageConnectionType;
                 }
                 if (typeof bucketName !== 'string') {
                     throw new Error('asset_storage_bucket must be a string');

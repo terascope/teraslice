@@ -255,8 +255,6 @@ export class AssetsStorage {
         };
     }
 
-    // this will work, but wont return the blob containing the asset. It doesn't seem needed.
-    // if blob is needed update to get the asset from s3, then convert it and put in the blob field?
     async search(
         query: string | Record<string, any>,
         from?: number,
@@ -269,9 +267,14 @@ export class AssetsStorage {
         ) as unknown as ClientResponse.SearchResponse<AssetRecord>;
     }
 
+    /*
+     * Get all the asset records out of the S3 bucket
+     * Returns an array of Records containing: { File: any, Size: any }
+    */
     async grabS3Info(): Promise<Record<string, any>[]> {
         return await this.s3Backend?.list() as Record<string, any>[];
     }
+
     // this should be a SearchResponse as full_response is set to true in backendConfig
     // however for some reason the api ignores that for get and mget, and fullResponse
     // is an argument to the call itself, which can defy the config, defaults to false
