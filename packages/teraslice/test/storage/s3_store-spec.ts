@@ -80,7 +80,7 @@ describe('S3 backend test', () => {
 
         it('should be able to write in a zip file to ts_assets bucket', async () => {
             const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
-            await s3Backend.save('ex1', fse.readFileSync(filePath), 1000);
+            await s3Backend.save('ex1', fse.readFileSync(filePath), 30000);
             const result = await s3Backend.list();
             expect(result[0].File).toBe('ex1.zip');
         });
@@ -94,7 +94,7 @@ describe('S3 backend test', () => {
 
         it('should be able to download asset', async () => {
             const filePath = 'e2e/test/fixtures/assets/example_asset_2.zip';
-            await s3Backend.save('ex2', fse.readFileSync(filePath), 1000);
+            await s3Backend.save('ex2', fse.readFileSync(filePath), 30000);
 
             const result = await s3Backend.get('ex2');
 

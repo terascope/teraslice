@@ -89,6 +89,8 @@ export class S3Store {
         });
     }
 
+    // TODO: if we want to use the S3 store more generically we can't
+    // assume the key will have a '.zip' extension
     async get(recordId: string) {
         const command = {
             Bucket: this.bucket,
