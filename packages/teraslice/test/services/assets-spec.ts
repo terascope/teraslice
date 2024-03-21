@@ -1,4 +1,4 @@
-import { TerafoundationConfig, TestContext, TestContextOptions } from '@terascope/job-components';
+import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createClient } from 'elasticsearch-store';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
 
@@ -17,7 +17,7 @@ describe('Assets Service', () => {
     /// It's important to keep the test context name unique
     /// This is so we don't share indices and buckets with other test suites
     const context = new TestContext('assets-spec-test', contextOptions);
-    const mockTerafoundation: TerafoundationConfig = {
+    context.sysconfig.terafoundation = {
         asset_storage_connection_type: 's3',
         asset_storage_connection: 'default',
         asset_storage_bucket: 'assets-spec-test-bucket',
@@ -34,12 +34,11 @@ describe('Assets Service', () => {
             },
             'elasticsearch-next': {
                 default: {
-                    node: [process.env.ELASTICSEARCH_HOST]
+                    node: [process.env.SEARCH_TEST_HOST]
                 },
             },
         }
     };
-    context.sysconfig.terafoundation = mockTerafoundation;
     context.sysconfig.teraslice.api_response_timeout = 30000;
     /// Setting port for the asset service
     process.env.port = '55678';
