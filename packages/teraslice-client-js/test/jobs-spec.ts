@@ -1,8 +1,8 @@
 import 'jest-extended';
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import Job from '../src/job';
-import Jobs from '../src/jobs';
+import Job from '../src/job.js';
+import Jobs from '../src/jobs.js';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;

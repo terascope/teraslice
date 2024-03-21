@@ -1,4 +1,4 @@
-import util from 'util';
+import util from 'node:util';
 import autoBind from 'auto-bind';
 import {
     pDelay, isString, toString,
@@ -9,8 +9,8 @@ import {
     ClientConfig,
     SearchOptions,
     RequestOptions
-} from './interfaces';
-import Client from './client';
+} from './interfaces.js';
+import Client from './client.js';
 
 /*
  * This is basically a wrapper around the job_id that acts as a proxy

@@ -3,8 +3,8 @@ import {
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
-import Client from './client';
-import Ex from './ex';
+import Client from './client.js';
+import Ex from './ex.js';
 
 import { ClientConfig, SearchOptions } from './interfaces';
 

@@ -1,9 +1,9 @@
 import { isString, TSError } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
-import Client from './client';
-import Job from './job';
-import { SearchOptions, ClientConfig } from './interfaces';
+import Client from './client.js';
+import Job from './job.js';
+import { SearchOptions, ClientConfig } from './interfaces.js';
 
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {
