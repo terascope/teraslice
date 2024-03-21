@@ -170,9 +170,8 @@ describe('assets', () => {
 });
 
 describe('s3 asset storage', () => {
+    // If the connection type is S3 run tests to ensure assets are stored in S3
     if (ASSET_STORAGE_CONNECTION_TYPE === 's3') {
-        // If the TEST_MINIO var is set we are in
-        // e2e-external-storage-tests, so we run tests.
         let terasliceHarness: TerasliceHarness;
         let s3client: S3Client;
         let assetId: string;

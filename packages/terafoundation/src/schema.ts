@@ -3,7 +3,7 @@ import { cpus } from 'os';
 import { SysConfig } from 'packages/types/dist/src/terafoundation';
 
 const workerCount = cpus().length;
-const defaultAssetStorageConnectionType = 'elasticsearch-next';
+const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
 export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any> {
     const schema: convict.Schema<any> = {
@@ -73,7 +73,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
         },
         asset_storage_connection_type: {
             doc: 'Name of the connection type used to store assets',
-            default: defaultAssetStorageConnectionType,
+            default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
             format(connectionTypeName: any): void {
                 const validConnectionTypes = ['elasticsearch-next', 'elasticsearch', 's3'];
                 const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
@@ -93,7 +93,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (sysconfig.terafoundation.asset_storage_connection_type) {
                     connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 } else {
-                    connectionType = defaultAssetStorageConnectionType;
+                    connectionType = DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
                 }
 
                 const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
@@ -110,7 +110,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 if (sysconfig.terafoundation.asset_storage_connection_type) {
                     connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 } else {
-                    connectionType = defaultAssetStorageConnectionType;
+                    connectionType = DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
                 }
                 if (typeof bucketName !== 'string') {
                     throw new Error('asset_storage_bucket must be a string');
