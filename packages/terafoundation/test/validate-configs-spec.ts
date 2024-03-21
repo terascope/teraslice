@@ -56,7 +56,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when using using connectors that exist', () => {
+    describe('when using connectors that exist', () => {
         const configFile = {
             terafoundation: {
                 log_level: [
@@ -198,28 +198,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given an logging config', () => {
-        const configFile = {
-            terafoundation: {
-                log_level: 'uhoh',
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
-        });
-    });
-
-    describe('when given an invalid log_level', () => {
+    describe('when given an invalid logging config', () => {
         const configFile = {
             terafoundation: {
                 logging: 'hello'
@@ -236,7 +215,178 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid log_level', () => {
+        const configFile = {
+            terafoundation: {
+                log_level: 'uhoh',
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid asset_storage_bucket', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_bucket: 123,
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid asset_storage_connection', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection: 123,
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an asset_storage_connection that does not exist on that connection type', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection_type: 's3',
+                asset_storage_connection: 'minio2',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    },
+                    s3: {
+                        minio1: {},
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
+        });
+    });
+
+    describe('when given an invalid asset_storage_connection_type', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection_type: 123,
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        });
+    });
+
+    describe('when given an asset_storage_connection_type that does not exist', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection_type: 's3',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('asset_storage_connection_type not found in terafoundation.connectors');
+        });
+    });
+    describe('when given an asset_storage_connection_type that is invalid', () => {
+        const configFile = {
+            terafoundation: {
+                asset_storage_connection_type: 'kafka',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    },
+                    kafka: {
+                        default: {}
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,elasticsearch,s3: value was "kafka"');
         });
     });
 });

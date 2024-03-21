@@ -15,5 +15,5 @@ export {
     initializeTestExecution,
     makeTerafoundationContext,
     config,
-    stores,
+    stores
 };

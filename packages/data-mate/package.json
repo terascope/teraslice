@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "0.52.0",
+    "version": "0.53.0",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -29,9 +29,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.46.0",
-        "@terascope/types": "^0.14.0",
-        "@terascope/utils": "^0.55.0",
+        "@terascope/data-types": "^0.47.0",
+        "@terascope/types": "^0.15.0",
+        "@terascope/utils": "^0.56.0",
         "@types/validator": "^13.11.9",
         "awesome-phonenumber": "^2.70.0",
         "date-fns": "^2.30.0",
@@ -46,7 +46,7 @@
         "uuid": "^9.0.1",
         "valid-url": "^1.0.9",
         "validator": "^13.11.0",
-        "xlucene-parser": "^0.54.0"
+        "xlucene-parser": "^0.55.0"
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.6",
