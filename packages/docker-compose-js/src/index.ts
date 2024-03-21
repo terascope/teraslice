@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import debugFn from 'debug';
 
 const debug = debugFn('docker-compose-js');

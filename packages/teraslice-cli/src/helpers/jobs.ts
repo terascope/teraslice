@@ -4,19 +4,18 @@ import {
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import { Job } from 'teraslice-client-js';
-import TerasliceUtil from './teraslice-util';
-import Display from '../helpers/display';
-import reply from '../helpers/reply';
-import { getJobConfigFromFile } from './tjm-util';
-import Config from './config';
-
+import TerasliceUtil from './teraslice-util.js';
+import Display from './display.js';
+import reply from './reply.js';
+import { getJobConfigFromFile } from './tjm-util.js';
+import Config from './config.js';
 import {
     JobMetadata,
     JobConfigFile,
     StatusUpdate,
     RegisteredStatusEnum,
     AllStatusTypes
-} from '../interfaces';
+} from '../interfaces.js';
 
 const statusEnum = Teraslice.ExecutionStatusEnum;
 
@@ -126,7 +125,7 @@ export default class Jobs {
             const { status } = this.getJobIdentifiers(job);
 
             if (this.terminalStatuses.includes(status)) {
-                this.logUpdate({ action: 'adjustWorkersTerminal', job });
+                this.logUpdate({ action: 'adjust_workers_terminal', job });
                 return;
             }
 
@@ -148,7 +147,7 @@ export default class Jobs {
             const { status } = this.getJobIdentifiers(job);
 
             if (status !== Teraslice.ExecutionStatusEnum.failed) {
-                this.logUpdate({ action: 'recoverNotFailed', job });
+                this.logUpdate({ action: 'recover_not_failed', job });
                 continue;
             }
 
@@ -185,7 +184,7 @@ export default class Jobs {
                 if (rows.length > 0) {
                     await display.display(header, rows, format, active, parse);
                 } else {
-                    this.logUpdate({ action: 'checkForErrors', job });
+                    this.logUpdate({ action: 'check_for_errors', job });
                 }
             } catch (e) {
                 this.commandFailed(e.message, job);
@@ -299,7 +298,7 @@ export default class Jobs {
                 this.commandFailed(e.message, job);
             }
 
-            await this.verifyJobRunning(job);
+            await this.verifyJobRunningOrCompleted(job);
             return;
         }
 
@@ -323,7 +322,7 @@ export default class Jobs {
         }
 
         let batchWorkerCount = 0;
-        let batch = [];
+        let batch: JobMetadata[] = [];
 
         for (const job of this.jobs) {
             const { workers } = job.config;
@@ -352,10 +351,10 @@ export default class Jobs {
         return batches;
     }
 
-    private async verifyJobRunning(job: JobMetadata) {
+    private async verifyJobRunningOrCompleted(job: JobMetadata) {
         const statusUpdate = await this.waitStatusChange(
             job,
-            statusEnum.running
+            [statusEnum.running, statusEnum.completed]
         );
 
         const newStatus = statusUpdate.newStatus! as Teraslice.ExecutionStatus;
@@ -371,12 +370,17 @@ export default class Jobs {
             this.logUpdate({ action: 'running', job });
             return;
         }
+
+        if (newStatus === statusEnum.completed) {
+            this.logUpdate({ action: 'quick_completed', job });
+            return;
+        }
     }
 
     private async watchJob(job: JobMetadata) {
         const { timeout, interval, watch: slices } = this.config.args;
 
-        this.logUpdate({ action: 'startWatching', job });
+        this.logUpdate({ action: 'start_watching', job });
 
         const startCheck = new Date().getTime();
         let slicesCompleted = 0;
@@ -715,16 +719,20 @@ export default class Jobs {
                 message: `status: ${status}`,
                 final: true
             },
-            adjustWorkersTerminal: {
+            adjust_workers_terminal: {
                 message: `Cannot adjust workers. Job in terminal status ${status}`,
                 final: true
             },
-            recoverNotFailed: {
+            recover_not_failed: {
                 message: `Status is not failed, but ${status}. No need to recover`,
                 final: true
             },
-            checkForErrors: {
+            check_for_errors: {
                 message: 'No Errors',
+                final: true
+            },
+            quick_completed: {
+                message: 'Job has already completed',
                 final: true
             },
             resuming: {
@@ -735,7 +743,7 @@ export default class Jobs {
                 message: `${display.setAction('start', 'present')} ${name}, ${id}`,
                 final: false
             },
-            startWatching: {
+            start_watching: {
                 message: `Watching for ${name}, ${id}, for ${this.config.args.watch} slices`,
                 final: false
             },
@@ -756,11 +764,11 @@ export default class Jobs {
                 final: this.finalAction(action)
             },
             cannot_pause: {
-                message: `Job status is ${status}, cannot pause`,
+                message: `Job is in terminal status ${status}, cannot pause`,
                 final: true,
             },
             cannot_stop: {
-                message: `Job status is ${status}, cannot stop`,
+                message: `No need to stop, job is already in terminal status ${status}`,
                 final: this.finalAction(action)
             }
         };

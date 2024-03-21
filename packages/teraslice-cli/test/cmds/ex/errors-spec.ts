@@ -1,10 +1,10 @@
 import yargs from 'yargs';
-import errors from '../../../src/cmds/ex/errors';
+import errors from '../../../src/cmds/ex/errors.js';
 
 describe('ex errors', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 errors.command,
                 errors.describe,
@@ -18,7 +18,7 @@ describe('ex errors', () => {
             expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
         });
         it('should parse properly with args', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 errors.command,
                 errors.describe,

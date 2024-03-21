@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'stop <job-file...>',
     describe: 'Stop a job by referencing the job file',
     builder(yargs) {

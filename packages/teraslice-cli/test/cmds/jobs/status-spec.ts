@@ -1,10 +1,10 @@
 import yargs from 'yargs';
-import status from '../../../src/cmds/jobs/status';
+import status from '../../../src/cmds/jobs/status.js';
 
 describe('jobs status', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 status.command,
                 status.describe,

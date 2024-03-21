@@ -1,15 +1,17 @@
 import yargs from 'yargs';
 import tmp from 'tmp';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import nock from 'nock';
-import { GithubServer } from '../../servers';
+import { GithubServer } from '../../servers/index.js';
+import deploy from '../../../src/cmds/assets/deploy.js';
 
-import deploy from '../../../src/cmds/assets/deploy';
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<Record<string, any>>;
     beforeEach(() => {
-        yargsCmd = yargs.command(
+        yargsCmd = yargs().command(
             // @ts-expect-error
             deploy.command,
             deploy.describe,
@@ -43,8 +45,8 @@ describe('assets deploy', () => {
     });
 
     describe('-> handler', () => {
-        const assetPath = path.join(__dirname, '../../fixtures/regularAsset.zip');
-        const configDir = path.join(__dirname, '../../fixtures/config_dir');
+        const assetPath = path.join(dirname, '../../fixtures/regularAsset.zip');
+        const configDir = path.join(dirname, '../../fixtures/config_dir');
         const githubServer = new GithubServer();
         const { handler } = deploy;
         let tmpDir: tmp.DirResult;

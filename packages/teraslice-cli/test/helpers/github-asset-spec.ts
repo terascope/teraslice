@@ -1,10 +1,10 @@
 import tmp from 'tmp';
 import fs from 'fs-extra';
 import decompress from 'decompress';
-import path from 'path';
+import path from 'node:path';
 import nock from 'nock';
-import GithubAsset from '../../src/helpers/github-asset';
-import { GithubServer } from '../servers';
+import GithubAsset from '../../src/helpers/github-asset.js';
+import { GithubServer } from '../servers/index.js';
 
 const server = new GithubServer();
 

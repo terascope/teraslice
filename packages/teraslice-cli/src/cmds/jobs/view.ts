@@ -1,11 +1,11 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     // TODO: is it [id] or <id>
     command: 'view <cluster-alias> <job-id...>',
     describe: 'View the job definition for a job or multiple jobs',

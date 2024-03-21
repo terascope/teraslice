@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.62.0",
+    "version": "1.0.2",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -13,6 +13,7 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/command.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
@@ -31,9 +32,9 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test . --",
+        "test:debug": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --debug . --",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.8.7",
@@ -95,7 +96,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit",
+        "testSuite": "cli",
         "enableTypedoc": true
     }
 }

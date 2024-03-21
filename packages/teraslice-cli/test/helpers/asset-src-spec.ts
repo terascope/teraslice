@@ -1,12 +1,15 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { AssetSrc } from '../../src/helpers/asset-src';
+import { AssetSrc } from '../../src/helpers/asset-src.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('AssetSrc', () => {
-    const srcDir = path.join(__dirname, '../fixtures/testAsset');
-    const buildAssetDir = path.join(__dirname, '../fixtures/testAssetWithBuild');
+    const srcDir = path.join(dirname, '../fixtures/testAsset');
+    const buildAssetDir = path.join(dirname, '../fixtures/testAssetWithBuild');
 
     it('should have srcDir and assetFile properties', () => {
         const testAsset = new AssetSrc(buildAssetDir);
@@ -20,7 +23,7 @@ describe('AssetSrc', () => {
     });
 
     it('should throw in constructor when provided non-asset path', () => {
-        const nonAssetDir = path.join(__dirname, '../fixtures');
+        const nonAssetDir = path.join(dirname, '../fixtures');
         expect(() => new AssetSrc(nonAssetDir)).toThrow();
     });
 
@@ -44,7 +47,7 @@ describe('AssetSrc', () => {
         const tmpDir = tmp.dirSync();
         const outFile = path.join(tmpDir.name, 'out.zip');
         try {
-            const zipOutput = await AssetSrc.zip(path.join(__dirname, '..', 'fixtures', 'testAsset', 'asset'), outFile);
+            const zipOutput = await AssetSrc.zip(path.join(dirname, '..', 'fixtures', 'testAsset', 'asset'), outFile);
             expect(zipOutput.name).toEqual(outFile);
         } finally {
             await fs.remove(tmpDir.name);
@@ -99,6 +102,8 @@ describe('AssetSrc', () => {
     });
 
     it('can build a node 18 bundle', async () => {
+        expect.hasAssertions();
+
         const devMode = false;
         const debug = false;
         const bundle = true;
@@ -115,7 +120,9 @@ describe('AssetSrc', () => {
             resp = await myTestAsset.build();
             expect(resp.name).toContain('node-18');
         } finally {
-            await fs.remove(resp.name);
+            if (resp) {
+                await fs.remove(resp.name);
+            }
         }
     });
 });

@@ -1,10 +1,10 @@
 import yargs from 'yargs';
-import run from '../../../src/cmds/jobs/run';
+import run from '../../../src/cmds/jobs/run.js';
 
 describe('jobs run', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 run.command,
                 run.describe,
@@ -18,7 +18,7 @@ describe('jobs run', () => {
         });
 
         it('should parse properly with an id specifed', () => {
-            const yargsCmd = yargs.command(
+            const yargsCmd = yargs().command(
                 // @ts-expect-error
                 run.command,
                 run.describe,

@@ -1,12 +1,12 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import reply from '../../helpers/reply';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import reply from '../../helpers/reply.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'workers <cluster-alias> <action> <number> <job-id...>',
     describe: 'Manage workers for a job or multiple jobs\n',
     builder(yargs: any) {
@@ -38,6 +38,4 @@ const cmd: CMD = {
             reply.fatal(e);
         }
     }
-};
-
-export = cmd;
+} as CMD;

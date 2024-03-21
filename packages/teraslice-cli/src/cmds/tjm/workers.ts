@@ -1,12 +1,12 @@
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import { validateAndUpdateCliConfig } from '../../helpers/tjm-util';
-import Jobs from '../../helpers/jobs';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { validateAndUpdateCliConfig } from '../../helpers/tjm-util.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-const cmd: CMD = {
+export default {
     command: 'workers <action> <number> <job-file...>',
     describe: 'Add workers to a job',
     builder(yargs) {
@@ -34,6 +34,4 @@ const cmd: CMD = {
 
         await jobs.adjustWorkers();
     }
-};
-
-export = cmd;
+} as CMD;

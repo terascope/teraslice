@@ -1,12 +1,16 @@
-import { CMD } from '../../interfaces';
+import { CMD } from '../../interfaces.js';
+import add from './add.js';
+import list from './list.js';
+import remove from './remove.js';
+import update from './update.js';
 
-export = {
+export default {
     command: 'aliases <command>',
     describe: 'commands to add and remove cluster aliases',
     exclude: 'lib',
     builder: function builder(yargs) {
         return yargs.strict()
-            .commandDir('.')
+            .command([add, list, remove, update])
             .demandCommand(2);
     },
     handler: () => {}

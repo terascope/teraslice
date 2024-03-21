@@ -1,15 +1,17 @@
-/* eslint-disable jest/no-focused-tests */
 import nock from 'nock';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
-import Jobs from '../../src/helpers/jobs';
+import Jobs from '../../src/helpers/jobs.js';
 import {
     makeJobIds,
     testJobConfig,
     buildCLIConfig,
     clusterControllers,
     getJobExecution
-} from './helpers';
+} from './helpers.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // args, cli config, teraslice server
 const tsHost = 'http://test-host';
@@ -437,7 +439,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow('Job cannot reach the target status, "running", because it is in the terminal state, "failed"');
+            await expect(job.start()).rejects.toThrow('Job cannot reach the target status, "running,completed", because it is in the terminal state, "failed"');
         });
 
         it('should check workers and slice failures if watch flag is provided', async () => {
@@ -602,7 +604,7 @@ describe('Job helper class', () => {
         });
 
         it('should start a job based on locally saved state file', async () => {
-            const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves', 'job_state_files', 'testerTest.json');
+            const localStatePath = path.join(dirname, '..', 'fixtures', 'job_saves', 'job_state_files', 'testerTest.json');
 
             const [jobId] = makeJobIds(1);
 
@@ -686,7 +688,7 @@ describe('Job helper class', () => {
     describe('save', () => {
         const action = 'save';
 
-        const localStatePath = path.join(__dirname, '..', 'fixtures', 'job_saves');
+        const localStatePath = path.join(dirname, '..', 'fixtures', 'job_saves');
 
         afterAll(async () => {
             await fs.remove(path.join(localStatePath, 'job_state_files'));
@@ -813,7 +815,7 @@ describe('Job helper class', () => {
         const cliArgs = {
             'cluster-manager-type': 'native',
             'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirname, '../fixtures/config_dir'),
             'cluster-alias': 'localhost',
             args: {}
         };
@@ -862,7 +864,7 @@ describe('Job helper class', () => {
         const cliArgs = {
             'cluster-manager-type': 'native',
             'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+            'config-dir': path.join(dirname, '../fixtures/config_dir'),
             'cluster-alias': 'localhost',
             args: {}
         };

@@ -1,11 +1,11 @@
-import Config from '../../helpers/config';
-import { CMD } from '../../interfaces';
-import YargsOptions from '../../helpers/yargs-options';
-import { registerJobToCluster } from '../../helpers/tjm-util';
+import Config from '../../helpers/config.js';
+import { CMD } from '../../interfaces.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import { registerJobToCluster } from '../../helpers/tjm-util.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'register <cluster-alias> <job-file...>',
     describe: 'Register and upload a new job config to a cluster from a job config file',
     aliases: ['reg'],

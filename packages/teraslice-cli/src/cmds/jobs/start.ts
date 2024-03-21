@@ -1,11 +1,11 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import YargsOptions from '../../helpers/yargs-options';
-import Jobs from '../../helpers/jobs';
+import { CMD } from '../../interfaces.js';
+import Config from '../../helpers/config.js';
+import YargsOptions from '../../helpers/yargs-options.js';
+import Jobs from '../../helpers/jobs.js';
 
 const yargsOptions = new YargsOptions();
 
-export = {
+export default {
     command: 'start <cluster-alias> <job-id...>',
     describe: 'starts job or jobs on a cluster.  If all is specified there must be a saved jobs state file\n',
     builder(yargs: any) {
