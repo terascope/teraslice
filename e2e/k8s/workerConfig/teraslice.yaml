@@ -1,6 +1,9 @@
 terafoundation:
   environment: "development"
   log_level: debug
+  asset_storage_connector: s3
+  asset_storage_connection: default
+  asset_storage_bucket: assets
   connectors:
     elasticsearch:
       default:
@@ -14,6 +17,14 @@ terafoundation:
       default:
         brokers:
           - "cpkafka.services-dev1:9092"
+    s3:
+      default:
+        endpoint: "http://127.0.0.1:49000"
+        accessKeyId: "minioadmin"
+        secretAccessKey: "minioadmin"
+        forcePathStyle: true
+        sslEnabled: false
+        region: "us-east-1"
 teraslice:
   worker_disconnect_timeout: 60000
   node_disconnect_timeout: 60000
