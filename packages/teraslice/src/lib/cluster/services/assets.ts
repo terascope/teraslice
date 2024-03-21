@@ -150,7 +150,7 @@ export class AssetsService {
         }
     }
 
-    private getAssetStatus(
+    private getS3AssetStatus(
         s3List: Record<string, any>[],
         esList: Record<string, any>[]
     ) {
@@ -208,7 +208,7 @@ export class AssetsService {
 
             if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
-                const updatedAssets = this.getAssetStatus(s3Assets, assets);
+                const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
                 return makeTable(req, s3Defaults, updatedAssets, mapping);
             }
 
@@ -235,7 +235,7 @@ export class AssetsService {
 
             if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
-                const updatedAssets = this.getAssetStatus(s3Assets, mappedRecords);
+                const updatedAssets = this.getS3AssetStatus(s3Assets, mappedRecords);
                 return updatedAssets;
             }
 

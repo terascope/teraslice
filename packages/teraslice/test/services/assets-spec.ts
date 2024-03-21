@@ -54,7 +54,7 @@ describe('Assets Service', () => {
         await service.shutdown();
     });
 
-    describe('getAssetStatus function', () => {
+    describe('getS3AssetStatus function', () => {
         it('Should return correct info if given valid lists', async () => {
             const s3List: Record<string, any>[] = [
                 { File: '123.zip', Size: '12345' },
@@ -94,9 +94,9 @@ describe('Assets Service', () => {
                 }
             ];
 
-            // Do this because getAssetStatus is a private function
+            // Do this because getS3AssetStatus is a private function
             // @ts-expect-error
-            const result = service.getAssetStatus(s3List, esList);
+            const result = service.getS3AssetStatus(s3List, esList);
             expect(result[0].external_storage).toEqual('available');
             expect(result[1].external_storage).toEqual('available');
             expect(result[2].external_storage).toEqual('available');
@@ -121,9 +121,9 @@ describe('Assets Service', () => {
                 }
             ];
 
-            // Do this because getAssetStatus is a private function
+            // Do this because getS3AssetStatus is a private function
             // @ts-expect-error
-            const result = service.getAssetStatus(s3List, esList);
+            const result = service.getS3AssetStatus(s3List, esList);
             expect(result[0].external_storage).toEqual('missing');
         });
     });
