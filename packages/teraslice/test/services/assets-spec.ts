@@ -1,7 +1,7 @@
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import fs from 'fs';
+import got from 'got';
 import { createClient } from 'elasticsearch-store';
-import axios from 'axios';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
@@ -137,21 +137,12 @@ describe('Assets Service', () => {
             // Upload file to storage
             await service.assetsStorage.save(filePathOneStream);
 
-            let resultTable;
-            // Axios call that does a query that excludes _created field as it's dynamic
-            await axios.get(`http://localhost:${process.env.port}/txt/assets`, {
-                params: {
+            const resultTable = await got.get(`http://localhost:${process.env.port}/txt/assets`, {
+                searchParams: {
                     fields: 'name,version,id,description,node_version,platform,arch'
                 }
-            })
-                .then((response) => {
-                    // handle success
-                    resultTable = response.data;
-                })
-                .catch((error) => {
-                    // handle error
-                    resultTable = error.message;
-                });
+            }).text();
+
             expect(resultTable).toEqual(
                 'name                         version  id                                        description                     node_version  platform  arch\n'
             + '---------------------------  -------  ----------------------------------------  ------------------------------  ------------  --------  ----\n'
