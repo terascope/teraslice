@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import { findPort } from './helpers/index.js';
 import { formatURL, newMsgId, ClusterMaster } from '../src/index.js';
 
@@ -171,7 +172,7 @@ describe('ClusterMaster', () => {
         });
 
         it('should be able to handle exection pause', async () => {
-            const onExecutionPause = jest.fn();
+            const onExecutionPause = jest.fn() as any;
 
             client.onExecutionPause(onExecutionPause);
 
@@ -181,7 +182,7 @@ describe('ClusterMaster', () => {
         });
 
         it('should be able to handle exection resume', async () => {
-            const onExecutionResume = jest.fn();
+            const onExecutionResume = jest.fn() as any;
 
             client.onExecutionResume(onExecutionResume);
 

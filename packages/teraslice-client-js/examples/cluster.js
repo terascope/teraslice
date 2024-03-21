@@ -1,13 +1,13 @@
-'use strict';
-
 /* eslint-disable no-console */
 
-const { TerasliceClient } = require('teraslice-client-js');
+import { TerasliceClient } from 'teraslice-client-js';
 
 const client = new TerasliceClient({
     host: 'http://localhost:5678'
 });
 
-client.cluster.state().then(console.log);
+const state = await client.cluster.state();
 
-client.cluster.controllers().then(console.log);
+const controllers = await client.cluster.controllers();
+
+console.dir({ state, controllers }, { depth: 40 });

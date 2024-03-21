@@ -1,8 +1,5 @@
-'use strict';
-
 /* eslint-disable no-console */
-
-const { TerasliceClient } = require('teraslice-client-js');
+import { TerasliceClient } from 'teraslice-client-js';
 
 const client = new TerasliceClient({
     host: 'http://localhost:5678'
@@ -27,16 +24,19 @@ const exampleJob = {
     ]
 };
 
-client.jobs.submit(exampleJob)
-    .then((job) => {
-        console.log(job.id());
+async function main() {
+    const job = await client.jobs.submit(exampleJob);
 
-        const job2 = client.jobs.wrap(job.id());
-        job2.status().then(console.log);
+    console.log(job.id());
 
-        console.log('Waiting for the job to finish.');
-        job2.waitForStatus('completed')
-            .then(() => {
-                console.log('Job completed');
-            });
-    });
+    const job2 = client.jobs.wrap(job.id());
+    const status = await job2.status();
+
+    console.log(status);
+
+    console.log('Waiting for the job to finish.');
+    await job2.waitForStatus('completed');
+    console.log('Job completed');
+}
+
+main();

@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import http from 'node:http';
 import { Message } from '../src/messenger/index.js';
 import { Messenger, formatURL, newMsgId } from '../src/index.js';

@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import { pDelay, findPort } from './helpers/index.js';
 import { formatURL, newMsgId, ExecutionController } from '../src/index.js';
 
