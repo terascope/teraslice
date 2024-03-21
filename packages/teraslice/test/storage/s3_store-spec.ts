@@ -116,7 +116,7 @@ describe('S3 backend test', () => {
         });
 
         it('should create a bucket name containing terafoundation.teraslice.name', async () => {
-            bucketName = `ts-assets-${TEST_INDEX_PREFIX}-s3-store-test`.replaceAll('_', '-');
+            bucketName = `ts-assets-${TEST_INDEX_PREFIX}s3-store-test`.replaceAll('_', '-');
             s3Backend = new S3Store({
                 context,
                 terafoundation: mockTerafoundation,
