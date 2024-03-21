@@ -1,5 +1,7 @@
 import { TestContext, TestContextOptions } from '@terascope/job-components';
+import fs from 'fs';
 import { createClient } from 'elasticsearch-store';
+import axios from 'axios';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
 
 describe('Assets Service', () => {
@@ -48,7 +50,7 @@ describe('Assets Service', () => {
         await service.initialize();
     });
 
-    beforeAll(async () => {
+    afterAll(async () => {
         // Clean up asset process
         await service.shutdown();
     });
@@ -127,29 +129,33 @@ describe('Assets Service', () => {
         });
     });
 
-    // describe('createAssetTable function', () => {
-    //     it('Should return proper table', async () => {
-    //         const s3List: Record<string, any>[] = [
-    //             { File: '123.zip', Size: '12345'},
-    //             { File: 'abc.zip', Size: '56873'},
-    //             { File: 'foo.zip', Size: '1'},
-    //         ];
-    //         const esList: Record<string, any>[] = [
-    //             {
-    //                 _created: '500BC',
-    //                 id: '50000',
-    //                 name: 'asset-123',
-    //                 version: '1.0.0',
-    //                 description: 'A description',
-    //                 node_version: 19,
-    //                 platform: '',
-    //                 arch: 'arm64'
-    //             }
-    //         ];
+    describe('Testing /txt/assets enpoint', () => {
+        it('Should return proper table', async () => {
+            const filePathOne = 'packages/teraslice/test/fixtures/assets/asset-with-long-description.zip';
+            const filePathOneStream = fs.readFileSync(filePathOne);
+            // Upload file to storage
+            await service.assetsStorage.save(filePathOneStream);
 
-    //         // Do this because getAssetStatus is a private function
-    //         const result = service['getAssetStatus'](s3List, esList);
-    //         expect(result[0].external_storage).toEqual('missing');
-    //     });
-    // });
+            let resultTable;
+            // Axios call that does a query that excludes _created field as it's dynamic
+            await axios.get(`http://localhost:${process.env.port}/txt/assets`, {
+                params: {
+                    fields: 'name,version,id,description,node_version,platform,arch'
+                }
+            })
+                .then((response) => {
+                    // handle success
+                    resultTable = response.data;
+                })
+                .catch((error) => {
+                    // handle error
+                    resultTable = error.message;
+                });
+            expect(resultTable).toEqual(
+                'name                         version  id                                        description                     node_version  platform  arch\n'
+            + '---------------------------  -------  ----------------------------------------  ------------------------------  ------------  --------  ----\n'
+            + 'asset-with-long-description  3.6.3    ba53aa515e20e0c7da93bd2a373b84819fba7b2a  This description is longer tha  18                          \n'
+            );
+        });
+    });
 });
