@@ -24,7 +24,7 @@ const nodeVersion = getNodeVersion();
 const leaveZipped = true;
 const disableLogging = true;
 
-const bundles = [
+export const defaultAssetBundles = [
     {
         repo: 'elasticsearch-assets',
         name: 'elasticsearch'
@@ -134,7 +134,7 @@ function logAssets() {
  * @todo change this to not download both the bundled and non-bundled versions
 */
 export async function downloadAssets() {
-    await Promise.all(bundles.map(({ repo }) => downloadRelease(
+    await Promise.all(defaultAssetBundles.map(({ repo }) => downloadRelease(
         'terascope',
         repo,
         AUTOLOAD_PATH,
