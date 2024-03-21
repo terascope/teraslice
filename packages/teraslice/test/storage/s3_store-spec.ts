@@ -2,10 +2,11 @@ import fse from 'fs-extra';
 import { TerafoundationConfig, TestContext } from '@terascope/job-components';
 import { DeleteBucketCommand } from '@aws-sdk/client-s3';
 import { S3Store } from '../../src/lib/storage/backends/s3_store';
+import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('S3 backend test', () => {
     let s3Backend: S3Store;
-    const context = new TestContext('s3-backend-test') as any;
+    const context = new TestContext(`${TEST_INDEX_PREFIX}s3-store-test`) as any;
     const mockTerafoundation: TerafoundationConfig = {
         connectors: {
             s3: {
@@ -124,9 +125,9 @@ describe('S3 backend test', () => {
 
             await s3Backend.initialize();
 
-            expect(s3Backend.bucket).toBe('ts-assets-s3-backend-test');
+            expect(s3Backend.bucket).toBe('ts-assets-teratest-s3-store-test');
 
-            bucketToCleanUp = 'ts-assets-s3-backend-test';
+            bucketToCleanUp = 'ts-assets-teratest-s3-store-test';
         });
 
         it('should create a bucket name where underscores in teraslice.name are replaced by dashes', async () => {

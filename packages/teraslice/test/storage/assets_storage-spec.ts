@@ -2,6 +2,7 @@ import fs from 'fs';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createClient } from 'elasticsearch-store';
 import { AssetsStorage } from '../../src/lib/storage';
+import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('AssetsStorage using S3 backend', () => {
     let storage: AssetsStorage;
@@ -15,7 +16,7 @@ describe('AssetsStorage using S3 backend', () => {
             }
         ]
     };
-    const context = new TestContext('assets-storage-test', options) as any;
+    const context = new TestContext(`${TEST_INDEX_PREFIX}assets-storage-test`, options) as any;
 
     context.sysconfig.terafoundation = {
         asset_storage_connection_type: 's3',
