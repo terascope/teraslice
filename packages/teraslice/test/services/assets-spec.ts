@@ -95,6 +95,7 @@ describe('Assets Service', () => {
             ];
 
             // Do this because getAssetStatus is a private function
+            // @ts-expect-error
             const result = service.getAssetStatus(s3List, esList);
             expect(result[0].external_storage).toEqual('available');
             expect(result[1].external_storage).toEqual('available');
@@ -121,6 +122,7 @@ describe('Assets Service', () => {
             ];
 
             // Do this because getAssetStatus is a private function
+            // @ts-expect-error
             const result = service.getAssetStatus(s3List, esList);
             expect(result[0].external_storage).toEqual('missing');
         });
