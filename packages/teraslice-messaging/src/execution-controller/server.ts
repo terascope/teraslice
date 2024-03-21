@@ -1,7 +1,7 @@
 import { isNumber, get, Queue } from '@terascope/utils';
 import { SliceCompletePayload, EnqueuedWorker, Slice } from '@terascope/types';
-import * as core from '../messenger';
-import * as i from './interfaces';
+import * as core from '../messenger/index.js';
+import * as i from './interfaces.js';
 
 const { Available, Unavailable } = core.ClientState;
 

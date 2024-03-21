@@ -1,9 +1,9 @@
 import { TSError, isEmpty, isString } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
-import path from 'path';
+import path from 'node:path';
 import autoBind from 'auto-bind';
-import Client from './client';
-import { PostData, SearchOptions, ClientConfig } from './interfaces';
+import Client from './client.js';
+import { PostData, SearchOptions, ClientConfig } from './interfaces.js';
 
 export default class Assets extends Client {
     constructor(config: ClientConfig) {

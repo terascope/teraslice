@@ -1,6 +1,7 @@
 import 'jest-extended';
-import { pDelay, findPort } from './helpers';
-import { formatURL, newMsgId, ExecutionController } from '../src';
+import { jest } from '@jest/globals';
+import { pDelay, findPort } from './helpers/index.js';
+import { formatURL, newMsgId, ExecutionController } from '../src/index.js';
 
 describe('ExecutionController', () => {
     describe('->Client', () => {

@@ -1,5 +1,5 @@
 import 'socket.io-client';
-import http from 'http';
+import http from 'node:http';
 import { Logger } from '@terascope/utils';
 
 export interface CoreOptions {

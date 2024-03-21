@@ -3,10 +3,10 @@ import {
     isTest, trimStart, tryParseJSON,
     withoutNil,
 } from '@terascope/utils';
-import { STATUS_CODES } from 'http';
-import { URL } from 'url';
+import { STATUS_CODES } from 'node:http';
+import { URL } from 'node:url';
 import got, { Got } from 'got';
-import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
+import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
 
 export default class Client {
     private readonly _apiVersion: string;

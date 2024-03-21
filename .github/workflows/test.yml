@@ -51,7 +51,7 @@ jobs:
       - name: Test
         run: yarn --silent test -- --suite unit --
 
-  linux-cli-tests:
+  linux-unit-esm-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -72,7 +72,7 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Test
-        run: yarn --silent test -- --suite cli --
+        run: yarn --silent test -- --suite unit-esm --
         env:
           NODE_OPTIONS: '--experimental-vm-modules'
 

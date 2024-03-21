@@ -1,8 +1,11 @@
 import nock from 'nock';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 import { AssetRecord, AssetIDResponse } from '@terascope/types';
-import Assets from '../src/assets';
+import Assets from '../src/assets.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Teraslice Assets', () => {
     let assets: Assets;
@@ -71,7 +74,7 @@ describe('Teraslice Assets', () => {
         // teraslice/e2e/test/cases/assets/simple-spec.ts covers this test case
         // eslint-disable-next-line jest/no-disabled-tests
         xdescribe('when called with a stream', () => {
-            const testFilePath = path.join(__dirname, 'fixtures', 'test.txt');
+            const testFilePath = path.join(dirname, 'fixtures', 'test.txt');
             const contents = fs.readFileSync(testFilePath, 'utf-8');
             const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
 

@@ -1,8 +1,8 @@
 import { startsWith } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
-import util from 'util';
+import util from 'node:util';
 import autoBind from 'auto-bind';
-import Client from './client';
+import Client from './client.js';
 
 function _deprecateSlicerName(fn: () => Promise<Teraslice.ExecutionList>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
