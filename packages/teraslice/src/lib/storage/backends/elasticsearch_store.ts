@@ -52,7 +52,7 @@ function _getTimeout(timeout: number | string | undefined) {
     return undefined;
 }
 
-export interface TerasliceStorageConfig {
+export interface TerasliceESStorageConfig {
     context: Context;
     indexName: string;
     recordType: string;
@@ -91,7 +91,7 @@ export class TerasliceElasticsearchStorage {
     readonly mapping: Record<string, any>;
     api!: elasticsearchApi.Client;
 
-    constructor(backendConfig: TerasliceStorageConfig) {
+    constructor(backendConfig: TerasliceESStorageConfig) {
         const {
             context, indexName, recordType,
             idField, storageName, bulkSize = 1000,
@@ -212,7 +212,11 @@ export class TerasliceElasticsearchStorage {
         }, random(9000, 11000));
     }
 
-    async get(recordId: string, index = this.defaultIndexName, fields?: string| string[]) {
+    async get(
+        recordId: string,
+        index = this.defaultIndexName,
+        fields?: string| string[]
+    ) {
         validateId(recordId, this.recordType);
         this.logger.trace(`getting record id: ${recordId}`);
 

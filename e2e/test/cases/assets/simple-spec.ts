@@ -1,7 +1,14 @@
 import 'jest-extended';
 import { createReadStream } from 'node:fs';
+import {
+    createS3Client,
+    getS3Object,
+    S3Client,
+} from '@terascope/file-asset-apis';
 import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
-import { TEST_PLATFORM } from '../../config.js';
+import {
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
+} from '../../config.js';
 
 describe('assets', () => {
     let terasliceHarness: TerasliceHarness;
@@ -160,4 +167,52 @@ describe('assets', () => {
 
         await ex.stop({ blocking: true });
     });
+});
+
+describe('s3 asset storage', () => {
+    // If the connection type is S3 run tests to ensure assets are stored in S3
+    if (ASSET_STORAGE_CONNECTION_TYPE === 's3') {
+        let terasliceHarness: TerasliceHarness;
+        let s3client: S3Client;
+        let assetId: string;
+        let bucketName: string;
+        const config = {
+            endpoint: MINIO_HOST,
+            accessKeyId: MINIO_ACCESS_KEY,
+            secretAccessKey: MINIO_SECRET_KEY,
+            forcePathStyle: true,
+            sslEnabled: false,
+            region: 'test-region'
+        };
+
+        beforeAll(async () => {
+            terasliceHarness = new TerasliceHarness();
+            await terasliceHarness.init();
+            await terasliceHarness.resetState();
+
+            s3client = await createS3Client(config);
+            const terasliceInfo = await terasliceHarness.teraslice.cluster.info();
+            bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
+        });
+
+        it('verify the asset is stored in s3', async () => {
+            const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
+            const fileStream = createReadStream(assetPath);
+            const assetResponse = await terasliceHarness.teraslice.assets.upload(fileStream, {
+                blocking: true
+            });
+            assetId = assetResponse._id;
+
+            const response = await getS3Object(s3client, { Bucket: bucketName, Key: `${assetId}.zip` });
+            const base64 = await response.Body?.transformToString('base64');
+            expect(base64).toStartWith('UEsDBAoAAAAAAAs6O');
+        });
+
+        it('verify that no ES asset records contain the "blob" field', async () => {
+            const assetRecords = await terasliceHarness.teraslice.assets.list();
+            for (const record of assetRecords) {
+                expect(record.blob).toBeUndefined();
+            }
+        });
+    }
 });
