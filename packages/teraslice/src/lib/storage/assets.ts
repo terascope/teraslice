@@ -87,9 +87,13 @@ export class AssetsStorage {
 
     async initialize() {
         await this.ensureAssetDir();
-        await this.esBackend.initialize();
         if (this.s3Backend) {
-            await this.s3Backend.initialize();
+            await Promise.all([
+                this.s3Backend.initialize(),
+                this.esBackend.initialize()
+            ]);
+        } else {
+            await this.esBackend.initialize();
         }
         this.logger.info('assets storage initialized');
     }
