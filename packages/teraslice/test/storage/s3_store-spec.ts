@@ -105,17 +105,18 @@ describe('S3 backend test', () => {
     });
 
     describe('when bucket name is not defined', () => {
-        let bucketToCleanUp: string;
+        let bucketName: string;
 
         afterAll(async () => {
             const command = new DeleteBucketCommand({
-                Bucket: bucketToCleanUp
+                Bucket: bucketName
             });
             await s3Backend.api.send(command);
             await s3Backend.shutdown();
         });
 
         it('should create a bucket name containing terafoundation.teraslice.name', async () => {
+            bucketName = `ts-assets-${TEST_INDEX_PREFIX}-s3-store-test`.replaceAll('_', '-');
             s3Backend = new S3Store({
                 context,
                 terafoundation: mockTerafoundation,
@@ -125,9 +126,7 @@ describe('S3 backend test', () => {
 
             await s3Backend.initialize();
 
-            expect(s3Backend.bucket).toBe('ts-assets-teratest-s3-store-test');
-
-            bucketToCleanUp = 'ts-assets-teratest-s3-store-test';
+            expect(s3Backend.bucket).toBe(bucketName);
         });
 
         it('should create a bucket name where underscores in teraslice.name are replaced by dashes', async () => {
@@ -143,7 +142,7 @@ describe('S3 backend test', () => {
 
             expect(s3Backend.bucket).toBe('ts-assets-s3-backend-underscores');
 
-            bucketToCleanUp = 'ts-assets-s3-backend-underscores';
+            bucketName = 'ts-assets-s3-backend-underscores';
         });
     });
 });
