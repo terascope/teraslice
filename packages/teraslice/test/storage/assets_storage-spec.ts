@@ -1,9 +1,8 @@
 import fs from 'fs';
-import { TerafoundationConfig, TestContext, TestContextOptions } from '@terascope/job-components';
+import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createClient } from 'elasticsearch-store';
 import { AssetsStorage } from '../../src/lib/storage';
 
-// FIXME make test for assetStorage using s3 backend
 describe('AssetsStorage using S3 backend', () => {
     let storage: AssetsStorage;
     const options: TestContextOptions = {
@@ -18,13 +17,13 @@ describe('AssetsStorage using S3 backend', () => {
     };
     const context = new TestContext('assets-storage-test', options) as any;
 
-    const mockTerafoundation: TerafoundationConfig = {
+    context.sysconfig.terafoundation = {
         asset_storage_connection_type: 's3',
         asset_storage_connection: 'default',
         connectors: {
             'elasticsearch-next': {
                 default: {
-                    node: [process.env.ELASTICSEARCH_HOST]
+                    node: [process.env.SEARCH_TEST_HOST]
                 }
             },
             s3: {
@@ -39,7 +38,6 @@ describe('AssetsStorage using S3 backend', () => {
             }
         }
     };
-    context.sysconfig.terafoundation = mockTerafoundation;
     context.sysconfig.teraslice.api_response_timeout = 30000;
 
     beforeAll(async () => {
@@ -52,6 +50,14 @@ describe('AssetsStorage using S3 backend', () => {
         const buffer = fs.readFileSync(filePath);
         const result = await storage.save(buffer);
         expect(result.assetId).toBe('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
+    });
+
+    it('can grab asset info from S3', async () => {
+        const list = await storage.grabS3Info();
+        expect(list).toEqual([{
+            File: '2909ec5fd38466cf6276cc14ede25096f1f34ee9.zip',
+            Size: 2759
+        }]);
     });
 
     it('can get an asset from S3', async () => {
