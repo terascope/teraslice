@@ -3,6 +3,7 @@ import fs from 'fs';
 import { createClient } from 'elasticsearch-store';
 import axios from 'axios';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
+import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('Assets Service', () => {
     const contextOptions: TestContextOptions = {
@@ -18,7 +19,7 @@ describe('Assets Service', () => {
     };
     /// It's important to keep the test context name unique
     /// This is so we don't share indices and buckets with other test suites
-    const context = new TestContext('assets-spec-test', contextOptions);
+    const context = new TestContext(`${TEST_INDEX_PREFIX}assets-spec-test`, contextOptions);
     context.sysconfig.terafoundation = {
         asset_storage_connection_type: 's3',
         asset_storage_connection: 'default',
@@ -130,7 +131,7 @@ describe('Assets Service', () => {
     });
 
     describe('Testing /txt/assets enpoint', () => {
-        it('Should return proper table', async () => {
+        it('Should return proper table with specific format', async () => {
             const filePathOne = 'packages/teraslice/test/fixtures/assets/asset-with-long-description.zip';
             const filePathOneStream = fs.readFileSync(filePathOne);
             // Upload file to storage
