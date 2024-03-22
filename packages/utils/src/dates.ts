@@ -1,4 +1,5 @@
 import validator from 'validator';
+import convertToAndFromMs from 'ms';
 import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
@@ -70,13 +71,13 @@ export function makeISODate(value?: Date|number|string|null|undefined|DateTuple)
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
 export function isValidDate(val: unknown): boolean {
-    return getValidDate(val as any) !== false;
+    return _getValidDate(val as any) !== false;
 }
 
 /**
  * Coerces value into a valid date, returns false if it is invalid
 */
-export function getValidDate(val: unknown): Date | false {
+function _getValidDate(val: unknown): Date | false {
     // this is our hot path since this is how commonly store this
     if (typeof val === 'number') {
         if (!Number.isInteger(val)) return false;
@@ -103,6 +104,76 @@ export function getValidDate(val: unknown): Date | false {
 
     if (isValidDateInstance(d)) return d;
 
+    // safari needs slashes when in month-date-year format
+    if (typeof val === 'string') {
+        const dashesToSlashes = new Date(val.replace(/-/g, '/'));
+        if (isValidDateInstance(dashesToSlashes)) {
+            return dashesToSlashes;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Coerces value into a valid date, returns false if it is invalid.
+ * If a relativeNow date is passed in it will have added support for
+ * providing a date by dateMath (i.e. now+1h, now-1m)
+ * and relative (i.e. 5 days, -1 year)
+*/
+export function getValidDate(val: unknown, relativeNow?: Date): Date | false {
+    const validDate = _getValidDate(val);
+    if (validDate) return validDate;
+
+    if (!relativeNow) return false;
+    return parseRelativeDate(val, relativeNow);
+}
+
+/**
+ * tries to parse relative and date math values to dates
+ */
+function parseRelativeDate(input: unknown, now: Date): Date|false {
+    if (!input || typeof input !== 'string') return false;
+
+    if (!isValidDate(input)) {
+        // safari needs slashes instead when in month-date-year format
+        const val = getValidDate(input.replace(/-/g, '/'));
+        if (val) return val;
+    }
+
+    const dateMath = parseDateMath(input, now);
+    if (dateMath) return dateMath;
+
+    const msDate = parseDateString(input, now);
+    if (msDate) return msDate;
+
+    return false;
+}
+
+/**
+ * tries to parse date math (i.e. now+1h, now-1m) to a date
+ */
+function parseDateMath(value: string, now: Date): Date|false {
+    try {
+        return getValidDate(new Date(parser.parse(value, now)));
+    } catch (err) {
+        return false;
+    }
+}
+
+/**
+ * similar to parseDateMath but does not support "now" and works for longer
+ * units (i.e. 2 days, -2d)
+ */
+function parseDateString(value: string, now: Date): Date|false {
+    try {
+        const ms = convertToAndFromMs(value);
+        if (typeof ms !== 'number') return false;
+        const msDate = getValidDate(now.getTime() + ms);
+        if (msDate) return msDate;
+    } catch (err) {
+        return false;
+    }
     return false;
 }
 

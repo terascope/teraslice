@@ -1,13 +1,14 @@
 import { xLuceneFieldType } from '@terascope/types';
+import { addToDate, subtractFromDate } from '@terascope/utils';
 import {
     NodeType,
     //  Range, RangeNode
 } from '../../src';
 import { TestCase } from './interfaces';
 
-// FIXME keeping separate to easily just run these, but move when done to range spec
+const date = new Date();
 export default [
-    [ // FIXME don't need - in range spec - just example for now
+    [ // FIXME don't need - in range - just example for now
         'val:[2012-01-01 TO 2012-12-31]',
         'inclusive date range',
         {
@@ -27,11 +28,34 @@ export default [
             }
         } as any
     ],
+    // FIXME
+    // [ // query, msg, ast, typeConfig, --> maybe testDateValue as a fns
+    //     'val:[-3d TO 2D]',
+    //     'inclusive date range',
+    //     {
+    //         type: NodeType.Range,
+    //         field: 'val',
+    //         left: {
+    //             operator: 'gte',
+    //             field_type: xLuceneFieldType.String,
+    //             restricted: true,
+    //             // if (isTest) shorten the value
+    //             // or add a separate test case variable to test the value
+    //             // by a function that could check if the days within the same day
+    //             value: { type: 'value', value: new Date(subtractFromDate(date, { days: 3 })) }
+    //         },
+    //         right: {
+    //             operator: 'lte',
+    //             field_type: xLuceneFieldType.String,
+    //             restricted: true,
+    //             value: { type: 'value', value: new Date(addToDate(date, { days: 2 })) }
+    //         }
+    //     } as any,
+    //     { val: xLuceneFieldType.Date }
+    // ],
 ] as TestCase[];
 
 /**
- * TEST CASES IDEAS TO START
- *
  * 'val:[-3d TO 3d]'
  * 'date math range'
  *
