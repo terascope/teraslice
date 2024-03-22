@@ -105,6 +105,7 @@ function _getValidDate(val: unknown): Date | false {
     if (isValidDateInstance(d)) return d;
 
     // safari needs slashes when in month-date-year format
+    // don't call _getValidDate - could cause infinite loop
     if (typeof val === 'string') {
         const dashesToSlashes = new Date(val.replace(/-/g, '/'));
         if (isValidDateInstance(dashesToSlashes)) {
@@ -134,12 +135,6 @@ export function getValidDate(val: unknown, relativeNow?: Date): Date | false {
  */
 function parseRelativeDate(input: unknown, now: Date): Date|false {
     if (!input || typeof input !== 'string') return false;
-
-    if (!isValidDate(input)) {
-        // safari needs slashes instead when in month-date-year format
-        const val = getValidDate(input.replace(/-/g, '/'));
-        if (val) return val;
-    }
 
     const dateMath = parseDateMath(input, now);
     if (dateMath) return dateMath;
