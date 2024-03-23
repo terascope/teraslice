@@ -367,6 +367,14 @@ export class Parser {
                     parent?.type === i.NodeType.Conjunction
                 );
             }
+            if (utils.isRange(node)) {
+                if (node.left?.value.type === 'variable' && node.left.field_type === 'date') {
+                    node.left = coerceDateRangeValue(node.left, validatedVariables);
+                }
+                if (node.right && node.right?.value.type === 'variable' && node.right.field_type === 'date') {
+                    node.right = coerceDateRangeValue(node.right, validatedVariables);
+                }
+            }
 
             return node;
         });
@@ -425,6 +433,27 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
             value,
         }))
     };
+}
+
+function coerceDateRangeValue(
+    node: i.RangeNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    variables: xLuceneVariables
+): i.RangeNode {
+    return node;
+    // const coerceFn = utils.coerceValueFns.date;
+    // if (coerceFn) console.log('===coerced', coerceFn(node.left.value));
+    // const value = utils.getFieldValue<any>(
+    //     node.value, variables
+    // );
+
+    // return {
+    //     ...node,
+    //     value: {
+    //         type: 'value',
+    //         value: coerceFn(value)
+    //     }
+    // } as i.Range;
 }
 
 function coerceNodeValue(
