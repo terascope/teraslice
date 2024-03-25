@@ -356,6 +356,7 @@ export class Parser {
         const validatedVariables = utils.validateVariables(variables);
 
         const ast = this.mapNode((node, parent) => {
+            const allowNil = parent?.type === i.NodeType.Conjunction;
             if (utils.isTermList(node)) {
                 return coerceTermList(node, validatedVariables);
             }
@@ -364,15 +365,15 @@ export class Parser {
                     node as i.Term | i.Regexp | i.Wildcard,
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
-                    parent?.type === i.NodeType.Conjunction
+                    allowNil
                 );
             }
             if (utils.isRange(node)) {
                 if (node.left?.value.type === 'variable' && node.left.field_type === 'date') {
-                    node.left = coerceDateRangeValue(node.left, validatedVariables);
+                    node.left = coerceDateRangeValue(node.left, validatedVariables, allowNil);
                 }
                 if (node.right && node.right?.value.type === 'variable' && node.right.field_type === 'date') {
-                    node.right = coerceDateRangeValue(node.right, validatedVariables);
+                    node.right = coerceDateRangeValue(node.right, validatedVariables, allowNil);
                 }
             }
 
@@ -435,25 +436,24 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
     };
 }
 
+// TODO maybe use coerceNodeValue
 function coerceDateRangeValue(
     node: i.RangeNode,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    variables: xLuceneVariables
+    variables: xLuceneVariables,
+    allowNil?: boolean
 ): i.RangeNode {
-    return node;
-    // const coerceFn = utils.coerceValueFns.date;
-    // if (coerceFn) console.log('===coerced', coerceFn(node.left.value));
-    // const value = utils.getFieldValue<any>(
-    //     node.value, variables
-    // );
+    const value = utils.getFieldValue<any>(
+        node.value, variables, allowNil
+    );
 
-    // return {
-    //     ...node,
-    //     value: {
-    //         type: 'value',
-    //         value: coerceFn(value)
-    //     }
-    // } as i.Range;
+    const coerceFn = allowNil && value == null
+        ? () => null
+        : utils.makeCoerceFn(node.field_type);
+
+    return {
+        ...node,
+        value: { type: 'value', value: coerceFn(value) },
+    };
 }
 
 function coerceNodeValue(
