@@ -1,5 +1,5 @@
 import {
-    TSError, trim, isRegExpLike, cloneDeep, unset
+    TSError, trim, isRegExpLike, cloneDeep, unset, hasOwn
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
@@ -357,6 +357,7 @@ export class Parser {
 
         const ast = this.mapNode((node, parent) => {
             const allowNil = parent?.type === i.NodeType.Conjunction;
+
             if (utils.isTermList(node)) {
                 return coerceTermList(node, validatedVariables);
             }
@@ -369,11 +370,16 @@ export class Parser {
                 );
             }
             if (utils.isRange(node)) {
-                if (node.left?.value.type === 'variable' && node.left.field_type === 'date') {
-                    node.left = coerceDateRangeValue(node.left, validatedVariables, allowNil);
-                }
-                if (node.right && node.right?.value.type === 'variable' && node.right.field_type === 'date') {
-                    node.right = coerceDateRangeValue(node.right, validatedVariables, allowNil);
+                const ranges = { left: node.left, right: node.right };
+                for (const name in ranges) {
+                    if (hasOwn(ranges, name)) {
+                        const rangeNode: i.RangeNode = ranges[name];
+                        if (rangeNode.value.type === 'variable' && rangeNode.field_type === xLuceneFieldType.Date) {
+                            node[name] = coerceRangeValue(
+                                rangeNode, validatedVariables, allowNil
+                            );
+                        }
+                    }
                 }
             }
 
@@ -436,15 +442,21 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
     };
 }
 
-// TODO maybe use coerceNodeValue
-function coerceDateRangeValue(
+function coerceRangeValue(
     node: i.RangeNode,
     variables: xLuceneVariables,
     allowNil?: boolean
 ): i.RangeNode {
-    const value = utils.getFieldValue<any>(
+    let value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
+
+    if (Array.isArray(value)) {
+        if (value.length > 1) {
+            throw new Error(`Range value "${value}" cannot be array`);
+        }
+        [value] = value;
+    }
 
     const coerceFn = allowNil && value == null
         ? () => null

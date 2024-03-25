@@ -136,10 +136,13 @@ export function getValidDate(val: unknown, relativeNow?: Date): Date | false {
 function parseRelativeDate(input: unknown, now: Date): Date|false {
     if (!input || typeof input !== 'string') return false;
 
-    const dateMath = parseDateMath(input, now);
+    // remove any spaces and ensure lowercase 'now' (keep all others normal case)
+    const trimmed = input.replace(/\s/g, '').replace(/(n|N)(o|O)(w|W)/g, 'now');
+
+    const dateMath = parseDateMath(trimmed, now);
     if (dateMath) return dateMath;
 
-    const msDate = parseDateString(input, now);
+    const msDate = parseDateString(trimmed, now);
     if (msDate) return msDate;
 
     return false;
