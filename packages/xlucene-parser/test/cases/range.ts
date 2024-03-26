@@ -1,6 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
 import { NodeType, Range, RangeNode } from '../../src';
 import { TestCase } from './interfaces';
+import { relativeDateRanges } from './range-relative-dates';
 
 export default [
     ['count: >=10', 'gte ranges', {
@@ -329,7 +330,8 @@ export default [
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
-    ]
+    ],
+    ...relativeDateRanges
 ] as TestCase[];
 
 export const filterNilRange: TestCase[] = [

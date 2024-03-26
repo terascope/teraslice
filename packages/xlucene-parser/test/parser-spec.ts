@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases, { filterNilTestCases } from './cases';
+import allTestCases, { failures, filterNilTestCases } from './cases';
 import {
     Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';
@@ -9,25 +9,60 @@ import {
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables) => {
+            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables, foo, testDatesFn) => {
                 if (variables) {
                     it(`should be able to parse ${msg} with variables ${toString(variables)}`, () => {
+                        const now = new Date();
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                         }).resolveVariables(variables);
 
+                        if (testDatesFn) {
+                            testDatesFn(now, parser.ast);
+                        }
                         expect(parser.ast).toMatchObject(ast);
                     });
                 } else {
                     it(`should be able to parse ${msg}`, () => {
+                        const now = new Date();
                         const parser = new Parser(query, {
                             type_config: typeConfig,
                         });
+
+                        if (testDatesFn) {
+                            testDatesFn(now, parser.ast);
+                        }
                         expect(parser.ast).toMatchObject(ast);
                     });
                 }
             });
         });
+    }
+
+    if (failures.length) {
+        for (const [key, testCases] of Object.entries({ failures })) {
+            describe(`when testing ${key.replace('_', ' ')} queries`, () => {
+                describe.each(testCases)('should throw when given query %s', (query, msg, error, typeConfig, variables) => {
+                    if (variables) {
+                        it(`should NOT be able to parse ${msg} with variables ${toString(variables)}`, () => {
+                            expect(() => {
+                                new Parser(query as string, {
+                                    type_config: typeConfig as any,
+                                }).resolveVariables(variables as any);
+                            }).toThrow(error as string);
+                        });
+                    } else {
+                        it(`should NOT be able to parse ${msg}`, () => {
+                            expect(() => {
+                                new Parser(query as string, {
+                                    type_config: typeConfig as any,
+                                });
+                            }).toThrow(error as string);
+                        });
+                    }
+                });
+            });
+        }
     }
 
     describe('when parser has filterNilVariables set true', () => {

@@ -13,5 +13,7 @@ export type TestCase = [
     xLuceneTypeConfig?,
     xLuceneVariables?,
     // to test resolveVariables separately
-    Partial<Node>?
+    Partial<Node>?,
+    // to add more individualized tests
+    ((val: Date, ast: Node) => void)?
 ];

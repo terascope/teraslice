@@ -38,7 +38,9 @@ export class Parser {
         };
 
         try {
+            console.log('----3', this.query);
             this.ast = parse(this.query, { contextArg });
+            console.log('----4', this.ast);
 
             if (options?.filterNilVariables) {
                 if (!options.variables) {
@@ -374,7 +376,7 @@ export class Parser {
                 for (const name in ranges) {
                     if (hasOwn(ranges, name)) {
                         const rangeNode: i.RangeNode = ranges[name];
-                        if (rangeNode.value.type === 'variable' && rangeNode.field_type === xLuceneFieldType.Date) {
+                        if (rangeNode?.value.type === 'variable' && rangeNode.field_type === xLuceneFieldType.Date) {
                             node[name] = coerceRangeValue(
                                 rangeNode, validatedVariables, allowNil
                             );
