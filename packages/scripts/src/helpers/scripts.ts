@@ -611,6 +611,7 @@ export async function k8sStartService(
         fs.rmSync(tempDir, { recursive: true, force: true });
     } catch (err) {
         logger.error(`The service ${serviceName} could not be started: `, err);
+        /// FIX-ME: should we just shutdown if thats the case?
     }
 
     if (serviceName === 'kafka') {

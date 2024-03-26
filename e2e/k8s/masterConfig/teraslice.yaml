@@ -1,9 +1,7 @@
 terafoundation:
   environment: "development"
   log_level: debug
-  asset_storage_connector: s3
-  asset_storage_connection: default
-  asset_storage_bucket: assets
+  asset_storage_connection_type: s3
   connectors:
     elasticsearch:
       default:
@@ -19,7 +17,7 @@ terafoundation:
           - "cpkafka.services-dev1:9092"
     s3:
       default:
-        endpoint: "http://127.0.0.1:49000"
+        endpoint: "http://minio.services-dev1:9000"
         accessKeyId: "minioadmin"
         secretAccessKey: "minioadmin"
         forcePathStyle: true
