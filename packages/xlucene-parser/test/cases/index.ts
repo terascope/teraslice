@@ -8,7 +8,6 @@ import regexp, { filterNilRegex } from './regexp';
 import term, { filterNilTerm } from './term';
 import wildcard, { filterNilWildcard } from './wildcard';
 import geo, { filterNilGeo } from './geo';
-import { relativeDateRangeFailures } from './range-relative-dates';
 
 export * from './interfaces';
 export default {
@@ -37,7 +36,3 @@ export const filterNilTestCases = {
     filterNilTerm,
     filterNilWildcard
 };
-
-export const failures = [
-    ...relativeDateRangeFailures
-];

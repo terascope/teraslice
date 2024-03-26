@@ -1,5 +1,5 @@
 import {
-    TSError, trim, isRegExpLike, cloneDeep, unset, hasOwn
+    TSError, trim, isRegExpLike, cloneDeep, unset, get
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
@@ -38,9 +38,7 @@ export class Parser {
         };
 
         try {
-            console.log('----3', this.query);
             this.ast = parse(this.query, { contextArg });
-            console.log('----4', this.ast);
 
             if (options?.filterNilVariables) {
                 if (!options.variables) {
@@ -372,17 +370,7 @@ export class Parser {
                 );
             }
             if (utils.isRange(node)) {
-                const ranges = { left: node.left, right: node.right };
-                for (const name in ranges) {
-                    if (hasOwn(ranges, name)) {
-                        const rangeNode: i.RangeNode = ranges[name];
-                        if (rangeNode?.value.type === 'variable' && rangeNode.field_type === xLuceneFieldType.Date) {
-                            node[name] = coerceRangeValue(
-                                rangeNode, validatedVariables, allowNil
-                            );
-                        }
-                    }
-                }
+                coerceRange(node, validatedVariables, allowNil);
             }
 
             return node;
@@ -444,34 +432,17 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
     };
 }
 
-function coerceRangeValue(
-    node: i.RangeNode,
-    variables: xLuceneVariables,
-    allowNil?: boolean
-): i.RangeNode {
-    let value = utils.getFieldValue<any>(
-        node.value, variables, allowNil
-    );
-
-    if (Array.isArray(value)) {
-        if (value.length > 1) {
-            throw new Error(`Range value "${value}" cannot be array`);
-        }
-        [value] = value;
+function coerceRange(node: i.Range, variables: xLuceneVariables, allowNil?: boolean) {
+    node.left = coerceNodeValue(node.left, variables, allowNil) as unknown as i.RangeNode;
+    if (node.right) {
+        node.right = coerceNodeValue(
+            node.right, variables, allowNil) as unknown as i.RangeNode;
     }
-
-    const coerceFn = allowNil && value == null
-        ? () => null
-        : utils.makeCoerceFn(node.field_type);
-
-    return {
-        ...node,
-        value: { type: 'value', value: coerceFn(value) },
-    };
+    return node;
 }
 
 function coerceNodeValue(
-    node: i.Term|i.Regexp|i.Wildcard,
+    node: i.Term|i.Regexp|i.Wildcard|i.RangeNode,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
     allowNil?: boolean
@@ -482,6 +453,9 @@ function coerceNodeValue(
     const coerceFn = allowNil && value == null
         ? () => null
         : utils.makeCoerceFn(node.field_type);
+
+    const type = get(node, 'type');
+    const field: string = get(node, 'field', '');
 
     if (Array.isArray(value)) {
         if (skipAutoFieldGroup) {
@@ -496,7 +470,7 @@ function coerceNodeValue(
 
         const fieldGroup: i.FieldGroup = {
             type: i.NodeType.FieldGroup,
-            field: node.field as string,
+            field,
             field_type: node.field_type,
             flow: value.map((val: any) => ({
                 type: i.NodeType.Conjunction,
@@ -512,10 +486,10 @@ function coerceNodeValue(
         return fieldGroup;
     }
 
-    if (node.type !== i.NodeType.Regexp && isRegExpLike(value)) {
+    if (type !== i.NodeType.Regexp && isRegExpLike(value)) {
         return {
             type: i.NodeType.Regexp,
-            field: node.field,
+            field,
             field_type: node.field_type as xLuceneFieldType.String,
             quoted: false,
             value: {

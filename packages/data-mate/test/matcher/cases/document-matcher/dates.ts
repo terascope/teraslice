@@ -1,4 +1,3 @@
-import subDays from 'date-fns/subDays';
 import addDays from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces';
@@ -271,7 +270,7 @@ export default [
     ],
     [
         'can match date math range',
-        '_created:[now-3h TO 5d]',
+        '_created:[now-3h TO now+5d]',
         [
             { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' },
             { _created: addDays(now, 3) },
@@ -281,36 +280,6 @@ export default [
             false,
             true,
             true,
-        ],
-        { _created: 'date' }
-    ],
-    [
-        'can match relative date',
-        '_created:<-3d',
-        [
-            { _created: subDays(now, 2) },
-            { _created: subDays(now, 4) },
-            { _created: addDays(now, 7) },
-        ],
-        [
-            false,
-            true,
-            false,
-        ],
-        { _created: 'date' }
-    ],
-    [
-        'can match relative date range',
-        '_created:[-3d TO 5d]',
-        [
-            { _created: subDays(now, 2) },
-            { _created: addDays(now, 3) },
-            { _created: addDays(now, 7) },
-        ],
-        [
-            true,
-            true,
-            false,
         ],
         { _created: 'date' }
     ],

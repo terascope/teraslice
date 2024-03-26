@@ -1,5 +1,4 @@
 import validator from 'validator';
-import convertToAndFromMs from 'ms';
 import parser from 'datemath-parser';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
@@ -131,7 +130,7 @@ export function getValidDate(val: unknown, relativeNow?: Date): Date | false {
 }
 
 /**
- * tries to parse relative and date math values to dates
+ * tries to date math values to dates
  */
 function parseRelativeDate(input: unknown, now: Date): Date|false {
     if (!input || typeof input !== 'string') return false;
@@ -141,9 +140,6 @@ function parseRelativeDate(input: unknown, now: Date): Date|false {
 
     const dateMath = parseDateMath(trimmed, now);
     if (dateMath) return dateMath;
-
-    const msDate = parseDateString(trimmed, now);
-    if (msDate) return msDate;
 
     return false;
 }
@@ -157,22 +153,6 @@ function parseDateMath(value: string, now: Date): Date|false {
     } catch (err) {
         return false;
     }
-}
-
-/**
- * similar to parseDateMath but does not support "now" and works for longer
- * units (i.e. 2 days, -2d)
- */
-function parseDateString(value: string, now: Date): Date|false {
-    try {
-        const ms = convertToAndFromMs(value);
-        if (typeof ms !== 'number') return false;
-        const msDate = getValidDate(now.getTime() + ms);
-        if (msDate) return msDate;
-    } catch (err) {
-        return false;
-    }
-    return false;
 }
 
 /**

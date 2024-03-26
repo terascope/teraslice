@@ -262,7 +262,7 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
         const coerced = getValidDate(value, new Date());
         if (coerced) return coerced;
 
-        throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a date like format`);
+        return value;
     },
     [xLuceneFieldType.Number](value) {
         const numValue = toNumber(value);
