@@ -1,7 +1,6 @@
 terafoundation:
   environment: "development"
   log_level: debug
-  asset_storage_connection_type: s3
   connectors:
     elasticsearch:
       default:
