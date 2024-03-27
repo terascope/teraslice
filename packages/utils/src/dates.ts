@@ -249,7 +249,6 @@ export function isValidDateInstance(val: unknown): val is Date {
 export function getTime(val?: DateInputTypes): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
-    console.log('===res', val, result);
     if (result === false) return false;
     return result.getTime();
 }
