@@ -47,7 +47,7 @@ describe('Assets Service', () => {
     let service: AssetsService;
 
     beforeAll(async () => {
-            /// Setting port for the asset service
+        /// Setting port for the asset service
         process.env.port = String(await findPort());
         service = new AssetsService(context);
         await service.initialize();
