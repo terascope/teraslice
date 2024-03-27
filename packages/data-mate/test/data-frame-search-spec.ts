@@ -191,6 +191,9 @@ describe('DataFrame->search', () => {
                 date: '1999-12-01T00:00:00.000Z',
                 location: '33.435967, -111.867710'
             },
+            {
+                date: 'now-1y/d',
+            },
         ], {
             name: 'special',
             metadata: {
@@ -537,6 +540,16 @@ describe('DataFrame->search', () => {
         ]);
     });
 
+    it('should be able to match using a date math', () => {
+        const resultFrame = specialDataFrame
+            .search('date:"now-1y/d"')
+            .select('date');
+
+        expect(resultFrame.toJSON()).toEqual([
+            { date: getNowMinus1Yr() },
+        ]);
+    });
+
     it('should be able to match using a date values >= range', () => {
         const resultFrame = specialDataFrame
             .search('date:>="2000-01-04T00:00:00.000Z"')
@@ -545,6 +558,19 @@ describe('DataFrame->search', () => {
         expect(resultFrame.toJSON()).toEqual([
             { date: '2000-01-04T00:00:00.000Z' },
             { date: '2002-01-02T00:00:00.000Z' },
+            { date: getNowMinus1Yr() },
+        ]);
+    });
+
+    it('should be able to match using a date math >= range', () => {
+        const resultFrame = specialDataFrame
+            .search('date:>"1999-12-01||+2d"')
+            .select('date');
+
+        expect(resultFrame.toJSON()).toEqual([
+            { date: '2000-01-04T00:00:00.000Z' },
+            { date: '2002-01-02T00:00:00.000Z' },
+            { date: getNowMinus1Yr() },
         ]);
     });
 
@@ -555,6 +581,18 @@ describe('DataFrame->search', () => {
 
         expect(resultFrame.toJSON()).toEqual([
             { date: '2002-01-02T00:00:00.000Z' },
+        ]);
+    });
+
+    it('should be able to match using a date math range', () => {
+        const resultFrame = specialDataFrame
+            .search('date:["2000-01-04T04:12:22.123Z||/y" TO now]')
+            .select('date');
+
+        expect(resultFrame.toJSON()).toEqual([
+            { date: '2000-01-04T00:00:00.000Z' },
+            { date: '2002-01-02T00:00:00.000Z' },
+            { date: getNowMinus1Yr() },
         ]);
     });
 
@@ -585,3 +623,9 @@ describe('DataFrame->search', () => {
         ]);
     });
 });
+
+function getNowMinus1Yr() {
+    const _now = new Date(new Date().setUTCHours(0, 0, 0, 0));
+    const years = _now.getUTCFullYear();
+    return new Date(_now.setUTCFullYear(years - 1)).toISOString();
+}

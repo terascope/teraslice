@@ -256,6 +256,7 @@ describe('Column (Date Types)', () => {
         });
 
         it('should fail when transforming using toDate', () => {
+            // FIXME won't throw
             expect(() => {
                 dataFrameAdapter(
                     functionConfigRepository.toDate,

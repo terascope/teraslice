@@ -117,11 +117,9 @@ function _getValidDate(val: unknown): Date | false {
 
 /**
  * Coerces value into a valid date, returns false if it is invalid.
- * If a relativeNow date is passed in it will have added support for
- * providing a date by dateMath (i.e. now+1h, now-1m)
- * and relative (i.e. 5 days, -1 year)
+ * Has added support for converting from date math (i.e. now+1h, now-1m, now+2d/y, 2021-01-01||+2d)
 */
-export function getValidDate(val: unknown, relativeNow?: Date): Date | false {
+export function getValidDate(val: unknown, relativeNow = new Date()): Date | false {
     const validDate = _getValidDate(val);
     if (validDate) return validDate;
 
@@ -149,7 +147,7 @@ function parseRelativeDate(input: unknown, now: Date): Date|false {
  */
 function parseDateMath(value: string, now: Date): Date|false {
     try {
-        return getValidDate(new Date(parser.parse(value, now)));
+        return _getValidDate(new Date(parser.parse(value, now)));
     } catch (err) {
         return false;
     }
@@ -235,7 +233,7 @@ export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
     if (typeof val === 'number' && !Number.isInteger(val)) return val;
     if (isDateTuple(val)) return val[0];
 
-    const date = getValidDate(val as any);
+    const date = getValidDate(val);
     if (date === false) {
         throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
     }
@@ -251,6 +249,7 @@ export function isValidDateInstance(val: unknown): val is Date {
 export function getTime(val?: DateInputTypes): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
+    console.log('===res', val, result);
     if (result === false) return false;
     return result.getTime();
 }
