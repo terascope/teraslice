@@ -62,7 +62,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(wait = false, options: K8sEnvOptions) {
+    async deployK8sTeraslice(wait = false, options: K8sEnvOptions | undefined = undefined) {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -78,7 +78,10 @@ export class K8s {
             const masterConfigMap = baseConfigMap;
             const masterTerafoundation: AnyObject = this.loadYamlFile('masterConfig/teraslice.yaml');
             masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
-            masterTerafoundation.terafoundation.asset_storage_connection_type = options.assetStorage;
+            if (options) {
+                const storageType = options.assetStorage;
+                masterTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+            }
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
             const response = await this.k8sCoreV1Api
@@ -93,7 +96,10 @@ export class K8s {
             const workerConfigMap = baseConfigMap;
             const workerTerafoundation: AnyObject = this.loadYamlFile('workerConfig/teraslice.yaml');
             workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
-            workerTerafoundation.terafoundation.asset_storage_connection_type = options.assetStorage;
+            if (options) {
+                const storageType = options.assetStorage;
+                workerTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+            }
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
             const response = await this.k8sCoreV1Api

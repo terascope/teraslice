@@ -1,4 +1,4 @@
-import { CommandModule, choices } from 'yargs';
+import { CommandModule } from 'yargs';
 import * as config from '../helpers/config';
 import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env';
 import { kafkaVersionMapper } from '../helpers/mapper';
@@ -94,7 +94,7 @@ const cmd: CommandModule = {
                     + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
                 }
                 return true;
-            })
+            });
     },
     handler(argv) {
         const kafkaCPVersion = kafkaVersionMapper(argv.kafkaVersion as string);
