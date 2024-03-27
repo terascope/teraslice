@@ -78,9 +78,9 @@ export class K8s {
             const masterConfigMap = baseConfigMap;
             const masterTerafoundation: AnyObject = this.loadYamlFile('masterConfig/teraslice.yaml');
             masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            masterTerafoundation.terafoundation.asset_storage_connection_type = options.assetStorage;
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
-            masterTerafoundation.storage_connection_type = options.assetStorage;
             const response = await this.k8sCoreV1Api
                 .createNamespacedConfigMap(this.terasliceNamespace, masterConfigMap);
             logger.debug('deployK8sTeraslice masterConfigMap:', response.body);
@@ -93,6 +93,7 @@ export class K8s {
             const workerConfigMap = baseConfigMap;
             const workerTerafoundation: AnyObject = this.loadYamlFile('workerConfig/teraslice.yaml');
             workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            workerTerafoundation.terafoundation.asset_storage_connection_type = options.assetStorage;
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
             const response = await this.k8sCoreV1Api
