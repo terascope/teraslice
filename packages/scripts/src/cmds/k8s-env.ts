@@ -1,4 +1,4 @@
-import { CommandModule } from 'yargs';
+import { CommandModule, choices } from 'yargs';
 import * as config from '../helpers/config';
 import { launchK8sEnv, rebuildTeraslice } from '../helpers/k8s-env';
 import { kafkaVersionMapper } from '../helpers/mapper';
@@ -81,6 +81,12 @@ const cmd: CommandModule = {
                 description: 'Skip build and run teraslice using this image.',
                 type: 'string',
                 default: config.TERASLICE_IMAGE
+            })
+            .option('asset-storage', {
+                description: 'Choose what backend service assets are stored in.',
+                type: 'string',
+                default: 'elasticsearch-next',
+                choices: ['elasticsearch-next', 'elasticsearch', 's3']
             });
     },
     handler(argv) {
@@ -98,7 +104,8 @@ const cmd: CommandModule = {
             tsPort: argv['ts-port'] as string,
             kindClusterName: argv['cluster-name'] as string,
             k8sVersion: argv['k8s-version'] as string,
-            terasliceImage: argv['teraslice-image'] as string
+            terasliceImage: argv['teraslice-image'] as string,
+            assetStorage: argv['asset-storage'] as string
         };
 
         if (Boolean(argv.rebuild) === true) {

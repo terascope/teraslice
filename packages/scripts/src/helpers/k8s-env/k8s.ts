@@ -9,6 +9,7 @@ import {
     // pDelay,
 } from '@terascope/utils';
 import { getE2eK8sDir } from '../../helpers/packages';
+import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import * as config from '../config';
 
@@ -61,7 +62,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(wait = false) {
+    async deployK8sTeraslice(wait = false, options: K8sEnvOptions) {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -79,6 +80,7 @@ export class K8s {
             masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
+            masterTerafoundation.storage_connection_type = options.assetStorage;
             const response = await this.k8sCoreV1Api
                 .createNamespacedConfigMap(this.terasliceNamespace, masterConfigMap);
             logger.debug('deployK8sTeraslice masterConfigMap:', response.body);
