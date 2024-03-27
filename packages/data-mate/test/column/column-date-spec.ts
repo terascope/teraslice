@@ -255,7 +255,7 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        fit('should be able to transform using toDate()', () => {
+        it('should be able to transform using toDate()', () => {
             const newCol = dataFrameAdapter(functionConfigRepository.toDate)
                 .column(col);
 
