@@ -91,7 +91,7 @@ describe('Validate Configs', () => {
                         { console: 'warn' }
                     ],
                     connectors: {
-                        elasticsearch: {
+                        'elasticsearch-next': {
                             default: {
                                 node: ['http://127.0.0.1:9200'],
                                 sniffOnStart: false,
@@ -142,7 +142,7 @@ describe('Validate Configs', () => {
         const configFile = {
             terafoundation: {
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     missing_connector: {},
@@ -159,7 +159,7 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {
-                        elasticsearch: {},
+                        'elasticsearch-next': {},
                         missing_connector: {}
                     },
                 },
