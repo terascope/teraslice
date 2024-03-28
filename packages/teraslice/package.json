@@ -74,7 +74,6 @@
         "archiver": "^7.0.1",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.11",
-        "elasticsearch": "^15.4.1",
         "got": "^11.8.3",
         "jest-fixtures": "^0.6.0",
         "js-yaml": "^4.1.0",

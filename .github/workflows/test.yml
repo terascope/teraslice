@@ -145,35 +145,6 @@ jobs:
         run: yarn --silent test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
-  # This is for backwards compatability, should be removed in the future
-  elasticsearch-store-legacy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.19.1
-          cache: 'yarn'
-
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
-
-      - name: Test
-        run: yarn --silent test:legacy
-        working-directory: ./packages/elasticsearch-store
-
   elasticsearch-api-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -206,36 +177,6 @@ jobs:
 
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/elasticsearch-api
-
-
-  # This is for backwards compatability, should be removed in the future
-  elasticsearch-api-legacy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.19.1
-          cache: 'yarn'
-
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
-
-      - name: Test
-        run: yarn --silent test:legacy
         working-directory: ./packages/elasticsearch-api
 
   e2e-tests:

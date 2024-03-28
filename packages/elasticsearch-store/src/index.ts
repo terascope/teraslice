@@ -4,7 +4,6 @@
 import('setimmediate');
 
 export * from './utils';
-export * from './cluster';
 export * from './index-manager';
 export * from './index-model';
 export * from './index-store';

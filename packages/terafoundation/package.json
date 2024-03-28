@@ -35,14 +35,10 @@
         "convict": "^6.2.4",
         "convict-format-with-moment": "^6.2.0",
         "convict-format-with-validator": "^6.2.0",
-        "elasticsearch": "^15.4.1",
         "elasticsearch-store": "^0.79.0",
         "js-yaml": "^4.1.0",
-        "mongoose": "~6.6.5",
         "nanoid": "^3.3.4",
-        "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
-        "redis": "^4.3.1",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
