@@ -81,6 +81,19 @@ const cmd: CommandModule = {
                 description: 'Skip build and run teraslice using this image.',
                 type: 'string',
                 default: config.TERASLICE_IMAGE
+            })
+            .option('asset-storage', {
+                description: 'Choose what backend service assets are stored in.',
+                type: 'string',
+                default: 'elasticsearch-next',
+                choices: ['elasticsearch-next', 'elasticsearch', 's3'],
+            })
+            .check((args) => {
+                if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {
+                    throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
+                    + 'Try either using "yarn k8s:minio" or setting the environment variable TEST_MINIO to true\n');
+                }
+                return true;
             });
     },
     handler(argv) {
@@ -98,7 +111,8 @@ const cmd: CommandModule = {
             tsPort: argv['ts-port'] as string,
             kindClusterName: argv['cluster-name'] as string,
             k8sVersion: argv['k8s-version'] as string,
-            terasliceImage: argv['teraslice-image'] as string
+            terasliceImage: argv['teraslice-image'] as string,
+            assetStorage: argv['asset-storage'] as string
         };
 
         if (Boolean(argv.rebuild) === true) {
