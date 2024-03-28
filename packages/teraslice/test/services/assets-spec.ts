@@ -44,7 +44,7 @@ describe('Assets Service', () => {
     };
     context.sysconfig.teraslice.api_response_timeout = 30000;
     /// Setting port for the asset service
-    process.env.port = '55678'
+    process.env.port = '55678';
     const service = new AssetsService(context);
 
     beforeAll(async () => {
