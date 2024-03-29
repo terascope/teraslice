@@ -389,4 +389,51 @@ describe('Validate Configs', () => {
                 .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,elasticsearch,s3: value was "kafka"');
         });
     });
+
+    describe('when given a config with an elasticsearch with no default connection', () => {
+        const configFile = {
+            terafoundation: {
+                connectors: {
+                    'elasticsearch-next': {
+                        'not-default': {}
+                    }
+                }
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        const validedConfig = validateConfigs(cluster as any, config as any, configFile as any);
+        it('should return valid config', () => {
+            expect(validedConfig).toMatchObject({
+                terafoundation: {
+                    environment: 'test',
+                    logging: [ 'console' ],
+                    log_level: 'info',
+                    workers: 10,
+                    asset_storage_bucket: undefined,
+                    connectors: {
+                        'elasticsearch-next': {
+                            'not-default': {
+                                node: [ 'http://127.0.0.1:9200' ],
+                                sniffOnStart: false,
+                                sniffOnConnectionFault: false,
+                                requestTimeout: 120000,
+                                maxRetries: 3
+                            }
+                        }
+                    },
+                },
+                other: {},
+                _nodeName: os.hostname()
+            });
+        });
+    });
 });
