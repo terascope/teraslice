@@ -1,8 +1,9 @@
 import { xLuceneFieldType } from '@terascope/types';
 import { NodeType, Range, RangeNode } from '../../src';
 import { TestCase } from './interfaces';
+import { dateMath } from './range-date-math';
 
-export default [
+export default ([
     ['count: >=10', 'gte ranges', {
         type: NodeType.Range,
         field: 'count',
@@ -21,7 +22,7 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: { type: 'variable', value: 'foo' }
+            value: { type: 'value', value: 10 }
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 10 }],
     ['count:>10', 'gt ranges', {
@@ -71,12 +72,12 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: { type: 'variable', value: 'foo', }
+            value: { type: 'value', value: 1, }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Integer,
-            value: { type: 'variable', value: 'bar', }
+            value: { type: 'value', value: 5, }
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 1, bar: 5 }],
     ['count:[1.5 TO 5.3]', 'inclusive ranges with floats', {
@@ -329,8 +330,8 @@ export default [
             }
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
-    ]
-] as TestCase[];
+    ],
+]as TestCase[]).concat(dateMath) as TestCase[];
 
 export const filterNilRange: TestCase[] = [
     [
@@ -361,7 +362,7 @@ export const filterNilRange: TestCase[] = [
             left: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'variable', value: 'bar', }
+                value: { type: 'value', value: 5, }
             }
         } as Range,
     ],
@@ -385,7 +386,7 @@ export const filterNilRange: TestCase[] = [
             left: {
                 operator: 'gt',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'variable', value: 'foo', }
+                value: { type: 'value', value: 1 }
             },
         } as Range,
     ],

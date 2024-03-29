@@ -14,6 +14,14 @@ terafoundation:
       default:
         brokers:
           - "cpkafka.services-dev1:9092"
+    s3:
+      default:
+        endpoint: "http://minio.services-dev1:9000"
+        accessKeyId: "minioadmin"
+        secretAccessKey: "minioadmin"
+        forcePathStyle: true
+        sslEnabled: false
+        region: "us-east-1"
 teraslice:
   worker_disconnect_timeout: 60000
   node_disconnect_timeout: 60000

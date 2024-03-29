@@ -1,5 +1,5 @@
 import {
-    TSError, trim, isRegExpLike, cloneDeep, unset
+    TSError, trim, isRegExpLike, cloneDeep, unset, get
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
@@ -356,6 +356,8 @@ export class Parser {
         const validatedVariables = utils.validateVariables(variables);
 
         const ast = this.mapNode((node, parent) => {
+            const allowNil = parent?.type === i.NodeType.Conjunction;
+
             if (utils.isTermList(node)) {
                 return coerceTermList(node, validatedVariables);
             }
@@ -364,8 +366,11 @@ export class Parser {
                     node as i.Term | i.Regexp | i.Wildcard,
                     validatedVariables,
                     parent?.type === i.NodeType.Function,
-                    parent?.type === i.NodeType.Conjunction
+                    allowNil
                 );
+            }
+            if (utils.isRange(node)) {
+                coerceRange(node, validatedVariables, allowNil);
             }
 
             return node;
@@ -427,8 +432,17 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
     };
 }
 
+function coerceRange(node: i.Range, variables: xLuceneVariables, allowNil?: boolean) {
+    node.left = coerceNodeValue(node.left, variables, allowNil) as unknown as i.RangeNode;
+    if (node.right) {
+        node.right = coerceNodeValue(
+            node.right, variables, allowNil) as unknown as i.RangeNode;
+    }
+    return node;
+}
+
 function coerceNodeValue(
-    node: i.Term|i.Regexp|i.Wildcard,
+    node: i.Term|i.Regexp|i.Wildcard|i.RangeNode,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
     allowNil?: boolean
@@ -439,6 +453,9 @@ function coerceNodeValue(
     const coerceFn = allowNil && value == null
         ? () => null
         : utils.makeCoerceFn(node.field_type);
+
+    const type = get(node, 'type');
+    const field: string = get(node, 'field', '');
 
     if (Array.isArray(value)) {
         if (skipAutoFieldGroup) {
@@ -453,7 +470,7 @@ function coerceNodeValue(
 
         const fieldGroup: i.FieldGroup = {
             type: i.NodeType.FieldGroup,
-            field: node.field as string,
+            field,
             field_type: node.field_type,
             flow: value.map((val: any) => ({
                 type: i.NodeType.Conjunction,
@@ -469,10 +486,10 @@ function coerceNodeValue(
         return fieldGroup;
     }
 
-    if (node.type !== i.NodeType.Regexp && isRegExpLike(value)) {
+    if (type !== i.NodeType.Regexp && isRegExpLike(value)) {
         return {
             type: i.NodeType.Regexp,
-            field: node.field,
+            field,
             field_type: node.field_type as xLuceneFieldType.String,
             quoted: false,
             value: {

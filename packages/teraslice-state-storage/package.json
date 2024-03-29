@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^3.18.0",
-        "@terascope/utils": "^0.56.0"
+        "@terascope/utils": "^0.57.0"
     },
     "engines": {
         "node": ">=14.17.0",

@@ -1,4 +1,6 @@
 /* eslint-disable quotes */
+import subDays from 'date-fns/subDays';
+import addDays from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
 import { escapeString } from '@terascope/utils';
 import { NodeType, Term } from '../../src';
@@ -764,6 +766,44 @@ export default [
             field: 'field.right',
             value: { type: 'value', value: '3.3.com', },
         },
+    ],
+    [
+        'field:now-4d',
+        'can coerce date math',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.Date,
+            field: 'field',
+            value: { type: 'value' },
+        },
+        {
+            field: xLuceneFieldType.Date,
+        },
+        undefined, undefined,
+        (now: Date, ast: Term) => {
+            const _now = new Date(now.setUTCHours(0, 0, 0, 0));
+            const astDate = new Date(ast.value.value.setUTCHours(0, 0, 0, 0));
+            expect(astDate).toEqual(subDays(_now, 4));
+        }
+    ],
+    [
+        'field:$foo',
+        'can coerce date math with variables',
+        {
+            type: NodeType.Term,
+            field_type: xLuceneFieldType.Date,
+            field: 'field',
+            value: { type: 'value' },
+        },
+        {
+            field: xLuceneFieldType.Date,
+        },
+        { foo: 'now+2d' }, undefined,
+        (now: Date, ast: Term) => {
+            const _now = new Date(now.setUTCHours(0, 0, 0, 0));
+            const astDate = new Date(ast.value.value.setUTCHours(0, 0, 0, 0));
+            expect(astDate).toEqual(addDays(_now, 2));
+        }
     ],
 ] as TestCase[];
 

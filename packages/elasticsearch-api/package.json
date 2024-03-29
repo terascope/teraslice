@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/types": "^0.15.0",
-        "@terascope/utils": "^0.56.0",
+        "@terascope/utils": "^0.57.0",
         "bluebird": "^3.7.2",
         "setimmediate": "^1.0.5"
     },

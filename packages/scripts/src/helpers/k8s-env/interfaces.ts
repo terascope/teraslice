@@ -11,6 +11,7 @@ export interface K8sEnvOptions {
     tsPort: string;
     kindClusterName: string;
     k8sVersion: string;
+    assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
 }

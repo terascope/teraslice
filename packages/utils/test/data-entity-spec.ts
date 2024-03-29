@@ -1,4 +1,5 @@
 import 'jest-extended'; // require for type definitions
+import addDays from 'date-fns/addDays';
 import {
     DataEntity,
     DataEncoding,
@@ -374,6 +375,15 @@ describe('DataEntity', () => {
                     expect(dataEntity[setMethod]()).toBeNil();
                     const result = dataEntity[getMethod]() as Date;
                     expect(result).toBeDate();
+                });
+
+                it('should be able to set a valid date by date math', () => {
+                    const date = 'now+2d';
+                    expect(dataEntity[setMethod](date)).toBeNil();
+                    const twoDaysFromNow = addDays(new Date().setUTCHours(0, 0, 0, 0), 2);
+                    const result = new Date((dataEntity[getMethod]()).setUTCHours(0, 0, 0, 0));
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(twoDaysFromNow.toISOString());
                 });
             } else {
                 it('should return a date for valid time', () => {

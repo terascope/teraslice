@@ -47,9 +47,7 @@ describe('recovery', () => {
         }
         jobSpec.name = 'test recovery job';
 
-        const files = await fse.readdir(ASSETS_PATH);
-        jobSpec.assets = files.filter((asset) => asset.length === 40);
-
+        jobSpec.assets = await terasliceHarness.getBaseAssetIds();
         specIndex = terasliceHarness.newSpecIndex('test-recovery-job');
 
         if (!jobSpec.operations) {
