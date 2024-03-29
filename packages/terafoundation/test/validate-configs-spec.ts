@@ -415,14 +415,14 @@ describe('Validate Configs', () => {
             expect(validedConfig).toMatchObject({
                 terafoundation: {
                     environment: 'test',
-                    logging: [ 'console' ],
+                    logging: ['console'],
                     log_level: 'info',
                     workers: 10,
                     asset_storage_bucket: undefined,
                     connectors: {
                         'elasticsearch-next': {
                             'not-default': {
-                                node: [ 'http://127.0.0.1:9200' ],
+                                node: ['http://127.0.0.1:9200'],
                                 sniffOnStart: false,
                                 sniffOnConnectionFault: false,
                                 requestTimeout: 120000,

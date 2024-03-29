@@ -100,9 +100,9 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 /// Check to make sure the asset_storage_connection exists inside the connector
                 /// Exclude elasticsearch as this connection type does not utilize this value
                 if (
-                    !connectionsPresent.includes(connectionName) &&
-                    !connectionType.includes('elasticsearch-next')
-                    ) {
+                    !connectionsPresent.includes(connectionName)
+                    && !connectionType.includes('elasticsearch-next')
+                ) {
                     throw new Error(`${connectionName} not found in terafoundation.connectors.${connectionType}`);
                 }
             }
