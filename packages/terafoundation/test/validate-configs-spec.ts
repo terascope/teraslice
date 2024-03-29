@@ -410,9 +410,9 @@ describe('Validate Configs', () => {
             }
         };
 
-        const validedConfig = validateConfigs(cluster as any, config as any, configFile as any);
+        const validatedConfig = validateConfigs(cluster as any, config as any, configFile as any);
         it('should return valid config', () => {
-            expect(validedConfig).toMatchObject({
+            expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     environment: 'test',
                     logging: ['console'],
