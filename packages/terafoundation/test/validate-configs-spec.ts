@@ -386,7 +386,7 @@ describe('Validate Configs', () => {
 
         it('should throw an error', () => {
             expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,elasticsearch,s3: value was "kafka"');
+                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
         });
     });
 

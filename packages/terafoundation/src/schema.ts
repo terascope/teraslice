@@ -75,7 +75,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of the connection type used to store assets',
             default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
             format(connectionTypeName: any): void {
-                const validConnectionTypes = ['elasticsearch-next', 'elasticsearch', 's3'];
+                const validConnectionTypes = ['elasticsearch-next', 's3'];
                 const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
                 if (!connectionTypesPresent.includes(connectionTypeName)) {
                     throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
