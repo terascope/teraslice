@@ -417,7 +417,6 @@ describe('Validate Configs', () => {
                     environment: 'test',
                     logging: ['console'],
                     log_level: 'info',
-                    workers: 10,
                     asset_storage_bucket: undefined,
                     connectors: {
                         'elasticsearch-next': {
