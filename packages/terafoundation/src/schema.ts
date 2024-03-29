@@ -75,7 +75,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of the connection type used to store assets',
             default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
             format(connectionTypeName: any): void {
-                const validConnectionTypes = ['elasticsearch-next', 'elasticsearch', 's3'];
+                const validConnectionTypes = ['elasticsearch-next', 's3'];
                 const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
                 if (!connectionTypesPresent.includes(connectionTypeName)) {
                     throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
@@ -89,7 +89,7 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
             doc: 'Name of the connection used to store assets.',
             default: 'default',
             format(connectionName: any): void {
-                let connectionType;
+                let connectionType: string;
                 if (sysconfig.terafoundation.asset_storage_connection_type) {
                     connectionType = sysconfig.terafoundation.asset_storage_connection_type;
                 } else {
@@ -97,7 +97,12 @@ export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any>
                 }
 
                 const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
-                if (!connectionsPresent.includes(connectionName)) {
+                /// Check to make sure the asset_storage_connection exists inside the connector
+                /// Exclude elasticsearch as this connection type does not utilize this value
+                if (
+                    !connectionsPresent.includes(connectionName)
+                    && !connectionType.includes('elasticsearch-next')
+                ) {
                     throw new Error(`${connectionName} not found in terafoundation.connectors.${connectionType}`);
                 }
             }
