@@ -28,6 +28,7 @@
     },
     "dependencies": {
         "@terascope/file-asset-apis": "^0.12.1",
+        "@terascope/types": "^0.15.0",
         "@terascope/utils": "^0.57.0",
         "aws-sdk": "^2.1401.0",
         "bluebird": "^3.7.2",

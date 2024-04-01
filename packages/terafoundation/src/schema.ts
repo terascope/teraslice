@@ -1,11 +1,11 @@
 import convict from 'convict';
 import { cpus } from 'os';
-import { SysConfig } from 'packages/types/dist/src/terafoundation';
+import { Terafoundation } from '@terascope/types';
 
 const workerCount = cpus().length;
 const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
-export function foundationSchema(sysconfig: SysConfig<any>): convict.Schema<any> {
+export function foundationSchema(sysconfig: Terafoundation.SysConfig<any>): convict.Schema<any> {
     const schema: convict.Schema<any> = {
         environment: {
             doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
