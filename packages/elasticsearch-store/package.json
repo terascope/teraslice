@@ -1,7 +1,7 @@
 {
     "name": "elasticsearch-store",
     "displayName": "Elasticsearch Store",
-    "version": "0.80.0",
+    "version": "0.81.0",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -24,7 +24,6 @@
         "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
         "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
-        "test:legacy": "TEST_ELASTICSEARCH='true' LEGACY_CLIENT=true ts-scripts test . --",
         "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --",
         "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -35,7 +34,6 @@
         "@terascope/types": "^0.15.0",
         "@terascope/utils": "^0.57.0",
         "ajv": "^6.12.6",
-        "elasticsearch": "^15.4.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0",

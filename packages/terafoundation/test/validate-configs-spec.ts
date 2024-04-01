@@ -63,7 +63,7 @@ describe('Validate Configs', () => {
                     { console: 'warn' }
                 ],
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     hdfs_ha: {
@@ -72,16 +72,7 @@ describe('Validate Configs', () => {
                     hdfs: {
                         default: {}
                     },
-                    mongodb: {
-                        default: {}
-                    },
-                    redis: {
-                        default: {}
-                    },
                     s3: {
-                        default: {}
-                    },
-                    statsd: {
                         default: {}
                     },
                 }
@@ -100,17 +91,13 @@ describe('Validate Configs', () => {
                         { console: 'warn' }
                     ],
                     connectors: {
-                        elasticsearch: {
+                        'elasticsearch-next': {
                             default: {
-                                apiVersion: '6.5',
-                                deadTimeout: 30000,
-                                host: [
-                                    '127.0.0.1:9200'
-                                ],
-                                maxRetries: 3,
-                                requestTimeout: 120000,
-                                sniffOnConnectionFault: false,
+                                node: ['http://127.0.0.1:9200'],
                                 sniffOnStart: false,
+                                sniffOnConnectionFault: false,
+                                requestTimeout: 120000,
+                                maxRetries: 3,
                             }
                         },
                         hdfs_ha: {
@@ -129,17 +116,6 @@ describe('Validate Configs', () => {
                                 user: 'webuser'
                             }
                         },
-                        mongodb: {
-                            default: {
-                                servers: 'mongodb://localhost:27017/test'
-                            }
-                        },
-                        redis: {
-                            default: {
-                                host: '127.0.0.1',
-                                port: 6379
-                            }
-                        },
                         s3: {
                             default: {
                                 accessKeyId: null,
@@ -154,12 +130,6 @@ describe('Validate Configs', () => {
                                 sslEnabled: true,
                             }
                         },
-                        statsd: {
-                            default: {
-                                host: '127.0.0.1',
-                                mock: false
-                            }
-                        },
                     },
                     environment: 'test',
                 },
@@ -172,7 +142,7 @@ describe('Validate Configs', () => {
         const configFile = {
             terafoundation: {
                 connectors: {
-                    elasticsearch: {
+                    'elasticsearch-next': {
                         default: {}
                     },
                     missing_connector: {},
@@ -189,7 +159,7 @@ describe('Validate Configs', () => {
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {
-                        elasticsearch: {},
+                        'elasticsearch-next': {},
                         missing_connector: {}
                     },
                 },

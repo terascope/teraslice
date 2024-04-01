@@ -3,42 +3,12 @@ import 'jest-extended';
 import path from 'path';
 import { debugLogger } from '@terascope/utils';
 
-jest.mock('elasticsearch');
 jest.mock('node-webhdfs');
-jest.mock('mongoose');
-jest.mock('redis', () => ({
-    createClient: jest.fn(),
-}));
-// jest.mock('aws-sdk');
-jest.mock('node-statsd');
-
-import elasticsearch from 'elasticsearch';
 // @ts-expect-error
 import hdfs from 'node-webhdfs';
-import mongodb from 'mongoose';
-import redis from 'redis';
-// const aws = require('aws-sdk');
-// @ts-expect-error
-import statsd from 'node-statsd';
-
-const esClient = { es: true };
-// @ts-expect-error
-elasticsearch.Client.mockImplementation(() => Object.assign({}, esClient));
 
 const hdfsClient = { hdfs: true };
 hdfs.WebHDFSClient.mockImplementation(() => Object.assign({}, hdfsClient));
-
-mongodb.connect = jest.fn();
-
-const redisClient = { redis: true };
-// @ts-expect-error
-redis.createClient.mockImplementation(() => Object.assign({}, redisClient));
-
-// const awsClient = { aws: true };
-// aws.S3.mockImplementation(() => Object.assign({}, awsClient));
-
-const statsdClient = { statsd: true };
-statsd.StatsD.mockImplementation(() => Object.assign({}, statsdClient));
 
 import api from '../../src/api';
 
@@ -49,10 +19,6 @@ describe('getConnection foundation API', () => {
             terafoundation: {
                 log_level: 'debug',
                 connectors: {
-                    elasticsearch: {
-                        default: {},
-                        other: {}
-                    },
                     [invalidConnector]: {
                         default: {}
                     },
@@ -60,18 +26,10 @@ describe('getConnection foundation API', () => {
                         default: {}
                     },
                     hdfs: {
-                        default: {}
-                    },
-                    mongodb: {
-                        default: {}
-                    },
-                    redis: {
-                        default: {}
+                        default: {},
+                        other: {}
                     },
                     s3: {
-                        default: {}
-                    },
-                    statsd: {
                         default: {}
                     },
                 }
@@ -87,24 +45,23 @@ describe('getConnection foundation API', () => {
         context.logger = debugLogger('terafoundation-tests');
     });
 
-    it('should return the default elasticsearch connection', () => {
+    it('should return the default hdfs connection', () => {
         const { foundation } = context.apis;
-        const config = { type: 'elasticsearch' };
+        const config = { type: 'hdfs' };
         const { client } = foundation.getConnection(config);
 
-        expect(client).toEqual(esClient);
-        expect(foundation.getConnection(config).client).not.toBe(client);
-        expect(elasticsearch.Client).toHaveBeenCalledTimes(2);
+        expect(client).toEqual(hdfsClient);
+        expect(hdfs.WebHDFSClient).toHaveBeenCalledTimes(1);
     });
 
     it('should return the same elasticsearch connection when cached', () => {
         const { foundation } = context.apis;
-        const config = { type: 'elasticsearch', endpoint: 'other', cached: true };
+        const config = { type: 'hdfs', endpoint: 'other', cached: true };
         const { client } = foundation.getConnection(config);
 
-        expect(client).toEqual(esClient);
+        expect(client).toEqual(hdfsClient);
         expect(foundation.getConnection(config).client).toBe(client);
-        expect(elasticsearch.Client).toHaveBeenCalledTimes(1);
+        expect(hdfs.WebHDFSClient).toHaveBeenCalledTimes(1);
     });
 
     it('should return the default hdfs_ha connection', () => {
@@ -116,44 +73,6 @@ describe('getConnection foundation API', () => {
         expect(hdfs.WebHDFSClient).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the default hdfs connection', () => {
-        const { foundation } = context.apis;
-        const config = { type: 'hdfs' };
-        const { client } = foundation.getConnection(config);
-
-        expect(client).toEqual(hdfsClient);
-        expect(hdfs.WebHDFSClient).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return the default mongodb connection', () => {
-        const { foundation } = context.apis;
-        const config = { type: 'mongodb' };
-        const { client } = foundation.getConnection(config);
-
-        expect(client).not.toBeNil();
-        expect(mongodb.connect).toHaveBeenCalledTimes(1);
-    });
-
-    it.todo('should return the default s3 connection');
-
-    it('should return the default redis connection', () => {
-        const { foundation } = context.apis;
-        const config = { type: 'redis' };
-        const { client } = foundation.getConnection(config);
-
-        expect(client).toEqual(redisClient);
-        expect(redis.createClient).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return the default statsd connection', () => {
-        const { foundation } = context.apis;
-        const config = { type: 'statsd' };
-        const { client } = foundation.getConnection(config);
-
-        expect(client).toEqual(statsdClient);
-        expect(statsd.StatsD).toHaveBeenCalledTimes(1);
-    });
-
     it('should throw an error for non existent connector', () => {
         const { foundation } = context.apis;
         expect(() => foundation.getConnection({ type: 'nonexistent' }))
@@ -162,8 +81,8 @@ describe('getConnection foundation API', () => {
 
     it('should throw an error for non existent endpoint', () => {
         const { foundation } = context.apis;
-        expect(() => foundation.getConnection({ type: 'elasticsearch', endpoint: 'nonexistent' }))
-            .toThrowError('No elasticsearch endpoint configuration found for nonexistent');
+        expect(() => foundation.getConnection({ type: 'hdfs', endpoint: 'nonexistent' }))
+            .toThrowError('No hdfs endpoint configuration found for nonexistent');
     });
 
     it('should throw an error for invalid connector', () => {

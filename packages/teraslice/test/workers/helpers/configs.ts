@@ -5,7 +5,7 @@ import pickBy from 'lodash/pickBy';
 import { ValidatedJobConfig } from '@terascope/types';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 
-const { SEARCH_TEST_HOST, ELASTICSEARCH_API_VERSION } = process.env;
+const { SEARCH_TEST_HOST } = process.env;
 
 const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
 
@@ -142,14 +142,6 @@ const newSysConfig = (options: SystemConfig) => {
             environment: 'development',
             log_level: log_level_terafoundation,
             connectors: {
-                elasticsearch: {
-                    default: {
-                        host: [SEARCH_TEST_HOST],
-                        apiVersion: ELASTICSEARCH_API_VERSION,
-                        requestTimeout: timeout,
-                        deadTimeout: timeout
-                    }
-                },
                 'elasticsearch-next': {
                     default: {
                         node: [SEARCH_TEST_HOST],

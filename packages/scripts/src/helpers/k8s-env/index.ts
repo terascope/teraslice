@@ -78,7 +78,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        elasticsearchAPIVersion: config.ELASTICSEARCH_API_VERSION,
         ignoreMount: false,
         testPlatform: 'kubernetes',
         kindClusterName: options.kindClusterName

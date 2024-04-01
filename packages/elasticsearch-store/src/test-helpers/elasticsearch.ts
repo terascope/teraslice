@@ -1,4 +1,3 @@
-import { Client as RawClient } from 'elasticsearch';
 import {
     DataEntity, pDelay, get, toNumber,
     uniq
@@ -10,8 +9,8 @@ import {
     fixMappingRequest, Semver
 } from '../../src';
 import {
-    ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION, ELASTICSEARCH_VERSION,
-    OPENSEARCH_HOST, OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
+    ELASTICSEARCH_HOST, ELASTICSEARCH_VERSION, OPENSEARCH_HOST,
+    OPENSEARCH_VERSION, RESTRAINED_OPENSEARCH_HOST
 } from './config';
 
 const semver = ELASTICSEARCH_VERSION.split('.').map(toNumber);
@@ -27,14 +26,6 @@ export async function makeClient(): Promise<Client> {
 
     if (process.env.TEST_RESTRAINED_OPENSEARCH) {
         host = RESTRAINED_OPENSEARCH_HOST;
-    }
-
-    if (process.env.LEGACY_CLIENT != null) {
-        return new RawClient({
-            host,
-            log: 'error',
-            apiVersion: ELASTICSEARCH_API_VERSION,
-        }) as unknown as Client;
     }
 
     const { client } = await createClient({
