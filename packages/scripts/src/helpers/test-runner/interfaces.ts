@@ -12,7 +12,6 @@ export type TestOptions = {
     suite?: string[];
     useExistingServices: boolean;
     elasticsearchVersion: string;
-    elasticsearchAPIVersion: string;
     kafkaVersion: string;
     kafkaImageVersion: any;
     zookeeperVersion: string;

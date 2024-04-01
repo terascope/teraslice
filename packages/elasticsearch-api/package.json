@@ -1,7 +1,7 @@
 {
     "name": "@terascope/elasticsearch-api",
     "displayName": "Elasticsearch API",
-    "version": "3.17.0",
+    "version": "3.18.0",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -18,7 +18,6 @@
         "test:elasticsearch6": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test . --",
         "test:elasticsearch7": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --",
         "test:elasticsearch8": "TEST_RESTRAINED_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --",
-        "test:legacy": "TEST_RESTRAINED_ELASTICSEARCH='true' LEGACY_CLIENT=true ts-scripts test . --",
         "test:opensearch1": "TEST_RESTRAINED_OPENSEARCH='true' ts-scripts test --debug . --",
         "test:opensearch2": "TEST_RESTRAINED_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test --debug . --",
         "test:watch": "TEST_RESTRAINED_ELASTICSEARCH='true' ts-scripts test --watch . --"
@@ -33,7 +32,7 @@
         "@opensearch-project/opensearch": "^1.2.0",
         "@types/elasticsearch": "^5.0.43",
         "elasticsearch": "^15.4.1",
-        "elasticsearch-store": "^0.80.1",
+        "elasticsearch-store": "^0.81.1",
         "elasticsearch6": "npm:@elastic/elasticsearch@^6.7.0",
         "elasticsearch7": "npm:@elastic/elasticsearch@^7.0.0",
         "elasticsearch8": "npm:@elastic/elasticsearch@^8.0.0"
