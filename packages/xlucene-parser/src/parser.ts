@@ -433,11 +433,16 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
 }
 
 function coerceRange(node: i.Range, variables: xLuceneVariables, allowNil?: boolean) {
-    node.left = coerceNodeValue(node.left, variables, allowNil) as unknown as i.RangeNode;
+    node.left = coerceNodeValue(
+        node.left, variables, allowNil, undefined, true
+    ) as unknown as i.RangeNode;
+
     if (node.right) {
         node.right = coerceNodeValue(
-            node.right, variables, allowNil) as unknown as i.RangeNode;
+            node.right, variables, allowNil, undefined, true
+        ) as unknown as i.RangeNode;
     }
+
     return node;
 }
 
@@ -445,11 +450,16 @@ function coerceNodeValue(
     node: i.Term|i.Regexp|i.Wildcard|i.RangeNode,
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
-    allowNil?: boolean
+    allowNil?: boolean,
+    isRange = false
 ): i.Node {
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
+    if (isRange && value === Infinity) {
+        return node as i.Node; // technically i.RangeNode
+    }
+
     const coerceFn = allowNil && value == null
         ? () => null
         : utils.makeCoerceFn(node.field_type);
