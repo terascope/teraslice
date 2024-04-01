@@ -34,10 +34,6 @@ Create a configuration file called `config.yaml`:
 ```yaml
 terafoundation:
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - localhost:9200
         elasticsearch-next:
             default:
                 node:

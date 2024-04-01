@@ -75,16 +75,6 @@ describe('registerApis', () => {
 
         const clients: TestClientConfig[] = [
             {
-                type: 'elasticsearch',
-                create() {
-                    return {
-                        client: {
-                            elasticsearch: true,
-                        },
-                    };
-                },
-            },
-            {
                 type: 'elasticsearch-next',
                 create() {
                     return {
@@ -95,24 +85,24 @@ describe('registerApis', () => {
                 },
             },
             {
-                type: 'elasticsearch',
+                type: 'elasticsearch-next',
                 endpoint: 'otherConnection',
                 create() {
                     return {
                         client: {
-                            elasticsearch: true,
+                            'elasticsearch-next': true,
                             endpoint: 'otherConnection',
                         },
                     };
                 },
             },
             {
-                type: 'elasticsearch',
+                type: 'elasticsearch-next',
                 endpoint: 'thirdConnection',
                 create() {
                     return {
                         client: {
-                            elasticsearch: true,
+                            'elasticsearch-next': true,
                             endpoint: 'thirdConnection',
                         },
                     };
@@ -144,8 +134,8 @@ describe('registerApis', () => {
         context.apis.setTestClients(clients);
 
         it('getClient should return a client', () => {
-            expect(getClient({}, 'elasticsearch')).toEqual({
-                elasticsearch: true,
+            expect(getClient({}, 'elasticsearch-next')).toEqual({
+                'elasticsearch-next': true,
             });
 
             const firstResult = getClient(
@@ -153,11 +143,11 @@ describe('registerApis', () => {
                     connection: 'otherConnection',
                     connection_cache: true,
                 },
-                'elasticsearch'
+                'elasticsearch-next'
             );
 
             expect(firstResult).toEqual({
-                elasticsearch: true,
+                'elasticsearch-next': true,
                 endpoint: 'otherConnection',
             });
 
@@ -167,7 +157,7 @@ describe('registerApis', () => {
                         connection: 'otherConnection',
                         connection_cache: true,
                     },
-                    'elasticsearch'
+                    'elasticsearch-next'
                 )
             ).toBe(firstResult);
 
@@ -177,10 +167,10 @@ describe('registerApis', () => {
                         connection: 'thirdConnection',
                         connection_cache: false,
                     },
-                    'elasticsearch'
+                    'elasticsearch-next'
                 )
             ).toEqual({
-                elasticsearch: true,
+                'elasticsearch-next': true,
                 endpoint: 'thirdConnection',
             });
 
