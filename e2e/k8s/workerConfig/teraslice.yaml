@@ -2,10 +2,6 @@ terafoundation:
   environment: "development"
   log_level: debug
   connectors:
-    elasticsearch:
-      default:
-        host:
-          - "elasticsearch.services-dev1:9200"
     elasticsearch-next:
       default:
         node:
