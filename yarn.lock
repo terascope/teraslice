@@ -2473,61 +2473,19 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/file-asset-apis@^0.12.1":
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@terascope/file-asset-apis/-/file-asset-apis-0.12.1.tgz#f763e7d12726ff0d2a2038596d3f1bbfb65c8149"
-  integrity sha512-CEpV8tvwxCof3XRAkDoEjPuqCVj4JHiKOtW/0ePDqhEvD6zettKTnNj6fmhsl6PzoTZ+h3s/nQ1wPrqAjE7pMA==
+"@terascope/file-asset-apis@^0.12.2":
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/@terascope/file-asset-apis/-/file-asset-apis-0.12.2.tgz#90b4d521048d63695d6b552b4fae83a3e14ee113"
+  integrity sha512-qui46Bo90YcWZT8pLM8v0mFvQDPp7b8+TnE5iJCELNO+8RqsdBVgr+xA3YWHSamYHNwL2i8cRUCAyc9Sm92j7w==
   dependencies:
     "@aws-sdk/client-s3" "^3.540.0"
     "@smithy/node-http-handler" "^2.4.3"
-    "@terascope/utils" "^0.56.0"
+    "@terascope/utils" "^0.57.0"
     csvtojson "^2.0.10"
     fs-extra "^11.2.0"
     json2csv "5.0.7"
     lz4-asm "^0.4.2"
     node-gzip "^1.1.2"
-
-"@terascope/utils@^0.56.0":
-  version "0.56.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.56.0.tgz#f325a6074dd140aa7446761a2716cbf32583db94"
-  integrity sha512-AbgBj0qliwtPMlHyL1Kng24dzoznBcfACIV98/5l9DQBDDB9zTHwPtDYAaKlFA3GYynl+7Anlm+ffUXll3M2eA==
-  dependencies:
-    "@terascope/types" "^0.15.0"
-    "@turf/bbox" "^6.4.0"
-    "@turf/bbox-polygon" "^6.4.0"
-    "@turf/boolean-contains" "^6.4.0"
-    "@turf/boolean-disjoint" "^6.4.0"
-    "@turf/boolean-equal" "^6.4.0"
-    "@turf/boolean-intersects" "^6.4.0"
-    "@turf/boolean-point-in-polygon" "^6.4.0"
-    "@turf/boolean-within" "^6.4.0"
-    "@turf/circle" "^6.4.0"
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
-    "@turf/line-to-polygon" "^6.4.0"
-    "@types/lodash" "^4.14.202"
-    "@types/validator" "^13.11.9"
-    awesome-phonenumber "^2.70.0"
-    date-fns "^2.30.0"
-    date-fns-tz "^1.3.7"
-    datemath-parser "^1.0.6"
-    debug "^4.3.4"
-    geo-tz "^7.0.7"
-    ip-bigint "^3.0.3"
-    ip-cidr "^3.1.0"
-    ip6addr "^0.2.5"
-    ipaddr.js "^2.0.1"
-    is-cidr "^4.0.2"
-    is-ip "^3.1.0"
-    is-plain-object "^5.0.0"
-    js-string-escape "^1.0.1"
-    kind-of "^6.0.3"
-    latlon-geohash "^1.1.0"
-    lodash "^4.17.21"
-    mnemonist "^0.39.8"
-    p-map "^4.0.0"
-    shallow-clone "^3.0.1"
-    validator "^13.11.0"
 
 "@tootallnate/once@1":
   version "1.1.2"
