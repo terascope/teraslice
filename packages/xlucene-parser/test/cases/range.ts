@@ -331,6 +331,42 @@ export default ([
         } as Range,
         { ip_range: xLuceneFieldType.IPRange },
     ],
+    ['val:[$foo TO *]', 'resolving variables when range includes infinity', {
+        type: NodeType.Range,
+        field: 'val',
+        left: {
+            type: NodeType.Term,
+            operator: 'gte',
+            value: { type: 'value', value: 2, }
+        },
+        right: {
+            type: NodeType.Term,
+            operator: 'lte',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: Number.POSITIVE_INFINITY, }
+        }
+    },
+    undefined,
+    { foo: 2 }
+    ],
+    ['val:[2 TO $foo]', 'resolving variables when range includes infinity variable', {
+        type: NodeType.Range,
+        field: 'val',
+        left: {
+            type: NodeType.Term,
+            operator: 'gte',
+            field_type: xLuceneFieldType.Integer,
+            value: { type: 'value', value: 2, }
+        },
+        right: {
+            type: NodeType.Term,
+            operator: 'lte',
+            value: { type: 'value', value: '*', }
+        }
+    },
+    undefined,
+    { foo: '*' }
+    ],
 ]as TestCase[]).concat(dateMath) as TestCase[];
 
 export const filterNilRange: TestCase[] = [
