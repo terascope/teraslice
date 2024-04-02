@@ -8,7 +8,7 @@ import {
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema } from './connector-utils';
+import { getConnectorSchema, getConnectorSchemaValidation } from './connector-utils';
 import { foundationSchema } from './schema';
 import * as i from './interfaces';
 
@@ -18,7 +18,8 @@ addFormats(convict_format_with_moment);
 function validateConfig(
     cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
-    namespaceConfig: any
+    namespaceConfig: any,
+    connectorValidation?: Function | undefined
 ) {
     try {
         const config = convict(schema || {});
@@ -32,6 +33,9 @@ function validateConfig(
                 // must be warn or strict
                 allowed: true,
             } as any);
+        }
+        if (typeof connectorValidation === 'function') {
+            connectorValidation(config.getProperties());
         }
 
         return config.getProperties();
@@ -90,7 +94,6 @@ export default function validateConfigs<
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
-
         result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
 
         if (schemaKey === 'terafoundation') {
@@ -99,13 +102,14 @@ export default function validateConfigs<
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
                 const connectorSchema = getConnectorSchema(connector);
+                const connectorValidation = getConnectorSchemaValidation(connector);
                 result[schemaKey].connectors[connector] = {};
-
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
                     result[schemaKey].connectors[connector][connection] = validateConfig(
                         cluster,
                         connectorSchema,
-                        connectionConfig as any
+                        connectionConfig as any,
+                        connectorValidation
                     );
                 }
             }
