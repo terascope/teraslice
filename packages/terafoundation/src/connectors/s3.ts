@@ -61,5 +61,25 @@ export default {
                 format: Boolean
             }
         };
+    },
+    validate_config(config: any): void {
+        const caCertExists: boolean = (config.caCertificate.length !== 0);
+        const certLocationExists: boolean = (config.certLocation.length !== 0);
+        if (caCertExists && certLocationExists) {
+            throw new Error('"caCertificate" and "certLocation" contradict inside of the s3 connection config. '
+            + 'Use only one or the other.');
+        } else if (
+            (caCertExists && !config.sslEnabled)
+            || (certLocationExists && !config.sslEnabled)
+            ) {
+                throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
+                + 'Set sslEnabled to "true" or don\'t provide a certificate inside of the s3 connection config.');
+        } else if (
+            ((!caCertExists && !certLocationExists) && config.sslEnabled)
+            ) {
+                throw new Error('sslEnabled is set to "true" but no certificate was provided.\n'
+                + 'Either provide a certLocation/caCertificate or set sslEnabled to "false" inside of the s3 connection conig');
+        }
+
     }
 };
