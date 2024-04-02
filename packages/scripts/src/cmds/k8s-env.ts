@@ -86,7 +86,7 @@ const cmd: CommandModule = {
                 description: 'Choose what backend service assets are stored in.',
                 type: 'string',
                 default: 'elasticsearch-next',
-                choices: ['elasticsearch-next', 'elasticsearch', 's3'],
+                choices: ['elasticsearch-next', 's3'],
             })
             .check((args) => {
                 if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {

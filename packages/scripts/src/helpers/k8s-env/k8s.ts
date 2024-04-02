@@ -3,11 +3,7 @@ import fs from 'fs';
 import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
-import {
-    AnyObject,
-    debugLogger, pDelay,
-    // pDelay,
-} from '@terascope/utils';
+import { AnyObject, debugLogger, pDelay } from '@terascope/utils';
 import { getE2eK8sDir } from '../../helpers/packages';
 import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';

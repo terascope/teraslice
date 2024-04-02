@@ -186,9 +186,6 @@ export class TestContext implements i.Context {
         const sysconfig: i.SysConfig = {
             terafoundation: {
                 connectors: {
-                    elasticsearch: {
-                        default: {},
-                    },
                     'elasticsearch-next': {
                         default: {}
                     },
