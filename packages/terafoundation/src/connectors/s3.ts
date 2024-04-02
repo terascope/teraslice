@@ -35,11 +35,6 @@ export default {
                 default: 3,
                 format: Number
             },
-            maxRedirects: {
-                doc: '',
-                default: 10,
-                format: Number
-            },
             sslEnabled: {
                 doc: '',
                 default: true,
