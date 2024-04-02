@@ -50,6 +50,11 @@ export default {
                 default: '',
                 format: String
             },
+            caCertificate: {
+                doc: 'A base64 string of an ssl cert. Must be provided if `sslEnabled` is true',
+                default: '',
+                format: String
+            },
             forcePathStyle: {
                 doc: '',
                 default: false,
