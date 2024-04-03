@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import times from 'lodash/times';
 import { SliceExecution } from '../../../src/lib/workers/worker/slice.js';
 import { TestContext } from '../helpers/index.js';

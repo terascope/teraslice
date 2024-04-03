@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import _ from 'lodash';
 
 const defaultResults = _.times(10, () => ({ hello: true }));
@@ -41,7 +42,7 @@ function schema() {
 
 export default {
     schema,
-    newReader: jest.fn((context, opConfig) => {
+    newReader: jest.fn((context: any, opConfig) => {
         const results = _.get(opConfig, 'results', defaultResults);
         const errorAt = _.get(opConfig, 'errorAt', []);
 
@@ -57,14 +58,14 @@ export default {
             return Promise.resolve(results);
         });
     }),
-    slicerQueueLength: jest.fn((executionContext) => {
+    slicerQueueLength: jest.fn((executionContext: any) => {
         const queueLength = _.get(executionContext, 'config.operations[0].slicerQueueLength', defaultSlicerQueueLength);
         if (queueLength === 'QUEUE_MINIMUM_SIZE') {
             return queueLength;
         }
         return _.toSafeInteger(queueLength);
     }),
-    newSlicer: jest.fn((context, executionContext) => {
+    newSlicer: jest.fn((context: any, executionContext) => {
         const slicerResults = _.get(executionContext, 'config.operations[0].slicerResults', defaultSlicerResults);
         const errorAt = _.get(executionContext, 'config.operations[0].slicerErrorAt', []);
         const updateMetadata = _.get(executionContext, 'config.operations[0].updateMetadata', false);
@@ -79,7 +80,7 @@ export default {
         let sliceCalls = 0;
         return [
             async () => {
-                const result = slicerResults.shift();
+                const result = slicerResults.shift() as any;
                 sliceCalls++;
                 if (updateMetadata) {
                     await context.apis.executionContext.setMetadata(

@@ -1,5 +1,5 @@
 import convict from 'convict';
-import { cpus } from 'os';
+import { cpus } from 'node:os';
 import { Terafoundation } from '@terascope/types';
 
 const workerCount = cpus().length;

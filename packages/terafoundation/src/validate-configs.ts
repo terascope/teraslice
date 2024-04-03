@@ -1,16 +1,16 @@
-import os from 'os';
+import os from 'node:os';
 import convict, { addFormats } from 'convict';
 import {
     TSError, isFunction, isPlainObject,
-    isEmpty, concat, PartialDeep
+    isEmpty, concat, PartialDeep, pMap
 } from '@terascope/utils';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema } from './connector-utils';
-import { foundationSchema } from './schema';
-import * as i from './interfaces';
+import { getConnectorSchema } from './connector-utils.js';
+import { foundationSchema } from './schema.js';
+import * as i from './interfaces.js';
 
 addFormats(convict_format_with_validator);
 addFormats(convict_format_with_moment);
@@ -59,7 +59,7 @@ function extractSchema<S>(
  * @param config the config object passed to the library terafoundation
  * @param sysconfig unvalidated sysconfig
 */
-export default function validateConfigs<
+export default async function validateConfigs<
     S = Record<string, unknown>,
     A = Record<string, unknown>,
     D extends string = string
@@ -67,7 +67,7 @@ export default function validateConfigs<
     cluster: i.Cluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): i.FoundationSysConfig<S> {
+): Promise<i.FoundationSysConfig<S>> {
     if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');
     }
@@ -87,6 +87,7 @@ export default function validateConfigs<
     }
 
     const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
+
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
@@ -97,8 +98,10 @@ export default function validateConfigs<
             result[schemaKey].connectors = {};
 
             const connectors: Record<string, any> = subConfig.connectors || {};
-            for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const connectorSchema = getConnectorSchema(connector);
+            const connectorList = Object.entries(connectors);
+
+            await pMap(connectorList, async ([connector, connectorConfig]) => {
+                const connectorSchema = await getConnectorSchema(connector);
                 result[schemaKey].connectors[connector] = {};
 
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
@@ -108,7 +111,7 @@ export default function validateConfigs<
                         connectionConfig as any
                     );
                 }
-            }
+            });
         }
     }
 

@@ -1,12 +1,11 @@
-import { createClient } from 'elasticsearch-store';
+import { createClient as esCreateClient } from 'elasticsearch-store';
 import { Logger } from '@terascope/utils';
+import { TerafoundationConnector } from '../interfaces.js';
 
-export default {
-    create() {
-        throw new Error('elasticsearch-next does not support the deprecated "create" method');
-    },
+const connector: TerafoundationConnector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
-        return createClient(customConfig, logger);
+        const { client, log } = await esCreateClient(customConfig, logger);
+        return { client, logger: log() };
     },
     config_schema(): Record<string, any> {
         return {
@@ -34,3 +33,5 @@ export default {
         };
     }
 };
+
+export default connector;

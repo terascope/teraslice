@@ -1,10 +1,8 @@
 import { Logger } from '@terascope/utils';
 import { createS3Client } from '@terascope/file-asset-apis';
+import { TerafoundationConnector } from '../interfaces.js';
 
-export default {
-    create() {
-        throw new Error('s3 does not support the deprecated "create" method, please use file-assets >= v2.4.0');
-    },
+const connector: TerafoundationConnector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
         const client = await createS3Client(customConfig, logger);
         return { client, logger };
@@ -63,3 +61,5 @@ export default {
         };
     }
 };
+
+export default connector;

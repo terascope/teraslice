@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { jest } from '@jest/globals';
 import 'jest-extended';
 import { pDelay } from '@terascope/utils';
 import { ExecutionController } from '@terascope/teraslice-messaging';

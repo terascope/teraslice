@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { pDelay, get, set } from '@terascope/utils';
 import { TestContext } from '../helpers/index.js';
 import { ExecutionStorage } from '../../../src/lib/storage/index.js';
@@ -175,10 +176,11 @@ describe('ExecutionController', () => {
 
         describe('when it fails to set the status', () => {
             it('should log the error twice', async () => {
-                const logErr = jest.fn();
-                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
+                const logErr = jest.fn() as any;
+                // @ts-expect-error
+                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh')) as any;
                 const errMeta = { error: 'metadata' };
-                const executionMetaData = jest.fn().mockReturnValue(errMeta);
+                const executionMetaData = jest.fn().mockReturnValue(errMeta) as any;
                 // @ts-expect-error
                 exController.executionStorage = {
                     setStatus,
@@ -221,11 +223,12 @@ describe('ExecutionController', () => {
 
         describe('when it fails to set the status', () => {
             it('should log the error twice', async () => {
-                const logErr = jest.fn();
-                const logFatal = jest.fn();
-                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
+                const logErr = jest.fn() as any;
+                const logFatal = jest.fn() as any;
+                // @ts-expect-error
+                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh')) as any;
                 const errMeta = { error: 'metadata' };
-                const executionMetaData = jest.fn().mockReturnValue(errMeta);
+                const executionMetaData = jest.fn().mockReturnValue(errMeta) as any;
                 // @ts-expect-error
                 exController.executionStorage = {
                     setStatus,
@@ -259,7 +262,7 @@ describe('ExecutionController', () => {
             it('should not do anything', async () => {
                 exController.isExecutionDone = true;
 
-                const logErr = jest.fn();
+                const logErr = jest.fn() as any;
                 exController.logger.error = logErr;
                 // @ts-expect-error
                 await exController._terminalError();

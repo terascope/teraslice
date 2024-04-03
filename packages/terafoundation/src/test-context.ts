@@ -1,8 +1,8 @@
 import * as ts from '@terascope/utils';
 import { nanoid } from 'nanoid';
-import * as i from './interfaces';
-import { CoreContext } from './core-context';
-import validateConfigs from './validate-configs';
+import * as i from './interfaces.js';
+import { CoreContext } from './core-context.js';
+import validateConfigs from './validate-configs.js';
 
 interface ClientFactoryFns {
     [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;

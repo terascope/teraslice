@@ -1,10 +1,10 @@
 import { Format } from 'convict';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { Logger, Overwrite } from '@terascope/utils';
 import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
-} from 'cluster';
+} from 'node:cluster';
 
 export type FoundationConfig<
     S = Record<string, any>,
@@ -29,6 +29,18 @@ export type FoundationConfig<
     shutdownMessaging?: boolean;
 }
 
+export interface ConnectorOutput {
+    client: any;
+    logger: Logger
+}
+
+export interface TerafoundationConnector {
+    createClient: (
+        moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+    ) => Promise<ConnectorOutput>
+    config_schema: () => Record<string, any>
+}
+
 export interface ConnectionConfig {
     endpoint: string;
     cached?: boolean;
@@ -45,7 +57,7 @@ export type CreateClientFactoryFn = (
     config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
-) => Promise<{ client: any }>;
+) => Promise<ConnectorOutput>;
 
 export interface FoundationAPIs {
     /** Create a child logger */
@@ -53,8 +65,7 @@ export interface FoundationAPIs {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    createClient(config: ConnectionConfig): Promise<{ client: any }>;
+    createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
@@ -64,7 +75,6 @@ export interface LegacyFoundationApis {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 

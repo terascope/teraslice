@@ -1,8 +1,8 @@
 import { nanoid } from 'nanoid';
-import validateConfigs from './validate-configs';
-import { CoreContext } from './core-context';
-import { getArgs } from './sysconfig';
-import * as i from './interfaces';
+import validateConfigs from './validate-configs.js';
+import { CoreContext } from './core-context.js';
+import { getArgs } from './sysconfig.js';
+import * as i from './interfaces.js';
 
 /**
  * A Single Process Context, this should be used when running

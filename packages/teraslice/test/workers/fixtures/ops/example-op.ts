@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import _ from 'lodash';
 
 const defaultResults = _.times(10, () => ({ hi: true }));
@@ -19,7 +20,7 @@ function schema() {
 
 export default {
     schema,
-    newProcessor: jest.fn((context, opConfig) => {
+    newProcessor: jest.fn((context: any, opConfig) => {
         const results = _.get(opConfig, 'results', defaultResults);
         const errorAt = _.get(opConfig, 'errorAt', []);
 

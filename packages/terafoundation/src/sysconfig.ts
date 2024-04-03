@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import yargs from 'yargs';
 import yaml from 'js-yaml';
 import { cloneDeep } from '@terascope/utils';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 export function getDefaultConfigFile(): string|undefined {
     const cwd = process.cwd();

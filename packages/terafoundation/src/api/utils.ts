@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import bunyan from 'bunyan';
 import * as ts from '@terascope/utils';
-import * as i from '../interfaces';
+import * as i from '../interfaces.js';
 
 type LogLevelObj = {
     [type in i.LogType]: i.LogLevelType;
