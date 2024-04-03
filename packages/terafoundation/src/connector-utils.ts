@@ -108,17 +108,16 @@ export function getConnectorSchema(name: string): Record<string, any> {
     return mod.config_schema();
 }
 
-export function getConnectorSchemaValidation(name: string): Function | undefined {
+export function getConnectorSchemaValidation(name: string): ((config: any) => void) | undefined {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
     if (!mod) {
         return undefined;
-    } else if (typeof mod.validate_config === 'function') {
+    } if (typeof mod.validate_config === 'function') {
         return mod.validate_config;
-    } else {
-        return undefined;
     }
+    return undefined;
 }
 
 export function createConnection(

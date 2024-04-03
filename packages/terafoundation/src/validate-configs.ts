@@ -19,7 +19,7 @@ function validateConfig(
     cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
     namespaceConfig: any,
-    connectorValidation?: Function | undefined
+    connectorValidation?: ((config: any) => void) | undefined
 ) {
     try {
         const config = convict(schema || {});

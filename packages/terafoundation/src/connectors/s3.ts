@@ -71,15 +71,14 @@ export default {
         } else if (
             (caCertExists && !config.sslEnabled)
             || (certLocationExists && !config.sslEnabled)
-            ) {
-                throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
+        ) {
+            throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
                 + 'Set sslEnabled to "true" or don\'t provide a certificate inside of the s3 connection config.');
         } else if (
             ((!caCertExists && !certLocationExists) && config.sslEnabled)
-            ) {
-                throw new Error('sslEnabled is set to "true" but no certificate was provided.\n'
+        ) {
+            throw new Error('sslEnabled is set to "true" but no certificate was provided.\n'
                 + 'Either provide a certLocation/caCertificate or set sslEnabled to "false" inside of the s3 connection conig');
         }
-
     }
 };
