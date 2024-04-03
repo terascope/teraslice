@@ -5,6 +5,7 @@ import {
     getS3Object,
     S3Client,
 } from '@terascope/file-asset-apis';
+import { Teraslice } from '@terascope/types';
 import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
@@ -172,6 +173,7 @@ describe('assets', () => {
 describe('s3 asset storage', () => {
     // If the connection type is S3 run tests to ensure assets are stored in S3
     if (ASSET_STORAGE_CONNECTION_TYPE === 's3') {
+        let terasliceInfo: Teraslice.ApiRootResponse;
         let terasliceHarness: TerasliceHarness;
         let s3client: S3Client;
         let assetId: string;
@@ -191,11 +193,11 @@ describe('s3 asset storage', () => {
             await terasliceHarness.resetState();
 
             s3client = await createS3Client(config);
-            const terasliceInfo = await terasliceHarness.teraslice.cluster.info();
+            terasliceInfo = await terasliceHarness.teraslice.cluster.info();
             bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
         });
 
-        it('verify the asset is stored in s3', async () => {
+        it('stores assets in s3', async () => {
             const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
             const fileStream = createReadStream(assetPath);
             const assetResponse = await terasliceHarness.teraslice.assets.upload(fileStream, {
@@ -208,10 +210,15 @@ describe('s3 asset storage', () => {
             expect(base64).toStartWith('UEsDBAoAAAAAAAs6O');
         });
 
-        it('verify that no ES asset records contain the "blob" field', async () => {
-            const assetRecords = await terasliceHarness.teraslice.assets.list();
+        it('does not create the "blob" field when storing asset metadata in ES', async () => {
+            const index = `${terasliceInfo.name}__assets`;
+            const params = {
+                index
+            };
+            const response = await terasliceHarness.client.search(params);
+            const assetRecords = response.hits.hits;
             for (const record of assetRecords) {
-                expect(record.blob).toBeUndefined();
+                expect(record._source?.blob).toBeUndefined();
             }
         });
     }
