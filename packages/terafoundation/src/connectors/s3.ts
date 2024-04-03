@@ -37,7 +37,7 @@ export default {
             },
             sslEnabled: {
                 doc: '',
-                default: true,
+                default: false,
                 format: Boolean
             },
             certLocation: {
