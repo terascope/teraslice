@@ -579,7 +579,7 @@ export async function k8sStartService(
 ): Promise<void> {
     // services that have an available k8s deployment yaml file
     const availableServices = [
-        'elasticsearch', 'kafka', 'zookeeper', // 'opensearch', 'minio', 'rabbitmq'
+        'elasticsearch', 'kafka', 'zookeeper', 'minio' // 'opensearch', 'rabbitmq'
     ];
 
     if (!availableServices.includes(serviceName)) {

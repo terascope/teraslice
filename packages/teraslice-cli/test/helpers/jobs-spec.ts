@@ -439,7 +439,7 @@ describe('Job helper class', () => {
 
             expect(job.jobs[0].status).toBe('stopped');
 
-            await expect(job.start()).rejects.toThrow('Job cannot reach the target status, "running", because it is in the terminal state, "failed"');
+            await expect(job.start()).rejects.toThrow('Job cannot reach the target status, "running,completed", because it is in the terminal state, "failed"');
         });
 
         it('should check workers and slice failures if watch flag is provided', async () => {

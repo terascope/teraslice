@@ -597,7 +597,7 @@ export const filterNilFieldGroup: TestCase[] = [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'variable', value: 'foo', },
+                value: { type: 'value', value: 20, },
             }
         } as Range,
     ],

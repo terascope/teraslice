@@ -2,11 +2,6 @@ terafoundation:
     environment: 'development'
     log_level: debug
     connectors:
-        elasticsearch:
-            default:
-                apiVersion: "5.6"
-                host:
-                    - "elasticsearch:9200"
         elasticsearch-next:
             default:
                 node:

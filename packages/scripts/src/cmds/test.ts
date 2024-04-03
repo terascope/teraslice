@@ -18,7 +18,6 @@ type Options = {
     'trace': boolean;
     'report-coverage': boolean;
     'elasticsearch-version': string;
-    'elasticsearch-api-version': string;
     'kafka-version': string;
     'minio-version': string;
     'rabbitmq-version': string;
@@ -97,11 +96,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.ELASTICSEARCH_VERSION,
             })
-            .option('elasticsearch-api-version', {
-                description: 'The elasticsearch client API version to use',
-                type: 'string',
-                default: config.ELASTICSEARCH_API_VERSION,
-            })
             .option('kafka-version', {
                 description: 'The kafka version to use',
                 type: 'string',
@@ -163,7 +157,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
         const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
-        const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
         const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
@@ -189,7 +182,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             forceSuite,
             useExistingServices,
             elasticsearchVersion,
-            elasticsearchAPIVersion,
             kafkaVersion,
             kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
             zookeeperVersion: config.ZOOKEEPER_VERSION,

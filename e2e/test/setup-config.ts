@@ -2,9 +2,10 @@ import { cloneDeep } from '@terascope/utils';
 import path from 'node:path';
 import fse from 'fs-extra';
 import {
-    WORKERS_PER_NODE, KAFKA_BROKER, ELASTICSEARCH_HOST,
-    TEST_HOST, TERASLICE_PORT, ELASTICSEARCH_API_VERSION,
-    CLUSTER_NAME, HOST_IP, CONFIG_PATH,
+    WORKERS_PER_NODE, KAFKA_BROKER,
+    TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
+    HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST
 } from './config.js';
 
 const baseConfig = {
@@ -19,18 +20,9 @@ const baseConfig = {
             'file'
         ],
         log_path: '/app/logs',
+        asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
+        asset_storage_connection: ASSET_STORAGE_CONNECTION,
         connectors: {
-            elasticsearch: {
-                default: {
-                    host: [ELASTICSEARCH_HOST],
-                    apiVersion: ELASTICSEARCH_API_VERSION,
-                    requestTimeout: '1 minute',
-                    deadTimeout: '45 seconds',
-                    sniffOnStart: false,
-                    sniffOnConnectionFault: false,
-                    suggestCompression: false
-                }
-            },
             'elasticsearch-next': {
                 default: {
                     node: [TEST_HOST],
@@ -42,6 +34,16 @@ const baseConfig = {
             kafka: {
                 default: {
                     brokers: [KAFKA_BROKER]
+                }
+            },
+            s3: {
+                default: {
+                    endpoint: MINIO_HOST,
+                    accessKeyId: 'minioadmin',
+                    secretAccessKey: 'minioadmin',
+                    forcePathStyle: true,
+                    sslEnabled: false,
+                    region: 'us-east-1'
                 }
             }
         }

@@ -70,13 +70,13 @@ export function makeISODate(value?: Date|number|string|null|undefined|DateTuple)
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
 export function isValidDate(val: unknown): boolean {
-    return getValidDate(val as any) !== false;
+    return _getValidDate(val as any) !== false;
 }
 
 /**
  * Coerces value into a valid date, returns false if it is invalid
 */
-export function getValidDate(val: unknown): Date | false {
+function _getValidDate(val: unknown): Date | false {
     // this is our hot path since this is how commonly store this
     if (typeof val === 'number') {
         if (!Number.isInteger(val)) return false;
@@ -103,7 +103,54 @@ export function getValidDate(val: unknown): Date | false {
 
     if (isValidDateInstance(d)) return d;
 
+    // safari needs slashes when in month-date-year format
+    // don't call _getValidDate - could cause infinite loop
+    if (typeof val === 'string') {
+        const dashesToSlashes = new Date(val.replace(/-/g, '/'));
+        if (isValidDateInstance(dashesToSlashes)) {
+            return dashesToSlashes;
+        }
+    }
+
     return false;
+}
+
+/**
+ * Coerces value into a valid date, returns false if it is invalid.
+ * Has added support for converting from date math (i.e. now+1h, now-1m, now+2d/y, 2021-01-01||+2d)
+*/
+export function getValidDate(val: unknown, relativeNow = new Date()): Date | false {
+    const validDate = _getValidDate(val);
+    if (validDate) return validDate;
+
+    if (!relativeNow) return false;
+    return parseRelativeDate(val, relativeNow);
+}
+
+/**
+ * tries to date math values to dates
+ */
+function parseRelativeDate(input: unknown, now: Date): Date|false {
+    if (!input || typeof input !== 'string') return false;
+
+    // remove any spaces and ensure lowercase 'now' (keep all others normal case)
+    const trimmed = input.replace(/\s/g, '').replace(/(n|N)(o|O)(w|W)/g, 'now');
+
+    const dateMath = parseDateMath(trimmed, now);
+    if (dateMath) return dateMath;
+
+    return false;
+}
+
+/**
+ * tries to parse date math (i.e. now+1h, now-1m) to a date
+ */
+function parseDateMath(value: string, now: Date): Date|false {
+    try {
+        return _getValidDate(new Date(parser.parse(value, now)));
+    } catch (err) {
+        return false;
+    }
 }
 
 /**
@@ -186,7 +233,7 @@ export function getValidDateOrNumberOrThrow(val: unknown): Date|number {
     if (typeof val === 'number' && !Number.isInteger(val)) return val;
     if (isDateTuple(val)) return val[0];
 
-    const date = getValidDate(val as any);
+    const date = getValidDate(val);
     if (date === false) {
         throw new TypeError(`Expected ${val} (${getTypeOf(val)}) to be in a standard date format`);
     }

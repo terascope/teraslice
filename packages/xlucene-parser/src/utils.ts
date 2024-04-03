@@ -19,7 +19,9 @@ import {
     isIPv6,
     getFirstIPInCIDR,
     getLastIPInCIDR,
-    toCIDR
+    toCIDR,
+    isValidDate,
+    getValidDate
 } from '@terascope/utils';
 
 import {
@@ -254,6 +256,12 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
         if (!isPrimitiveValue(value)) {
             throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a date like format`);
         }
+
+        if (isValidDate(value)) return value;
+
+        const coerced = getValidDate(value, new Date());
+        if (coerced) return coerced;
+
         return value;
     },
     [xLuceneFieldType.Number](value) {

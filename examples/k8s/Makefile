@@ -160,7 +160,7 @@ else
 	# FIXME: Figure out where to clean this up
 	# Note that the ES Port Here is 30200 because that is the port the service
 	# NodePort gets exposed on
-	yq eval ".terafoundation.connectors.elasticsearch.default.host[0] = \"$(shell minikube ip):30200\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" - | yq eval ".teraslice.assets_directory = \"/tmp/assets\"" - > teraslice-master-local.yaml
+	yq eval ".terafoundation.connectors.elasticsearch_next.default.node[0] = \"$(shell minikube ip):30200\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" - | yq eval ".teraslice.assets_directory = \"/tmp/assets\"" - > teraslice-master-local.yaml
 endif
 
 build: ## builds docker images

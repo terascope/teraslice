@@ -1,5 +1,8 @@
+import addDays from 'date-fns/addDays';
 import { xLuceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces';
+
+const now = new Date();
 
 export default [
     [
@@ -249,5 +252,35 @@ export default [
             false,
         ],
         { _created: xLuceneFieldType.Date }
+    ],
+    [
+        'can match date math query',
+        '_created:>now+3h',
+        [
+            { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' },
+            { _created: addDays(now, 3) },
+            { _created: now },
+        ],
+        [
+            false,
+            true,
+            false,
+        ],
+        { _created: 'date' }
+    ],
+    [
+        'can match date math range',
+        '_created:[now-3h TO now+5d]',
+        [
+            { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' },
+            { _created: addDays(now, 3) },
+            { _created: new Date() },
+        ],
+        [
+            false,
+            true,
+            true,
+        ],
+        { _created: 'date' }
     ],
 ] as TestCase[];

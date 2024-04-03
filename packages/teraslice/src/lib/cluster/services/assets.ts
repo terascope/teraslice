@@ -150,6 +150,25 @@ export class AssetsService {
         }
     }
 
+    private getS3AssetStatus(
+        s3List: Record<string, any>[],
+        esList: Record<string, any>[]
+    ) {
+        const result: Record<string, any>[] = [...esList];
+        for (const esRecord of result) {
+            esRecord.external_storage = 'missing';
+            for (const s3Record of s3List) {
+                /// s3AssetId is just the file name without the .zip
+                const s3AssetId = s3Record.File.slice(0, -4);
+                if (s3AssetId === esRecord.id) {
+                    esRecord.external_storage = 'available';
+                    break;
+                }
+            }
+        }
+        return result as Record<string, any>[];
+    }
+
     private createAssetTable(query: string, req: TerasliceRequest, res: TerasliceResponse) {
         const { size, from, sort } = getSearchOptions(req, '_created:desc');
 
@@ -163,6 +182,8 @@ export class AssetsService {
             'platform',
             'arch'
         ];
+
+        const s3Defaults = [...defaults, 'external_storage'];
 
         function mapping(item: Record<string, any>) {
             return (field: string) => {
@@ -185,6 +206,12 @@ export class AssetsService {
                 return record;
             });
 
+            if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
+                const s3Assets = await this.assetsStorage.grabS3Info();
+                const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
+                return makeTable(req, s3Defaults, updatedAssets, mapping);
+            }
+
             return makeTable(req, defaults, assets, mapping);
         });
     }
@@ -200,11 +227,19 @@ export class AssetsService {
                 query, from, size, sort as string, fields
             ) as Record<string, any>;
 
-            return results.hits.hits.map((asset: any) => {
+            const mappedRecords = results.hits.hits.map((asset: any) => {
                 const record = asset._source;
                 record.id = asset._id;
                 return record;
             });
+
+            if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
+                const s3Assets = await this.assetsStorage.grabS3Info();
+                const updatedAssets = this.getS3AssetStatus(s3Assets, mappedRecords);
+                return updatedAssets;
+            }
+
+            return mappedRecords;
         });
     }
 

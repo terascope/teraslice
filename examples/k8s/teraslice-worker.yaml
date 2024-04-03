@@ -1,10 +1,6 @@
 terafoundation:
     environment: 'development'
     connectors:
-        elasticsearch:
-            default:
-                host:
-                    - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
         elasticsearch-next:
             default:
                 node:

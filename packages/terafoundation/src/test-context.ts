@@ -77,12 +77,12 @@ function getDefaultSysconfig<S>(
     return {
         terafoundation: {
             connectors: {
-                elasticsearch: {
-                    default: {},
-                },
                 'elasticsearch-next': {
                     default: {},
                 },
+                s3: {
+                    default: {}
+                }
             },
             ...ts.get(options.sysconfig, 'terafoundation', {})
         },

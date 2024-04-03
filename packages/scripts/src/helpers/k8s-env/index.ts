@@ -78,14 +78,13 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        elasticsearchAPIVersion: config.ELASTICSEARCH_API_VERSION,
         ignoreMount: false,
         testPlatform: 'kubernetes',
         kindClusterName: options.kindClusterName
     });
 
     try {
-        await k8s.deployK8sTeraslice(true);
+        await k8s.deployK8sTeraslice(true, options);
     } catch (err) {
         signale.fatal('Error deploying Teraslice. Shutting down k8s cluster: ', err);
         await kind.destroyCluster();
@@ -125,7 +124,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     try {
-        await k8s.deployK8sTeraslice(true);
+        await k8s.deployK8sTeraslice(true, options);
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
         process.exit(1);

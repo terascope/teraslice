@@ -18,7 +18,6 @@ describe('Test Runner Helpers', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        elasticsearchAPIVersion: '',
         elasticsearchVersion: '',
         kafkaVersion: '',
         kafkaImageVersion: '',

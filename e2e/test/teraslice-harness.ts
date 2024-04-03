@@ -24,6 +24,7 @@ import kafkaReaderJob from './fixtures/jobs/kafka-reader.json' assert { type: 'j
 import kafkaSenderJob from './fixtures/jobs/kafka-sender.json' assert { type: 'json' };
 import multisendJob from './fixtures/jobs/multisend.json' assert { type: 'json' };
 import reindexJob from './fixtures/jobs/reindex.json' assert { type: 'json' };
+import { defaultAssetBundles } from './download-assets.js';
 
 const JobDict = Object.freeze({
     'generate-to-es': generatorToESJob,
@@ -608,14 +609,19 @@ export class TerasliceHarness {
         }
     }
 
-    async clearNonBaseAssets() {
+    /*
+    * Returns the IDs of the defaultAssetBundles that were downloaded into the autoload_directory
+    * during jest global.setup, then autoloaded into the asset_directory. It might be better to use
+    * AssetsStorage._getAssetId() for each asset a jobSpec needs for a test, but initializing an
+    * AssetsStorage instance within a test was throwing errors. It may be related to the context
+    * used to create it.
+    */
+    async getBaseAssetIds() {
         const assetList = await this.teraslice.assets.list();
-        const baseAssets = ['standard', 'elasticsearch', 'kafka'];
-        const assetsToDelete = assetList.filter((assetObj) => !baseAssets.includes(assetObj.name));
-
-        for (const asset of assetsToDelete) {
-            const response = await this.teraslice.assets.remove(asset.id);
-            signale.debug(`Deleted asset with id ${response._id}`);
-        }
+        const baseAssetNames = defaultAssetBundles.map((bundle) => bundle.name);
+        const baseAssetIds = assetList
+            .filter((assetObj) => baseAssetNames.includes(assetObj.name))
+            .map((assetObj) => assetObj.id);
+        return baseAssetIds;
     }
 }

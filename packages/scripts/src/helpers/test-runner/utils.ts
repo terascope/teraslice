@@ -86,7 +86,6 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
@@ -96,7 +95,6 @@ export function getEnv(options: TestOptions, suite: string): ExecEnv {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.RESTRAINED_ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
             SEARCH_TEST_HOST: `${config.SEARCH_TEST_HOST}`
         });
     }
