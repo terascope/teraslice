@@ -112,7 +112,9 @@ export function getConnectorSchemaValidation(name: string): Function | undefined
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
-    if (typeof mod.validate_config === 'function') {
+    if (!mod) {
+        return undefined;
+    } else if (typeof mod.validate_config === 'function') {
         return mod.validate_config;
     } else {
         return undefined;
