@@ -50,7 +50,8 @@ export const defaultAssetBundles = [
 ];
 
 function assetFileInfo(assetName: string): AssetInfo {
-    const [name, version, , assetNodeVersion] = assetName.split('-');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [name, version, _, assetNodeVersion] = assetName.split('-');
     return {
         name,
         version: semver.coerce(version),
