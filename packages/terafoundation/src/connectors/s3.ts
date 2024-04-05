@@ -41,7 +41,7 @@ export default {
                 format: Boolean
             },
             certLocation: {
-                doc: 'DEPRICATED: Location of ssl cert.',
+                doc: 'DEPRECATED - use caCertificate. Location of ssl cert.',
                 default: '',
                 format: String
             },
