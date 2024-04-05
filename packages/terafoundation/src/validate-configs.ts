@@ -1,5 +1,5 @@
 import os from 'node:os';
-import convict, { addFormats } from 'convict';
+import convict from 'convict';
 import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, PartialDeep, pMap
@@ -12,8 +12,9 @@ import { getConnectorSchema } from './connector-utils.js';
 import { foundationSchema } from './schema.js';
 import * as i from './interfaces.js';
 
-addFormats(convict_format_with_validator);
-addFormats(convict_format_with_moment);
+// TODO: check to see if this is global enough
+convict.addFormats(convict_format_with_validator);
+convict.addFormats(convict_format_with_moment);
 
 function validateConfig(
     cluster: { isMaster: boolean },

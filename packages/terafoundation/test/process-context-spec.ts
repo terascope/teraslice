@@ -2,8 +2,8 @@ import 'jest-extended';
 import { ProcessContext } from '../src';
 
 describe('Terafoundation (ProcessContext)', () => {
-    it('should be able to return a valid context', () => {
-        const context = new ProcessContext({
+    it('should be able to return a valid context', async () => {
+        const context = await ProcessContext.createContext({
             name: 'example',
         } as any, {
             configfile: {
@@ -31,15 +31,14 @@ describe('Terafoundation (ProcessContext)', () => {
         context.apis.foundation.getSystemEvents().removeAllListeners();
     });
 
-    it('should throw an error when given an invalid system config', () => {
-        expect(() => {
-            new ProcessContext({ a: true } as any, { configfile: 'invalid' } as any);
-        }).toThrowError('Terafoundation requires a valid system configuration');
+    it('should throw an error when given an invalid system config', async () => {
+        await expect(
+            () => ProcessContext.createContext({ a: true } as any, { configfile: 'invalid' } as any)
+        ).toThrowError('Terafoundation requires a valid system configuration');
     });
 
-    it('should throw an error when given an invalid application config', () => {
-        expect(() => {
-            new ProcessContext('invalid' as any, { } as any);
-        }).toThrowError('Terafoundation requires a valid application configuration');
+    it('should throw an error when given an invalid application config', async () => {
+        await expect(() => ProcessContext.createContext('invalid' as any, { } as any)
+        ).toThrowError('Terafoundation requires a valid application configuration');
     });
 });

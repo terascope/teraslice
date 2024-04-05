@@ -62,7 +62,7 @@ export function getArgs<S = Record<string, unknown>>(
     return (argv as unknown) as i.ParsedArgs<S>;
 }
 
-export function parseConfigFile(file: string): Record<string, any> {
+export async function parseConfigFile<D = Record<string, any>>(file: string): Promise<D> {
     const configFile = file ? path.resolve(file) : undefined;
     if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
@@ -71,6 +71,7 @@ export function parseConfigFile(file: string): Record<string, any> {
     if (['.yaml', '.yml'].includes(path.extname(configFile))) {
         return yaml.load(fs.readFileSync(configFile, 'utf8')) as any;
     }
-
-    return cloneDeep(require(configFile));
+    // TODO: find out if there is a better way to do this
+    const json = await import(configFile);
+    return cloneDeep(json);
 }

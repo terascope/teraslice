@@ -14,9 +14,7 @@ describe('Validate Configs', () => {
         } as any;
 
         const configFile = {
-            terafoundation: {
-
-            },
+            terafoundation: {},
             other: {
                 test: 'custom'
             }
@@ -41,8 +39,10 @@ describe('Validate Configs', () => {
             ]
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(cluster, config as any, configFile as any);
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
+                cluster, config as any, configFile as any
+            );
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
@@ -79,8 +79,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -150,8 +150,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -184,8 +184,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
         });
     });
 
@@ -205,8 +205,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
         });
     });
 
@@ -226,8 +226,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
         });
     });
 
@@ -247,8 +247,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
         });
     });
 
@@ -277,8 +277,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
                 .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
         });
     });
@@ -299,8 +299,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
         });
     });
 
@@ -325,8 +325,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
                 .toThrow('asset_storage_connection_type not found in terafoundation.connectors');
         });
     });
@@ -354,8 +354,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
                 .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
         });
     });
@@ -380,8 +380,11 @@ describe('Validate Configs', () => {
             }
         };
 
-        const validatedConfig = validateConfigs(cluster as any, config as any, configFile as any);
-        it('should return valid config', () => {
+        it('should return valid config', async () => {
+            const validatedConfig = await validateConfigs(
+                cluster as any, config as any, configFile as any
+            );
+
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     environment: 'test',

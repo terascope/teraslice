@@ -1,5 +1,5 @@
 import _cluster from 'node:cluster';
-import * as ts from '@terascope/utils';
+import { get, isFunction, getFullErrorStack } from '@terascope/utils';
 import { getArgs } from './sysconfig.js';
 import validateConfigs from './validate-configs.js';
 import * as i from './interfaces.js';
@@ -18,17 +18,10 @@ export class ClusterContext<
     A = Record<string, any>,
     D extends string = string
 > extends CoreContext<S, A, D> {
-    constructor(config: i.FoundationConfig<S, A, D>) {
-        const parsedArgs = getArgs<S>(
-            config.default_config_file
-        );
-
-        const sysconfig = validateConfigs(
-            cluster,
-            config,
-            parsedArgs.configfile
-        );
-
+    constructor(
+        config: i.FoundationConfig<S, A, D>,
+        sysconfig: i.FoundationSysConfig<S>
+    ) {
         super(config, cluster, sysconfig);
         this._errorHandler = this._errorHandler.bind(this);
 
@@ -46,7 +39,7 @@ export class ClusterContext<
              * Use cluster to start multiple workers
              */
             master(this, config);
-            if (ts.isFunction(config.master)) {
+            if (isFunction(config.master)) {
                 config.master(this, config);
             }
         } else {
@@ -79,13 +72,13 @@ export class ClusterContext<
 
         if (cluster.isMaster) {
             logErr(
-                ts.getFullErrorStack(err),
+                getFullErrorStack(err),
                 `Error in master with pid: ${process.pid}`
             );
         } else {
             logErr(
-                ts.getFullErrorStack(err),
-                `Error in worker: ${ts.get(this.cluster, 'worker.id')} pid: ${process.pid}`
+                getFullErrorStack(err),
+                `Error in worker: ${get(this.cluster, 'worker.id')} pid: ${process.pid}`
             );
         }
 
@@ -93,5 +86,25 @@ export class ClusterContext<
         setTimeout(() => {
             process.exit(-1);
         }, 600);
+    }
+
+    static async createContext<
+        S = Record<string, any>,
+        A = Record<string, any>,
+        D extends string = string
+    >(
+        config: i.FoundationConfig<S, A, D>,
+    ) {
+        const parsedArgs = getArgs<S>(
+            config.default_config_file
+        );
+
+        const sysconfig = await validateConfigs(
+            cluster,
+            config,
+            parsedArgs.configfile
+        );
+
+        return new ClusterContext(config, sysconfig);
     }
 }

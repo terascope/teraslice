@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import * as ts from '@terascope/utils';
+import { isPlainObject, times } from '@terascope/utils';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';
 import * as i from '../interfaces.js';
@@ -65,7 +65,7 @@ export default function registerApis(context: i.FoundationContext): void {
             // If there is already a logger defined we're just creating a
             // child logger using the same config.
 
-            const childLogger = context.logger.child(ts.isPlainObject(args[0])
+            const childLogger = context.logger.child(isPlainObject(args[0])
                 ? args[0]
                 : args[2]);
             // add flush fn to the new logger
@@ -94,7 +94,7 @@ export default function registerApis(context: i.FoundationContext): void {
             const workers: i.FoundationWorker[] = [];
             if (cluster.isMaster) {
                 context.logger.info(`Starting ${num} ${env.assignment}`);
-                ts.times(num, () => {
+                times(num, () => {
                     const worker = cluster.fork(env);
 
                     // for cluster master reference, when a worker dies, you

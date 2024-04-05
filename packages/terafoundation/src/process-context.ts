@@ -18,7 +18,11 @@ export class ProcessContext<
     A = Record<string, any>,
     D extends string = string
 > extends CoreContext<S, A, D> {
-    constructor(
+    static async createContext<
+        S = Record<string, any>,
+        A = Record<string, any>,
+        D extends string = string
+    >(
         config: i.FoundationConfig<S, A, D>,
         overrideArgs?: i.ParsedArgs<S>
     ) {
@@ -33,9 +37,9 @@ export class ProcessContext<
             config.default_config_file
         );
 
-        const sysconfig = validateConfigs(cluster, config, parsedArgs.configfile);
+        const sysconfig = await validateConfigs(cluster, config, parsedArgs.configfile);
 
-        super(
+        return new ProcessContext<S, A, D>(
             config,
             cluster,
             sysconfig,

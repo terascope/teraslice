@@ -1,7 +1,5 @@
-import * as ts from '@terascope/utils';
+import { Logger, isString, isFunction } from '@terascope/utils';
 import registerApis from './api/index.js';
-import validateConfigs from './validate-configs.js';
-import { getArgs } from './sysconfig.js';
 import * as i from './interfaces.js';
 
 /**
@@ -16,7 +14,7 @@ export class CoreContext<
     readonly sysconfig!: i.FoundationSysConfig<S>;
     readonly apis!: i.ContextAPIs & A;
     readonly foundation!: i.LegacyFoundationApis;
-    readonly logger!: ts.Logger;
+    readonly logger!: Logger;
     readonly name: string;
     readonly arch = process.arch;
     readonly platform = process.platform;
@@ -45,34 +43,16 @@ export class CoreContext<
             process.title = config.name;
         }
 
-        if (ts.isFunction(config.cluster_name)) {
+        if (isFunction(config.cluster_name)) {
             this.cluster_name = config.cluster_name(this.sysconfig);
         }
 
-        if (ts.isString(config.cluster_name)) {
+        if (isString(config.cluster_name)) {
             this.cluster_name = config.cluster_name;
         }
 
         registerApis(this);
     }
-
-    async initialize() {
-
-        const parsedArgs = getArgs<S>(
-            config.default_config_file
-        );
-
-        const sysconfig = await validateConfigs(
-            cluster,
-            config,
-            parsedArgs.configfile
-        );
-        this.sysconfig = sysconfig;
-
-
-        if (ts.isFunction(this.config.cluster_name)) {
-            this.cluster_name = this.config.cluster_name(this.sysconfig);
-        }    }
 }
 
 export function handleStdStreams(): void {

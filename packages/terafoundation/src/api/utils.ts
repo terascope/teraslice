@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import bunyan from 'bunyan';
-import * as ts from '@terascope/utils';
+import {
+    toBoolean, debugLogger, isTest,
+    Logger, includes
+} from '@terascope/utils';
 import * as i from '../interfaces.js';
 
 type LogLevelObj = {
@@ -26,16 +29,16 @@ function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
 
 export function createRootLogger(
     context: i.FoundationContext<Record<string, any>>
-): ts.Logger {
-    const useDebugLogger = (ts.toBoolean(process.env.USE_DEBUG_LOGGER || ts.isTest))
-                        && !ts.toBoolean(process.env.TESTING_LOG_LEVEL);
+): Logger {
+    const useDebugLogger = (toBoolean(process.env.USE_DEBUG_LOGGER || isTest))
+                        && !toBoolean(process.env.TESTING_LOG_LEVEL);
     const filename = context.name;
     const name = context.assignment || filename;
     const foundationConfig = context.sysconfig.terafoundation;
     const logLevel = getLogLevel(foundationConfig.log_level);
 
     if (useDebugLogger) {
-        return ts.debugLogger(`${filename}:${name}`);
+        return debugLogger(`${filename}:${name}`);
     }
 
     const streamConfig: bunyan.Stream[] = [];
@@ -43,13 +46,13 @@ export function createRootLogger(
 
     // Setup console logging. Always turned on for development but off by
     // default for production.
-    if (environment === 'development' || ts.includes(foundationConfig.logging, 'console')) {
+    if (environment === 'development' || includes(foundationConfig.logging, 'console')) {
         const level = logLevel.console ? logLevel.console : 'info';
         streamConfig.push({ stream: process.stdout, level });
     }
 
     // Setup logging to files.
-    if (ts.includes(foundationConfig.logging, 'file')) {
+    if (includes(foundationConfig.logging, 'file')) {
         const configPath = foundationConfig.log_path || './logs';
 
         // remove whitespace
@@ -76,7 +79,7 @@ export function createRootLogger(
         assignment: context.assignment,
     };
 
-    const logger = bunyan.createLogger(loggerConfig) as ts.Logger;
+    const logger = bunyan.createLogger(loggerConfig) as Logger;
     logger.flush = async () => true;
     return logger;
 }
