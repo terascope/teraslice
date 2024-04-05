@@ -41,12 +41,12 @@ export default {
                 format: Boolean
             },
             certLocation: {
-                doc: 'Location of ssl cert. Must be provided if `sslEnabled` is true',
+                doc: 'DEPRICATED: Location of ssl cert.',
                 default: '',
                 format: String
             },
             caCertificate: {
-                doc: 'A base64 string of an ssl cert. Must be provided if `sslEnabled` is true',
+                doc: 'A base64 string of an ssl cert.',
                 default: '',
                 format: String
             },
