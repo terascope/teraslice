@@ -46,7 +46,7 @@ export default {
                 format: String
             },
             caCertificate: {
-                doc: 'A base64 string of an ssl cert.',
+                doc: 'A string containing a single or multiple ca certificates',
                 default: '',
                 format: String
             },
