@@ -125,6 +125,11 @@ export function foundationSchema(sysconfig: Terafoundation.SysConfig<any>): conv
                 }
                 // TODO: add regex to check if valid bucket name
             }
+        },
+        global_ca_certificate: {
+            doc: 'CA certificate that will be available for all connectors',
+            default: undefined,
+            format: String
         }
     };
 

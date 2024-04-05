@@ -111,6 +111,10 @@ export default function validateConfigs<
                         connectionConfig as any,
                         connectorValidation
                     );
+                    // Copy globalCaCertificate into all connectors so it is available to clients
+                    result[schemaKey]
+                        .connectors[connector][connection]
+                        .globalCaCertificate = subConfig.global_ca_certificate;
                 }
             }
         }
