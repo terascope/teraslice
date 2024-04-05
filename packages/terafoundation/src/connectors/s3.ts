@@ -62,7 +62,11 @@ export default {
             }
         };
     },
-    validate_config(config: any): void {
+    validate_config(config: any, sysconfig: any): any {
+        /// Copy globalCaCertificate into s3 connector
+        config.globalCaCertificate = sysconfig.terafoundation.global_ca_certificate;
+
+        /// Cross validate s3 configuration
         const caCertExists: boolean = (config.caCertificate.length !== 0);
         const certLocationExists: boolean = (config.certLocation.length !== 0);
         if (caCertExists && certLocationExists) {
@@ -75,5 +79,7 @@ export default {
             throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
                 + 'Set sslEnabled to "true" or don\'t provide a certificate inside of the s3 connection config.');
         }
+
+        return config;
     }
 };

@@ -8,7 +8,7 @@ import {
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema, getConnectorSchemaValidation } from './connector-utils';
+import { getConnectorSchema } from './connector-utils';
 import { foundationSchema } from './schema';
 import * as i from './interfaces';
 
@@ -19,7 +19,8 @@ function validateConfig(
     cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
     namespaceConfig: any,
-    connectorValidation?: ((config: any) => void) | undefined
+    sysconfig?: any,
+    connectorValidation?: ((config: any, sysconfig: any) => void) | undefined
 ) {
     try {
         const config = convict(schema || {});
@@ -35,7 +36,7 @@ function validateConfig(
             } as any);
         }
         if (typeof connectorValidation === 'function') {
-            connectorValidation(config.getProperties());
+            return connectorValidation(config.getProperties(), sysconfig);
         }
 
         return config.getProperties();
@@ -102,19 +103,16 @@ export default function validateConfigs<
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
                 const connectorSchema = getConnectorSchema(connector);
-                const connectorValidation = getConnectorSchemaValidation(connector);
+
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
                     result[schemaKey].connectors[connector][connection] = validateConfig(
                         cluster,
-                        connectorSchema,
+                        connectorSchema.schema,
                         connectionConfig as any,
-                        connectorValidation
+                        sysconfig,
+                        connectorSchema.validator
                     );
-                    // Copy globalCaCertificate into all connectors so it is available to clients
-                    result[schemaKey]
-                        .connectors[connector][connection]
-                        .globalCaCertificate = subConfig.global_ca_certificate;
                 }
             }
         }
