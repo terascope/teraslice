@@ -126,7 +126,7 @@ describe('Validate Configs', () => {
                                 bucketEndpoint: false,
                                 forcePathStyle: false,
                                 secretAccessKey: null,
-                                sslEnabled: false,
+                                sslEnabled: true,
                             }
                         },
                     },
