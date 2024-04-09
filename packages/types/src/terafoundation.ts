@@ -23,6 +23,19 @@ interface SchemaObj<T = any> {
     [key: string]: any;
 }
 
+export type Schema<T> = {
+    [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
+};
+
+export type Initializers = {
+    schema: Schema<any>,
+    validatorFn?: (
+        sysconfig: SysConfig<any>, schema: Schema<any>, connector?: string, connection?: string
+    ) => void,
+    connector?: string,
+    connection?: string
+}
+
 export type Config<
     S = Record<string, any>,
     A = Record<string, any>,

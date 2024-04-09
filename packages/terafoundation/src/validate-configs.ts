@@ -2,14 +2,15 @@ import os from 'os';
 import convict, { addFormats } from 'convict';
 import {
     TSError, isFunction, isPlainObject,
-    isEmpty, concat, PartialDeep
+    isEmpty, concat, PartialDeep, cloneDeep
 } from '@terascope/utils';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
+import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME
 import { getConnectorInitializers } from './connector-utils';
-import { foundationSchema } from './schema';
+import { getFoundationInitializers } from './schema';
 import * as i from './interfaces';
 
 addFormats(convict_format_with_validator);
@@ -18,8 +19,7 @@ addFormats(convict_format_with_moment);
 function validateConfig(
     cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
-    namespaceConfig: any,
-    crossFieldValidation?: ((config: Record<string, any>) => void) | undefined
+    namespaceConfig: any
 ) {
     try {
         const config = convict(schema || {});
@@ -34,9 +34,6 @@ function validateConfig(
                 allowed: true,
             } as any);
         }
-        if (crossFieldValidation) {
-            crossFieldValidation(config.getProperties());
-        }
 
         return config.getProperties();
     } catch (err) {
@@ -44,10 +41,10 @@ function validateConfig(
     }
 }
 
-function extractSchema<S>(
+function extractInitializers<S>(
     fn: any,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Record<string, any> {
+): Initializers {
     if (isFunction(fn)) {
         return fn(sysconfig);
     }
@@ -55,7 +52,7 @@ function extractSchema<S>(
         return fn;
     }
 
-    return {};
+    return { schema: {} };
 }
 
 /**
@@ -80,8 +77,23 @@ export default function validateConfigs<
         throw new Error('Terafoundation requires a valid system configuration');
     }
 
-    const schema = extractSchema(config.config_schema, sysconfig);
-    schema.terafoundation = foundationSchema(sysconfig);
+    const listOfValidations: Initializers[] = [];
+    const {
+        schema: sysconfigSchema,
+        validatorFn: sysconfigValidatorFn
+    } = extractInitializers(config.config_schema, sysconfig); // FixMe test this
+    console.log('@@@@ sysconfigSchema: ', sysconfigSchema);
+
+    listOfValidations.push({ schema: sysconfigSchema, validatorFn: sysconfigValidatorFn });
+
+    const {
+        schema: foundationSchema,
+        validatorFn: foundationValidatorFn
+    } = getFoundationInitializers(); // FixMe test this
+    listOfValidations.push({ schema: foundationSchema, validatorFn: foundationValidatorFn });
+    sysconfigSchema.terafoundation = foundationSchema;
+    console.log('@@@@ sysconfigSchema: ', sysconfigSchema);
+
     const result: any = {};
 
     if (config.schema_formats) {
@@ -90,9 +102,9 @@ export default function validateConfigs<
         });
     }
 
-    const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
+    const schemaKeys = concat(Object.keys(sysconfigSchema), Object.keys(sysconfig));
     for (const schemaKey of schemaKeys) {
-        const subSchema = schema[schemaKey] || {};
+        const subSchema = sysconfigSchema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
         result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
 
@@ -101,16 +113,25 @@ export default function validateConfigs<
 
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const { connectorSchema, validatorFn } = getConnectorInitializers(connector);
+                const {
+                    schema: connSchema,
+                    validatorFn: connValidatorFn
+                } = getConnectorInitializers(connector);
 
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
                     result[schemaKey].connectors[connector][connection] = validateConfig(
                         cluster,
-                        connectorSchema,
-                        connectionConfig as any,
-                        validatorFn
+                        connSchema,
+                        connectionConfig as any
                     );
+
+                    listOfValidations.push({
+                        schema: connSchema,
+                        validatorFn: connValidatorFn,
+                        connector,
+                        connection
+                    });
                 }
             }
         }
@@ -124,6 +145,16 @@ export default function validateConfigs<
         result._nodeName = `${hostname}.${cluster.worker.id}`;
     } else {
         result._nodeName = hostname;
+    }
+
+    console.log('@@@@ listofValidations: ', listOfValidations);
+    const resultCopy = cloneDeep(result);
+    for (const {
+        schema, validatorFn, connector, connection
+    } of listOfValidations) {
+        if (validatorFn) {
+            validatorFn(resultCopy, schema, connector, connection);
+        }
     }
 
     return result;

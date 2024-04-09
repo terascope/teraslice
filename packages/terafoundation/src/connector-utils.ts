@@ -1,5 +1,6 @@
 import path from 'path';
 import { TSError, parseError, Logger } from '@terascope/utils';
+import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME
 
 type ErrorResult = {
     filePath: string;
@@ -105,15 +106,15 @@ export function getConnectorModule(name: string, reason: string): any {
     return null;
 }
 
-export function getConnectorInitializers(name: string): Record<string, any> {
+export function getConnectorInitializers(name: string): Initializers {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
     if (!mod) {
         console.warn(`[WARNING] ${reason}`);
-        return {};
+        return { schema: {} };
     }
-    return { connectorSchema: mod.config_schema(), validatorFn: mod.validate_config };
+    return { schema: mod.config_schema(), validatorFn: mod.validate_config };
 }
 
 export function createConnection(

@@ -5,6 +5,7 @@ import {
     isInteger
 } from '@terascope/utils';
 import { cpus } from 'node:os';
+import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME
 
 const workerCount = cpus().length;
 
@@ -322,8 +323,11 @@ export const schema = {
     }
 };
 
-export function configSchema() {
-    return { teraslice: schema };
+export function configSchema(): Initializers {
+    return {
+        schema: { teraslice: schema },
+        validatorFn: undefined
+    };
 }
 
 // TODO: fix this

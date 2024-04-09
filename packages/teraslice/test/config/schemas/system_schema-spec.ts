@@ -4,7 +4,7 @@ import { config_schema } from '../../../src/lib/config/schemas/system.js';
 import('@terascope/job-components');
 
 describe('system_schema', () => {
-    const schema = config_schema().teraslice;
+    const schema = config_schema().schema.teraslice;
 
     function checkValidation(config: Record<string, any>) {
         try {

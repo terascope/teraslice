@@ -137,7 +137,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe("when using using a connector that doesn't exist", () => {
+    describe("when using a connector that doesn't exist", () => {
         const configFile = {
             terafoundation: {
                 connectors: {
