@@ -25,18 +25,13 @@ function requireConnector(filePath: string, errors: ErrorResult[]) {
         valid = false;
     }
 
-    /* TODO: Add this once we add validate_config function to all connectors because
-        as of right now this fucntion is unique to the s3 connector
-
-    */
-
-    // if (mod && typeof mod.validate_config !== 'function') {
-    //     errors.push({
-    //         filePath,
-    //         message: `Connector ${filePath} missing required validate_config function`,
-    //     });
-    //     valid = false;
-    // }
+    if (mod && mod.validate_config && typeof mod.validate_config !== 'function') {
+        errors.push({
+            filePath,
+            message: `Connector ${filePath} validate_config must be a function`,
+        });
+        valid = false;
+    }
 
     if (mod && typeof mod.create !== 'function') {
         errors.push({
@@ -110,17 +105,15 @@ export function getConnectorModule(name: string, reason: string): any {
     return null;
 }
 
-export function getConnectorSchema(name: string): Record<string, any> {
+export function getConnectorInitializers(name: string): Record<string, any> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
     if (!mod) {
         console.warn(`[WARNING] ${reason}`);
         return {};
-    } if (typeof mod.validate_config === 'function') {
-        return { schema: mod.config_schema(), validator: mod.validate_config };
     }
-    return { schema: mod.config_schema() };
+    return { connectorSchema: mod.config_schema(), validatorFn: mod.validate_config };
 }
 
 export function createConnection(

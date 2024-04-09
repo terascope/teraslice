@@ -8,7 +8,7 @@ import {
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema } from './connector-utils';
+import { getConnectorInitializers } from './connector-utils';
 import { foundationSchema } from './schema';
 import * as i from './interfaces';
 
@@ -19,8 +19,7 @@ function validateConfig(
     cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
     namespaceConfig: any,
-    sysconfig?: any,
-    connectorValidation?: ((config: any, sysconfig: any) => void) | undefined
+    crossFieldValidation?: ((config: Record<string, any>) => void) | undefined
 ) {
     try {
         const config = convict(schema || {});
@@ -35,8 +34,8 @@ function validateConfig(
                 allowed: true,
             } as any);
         }
-        if (typeof connectorValidation === 'function') {
-            return connectorValidation(config.getProperties(), sysconfig);
+        if (crossFieldValidation) {
+            crossFieldValidation(config.getProperties());
         }
 
         return config.getProperties();
@@ -102,16 +101,15 @@ export default function validateConfigs<
 
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const connectorSchema = getConnectorSchema(connector);
+                const { connectorSchema, validatorFn } = getConnectorInitializers(connector);
 
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
                     result[schemaKey].connectors[connector][connection] = validateConfig(
                         cluster,
-                        connectorSchema.schema,
+                        connectorSchema,
                         connectionConfig as any,
-                        sysconfig,
-                        connectorSchema.validator
+                        validatorFn
                     );
                 }
             }

@@ -37,7 +37,6 @@ teraslice:
 | **asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
 | **asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
 | **asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
-| **global_ca_certificate** |  `String` | none |       A global ca-certificate that will get passed down to all connectors.
 | **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
 | **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
