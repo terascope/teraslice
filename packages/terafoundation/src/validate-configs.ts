@@ -46,7 +46,11 @@ function extractInitializers<S>(
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
 ): Terafoundation.Initializers {
     if (isFunction(fn)) {
-        return fn(sysconfig);
+        const result = fn(sysconfig);
+        if (result.schema) {
+            return result;
+        }
+        return { schema: fn(sysconfig) };
     }
     if (isPlainObject(fn)) {
         return { schema: fn };

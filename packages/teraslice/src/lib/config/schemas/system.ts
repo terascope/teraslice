@@ -5,7 +5,6 @@ import {
     isInteger
 } from '@terascope/utils';
 import { cpus } from 'node:os';
-import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME
 
 const workerCount = cpus().length;
 
@@ -323,14 +322,8 @@ export const schema = {
     }
 };
 
-// This function is used to make cross-field validations if needed
-export const validatorFn = () => {};
-
-export function configSchema(): Initializers {
-    return {
-        schema: { teraslice: schema },
-        validatorFn
-    };
+export function configSchema() {
+    return { teraslice: schema };
 }
 
 // TODO: fix this

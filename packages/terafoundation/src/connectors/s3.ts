@@ -1,6 +1,6 @@
 import { Logger } from '@terascope/utils';
 import { createS3Client, S3ClientConfig } from '@terascope/file-asset-apis';
-import * as i from '../interfaces';
+import { Terafoundation } from '@terascope/types';
 
 export default {
     create() {
@@ -64,7 +64,7 @@ export default {
         };
     },
     validate_config(
-        sysconfig: i.FoundationSysConfig<any>,
+        sysconfig: Terafoundation.SysConfig<any>,
         subconfig: S3ClientConfig,
         name: string
     ): void {
