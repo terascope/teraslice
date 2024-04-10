@@ -69,15 +69,6 @@ export interface FoundationAPIs {
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
-export interface LegacyFoundationApis {
-    /** Create a child logger */
-    makeLogger(metadata?: Record<string, string>): Logger;
-    /** Create the root logger (usually done automatically) */
-    makeLogger(name: string, filename: string): Logger;
-    getEventEmitter(): EventEmitter;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
-}
-
 export type ContextAPIs = {
     readonly foundation: FoundationAPIs;
     registerAPI(namespace: string, apis: any): void;
@@ -124,7 +115,6 @@ export type FoundationContext<
 > = {
     sysconfig: FoundationSysConfig<S>;
     apis: ContextAPIs & A;
-    foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
     arch: string;

@@ -42,16 +42,6 @@ describe('apis module', () => {
         }).toThrowError('Registration of API endpoints for module testapi can only occur once');
     });
 
-    it('deprecated terafoundation api endpoints should exist', () => {
-        expect(context.foundation.makeLogger).toBeDefined();
-        expect(context.foundation.getEventEmitter).toBeDefined();
-        expect(context.foundation.startWorkers).toBeDefined();
-
-        expect(typeof context.foundation.makeLogger).toBe('function');
-        expect(typeof context.foundation.getEventEmitter).toBe('function');
-        expect(typeof context.foundation.startWorkers).toBe('function');
-    });
-
     it('updated terafoundation api endpoints should exist', () => {
         expect(context.apis.foundation.makeLogger).toBeDefined();
         expect(context.apis.foundation.getSystemEvents).toBeDefined();

@@ -33,7 +33,7 @@ describe('TestContext', () => {
         expect(context.sysconfig).toHaveProperty('hello.name', 'superman');
         expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
-        expect(context).toHaveProperty('foundation');
+
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
@@ -62,6 +62,7 @@ describe('TestContext', () => {
             type: 'test',
             endpoint: 'default'
         });
-        expect(results).toEqual({ client: 'hello' });
+
+        expect(results).toEqual({ client: 'hello', logger });
     });
 });

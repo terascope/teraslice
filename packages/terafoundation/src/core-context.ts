@@ -13,7 +13,6 @@ export class CoreContext<
     readonly cluster: i.Cluster;
     readonly sysconfig!: i.FoundationSysConfig<S>;
     readonly apis!: i.ContextAPIs & A;
-    readonly foundation!: i.LegacyFoundationApis;
     readonly logger!: Logger;
     readonly name: string;
     readonly arch = process.arch;
@@ -27,6 +26,7 @@ export class CoreContext<
         sysconfig: i.FoundationSysConfig<S>,
         assignment?: D
     ) {
+        this.sysconfig = sysconfig;
         this.cluster = cluster;
         this.name = config.name || 'terafoundation';
         this.assignment = assignment || (

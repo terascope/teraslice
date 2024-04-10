@@ -150,21 +150,12 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', async () => {
-            const validatedConfig = await validateConfigs(
+        it('should throw', async () => {
+            await expect(() => validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
-            );
-            expect(validatedConfig).toMatchObject({
-                terafoundation: {
-                    connectors: {
-                        'elasticsearch-next': {},
-                        missing_connector: {}
-                    },
-                },
-                _nodeName: os.hostname()
-            });
+            )).rejects.toThrow('Could not find connector: missing_connector to extract its schema');
         });
     });
 
@@ -185,7 +176,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -206,7 +197,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -227,7 +218,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -248,7 +239,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -279,7 +270,7 @@ describe('Validate Configs', () => {
 
         it('should throw an error', async () => {
             await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
+                .rejects.toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
         });
     });
 
@@ -300,7 +291,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -327,7 +318,7 @@ describe('Validate Configs', () => {
 
         it('should throw an error', async () => {
             await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('asset_storage_connection_type not found in terafoundation.connectors');
+                .rejects.toThrow('asset_storage_connection_type not found in terafoundation.connectors');
         });
     });
     describe('when given an asset_storage_connection_type that is invalid', () => {
@@ -356,7 +347,7 @@ describe('Validate Configs', () => {
 
         it('should throw an error', async () => {
             await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
+                .rejects.toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
         });
     });
 

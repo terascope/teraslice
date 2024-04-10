@@ -1,21 +1,20 @@
 import { Logger } from '@terascope/utils';
+// @ts-expect-error
+import { WebHDFSClient } from 'node-webhdfs';
+import { TerafoundationConnector } from '../interfaces.js';
 
-function create(customConfig: Record<string, any>, logger: Logger): {
-    client: any;
-} {
-    const HdfsClient = require('node-webhdfs').WebHDFSClient;
-    logger.info(`Using hdfs hosts: ${customConfig.host}`);
+const connector: TerafoundationConnector = {
+    async createClient(customConfig: Record<string, any>, logger: Logger) {
+        logger.info(`Using hdfs hosts: ${customConfig.host}`);
 
-    // TODO: there's no error handling here at all???
-    const client = new HdfsClient(customConfig);
+        // TODO: there's no error handling here at all???
+        const client = new WebHDFSClient(customConfig);
 
-    return {
-        client
-    };
-}
-
-export default {
-    create,
+        return {
+            client,
+            logger
+        };
+    },
     config_schema(): Record<string, any> {
         return {
             user: {
@@ -37,3 +36,5 @@ export default {
         };
     }
 };
+
+export default connector;

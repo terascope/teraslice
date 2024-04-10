@@ -14,13 +14,18 @@ async function requireConnector(
     filePath: string,
     errors: ErrorResult[]
 ): Promise<TerafoundationConnector | null> {
-    let mod = await import(filePath);
+    let valid = true;
+    let mod: any;
+
+    try {
+        mod = await import(filePath);
+    } catch (err) {
+        valid = false
+    }
 
     if (mod && mod.default) {
         mod = mod.default;
     }
-
-    let valid = true;
 
     if (typeof mod !== 'object') {
         valid = false;
@@ -119,8 +124,7 @@ export async function getConnectorSchema(name: string): Promise<Record<string, a
 
     const mod = await getConnectorModule(name, reason);
     if (!mod) {
-        console.warn(`[WARNING] ${reason}`);
-        return {};
+        throw new TSError(`Could not find connector: ${name} to extract its schema`);
     }
 
     return mod.config_schema();

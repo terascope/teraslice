@@ -112,15 +112,6 @@ export default function registerApis(context: i.FoundationContext): void {
         registerAPI('foundation', foundationApis);
     }
 
-    // Accessing these APIs directly under context.foundation is deprecated.
-    function _registerLegacyAPIs() {
-        const { getSystemEvents, ...legacyApis } = foundationApis;
-        context.foundation = {
-            ...legacyApis,
-            getEventEmitter: getSystemEvents,
-        };
-    }
-
     /*
      * Used by modules to register API endpoints that can be used elsewhere
      * in the system.
@@ -141,5 +132,4 @@ export default function registerApis(context: i.FoundationContext): void {
     } as any;
 
     _registerFoundationAPIs();
-    _registerLegacyAPIs();
 }

@@ -14,9 +14,11 @@ describe('master', () => {
                 workers: 0
             }
         },
-        foundation: {
-            getEventEmitter() {
-                return events;
+        apis: {
+            foundation: {
+                getSystemEvents() {
+                    return events;
+                }
             }
         },
         cluster,
