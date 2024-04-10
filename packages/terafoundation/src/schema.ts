@@ -1,12 +1,11 @@
 import convict from 'convict';
 import { cpus } from 'os';
-import { Terafoundation } from '@terascope/types';
-import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME add to @terascope/types
+import { PartialDeep, Terafoundation } from '@terascope/types';
 
 const workerCount = cpus().length;
 const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
-export function getFoundationInitializers(): Initializers {
+export function getFoundationInitializers(): Terafoundation.Initializers {
     const schema: convict.Schema<any> = {
         environment: {
             doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
@@ -89,10 +88,13 @@ export function getFoundationInitializers(): Initializers {
         }
     };
 
-    function validate_config(sysconfig: Terafoundation.SysConfig<any>): void {
-        const connectionType = sysconfig.terafoundation.asset_storage_connection_type
+    function validate_config(sysconfig: Terafoundation.SysConfig<any>,
+        subconfig: PartialDeep<Terafoundation.SysConfig<any>>
+    ): void {
+        const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
+        const connectionType = typedSubconfig.asset_storage_connection_type
                                 || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
-        const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
+        const connectionTypesPresent = Object.keys(typedSubconfig.connectors);
         const validConnectionTypes = ['elasticsearch-next', 's3'];
 
         // checks on asset_storage_connection_type
@@ -106,18 +108,19 @@ export function getFoundationInitializers(): Initializers {
         }
 
         // checks on asset_storage_connection
-        const connectionsPresent = Object.keys(sysconfig.terafoundation.connectors[`${connectionType}`]);
+        const connectionsPresent = Object.keys(typedSubconfig.connectors[`${connectionType}`]);
         /// Check to make sure the asset_storage_connection exists inside the connector
         /// Exclude elasticsearch as this connection type does not utilize this value
         if (
-            !connectionsPresent.includes(sysconfig.terafoundation.asset_storage_connection)
-            && !connectionType.includes('elasticsearch-next')
+            connectionType !== 'elasticsearch-next'
+            && typedSubconfig.asset_storage_connection
+            && !connectionsPresent.includes(typedSubconfig.asset_storage_connection)
         ) {
-            throw new Error(`${sysconfig.terafoundation.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
+            throw new Error(`${typedSubconfig.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
         }
 
         // checks on asset_storage_bucket
-        if (sysconfig.terafoundation.asset_storage_bucket && connectionType !== 's3') {
+        if (typedSubconfig.asset_storage_bucket && connectionType !== 's3') {
             throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
         }
         // TODO: add regex to check if valid bucket name

@@ -1,6 +1,5 @@
 import { Logger } from '@terascope/utils';
 import { createS3Client, S3ClientConfig } from '@terascope/file-asset-apis';
-import { Schema } from 'packages/types/dist/src/terafoundation'; // FIXME
 import * as i from '../interfaces';
 
 export default {
@@ -66,22 +65,22 @@ export default {
     },
     validate_config(
         sysconfig: i.FoundationSysConfig<any>,
-        schema: Schema<S3ClientConfig>,
-        connectorName: string,
-        connectionName: string
+        subconfig: S3ClientConfig,
+        name: string
     ): void {
-        const connection = sysconfig.terafoundation.connectors[connectorName][connectionName];
-        const caCertExists: boolean = (connection.caCertificate.length !== 0);
-        const certLocationExists: boolean = (connection.certLocation.length !== 0);
+        const connectorName = name.split(':')[0];
+        const connectionName = name.split(':')[1];
+        const caCertExists: boolean = (subconfig.caCertificate?.length !== 0);
+        const certLocationExists: boolean = (subconfig.certLocation?.length !== 0);
         if (caCertExists && certLocationExists) {
-            throw new Error('"caCertificate" and "certLocation" contradict inside of the s3 connection config.\n'
+            throw new Error(`"caCertificate" and "certLocation" contradict inside of the ${connectorName}.${connectionName} connector.\n`
             + '  Use only one or the other.');
         } else if (
-            (caCertExists && !connection.sslEnabled)
-            || (certLocationExists && !connection.sslEnabled)
+            (caCertExists && !subconfig.sslEnabled)
+            || (certLocationExists && !subconfig.sslEnabled)
         ) {
             throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
-                + '  Set sslEnabled to "true" or don\'t provide a certificate inside of the s3 connection config.');
+                + `  Set sslEnabled to "true" or don't provide a certificate inside of the ${connectorName}.${connectionName} connector.`);
         }
     }
 };

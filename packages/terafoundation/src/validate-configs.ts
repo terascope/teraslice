@@ -8,7 +8,7 @@ import {
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { Initializers } from 'packages/types/dist/src/terafoundation'; // FIXME
+import { Terafoundation } from '@terascope/types';
 import { getConnectorInitializers } from './connector-utils';
 import { getFoundationInitializers } from './schema';
 import * as i from './interfaces';
@@ -44,7 +44,7 @@ function validateConfig(
 function extractInitializers<S>(
     fn: any,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Initializers {
+): Terafoundation.Initializers {
     if (isFunction(fn)) {
         return fn(sysconfig);
     }
@@ -77,19 +77,17 @@ export default function validateConfigs<
         throw new Error('Terafoundation requires a valid system configuration');
     }
 
-    const listOfValidations: Initializers[] = [];
+    const listOfValidations: Record<string, Terafoundation.ValidationObj> = {};
     const {
         schema: sysconfigSchema,
-        validatorFn: sysconfigValidatorFn
+        validatorFn: terasliceValidatorFn
     } = extractInitializers(config.config_schema, sysconfig);
-
-    listOfValidations.push({ schema: sysconfigSchema, validatorFn: sysconfigValidatorFn });
-
+    listOfValidations.teraslice = { validatorFn: terasliceValidatorFn, subconfig: {} };
     const {
         schema: foundationSchema,
         validatorFn: foundationValidatorFn
     } = getFoundationInitializers();
-    listOfValidations.push({ schema: foundationSchema, validatorFn: foundationValidatorFn });
+    listOfValidations.terafoundation = { validatorFn: foundationValidatorFn, subconfig: {} };
     sysconfigSchema.terafoundation = foundationSchema;
 
     const result: any = {};
@@ -104,7 +102,17 @@ export default function validateConfigs<
     for (const schemaKey of schemaKeys) {
         const subSchema = sysconfigSchema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
-        result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
+        const validatedConfig = validateConfig(cluster, subSchema, subConfig);
+        result[schemaKey] = validatedConfig;
+
+        if (listOfValidations[schemaKey]) {
+            listOfValidations[schemaKey].subconfig = validatedConfig;
+        } else {
+            listOfValidations[schemaKey] = {
+                validatorFn: undefined,
+                subconfig: validatedConfig
+            };
+        }
 
         if (schemaKey === 'terafoundation') {
             result[schemaKey].connectors = {};
@@ -118,18 +126,18 @@ export default function validateConfigs<
 
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
-                    result[schemaKey].connectors[connector][connection] = validateConfig(
+                    const validatedConnConfig = validateConfig(
                         cluster,
                         connSchema,
                         connectionConfig as any
                     );
 
-                    listOfValidations.push({
-                        schema: connSchema,
+                    result[schemaKey].connectors[connector][connection] = validatedConnConfig;
+
+                    listOfValidations[`${connector}:${connection}`] = {
                         validatorFn: connValidatorFn,
-                        connector,
-                        connection
-                    });
+                        subconfig: validatedConnConfig
+                    };
                 }
             }
         }
@@ -145,12 +153,18 @@ export default function validateConfigs<
         result._nodeName = hostname;
     }
 
-    const resultCopy = cloneDeep(result);
-    for (const {
-        schema, validatorFn, connector, connection
-    } of listOfValidations) {
-        if (validatorFn) {
-            validatorFn(resultCopy, schema, connector, connection);
+    // Cross-field validation
+    for (const key in listOfValidations) {
+        if (Object.prototype.hasOwnProperty.call(listOfValidations, key)) {
+            const obj = listOfValidations[key];
+
+            if (obj.validatorFn) {
+                try {
+                    obj.validatorFn(cloneDeep(result), cloneDeep(obj.subconfig), key);
+                } catch (err) {
+                    throw new TSError(`Cross-field validation failed: ${err}`);
+                }
+            }
         }
     }
 

@@ -323,10 +323,13 @@ export const schema = {
     }
 };
 
+// This function is used to make cross-field validations if needed
+export const validatorFn = () => {};
+
 export function configSchema(): Initializers {
     return {
         schema: { teraslice: schema },
-        validatorFn: undefined
+        validatorFn
     };
 }
 

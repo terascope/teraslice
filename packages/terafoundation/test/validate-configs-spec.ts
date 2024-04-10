@@ -1,5 +1,6 @@
 import 'jest-extended';
 import os from 'os';
+import { PartialDeep, Terafoundation } from 'packages/types/dist/src';
 import { Cluster } from '../src';
 import validateConfigs from '../src/validate-configs';
 import { getFoundationInitializers } from '../src/schema';
@@ -366,7 +367,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given a config with an elasticsearch with no default connection', () => {
+    describe('when given a config without an asset_storage_connection_type and with an elasticsearch-next with no default connection', () => {
         const configFile = {
             terafoundation: {
                 connectors: {
@@ -411,16 +412,55 @@ describe('Validate Configs', () => {
             });
         });
     });
+
+    describe('when given a config_schema with a validator fn that fails', () => {
+        const configFile = {
+            teraslice: {
+                workers: 4
+            },
+            terafoundation: {
+                asset_storage_bucket: 'testBucket',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    }
+                },
+                workers: 3
+            }
+        };
+        const cluster = {
+            isMaster: true,
+        };
+
+        const testFn = (
+            sysconfig: Terafoundation.SysConfig<any>,
+            subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
+            name: string) => {
+            const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
+            if (sysconfig.terafoundation.workers !== typedSubconfig.workers) {
+                throw new Error(`${name} validatorFn test failed`);
+            }
+        };
+        const config = {
+            config_schema() {
+                return { schema: {}, validatorFn: testFn };
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('teraslice validatorFn test failed');
+        });
+    });
 });
 
 describe('getFoundationInitializers', () => {
-    it('should return an initializer with schema and validatorFn keys', () => {
+    it('should return an initializer with schema key', () => {
         expect(getFoundationInitializers()).toContainKey('schema');
     });
 });
 
 describe('getConnectorInitializers', () => {
-    it('should return an initializer with schema and validatorFn keys', () => {
+    it('should return an initializer with schema key', () => {
         const connector = 'elasticsearch-next';
         expect(getConnectorInitializers(connector)).toContainKey('schema');
     });

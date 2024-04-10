@@ -3,7 +3,7 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'node:cluster';
-import type { Overwrite } from './utility';
+import type { Overwrite, PartialDeep } from './utility';
 import type { Logger } from './logger';
 
 interface Format {
@@ -29,11 +29,18 @@ export type Schema<T> = {
 
 export type Initializers = {
     schema: Schema<any>,
-    validatorFn?: (
-        sysconfig: SysConfig<any>, schema: Schema<any>, connector?: string, connection?: string
-    ) => void,
-    connector?: string,
-    connection?: string
+    validatorFn?: ValidatorFn
+}
+
+export type ValidatorFn = (
+    sysconfig: SysConfig<any>,
+    subConfig: PartialDeep<SysConfig<any>>,
+    name: string
+) => void
+
+export type ValidationObj= {
+    validatorFn: ValidatorFn | undefined,
+    subconfig: PartialDeep<SysConfig<any>>
 }
 
 export type Config<
@@ -125,18 +132,20 @@ export type Cluster = Overwrite<NodeJSCluster, {
 
 export type SysConfig<S> = {
     _nodeName: string;
-    terafoundation: {
-        workers: number;
-        environment: 'production'|'development'|'test'|string;
-        connectors: Record<string, any>;
-        log_path: string;
-        log_level: LogLevelConfig;
-        logging: LogType[];
-        asset_storage_connection_type?: string;
-        asset_storage_connection?: string;
-        asset_storage_bucket?: string;
-    };
+    terafoundation: Foundation
 } & S;
+
+export type Foundation = {
+    workers: number;
+    environment: 'production'|'development'|'test'|string;
+    connectors: Record<string, any>;
+    log_path: string;
+    log_level: LogLevelConfig;
+    logging: LogType[];
+    asset_storage_connection_type?: string;
+    asset_storage_connection?: string;
+    asset_storage_bucket?: string;
+};
 
 export type Context<
     S = Record<string, any>,
