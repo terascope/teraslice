@@ -5,14 +5,12 @@ import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
     S3ClientResponse,
     createS3Bucket,
-    createS3Client,
     deleteS3Object,
     doesBucketExist,
     getS3Object,
     listS3Objects,
     putS3Object,
     S3Client,
-    S3ClientConfig,
     s3RequestWithRetry
 } from '@terascope/file-asset-apis';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
@@ -53,7 +51,6 @@ export class S3Store {
     }
 
     async initialize() {
-
         const { client } = await this.context.apis.foundation
             .createClient({ type: 's3', cached: true, endpoint: this.connection });
 
@@ -61,7 +58,6 @@ export class S3Store {
 
         await pWhile(async () => {
             try {
-                const client = this.api;
                 const exists = await doesBucketExist(client, { Bucket: this.bucket });
                 if (!exists) {
                     await createS3Bucket(client, { Bucket: this.bucket });
