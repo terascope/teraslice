@@ -53,9 +53,11 @@ export class S3Store {
     }
 
     async initialize() {
-        this.api = await createS3Client(
-            this.terafoundation.connectors.s3[this.connection] as S3ClientConfig
-        );
+
+        const { client } = await this.context.apis.foundation
+            .createClient({ type: 's3', cached: true, endpoint: this.connection });
+
+        this.api = client;
 
         await pWhile(async () => {
             try {
