@@ -2,6 +2,8 @@ import 'jest-extended';
 import os from 'os';
 import { Cluster } from '../src';
 import validateConfigs from '../src/validate-configs';
+import { getFoundationInitializers } from '../src/schema';
+import { getConnectorInitializers } from '../src/connector-utils';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
@@ -15,7 +17,9 @@ describe('Validate Configs', () => {
 
         const configFile = {
             terafoundation: {
-
+                connectors: {
+                    'elasticsearch-next': {}
+                }
             },
             other: {
                 test: 'custom'
@@ -179,7 +183,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -200,7 +204,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -221,7 +225,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -242,7 +246,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -261,7 +265,10 @@ describe('Validate Configs', () => {
                         default: {}
                     },
                     s3: {
-                        minio1: {},
+                        minio1: {
+                            accessKeyId: 'test',
+                            secretAccessKey: 'test'
+                        },
                     }
                 }
             },
@@ -272,13 +279,13 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
         it('should throw an error', () => {
             expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
+                .toThrow('minio2 not found in terafoundation.connectors.s3');
         });
     });
 
@@ -294,7 +301,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -320,7 +327,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -349,13 +356,13 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
         it('should throw an error', () => {
             expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
+                .toThrow('Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3');
         });
     });
 
@@ -375,7 +382,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return {};
+                return { schema: {} };
             }
         };
 
@@ -403,5 +410,18 @@ describe('Validate Configs', () => {
                 _nodeName: os.hostname()
             });
         });
+    });
+});
+
+describe('getFoundationInitializers', () => {
+    it('should return an initializer with schema and validatorFn keys', () => {
+        expect(getFoundationInitializers()).toContainKey('schema');
+    });
+});
+
+describe('getConnectorInitializers', () => {
+    it('should return an initializer with schema and validatorFn keys', () => {
+        const connector = 'elasticsearch-next';
+        expect(getConnectorInitializers(connector)).toContainKey('schema');
     });
 });

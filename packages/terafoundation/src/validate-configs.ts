@@ -49,7 +49,7 @@ function extractInitializers<S>(
         return fn(sysconfig);
     }
     if (isPlainObject(fn)) {
-        return fn;
+        return { schema: fn };
     }
 
     return { schema: {} };
@@ -81,18 +81,16 @@ export default function validateConfigs<
     const {
         schema: sysconfigSchema,
         validatorFn: sysconfigValidatorFn
-    } = extractInitializers(config.config_schema, sysconfig); // FixMe test this
-    console.log('@@@@ sysconfigSchema: ', sysconfigSchema);
+    } = extractInitializers(config.config_schema, sysconfig);
 
     listOfValidations.push({ schema: sysconfigSchema, validatorFn: sysconfigValidatorFn });
 
     const {
         schema: foundationSchema,
         validatorFn: foundationValidatorFn
-    } = getFoundationInitializers(); // FixMe test this
+    } = getFoundationInitializers();
     listOfValidations.push({ schema: foundationSchema, validatorFn: foundationValidatorFn });
     sysconfigSchema.terafoundation = foundationSchema;
-    console.log('@@@@ sysconfigSchema: ', sysconfigSchema);
 
     const result: any = {};
 
@@ -147,7 +145,6 @@ export default function validateConfigs<
         result._nodeName = hostname;
     }
 
-    console.log('@@@@ listofValidations: ', listOfValidations);
     const resultCopy = cloneDeep(result);
     for (const {
         schema, validatorFn, connector, connection
