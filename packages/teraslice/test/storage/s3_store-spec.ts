@@ -1,13 +1,29 @@
 import fse from 'fs-extra';
-import { TerafoundationConfig, TestContext } from '@terascope/job-components';
+import { Logger } from '@terascope/utils';
+import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { DeleteBucketCommand } from '@aws-sdk/client-s3';
+import { createS3Client } from '@terascope/file-asset-apis';
 import { S3Store } from '../../src/lib/storage/backends/s3_store';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('S3 backend test', () => {
     let s3Backend: S3Store;
-    const context = new TestContext(`${TEST_INDEX_PREFIX}s3-store-test`) as any;
-    const mockTerafoundation: TerafoundationConfig = {
+    const contextOptions: TestContextOptions = {
+        // assignment: 'assets_service',
+        clients: [
+            {
+                type: 's3',
+                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                    const client = await createS3Client(customConfig, logger);
+                    return { client, logger };
+                },
+                endpoint: 'default'
+            }
+        ]
+
+    };
+    const context = new TestContext(`${TEST_INDEX_PREFIX}s3-store-test`, contextOptions) as any;
+    context.sysconfig.terafoundation = {
         connectors: {
             s3: {
                 default: {
@@ -26,7 +42,7 @@ describe('S3 backend test', () => {
         beforeEach(async () => {
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: 'ts-assets'
             });
@@ -63,7 +79,7 @@ describe('S3 backend test', () => {
         beforeAll(async () => {
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: 'ts-assets'
             });
@@ -119,7 +135,7 @@ describe('S3 backend test', () => {
             bucketName = `ts-assets-${TEST_INDEX_PREFIX}s3-store-test`.replaceAll('_', '-');
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: undefined
             });
@@ -130,10 +146,11 @@ describe('S3 backend test', () => {
         });
 
         it('should create a bucket name where underscores in teraslice.name are replaced by dashes', async () => {
-            const contextWithUnderscoreName = new TestContext('s3_backend_underscores') as any;
+            const contextWithUnderscoreName = new TestContext('s3_backend_underscores', contextOptions) as any;
+            contextWithUnderscoreName.sysconfig.terafoundation = context.sysconfig.terafoundation;
             s3Backend = new S3Store({
                 context: contextWithUnderscoreName,
-                terafoundation: mockTerafoundation,
+                terafoundation: contextWithUnderscoreName.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: undefined
             });
