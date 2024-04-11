@@ -106,7 +106,7 @@ export function getConnectorModule(name: string, reason: string): any {
     return null;
 }
 
-export function getConnectorInitializers<S>(
+export function getConnectorSchemaAndValFn<S>(
     name: string
 ): Terafoundation.Initializers<S> {
     const reason = `Could not retrieve schema code for: ${name}\n`;

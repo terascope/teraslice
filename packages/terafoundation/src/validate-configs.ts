@@ -9,8 +9,8 @@ import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
 import { Terafoundation } from '@terascope/types';
-import { getConnectorInitializers } from './connector-utils';
-import { getFoundationInitializers } from './schema';
+import { getConnectorSchemaAndValFn } from './connector-utils';
+import { foundationSchema, foundationValidatorFn } from './schema';
 import * as i from './interfaces';
 
 addFormats(convict_format_with_validator);
@@ -41,22 +41,39 @@ function validateConfig(
     }
 }
 
-function extractInitializers<S>(
+function extractSchema<S>(
     fn: any,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Terafoundation.Initializers<S> {
+): Terafoundation.Schema<Record<string, any>> {
     if (isFunction(fn)) {
         const result = fn(sysconfig);
         if (result.schema) {
-            return result;
+            return result.schema;
         }
-        return { schema: fn(sysconfig) };
+        return result;
     }
     if (isPlainObject(fn)) {
-        return { schema: fn };
+        return fn;
     }
 
-    return { schema: {} };
+    return {};
+}
+
+function extractValidatorFn<S>(
+    fn: any,
+    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
+): Terafoundation.ValidatorFn<S> | undefined {
+    if (isFunction(fn)) {
+        const result = fn(sysconfig);
+        if (result.validatorFn) {
+            return result.validatorFn;
+        }
+    }
+    if (isPlainObject(fn)) {
+        return fn.validatorFn;
+    }
+
+    return undefined;
 }
 
 /**
@@ -82,18 +99,8 @@ export default function validateConfigs<
     }
 
     const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
-    const {
-        schema: sysconfigSchema,
-        validatorFn: mainSvcValidatorFn
-    } = extractInitializers<S>(config.config_schema, sysconfig);
-    const mainSvcName = Object.keys(sysconfigSchema)[0];
-    listOfValidations[mainSvcName] = { validatorFn: mainSvcValidatorFn, subconfig: {} };
-    const {
-        schema: foundationSchema,
-        validatorFn: foundationValidatorFn
-    } = getFoundationInitializers<S>();
-    listOfValidations.terafoundation = { validatorFn: foundationValidatorFn, subconfig: {} };
-    sysconfigSchema.terafoundation = foundationSchema;
+    const schema = extractSchema(config.config_schema, sysconfig);
+    schema.terafoundation = foundationSchema();
 
     const result: any = {};
 
@@ -103,21 +110,12 @@ export default function validateConfigs<
         });
     }
 
-    const schemaKeys = concat(Object.keys(sysconfigSchema), Object.keys(sysconfig));
+    const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
     for (const schemaKey of schemaKeys) {
-        const subSchema = sysconfigSchema[schemaKey] || {};
+        const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
         const validatedConfig = validateConfig(cluster, subSchema, subConfig);
         result[schemaKey] = validatedConfig;
-
-        if (listOfValidations[schemaKey]) {
-            listOfValidations[schemaKey].subconfig = validatedConfig;
-        } else {
-            listOfValidations[schemaKey] = {
-                validatorFn: undefined,
-                subconfig: validatedConfig
-            };
-        }
 
         if (schemaKey === 'terafoundation') {
             result[schemaKey].connectors = {};
@@ -127,7 +125,7 @@ export default function validateConfigs<
                 const {
                     schema: connectorSchema,
                     validatorFn: connValidatorFn
-                } = getConnectorInitializers<S>(connector);
+                } = getConnectorSchemaAndValFn<S>(connector);
 
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
@@ -141,10 +139,21 @@ export default function validateConfigs<
 
                     listOfValidations[`${connector}:${connection}`] = {
                         validatorFn: connValidatorFn,
-                        subconfig: validatedConnConfig
+                        subconfig: validatedConnConfig,
+                        connector: true
                     };
                 }
             }
+
+            listOfValidations[schemaKey] = {
+                validatorFn: foundationValidatorFn<S>,
+                subconfig: validatedConfig
+            };
+        } else {
+            listOfValidations[schemaKey] = {
+                validatorFn: extractValidatorFn<S>(config.config_schema, sysconfig),
+                subconfig: validatedConfig
+            };
         }
     }
 
@@ -159,16 +168,14 @@ export default function validateConfigs<
     }
 
     // Cross-field validation
-    for (const key in listOfValidations) {
-        if (Object.prototype.hasOwnProperty.call(listOfValidations, key)) {
-            const obj = listOfValidations[key];
+    for (const entry of Object.entries(listOfValidations)) {
+        const [name, validatorObj] = entry;
 
-            if (obj.validatorFn) {
-                try {
-                    obj.validatorFn(cloneDeep(result), cloneDeep(obj.subconfig), key);
-                } catch (err) {
-                    throw new TSError(`Cross-field validation failed: ${err}`);
-                }
+        if (validatorObj.validatorFn) {
+            try {
+                validatorObj.validatorFn(cloneDeep(result), cloneDeep(validatorObj.subconfig));
+            } catch (err) {
+                throw new TSError(`Cross-field validation failed for ${validatorObj.connector ? 'connector ' : ''}'${name}': ${err}`);
             }
         }
     }

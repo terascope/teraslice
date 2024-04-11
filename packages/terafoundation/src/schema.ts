@@ -5,7 +5,7 @@ import { Terafoundation } from '@terascope/types';
 const workerCount = cpus().length;
 const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
-export function getFoundationInitializers<S>(): Terafoundation.Initializers<S> {
+export function foundationSchema() {
     const schema: convict.Schema<Record<string, any>> = {
         environment: {
             doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
@@ -88,43 +88,43 @@ export function getFoundationInitializers<S>(): Terafoundation.Initializers<S> {
         }
     };
 
-    function validate_config(_sysconfig: Terafoundation.SysConfig<S>,
-        subconfig: Record<string, any>
-    ): void {
-        const typedSubconfig = subconfig as Terafoundation.Foundation;
-        const connectionType = typedSubconfig.asset_storage_connection_type
-                                || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
-        const connectionTypesPresent = Object.keys(typedSubconfig.connectors);
-        const validConnectionTypes = ['elasticsearch-next', 's3'];
+    return schema;
+}
 
-        // checks on asset_storage_connection_type
-        if (!validConnectionTypes
-            .includes(connectionType)) {
-            throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
-        }
-        if (!connectionTypesPresent
-            .includes(connectionType)) {
-            throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
-        }
+export function foundationValidatorFn<S>(_sysconfig: Terafoundation.SysConfig<S>,
+    subconfig: Record<string, any>
+): void {
+    const typedSubconfig = subconfig as Terafoundation.Foundation;
+    const connectionType = typedSubconfig.asset_storage_connection_type
+        || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
+    const connectionTypesPresent = Object.keys(typedSubconfig.connectors);
+    const validConnectionTypes = ['elasticsearch-next', 's3'];
 
-        // checks on asset_storage_connection
-        const connectionsPresent = Object.keys(typedSubconfig.connectors[`${connectionType}`]);
-        /// Check to make sure the asset_storage_connection exists inside the connector
-        /// Exclude elasticsearch as this connection type does not utilize this value
-        if (
-            connectionType !== 'elasticsearch-next'
-            && typedSubconfig.asset_storage_connection
-            && !connectionsPresent.includes(typedSubconfig.asset_storage_connection)
-        ) {
-            throw new Error(`${typedSubconfig.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
-        }
-
-        // checks on asset_storage_bucket
-        if (typedSubconfig.asset_storage_bucket && connectionType !== 's3') {
-            throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
-        }
-        // TODO: add regex to check if valid bucket name
+    // checks on asset_storage_connection_type
+    if (!validConnectionTypes
+        .includes(connectionType)) {
+        throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
+    }
+    if (!connectionTypesPresent
+        .includes(connectionType)) {
+        throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
     }
 
-    return { schema, validatorFn: validate_config };
+    // checks on asset_storage_connection
+    const connectionsPresent = Object.keys(typedSubconfig.connectors[`${connectionType}`]);
+    /// Check to make sure the asset_storage_connection exists inside the connector
+    /// Exclude elasticsearch as this connection type does not utilize this value
+    if (
+        connectionType !== 'elasticsearch-next'
+        && typedSubconfig.asset_storage_connection
+        && !connectionsPresent.includes(typedSubconfig.asset_storage_connection)
+    ) {
+        throw new Error(`${typedSubconfig.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
+    }
+
+    // checks on asset_storage_bucket
+    if (typedSubconfig.asset_storage_bucket && connectionType !== 's3') {
+        throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
+    }
+    // TODO: add regex to check if valid bucket name
 }

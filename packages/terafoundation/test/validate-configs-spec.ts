@@ -3,8 +3,7 @@ import os from 'os';
 import { PartialDeep, Terafoundation } from 'packages/types/dist/src';
 import { Cluster } from '../src';
 import validateConfigs from '../src/validate-configs';
-import { getFoundationInitializers } from '../src/schema';
-import { getConnectorInitializers } from '../src/connector-utils';
+import { getConnectorSchemaAndValFn } from '../src/connector-utils';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
@@ -434,11 +433,10 @@ describe('Validate Configs', () => {
 
         const testFn = (
             sysconfig: Terafoundation.SysConfig<any>,
-            subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
-            name: string) => {
+            subconfig: PartialDeep<Terafoundation.SysConfig<any>>) => {
             const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
             if (sysconfig.terafoundation.workers !== typedSubconfig.workers) {
-                throw new Error(`${name} validatorFn test failed`);
+                throw new Error('validatorFn test failed');
             }
         };
         const config = {
@@ -448,20 +446,15 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('teraslice validatorFn test failed');
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Cross-field validation failed for \'teraslice\': Error: validatorFn test failed');
         });
-    });
-});
-
-describe('getFoundationInitializers', () => {
-    it('should return an initializer with schema key', () => {
-        expect(getFoundationInitializers()).toContainKey('schema');
     });
 });
 
 describe('getConnectorInitializers', () => {
     it('should return an initializer with schema key', () => {
         const connector = 'elasticsearch-next';
-        expect(getConnectorInitializers(connector)).toContainKey('schema');
+        expect(getConnectorSchemaAndValFn(connector)).toContainKey('schema');
     });
 });

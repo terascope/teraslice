@@ -34,13 +34,13 @@ export type Initializers<S> = {
 
 export type ValidationObj<S>= {
     subconfig: Record<string, any>,
-    validatorFn?: ValidatorFn<S>
+    validatorFn?: ValidatorFn<S>,
+    connector?: boolean
 }
 
 export type ValidatorFn<S> = (
     sysconfig: SysConfig<S>,
-    subconfig: Record<string, any>,
-    name: string
+    subconfig: Record<string, any>
 ) => void
 
 export type Config<

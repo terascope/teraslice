@@ -65,22 +65,19 @@ export default {
     },
     validate_config<S>(
         _sysconfig: Terafoundation.SysConfig<S>,
-        subconfig: S3ClientConfig,
-        name: string
+        subconfig: S3ClientConfig
     ): void {
-        const connectorName = name.split(':')[0];
-        const connectionName = name.split(':')[1];
         const caCertExists: boolean = (subconfig.caCertificate?.length !== 0);
         const certLocationExists: boolean = (subconfig.certLocation?.length !== 0);
         if (caCertExists && certLocationExists) {
-            throw new Error(`"caCertificate" and "certLocation" contradict inside of the ${connectorName}.${connectionName} connector.\n`
+            throw new Error('"caCertificate" and "certLocation" contradict.\n'
             + '  Use only one or the other.');
         } else if (
             (caCertExists && !subconfig.sslEnabled)
             || (certLocationExists && !subconfig.sslEnabled)
         ) {
             throw new Error('A certificate is provided but sslEnabled is set to "false".\n'
-                + `  Set sslEnabled to "true" or don't provide a certificate inside of the ${connectorName}.${connectionName} connector.`);
+                + '  Set sslEnabled to "true" or don\'t provide a certificate.');
         }
     }
 };
