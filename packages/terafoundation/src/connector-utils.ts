@@ -1,5 +1,6 @@
 import path from 'path';
 import { TSError, parseError, Logger } from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 
 type ErrorResult = {
     filePath: string;
@@ -21,6 +22,14 @@ function requireConnector(filePath: string, errors: ErrorResult[]) {
         errors.push({
             filePath,
             message: `Connector ${filePath} missing required config_schema function`,
+        });
+        valid = false;
+    }
+
+    if (mod && mod.validate_config && typeof mod.validate_config !== 'function') {
+        errors.push({
+            filePath,
+            message: `Connector ${filePath} validate_config must be a function`,
         });
         valid = false;
     }
@@ -97,15 +106,17 @@ export function getConnectorModule(name: string, reason: string): any {
     return null;
 }
 
-export function getConnectorSchema(name: string): Record<string, any> {
+export function getConnectorSchemaAndValFn<S>(
+    name: string
+): Terafoundation.Initializers<S> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
     if (!mod) {
         console.warn(`[WARNING] ${reason}`);
-        return {};
+        return { schema: {} };
     }
-    return mod.config_schema();
+    return { schema: mod.config_schema(), validatorFn: mod.validate_config };
 }
 
 export function createConnection(

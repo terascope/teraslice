@@ -2,14 +2,15 @@ import os from 'os';
 import convict, { addFormats } from 'convict';
 import {
     TSError, isFunction, isPlainObject,
-    isEmpty, concat, PartialDeep
+    isEmpty, concat, PartialDeep, cloneDeep
 } from '@terascope/utils';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchema } from './connector-utils';
-import { foundationSchema } from './schema';
+import { Terafoundation } from '@terascope/types';
+import { getConnectorSchemaAndValFn } from './connector-utils';
+import { foundationSchema, foundationValidatorFn } from './schema';
 import * as i from './interfaces';
 
 addFormats(convict_format_with_validator);
@@ -43,15 +44,36 @@ function validateConfig(
 function extractSchema<S>(
     fn: any,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Record<string, any> {
+): Terafoundation.Schema<Record<string, any>> {
     if (isFunction(fn)) {
-        return fn(sysconfig);
+        const result = fn(sysconfig);
+        if (result.schema) {
+            return result.schema;
+        }
+        return result;
     }
     if (isPlainObject(fn)) {
         return fn;
     }
 
     return {};
+}
+
+function extractValidatorFn<S>(
+    fn: any,
+    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
+): Terafoundation.ValidatorFn<S> | undefined {
+    if (isFunction(fn)) {
+        const result = fn(sysconfig);
+        if (result.validatorFn) {
+            return result.validatorFn;
+        }
+    }
+    if (isPlainObject(fn)) {
+        return fn.validatorFn;
+    }
+
+    return undefined;
 }
 
 /**
@@ -76,8 +98,10 @@ export default function validateConfigs<
         throw new Error('Terafoundation requires a valid system configuration');
     }
 
+    const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
     const schema = extractSchema(config.config_schema, sysconfig);
-    schema.terafoundation = foundationSchema(sysconfig);
+    schema.terafoundation = foundationSchema();
+
     const result: any = {};
 
     if (config.schema_formats) {
@@ -90,25 +114,46 @@ export default function validateConfigs<
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
-
-        result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
+        const validatedConfig = validateConfig(cluster, subSchema, subConfig);
+        result[schemaKey] = validatedConfig;
 
         if (schemaKey === 'terafoundation') {
             result[schemaKey].connectors = {};
 
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const connectorSchema = getConnectorSchema(connector);
-                result[schemaKey].connectors[connector] = {};
+                const {
+                    schema: connectorSchema,
+                    validatorFn: connValidatorFn
+                } = getConnectorSchemaAndValFn<S>(connector);
 
+                result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
-                    result[schemaKey].connectors[connector][connection] = validateConfig(
+                    const validatedConnConfig = validateConfig(
                         cluster,
                         connectorSchema,
                         connectionConfig as any
                     );
+
+                    result[schemaKey].connectors[connector][connection] = validatedConnConfig;
+
+                    listOfValidations[`${connector}:${connection}`] = {
+                        validatorFn: connValidatorFn,
+                        subconfig: validatedConnConfig,
+                        connector: true
+                    };
                 }
             }
+
+            listOfValidations[schemaKey] = {
+                validatorFn: foundationValidatorFn<S>,
+                subconfig: validatedConfig
+            };
+        } else {
+            listOfValidations[schemaKey] = {
+                validatorFn: extractValidatorFn<S>(config.config_schema, sysconfig),
+                subconfig: validatedConfig
+            };
         }
     }
 
@@ -120,6 +165,19 @@ export default function validateConfigs<
         result._nodeName = `${hostname}.${cluster.worker.id}`;
     } else {
         result._nodeName = hostname;
+    }
+
+    // Cross-field validation
+    for (const entry of Object.entries(listOfValidations)) {
+        const [name, validatorObj] = entry;
+
+        if (validatorObj.validatorFn) {
+            try {
+                validatorObj.validatorFn(cloneDeep(validatorObj.subconfig), cloneDeep(result));
+            } catch (err) {
+                throw new TSError(`Cross-field validation failed for ${validatorObj.connector ? 'connector ' : ''}'${name}': ${err}`);
+            }
+        }
     }
 
     return result;

@@ -2473,10 +2473,10 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/file-asset-apis@^0.12.2":
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/@terascope/file-asset-apis/-/file-asset-apis-0.12.2.tgz#90b4d521048d63695d6b552b4fae83a3e14ee113"
-  integrity sha512-qui46Bo90YcWZT8pLM8v0mFvQDPp7b8+TnE5iJCELNO+8RqsdBVgr+xA3YWHSamYHNwL2i8cRUCAyc9Sm92j7w==
+"@terascope/file-asset-apis@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@terascope/file-asset-apis/-/file-asset-apis-0.13.0.tgz#f611e3715bdabfbb1e0b8b0d65e0e3c87b2b0d17"
+  integrity sha512-yFGaCQPiCNCSkerLgq0UPac+WGaSxOaBRD/v8bVxcpe7cwm5tv0bNAIvdi8BVSaMi9IGO1B6D97JfFxKA2q3mg==
   dependencies:
     "@aws-sdk/client-s3" "^3.540.0"
     "@smithy/node-http-handler" "^2.4.3"

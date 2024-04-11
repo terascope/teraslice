@@ -23,6 +23,26 @@ interface SchemaObj<T = any> {
     [key: string]: any;
 }
 
+export type Schema<T> = {
+    [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
+};
+
+export type Initializers<S> = {
+    schema: Schema<Record<string, any>>
+    validatorFn?: ValidatorFn<S>
+}
+
+export type ValidationObj<S>= {
+    subconfig: Record<string, any>,
+    validatorFn?: ValidatorFn<S>,
+    connector?: boolean
+}
+
+export type ValidatorFn<S> = (
+    subconfig: Record<string, any>,
+    sysconfig: SysConfig<S>
+) => void
+
 export type Config<
     S = Record<string, any>,
     A = Record<string, any>,
@@ -112,18 +132,20 @@ export type Cluster = Overwrite<NodeJSCluster, {
 
 export type SysConfig<S> = {
     _nodeName: string;
-    terafoundation: {
-        workers: number;
-        environment: 'production'|'development'|'test'|string;
-        connectors: Record<string, any>;
-        log_path: string;
-        log_level: LogLevelConfig;
-        logging: LogType[];
-        asset_storage_connection_type?: string;
-        asset_storage_connection?: string;
-        asset_storage_bucket?: string;
-    };
+    terafoundation: Foundation
 } & S;
+
+export type Foundation = {
+    workers: number;
+    environment: 'production'|'development'|'test'|string;
+    connectors: Record<string, any>;
+    log_path: string;
+    log_level: LogLevelConfig;
+    logging: LogType[];
+    asset_storage_connection_type?: string;
+    asset_storage_connection?: string;
+    asset_storage_bucket?: string;
+};
 
 export type Context<
     S = Record<string, any>,
