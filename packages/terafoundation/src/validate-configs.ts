@@ -84,9 +84,10 @@ export default function validateConfigs<
     const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
     const {
         schema: sysconfigSchema,
-        validatorFn: terasliceValidatorFn
+        validatorFn: mainSvcValidatorFn
     } = extractInitializers<S>(config.config_schema, sysconfig);
-    listOfValidations.teraslice = { validatorFn: terasliceValidatorFn, subconfig: {} };
+    const mainSvcName = Object.keys(sysconfigSchema)[0];
+    listOfValidations[mainSvcName] = { validatorFn: mainSvcValidatorFn, subconfig: {} };
     const {
         schema: foundationSchema,
         validatorFn: foundationValidatorFn
@@ -124,7 +125,7 @@ export default function validateConfigs<
             const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
                 const {
-                    schema: connSchema,
+                    schema: connectorSchema,
                     validatorFn: connValidatorFn
                 } = getConnectorInitializers<S>(connector);
 
@@ -132,7 +133,7 @@ export default function validateConfigs<
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
                     const validatedConnConfig = validateConfig(
                         cluster,
-                        connSchema,
+                        connectorSchema,
                         connectionConfig as any
                     );
 

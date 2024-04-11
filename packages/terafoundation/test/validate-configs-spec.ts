@@ -184,7 +184,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -205,7 +205,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -226,7 +226,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -247,7 +247,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -280,7 +280,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -302,7 +302,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -328,7 +328,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -357,7 +357,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -383,7 +383,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {} };
+                return {};
             }
         };
 
@@ -443,7 +443,7 @@ describe('Validate Configs', () => {
         };
         const config = {
             config_schema() {
-                return { schema: {}, validatorFn: testFn };
+                return { schema: { teraslice: {} }, validatorFn: testFn };
             }
         };
 

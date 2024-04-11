@@ -63,8 +63,8 @@ export default {
             }
         };
     },
-    validate_config(
-        sysconfig: Terafoundation.SysConfig<any>,
+    validate_config<S>(
+        _sysconfig: Terafoundation.SysConfig<S>,
         subconfig: S3ClientConfig,
         name: string
     ): void {
