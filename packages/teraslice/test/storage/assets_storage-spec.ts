@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
+import { Logger } from '@terascope/utils';
 import { createClient } from 'elasticsearch-store';
+import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsStorage } from '../../src/lib/storage';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
@@ -12,6 +14,14 @@ describe('AssetsStorage using S3 backend', () => {
             {
                 type: 'elasticsearch-next',
                 createClient,
+                endpoint: 'default'
+            },
+            {
+                type: 's3',
+                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                    const client = await createS3Client(customConfig, logger);
+                    return { client, logger };
+                },
                 endpoint: 'default'
             }
         ]
