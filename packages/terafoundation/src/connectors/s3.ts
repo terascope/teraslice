@@ -64,8 +64,8 @@ export default {
         };
     },
     validate_config<S>(
-        _sysconfig: Terafoundation.SysConfig<S>,
-        subconfig: S3ClientConfig
+        subconfig: S3ClientConfig,
+        _sysconfig: Terafoundation.SysConfig<S>
     ): void {
         const caCertExists: boolean = (subconfig.caCertificate?.length !== 0);
         const certLocationExists: boolean = (subconfig.certLocation?.length !== 0);

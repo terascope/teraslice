@@ -91,8 +91,9 @@ export function foundationSchema() {
     return schema;
 }
 
-export function foundationValidatorFn<S>(_sysconfig: Terafoundation.SysConfig<S>,
-    subconfig: Record<string, any>
+export function foundationValidatorFn<S>(
+    subconfig: Record<string, any>,
+    _sysconfig: Terafoundation.SysConfig<S>
 ): void {
     const typedSubconfig = subconfig as Terafoundation.Foundation;
     const connectionType = typedSubconfig.asset_storage_connection_type

@@ -39,8 +39,8 @@ export type ValidationObj<S>= {
 }
 
 export type ValidatorFn<S> = (
-    sysconfig: SysConfig<S>,
-    subconfig: Record<string, any>
+    subconfig: Record<string, any>,
+    sysconfig: SysConfig<S>
 ) => void
 
 export type Config<

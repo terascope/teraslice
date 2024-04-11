@@ -432,8 +432,8 @@ describe('Validate Configs', () => {
         };
 
         const testFn = (
-            sysconfig: Terafoundation.SysConfig<any>,
-            subconfig: PartialDeep<Terafoundation.SysConfig<any>>) => {
+            subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
+            sysconfig: Terafoundation.SysConfig<any>) => {
             const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
             if (sysconfig.terafoundation.workers !== typedSubconfig.workers) {
                 throw new Error('validatorFn test failed');

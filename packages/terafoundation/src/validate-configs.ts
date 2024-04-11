@@ -173,7 +173,7 @@ export default function validateConfigs<
 
         if (validatorObj.validatorFn) {
             try {
-                validatorObj.validatorFn(cloneDeep(result), cloneDeep(validatorObj.subconfig));
+                validatorObj.validatorFn(cloneDeep(validatorObj.subconfig), cloneDeep(result));
             } catch (err) {
                 throw new TSError(`Cross-field validation failed for ${validatorObj.connector ? 'connector ' : ''}'${name}': ${err}`);
             }
