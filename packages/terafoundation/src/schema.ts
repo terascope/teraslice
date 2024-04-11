@@ -1,12 +1,12 @@
 import convict from 'convict';
 import { cpus } from 'os';
-import { PartialDeep, Terafoundation } from '@terascope/types';
+import { Terafoundation } from '@terascope/types';
 
 const workerCount = cpus().length;
 const DEFAULT_ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next';
 
-export function getFoundationInitializers(): Terafoundation.Initializers {
-    const schema: convict.Schema<any> = {
+export function getFoundationInitializers<S>(): Terafoundation.Initializers<S> {
+    const schema: convict.Schema<Record<string, any>> = {
         environment: {
             doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
             default: 'development',
@@ -88,10 +88,10 @@ export function getFoundationInitializers(): Terafoundation.Initializers {
         }
     };
 
-    function validate_config(sysconfig: Terafoundation.SysConfig<any>,
-        subconfig: PartialDeep<Terafoundation.SysConfig<any>>
+    function validate_config(_sysconfig: Terafoundation.SysConfig<S>,
+        subconfig: Record<string, any>
     ): void {
-        const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
+        const typedSubconfig = subconfig as Terafoundation.Foundation;
         const connectionType = typedSubconfig.asset_storage_connection_type
                                 || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
         const connectionTypesPresent = Object.keys(typedSubconfig.connectors);

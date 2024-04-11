@@ -44,7 +44,7 @@ function validateConfig(
 function extractInitializers<S>(
     fn: any,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Terafoundation.Initializers {
+): Terafoundation.Initializers<S> {
     if (isFunction(fn)) {
         const result = fn(sysconfig);
         if (result.schema) {
@@ -81,16 +81,16 @@ export default function validateConfigs<
         throw new Error('Terafoundation requires a valid system configuration');
     }
 
-    const listOfValidations: Record<string, Terafoundation.ValidationObj> = {};
+    const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
     const {
         schema: sysconfigSchema,
         validatorFn: terasliceValidatorFn
-    } = extractInitializers(config.config_schema, sysconfig);
+    } = extractInitializers<S>(config.config_schema, sysconfig);
     listOfValidations.teraslice = { validatorFn: terasliceValidatorFn, subconfig: {} };
     const {
         schema: foundationSchema,
         validatorFn: foundationValidatorFn
-    } = getFoundationInitializers();
+    } = getFoundationInitializers<S>();
     listOfValidations.terafoundation = { validatorFn: foundationValidatorFn, subconfig: {} };
     sysconfigSchema.terafoundation = foundationSchema;
 
@@ -126,7 +126,7 @@ export default function validateConfigs<
                 const {
                     schema: connSchema,
                     validatorFn: connValidatorFn
-                } = getConnectorInitializers(connector);
+                } = getConnectorInitializers<S>(connector);
 
                 result[schemaKey].connectors[connector] = {};
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {

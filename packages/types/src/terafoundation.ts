@@ -3,7 +3,7 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'node:cluster';
-import type { Overwrite, PartialDeep } from './utility';
+import type { Overwrite } from './utility';
 import type { Logger } from './logger';
 
 interface Format {
@@ -27,21 +27,21 @@ export type Schema<T> = {
     [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
 };
 
-export type Initializers = {
-    schema: Schema<any>,
-    validatorFn?: ValidatorFn
+export type Initializers<S> = {
+    schema: Schema<Record<string, any>>
+    validatorFn?: ValidatorFn<S>
 }
 
-export type ValidatorFn = (
-    sysconfig: SysConfig<any>,
-    subConfig: PartialDeep<SysConfig<any>>,
+export type ValidationObj<S>= {
+    subconfig: Record<string, any>,
+    validatorFn?: ValidatorFn<S>
+}
+
+export type ValidatorFn<S> = (
+    sysconfig: SysConfig<S>,
+    subconfig: Record<string, any>,
     name: string
 ) => void
-
-export type ValidationObj= {
-    validatorFn: ValidatorFn | undefined,
-    subconfig: PartialDeep<SysConfig<any>>
-}
 
 export type Config<
     S = Record<string, any>,
