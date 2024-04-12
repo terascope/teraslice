@@ -112,10 +112,23 @@ export class JobsService {
         return this.updateJob(jobId, job);
     }
 
+    /**
+     * Update a job
+     *
+     * @param {string} jobId
+     * @param {Partial<jobRecord>} jobSpec
+     * @returns {Promise<JobRecord>}
+     */
     async updateJob(jobId: string, jobSpec: Partial<JobRecord>) {
-        await this._validateJobSpec(jobSpec);
-
         const originalJob = await this.jobsStorage.get(jobId);
+
+        // If job is switching from active to inactive job validation is skipped
+        // This allows for old jobs that are missing required resources to be marked inactive
+        if (originalJob.active !== false && jobSpec.active === false) {
+            this.logger.info(`Skipping job validation to set jobId ${jobId} as _inactive`);
+        } else {
+            await this._validateJobSpec(jobSpec);
+        }
 
         return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
