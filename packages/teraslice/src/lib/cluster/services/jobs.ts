@@ -112,8 +112,19 @@ export class JobsService {
         return this.updateJob(jobId, job);
     }
 
+    /**
+     * Update a job
+     *
+     * @param {string} jobId
+     * @param {Partial<jobRecord>} jobSpec
+     * @returns {Promise<JobRecord>}
+     */
     async updateJob(jobId: string, jobSpec: Partial<JobRecord>) {
-        await this._validateJobSpec(jobSpec);
+        // If job is inactive job validation is skipped
+        // This allows for old jobs that are missing required resources to be marked inactive
+        if (jobSpec.active === true) {
+            await this._validateJobSpec(jobSpec);
+        }
 
         const originalJob = await this.jobsStorage.get(jobId);
 
