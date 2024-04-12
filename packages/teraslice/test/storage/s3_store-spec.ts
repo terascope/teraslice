@@ -1,8 +1,7 @@
 import fse from 'fs-extra';
 import { Logger } from '@terascope/utils';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
-import { DeleteBucketCommand } from '@aws-sdk/client-s3';
-import { createS3Client } from '@terascope/file-asset-apis';
+import { createS3Client, deleteS3Bucket } from '@terascope/file-asset-apis';
 import { S3Store } from '../../src/lib/storage/backends/s3_store';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
@@ -55,10 +54,10 @@ describe('S3 backend test', () => {
         });
 
         it('should throw error trying to verify client if bucket does not exist', async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
 
             const response = await s3Backend.verifyClient();
             expect(response).toEqual(false);
@@ -68,10 +67,10 @@ describe('S3 backend test', () => {
             const response = await s3Backend.verifyClient();
             expect(response).toEqual(true);
 
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
         });
     });
 
@@ -88,10 +87,10 @@ describe('S3 backend test', () => {
         });
 
         afterAll(async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
             await s3Backend.shutdown();
         });
 
@@ -124,10 +123,10 @@ describe('S3 backend test', () => {
         let bucketName: string;
 
         afterAll(async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: bucketName
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
             await s3Backend.shutdown();
         });
 
