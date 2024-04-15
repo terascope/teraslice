@@ -1,5 +1,6 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers';
 import {
@@ -11,9 +12,11 @@ import {
     newTestSlice
 } from '../../src';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname, '..');
+    const assetDir = path.join(dirname, '..');
 
     const context = new TestContext('worker-execution-context');
 

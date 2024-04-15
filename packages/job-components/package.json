@@ -13,6 +13,7 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
@@ -26,9 +27,9 @@
         "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test . --",
+        "test:debug": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --debug . --",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/utils": "^0.57.0",

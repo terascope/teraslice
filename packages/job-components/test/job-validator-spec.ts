@@ -1,12 +1,15 @@
 import 'jest-extended'; // require for type definitions
-import * as path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { JobValidator, TestContext, JobConfig } from '../src';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = __dirname;
+    context.sysconfig.teraslice.assets_directory = dirname;
 
-    const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
+    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
         terasliceOpPath,
     });
@@ -140,7 +143,7 @@ describe('JobValidator', () => {
 
         it('can instantiate with an array of asset_paths', () => {
             const testContext = new TestContext('teraslice-operations');
-            testContext.sysconfig.teraslice.assets_directory = [__dirname];
+            testContext.sysconfig.teraslice.assets_directory = [dirname];
 
             const testApi = new JobValidator(context, {
                 terasliceOpPath,

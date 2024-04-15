@@ -21,14 +21,14 @@ export class WorkerExecutionContext
     extends BaseExecutionContext<WorkerOperationLifeCycle>
     implements WorkerOperationLifeCycle {
     // ...
-    readonly processors: ProcessorCore[];
+    readonly processors!: ProcessorCore[];
 
     /** the active (or last) run slice */
     sliceState: WorkerSliceState | undefined;
     status: WorkerStatus = 'initializing';
 
-    private readonly _fetcher: FetcherCore;
-    private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
+    private readonly _fetcher!: FetcherCore;
+    private _queue!: ((input: any) => Promise<ts.DataEntity[]>)[];
 
     constructor(config: ExecutionContextConfig) {
         super(config, 'worker_context');
@@ -46,73 +46,82 @@ export class WorkerExecutionContext
 
         // register the job-observer first
         this.api.addToRegistry('job-observer', JobObserver);
+    }
 
+    static async createContext(config: ExecutionContextConfig): Promise<WorkerExecutionContext> {
+        const context = new WorkerExecutionContext(config);
         // then register the apis specified in config.apis
-        for (const apiConfig of this.config.apis || []) {
+        for (const apiConfig of context.config.apis || []) {
             const name = apiConfig._name;
-            const apiMod = this._loader.loadAPI(name, this.assetIds);
+            const apiMod = await context._loader.loadAPI(name, context.assetIds);
 
-            this.api.addToRegistry(name, apiMod.API);
+            context.api.addToRegistry(name, apiMod.API);
         }
 
         // then register an api associated to a Reader
-        const [readerConfig, ...processorConfigs] = this.config.operations;
-        const readerMod = this._loader.loadReader(readerConfig._op, this.assetIds);
+        const [readerConfig, ...processorConfigs] = context.config.operations;
+        const readerMod = await context._loader.loadReader(readerConfig._op, context.assetIds);
         if (readerMod.API) {
-            this.api.addToRegistry(readerConfig._op, readerMod.API);
+            context.api.addToRegistry(readerConfig._op, readerMod.API);
         }
 
         // then register any apis associated to the processors
-        this.processors = [];
+        // @ts-expect-error
+        context.processors = [];
 
         for (const opConfig of processorConfigs) {
             const name = opConfig._op;
-            const pMod = this._loader.loadProcessor(name, this.assetIds);
+            const pMod = await context._loader.loadProcessor(name, context.assetIds);
             if (pMod.API) {
-                this.api.addToRegistry(name, pMod.API);
+                context.api.addToRegistry(name, pMod.API);
             }
 
-            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
-            this.processors.push(pOp);
+            const pOp = new pMod.Processor(context.context, ts.cloneDeep(opConfig), context.config);
+            context.processors.push(pOp);
         }
 
         // Then add the processors / readers
-        const op = new readerMod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
-        this._fetcher = op;
-        this.addOperation(op);
-        for (const pOp of this.processors) {
-            this.addOperation(pOp);
+        const op = new readerMod.Fetcher(
+            context.context, ts.cloneDeep(readerConfig), context.config
+        );
+        // @ts-expect-error
+        context._fetcher = op;
+        context.addOperation(op);
+        for (const pOp of context.processors) {
+            context.addOperation(pOp);
         }
 
-        this._queue = [
+        context._queue = [
             async (input: any) => {
-                this._onOperationStart(0);
-                if (this.status === 'flushing') {
-                    this._onOperationComplete(0, []);
+                context._onOperationStart(0);
+                if (context.status === 'flushing') {
+                    context._onOperationComplete(0, []);
                     return [];
                 }
 
-                const results = await this.fetcher().handle(input);
-                this._onOperationComplete(0, results);
+                const results = await context.fetcher().handle(input);
+                context._onOperationComplete(0, results);
                 return results;
             },
             async (input: any) => {
-                await this.onSliceStarted();
+                await context.onSliceStarted();
                 return input;
             },
         ];
 
         let i = 0;
-        for (const processor of this.processors) {
+        for (const processor of context.processors) {
             const index = ++i;
 
-            this._queue.push(async (input: any) => {
-                this._onOperationStart(index);
+            context._queue.push(async (input: any) => {
+                context._onOperationStart(index);
                 const results = await processor.handle(input);
-                this._onOperationComplete(index, results);
+                context._onOperationComplete(index, results);
                 return results;
             });
         }
+
+        return context;
     }
 
     async initialize(): Promise<void> {

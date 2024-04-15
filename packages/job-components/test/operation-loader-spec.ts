@@ -1,7 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
     OperationLoader,
     newTestExecutionConfig,
@@ -9,15 +10,17 @@ import {
     WorkerContext
 } from '../src';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 describe('OperationLoader', () => {
     const assetId = '1234';
     const tmpDir = createTempDirSync();
     const assetPath = path.join(tmpDir, assetId);
-    const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
-    const processorPath = path.join(__dirname, '..', 'examples', 'asset', 'example-filter-op');
+    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
+    const processorPath = path.join(dirname, '..', 'examples', 'asset', 'example-filter-op');
     const context = new TestContext('teraslice-op-loader');
     const asset = 'asset';
-    const fixturePath = path.join(__dirname, 'fixtures');
+    const fixturePath = path.join(dirname, 'fixtures');
     const assetTestPath = path.join(fixturePath, asset);
 
     beforeAll(async () => {
@@ -42,7 +45,7 @@ describe('OperationLoader', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
-        const results = opLoader.loadProcessor('noop');
+        const results = await opLoader.loadProcessor('noop');
 
         expect(results).toBeDefined();
         expect(results).toBeObject();
@@ -51,18 +54,18 @@ describe('OperationLoader', () => {
         expect(results).toHaveProperty('Schema');
     });
 
-    it('should load by file path', () => {
+    it('should load by file path', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
-        const op = opLoader.loadProcessor(path.join(assetTestPath, 'test-op'));
+        const op = await opLoader.loadProcessor(path.join(assetTestPath, 'test-op'));
 
         expect(op).toBeDefined();
         expect(op).toBeObject();
         expect(op).toHaveProperty('Processor');
         expect(op).toHaveProperty('Schema');
 
-        const reader = opLoader.loadReader(path.join(assetTestPath, 'test-reader'));
+        const reader = await opLoader.loadReader(path.join(assetTestPath, 'test-reader'));
 
         expect(reader).toBeDefined();
         expect(reader).toBeObject();
@@ -71,14 +74,13 @@ describe('OperationLoader', () => {
         expect(reader).toHaveProperty('Schema');
     });
 
-    it('should throw proper errors if op code does not exits', () => {
+    it('should throw proper errors if op code does not exits', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
 
-        expect(() => {
-            opLoader.loadProcessor('someOp');
-        }).toThrowError();
+        await expect(() => opLoader.loadProcessor('someOp')
+        ).rejects.toThrow();
     });
 
     it('should load asset ops', async () => {
@@ -87,7 +89,7 @@ describe('OperationLoader', () => {
             assetPath: tmpDir,
         });
 
-        const results = opLoader.loadProcessor('example-filter-op', [assetId]);
+        const results = await opLoader.loadProcessor('example-filter-op', [assetId]);
 
         expect(results).toBeDefined();
         expect(results).toBeObject();
@@ -95,7 +97,7 @@ describe('OperationLoader', () => {
         expect(results).toHaveProperty('Schema');
     });
 
-    it('should load the new processor', () => {
+    it('should load the new processor', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-op',
@@ -111,11 +113,9 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        expect(() => {
-            opLoader.loadProcessor('fail');
-        }).toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadProcessor('example-op', [asset]);
+        const op = await opLoader.loadProcessor('example-op', [asset]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -130,7 +130,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('should load the new processor from a list of assetDirs', () => {
+    it('should load the new processor from a list of assetDirs', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-op',
@@ -146,11 +146,9 @@ describe('OperationLoader', () => {
             assetPath: [tmpDir, fixturePath],
         });
 
-        expect(() => {
-            opLoader.loadProcessor('fail');
-        }).toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadProcessor('fail')).rejects.toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadProcessor('example-op', [asset]);
+        const op = await opLoader.loadProcessor('example-op', [asset]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -165,7 +163,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('should load a shimmed processor', () => {
+    it('should load a shimmed processor', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-op',
@@ -181,7 +179,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        const op = opLoader.loadProcessor('test-op', [asset]);
+        const op = await opLoader.loadProcessor('test-op', [asset]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -196,7 +194,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('should load an legacy reader', () => {
+    it('should load an legacy reader', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-reader',
@@ -209,14 +207,14 @@ describe('OperationLoader', () => {
             assetPath: fixturePath
         });
 
-        const op = opLoader.loadReader('legacy-reader', [asset]);
+        const op = await opLoader.loadReader('legacy-reader', [asset]);
 
         expect(op).toHaveProperty('Slicer');
         expect(op).toHaveProperty('Fetcher');
         expect(op).toHaveProperty('Schema');
     });
 
-    it('should load an legacy processor', () => {
+    it('should load an legacy processor', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-reader',
@@ -229,13 +227,13 @@ describe('OperationLoader', () => {
             assetPath: fixturePath
         });
 
-        const op = opLoader.loadProcessor('legacy-op', [asset]);
+        const op = await opLoader.loadProcessor('legacy-op', [asset]);
 
         expect(op).toHaveProperty('Processor');
         expect(op).toHaveProperty('Schema');
     });
 
-    it('should load the new reader', () => {
+    it('should load the new reader', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-reader',
@@ -248,11 +246,9 @@ describe('OperationLoader', () => {
             assetPath: fixturePath
         });
 
-        expect(() => {
-            opLoader.loadReader('fail');
-        }).toThrowError('Unable to find module for operation: fail');
+        await expect(() => opLoader.loadReader('fail')).rejects.toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadReader('example-reader', [asset]);
+        const op = await opLoader.loadReader('example-reader', [asset]);
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
@@ -276,7 +272,7 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('should load a shimmed reader', () => {
+    it('should load a shimmed reader', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'test-reader',
@@ -289,7 +285,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        const op = opLoader.loadReader('test-reader', [asset]);
+        const op = await opLoader.loadReader('test-reader', [asset]);
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
@@ -309,7 +305,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('should load an api', () => {
+    it('should load an api', async () => {
         const exConfig = newTestExecutionConfig();
 
         const opLoader = new OperationLoader({
@@ -317,7 +313,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-api', [asset]);
+        const op = await opLoader.loadAPI('example-api', [asset]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -325,7 +321,7 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('should load an api from a list of assetDirs', () => {
+    it('should load an api from a list of assetDirs', async () => {
         const exConfig = newTestExecutionConfig();
 
         const opLoader = new OperationLoader({
@@ -333,7 +329,7 @@ describe('OperationLoader', () => {
             assetPath: [tmpDir, fixturePath],
         });
 
-        const op = opLoader.loadAPI('example-api', [asset]);
+        const op = await opLoader.loadAPI('example-api', [asset]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -341,7 +337,7 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('should load an api with a namespace', () => {
+    it('should load an api with a namespace', async () => {
         const exConfig = newTestExecutionConfig();
 
         const opLoader = new OperationLoader({
@@ -349,7 +345,7 @@ describe('OperationLoader', () => {
             assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-api:hello', [asset]);
+        const op = await opLoader.loadAPI('example-api:hello', [asset]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -357,14 +353,14 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('should load an observer', () => {
+    it('should load an observer', async () => {
         const exConfig = newTestExecutionConfig();
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-observer', [asset]);
+        const op = await opLoader.loadAPI('example-observer', [asset]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -373,41 +369,33 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('should fail if given an api without the required files', () => {
+    it('should fail if given an api without the required files', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: fixturePath,
         });
 
-        expect(() => {
-            opLoader.loadAPI('empty-api', [asset]);
-        }).toThrowError(/requires at least an api\.js or observer\.js/);
+        await expect(() => opLoader.loadAPI('empty-api', [asset])).rejects.toThrowError(/requires at least an api\.js or observer\.js/);
     });
 
-    it('should fail if given an api with both an observer and api', () => {
+    it('should fail if given an api with both an observer and api', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: fixturePath,
         });
 
-        expect(() => {
-            opLoader.loadAPI('invalid-api-observer', [asset]);
-        }).toThrowError(/required only one api\.js or observer\.js/);
+        await expect(() => opLoader.loadAPI('invalid-api-observer', [asset])).rejects.toThrowError(/required only one api\.js or observer\.js/);
     });
 
-    it('should fail if fetching a file with a . or _', () => {
+    it('should fail if fetching a file with a . or _', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: fixturePath,
         });
 
-        expect(() => {
-            opLoader.loadProcessor('.dot-private-op', [asset]);
-        }).toThrowError();
+        await expect(() => opLoader.loadProcessor('.dot-private-op', [asset])).rejects.toThrowError();
 
-        expect(() => {
-            opLoader.loadProcessor('_underscore-private-op', [asset]);
-        }).toThrowError();
+        await expect(() => opLoader.loadProcessor('_underscore-private-op', [asset])).rejects.toThrowError();
     });
 
     describe('loading bundled asset', () => {
@@ -416,13 +404,13 @@ describe('OperationLoader', () => {
         const api = 'v3_api';
         const reader = 'v3_reader';
 
-        it('should find processors using new format', () => {
+        it('should find processors using new format', async () => {
             const opLoader = new OperationLoader({
                 terasliceOpPath,
                 assetPath: fixturePath,
             });
 
-            const results = opLoader.loadProcessor(processor, [bundleAsset]);
+            const results = await opLoader.loadProcessor(processor, [bundleAsset]);
 
             expect(results).toHaveProperty('Processor');
             expect(results).toHaveProperty('Schema');
@@ -431,13 +419,13 @@ describe('OperationLoader', () => {
             expect(results.Schema).not.toBeNil();
         });
 
-        it('should find readers using new format', () => {
+        it('should find readers using new format', async () => {
             const opLoader = new OperationLoader({
                 terasliceOpPath,
                 assetPath: fixturePath,
             });
 
-            const results = opLoader.loadReader(reader, [bundleAsset]);
+            const results = await opLoader.loadReader(reader, [bundleAsset]);
 
             expect(results).toHaveProperty('Slicer');
             expect(results).toHaveProperty('Fetcher');
@@ -448,13 +436,13 @@ describe('OperationLoader', () => {
             expect(results.Schema).not.toBeNil();
         });
 
-        it('should find apis using new format', () => {
+        it('should find apis using new format', async () => {
             const opLoader = new OperationLoader({
                 terasliceOpPath,
                 assetPath: fixturePath,
             });
 
-            const results = opLoader.loadAPI(api, [bundleAsset]);
+            const results = await opLoader.loadAPI(api, [bundleAsset]);
 
             expect(results).toHaveProperty('API');
             expect(results).toHaveProperty('Schema');
@@ -463,13 +451,13 @@ describe('OperationLoader', () => {
             expect(results.Schema).not.toBeNil();
         });
 
-        it('should find namespaced apis using new format', () => {
+        it('should find namespaced apis using new format', async () => {
             const opLoader = new OperationLoader({
                 terasliceOpPath,
                 assetPath: fixturePath,
             });
 
-            const results = opLoader.loadAPI('v3_api:test-0', [bundleAsset]);
+            const results = await opLoader.loadAPI('v3_api:test-0', [bundleAsset]);
 
             expect(results).toHaveProperty('API');
             expect(results).toHaveProperty('Schema');

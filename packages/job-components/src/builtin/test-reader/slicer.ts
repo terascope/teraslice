@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { parseJSON, fastCloneDeep } from '@terascope/utils';
 import { SlicerRecoveryData } from '../../interfaces';
 import { TestReaderConfig } from './interfaces';

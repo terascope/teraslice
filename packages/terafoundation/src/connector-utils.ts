@@ -20,7 +20,7 @@ async function requireConnector(
     try {
         mod = await import(filePath);
     } catch (err) {
-        valid = false
+        valid = false;
     }
 
     if (mod && mod.default) {

@@ -28,13 +28,15 @@ export function isSlicerExecutionContext(context: unknown): context is SlicerExe
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function makeExecutionContext(config: ExecutionContextConfig): ExecutionContext {
+export async function makeExecutionContext(
+    config: ExecutionContextConfig
+): Promise<ExecutionContext> {
     if (isSlicerContext(config.context)) {
-        return new SlicerExecutionContext(config);
+        return SlicerExecutionContext.createContext(config);
     }
 
     if (isWorkerContext(config.context)) {
-        return new WorkerExecutionContext(config);
+        return WorkerExecutionContext.createContext(config);
     }
 
     throw new Error('ExecutionContext requires an assignment of "execution_controller" or "worker"');

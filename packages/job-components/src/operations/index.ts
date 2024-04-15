@@ -11,7 +11,6 @@ import ParallelSlicer from './parallel-slicer';
 import Slicer from './slicer';
 import APIFactory from './api-factory';
 
-export * from './shims';
 export * from './interfaces';
 export * from './core';
 export {

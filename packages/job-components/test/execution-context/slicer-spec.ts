@@ -1,5 +1,6 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { terasliceOpPath } from '../helpers';
 import {
     SlicerExecutionContext,
@@ -7,9 +8,11 @@ import {
     newTestExecutionConfig
 } from '../../src';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 describe('SlicerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname, '..');
+    const assetDir = path.join(dirname, '..');
     const executionConfig = newTestExecutionConfig();
     executionConfig.operations = [
         {

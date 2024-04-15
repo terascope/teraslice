@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { parseJSON, castArray } from '@terascope/utils';
 import {
     ConnectionConfig,
@@ -59,34 +59,11 @@ interface AssetJSON {
 }
 
 /*
- * This will request a connection based on the 'connection' attribute of an opConfig.
- * Intended as a context API endpoint. Use getClientAsync for elasticsearch connections
- */
-export function getClient(context: Context, config: GetClientConfig, type: string): any {
-    const clientConfig: ConnectionConfig = {
-        type,
-        cached: true,
-        endpoint: 'default',
-    };
-
-    if (config && config.connection) {
-        clientConfig.endpoint = config.connection || 'default';
-        const isCached = config.connection_cache != null;
-        clientConfig.cached = isCached ? config.connection_cache : true;
-    } else {
-        clientConfig.endpoint = 'default';
-        clientConfig.cached = true;
-    }
-
-    return context.foundation.getConnection(clientConfig).client;
-}
-
-/*
  * This will request a connection based on the 'connection' attribute of
  * an opConfig. Used to create new client types for elasticsearch, not for use
  * for other connection types other than elasticsearch-next
  */
-export async function getClientAsync(
+export async function getClient(
     context: Context,
     config: GetClientConfig,
     type: string
@@ -125,12 +102,8 @@ export function registerApis(
     context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
 
     context.apis.registerAPI('op_runner', {
-        // DEPRECATED, PLEASE USE "getClientAsync"
-        getClient(config: GetClientConfig, type: string): { client: any } {
+        getClient(config: GetClientConfig, type: string): Promise<{ client: any }> {
             return getClient(context, config, type);
-        },
-        getClientAsync(config: GetClientConfig, type: string): Promise<{ client: any }> {
-            return getClientAsync(context, config, type);
         },
     });
 

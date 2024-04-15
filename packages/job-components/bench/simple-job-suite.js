@@ -1,6 +1,8 @@
 'use strict';
 
-const path = require('path');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const { Suite } = require('../../utils/bench/helpers');
 const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src');
 
@@ -9,9 +11,11 @@ const SimpleMap = require('./fixtures/simple-map/processor');
 const SimpleFilter = require('./fixtures/simple-filter/processor');
 const SimpleEach = require('./fixtures/simple-each/processor');
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const context = new TestContext('simple-job-suite');
 context.assignment = 'worker';
-context.sysconfig.teraslice.assets_directory = __dirname;
+context.sysconfig.teraslice.assets_directory = dirname;
 
 const executionConfig = newTestExecutionConfig();
 const opConfig = { _op: 'benchmark' };
@@ -43,7 +47,7 @@ const filter = new SimpleFilter(context, opConfig, executionConfig);
 
 const run = async () => {
     const executionContext = new WorkerExecutionContext({
-        terasliceOpPath: path.join(__dirname, '..', '..', 'teraslice', 'lib'),
+        terasliceOpPath: path.join(dirname, '..', '..', 'teraslice', 'lib'),
         context,
         executionConfig,
         assetIds: ['fixtures'],
