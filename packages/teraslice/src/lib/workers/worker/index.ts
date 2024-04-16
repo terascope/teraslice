@@ -6,6 +6,7 @@ import type { EventEmitter } from 'node:events';
 import { ExecutionController, formatURL } from '@terascope/teraslice-messaging';
 import type { Context, WorkerExecutionContext } from '@terascope/job-components';
 import type { SliceCompletePayload } from '@terascope/types';
+import { PromMetricsAPI } from 'terafoundation';
 import { StateStorage, AnalyticsStorage } from '../../storage/index.js';
 import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
@@ -31,6 +32,7 @@ export class Worker {
     forceShutdown = false;
     slicesProcessed = 0;
     isShutdown = false;
+    promMetricsApi: PromMetricsAPI | undefined;
 
     constructor(context: Context, executionContext: WorkerExecutionContext) {
         const workerId = generateWorkerId(context);
@@ -87,6 +89,33 @@ export class Worker {
     async initialize() {
         const { context } = this;
         this.isInitialized = true;
+
+        // if (this.context.sysconfig.terafoundation.prom_metrics_port) {
+        //     const config = {
+        //         assigment: 'worker',
+        //         port: this.context.sysconfig.terafoundation.prom_metrics_port,
+        //         default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+        //                         || true,
+        //         labels: {
+        //             assignment: 'worker',
+        //             ex_id: this.executionContext.exId,
+        //             job_id: this.executionContext.jobId,
+        //             job_name: this.executionContext.config.name,
+        //         }
+        //     };
+        //     const labels = {
+        //         ex_id: this.executionContext.exId,
+        //         job_id: this.executionContext.jobId,
+        //         job_name: this.executionContext.config.name,
+        //     };
+        //     this.promMetricsApi = this.context.apis.foundation.promMetricsApi(
+        //         this.context,
+        //         config,
+        //         this.logger,
+        //         labels
+        //     );
+        //     this.promMetricsApi.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
+        // }
 
         await Promise.all([
             this.stateStorage.initialize(),
@@ -314,6 +343,7 @@ export class Worker {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
+                if (this.promMetricsApi) this.promMetricsApi.inc('slices_complete', {}, 1);
                 return true;
             } catch (err) {
                 if (this.isShuttingDown) {

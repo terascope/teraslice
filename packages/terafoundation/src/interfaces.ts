@@ -5,6 +5,8 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'cluster';
+import { Terafoundation } from '@terascope/types';
+import { PromMetricAPIConfig, PromMetricsAPI } from './prom-metrics';
 
 export type FoundationConfig<
     S = Record<string, any>,
@@ -56,6 +58,12 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
+    promMetricsApi(
+        context: Terafoundation.Context,
+        apiConfig: PromMetricAPIConfig,
+        logger: Logger,
+        labels: Record<string, string>
+    ): PromMetricsAPI;
 }
 
 export interface LegacyFoundationApis {
@@ -104,6 +112,7 @@ export type FoundationSysConfig<S> = {
         asset_storage_connection_type?: string;
         asset_storage_connection?: string;
         asset_storage_bucket?: string;
+        prom_metrics_config?: PromMetricAPIConfig
     };
 } & S;
 

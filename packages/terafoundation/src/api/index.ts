@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events';
 import * as ts from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 import { createConnection, createClient as createDBClient } from '../connector-utils';
 import { createRootLogger } from './utils';
 import * as i from '../interfaces';
+import { PromMetrics, PromMetricAPIConfig } from '../prom-metrics';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
@@ -151,6 +153,15 @@ export default function registerApis(context: i.FoundationContext): void {
             }
 
             return workers;
+        },
+        promMetricsApi(
+            callingContext: Terafoundation.Context,
+            apiConfig: PromMetricAPIConfig,
+            logger: ts.Logger,
+            labels?: Record<string, string>
+        ) {
+            const promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
+            return promMetrics.createAPI();
         }
     };
     function _registerFoundationAPIs() {

@@ -4,6 +4,7 @@ import {
     toBoolean, Logger
 } from '@terascope/utils';
 import type { Context } from '@terascope/job-components';
+import { PromMetricsAPI } from 'terafoundation';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { AssetsStorage } from '../../storage/index.js';
 import {
@@ -19,6 +20,7 @@ export class AssetsService {
     port: string;
     app: express.Express;
     running = false;
+    promMetricsApi?: PromMetricsAPI;
 
     constructor(context: Context) {
         this.context = context;
@@ -38,6 +40,22 @@ export class AssetsService {
 
     async initialize() {
         try {
+            if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+                const config = {
+                    assignment: 'assets_service',
+                    port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
+                    default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                                    || true
+                };
+                // save this in context instead?
+                this.promMetricsApi = this.context.apis.foundation.promMetricsApi(
+                    this.context,
+                    config,
+                    this.logger,
+                );
+                this.promMetricsApi.addMetric('assets_loaded', 'text goes here', [], 'gauge');
+            }
+
             this.assetsStorage = await new AssetsStorage(this.context);
             await this.assetsStorage.initialize();
 
@@ -64,6 +82,7 @@ export class AssetsService {
                             res.status(code).json({
                                 _id: assetId
                             });
+                            if (this.promMetricsApi) this.promMetricsApi.inc('assets_loaded', {}, 1);
                         })
                         .catch((err) => {
                             const { statusCode, message } = parseErrorInfo(err);
@@ -91,6 +110,7 @@ export class AssetsService {
                 } else {
                     requestHandler(async () => {
                         await this.assetsStorage.remove(assetId);
+                        if (this.promMetricsApi) this.promMetricsApi.dec('assets_loaded', {}, 1);
                         return { _id: assetId };
                     });
                 }
@@ -140,7 +160,8 @@ export class AssetsService {
                 this.app.timeout = this.context.sysconfig.teraslice.api_response_timeout;
             });
 
-            await this.assetsStorage.autoload();
+            const autoloadCount = await this.assetsStorage.autoload();
+            if (this.promMetricsApi) this.promMetricsApi.inc('assets_loaded', {}, autoloadCount);
             this.running = true;
         } catch (err) {
             this.running = false;

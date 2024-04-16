@@ -85,6 +85,22 @@ export function foundationSchema() {
             doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
             default: undefined,
             format: String
+        },
+        prom_metrics_port: {
+            doc: '', // FIXME
+            default: 3333,
+            format: Number
+        },
+
+        prom_metrics_assets_port: {
+            doc: '', // FIXME
+            default: 3334,
+            format: Number
+        },
+        prom_default_metrics: {
+            doc: '', // FIXME
+            default: true,
+            format: Boolean
         }
     };
 

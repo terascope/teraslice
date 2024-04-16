@@ -5,6 +5,7 @@ import {
     parseError, Logger
 } from '@terascope/utils';
 import { ClusterMaster as ClusterMasterMessaging } from '@terascope/teraslice-messaging';
+import { PromMetricsAPI } from 'terafoundation';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import {
     ExecutionService, ApiService, JobsService, makeClustering
@@ -18,6 +19,7 @@ export class ClusterMaster {
     running = false;
     readonly assetsUrl: string;
     private messagingServer!: ClusterMasterMessaging.Server;
+    promMetricsApi?: PromMetricsAPI;
 
     constructor(context: ClusterMasterContext) {
         this.context = context;
@@ -138,6 +140,23 @@ export class ClusterMaster {
 
             // this needs to be last
             await services.apiService.initialize();
+
+            if (this.context.sysconfig.terafoundation.prom_metrics_port) {
+                const config = {
+                    assignment: 'cluster_master',
+                    port: this.context.sysconfig.terafoundation.prom_metrics_port,
+                    default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                                    || true
+                };
+                // save this in context instead?
+                this.promMetricsApi = this.context.apis.foundation.promMetricsApi(
+                    this.context,
+                    config,
+                    this.logger
+                );
+                this.promMetricsApi.addMetric('test', 'help string', [], 'counter');
+                this.promMetricsApi.inc('test', {}, 1);
+            }
 
             this.logger.info('cluster master is ready!');
             this.running = true;
