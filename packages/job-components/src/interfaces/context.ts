@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { Logger } from '@terascope/utils';
-import { PromMetricAPIConfig, PromMetricsAPI } from 'terafoundation'; // FIXME
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
 
@@ -205,3 +204,25 @@ export interface ContextClusterConfig {
 }
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
+
+export interface PromMetricAPIConfig {
+    assignment: string
+    port: number
+    default_metrics: boolean,
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
+export interface PromMetricsAPI {
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
+        buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        ageBuckets: number, maxAgeSeconds: number,
+        percentiles: Array<number>) => void;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => boolean;
+}

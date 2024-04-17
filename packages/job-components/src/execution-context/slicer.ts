@@ -1,11 +1,11 @@
 import { cloneDeep } from '@terascope/utils';
-import { PromMetricAPIConfig } from 'terafoundation'; // fixme
 import {
     SlicerOperationLifeCycle,
     ExecutionStats,
     Slice,
     SliceResult,
     SlicerRecoveryData,
+    PromMetricAPIConfig
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig, JobAPIInstances } from './interfaces';

@@ -1,12 +1,11 @@
 import * as ts from '@terascope/utils';
-import { PromMetricAPIConfig } from 'terafoundation'; // FIXME
 import {
     ExecutionContextConfig, RunSliceResult, WorkerSliceState,
     WorkerStatus, SliceStatus, JobAPIInstances
 } from './interfaces';
 import {
     WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics,
-    SliceAnalyticsData
+    SliceAnalyticsData, PromMetricAPIConfig
 } from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
