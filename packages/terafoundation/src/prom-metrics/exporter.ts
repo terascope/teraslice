@@ -1,7 +1,7 @@
 import promClient from 'prom-client';
 import express, { Request, Response } from 'express';
 import { Server } from 'http';
-import { PromMetricAPIConfig } from './interfaces';
+import { PromMetricAPIConfig } from '../interfaces';
 
 export type CloseExporter = () => void;
 
@@ -12,7 +12,11 @@ export default class Exporter {
         promMetricApiConfig: PromMetricAPIConfig
     ) {
         if (promMetricApiConfig.default_metrics) {
-            promClient.collectDefaultMetrics();
+            const defaultMetricsConfig = {
+                prefix: promMetricApiConfig.prefix,
+                labels: promMetricApiConfig.labels
+            };
+            promClient.collectDefaultMetrics(defaultMetricsConfig);
         }
         const { port } = promMetricApiConfig;
         const app = express();

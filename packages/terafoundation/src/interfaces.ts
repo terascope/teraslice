@@ -1,12 +1,13 @@
 import { Format } from 'convict';
+import type {
+    Gauge, Counter, Histogram, Summary
+} from 'prom-client';
 import { EventEmitter } from 'events';
 import { Logger, Overwrite } from '@terascope/utils';
 import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'cluster';
-import { Terafoundation } from '@terascope/types';
-import { PromMetricAPIConfig, PromMetricsAPI } from './prom-metrics';
 
 export type FoundationConfig<
     S = Record<string, any>,
@@ -58,12 +59,13 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    promMetricsApi(
-        context: Terafoundation.Context,
+    createPromMetricsApi(
+        context: FoundationContext,
         apiConfig: PromMetricAPIConfig,
         logger: Logger,
         labels: Record<string, string>
-    ): PromMetricsAPI;
+    ): void;
+    promMetrics?: PromMetricsAPI
 }
 
 export interface LegacyFoundationApis {
@@ -112,7 +114,9 @@ export type FoundationSysConfig<S> = {
         asset_storage_connection_type?: string;
         asset_storage_connection?: string;
         asset_storage_bucket?: string;
-        prom_metrics_config?: PromMetricAPIConfig
+        prom_metrics_main_port?: number;
+        prom_metrics_assets_port?: number;
+        prom_default_metrics?: boolean;
     };
 } & S;
 
@@ -136,3 +140,31 @@ export type FoundationContext<
 export type ParsedArgs<S> = {
     configfile: FoundationSysConfig<S>;
 };
+
+export interface PromMetricAPIConfig {
+    assignment: string
+    port: number
+    default_metrics: boolean,
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
+export type MetricList = Record<string, {
+    readonly name?: string | undefined,
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any> | undefined,
+    readonly functions?: Set<string> | undefined
+}>;
+
+export interface PromMetricsAPI {
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
+        buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        ageBuckets: number, maxAgeSeconds: number,
+        percentiles: Array<number>) => void;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => boolean;
+}

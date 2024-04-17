@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Logger } from '@terascope/utils';
-import { PromMetricAPIConfig, PromMetrics } from 'terafoundation'; // FIXME
+import { PromMetricAPIConfig, PromMetricsAPI } from 'terafoundation'; // FIXME
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
 
@@ -67,7 +67,7 @@ export interface TerafoundationConfig {
     asset_storage_connection_type?: string;
     asset_storage_connection?: string;
     asset_storage_bucket?: string;
-    prom_metrics_port?: number;
+    prom_metrics_main_port?: number;
     prom_metrics_assets_port?: number;
     prom_default_metrics?: boolean;
 }
@@ -106,12 +106,13 @@ export interface FoundationApis {
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    promMetricsApi(
+    createPromMetricsApi(
         context: Context,
         apiConfig: PromMetricAPIConfig,
         logger: Logger,
         labels?: Record<string, string>
-    ): PromMetrics;
+    ): void;
+    promMetrics: PromMetricsAPI
 }
 
 export interface LegacyFoundationApis {

@@ -1,33 +1,29 @@
-import {
-    Terafoundation,
-    Logger
-} from '@terascope/types';
+import { Logger } from '@terascope/utils';
+
 import os from 'os';
 import {
     Gauge, Counter, Histogram, Summary
 } from 'prom-client';
-import { PromMetricAPIConfig, PromMetricsAPI, MetricList } from './interfaces';
+import * as i from '../interfaces';
 
 import Exporter from './exporter';
 
-// export default class PromMetrics extends OperationAPI<JobMetricAPIConfig> {
 export class PromMetrics {
-    readonly metricList!: MetricList;
+    readonly metricList!: i.MetricList;
 
     default_labels!: Record<string, string>;
     prefix: string;
     private metricExporter!: any;
-    private api!: PromMetricsAPI;
-    context: Terafoundation.Context;
-    apiConfig: PromMetricAPIConfig;
+    private api!: i.PromMetricsAPI;
+    context: i.FoundationContext;
+    apiConfig: i.PromMetricAPIConfig;
     logger: Logger;
 
     constructor(
-        context: Terafoundation.Context,
-        apiConfig: PromMetricAPIConfig,
+        context: i.FoundationContext,
+        apiConfig: i.PromMetricAPIConfig,
         logger: Logger,
         labels?: Record<string, string>
-
     ) {
         this.context = context;
         this.apiConfig = apiConfig;
@@ -40,7 +36,7 @@ export class PromMetrics {
         // console.log('@@@@ labels: ', labels);
 
         // Prefix hard coded standardize the way these metrics appear in prometheus
-        this.prefix = `teraslice_${apiConfig.assignment}_`;
+        this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
         this.metricList = {};
         this.setPodName();
     }
@@ -301,9 +297,14 @@ export class PromMetrics {
         return { name, metric: histogram, functions: new Set(['observe']) };
     }
 
-    createAPI(): PromMetricsAPI {
+    createAPI(): i.PromMetricsAPI {
         try {
             if (!this.metricExporter) {
+                this.apiConfig.labels = Object.assign(
+                    {},
+                    this.apiConfig.labels,
+                    this.default_labels
+                );
                 this.metricExporter = new Exporter();
                 this.metricExporter.create(this.apiConfig);
             }

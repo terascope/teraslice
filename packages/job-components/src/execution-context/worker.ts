@@ -1,4 +1,5 @@
 import * as ts from '@terascope/utils';
+import { PromMetricAPIConfig } from 'terafoundation'; // FIXME
 import {
     ExecutionContextConfig, RunSliceResult, WorkerSliceState,
     WorkerStatus, SliceStatus, JobAPIInstances
@@ -74,6 +75,37 @@ export class WorkerExecutionContext
 
             const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
             this.processors.push(pOp);
+        }
+
+        // then add prom metrics api if applicable
+        if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+            const apiConfig: PromMetricAPIConfig = {
+                assignment: 'worker',
+                port: this.context.sysconfig.terafoundation.prom_metrics_main_port,
+                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                                || true,
+                labels: {
+                    assignment: 'worker',
+                    ex_id: this.exId,
+                    job_id: this.jobId,
+                    job_name: this.config.name,
+                }
+            };
+            const labels = {
+                ex_id: this.exId,
+                job_id: this.jobId,
+                job_name: this.config.name,
+                assignment: 'worker',
+            };
+
+            this.context.apis.foundation.createPromMetricsApi(
+                config.context,
+                apiConfig,
+                this.logger,
+                labels
+            );
+
+            this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
         }
 
         // Then add the processors / readers
@@ -293,6 +325,9 @@ export class WorkerExecutionContext
     async onSliceFinished(): Promise<void> {
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
+        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+            this.context.apis.foundation.promMetrics.inc('slices_finished', {}, 1);
+        }
     }
 
     async onSliceFailed(): Promise<void> {

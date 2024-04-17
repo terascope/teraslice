@@ -1,4 +1,5 @@
 import { cloneDeep } from '@terascope/utils';
+import { PromMetricAPIConfig } from 'terafoundation'; // fixme
 import {
     SlicerOperationLifeCycle,
     ExecutionStats,
@@ -49,6 +50,37 @@ export class SlicerExecutionContext
         this.addOperation(op);
 
         this._resetMethodRegistry();
+
+        // then add prom metrics api if applicable
+        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+            const apiConfig: PromMetricAPIConfig = {
+                assignment: 'execution_controller',
+                port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
+                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                                || true,
+                labels: {
+                    assignment: 'execution_controller',
+                    ex_id: this.exId,
+                    job_id: this.jobId,
+                    job_name: this.config.name,
+                }
+            };
+            const labels = {
+                ex_id: this.exId,
+                job_id: this.jobId,
+                job_name: this.config.name,
+                assignment: 'execution_controller',
+            };
+
+            this.context.apis.foundation.createPromMetricsApi(
+                config.context,
+                apiConfig,
+                this.logger,
+                labels
+            );
+
+            this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
+        }
     }
 
     /**
@@ -74,6 +106,9 @@ export class SlicerExecutionContext
 
     onSliceEnqueued(slice: Slice): void {
         this._runMethod('onSliceEnqueued', slice);
+        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+            this.context.apis.foundation.promMetrics.inc('slices_enqueued', {}, 1);
+        }
     }
 
     onSliceDispatch(slice: Slice): void {

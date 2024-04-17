@@ -86,19 +86,19 @@ export function foundationSchema() {
             default: undefined,
             format: String
         },
-        prom_metrics_port: {
-            doc: '', // FIXME
+        prom_metrics_main_port: {
+            doc: 'Port of promethius exporter server for teraslice process',
             default: 3333,
             format: Number
         },
 
         prom_metrics_assets_port: {
-            doc: '', // FIXME
+            doc: 'Port of promethius exporter server for assets_service process',
             default: 3334,
             format: Number
         },
         prom_default_metrics: {
-            doc: '', // FIXME
+            doc: 'If true prom client will display default node metrics',
             default: true,
             format: Boolean
         }

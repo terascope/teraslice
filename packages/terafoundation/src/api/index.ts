@@ -1,10 +1,9 @@
 import { EventEmitter } from 'events';
 import * as ts from '@terascope/utils';
-import { Terafoundation } from '@terascope/types';
 import { createConnection, createClient as createDBClient } from '../connector-utils';
 import { createRootLogger } from './utils';
 import * as i from '../interfaces';
-import { PromMetrics, PromMetricAPIConfig } from '../prom-metrics';
+import { PromMetrics } from '../prom-metrics/prom-metrics-api';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
@@ -13,6 +12,8 @@ export default function registerApis(context: i.FoundationContext): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
+
+    let promMetrics: PromMetrics;
 
     // connection cache
     const connections = Object.create(null);
@@ -154,14 +155,59 @@ export default function registerApis(context: i.FoundationContext): void {
 
             return workers;
         },
-        promMetricsApi(
-            callingContext: Terafoundation.Context,
-            apiConfig: PromMetricAPIConfig,
+        createPromMetricsApi(
+            callingContext: i.FoundationContext,
+            apiConfig: i.PromMetricAPIConfig,
             logger: ts.Logger,
             labels?: Record<string, string>
         ) {
-            const promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
-            return promMetrics.createAPI();
+            promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
+            promMetrics.createAPI();
+        },
+        promMetrics: {
+            set(name: string, labels: Record<string, string>, value: number):void {
+                promMetrics.set(name, labels, value);
+            },
+            inc(name: string, labelValues: Record<string, string>, value: number): void {
+                promMetrics.inc(name, labelValues, value);
+            },
+            dec(name: string, labelValues: Record<string, string>, value: number): void {
+                promMetrics.dec(name, labelValues, value);
+            },
+            observe(name: string, labelValues: Record<string, string>, value: number): void {
+                promMetrics.observe(name, labelValues, value);
+            },
+            async addMetric(
+                name: string,
+                help: string,
+                labelNames: Array<string>,
+                type: 'gauge' | 'counter' | 'histogram',
+                buckets?: Array<number>
+            ): Promise<void> {
+                promMetrics.addMetric(name, help, labelNames, type, buckets);
+            },
+            addSummary(
+                name: string,
+                help: string,
+                labelNames: Array<string>,
+                ageBuckets: number,
+                maxAgeSeconds: number,
+                percentiles: Array<number>
+            ): void {
+                promMetrics.addSummary(name,
+                    help,
+                    labelNames,
+                    ageBuckets,
+                    maxAgeSeconds,
+                    percentiles
+                );
+            },
+            hasMetric(name: string): boolean {
+                return promMetrics.hasMetric(name);
+            },
+            deleteMetric(name: string): boolean {
+                return promMetrics.deleteMetric(name);
+            },
         }
     };
     function _registerFoundationAPIs() {

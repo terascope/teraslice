@@ -93,8 +93,14 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
+    createPromMetricsApi(
+        context: Context,
+        apiConfig: PromMetricAPIConfig,
+        logger: Logger,
+        labels: Record<string, string>
+    ): void;
+    promMetrics?: PromMetricsAPI
 }
-
 export interface LegacyFoundationApis {
     /** Create a child logger */
     makeLogger(metadata?: Record<string, string>): Logger;
@@ -162,4 +168,25 @@ export type Context<
     assignment: D;
     cluster_name?: string;
     cluster: Cluster;
+}
+
+export interface PromMetricAPIConfig {
+    assignment: string
+    port: number
+    default_metrics: boolean,
+    labels?: Record<string, string>
+}
+
+export interface PromMetricsAPI {
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
+        buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        ageBuckets: number, maxAgeSeconds: number,
+        percentiles: Array<number>) => void;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => boolean;
 }
