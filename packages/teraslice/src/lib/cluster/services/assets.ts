@@ -38,14 +38,14 @@ export class AssetsService {
 
     async initialize() {
         try {
-            if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+            if (this.context.sysconfig.terafoundation.export_prom_metrics) {
                 const config = {
                     assignment: 'assets_service',
-                    port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
+                    port: this.context.sysconfig.terafoundation.prom_metrics_assets_port || 3334,
                     default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
                                     || true
                 };
-                this.context.apis.foundation.createPromMetricsApi(
+                this.context.apis.foundation.createPromMetricsAPI(
                     this.context,
                     config,
                     this.logger,
@@ -79,7 +79,7 @@ export class AssetsService {
                             res.status(code).json({
                                 _id: assetId
                             });
-                            if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+                            if (this.context.sysconfig.terafoundation.export_prom_metrics) {
                                 this.context.apis.foundation.promMetrics.inc('assets_loaded', {}, 1);
                             }
                         })
@@ -109,7 +109,7 @@ export class AssetsService {
                 } else {
                     requestHandler(async () => {
                         await this.assetsStorage.remove(assetId);
-                        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+                        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
                             this.context.apis.foundation.promMetrics.dec('assets_loaded', {}, 1);
                         }
                         return { _id: assetId };
@@ -162,7 +162,7 @@ export class AssetsService {
             });
 
             const autoloadCount = await this.assetsStorage.autoload();
-            if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+            if (this.context.sysconfig.terafoundation.export_prom_metrics) {
                 this.context.apis.foundation.promMetrics.inc('assets_loaded', {}, autoloadCount);
             }
             this.running = true;

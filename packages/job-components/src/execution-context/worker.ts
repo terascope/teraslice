@@ -5,7 +5,7 @@ import {
 } from './interfaces';
 import {
     WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics,
-    SliceAnalyticsData, PromMetricAPIConfig
+    SliceAnalyticsData, PromMetricsAPIConfig
 } from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
@@ -77,10 +77,10 @@ export class WorkerExecutionContext
         }
 
         // then add prom metrics api if applicable
-        if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
-            const apiConfig: PromMetricAPIConfig = {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
+            const apiConfig: PromMetricsAPIConfig = {
                 assignment: 'worker',
-                port: this.context.sysconfig.terafoundation.prom_metrics_main_port,
+                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
                 default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
                                 || true,
                 labels: {
@@ -97,7 +97,7 @@ export class WorkerExecutionContext
                 assignment: 'worker',
             };
 
-            this.context.apis.foundation.createPromMetricsApi(
+            this.context.apis.foundation.createPromMetricsAPI(
                 config.context,
                 apiConfig,
                 this.logger,
@@ -324,7 +324,7 @@ export class WorkerExecutionContext
     async onSliceFinished(): Promise<void> {
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
-        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             this.context.apis.foundation.promMetrics.inc('slices_finished', {}, 1);
         }
     }

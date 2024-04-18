@@ -59,6 +59,7 @@ export class ClusterMaster {
 
     async initialize() {
         const clusterConfig = this.context.sysconfig.teraslice;
+        const foundation = this.context.sysconfig.terafoundation;
         const { logger } = this;
 
         try {
@@ -139,15 +140,13 @@ export class ClusterMaster {
             // this needs to be last
             await services.apiService.initialize();
 
-            if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+            if (foundation.export_prom_metrics) {
                 const config = {
                     assignment: 'cluster_master',
-                    port: this.context.sysconfig.terafoundation.prom_metrics_main_port,
-                    default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                                    || true
+                    port: foundation.prom_metrics_main_port || 3333,
+                    default_metrics: foundation.prom_default_metrics || true
                 };
-                // save this in context instead?
-                this.context.apis.foundation.createPromMetricsApi(
+                this.context.apis.foundation.createPromMetricsAPI(
                     this.context,
                     config,
                     this.logger

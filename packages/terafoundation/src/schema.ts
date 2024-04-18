@@ -86,12 +86,16 @@ export function foundationSchema() {
             default: undefined,
             format: String
         },
+        export_prom_metrics: {
+            doc: 'Create promethius exporters',
+            default: false,
+            format: Boolean
+        },
         prom_metrics_main_port: {
             doc: 'Port of promethius exporter server for teraslice process',
             default: 3333,
             format: Number
         },
-
         prom_metrics_assets_port: {
             doc: 'Port of promethius exporter server for assets_service process',
             default: 3334,

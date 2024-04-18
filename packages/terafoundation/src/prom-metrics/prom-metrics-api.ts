@@ -16,12 +16,12 @@ export class PromMetrics {
     private metricExporter!: any;
     private api!: i.PromMetricsAPI;
     context: i.FoundationContext;
-    apiConfig: i.PromMetricAPIConfig;
+    apiConfig: i.PromMetricsAPIConfig;
     logger: Logger;
 
     constructor(
         context: i.FoundationContext,
-        apiConfig: i.PromMetricAPIConfig,
+        apiConfig: i.PromMetricsAPIConfig,
         logger: Logger,
         labels?: Record<string, string>
     ) {
@@ -307,9 +307,10 @@ export class PromMetrics {
                 );
                 this.metricExporter = new Exporter();
                 this.metricExporter.create(this.apiConfig);
+                this.logger.info('promMetricsAPI exporter created');
             }
         } catch (err) {
-            this.logger.info('prom_metric_api exporter already running');
+            this.logger.info('promMetricsAPI exporter already running');
             this.logger.error(err);
         }
         this.api = {
@@ -326,7 +327,7 @@ export class PromMetrics {
     }
 
     async shutdown(): Promise<void> {
-        this.logger.info('prom_metric_api exporter shutdown');
+        this.logger.info('promMetricsAPI exporter shutdown');
         try {
             await this.metricExporter.shutdown();
         } catch (err) {

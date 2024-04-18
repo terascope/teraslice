@@ -136,7 +136,7 @@ export class ExecutionController {
     }
 
     async initialize() {
-        if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             // example usecase
             this.context.apis.foundation.promMetrics.addMetric('slices_dispatched', 'number of slices a slicer has dispatched', [], 'counter');
         }
@@ -609,7 +609,7 @@ export class ExecutionController {
     }
 
     _dispatchSlice(slice: Slice, workerId: string) {
-        if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             // example usecase
             this.context.apis.foundation.promMetrics.inc('slices_dispatched', {}, 1);
         }

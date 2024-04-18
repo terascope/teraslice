@@ -66,6 +66,7 @@ export interface TerafoundationConfig {
     asset_storage_connection_type?: string;
     asset_storage_connection?: string;
     asset_storage_bucket?: string;
+    export_prom_metrics?: boolean;
     prom_metrics_main_port?: number;
     prom_metrics_assets_port?: number;
     prom_default_metrics?: boolean;
@@ -105,9 +106,9 @@ export interface FoundationApis {
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    createPromMetricsApi(
+    createPromMetricsAPI(
         context: Context,
-        apiConfig: PromMetricAPIConfig,
+        apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels?: Record<string, string>
     ): void;
@@ -205,7 +206,7 @@ export interface ContextClusterConfig {
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
 
-export interface PromMetricAPIConfig {
+export interface PromMetricsAPIConfig {
     assignment: string
     port: number
     default_metrics: boolean,

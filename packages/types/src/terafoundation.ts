@@ -93,9 +93,9 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    createPromMetricsApi(
+    createPromMetricsAPI(
         context: Context,
-        apiConfig: PromMetricAPIConfig,
+        apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels: Record<string, string>
     ): void;
@@ -170,7 +170,7 @@ export type Context<
     cluster: Cluster;
 }
 
-export interface PromMetricAPIConfig {
+export interface PromMetricsAPIConfig {
     assignment: string
     port: number
     default_metrics: boolean,

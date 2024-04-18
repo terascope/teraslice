@@ -59,9 +59,9 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    createPromMetricsApi(
+    createPromMetricsAPI(
         context: FoundationContext,
-        apiConfig: PromMetricAPIConfig,
+        apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels: Record<string, string>
     ): void;
@@ -114,6 +114,7 @@ export type FoundationSysConfig<S> = {
         asset_storage_connection_type?: string;
         asset_storage_connection?: string;
         asset_storage_bucket?: string;
+        export_prom_metrics?: boolean;
         prom_metrics_main_port?: number;
         prom_metrics_assets_port?: number;
         prom_default_metrics?: boolean;
@@ -141,7 +142,7 @@ export type ParsedArgs<S> = {
     configfile: FoundationSysConfig<S>;
 };
 
-export interface PromMetricAPIConfig {
+export interface PromMetricsAPIConfig {
     assignment: string
     port: number
     default_metrics: boolean,

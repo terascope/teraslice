@@ -88,7 +88,7 @@ export class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             // example usecase
             this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
         }
@@ -319,7 +319,7 @@ export class Worker {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
-                if (this.context.sysconfig.terafoundation.prom_metrics_main_port) {
+                if (this.context.sysconfig.terafoundation.export_prom_metrics) {
                     this.context.apis.foundation.promMetrics.inc('slices_complete', {}, 1);
                 }
                 return true;

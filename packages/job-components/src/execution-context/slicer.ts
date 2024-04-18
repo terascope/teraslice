@@ -5,7 +5,7 @@ import {
     Slice,
     SliceResult,
     SlicerRecoveryData,
-    PromMetricAPIConfig
+    PromMetricsAPIConfig
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig, JobAPIInstances } from './interfaces';
@@ -52,10 +52,10 @@ export class SlicerExecutionContext
         this._resetMethodRegistry();
 
         // then add prom metrics api if applicable
-        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
-            const apiConfig: PromMetricAPIConfig = {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
+            const apiConfig: PromMetricsAPIConfig = {
                 assignment: 'execution_controller',
-                port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
+                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
                 default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
                                 || true,
                 labels: {
@@ -72,7 +72,7 @@ export class SlicerExecutionContext
                 assignment: 'execution_controller',
             };
 
-            this.context.apis.foundation.createPromMetricsApi(
+            this.context.apis.foundation.createPromMetricsAPI(
                 config.context,
                 apiConfig,
                 this.logger,
@@ -106,7 +106,7 @@ export class SlicerExecutionContext
 
     onSliceEnqueued(slice: Slice): void {
         this._runMethod('onSliceEnqueued', slice);
-        if (this.context.sysconfig.terafoundation.prom_metrics_assets_port) {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             this.context.apis.foundation.promMetrics.inc('slices_enqueued', {}, 1);
         }
     }
