@@ -98,9 +98,10 @@ export interface FoundationAPIs {
         apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels: Record<string, string>
-    ): void;
+    ): Promise<void>;
     promMetrics?: PromMetricsAPI
 }
+
 export interface LegacyFoundationApis {
     /** Create a child logger */
     makeLogger(metadata?: Record<string, string>): Logger;

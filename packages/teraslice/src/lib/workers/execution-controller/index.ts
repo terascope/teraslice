@@ -137,7 +137,7 @@ export class ExecutionController {
 
     async initialize() {
         if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            // example usecase
+            // example usecase fixme
             this.context.apis.foundation.promMetrics.addMetric('slices_dispatched', 'number of slices a slicer has dispatched', [], 'counter');
         }
 

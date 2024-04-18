@@ -76,37 +76,6 @@ export class WorkerExecutionContext
             this.processors.push(pOp);
         }
 
-        // then add prom metrics api if applicable
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            const apiConfig: PromMetricsAPIConfig = {
-                assignment: 'worker',
-                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
-                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                                || true,
-                labels: {
-                    assignment: 'worker',
-                    ex_id: this.exId,
-                    job_id: this.jobId,
-                    job_name: this.config.name,
-                }
-            };
-            const labels = {
-                ex_id: this.exId,
-                job_id: this.jobId,
-                job_name: this.config.name,
-                assignment: 'worker',
-            };
-
-            this.context.apis.foundation.createPromMetricsAPI(
-                config.context,
-                apiConfig,
-                this.logger,
-                labels
-            );
-
-            this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
-        }
-
         // Then add the processors / readers
         const op = new readerMod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
         this._fetcher = op;
@@ -147,6 +116,36 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
+        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
+            const apiConfig: PromMetricsAPIConfig = {
+                assignment: 'worker',
+                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
+                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                                || true,
+                labels: {
+                    assignment: 'worker',
+                    ex_id: this.exId,
+                    job_id: this.jobId,
+                    job_name: this.config.name,
+                }
+            };
+            const labels = {
+                ex_id: this.exId,
+                job_id: this.jobId,
+                job_name: this.config.name,
+                assignment: 'worker',
+            };
+
+            await this.context.apis.foundation.createPromMetricsAPI(
+                this.context,
+                apiConfig,
+                this.logger,
+                labels
+            );
+
+            this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
+        }
+
         await super.initialize();
         this.status = 'idle';
     }

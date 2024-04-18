@@ -33,18 +33,12 @@ export class PromMetrics {
             assignment: apiConfig.assignment,
             ...labels
         };
-        // console.log('@@@@ labels: ', labels);
 
         // Prefix hard coded standardize the way these metrics appear in prometheus
         this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
         this.metricList = {};
         this.setPodName();
     }
-
-    // async initialize(): Promise<PromMetricsAPI> { // FIXME
-    //     this.logger.info(`${this.apiConfig._name}->api is initializing...`);
-    //     return this.createAPI();
-    // }
 
     setPodName(): void {
         // in a pod the hostname is the pod name
@@ -297,7 +291,7 @@ export class PromMetrics {
         return { name, metric: histogram, functions: new Set(['observe']) };
     }
 
-    createAPI(): i.PromMetricsAPI {
+    async createAPI(): Promise<i.PromMetricsAPI> {
         try {
             if (!this.metricExporter) {
                 this.apiConfig.labels = Object.assign(
@@ -305,12 +299,12 @@ export class PromMetrics {
                     this.apiConfig.labels,
                     this.default_labels
                 );
-                this.metricExporter = new Exporter();
-                this.metricExporter.create(this.apiConfig);
-                this.logger.info('promMetricsAPI exporter created');
+                this.metricExporter = new Exporter(this.context);
+                await this.metricExporter.create(this.apiConfig);
+                this.logger.info(`prom_metrics_API exporter created on port ${this.apiConfig.port}`);
             }
         } catch (err) {
-            this.logger.info('promMetricsAPI exporter already running');
+            this.logger.info('prom_metrics_API exporter already running');
             this.logger.error(err);
         }
         this.api = {
@@ -327,7 +321,7 @@ export class PromMetrics {
     }
 
     async shutdown(): Promise<void> {
-        this.logger.info('promMetricsAPI exporter shutdown');
+        this.logger.info('prom_metrics_API exporter shutdown');
         try {
             await this.metricExporter.shutdown();
         } catch (err) {

@@ -64,7 +64,7 @@ export interface FoundationAPIs {
         apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels: Record<string, string>
-    ): void;
+    ): Promise<void>;
     promMetrics?: PromMetricsAPI
 }
 

@@ -50,8 +50,13 @@ export class SlicerExecutionContext
         this.addOperation(op);
 
         this._resetMethodRegistry();
+    }
 
-        // then add prom metrics api if applicable
+    /**
+     * Called during execution initialization
+     * @param recoveryData is the data to recover from
+     */
+    async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
         if (this.context.sysconfig.terafoundation.export_prom_metrics) {
             const apiConfig: PromMetricsAPIConfig = {
                 assignment: 'execution_controller',
@@ -72,8 +77,8 @@ export class SlicerExecutionContext
                 assignment: 'execution_controller',
             };
 
-            this.context.apis.foundation.createPromMetricsAPI(
-                config.context,
+            await this.context.apis.foundation.createPromMetricsAPI(
+                this.context,
                 apiConfig,
                 this.logger,
                 labels
@@ -81,13 +86,7 @@ export class SlicerExecutionContext
 
             this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
         }
-    }
 
-    /**
-     * Called during execution initialization
-     * @param recoveryData is the data to recover from
-     */
-    async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
         return super.initialize(recoveryData);
     }
 

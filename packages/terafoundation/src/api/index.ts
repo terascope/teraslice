@@ -155,7 +155,7 @@ export default function registerApis(context: i.FoundationContext): void {
 
             return workers;
         },
-        createPromMetricsAPI(
+        async createPromMetricsAPI(
             callingContext: i.FoundationContext,
             apiConfig: i.PromMetricsAPIConfig,
             logger: ts.Logger,
@@ -163,9 +163,10 @@ export default function registerApis(context: i.FoundationContext): void {
         ) {
             if (!promMetrics) {
                 promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
-                promMetrics.createAPI();
+                await promMetrics.createAPI();
+            } else {
+                context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
             }
-            context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
         },
         promMetrics: {
             set(name: string, labels: Record<string, string>, value: number):void {

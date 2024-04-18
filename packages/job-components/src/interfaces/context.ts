@@ -111,7 +111,7 @@ export interface FoundationApis {
         apiConfig: PromMetricsAPIConfig,
         logger: Logger,
         labels?: Record<string, string>
-    ): void;
+    ): Promise<void>;
     promMetrics: PromMetricsAPI
 }
 

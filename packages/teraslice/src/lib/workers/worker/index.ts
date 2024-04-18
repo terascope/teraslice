@@ -89,7 +89,7 @@ export class Worker {
         this.isInitialized = true;
 
         if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            // example usecase
+            // example usecase fixme
             this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
         }
 

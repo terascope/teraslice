@@ -146,7 +146,7 @@ export class ClusterMaster {
                     port: foundation.prom_metrics_main_port || 3333,
                     default_metrics: foundation.prom_default_metrics || true
                 };
-                this.context.apis.foundation.createPromMetricsAPI(
+                await this.context.apis.foundation.createPromMetricsAPI(
                     this.context,
                     config,
                     this.logger

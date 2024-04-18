@@ -45,7 +45,7 @@ export class AssetsService {
                     default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
                                     || true
                 };
-                this.context.apis.foundation.createPromMetricsAPI(
+                await this.context.apis.foundation.createPromMetricsAPI(
                     this.context,
                     config,
                     this.logger,
