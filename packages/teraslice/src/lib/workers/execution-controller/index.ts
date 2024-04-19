@@ -136,11 +136,6 @@ export class ExecutionController {
     }
 
     async initialize() {
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            // example usecase fixme
-            this.context.apis.foundation.promMetrics.addMetric('slices_dispatched', 'number of slices a slicer has dispatched', [], 'counter');
-        }
-
         await Promise.all([
             this.executionStorage.initialize(),
             this.stateStorage.initialize(),
@@ -285,6 +280,9 @@ export class ExecutionController {
             await this._terminalError(err);
             throw err;
         }
+
+        // example usecase fixme
+        this.context.apis.foundation.promMetrics.addMetric('slices_dispatched', 'number of slices a slicer has dispatched', [], 'counter');
 
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
@@ -609,10 +607,8 @@ export class ExecutionController {
     }
 
     _dispatchSlice(slice: Slice, workerId: string) {
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            // example usecase
-            this.context.apis.foundation.promMetrics.inc('slices_dispatched', {}, 1);
-        }
+        // example usecase
+        this.context.apis.foundation.promMetrics.inc('slices_dispatched', {}, 1);
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
         return this.server

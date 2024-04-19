@@ -88,10 +88,8 @@ export class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            // example usecase fixme
-            this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
-        }
+        // example usecase fixme
+        this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
 
         await Promise.all([
             this.stateStorage.initialize(),
@@ -319,9 +317,7 @@ export class Worker {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
-                if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-                    this.context.apis.foundation.promMetrics.inc('slices_complete', {}, 1);
-                }
+                this.context.apis.foundation.promMetrics.inc('slices_complete', {}, 1);
                 return true;
             } catch (err) {
                 if (this.isShuttingDown) {

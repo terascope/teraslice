@@ -13,7 +13,7 @@ export class PromMetrics {
 
     default_labels!: Record<string, string>;
     prefix: string;
-    private metricExporter!: any;
+    private metricExporter!: Exporter;
     private api!: i.PromMetricsAPI;
     context: i.FoundationContext;
     apiConfig: i.PromMetricsAPIConfig;
@@ -81,17 +81,13 @@ export class PromMetrics {
      */
     inc(name: string, labels: Record<string, string>, value = 1): void {
         const metric = this.metricList[name];
+        // console.log('@@@@ inc ', name);
         if (!metric.functions || !metric.metric) {
             throw new Error(`Metric ${name} is not setup`);
         }
 
-        // console.log('@@@@ defaultLabels: ', this.default_labels);
         if (metric.functions.has('inc')) {
             const labelValues = Object.keys(labels).map((key) => labels[key]);
-            // console.log('@@@@ labelValues: ', labelValues);
-            // console.log('@@@@ concatLabels: ', labelValues.concat(
-            //     Object.values(this.default_labels)
-            // ));
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
@@ -163,6 +159,8 @@ export class PromMetrics {
      */
     async addMetric(name: string, help: string, labelsNames: Array<string>,
         type: 'gauge' | 'counter' | 'histogram', buckets: Array<number> = [0.1, 5, 15, 50, 100, 500]): Promise<void> {
+        // console.log('@@@@ adding metric:', name);
+
         if (!this.hasMetric(name)) {
             const fullname = this.prefix + name;
             if (type === 'gauge') {
@@ -201,11 +199,13 @@ export class PromMetrics {
      * @return {boolean}
      */
     deleteMetric(name: string): boolean {
+        // console.log('@@@@ deleting:', name);
+
         let deleted = false;
         const fullname = this.prefix + name;
         this.logger.info(`delete metric ${fullname}`);
         if (this.hasMetric(name)) {
-            deleted = delete this.metricList[name];
+            deleted = delete this.metricList[name]; // fixme
             try {
                 this.metricExporter.deleteMetric(fullname);
             } catch (err) {

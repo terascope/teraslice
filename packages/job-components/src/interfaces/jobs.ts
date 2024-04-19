@@ -127,6 +127,12 @@ export interface ValidatedJobConfig {
     volumes?: Volume[];
     /** This will only be available in the context of k8s */
     kubernetes_image?: string;
+    /** This will only be available in the context of k8s */
+    export_prom_metrics?: boolean;
+    /** This will only be available in the context of k8s */
+    prom_metrics_port?: number;
+    /** This will only be available in the context of k8s */
+    prom_default_metrics?: boolean;
 }
 
 export interface Targets {

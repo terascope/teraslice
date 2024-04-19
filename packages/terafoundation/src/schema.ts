@@ -102,7 +102,7 @@ export function foundationSchema() {
             format: Number
         },
         prom_default_metrics: {
-            doc: 'If true prom client will display default node metrics',
+            doc: 'Display default node metrics in prom client',
             default: true,
             format: Boolean
         }

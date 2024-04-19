@@ -159,27 +159,50 @@ export default function registerApis(context: i.FoundationContext): void {
             callingContext: i.FoundationContext,
             apiConfig: i.PromMetricsAPIConfig,
             logger: ts.Logger,
-            labels?: Record<string, string>
+            labels: Record<string, string>,
+            jobOverride?: boolean,
         ) {
-            if (!promMetrics) {
+            // console.log('@@@@ creating api with labels: ', labels);
+
+            const metricsEnabledInTF = callingContext.sysconfig.terafoundation.export_prom_metrics;
+            const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
+
+            if (promMetrics) {
+                context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
+                return;
+            }
+            if (clusteringType === 'native') {
+                context.logger.warn('Cannot create PromMetricsAPI because it is incompatible with native clustering.');
+                return;
+            }
+
+            if (jobOverride || (jobOverride === undefined && metricsEnabledInTF)) {
                 promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
                 await promMetrics.createAPI();
             } else {
-                context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
+                context.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
             }
         },
         promMetrics: {
-            set(name: string, labels: Record<string, string>, value: number):void {
-                promMetrics.set(name, labels, value);
+            set(name: string, labels: Record<string, string>, value: number): void {
+                if (promMetrics) {
+                    promMetrics.set(name, labels, value);
+                }
             },
             inc(name: string, labelValues: Record<string, string>, value: number): void {
-                promMetrics.inc(name, labelValues, value);
+                if (promMetrics) {
+                    promMetrics.inc(name, labelValues, value);
+                }
             },
             dec(name: string, labelValues: Record<string, string>, value: number): void {
-                promMetrics.dec(name, labelValues, value);
+                if (promMetrics) {
+                    promMetrics.dec(name, labelValues, value);
+                }
             },
             observe(name: string, labelValues: Record<string, string>, value: number): void {
-                promMetrics.observe(name, labelValues, value);
+                if (promMetrics) {
+                    promMetrics.observe(name, labelValues, value);
+                }
             },
             async addMetric(
                 name: string,
@@ -188,7 +211,10 @@ export default function registerApis(context: i.FoundationContext): void {
                 type: 'gauge' | 'counter' | 'histogram',
                 buckets?: Array<number>
             ): Promise<void> {
-                promMetrics.addMetric(name, help, labelNames, type, buckets);
+                // console.log('@@@@ addMetric called for:', name);
+                if (promMetrics) {
+                    promMetrics.addMetric(name, help, labelNames, type, buckets);
+                }
             },
             addSummary(
                 name: string,
@@ -198,19 +224,27 @@ export default function registerApis(context: i.FoundationContext): void {
                 maxAgeSeconds: number,
                 percentiles: Array<number>
             ): void {
-                promMetrics.addSummary(name,
-                    help,
-                    labelNames,
-                    ageBuckets,
-                    maxAgeSeconds,
-                    percentiles
-                );
+                if (promMetrics) {
+                    promMetrics.addSummary(name,
+                        help,
+                        labelNames,
+                        ageBuckets,
+                        maxAgeSeconds,
+                        percentiles
+                    );
+                }
             },
             hasMetric(name: string): boolean {
-                return promMetrics.hasMetric(name);
+                if (promMetrics) {
+                    return promMetrics.hasMetric(name);
+                }
+                return false;
             },
             deleteMetric(name: string): boolean {
-                return promMetrics.deleteMetric(name);
+                if (promMetrics) {
+                    return promMetrics.deleteMetric(name);
+                }
+                return false;
             },
         }
     };

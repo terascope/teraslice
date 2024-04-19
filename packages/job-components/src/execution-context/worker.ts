@@ -113,38 +113,39 @@ export class WorkerExecutionContext
                 return results;
             });
         }
-    }
 
-    async initialize(): Promise<void> {
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            const apiConfig: PromMetricsAPIConfig = {
+        const apiConfig: PromMetricsAPIConfig = {
+            assignment: 'worker',
+            port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
+            default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                || true,
+            labels: {
                 assignment: 'worker',
-                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
-                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                                || true,
-                labels: {
-                    assignment: 'worker',
-                    ex_id: this.exId,
-                    job_id: this.jobId,
-                    job_name: this.config.name,
-                }
-            };
-            const labels = {
                 ex_id: this.exId,
                 job_id: this.jobId,
                 job_name: this.config.name,
-                assignment: 'worker',
-            };
+            }
+        };
+        const labels = {
+            ex_id: this.exId,
+            job_id: this.jobId,
+            job_name: this.config.name,
+            assignment: 'worker',
+        };
 
+        (async () => {
             await this.context.apis.foundation.createPromMetricsAPI(
                 this.context,
                 apiConfig,
                 this.logger,
-                labels
+                labels,
+                this.config.export_prom_metrics
             );
+        })();
+    }
 
-            this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
-        }
+    async initialize(): Promise<void> {
+        this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
 
         await super.initialize();
         this.status = 'idle';
@@ -323,9 +324,7 @@ export class WorkerExecutionContext
     async onSliceFinished(): Promise<void> {
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            this.context.apis.foundation.promMetrics.inc('slices_finished', {}, 1);
-        }
+        this.context.apis.foundation.promMetrics.inc('slices_finished', {}, 1);
     }
 
     async onSliceFailed(): Promise<void> {

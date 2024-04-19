@@ -50,6 +50,35 @@ export class SlicerExecutionContext
         this.addOperation(op);
 
         this._resetMethodRegistry();
+
+        const apiConfig: PromMetricsAPIConfig = {
+            assignment: 'execution_controller',
+            port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
+            default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
+                || true,
+            labels: {
+                assignment: 'execution_controller',
+                ex_id: this.exId,
+                job_id: this.jobId,
+                job_name: this.config.name,
+            }
+        };
+        const labels = {
+            ex_id: this.exId,
+            job_id: this.jobId,
+            job_name: this.config.name,
+            assignment: 'execution_controller',
+        };
+
+        (async () => {
+            await this.context.apis.foundation.createPromMetricsAPI(
+                this.context,
+                apiConfig,
+                this.logger,
+                labels,
+                this.config.export_prom_metrics
+            );
+        })();
     }
 
     /**
@@ -57,36 +86,7 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            const apiConfig: PromMetricsAPIConfig = {
-                assignment: 'execution_controller',
-                port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
-                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                                || true,
-                labels: {
-                    assignment: 'execution_controller',
-                    ex_id: this.exId,
-                    job_id: this.jobId,
-                    job_name: this.config.name,
-                }
-            };
-            const labels = {
-                ex_id: this.exId,
-                job_id: this.jobId,
-                job_name: this.config.name,
-                assignment: 'execution_controller',
-            };
-
-            await this.context.apis.foundation.createPromMetricsAPI(
-                this.context,
-                apiConfig,
-                this.logger,
-                labels
-            );
-
-            this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
-        }
-
+        this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
         return super.initialize(recoveryData);
     }
 
@@ -105,9 +105,7 @@ export class SlicerExecutionContext
 
     onSliceEnqueued(slice: Slice): void {
         this._runMethod('onSliceEnqueued', slice);
-        if (this.context.sysconfig.terafoundation.export_prom_metrics) {
-            this.context.apis.foundation.promMetrics.inc('slices_enqueued', {}, 1);
-        }
+        this.context.apis.foundation.promMetrics.inc('slices_enqueued', {}, 1);
     }
 
     onSliceDispatch(slice: Slice): void {

@@ -382,6 +382,24 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: undefined,
             format: 'optional_String',
         };
+
+        schemas.export_prom_metrics = {
+            default: undefined,
+            doc: 'Create a promethius exporter. Overrides terafoundation value',
+            format: Boolean,
+        };
+
+        schemas.prom_metrics_port = {
+            doc: 'Port of promethius exporter server for teraslice process. Overrides terafoundation value',
+            default: 3333,
+            format: Number
+        };
+
+        schemas.prom_default_metrics = {
+            doc: 'Display default node metrics in prom client. Overrides terafoundation value',
+            default: true,
+            format: Boolean
+        };
     }
 
     return schemas;

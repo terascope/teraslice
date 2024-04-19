@@ -97,7 +97,8 @@ export interface FoundationAPIs {
         context: Context,
         apiConfig: PromMetricsAPIConfig,
         logger: Logger,
-        labels: Record<string, string>
+        labels: Record<string, string>,
+        jobOverride?: boolean
     ): Promise<void>;
     promMetrics?: PromMetricsAPI
 }
@@ -152,6 +153,10 @@ export type Foundation = {
     asset_storage_connection_type?: string;
     asset_storage_connection?: string;
     asset_storage_bucket?: string;
+    export_prom_metrics?: boolean;
+    prom_metrics_main_port?: number;
+    prom_metrics_assets_port?: number;
+    prom_default_metrics?: boolean;
 };
 
 export type Context<

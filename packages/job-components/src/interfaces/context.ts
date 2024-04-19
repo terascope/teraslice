@@ -110,7 +110,8 @@ export interface FoundationApis {
         context: Context,
         apiConfig: PromMetricsAPIConfig,
         logger: Logger,
-        labels?: Record<string, string>
+        labels: Record<string, string>,
+        jobOverride?: boolean
     ): Promise<void>;
     promMetrics: PromMetricsAPI
 }
