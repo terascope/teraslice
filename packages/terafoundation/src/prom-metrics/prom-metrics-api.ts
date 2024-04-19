@@ -233,7 +233,8 @@ export class PromMetrics {
         labelsNames: Array<string>,
         maxAgeSeconds = 600,
         ageBuckets = 5,
-        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]): void {
+        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
+    ): void {
         if (!(name in this.metricList)) {
             const fullname = this.prefix + name;
             this.metricList[name] = this._createSummaryMetric(

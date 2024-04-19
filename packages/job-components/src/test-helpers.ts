@@ -112,6 +112,29 @@ export interface TestContextAPIs extends i.ContextAPIs {
     getTestClients(): TestClients;
 }
 
+export interface TestPromMetrics {
+    createAPI(): void;
+    set(name: string, labels: Record<string, string>, value: number): void;
+    inc(name: string, labels: Record<string, string>, value: number): void;
+    dec(name: string, labels: Record<string, string>, value:number): void;
+    observe(name: string, labels: Record<string, string>, value: number): void;
+    addMetric(name: string,
+        help: string,
+        labelsNames: Array<string>,
+        type: 'gauge' | 'counter' | 'histogram',
+        buckets: Array<number> | undefined
+    ): Promise<void>;
+    hasMetric(name: string): boolean;
+    deleteMetric(name: string): boolean;
+    addSummary(name: string,
+        help: string,
+        labelsNames: Array<string>,
+        maxAgeSeconds: number,
+        ageBuckets: number,
+        percentiles: Array<number>
+    ): void;
+}
+
 type GetKeyOpts = {
     type: string;
     endpoint?: string;
@@ -229,6 +252,7 @@ export class TestContext implements i.Context {
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
+        let promMetrics: TestPromMetrics;
         this.apis = {
             foundation: {
                 makeLogger(...params: any[]): Logger {
@@ -297,6 +321,104 @@ export class TestContext implements i.Context {
                 },
                 getSystemEvents(): EventEmitter {
                     return events;
+                },
+                async createPromMetricsAPI(
+                    callingContext: i.Context,
+                    apiConfig: i.PromMetricsAPIConfig,
+                    promLogger: Logger,
+                    labels: Record<string, string>,
+                    jobOverride?: boolean,
+                ) {
+                    const metricsEnabledInTF = callingContext.sysconfig
+                        .terafoundation.export_prom_metrics;
+                    const clusteringType = callingContext.sysconfig.teraslice.cluster_manager_type;
+
+                    if (promMetrics) {
+                        logger.warn('Cannot create PromMetricsAPI because it already exists.');
+                        return;
+                    }
+                    if (clusteringType === 'native') {
+                        logger.warn('Cannot create PromMetricsAPI because it is incompatible with native clustering.');
+                        return;
+                    }
+
+                    if (jobOverride || (jobOverride === undefined && metricsEnabledInTF)) {
+                        // promMetrics = new TestPromMetrics(
+                        //     callingContext,
+                        //     apiConfig,
+                        //     promLogger,
+                        //     labels);
+                        // await promMetrics.createAPI();
+                    } else {
+                        logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+                    }
+                },
+                promMetrics: {
+                    set(name: string, labels: Record<string, string>, value: number): void {
+                        if (promMetrics) {
+                            promMetrics.set(name, labels, value);
+                        }
+                    },
+                    inc(name: string, labelValues: Record<string, string>, value: number): void {
+                        if (promMetrics) {
+                            promMetrics.inc(name, labelValues, value);
+                        }
+                    },
+                    dec(name: string, labelValues: Record<string, string>, value: number): void {
+                        if (promMetrics) {
+                            promMetrics.dec(name, labelValues, value);
+                        }
+                    },
+                    observe(
+                        name: string,
+                        labelValues: Record<string, string>,
+                        value: number
+                    ): void {
+                        if (promMetrics) {
+                            promMetrics.observe(name, labelValues, value);
+                        }
+                    },
+                    async addMetric(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        type: 'gauge' | 'counter' | 'histogram',
+                        buckets?: Array<number>
+                    ): Promise<void> {
+                        if (promMetrics) {
+                            promMetrics.addMetric(name, help, labelNames, type, buckets);
+                        }
+                    },
+                    addSummary(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        ageBuckets: number,
+                        maxAgeSeconds: number,
+                        percentiles: Array<number>
+                    ): void {
+                        if (promMetrics) {
+                            promMetrics.addSummary(name,
+                                help,
+                                labelNames,
+                                ageBuckets,
+                                maxAgeSeconds,
+                                percentiles
+                            );
+                        }
+                    },
+                    hasMetric(name: string): boolean {
+                        if (promMetrics) {
+                            return promMetrics.hasMetric(name);
+                        }
+                        return false;
+                    },
+                    deleteMetric(name: string): boolean {
+                        if (promMetrics) {
+                            return promMetrics.deleteMetric(name);
+                        }
+                        return false;
+                    },
                 },
             },
             registerAPI(namespace: string, apis: any): void {
