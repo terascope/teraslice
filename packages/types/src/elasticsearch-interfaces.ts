@@ -219,6 +219,7 @@ export interface ESTypeMappings {
         enabled?: boolean;
         [key: string]: any;
     };
+    _meta?: Record<string, any>;
     dynamic?: boolean;
     properties: {
         [key: string]: ESTypeMapping;
