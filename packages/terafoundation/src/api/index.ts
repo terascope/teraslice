@@ -155,29 +155,42 @@ export default function registerApis(context: i.FoundationContext): void {
 
             return workers;
         },
-        async createPromMetricsAPI(
-            callingContext: i.FoundationContext,
-            apiConfig: i.PromMetricsAPIConfig,
-            logger: ts.Logger,
-            labels: Record<string, string>,
-            jobOverride?: boolean,
-        ) {
-            // console.log('@@@@ creating api with labels: ', labels);
+        async createPromMetricsAPI(config: i.CreatePromMetricsConfig) {
+            const { terafoundation, teraslice } = config.callingContext.sysconfig;
+            const metricsEnabledInTF = terafoundation.export_prom_metrics;
+            const portToUse = config.port || terafoundation.prom_metrics_main_port || 3333;
 
-            const metricsEnabledInTF = callingContext.sysconfig.terafoundation.export_prom_metrics;
-            const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
+            let useDefaultMetrics: boolean;
+            if (config.default_metrics !== undefined) {
+                useDefaultMetrics = config.default_metrics;
+            } else if (terafoundation.prom_default_metrics !== undefined) {
+                useDefaultMetrics = terafoundation.prom_default_metrics;
+            } else {
+                useDefaultMetrics = true;
+            }
 
             if (promMetrics) {
                 context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
                 return;
             }
-            if (clusteringType === 'native') {
+            if (teraslice.cluster_manager_type === 'native') {
                 context.logger.warn('Cannot create PromMetricsAPI because it is incompatible with native clustering.');
                 return;
             }
 
-            if (jobOverride || (jobOverride === undefined && metricsEnabledInTF)) {
-                promMetrics = new PromMetrics(callingContext, apiConfig, logger, labels);
+            if (config.jobOverride || (config.jobOverride === undefined && metricsEnabledInTF)) {
+                const apiConfig: i.PromMetricsAPIConfig = {
+                    assignment: config.assignment,
+                    port: portToUse,
+                    default_metrics: useDefaultMetrics,
+                    labels: config.labels,
+                    prefix: config.prefix
+                };
+                promMetrics = new PromMetrics(
+                    config.callingContext,
+                    apiConfig,
+                    config.logger
+                );
                 await promMetrics.createAPI();
             } else {
                 context.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
@@ -211,7 +224,6 @@ export default function registerApis(context: i.FoundationContext): void {
                 type: 'gauge' | 'counter' | 'histogram',
                 buckets?: Array<number>
             ): Promise<void> {
-                // console.log('@@@@ addMetric called for:', name);
                 if (promMetrics) {
                     promMetrics.addMetric(name, help, labelNames, type, buckets);
                 }

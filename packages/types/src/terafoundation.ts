@@ -93,13 +93,7 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    createPromMetricsAPI(
-        context: Context,
-        apiConfig: PromMetricsAPIConfig,
-        logger: Logger,
-        labels: Record<string, string>,
-        jobOverride?: boolean
-    ): Promise<void>;
+    createPromMetricsAPI(config: CreatePromMetricsConfig): Promise<void>;
     promMetrics?: PromMetricsAPI
 }
 
@@ -176,11 +170,23 @@ export type Context<
     cluster: Cluster;
 }
 
+export interface CreatePromMetricsConfig {
+    callingContext: Context,
+    logger: Logger,
+    jobOverride?: boolean,
+    assignment: string
+    port?: number
+    default_metrics?: boolean,
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
 export interface PromMetricsAPIConfig {
     assignment: string
     port: number
     default_metrics: boolean,
     labels?: Record<string, string>
+    prefix?: string
 }
 
 export interface PromMetricsAPI {

@@ -23,7 +23,6 @@ export class PromMetrics {
         context: i.FoundationContext,
         apiConfig: i.PromMetricsAPIConfig,
         logger: Logger,
-        labels?: Record<string, string>
     ) {
         this.context = context;
         this.apiConfig = apiConfig;
@@ -31,7 +30,7 @@ export class PromMetrics {
         this.default_labels = {
             name: context.sysconfig.teraslice.name,
             assignment: apiConfig.assignment,
-            ...labels
+            ...apiConfig.labels
         };
 
         // Prefix hard coded standardize the way these metrics appear in prometheus
@@ -81,7 +80,6 @@ export class PromMetrics {
      */
     inc(name: string, labels: Record<string, string>, value = 1): void {
         const metric = this.metricList[name];
-        // console.log('@@@@ inc ', name);
         if (!metric.functions || !metric.metric) {
             throw new Error(`Metric ${name} is not setup`);
         }
@@ -159,7 +157,6 @@ export class PromMetrics {
      */
     async addMetric(name: string, help: string, labelsNames: Array<string>,
         type: 'gauge' | 'counter' | 'histogram', buckets: Array<number> = [0.1, 5, 15, 50, 100, 500]): Promise<void> {
-        // console.log('@@@@ adding metric:', name);
 
         if (!this.hasMetric(name)) {
             const fullname = this.prefix + name;
@@ -199,8 +196,6 @@ export class PromMetrics {
      * @return {boolean}
      */
     deleteMetric(name: string): boolean {
-        // console.log('@@@@ deleting:', name);
-
         let deleted = false;
         const fullname = this.prefix + name;
         this.logger.info(`delete metric ${fullname}`);

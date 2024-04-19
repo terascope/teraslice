@@ -5,7 +5,7 @@ import {
 } from './interfaces';
 import {
     WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics,
-    SliceAnalyticsData, PromMetricsAPIConfig
+    SliceAnalyticsData
 } from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
@@ -114,33 +114,20 @@ export class WorkerExecutionContext
             });
         }
 
-        const apiConfig: PromMetricsAPIConfig = {
-            assignment: 'worker',
-            port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
-            default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                || true,
-            labels: {
-                assignment: 'worker',
-                ex_id: this.exId,
-                job_id: this.jobId,
-                job_name: this.config.name,
-            }
-        };
-        const labels = {
-            ex_id: this.exId,
-            job_id: this.jobId,
-            job_name: this.config.name,
-            assignment: 'worker',
-        };
-
         (async () => {
-            await config.context.apis.foundation.createPromMetricsAPI(
-                config.context,
-                apiConfig,
-                this.logger,
-                labels,
-                config.executionConfig.export_prom_metrics
-            );
+            await config.context.apis.foundation.createPromMetricsAPI({
+                callingContext: config.context,
+                logger: this.logger,
+                jobOverride: config.executionConfig.export_prom_metrics,
+                assignment: 'worker',
+                port: config.executionConfig.prom_metrics_port,
+                default_metrics: config.executionConfig.prom_default_metrics,
+                labels: {
+                    ex_id: this.exId,
+                    job_id: this.jobId,
+                    job_name: this.config.name,
+                }
+            });
         })();
     }
 

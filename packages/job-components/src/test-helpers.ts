@@ -67,7 +67,7 @@ export function newTestExecutionContext(
             config,
             queue: [],
             reader: null,
-            slicer: () => {},
+            slicer: () => { },
             dynamicQueueLength: false,
             queueLength: 10000,
         };
@@ -75,9 +75,9 @@ export function newTestExecutionContext(
 
     return {
         config,
-        queue: config.operations.map(() => () => {}),
-        reader: () => {},
-        slicer: () => {},
+        queue: config.operations.map(() => () => { }),
+        reader: () => { },
+        slicer: () => { },
         dynamicQueueLength: false,
         queueLength: 10000,
     };
@@ -116,7 +116,7 @@ export interface TestPromMetrics {
     createAPI(): void;
     set(name: string, labels: Record<string, string>, value: number): void;
     inc(name: string, labels: Record<string, string>, value: number): void;
-    dec(name: string, labels: Record<string, string>, value:number): void;
+    dec(name: string, labels: Record<string, string>, value: number): void;
     observe(name: string, labels: Record<string, string>, value: number): void;
     addMetric(name: string,
         help: string,
@@ -322,32 +322,43 @@ export class TestContext implements i.Context {
                 getSystemEvents(): EventEmitter {
                     return events;
                 },
-                async createPromMetricsAPI(
-                    callingContext: i.Context,
-                    apiConfig: i.PromMetricsAPIConfig,
-                    promLogger: Logger,
-                    labels: Record<string, string>,
-                    jobOverride?: boolean,
-                ) {
-                    const metricsEnabledInTF = callingContext.sysconfig
-                        .terafoundation.export_prom_metrics;
-                    const clusteringType = callingContext.sysconfig.teraslice.cluster_manager_type;
+                async createPromMetricsAPI(config: i.CreatePromMetricsConfig) {
+                    const { terafoundation, teraslice } = config.callingContext.sysconfig;
+                    const metricsEnabledInTF = terafoundation.export_prom_metrics;
+                    const portToUse = config.port || terafoundation.prom_metrics_main_port || 3333;
+
+                    let useDefaultMetrics: boolean;
+                    if (config.default_metrics !== undefined) {
+                        useDefaultMetrics = config.default_metrics;
+                    } else if (terafoundation.prom_default_metrics !== undefined) {
+                        useDefaultMetrics = terafoundation.prom_default_metrics;
+                    } else {
+                        useDefaultMetrics = true;
+                    }
 
                     if (promMetrics) {
                         logger.warn('Cannot create PromMetricsAPI because it already exists.');
                         return;
                     }
-                    if (clusteringType === 'native') {
+                    if (teraslice.cluster_manager_type === 'native') {
                         logger.warn('Cannot create PromMetricsAPI because it is incompatible with native clustering.');
                         return;
                     }
 
-                    if (jobOverride || (jobOverride === undefined && metricsEnabledInTF)) {
-                        // promMetrics = new TestPromMetrics(
-                        //     callingContext,
+                    if (config.jobOverride
+                        || (config.jobOverride === undefined && metricsEnabledInTF)) { // fixme
+                        // const apiConfig: i.PromMetricsAPIConfig = {
+                        //     assignment: config.assignment,
+                        //     port: portToUse,
+                        //     default_metrics: useDefaultMetrics,
+                        //     labels: config.labels,
+                        //     prefix: config.prefix
+                        // };
+                        // promMetrics = new PromMetrics(
+                        //     config.callingContext,
                         //     apiConfig,
-                        //     promLogger,
-                        //     labels);
+                        //     config.logger
+                        // );
                         // await promMetrics.createAPI();
                     } else {
                         logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');

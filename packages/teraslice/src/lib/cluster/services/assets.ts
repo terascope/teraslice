@@ -38,21 +38,16 @@ export class AssetsService {
 
     async initialize() {
         try {
-            const config = {
+            await this.context.apis.foundation.createPromMetricsAPI({
+                callingContext: this.context,
+                logger: this.logger,
                 assignment: 'assets_service',
-                port: this.context.sysconfig.terafoundation.prom_metrics_assets_port || 3334,
+                port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
                 default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                    || true
-            };
-            await this.context.apis.foundation.createPromMetricsAPI(
-                this.context,
-                config,
-                this.logger,
-                {}
-            );
+            });
             this.context.apis.foundation.promMetrics.addMetric('assets_loaded', 'text goes here', [], 'gauge');
 
-            this.assetsStorage = await new AssetsStorage(this.context);
+            this.assetsStorage = new AssetsStorage(this.context);
             await this.assetsStorage.initialize();
 
             this.app.get('/status', (req, res) => {

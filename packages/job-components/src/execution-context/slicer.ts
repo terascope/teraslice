@@ -4,8 +4,7 @@ import {
     ExecutionStats,
     Slice,
     SliceResult,
-    SlicerRecoveryData,
-    PromMetricsAPIConfig
+    SlicerRecoveryData
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig, JobAPIInstances } from './interfaces';
@@ -51,33 +50,20 @@ export class SlicerExecutionContext
 
         this._resetMethodRegistry();
 
-        const apiConfig: PromMetricsAPIConfig = {
-            assignment: 'execution_controller',
-            port: this.context.sysconfig.terafoundation.prom_metrics_main_port || 3333,
-            default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-                || true,
-            labels: {
-                assignment: 'execution_controller',
-                ex_id: this.exId,
-                job_id: this.jobId,
-                job_name: this.config.name,
-            }
-        };
-        const labels = {
-            ex_id: this.exId,
-            job_id: this.jobId,
-            job_name: this.config.name,
-            assignment: 'execution_controller',
-        };
-
         (async () => {
-            await config.context.apis.foundation.createPromMetricsAPI(
-                config.context,
-                apiConfig,
-                this.logger,
-                labels,
-                config.executionConfig.export_prom_metrics
-            );
+            await config.context.apis.foundation.createPromMetricsAPI({
+                callingContext: config.context,
+                logger: this.logger,
+                jobOverride: config.executionConfig.export_prom_metrics,
+                assignment: 'execution_controller',
+                port: config.executionConfig.prom_metrics_port,
+                default_metrics: config.executionConfig.prom_default_metrics,
+                labels: {
+                    ex_id: this.exId,
+                    job_id: this.jobId,
+                    job_name: this.config.name,
+                }
+            });
         })();
     }
 
