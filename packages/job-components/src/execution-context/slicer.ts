@@ -71,12 +71,12 @@ export class SlicerExecutionContext
         };
 
         (async () => {
-            await this.context.apis.foundation.createPromMetricsAPI(
-                this.context,
+            await config.context.apis.foundation.createPromMetricsAPI(
+                config.context,
                 apiConfig,
                 this.logger,
                 labels,
-                this.config.export_prom_metrics
+                config.executionConfig.export_prom_metrics
             );
         })();
     }
