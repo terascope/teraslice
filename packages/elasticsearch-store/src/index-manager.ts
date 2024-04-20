@@ -103,12 +103,13 @@ export class IndexManager {
 
         logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
 
-        const body: any = config.data_type.toESMapping({
+        const body = config.data_type.toESMapping({
             typeName: config.name,
             overrides: {
                 settings,
             },
-            ...this.clientMetadata
+            ...this.clientMetadata,
+            ...config._meta && { _meta: config._meta }
         });
 
         const enableMutations = (

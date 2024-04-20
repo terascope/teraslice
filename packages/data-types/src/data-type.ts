@@ -121,6 +121,8 @@ export class DataType {
             ..._meta && { _meta }
         };
 
+        let mappings: Record<string, any>;
+
         if (
             distribution === ElasticsearchDistribution.elasticsearch
              && majorVersion === 6
@@ -130,14 +132,7 @@ export class DataType {
                     enabled: false,
                 },
             });
-        }
 
-        let mappings: Record<string, any>;
-
-        if (
-            distribution === ElasticsearchDistribution.elasticsearch
-             && majorVersion === 6
-        ) {
             mappings = {
                 [indexType]: mappingSettings,
             };

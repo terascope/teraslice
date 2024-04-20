@@ -31,6 +31,7 @@ describe('IndexManager->indexSetup()', () => {
                 'index.number_of_replicas': 0,
             },
             logger,
+            _meta: { foo: 'foo' }
         };
 
         const index = `${config.name}-v1-s1`;
@@ -70,6 +71,7 @@ describe('IndexManager->indexSetup()', () => {
             if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
             }
+            expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
         });
 
         it('should be able to call create again', async () => {
@@ -110,6 +112,7 @@ describe('IndexManager->indexSetup()', () => {
                         }
                     },
                 });
+                expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
             });
 
             describe('when making a breaking change to the data type', () => {
@@ -153,6 +156,7 @@ describe('IndexManager->indexSetup()', () => {
                             }
                         },
                     });
+                    expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
                 });
             });
         });
@@ -173,6 +177,7 @@ describe('IndexManager->indexSetup()', () => {
                 'index.number_of_replicas': 0,
             },
             logger,
+            _meta: { bar: 'bar' }
         };
 
         const index = `${config.name}-v1-s1`;
@@ -215,6 +220,7 @@ describe('IndexManager->indexSetup()', () => {
             if (esVersion === 6) {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
             }
+            expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { bar: 'bar' });
         });
 
         it('should create the template', async () => {
@@ -225,6 +231,7 @@ describe('IndexManager->indexSetup()', () => {
                 expect(temp[templateName].mappings).toHaveProperty(config.name);
             }
             expect(temp[templateName]).toHaveProperty('version', 1);
+            expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
         });
 
         it('should be able upsert the same template safely', async () => {
@@ -246,6 +253,7 @@ describe('IndexManager->indexSetup()', () => {
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName]).toHaveProperty('version', version);
+            expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
         });
 
         it('should be able to upsert a newer template safely', async () => {
@@ -268,6 +276,27 @@ describe('IndexManager->indexSetup()', () => {
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName]).toHaveProperty('version', newVersion);
+        });
+
+        it('should apply _meta to new indices', async () => {
+            const mapping = get(config, ['index_schema', 'mapping'], {});
+            const version = get(config, ['index_schema', 'version'], 1);
+            mapping._meta = { baz: 'baz' };
+
+            const mappings = esVersion !== 6 ? mapping : {
+                [config.name]: mapping
+            };
+
+            await indexManager.upsertTemplate({
+                template: 'foo*',
+                settings: config.index_settings,
+                mappings,
+                version,
+            });
+            await indexManager.client.indices.create({ index: 'foobar' });
+
+            const newIdxMapping = await indexManager.getMapping('foobar');
+            expect(newIdxMapping.foobar.mappings[config.name]).toHaveProperty('_meta', { baz: 'baz' });
         });
 
         it('should be able to call create again', async () => {

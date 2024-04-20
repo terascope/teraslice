@@ -26,7 +26,7 @@ describe('IndexSearchCompatability', () => {
     }
 
     const dataType = makeRecordDataType({
-        name: 'SearchCompatability',
+        name: 'SearchCompatibility',
         fields: {
             id: { type: FieldType.Keyword },
             foo: { type: FieldType.Keyword },

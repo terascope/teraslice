@@ -43,6 +43,7 @@ describe('DataType (elasticsearch)', () => {
                         _all: {
                             enabled: false,
                         },
+                        // _meta: { foo: 'foo' },
                         dynamic: false,
                         properties: {
                             hello: { type: 'text' },
@@ -62,7 +63,8 @@ describe('DataType (elasticsearch)', () => {
                 distribution: ElasticsearchDistribution.elasticsearch,
                 minorVersion: 8,
                 majorVersion: 6,
-                version: '6.8.6'
+                version: '6.8.6',
+                // _meta: { foo: 'foo' }
             };
 
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
@@ -84,6 +86,7 @@ describe('DataType (elasticsearch)', () => {
                         foo: { type: 'keyword' },
                         bar: { type: 'keyword' },
                     },
+                    // _meta: { foo: 'foo' },
                 },
                 settings: {},
             };
@@ -93,11 +96,80 @@ describe('DataType (elasticsearch)', () => {
                 distribution: ElasticsearchDistribution.elasticsearch,
                 minorVersion: 3,
                 majorVersion: 7,
-                version: '7.3.1'
+                version: '7.3.1',
+                // _meta: { foo: 'foo' },
             };
 
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
         });
+
+        // eslint-disable-next-line jest/no-commented-out-tests
+        // it('can create a opensearch 1 mapping', () => {
+        //     const typeConfig: DataTypeConfig = {
+        //         version: LATEST_VERSION,
+        //         fields: {
+        //             foo: { type: FieldType.String },
+        //             bar: { type: FieldType.String },
+        //         },
+        //     };
+
+        //     const results = {
+        //         mappings: {
+        //             dynamic: false,
+        //             properties: {
+        //                 foo: { type: 'keyword' },
+        //                 bar: { type: 'keyword' },
+        //             },
+        //             _meta: { foo: 'foo' },
+        //         },
+        //         settings: {},
+        //     };
+
+        //     const dataType = new DataType(typeConfig);
+        //     const mappingConfig: ESMappingOptions = {
+        //         distribution: ElasticsearchDistribution.opensearch,
+        //         minorVersion: 2,
+        //         majorVersion: 1,
+        //         version: '1.2.0',
+        //         _meta: { foo: 'foo' },
+        //     };
+
+        //     expect(dataType.toESMapping(mappingConfig)).toEqual(results);
+        // });
+
+        // eslint-disable-next-line jest/no-commented-out-tests
+        // it('can create a opensearch 2 mapping', () => {
+        //     const typeConfig: DataTypeConfig = {
+        //         version: LATEST_VERSION,
+        //         fields: {
+        //             foo: { type: FieldType.String },
+        //             bar: { type: FieldType.String },
+        //         },
+        //     };
+
+        //     const results = {
+        //         mappings: {
+        //             dynamic: false,
+        //             properties: {
+        //                 foo: { type: 'keyword' },
+        //                 bar: { type: 'keyword' },
+        //             },
+        //             _meta: { foo: 'foo' },
+        //         },
+        //         settings: {},
+        //     };
+
+        //     const dataType = new DataType(typeConfig);
+        //     const mappingConfig: ESMappingOptions = {
+        //         distribution: ElasticsearchDistribution.opensearch,
+        //         minorVersion: 2,
+        //         majorVersion: 2,
+        //         version: '2.2.1',
+        //         _meta: { foo: 'foo' },
+        //     };
+
+        //     expect(dataType.toESMapping(mappingConfig)).toEqual(results);
+        // });
 
         it('can create an elasticsearch mapping with nested objects', () => {
             const typeConfig: DataTypeConfig = {
