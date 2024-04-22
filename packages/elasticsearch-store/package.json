@@ -19,13 +19,13 @@
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --",
-        "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test . -- debug=true",
-        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . -- debug=true",
-        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . -- debug=true",
-        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . -- debug=true",
-        "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . -- debug=true",
-        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . -- debug=true",
+        "test": "TEST_ELASTICSEARCH='true' ts-scripts test . --debug",
+        "test:debug": "TEST_ELASTICSEARCH='true' ts-scripts test . --debug",
+        "test:elasticsearch6": "TEST_ELASTICSEARCH='true' ts-scripts test . --debug",
+        "test:elasticsearch7": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' ts-scripts test . --debug",
+        "test:elasticsearch8": "TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='8.1.2' ts-scripts test . --debug",
+        "test:opensearch1": "TEST_OPENSEARCH='true' ts-scripts test . --debug",
+        "test:opensearch2": "TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' ts-scripts test . --debug",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
