@@ -122,6 +122,10 @@ export class IndexManager {
 
             body.template = templateName;
 
+            // seems like should be this for s6
+            // body.mappings._doc = { ...body.mappings.ts_test_template };
+            // delete body.mappings.ts_test_template;
+
             await this.upsertTemplate(
                 {
                     ...body,
