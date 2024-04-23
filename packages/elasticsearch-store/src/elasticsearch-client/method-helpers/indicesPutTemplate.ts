@@ -20,16 +20,33 @@ export function convertIndicesPutTemplateParams(
                 ...parsedParams
             } = params;
 
+            // console.log('===c', {
+            //     index_patterns: body?.index_patterns,
+            //     aliases: body?.aliases,
+            //     mappings: ensureNoTypeInMapping(body?.mappings),
+            //     settings: body?.settings,
+            //     _meta: (body as any)?._meta,
+            //     ...parsedParams
+            // });
+
             return {
                 index_patterns: body?.index_patterns,
                 aliases: body?.aliases,
                 mappings: ensureNoTypeInMapping(body?.mappings),
                 settings: body?.settings,
+                // _meta: (body as any)?._meta,
                 ...parsedParams
             };
         }
 
         if (majorVersion === 7) {
+            console.log('===7parm', params);
+            // if (params.body?.mappings?._meta && !params?.body?.mappings?.properties) {
+            //     (params.body as any).mappings = {};
+            //     (params.body as any).mappings.properties = {};
+            //     (params.body as any).mappings._meta = { ...params.body?.mappings?._meta };
+            //     delete params.body.mappings._meta;
+            // }
             return params;
         }
 

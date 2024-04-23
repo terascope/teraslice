@@ -84,6 +84,7 @@ describe('IndexManager->indexSetup()', () => {
             } else {
                 // eslint-disable-next-line no-console
                 console.log('===mapping1', JSON.stringify(mapping, null, 4));
+                // expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
             }
         });
 
@@ -397,6 +398,9 @@ describe('IndexManager->indexSetup()', () => {
         it('should apply _meta to new indices', async () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
+
+            // doesn't work at root level... not sure why cuz seems like it should according
+            // to es docs, working in 6 and 8 but not 7
             mapping._meta = { baz: 'baz' };
 
             const mappings = esVersion !== 6 ? mapping : {
@@ -404,19 +408,24 @@ describe('IndexManager->indexSetup()', () => {
             };
 
             await indexManager.upsertTemplate({
-                template: 'foo*',
+                template: 'foo',
                 settings: config.index_settings,
+                index_patterns: ['foo*'],
                 mappings,
                 version,
+                // _meta: { baz: 'baz' }
             });
             await indexManager.client.indices.create({ index: 'foobar' });
 
             const newIdxMapping = await indexManager.getMapping('foobar');
+
+            // const temps = await indexManager.client.indices.getTemplate({ name: 'foo' });
+
+            // console.log('===newIdxMtemsapping', JSON.stringify((tems), null, 4));
             if (esVersion === 6) {
                 expect(newIdxMapping.foobar.mappings[config.name]).toHaveProperty('_meta', { baz: 'baz' });
             } else {
-                // eslint-disable-next-line no-console
-                console.log('===newIdxMapping', JSON.stringify(newIdxMapping, null, 4));
+                expect(newIdxMapping.foobar.mappings).toHaveProperty('_meta', { baz: 'baz' });
             }
         });
 

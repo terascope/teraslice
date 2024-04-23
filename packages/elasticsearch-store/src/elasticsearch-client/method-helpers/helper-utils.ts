@@ -32,8 +32,10 @@ export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined)
     if (mappings != null) {
         for (const [k, v] of Object.entries(mappings)) {
             if (k === 'properties') return { [k]: v };
+            if (k === '_meta') return { [k]: v };
 
             if (v.properties) return { properties: v.properties };
+            if (v._meta) return { _meta: v._meta };
         }
     }
 }
