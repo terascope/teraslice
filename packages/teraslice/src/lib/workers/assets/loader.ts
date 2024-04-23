@@ -53,8 +53,14 @@ export class AssetLoader {
 
                 const assetRecord = await this.assetsStorage.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
+                let buff: Buffer;
 
-                const buff = Buffer.from(assetRecord.blob as string, 'base64');
+                if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
+                    buff = assetRecord.blob as Buffer;
+                } else {
+                    buff = Buffer.from(assetRecord.blob as string, 'base64');
+                }
+
                 const saveResult = await saveAsset(
                     this.logger,
                     this.assetsDirectory,
