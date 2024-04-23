@@ -110,11 +110,12 @@ describe('S3 backend test', () => {
 
         it('should be able to download asset', async () => {
             const filePath = 'e2e/test/fixtures/assets/example_asset_2.zip';
-            await s3Backend.save('ex2', fse.readFileSync(filePath), 30000);
+            const fileBuffer = fse.readFileSync(filePath);
+            await s3Backend.save('ex2', fileBuffer, 30000);
 
             const result = await s3Backend.get('ex2');
 
-            expect(result).toStartWith('UEsDBAo');
+            expect(result.equals(fileBuffer)).toBe(true);
             await s3Backend.remove('ex2');
         });
     });
