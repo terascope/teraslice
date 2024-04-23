@@ -196,7 +196,7 @@ export function fixMappingRequest(
         if (typeMappings.properties) {
             defaultParams.include_type_name = false;
         } else {
-            defaultParams.include_type_name = true;
+            defaultParams.include_type_name = !typeMappings._meta;
             Object.values(typeMappings).forEach((typeMapping) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;

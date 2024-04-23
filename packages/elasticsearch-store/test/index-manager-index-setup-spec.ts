@@ -65,16 +65,6 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the mapping', async () => {
-            // await indexManager.client.index({
-            //     index,
-            //     type: config.name,
-            //     id: 'some-id',
-            //     body: { a: 'a', b: 'b' },
-            //     // refresh: false,
-            // });
-            // await indexManager.client.create({ body: { a: 'a', b: 'b' }, id: 'some-id', index });
-            // const mapping1 = await indexManager.client.indices.getMapping({ index });
-
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
@@ -82,9 +72,7 @@ describe('IndexManager->indexSetup()', () => {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
                 expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
             } else {
-                // eslint-disable-next-line no-console
-                console.log('===mapping1', JSON.stringify(mapping, null, 4));
-                // expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
+                expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
             }
         });
 
@@ -129,8 +117,7 @@ describe('IndexManager->indexSetup()', () => {
                 if (esVersion === 6) {
                     expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
                 } else {
-                    // eslint-disable-next-line no-console
-                    console.log('===mapping3', JSON.stringify(mapping, null, 4));
+                    expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
                 }
             });
 
@@ -178,8 +165,7 @@ describe('IndexManager->indexSetup()', () => {
                     if (esVersion === 6) {
                         expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { foo: 'foo' });
                     } else {
-                        // eslint-disable-next-line no-console
-                        console.log('===mapping1', JSON.stringify(mapping, null, 4));
+                        expect(mapping[index].mappings).toHaveProperty('_meta', { foo: 'foo' });
                     }
                 });
             });
@@ -239,86 +225,6 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the mapping', async () => {
             const mapping = await indexManager.getMapping(index);
-
-            // seems like in es6 mappings should have _doc._meta
-            // but only does if putTemplate like this
-            // await indexManager.client.indices.putTemplate({
-            //     name: templateName,
-            //     body: {
-            //         index_patterns: [`${templateName}*`],
-            //         mappings: { _doc: { _meta: { name: 'foo' } } },
-            //     }
-            // });
-            // {
-            //     "body": {
-            //         "settings": {
-            //             "index.number_of_shards": 1,
-            //             "index.number_of_replicas": 0
-            //         },
-            //         "mappings": {
-            //             "ts_test_template": {
-            //                 "dynamic": false,
-            //                 "properties": {
-            //                     "_created": {
-            //                         "type": "keyword"
-            //                     },
-            //                     "_updated": {
-            //                         "type": "keyword"
-            //                     },
-            //                     "random_number": {
-            //                         "type": "integer"
-            //                     },
-            //                     "search_keyword": {
-            //                         "type": "keyword"
-            //                     },
-            //                     "some_id": {
-            //                         "type": "keyword"
-            //                     }
-            //                 },
-            //                 "_meta": {
-            //                     "bar": "bar"
-            //                 },
-            //                 "_all": {
-            //                     "enabled": false
-            //                 }
-            //             }
-            //         },
-            //         "index_patterns": [
-            //             "ts_test_template*",
-            //             "ts_test_template-v1-s1"
-            //         ],
-            //         "version": 1
-            //     },
-            //     "name": "ts_test_template-v1"
-            // }
-
-            // {
-            //     "body": {
-            //         "index_patterns": [
-            //             "ts_test_template-v1*"
-            //         ],
-            //         "mappings": {
-            //             "_doc": {
-            //                 "_meta": {
-            //                     "name": "foo"
-            //                 }
-            //             }
-            //         }
-            //     },
-            //     "name": "ts_test_template-v1"
-            // }
-            // await indexManager.upsertTemplate({
-            //     index_patterns: [`${templateName}*`],
-            //     mappings: {
-            //         _doc: { _meta: { name: 'foo' } },
-            //     },
-            //     version: 1,
-            //     templateName: `${templateName}a`
-            // });
-
-            // eslint-disable-next-line max-len
-            // await indexManager.client.indices.create({ index: `${templateName}b` });
-            // const test = await indexManager.client.indices.get({ index: `${templateName}b` });
 
             expect(mapping).toHaveProperty(index);
             if (esVersion === 6) {
@@ -396,8 +302,6 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
 
-            // doesn't work at root level... not sure why cuz seems like it should according
-            // to es docs, working in 6 and 8 but not 7
             mapping._meta = { baz: 'baz' };
 
             const mappings = esVersion !== 6 ? mapping : {
@@ -409,8 +313,7 @@ describe('IndexManager->indexSetup()', () => {
                 settings: config.index_settings,
                 index_patterns: ['foo*'],
                 mappings,
-                version,
-                // _meta: { baz: 'baz' }
+                version
             });
             await indexManager.client.indices.create({ index: 'foobar' });
 

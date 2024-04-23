@@ -1,4 +1,5 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
+import { get, isNumber } from '@terascope/utils';
 
 import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils';
 
@@ -20,36 +21,19 @@ export function convertIndicesPutTemplateParams(
                 ...parsedParams
             } = params;
 
-            // console.log('===c', {
-            //     index_patterns: body?.index_patterns,
-            //     aliases: body?.aliases,
-            //     mappings: ensureNoTypeInMapping(body?.mappings),
-            //     settings: body?.settings,
-            //     _meta: (body as any)?._meta,
-            //     ...parsedParams
-            // });
+            const indexSchemaVersion = get(body, 'version');
 
             return {
                 index_patterns: body?.index_patterns,
                 aliases: body?.aliases,
                 mappings: ensureNoTypeInMapping(body?.mappings),
                 settings: body?.settings,
-                version: (body as any)?.version,
-                // seems like should be here but doesn't work
-                // - never-mind this is legacy put template, not the newer thing
-                // _meta: (body as any)?.mappings?._meta,
+                ...isNumber(indexSchemaVersion) && { version: indexSchemaVersion },
                 ...parsedParams
             };
         }
 
         if (majorVersion === 7) {
-            console.log('===7parm', params);
-            // if (params.body?.mappings?._meta && !params?.body?.mappings?.properties) {
-            //     (params.body as any).mappings = {};
-            //     (params.body as any).mappings.properties = {};
-            //     (params.body as any).mappings._meta = { ...params.body?.mappings?._meta };
-            //     delete params.body.mappings._meta;
-            // }
             return params;
         }
 
