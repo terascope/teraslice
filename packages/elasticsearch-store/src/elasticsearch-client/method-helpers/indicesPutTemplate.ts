@@ -34,7 +34,10 @@ export function convertIndicesPutTemplateParams(
                 aliases: body?.aliases,
                 mappings: ensureNoTypeInMapping(body?.mappings),
                 settings: body?.settings,
-                // _meta: (body as any)?._meta,
+                version: (body as any)?.version,
+                // seems like should be here but doesn't work
+                // - never-mind this is legacy put template, not the newer thing
+                // _meta: (body as any)?.mappings?._meta,
                 ...parsedParams
             };
         }

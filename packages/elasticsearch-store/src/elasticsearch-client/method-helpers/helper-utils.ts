@@ -29,15 +29,18 @@ function validDistributionAndVersion(
 }
 
 export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined) {
+    const parsed: Record<string, any> = {};
     if (mappings != null) {
         for (const [k, v] of Object.entries(mappings)) {
-            if (k === 'properties') return { [k]: v };
-            if (k === '_meta') return { [k]: v };
+            // TODO should it allow "dynamic" ?
+            if (k === 'properties') parsed[k] = v;
+            if (k === '_meta') parsed[k] = v;
 
-            if (v.properties) return { properties: v.properties };
-            if (v._meta) return { _meta: v._meta };
+            if (v.properties) parsed.properties = v.properties;
+            if (v._meta) parsed._meta = v._meta;
         }
     }
+    return parsed;
 }
 
 export function ensureTypeInMapping(body: ESTypes.IndexTemplateProperties | undefined) {

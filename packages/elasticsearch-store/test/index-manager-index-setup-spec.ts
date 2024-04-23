@@ -325,8 +325,7 @@ describe('IndexManager->indexSetup()', () => {
                 expect(mapping[index].mappings).toHaveProperty(config.name);
                 expect(mapping[index].mappings[config.name]).toHaveProperty('_meta', { bar: 'bar' });
             } else {
-                // eslint-disable-next-line no-console
-                console.log('===mapping2', JSON.stringify(mapping, null, 4));
+                expect(mapping[index].mappings).toHaveProperty('_meta', { bar: 'bar' });
             }
         });
 
@@ -341,8 +340,7 @@ describe('IndexManager->indexSetup()', () => {
             if (esVersion === 6) {
                 expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
             } else {
-                // eslint-disable-next-line no-console
-                console.log('===temp1', JSON.stringify(temp, null, 4));
+                expect(temp[templateName].mappings).toHaveProperty('_meta', { bar: 'bar' });
             }
         });
 
@@ -368,8 +366,7 @@ describe('IndexManager->indexSetup()', () => {
             if (esVersion === 6) {
                 expect(temp[templateName].mappings?.[config.name]).toHaveProperty('_meta', { bar: 'bar' });
             } else {
-                // eslint-disable-next-line no-console
-                console.log('===temp2', JSON.stringify(temp, null, 4));
+                expect(temp[templateName].mappings).toHaveProperty('_meta', { bar: 'bar' });
             }
         });
 
@@ -419,9 +416,6 @@ describe('IndexManager->indexSetup()', () => {
 
             const newIdxMapping = await indexManager.getMapping('foobar');
 
-            // const temps = await indexManager.client.indices.getTemplate({ name: 'foo' });
-
-            // console.log('===newIdxMtemsapping', JSON.stringify((tems), null, 4));
             if (esVersion === 6) {
                 expect(newIdxMapping.foobar.mappings[config.name]).toHaveProperty('_meta', { baz: 'baz' });
             } else {
