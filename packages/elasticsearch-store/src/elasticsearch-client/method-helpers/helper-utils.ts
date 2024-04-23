@@ -32,7 +32,6 @@ export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined)
     const parsed: Record<string, any> = {};
     if (mappings != null) {
         for (const [k, v] of Object.entries(mappings)) {
-            // TODO should it allow "dynamic" ?
             if (k === 'properties') parsed[k] = v;
             if (k === '_meta') parsed[k] = v;
 
