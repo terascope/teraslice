@@ -51,8 +51,8 @@ export class SlicerExecutionContext
         this._resetMethodRegistry();
 
         (async () => {
-            await config.context.apis.foundation.createPromMetricsAPI({
-                callingContext: config.context,
+            await config.context.apis.foundation.promMetrics.init({
+                context: config.context,
                 logger: this.logger,
                 jobOverride: config.executionConfig.export_prom_metrics,
                 assignment: 'execution_controller',
@@ -72,7 +72,8 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
+        // fixme: remove example
+        await this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
         return super.initialize(recoveryData);
     }
 

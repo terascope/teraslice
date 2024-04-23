@@ -91,14 +91,9 @@ export function foundationSchema() {
             default: false,
             format: Boolean
         },
-        prom_metrics_main_port: {
-            doc: 'Port of promethius exporter server for teraslice process',
+        prom_metrics_port: {
+            doc: 'Port of promethius exporter server',
             default: 3333,
-            format: Number
-        },
-        prom_metrics_assets_port: {
-            doc: 'Port of promethius exporter server for assets_service process',
-            default: 3334,
             format: Number
         },
         prom_default_metrics: {

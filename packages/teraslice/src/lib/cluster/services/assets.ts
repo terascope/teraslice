@@ -38,15 +38,6 @@ export class AssetsService {
 
     async initialize() {
         try {
-            await this.context.apis.foundation.createPromMetricsAPI({
-                callingContext: this.context,
-                logger: this.logger,
-                assignment: 'assets_service',
-                port: this.context.sysconfig.terafoundation.prom_metrics_assets_port,
-                default_metrics: this.context.sysconfig.terafoundation.prom_default_metrics
-            });
-            this.context.apis.foundation.promMetrics.addMetric('assets_loaded', 'text goes here', [], 'gauge');
-
             this.assetsStorage = new AssetsStorage(this.context);
             await this.assetsStorage.initialize();
 
@@ -73,7 +64,6 @@ export class AssetsService {
                             res.status(code).json({
                                 _id: assetId
                             });
-                            this.context.apis.foundation.promMetrics.inc('assets_loaded', {}, 1);
                         })
                         .catch((err) => {
                             const { statusCode, message } = parseErrorInfo(err);
@@ -101,7 +91,6 @@ export class AssetsService {
                 } else {
                     requestHandler(async () => {
                         await this.assetsStorage.remove(assetId);
-                        this.context.apis.foundation.promMetrics.dec('assets_loaded', {}, 1);
                         return { _id: assetId };
                     });
                 }
@@ -151,8 +140,7 @@ export class AssetsService {
                 this.app.timeout = this.context.sysconfig.teraslice.api_response_timeout;
             });
 
-            const autoloadCount = await this.assetsStorage.autoload();
-            this.context.apis.foundation.promMetrics.inc('assets_loaded', {}, autoloadCount);
+            await this.assetsStorage.autoload();
             this.running = true;
         } catch (err) {
             this.running = false;

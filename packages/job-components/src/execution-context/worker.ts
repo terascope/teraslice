@@ -115,8 +115,8 @@ export class WorkerExecutionContext
         }
 
         (async () => {
-            await config.context.apis.foundation.createPromMetricsAPI({
-                callingContext: config.context,
+            await config.context.apis.foundation.promMetrics.init({
+                context: config.context,
                 logger: this.logger,
                 jobOverride: config.executionConfig.export_prom_metrics,
                 assignment: 'worker',
@@ -132,7 +132,8 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
-        this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
+        // fixme: remove example
+        await this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
 
         await super.initialize();
         this.status = 'idle';
@@ -311,6 +312,7 @@ export class WorkerExecutionContext
     async onSliceFinished(): Promise<void> {
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
+        // fixme: remove example
         this.context.apis.foundation.promMetrics.inc('slices_finished', {}, 1);
     }
 

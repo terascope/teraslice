@@ -140,14 +140,16 @@ export class ClusterMaster {
             // this needs to be last
             await services.apiService.initialize();
 
-            await this.context.apis.foundation.createPromMetricsAPI({
-                callingContext: this.context,
+            await this.context.apis.foundation.promMetrics.init({
+                context: this.context,
                 logger: this.logger,
                 assignment: 'cluster_master',
-                port: foundation.prom_metrics_main_port,
+                port: foundation.prom_metrics_port,
                 default_metrics: foundation.prom_default_metrics
             });
-            this.context.apis.foundation.promMetrics.addMetric('test', 'help string', [], 'counter');
+
+            // fixme: remove example
+            await this.context.apis.foundation.promMetrics.addMetric('test', 'help string', [], 'counter');
             this.context.apis.foundation.promMetrics.inc('test', {}, 1);
 
             this.logger.info('cluster master is ready!');

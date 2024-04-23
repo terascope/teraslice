@@ -13,7 +13,7 @@ export default function registerApis(context: i.FoundationContext): void {
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
 
-    let promMetrics: PromMetrics;
+    let promMetricsAPI: i.PromMetricsAPI;
 
     // connection cache
     const connections = Object.create(null);
@@ -155,66 +155,66 @@ export default function registerApis(context: i.FoundationContext): void {
 
             return workers;
         },
-        async createPromMetricsAPI(config: i.CreatePromMetricsConfig) {
-            const { terafoundation, teraslice } = config.callingContext.sysconfig;
-            const metricsEnabledInTF = terafoundation.export_prom_metrics;
-            const portToUse = config.port || terafoundation.prom_metrics_main_port || 3333;
-
-            let useDefaultMetrics: boolean;
-            if (config.default_metrics !== undefined) {
-                useDefaultMetrics = config.default_metrics;
-            } else if (terafoundation.prom_default_metrics !== undefined) {
-                useDefaultMetrics = terafoundation.prom_default_metrics;
-            } else {
-                useDefaultMetrics = true;
-            }
-
-            if (promMetrics) {
-                context.logger.warn('Cannot create PromMetricsAPI because it already exists.');
-                return;
-            }
-            if (teraslice.cluster_manager_type === 'native') {
-                context.logger.warn('Cannot create PromMetricsAPI because it is incompatible with native clustering.');
-                return;
-            }
-
-            if (config.jobOverride || (config.jobOverride === undefined && metricsEnabledInTF)) {
-                const apiConfig: i.PromMetricsAPIConfig = {
-                    assignment: config.assignment,
-                    port: portToUse,
-                    default_metrics: useDefaultMetrics,
-                    labels: config.labels,
-                    prefix: config.prefix
-                };
-                promMetrics = new PromMetrics(
-                    config.callingContext,
-                    apiConfig,
-                    config.logger
-                );
-                await promMetrics.createAPI();
-            } else {
-                context.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
-            }
-        },
         promMetrics: {
+            async init(config: i.CreatePromMetricsConfig) {
+                const { terafoundation, teraslice } = config.context.sysconfig;
+                const metricsEnabledInTF = terafoundation.export_prom_metrics;
+                const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
+
+                if (promMetricsAPI) {
+                    throw new Error('Prom metrics API cannot be initialized more than once.');
+                }
+
+                if (teraslice.cluster_manager_type === 'native') {
+                    context.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+                    return;
+                }
+
+                let useDefaultMetrics: boolean;
+                if (config.default_metrics !== undefined) {
+                    useDefaultMetrics = config.default_metrics;
+                } else if (terafoundation.prom_default_metrics !== undefined) {
+                    useDefaultMetrics = terafoundation.prom_default_metrics;
+                } else {
+                    useDefaultMetrics = true;
+                }
+
+                if (config.jobOverride
+                    || (config.jobOverride === undefined && metricsEnabledInTF)) {
+                    const apiConfig: i.PromMetricsAPIConfig = {
+                        assignment: config.assignment,
+                        port: portToUse,
+                        default_metrics: useDefaultMetrics,
+                        labels: config.labels,
+                        prefix: config.prefix
+                    };
+                    const promMetrics = new PromMetrics(
+                        config.context,
+                        apiConfig,
+                        config.logger
+                    );
+                    promMetricsAPI = await promMetrics.createAPI();
+                }
+                context.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+            },
             set(name: string, labels: Record<string, string>, value: number): void {
-                if (promMetrics) {
-                    promMetrics.set(name, labels, value);
+                if (promMetricsAPI) {
+                    promMetricsAPI.set(name, labels, value);
                 }
             },
             inc(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetrics) {
-                    promMetrics.inc(name, labelValues, value);
+                if (promMetricsAPI) {
+                    promMetricsAPI.inc(name, labelValues, value);
                 }
             },
             dec(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetrics) {
-                    promMetrics.dec(name, labelValues, value);
+                if (promMetricsAPI) {
+                    promMetricsAPI.dec(name, labelValues, value);
                 }
             },
             observe(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetrics) {
-                    promMetrics.observe(name, labelValues, value);
+                if (promMetricsAPI) {
+                    promMetricsAPI.observe(name, labelValues, value);
                 }
             },
             async addMetric(
@@ -224,8 +224,8 @@ export default function registerApis(context: i.FoundationContext): void {
                 type: 'gauge' | 'counter' | 'histogram',
                 buckets?: Array<number>
             ): Promise<void> {
-                if (promMetrics) {
-                    promMetrics.addMetric(name, help, labelNames, type, buckets);
+                if (promMetricsAPI) {
+                    await promMetricsAPI.addMetric(name, help, labelNames, type, buckets);
                 }
             },
             addSummary(
@@ -236,8 +236,8 @@ export default function registerApis(context: i.FoundationContext): void {
                 maxAgeSeconds: number,
                 percentiles: Array<number>
             ): void {
-                if (promMetrics) {
-                    promMetrics.addSummary(name,
+                if (promMetricsAPI) {
+                    promMetricsAPI.addSummary(name,
                         help,
                         labelNames,
                         ageBuckets,
@@ -247,14 +247,14 @@ export default function registerApis(context: i.FoundationContext): void {
                 }
             },
             hasMetric(name: string): boolean {
-                if (promMetrics) {
-                    return promMetrics.hasMetric(name);
+                if (promMetricsAPI) {
+                    return promMetricsAPI.hasMetric(name);
                 }
                 return false;
             },
-            deleteMetric(name: string): boolean {
-                if (promMetrics) {
-                    return promMetrics.deleteMetric(name);
+            async deleteMetric(name: string): Promise<boolean> {
+                if (promMetricsAPI) {
+                    return promMetricsAPI.deleteMetric(name);
                 }
                 return false;
             },

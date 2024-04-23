@@ -155,9 +155,13 @@ export class PromMetrics {
      * @param  {Array<number>} buckets [default buckets]
      * @return {void}
      */
-    async addMetric(name: string, help: string, labelsNames: Array<string>,
-        type: 'gauge' | 'counter' | 'histogram', buckets: Array<number> = [0.1, 5, 15, 50, 100, 500]): Promise<void> {
-
+    async addMetric(
+        name: string,
+        help: string,
+        labelsNames: Array<string>,
+        type: 'gauge' | 'counter' | 'histogram',
+        buckets: Array<number> = [0.1, 5, 15, 50, 100, 500]
+    ): Promise<void> {
         if (!this.hasMetric(name)) {
             const fullname = this.prefix + name;
             if (type === 'gauge') {
@@ -193,16 +197,16 @@ export class PromMetrics {
     /**
      * [deleteMetric delete metric from metricList]
      * @param  {string} name [metric name]
-     * @return {boolean}
+     * @return {Promise<boolean>} [was the metric successfully deleted]
      */
-    deleteMetric(name: string): boolean {
+    async deleteMetric(name: string): Promise<boolean> {
         let deleted = false;
         const fullname = this.prefix + name;
         this.logger.info(`delete metric ${fullname}`);
         if (this.hasMetric(name)) {
             deleted = delete this.metricList[name]; // fixme
             try {
-                this.metricExporter.deleteMetric(fullname);
+                await this.metricExporter.deleteMetric(fullname);
             } catch (err) {
                 deleted = false;
                 throw new Error(`unable to delete metric ${fullname} from exporter`);

@@ -413,12 +413,11 @@ export class AssetsStorage {
     async autoload() {
         // @ts-expect-error TODO: verify this parameter
         const autoloadDir = this.context.sysconfig.teraslice.autoload_directory;
-        if (!autoloadDir || !fse.existsSync(autoloadDir)) return 0; // fixme
+        if (!autoloadDir || !fse.existsSync(autoloadDir)) return;
 
         const assets = await this.findAssetsToAutoload(autoloadDir);
-        if (!assets || !assets.length) return 0;
+        if (!assets || !assets.length) return;
 
-        let count = 0;
         for (const asset of assets) {
             this.logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
@@ -426,7 +425,6 @@ export class AssetsStorage {
                 const result = await this.save(await fse.readFile(assetPath), true);
                 if (result.created) {
                     this.logger.debug(`autoloaded asset ${asset}`);
-                    count++;
                 } else {
                     this.logger.debug(`autoloaded asset ${asset} already exists`);
                 }
@@ -440,7 +438,6 @@ export class AssetsStorage {
         }
 
         this.logger.info('done autoloading assets');
-        return count;
     }
 
     verifyClient() {

@@ -93,8 +93,9 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    createPromMetricsAPI(config: CreatePromMetricsConfig): Promise<void>;
-    promMetrics?: PromMetricsAPI
+    promMetrics: {
+        init(config: CreatePromMetricsConfig): Promise<void>;
+    } & PromMetricsAPI
 }
 
 export interface LegacyFoundationApis {
@@ -148,8 +149,7 @@ export type Foundation = {
     asset_storage_connection?: string;
     asset_storage_bucket?: string;
     export_prom_metrics?: boolean;
-    prom_metrics_main_port?: number;
-    prom_metrics_assets_port?: number;
+    prom_metrics_port?: number;
     prom_default_metrics?: boolean;
 };
 
@@ -171,7 +171,7 @@ export type Context<
 }
 
 export interface CreatePromMetricsConfig {
-    callingContext: Context,
+    context: Context,
     logger: Logger,
     jobOverride?: boolean,
     assignment: string
@@ -200,5 +200,5 @@ export interface PromMetricsAPI {
         ageBuckets: number, maxAgeSeconds: number,
         percentiles: Array<number>) => void;
     hasMetric: (name: string) => boolean;
-    deleteMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => Promise<boolean>;
 }
