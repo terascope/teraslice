@@ -115,22 +115,19 @@ export interface TestContextAPIs extends i.ContextAPIs {
 export interface TestPromMetrics {
     apiConfig: i.PromMetricsAPIConfig;
     metricList: Record<string, {
-        readonly name?: string | undefined,
-        readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary' | undefined,
-        readonly functions?: Set<string> | undefined,
+        readonly name?: string,
+        readonly help?: string,
+        readonly labelNames?: Array<string>,
+        readonly buckets?: Array<number>,
+        readonly percentiles?: Array<number>,
+        readonly ageBuckets?: number,
+        readonly maxAgeSeconds?: number
+        readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
+        readonly functions?: Set<string>,
         value?: number;
         summary?: object;
         histogram?: object;
     }>;
-    init?: object;
-    set?: object;
-    inc?: object;
-    dec?: object;
-    observe?: object;
-    addMetric?: object;
-    hasMetric?: object;
-    deleteMetric?: object;
-    addSummary?: object;
 }
 
 type GetKeyOpts = {
@@ -415,7 +412,41 @@ export class TestContext implements i.Context {
                         buckets?: Array<number>
                     ): Promise<void> {
                         if (promMetricsAPI) {
-                            // promMetricsAPI.addMetric(name, help, labelNames, type, buckets);
+                            if (!this.hasMetric(name)) {
+                                if (type === 'gauge') {
+                                    promMetricsAPI.metricList[name] = {
+                                        name,
+                                        help,
+                                        labelNames,
+                                        metric: 'Gauge',
+                                        functions: new Set<string>(['inc', 'dec', 'set']),
+                                        value: 0
+                                    };
+                                }
+                                if (type === 'counter') {
+                                    promMetricsAPI.metricList[name] = {
+                                        name,
+                                        help,
+                                        labelNames,
+                                        metric: 'Counter',
+                                        functions: new Set<string>(['inc', 'dec']),
+                                        value: 0
+                                    };
+                                }
+                                if (type === 'histogram') {
+                                    promMetricsAPI.metricList[name] = {
+                                        name,
+                                        help,
+                                        labelNames,
+                                        buckets,
+                                        metric: 'Histogram',
+                                        functions: new Set<string>(['observe']),
+                                        histogram: {}
+                                    };
+                                }
+                            } else {
+                                logger.info(`metric ${name} already defined in metric list`);
+                            }
                         }
                     },
                     addSummary(
@@ -427,13 +458,14 @@ export class TestContext implements i.Context {
                         percentiles: Array<number>
                     ): void {
                         if (promMetricsAPI) {
-                            // promMetricsAPI.addSummary(name,
-                            //     help,
-                            //     labelNames,
-                            //     ageBuckets,
-                            //     maxAgeSeconds,
-                            //     percentiles
-                            // );
+                            promMetricsAPI.metricList[name] = {
+                                name,
+                                help,
+                                labelNames,
+                                percentiles,
+                                maxAgeSeconds,
+                                ageBuckets
+                            };
                         }
                     },
                     hasMetric(name: string): boolean {

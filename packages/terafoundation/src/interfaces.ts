@@ -156,9 +156,9 @@ export interface PromMetricsAPIConfig {
 }
 
 export type MetricList = Record<string, {
-    readonly name?: string | undefined,
-    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any> | undefined,
-    readonly functions?: Set<string> | undefined
+    readonly name?: string,
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>,
+    readonly functions?: Set<string>
 }>;
 
 export interface PromMetricsAPI {
