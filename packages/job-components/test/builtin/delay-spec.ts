@@ -1,9 +1,10 @@
 import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext, DataEntity
-} from '../../src';
-import Delay from '../../src/builtin/delay/processor';
-import Schema from '../../src/builtin/delay/schema';
+    TestContext, newTestExecutionConfig, WorkerContext
+} from '../../src/index.js';
+import Delay from '../../src/builtin/delay/processor.js';
+import Schema from '../../src/builtin/delay/schema.js';
 
 describe('Delay Processor', () => {
     const context = new TestContext('delay');

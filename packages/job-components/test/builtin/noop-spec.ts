@@ -1,9 +1,10 @@
 import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext, DataEntity
-} from '../../src';
-import Noop from '../../src/builtin/noop/processor';
-import Schema from '../../src/builtin/noop/schema';
+    TestContext, newTestExecutionConfig, WorkerContext
+} from '../../src/index.js';
+import Noop from '../../src/builtin/noop/processor.js';
+import Schema from '../../src/builtin/noop/schema.js';
 
 describe('Noop Processor', () => {
     const context = new TestContext('noop');

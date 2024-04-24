@@ -5,7 +5,7 @@ import {
     FetcherConstructor,
     ObserverConstructor,
     SchemaConstructor
-} from '../operations/interfaces';
+} from '../operations/interfaces.js';
 
 export const ASSET_KEYWORD = 'ASSETS';
 export interface LoaderOptions {

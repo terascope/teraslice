@@ -20,7 +20,7 @@ import {
     ProcessorModule,
     APIModule,
     ReaderModule,
-} from '../operations';
+} from '../operations/index.js';
 import {
     ASSET_KEYWORD,
     LoaderOptions,
@@ -31,7 +31,7 @@ import {
     OperationResults,
     FindOperationResults,
     OperationTypeName
-} from './interfaces';
+} from './interfaces.js';
 
 const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 

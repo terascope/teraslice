@@ -4,11 +4,9 @@ import fse from 'fs-extra';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-    OperationLoader,
-    newTestExecutionConfig,
-    TestContext,
+    OperationLoader, newTestExecutionConfig, TestContext,
     WorkerContext
-} from '../src';
+} from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

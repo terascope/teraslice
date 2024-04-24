@@ -1,14 +1,11 @@
 import 'jest-extended'; // require for type definitions
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { AnyObject } from '@terascope/utils';
 import {
-    registerApis,
-    OperationAPI,
-    newTestJobConfig,
-    TestContext,
-    TestClientConfig,
-    AnyObject
-} from '../src';
+    registerApis, OperationAPI, newTestJobConfig,
+    TestContext, TestClientConfig,
+} from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

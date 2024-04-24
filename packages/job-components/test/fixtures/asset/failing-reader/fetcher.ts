@@ -1,4 +1,5 @@
-import { Fetcher, DataEntity } from '../../../../src';
+import { DataEntity } from '@terascope/utils';
+import { Fetcher } from '../../../../src/index.js';
 
 export default class FailingFetcher extends Fetcher {
     async fetch(): Promise<DataEntity[]> {

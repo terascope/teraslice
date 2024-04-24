@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import nock from 'nock';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { debugLogger } from '@terascope/job-components';
+import { debugLogger } from '@terascope/utils';
 import { K8s } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8s.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

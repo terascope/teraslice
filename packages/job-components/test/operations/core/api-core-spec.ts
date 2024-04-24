@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig, WorkerContext } from '../../../src';
-import APICore from '../../../src/operations/core/api-core';
+import { TestContext, newTestExecutionConfig, WorkerContext } from '../../../src/index.js';
+import APICore from '../../../src/operations/core/api-core.js';
 
 describe('APICore', () => {
     class ExampleAPI extends APICore {}

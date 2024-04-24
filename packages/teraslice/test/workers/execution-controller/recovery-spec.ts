@@ -1,5 +1,5 @@
 import { pDelay, pWhile } from '@terascope/utils';
-import { debugLogger } from '@terascope/job-components';
+import { debugLogger } from '@terascope/utils';
 import { EventEmitter } from 'node:events';
 import { RecoveryModule } from '../../../src/lib/workers/execution-controller/recovery.js';
 

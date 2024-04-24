@@ -1,5 +1,5 @@
-import '../../formats'; // require to add the schema formats
-import Core from './core';
+import '../../formats.js'; // require to add the schema formats
+import Core from './core.js';
 import {
     ExecutionConfig,
     WorkerOperationLifeCycle,
@@ -8,8 +8,8 @@ import {
     WorkerContext,
     DeadLetterAction,
     DeadLetterAPIFn,
-} from '../../interfaces';
-import { makeExContextLogger } from '../../utils';
+} from '../../interfaces/index.js';
+import { makeExContextLogger } from '../../utils.js';
 
 /**
  * A base class for supporting operations that run on a "Worker",

@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import _ from 'lodash';
-import events from 'events';
-import { debugLogger } from '@terascope/job-components';
+import events from 'node:events';
+import { debugLogger } from '@terascope/utils';
 import { Messaging, routing } from '../../src/lib/cluster/services/cluster/backends/native/messaging.js';
 
 describe('messaging module', () => {

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import yaml from 'js-yaml';
 import { cloneDeep } from '@terascope/utils';
 import * as i from './interfaces.js';
@@ -39,10 +40,12 @@ export function getDefaultConfigFile(): string|undefined {
     return undefined;
 }
 
-export function getArgs<S = Record<string, unknown>>(
+export async function getArgs<S = Record<string, unknown>>(
     defaultConfigFile?: string,
-): i.ParsedArgs<S> {
-    const { argv } = yargs.usage('Usage: $0 [options]')
+): Promise<i.ParsedArgs<S>> {
+    const yargsInstance = yargs(hideBin(process.argv));
+
+    const { argv } = await yargsInstance.usage('Usage: $0 [options]')
         .version()
         .alias('v', 'version')
         .help()
@@ -57,21 +60,23 @@ export function getArgs<S = Record<string, unknown>>(
                 return parseConfigFile(arg || defaultConfigFile);
             }
         })
-        .wrap(yargs.terminalWidth());
+        .wrap(yargsInstance.terminalWidth());
 
     return (argv as unknown) as i.ParsedArgs<S>;
 }
 
 export async function parseConfigFile<D = Record<string, any>>(file: string): Promise<D> {
     const configFile = file ? path.resolve(file) : undefined;
+
     if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
     }
 
     if (['.yaml', '.yml'].includes(path.extname(configFile))) {
-        return yaml.load(fs.readFileSync(configFile, 'utf8')) as any;
+        const config = fs.readFileSync(configFile, 'utf8');
+        return yaml.load(config) as D;
     }
-    // TODO: find out if there is a better way to do this
-    const json = await import(configFile);
+
+    const json = await import(configFile) as D;
     return cloneDeep(json);
 }

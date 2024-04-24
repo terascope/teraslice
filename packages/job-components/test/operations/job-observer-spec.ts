@@ -1,8 +1,9 @@
 import 'jest-extended'; // require for type definitions
 import { times } from '@terascope/utils';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext, JobObserver, SliceAnalyticsData
-} from '../../src';
+    TestContext, newTestExecutionConfig, WorkerContext,
+    JobObserver, SliceAnalyticsData
+} from '../../src/index.js';
 
 describe('JobObserver', () => {
     let observer: JobObserver;

@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import convict from 'convict';
 import {
     AnyObject,
@@ -14,7 +14,7 @@ import {
     isString,
     logLevels,
 } from '@terascope/utils';
-import { Context } from './interfaces';
+import { Context } from './interfaces/index.js';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;

@@ -1,4 +1,5 @@
-import { ConvictSchema, AnyObject } from '../../../../src';
+import { AnyObject } from '@terascope/utils';
+import { ConvictSchema } from '../../../../src/index.js';
 
 export default class Schema extends ConvictSchema<any, any> {
     build(): AnyObject {

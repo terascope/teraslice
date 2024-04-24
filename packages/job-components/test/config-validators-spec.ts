@@ -2,14 +2,11 @@ import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logLevels } from '@terascope/utils';
 import {
-    jobSchema,
-    validateJobConfig,
-    validateOpConfig,
-    TestContext,
-    validateAPIConfig,
-    logLevels
-} from '../src';
+    jobSchema, validateJobConfig, validateOpConfig,
+    TestContext, validateAPIConfig,
+} from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

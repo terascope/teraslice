@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import {
     getDefaultConfigFile,
     parseConfigFile
-} from '../src/sysconfig';
+} from '../src/sysconfig.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -1,14 +1,14 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
     get, set, AnyObject, Logger, isTest, isString
 } from '@terascope/utils';
 import {
     OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext
-} from '../interfaces';
-import { isOperationAPI, getOperationAPIType } from './utils';
-import { Observer, APIConstructor } from '../operations';
-import { JobAPIInstances } from './interfaces';
-import { makeExContextLogger } from '../utils';
+} from '../interfaces/index.js';
+import { isOperationAPI, getOperationAPIType } from './utils.js';
+import { Observer, APIConstructor } from '../operations/index.js';
+import { JobAPIInstances } from './interfaces.js';
+import { makeExContextLogger } from '../utils.js';
 
 interface MetadataFns {
     update: (exId: string, metadata: AnyObject) => Promise<void>;

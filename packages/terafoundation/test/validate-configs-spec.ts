@@ -1,7 +1,7 @@
 import 'jest-extended';
-import os from 'os';
-import { Cluster } from '../src';
-import validateConfigs from '../src/validate-configs';
+import os from 'node:os';
+import { Cluster } from '../src/index.js';
+import validateConfigs from '../src/validate-configs.js';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {

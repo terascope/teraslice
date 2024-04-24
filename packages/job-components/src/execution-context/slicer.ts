@@ -5,10 +5,10 @@ import {
     Slice,
     SliceResult,
     SlicerRecoveryData,
-} from '../interfaces';
-import SlicerCore from '../operations/core/slicer-core';
-import { ExecutionContextConfig, JobAPIInstances } from './interfaces';
-import BaseExecutionContext from './base';
+} from '../interfaces/index.js';
+import SlicerCore from '../operations/core/slicer-core.js';
+import { ExecutionContextConfig, JobAPIInstances } from './interfaces.js';
+import BaseExecutionContext from './base.js';
 
 /**
  * SlicerExecutionContext is designed to add more

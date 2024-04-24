@@ -1,7 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { JobValidator, TestContext, JobConfig } from '../src';
+import { JobValidator, TestContext, JobConfig } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

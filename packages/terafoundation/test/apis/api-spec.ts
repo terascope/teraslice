@@ -1,5 +1,5 @@
 import 'jest-extended';
-import api from '../../src/api';
+import api from '../../src/api/index.js';
 
 describe('apis module', () => {
     const context = {

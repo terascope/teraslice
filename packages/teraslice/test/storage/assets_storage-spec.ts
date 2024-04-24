@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import { createClient } from 'elasticsearch-store';
 import { AssetsStorage } from '../../src/lib/storage';

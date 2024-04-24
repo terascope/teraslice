@@ -2,15 +2,11 @@ import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pDelay, DataEntity } from '@terascope/utils';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    FetcherCore,
-    ProcessorCore,
-    newTestSlice
-} from '../../src';
+    WorkerExecutionContext, TestContext, newTestExecutionConfig,
+    FetcherCore, ProcessorCore, newTestSlice
+} from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

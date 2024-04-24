@@ -9,8 +9,8 @@ import {
     OpConfig,
     GetClientConfig,
     WorkerContextAPIs
-} from './interfaces';
-import { ExecutionContextAPI } from './execution-context';
+} from './interfaces/index.js';
+import { ExecutionContextAPI } from './execution-context/index.js';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | undefined {

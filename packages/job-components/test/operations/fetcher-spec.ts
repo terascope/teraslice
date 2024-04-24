@@ -1,7 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    Fetcher, DataEntity, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    Fetcher, newTestExecutionConfig, TestContext,
+    WorkerContext
+} from '../../src/index.js';
 
 describe('Fetcher', () => {
     class ExampleFetcher extends Fetcher<Record<string, any>> {

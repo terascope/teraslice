@@ -1,18 +1,18 @@
-import BatchProcessor from './batch-processor';
-import ConvictSchema from './convict-schema';
-import EachProcessor from './each-processor';
-import Fetcher from './fetcher';
-import FilterProcessor from './filter-processor';
-import JobObserver from './job-observer';
-import MapProcessor from './map-processor';
-import Observer from './observer';
-import OperationAPI from './operation-api';
-import ParallelSlicer from './parallel-slicer';
-import Slicer from './slicer';
-import APIFactory from './api-factory';
+import BatchProcessor from './batch-processor.js';
+import ConvictSchema from './convict-schema.js';
+import EachProcessor from './each-processor.js';
+import Fetcher from './fetcher.js';
+import FilterProcessor from './filter-processor.js';
+import JobObserver from './job-observer.js';
+import MapProcessor from './map-processor.js';
+import Observer from './observer.js';
+import OperationAPI from './operation-api.js';
+import ParallelSlicer from './parallel-slicer.js';
+import Slicer from './slicer.js';
+import APIFactory from './api-factory.js';
 
-export * from './interfaces';
-export * from './core';
+export * from './interfaces.js';
+export * from './core/index.js';
 export {
     BatchProcessor,
     ConvictSchema,

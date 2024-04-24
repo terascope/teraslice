@@ -1,7 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    DataEntity, FilterProcessor, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    FilterProcessor, newTestExecutionConfig, TestContext,
+    WorkerContext
+} from '../../src/index.js';
 
 describe('FilterProcessor', () => {
     class ExampleProcessor extends FilterProcessor<Record<string, any>> {

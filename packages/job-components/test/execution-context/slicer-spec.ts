@@ -1,12 +1,10 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    SlicerExecutionContext,
-    TestContext,
-    newTestExecutionConfig
-} from '../../src';
+    SlicerExecutionContext, TestContext, newTestExecutionConfig
+} from '../../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

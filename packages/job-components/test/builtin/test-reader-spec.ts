@@ -1,10 +1,10 @@
 import 'jest-extended';
-import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src';
-import Fetcher from '../../src/builtin/test-reader/fetcher';
-import Slicer from '../../src/builtin/test-reader/slicer';
-import Schema from '../../src/builtin/test-reader/schema';
-import slicerData from '../../src/builtin/test-reader/data/slicer-data';
-import fetcherData from '../../src/builtin/test-reader/data/fetcher-data';
+import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src/index.js';
+import Fetcher from '../../src/builtin/test-reader/fetcher.js';
+import Slicer from '../../src/builtin/test-reader/slicer.js';
+import Schema from '../../src/builtin/test-reader/schema.js';
+import slicerData from '../../src/builtin/test-reader/data/slicer-data.js';
+import fetcherData from '../../src/builtin/test-reader/data/fetcher-data.js';
 
 describe('Test Reader', () => {
     it('should have a Schema, Fetcher and Slicer class', () => {

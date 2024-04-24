@@ -133,7 +133,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
                 };
                 logger.trace('starting a execution controller', controllerContext);
                 // @ts-expect-error TODO: check this
-                return context.foundation.startWorkers(1, controllerContext);
+                return context.apis.foundation.startWorkers(1, controllerContext);
             })
                 .then(() => messaging.respond(createSlicerRequest))
                 .catch((error) => {
@@ -176,7 +176,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
                 if (newWorkers > 0) {
                     logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
                     // @ts-expect-error
-                    workers = context.foundation.startWorkers(newWorkers, {
+                    workers = context.apis.foundation.startWorkers(newWorkers, {
                         NODE_TYPE: 'worker',
                         EX: safeEncode(createWorkerMsg.job),
                         assignment: 'worker',
@@ -400,7 +400,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
     if (context.sysconfig.teraslice.master) {
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
         // @ts-expect-error
-        context.foundation.startWorkers(1, {
+        context.apis.foundation.startWorkers(1, {
             assignment: 'cluster_master',
             assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
@@ -408,7 +408,7 @@ export async function nodeMaster(context: ClusterMasterContext) {
 
         logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
         // @ts-expect-error
-        context.foundation.startWorkers(1, {
+        context.apis.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
             port: ports.assetsPort,

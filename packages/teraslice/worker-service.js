@@ -67,16 +67,22 @@ class Service {
     }
 }
 
-const context = makeTerafoundationContext();
-const cmd = new Service(context);
+async function main() {
+    const context = await makeTerafoundationContext();
+    const cmd = new Service(context);
 
-cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
-    if (!cmd.instance) return Promise.resolve();
-    return cmd.instance.shutdown(true, event, err);
-});
+    cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
+        if (!cmd.instance) return Promise.resolve();
+        return cmd.instance.shutdown(true, event, err);
+    });
 
-Promise.resolve()
-    .then(() => cmd.initialize())
-    .then(() => cmd.run())
-    .then(() => cmd.shutdown())
-    .catch((err) => cmd.shutdown(err));
+    try {
+        await cmd.initialize();
+        await cmd.run();
+        await cmd.shutdown();
+    } catch (err) {
+        cmd.shutdown(err);
+    }
+}
+
+main();

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-import-module-exports
-import { ConvictSchema } from '../../../../src';
+import { ConvictSchema } from '../../../../src/index.js';
 
 class Schema extends ConvictSchema<any, any> {
     build(): Record<string, any> {

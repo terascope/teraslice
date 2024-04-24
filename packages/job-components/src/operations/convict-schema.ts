@@ -5,14 +5,14 @@ import {
     toString,
     isDeepEqual
 } from '@terascope/utils';
-import SchemaCore, { OpType } from './core/schema-core';
+import SchemaCore, { OpType } from './core/schema-core.js';
 import {
     Context,
     OpConfig,
     APIConfig,
     ValidatedJobConfig
-} from '../interfaces';
-import { validateOpConfig, validateAPIConfig } from '../config-validators';
+} from '../interfaces/index.js';
+import { validateOpConfig, validateAPIConfig } from '../config-validators.js';
 
 /**
  * A base class for supporting convict "Schema" definitions

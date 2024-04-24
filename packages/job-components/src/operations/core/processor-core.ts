@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
-import OperationCore from './operation-core';
-import { SliceRequest, OpConfig } from '../../interfaces';
+import OperationCore from './operation-core.js';
+import { SliceRequest, OpConfig } from '../../interfaces/index.js';
 
 /**
  * A base class for supporting "Processors" that run on a "Worker".

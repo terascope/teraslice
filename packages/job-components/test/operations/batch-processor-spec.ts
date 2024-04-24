@@ -1,11 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    DataEntity,
-    BatchProcessor,
-    newTestExecutionConfig,
-    TestContext,
+    BatchProcessor, newTestExecutionConfig, TestContext,
     WorkerContext
-} from '../../src';
+} from '../../src/index.js';
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor<Record<string, any>> {

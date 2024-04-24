@@ -1,15 +1,11 @@
 /* eslint-disable max-classes-per-file */
 
 import 'jest-extended'; // require for type definitions
-import OperationCore from '../../../src/operations/core/operation-core';
+import OperationCore from '../../../src/operations/core/operation-core.js';
 import {
-    OperationAPI,
-    ExecutionContextAPI,
-    OpAPIFn,
-    TestContext,
-    WorkerContext,
-    newTestExecutionConfig
-} from '../../../src';
+    OperationAPI, ExecutionContextAPI, OpAPIFn,
+    TestContext, WorkerContext, newTestExecutionConfig
+} from '../../../src/index.js';
 
 describe('OperationCore', () => {
     class HelloAPI extends OperationAPI {

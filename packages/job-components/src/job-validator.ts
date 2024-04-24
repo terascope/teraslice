@@ -3,11 +3,11 @@ import { cloneDeep, pMap } from '@terascope/utils';
 import {
     Context, OpConfig, JobConfig, ValidatedJobConfig
 } from './interfaces';
-import { validateJobConfig } from './config-validators';
-import { jobSchema } from './job-schemas';
-import { OperationLoader } from './operation-loader';
-import { registerApis } from './register-apis';
-import { OperationModule } from './operations';
+import { validateJobConfig } from './config-validators.js';
+import { jobSchema } from './job-schemas.js';
+import { OperationLoader } from './operation-loader/index.js';
+import { registerApis } from './register-apis.js';
+import { OperationModule } from './operations/index.js';
 
 export class JobValidator {
     public schema: convict.Schema<any>;

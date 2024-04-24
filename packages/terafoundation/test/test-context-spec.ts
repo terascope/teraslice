@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { debugLogger } from '@terascope/utils';
-import { TestContext } from '../src';
+import { TestContext } from '../src/index.js';
 
 const logger = debugLogger('TestContext');
 

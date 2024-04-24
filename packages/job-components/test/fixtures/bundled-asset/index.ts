@@ -1,6 +1,6 @@
-import { AssetExampleAPI, AssetSchemaAPI } from './new-asset-api';
-import { AssetProcessorExampleBatch, AssetProcessorSchema } from './new-asset-processor';
-import { AssetExampleFetcher, AssetReaderSchema, AssetExampleSlicer } from './new-asset-reader';
+import { AssetExampleAPI, AssetSchemaAPI } from './new-asset-api/index.js';
+import { AssetProcessorExampleBatch, AssetProcessorSchema } from './new-asset-processor/index.js';
+import { AssetExampleFetcher, AssetReaderSchema, AssetExampleSlicer } from './new-asset-reader/index.js';
 
 export default {
     /** A list of the operations provided by this asset bundle */

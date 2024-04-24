@@ -7,8 +7,8 @@ import {
     SlicerOperationLifeCycle,
     WorkerOperationLifeCycle,
     OpAPI,
-} from '../interfaces';
-import { APICore, OperationAPIType } from '../operations';
+} from '../interfaces/index.js';
+import { APICore, OperationAPIType } from '../operations/index.js';
 
 export interface ExecutionContextConfig {
     context: Context;

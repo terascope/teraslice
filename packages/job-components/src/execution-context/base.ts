@@ -1,12 +1,12 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
     isFunction, cloneDeep, pMap, Logger, toHumanTime
 } from '@terascope/utils';
-import { OperationLoader } from '../operation-loader';
-import { registerApis } from '../register-apis';
-import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
-import { EventHandlers, ExecutionContextConfig } from './interfaces';
-import { ExecutionContextAPI } from './api';
+import { OperationLoader } from '../operation-loader/index.js';
+import { registerApis } from '../register-apis.js';
+import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces/index.js';
+import { EventHandlers, ExecutionContextConfig } from './interfaces.js';
+import { ExecutionContextAPI } from './api.js';
 
 /**
  * A base class for an Execution Context

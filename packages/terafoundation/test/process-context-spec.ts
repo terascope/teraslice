@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { ProcessContext } from '../src';
+import { ProcessContext } from '../src/index.js';
 
 describe('Terafoundation (ProcessContext)', () => {
     it('should be able to return a valid context', async () => {

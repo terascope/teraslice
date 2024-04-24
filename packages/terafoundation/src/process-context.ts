@@ -33,7 +33,7 @@ export class ProcessContext<
             }
         } as any;
 
-        const parsedArgs = overrideArgs || getArgs<S>(
+        const parsedArgs = overrideArgs || await getArgs<S>(
             config.default_config_file
         );
 

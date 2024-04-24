@@ -1,14 +1,11 @@
 import 'jest-extended';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
+import { DataEntity, times } from '@terascope/utils';
 import {
-    TestContext,
-    newTestExecutionConfig,
-    WorkerContext,
-    DataEntity,
-    times
-} from '../../src';
-import Collect from '../../src/builtin/collect/processor';
-import Schema from '../../src/builtin/collect/schema';
+    TestContext, newTestExecutionConfig, WorkerContext,
+} from '../../src/index.js';
+import Collect from '../../src/builtin/collect/processor.js';
+import Schema from '../../src/builtin/collect/schema.js';
 
 const delay = promisify(setTimeout);
 

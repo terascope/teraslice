@@ -1,13 +1,10 @@
 import 'jest-extended';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
+import { debugLogger } from '@terascope/utils';
 import {
-    debugLogger,
-    newTestJobConfig,
-    newTestSlice,
-    newTestExecutionContext,
-    newTestExecutionConfig,
-    TestContext,
-} from '../src';
+    newTestJobConfig, newTestSlice, newTestExecutionContext,
+    newTestExecutionConfig, TestContext,
+} from '../src/index.js';
 
 describe('Test Helpers', () => {
     it('should have a debugLogger', async () => {

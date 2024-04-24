@@ -80,7 +80,7 @@ export async function getConnectorModule(
     // collect the errors
     const errors: ErrorResult[] = [];
 
-    const localPath = path.join(dirname, 'connectors', name);
+    const localPath = `${path.join(dirname, 'connectors', name)}.js`;
     mod = await guardedRequire(localPath, errors);
 
     // check if its a node module
@@ -123,6 +123,7 @@ export async function getConnectorSchema(name: string): Promise<Record<string, a
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = await getConnectorModule(name, reason);
+
     if (!mod) {
         throw new TSError(`Could not find connector: ${name} to extract its schema`);
     }

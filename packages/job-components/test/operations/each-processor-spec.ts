@@ -1,11 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    DataEntity,
-    EachProcessor,
-    newTestExecutionConfig,
-    TestContext,
+    EachProcessor, newTestExecutionConfig, TestContext,
     WorkerContext
-} from '../../src';
+} from '../../src/index.js';
 
 describe('EachProcessor', () => {
     let processedCount = 0;

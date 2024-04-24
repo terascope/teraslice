@@ -15,7 +15,7 @@ if (import.meta.url.startsWith('file:')) {
     const executePath = process.argv[1];
 
     if (executePath === modulePath) {
-        const context = makeTerafoundationContext() as unknown as Context;
+        const context = await makeTerafoundationContext() as unknown as Context;
         const assets = safeDecode(process.env.ASSETS as string);
 
         (async () => {

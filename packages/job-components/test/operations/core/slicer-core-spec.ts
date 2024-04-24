@@ -1,14 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import 'jest-extended'; // require for type definitions
 import {
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext,
-    ExecutionContextAPI,
-    OperationAPI,
-    OpAPIFn
-} from '../../../src';
-import SlicerCore from '../../../src/operations/core/slicer-core';
+    newTestExecutionConfig, TestContext, WorkerContext,
+    ExecutionContextAPI, OperationAPI, OpAPIFn
+} from '../../../src/index.js';
+import SlicerCore from '../../../src/operations/core/slicer-core.js';
 
 describe('SlicerCore', () => {
     class ExampleSlicerCore extends SlicerCore {

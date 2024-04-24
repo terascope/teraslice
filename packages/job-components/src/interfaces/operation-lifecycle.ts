@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
 import {
     Slice, SlicerRecoveryData, SliceResult, ExecutionStats
-} from './operations';
+} from './operations.js';
 
 export interface OperationLifeCycle {
     /**

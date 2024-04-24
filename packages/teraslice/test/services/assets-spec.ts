@@ -1,5 +1,5 @@
 import { TestContext, TestContextOptions } from '@terascope/job-components';
-import fs from 'fs';
+import fs from 'node:fs';
 import got from 'got';
 import { createClient } from 'elasticsearch-store';
 import { AssetsService } from '../../src/lib/cluster/services/assets';

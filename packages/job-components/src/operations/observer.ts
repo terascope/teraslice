@@ -1,5 +1,5 @@
-import APICore from './core/api-core';
-import { APIConfig } from '../interfaces';
+import APICore from './core/api-core.js';
+import { APIConfig } from '../interfaces/index.js';
 
 /**
  * An Observer factory class for operations

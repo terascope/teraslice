@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseJSON, fastCloneDeep } from '@terascope/utils';
-import { SlicerRecoveryData } from '../../interfaces';
-import { TestReaderConfig } from './interfaces';
-import defaultData from './data/slicer-data';
-import { Slicer } from '../../operations';
+import { SlicerRecoveryData } from '../../interfaces/index.js';
+import { TestReaderConfig } from './interfaces.js';
+import defaultData from './data/slicer-data.js';
+import { Slicer } from '../../operations/index.js';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: Record<string, any>[] = [];

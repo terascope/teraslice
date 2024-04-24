@@ -95,7 +95,7 @@ export class ClusterContext<
     >(
         config: i.FoundationConfig<S, A, D>,
     ) {
-        const parsedArgs = getArgs<S>(
+        const parsedArgs = await getArgs<S>(
             config.default_config_file
         );
 
