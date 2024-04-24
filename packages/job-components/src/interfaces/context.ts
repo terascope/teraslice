@@ -106,7 +106,7 @@ export interface FoundationApis {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     promMetrics: {
-        init(config: CreatePromMetricsConfig): Promise<void>;
+        init(config: CreatePromMetricsConfig): Promise<boolean>;
     } & PromMetricsAPI
 }
 

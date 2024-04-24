@@ -94,7 +94,7 @@ export interface FoundationAPIs {
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
     promMetrics: {
-        init(config: CreatePromMetricsConfig): Promise<void>;
+        init(config: CreatePromMetricsConfig): Promise<boolean>;
     } & PromMetricsAPI
 }
 

@@ -167,7 +167,7 @@ export default function registerApis(context: i.FoundationContext): void {
 
                 if (teraslice.cluster_manager_type === 'native') {
                     context.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
-                    return;
+                    return false;
                 }
 
                 let useDefaultMetrics: boolean;
@@ -194,8 +194,10 @@ export default function registerApis(context: i.FoundationContext): void {
                         config.logger
                     );
                     promMetricsAPI = await promMetrics.createAPI();
+                    return true;
                 }
                 context.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+                return false;
             },
             set(name: string, labels: Record<string, string>, value: number): void {
                 if (promMetricsAPI) {

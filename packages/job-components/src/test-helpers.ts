@@ -329,7 +329,7 @@ export class TestContext implements i.Context {
 
                         if (teraslice.cluster_manager_type === 'native') {
                             logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
-                            return;
+                            return false;
                         }
 
                         let useDefaultMetrics: boolean;
@@ -354,8 +354,10 @@ export class TestContext implements i.Context {
                                 apiConfig,
                                 metricList: {}
                             };
+                            return true;
                         }
                         logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+                        return false;
                     },
                     set(name: string, labels: Record<string, string>, value: number): void {
                         if (promMetricsAPI) {
