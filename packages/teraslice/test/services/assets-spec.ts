@@ -34,6 +34,9 @@ describe('Assets Service', () => {
         asset_storage_connection_type: 's3',
         asset_storage_connection: 'default',
         asset_storage_bucket: 'assets-spec-test-bucket',
+        prom_metrics_enabled: false,
+        prom_metrics_port: 3333,
+        prom_metrics_add_default: true,
         connectors: {
             s3: {
                 default: {
