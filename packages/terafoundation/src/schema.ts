@@ -87,17 +87,17 @@ export function foundationSchema() {
             format: String
         },
         prom_metrics_enabled: {
-            doc: 'Create promethius exporters',
+            doc: 'Create prometheus exporters',
             default: false,
             format: Boolean
         },
         prom_metrics_port: {
-            doc: 'Port of promethius exporter server',
+            doc: 'Port of prometheus exporter server',
             default: 3333,
             format: Number
         },
         prom_metrics_add_default: {
-            doc: 'Display default node metrics in prom client',
+            doc: 'Display default node metrics in prom exporter',
             default: true,
             format: Boolean
         }

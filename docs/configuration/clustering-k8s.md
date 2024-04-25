@@ -470,6 +470,14 @@ appropriate YAML for the Kubernetes resource.  An example of a
 job author, so it is off by default.  It can be enabled by setting
 `kubernetes_overrides_enabled: true`.
 
+### Prometheus Metrics
+
+If using Prometheus for metrics gathering, you can start an exporter that will serve metrics at the following url: `http://localhost:<port>/metrics`.<br>
+The following properties will override the matching property set within the `terafoundation` configuration.
+* `prom_metrics_enabled` - start a Prometheus exporter server
+* `prom_metrics_port` - port the server will listen on
+* `prom_metrics_add_defaults` - collect default metrics recommended by Prometheus as well as Node.js-specific metrics
+
 ## Kubernetes Labels
 
 We automatically add labels to the Kubernetes resources created by Teraslice.

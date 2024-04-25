@@ -11,6 +11,7 @@ import {
 } from './services/index.js';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../storage/index.js';
 import { ClusterMasterContext } from '../../interfaces.js';
+import { getPackageJSON } from '../utils/file_utils.js';
 
 export class ClusterMaster {
     context: ClusterMasterContext;
@@ -147,9 +148,24 @@ export class ClusterMaster {
                 port: foundation.prom_metrics_port,
             });
 
-            // fixme: remove example
-            await this.context.apis.foundation.promMetrics.addMetric('test', 'help string', [], 'counter');
-            this.context.apis.foundation.promMetrics.inc('test', {}, 1);
+            await this.context.apis.foundation.promMetrics.addMetric(
+                'info',
+                'Information about Teraslice cluster master',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+                'gauge'
+            );
+            this.context.apis.foundation.promMetrics.set(
+                'execution_controller_info',
+                {
+                    arch: this.context.arch,
+                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                    name: this.context.sysconfig.teraslice.name,
+                    node_version: process.version,
+                    platform: this.context.platform,
+                    teraslice_version: getPackageJSON().version
+                },
+                1
+            );
 
             this.logger.info('cluster master is ready!');
             this.running = true;

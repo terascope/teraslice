@@ -347,6 +347,47 @@ yarn k8s:restart --reset-store
 yarn run ts-scripts k8s-env --rebuild --skip-build --reset-store
 ```
 
+## Prometheus Metrics API
+
+The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metrics` package. Use of its API can be enabled using `prom_metrics_enabled` in the terafoundation config and overwritten in the job config. The `init` function can be found at `context.apis.foundation.promMetrics.init`. It is called on startup of the Teraslice master, execution_Controller, and worker, but only creates the API if `prom_metrics_enabled` is true.
+
+Example init:
+```typescript
+await config.context.apis.foundation.promMetrics.init({
+    context: config.context,
+    logger: this.logger,
+    metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled, // optional job override
+    assignment: 'execution_controller',
+    port: config.executionConfig.prom_metrics_port, // optional job override
+    default_metrics: config.executionConfig.prom_metrics_add_default, // optional job override
+    labels: { // optional default labels on all metrics for this teraslice process
+        ex_id: this.exId,
+        job_id: this.jobId,
+        job_name: this.config.name,
+    }
+});
+```
+
+Once initialized all of the other functions under `context.apis.foundation.promMetrics` will be enabled. It's important to note that the foundation level wrapper functions allow all of the prom metrics functions to be called even if metrics are disabled or the API hasn't been initialized. There is no need to make checks at the level where a function is called, and failures will never throw errors.
+
+Example addMetric:
+```typescript
+await this.context.apis.foundation.promMetrics.addMetric(
+    'slices_dispatched', // name
+    'number of slices a slicer has dispatched', // help or description
+    ['class'], // label names specific to this metric
+    'counter'); // metric type
+
+// now we can increment the counter anywhere else in the code
+this.context.apis.foundation.promMetrics.inc(
+    'slices_dispatched', // name
+    { class: 'ExecutionController' }, // label names and values
+    1 // amount to increment by
+);
+```
+
+The label names as well as the metric name must match when using `inc`, `dec`, `set`, or `observe` to modify a metric.
+
 ## Extras
 
 ### Teraslice Kubernetes Job Structure

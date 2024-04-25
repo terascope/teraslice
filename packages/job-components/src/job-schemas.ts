@@ -245,7 +245,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.cpu = {
-            doc: 'number of cpus to reserve per teraslice worker in kubernetes',
+            doc: 'DEPRECATED: number of cpus to reserve per teraslice worker in kubernetes',
             default: undefined,
             format: 'Number',
         };
@@ -309,7 +309,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.memory = {
-            doc: 'memory, in bytes, to reserve per teraslice worker in Kubernetes',
+            doc: 'DEPRECATED: memory, in bytes, to reserve per teraslice worker in Kubernetes',
             default: undefined,
             format: 'Number',
         };
@@ -385,12 +385,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
 
         schemas.prom_metrics_enabled = {
             default: undefined,
-            doc: 'Create a promethius exporter. Overrides terafoundation value',
+            doc: 'Create a prometheus exporter. Overrides terafoundation value',
             format: Boolean,
         };
 
         schemas.prom_metrics_port = {
-            doc: 'Port of promethius exporter server for teraslice process. Overrides terafoundation value',
+            doc: 'Port of prometheus exporter server for teraslice process. Overrides terafoundation value',
             default: undefined,
             format: Number
         };
