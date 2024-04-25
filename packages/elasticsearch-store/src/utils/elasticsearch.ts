@@ -196,7 +196,9 @@ export function fixMappingRequest(
         if (typeMappings.properties) {
             defaultParams.include_type_name = false;
         } else {
-            defaultParams.include_type_name = !typeMappings._meta;
+            // NOTE: if _meta & not properties, will fail in v7... if becomes an issue we can set
+            // include_type_name: false, but dataType.toEsMapping has properties so should be ok
+            defaultParams.include_type_name = true;
             Object.values(typeMappings).forEach((typeMapping) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;

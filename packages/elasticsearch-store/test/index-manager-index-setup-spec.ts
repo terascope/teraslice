@@ -303,6 +303,7 @@ describe('IndexManager->indexSetup()', () => {
             const version = get(config, ['index_schema', 'version'], 1);
 
             mapping._meta = { baz: 'baz' };
+            mapping.properties = {};
 
             const mappings = esVersion !== 6 ? mapping : {
                 [config.name]: mapping
