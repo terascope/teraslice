@@ -10,12 +10,12 @@ import {
     S3Client,
 } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
+import { pWhile } from '@terascope/utils';
+import crypto from 'crypto';
 import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
 } from '../../config.js';
-import { pWhile } from '@terascope/utils';
-import crypto from 'crypto';
 
 describe('assets', () => {
     let terasliceHarness: TerasliceHarness;
@@ -236,7 +236,8 @@ describe('s3 asset storage', () => {
         });
 
         it('can upload and use large asset', async () => {
-            /// Create a large asset within the test so we don't have to a upload large binary file to the repo
+            /// Create a large asset within the test so we don't have to a upload
+            /// large binary file to the repo
             const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
             if (!fs.existsSync(largeAssetPath)) {
                 fs.mkdirSync(largeAssetPath, { recursive: true });
@@ -248,7 +249,7 @@ describe('s3 asset storage', () => {
             const assetBuffer = fs.readFileSync(assetPath);
             await decompress(assetBuffer, largeAssetPathSub);
             fs.mkdirSync(path.join(largeAssetPathSub, '__static_assets'), { recursive: true });
-            const largeDocumentPath = path.join(largeAssetPathSub, '__static_assets', 'data.txt')
+            const largeDocumentPath = path.join(largeAssetPathSub, '__static_assets', 'data.txt');
             fs.writeFileSync(largeDocumentPath, '');
             const writer = fs.createWriteStream(largeDocumentPath);
             let generateComplete = false;
@@ -256,7 +257,7 @@ describe('s3 asset storage', () => {
             /// TODO: This functionality could be moved to utils at some point.
             /// Writes a chunk of random string data to data.txt
             /// It needs to be random to maintain size during compression
-            function writeData () {
+            function writeData() {
                 /// chunk size in bytes
                 /// 5mb per chunk
                 const chunkSize = 5242880;
@@ -264,7 +265,8 @@ describe('s3 asset storage', () => {
                 writer.write(stringChunk, writerCB);
             }
 
-            /// Once the previous chunk is proccesed, write another chunk until the bytes written is >= 60mb
+            /// Once the previous chunk is proccesed,
+            /// write another chunk until the bytes written is >= 60mb
             /// This is so we don't hold all 60mb in memory
             function writerCB(error: Error | null | void) {
                 if (error) {
@@ -287,9 +289,7 @@ describe('s3 asset storage', () => {
                 throw new Error(err.message);
             });
             /// Wait for all data to be written to file
-            await pWhile(async () => {
-                return generateComplete;
-            });
+            await pWhile(async () => generateComplete);
 
             /// Change name in asset.json
             const assetJSON = JSON.parse(fs.readFileSync(path.join(largeAssetPathSub, 'asset.json'), 'utf8'));
@@ -305,7 +305,6 @@ describe('s3 asset storage', () => {
             });
             zipper.directory(largeAssetPathSub, false);
             await zipper.finalize();
-
 
             const fileStream = fs.createReadStream(path.join(largeAssetPath, 'example_large_asset.zip'));
 
