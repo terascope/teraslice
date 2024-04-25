@@ -64,7 +64,7 @@
         "semver": "^7.6.0",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.60.1",
+        "terafoundation": "^0.61.0",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
