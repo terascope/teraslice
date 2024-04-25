@@ -60,7 +60,7 @@ export interface FoundationAPIs {
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
     promMetrics: {
-        init(config: CreatePromMetricsConfig): Promise<boolean>;
+        init(config: PromMetricsInitConfig): Promise<boolean>;
     } & PromMetricsAPI
 }
 
@@ -107,12 +107,12 @@ export type FoundationSysConfig<S> = {
         log_path: string;
         log_level: LogLevelConfig;
         logging: LogType[];
-        asset_storage_connection_type?: string;
-        asset_storage_connection?: string;
+        asset_storage_connection_type: string;
+        asset_storage_connection: string;
         asset_storage_bucket?: string;
-        export_prom_metrics?: boolean;
-        prom_metrics_port?: number;
-        prom_default_metrics?: boolean;
+        prom_metrics_enabled: boolean;
+        prom_metrics_port: number;
+        prom_metrics_add_default: boolean;
     };
 } & S;
 
@@ -137,15 +137,12 @@ export type ParsedArgs<S> = {
     configfile: FoundationSysConfig<S>;
 };
 
-export interface CreatePromMetricsConfig {
+export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
     context: FoundationContext,
     logger: Logger,
-    jobOverride?: boolean,
-    assignment: string
+    metrics_enabled_by_job?: boolean,
     port?: number
-    default_metrics?: boolean,
-    labels?: Record<string, string>,
-    prefix?: string
+    default_metrics?: boolean
 }
 export interface PromMetricsAPIConfig {
     assignment: string
@@ -170,7 +167,8 @@ export interface PromMetricsAPI {
         buckets?: Array<number>) => Promise<void>;
     addSummary: (name: string, help: string, labelNames: Array<string>,
         ageBuckets: number, maxAgeSeconds: number,
-        percentiles: Array<number>) => void;
+        percentiles: Array<number>) => Promise<void>;
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
+    shutdown: () => Promise<void>;
 }

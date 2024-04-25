@@ -118,10 +118,10 @@ export class WorkerExecutionContext
             await config.context.apis.foundation.promMetrics.init({
                 context: config.context,
                 logger: this.logger,
-                jobOverride: config.executionConfig.export_prom_metrics,
+                metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled,
                 assignment: 'worker',
                 port: config.executionConfig.prom_metrics_port,
-                default_metrics: config.executionConfig.prom_default_metrics,
+                default_metrics: config.executionConfig.prom_metrics_add_default,
                 labels: {
                     ex_id: this.exId,
                     job_id: this.jobId,
@@ -132,9 +132,24 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
-        // fixme: remove example
-        await this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'count of slices finished by this worker', [], 'counter');
-
+        await this.context.apis.foundation.promMetrics.addMetric(
+            'worker_info',
+            'Information about Teraslice worker',
+            ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+            'gauge'
+        );
+        this.context.apis.foundation.promMetrics.set(
+            'worker_info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: this.config.teraslice_version
+            },
+            1
+        );
         await super.initialize();
         this.status = 'idle';
     }

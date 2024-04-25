@@ -63,12 +63,12 @@ export interface TerasliceConfig {
 
 export interface TerafoundationConfig {
     connectors: Record<string, any>;
-    asset_storage_connection_type?: string;
-    asset_storage_connection?: string;
+    asset_storage_connection_type: string;
+    asset_storage_connection: string;
     asset_storage_bucket?: string;
-    export_prom_metrics?: boolean;
-    prom_metrics_port?: number;
-    prom_default_metrics?: boolean;
+    prom_metrics_enabled: boolean;
+    prom_metrics_port: number;
+    prom_metrics_add_default: boolean;
 }
 
 export interface SysConfig {
@@ -106,7 +106,7 @@ export interface FoundationApis {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     promMetrics: {
-        init(config: CreatePromMetricsConfig): Promise<boolean>;
+        init(config: PromMetricsInitConfig): Promise<boolean>;
     } & PromMetricsAPI
 }
 
@@ -201,10 +201,10 @@ export interface ContextClusterConfig {
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
 
-export interface CreatePromMetricsConfig {
+export interface PromMetricsInitConfig {
     context: Context,
     logger: Logger,
-    jobOverride?: boolean,
+    metrics_enabled_by_job?: boolean,
     assignment: string
     port?: number
     default_metrics?: boolean,
@@ -229,7 +229,8 @@ export interface PromMetricsAPI {
         buckets?: Array<number>) => Promise<void>;
     addSummary: (name: string, help: string, labelNames: Array<string>,
         ageBuckets: number, maxAgeSeconds: number,
-        percentiles: Array<number>) => void;
+        percentiles: Array<number>) => Promise<void>;
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
+    shutdown: () => Promise<void>;
 }

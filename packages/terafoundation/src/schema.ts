@@ -86,7 +86,7 @@ export function foundationSchema() {
             default: undefined,
             format: String
         },
-        export_prom_metrics: {
+        prom_metrics_enabled: {
             doc: 'Create promethius exporters',
             default: false,
             format: Boolean
@@ -96,7 +96,7 @@ export function foundationSchema() {
             default: 3333,
             format: Number
         },
-        prom_default_metrics: {
+        prom_metrics_add_default: {
             doc: 'Display default node metrics in prom client',
             default: true,
             format: Boolean

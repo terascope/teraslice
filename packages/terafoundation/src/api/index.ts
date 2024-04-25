@@ -156,9 +156,9 @@ export default function registerApis(context: i.FoundationContext): void {
             return workers;
         },
         promMetrics: {
-            async init(config: i.CreatePromMetricsConfig) {
+            async init(config: i.PromMetricsInitConfig) {
                 const { terafoundation, teraslice } = config.context.sysconfig;
-                const metricsEnabledInTF = terafoundation.export_prom_metrics;
+                const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
                 const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
 
                 if (promMetricsAPI) {
@@ -170,17 +170,18 @@ export default function registerApis(context: i.FoundationContext): void {
                     return false;
                 }
 
-                let useDefaultMetrics: boolean;
-                if (config.default_metrics !== undefined) {
-                    useDefaultMetrics = config.default_metrics;
-                } else if (terafoundation.prom_default_metrics !== undefined) {
-                    useDefaultMetrics = terafoundation.prom_default_metrics;
-                } else {
-                    useDefaultMetrics = true;
-                }
+                // PromMetricsAPIConfig overrides terafoundation. This allows jobs to set
+                // different metrics configurations than the master.
+                // If prom_metrics_add_default is defined in jobSpec use that value.
+                // If not use the terafoundation value.
+                const useDefaultMetrics = config.default_metrics !== undefined
+                    ? config.default_metrics
+                    : terafoundation.prom_metrics_add_default;
 
-                if (config.jobOverride
-                    || (config.jobOverride === undefined && metricsEnabledInTF)) {
+                // If prom_metrics_enabled is true in jobConfig, or if not specified in
+                // jobSpec and true in terafoundation, then we enable metrics.
+                if (config.metrics_enabled_by_job === true
+                || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
                     const apiConfig: i.PromMetricsAPIConfig = {
                         assignment: config.assignment,
                         port: portToUse,
@@ -230,16 +231,16 @@ export default function registerApis(context: i.FoundationContext): void {
                     await promMetricsAPI.addMetric(name, help, labelNames, type, buckets);
                 }
             },
-            addSummary(
+            async addSummary(
                 name: string,
                 help: string,
                 labelNames: Array<string>,
                 ageBuckets: number,
                 maxAgeSeconds: number,
                 percentiles: Array<number>
-            ): void {
+            ): Promise<void> {
                 if (promMetricsAPI) {
-                    promMetricsAPI.addSummary(name,
+                    await promMetricsAPI.addSummary(name,
                         help,
                         labelNames,
                         ageBuckets,
@@ -260,6 +261,11 @@ export default function registerApis(context: i.FoundationContext): void {
                 }
                 return false;
             },
+            async shutdown(): Promise<void> {
+                if (promMetricsAPI) {
+                    promMetricsAPI.shutdown();
+                }
+            }
         }
     };
     function _registerFoundationAPIs() {

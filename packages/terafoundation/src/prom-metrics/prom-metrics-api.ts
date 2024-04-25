@@ -114,7 +114,6 @@ export class PromMetrics {
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
-
             // @ts-expect-error FIXME the types are wrong here
             res.dec(value);
         } else {
@@ -225,15 +224,15 @@ export class PromMetrics {
      * @param  {Array<number>} percentiles [metric percentiles, default[0.01, 0.1, 0.9, 0.99] ]
      * @param  {number} maxAgeSeconds [how old a bucket can be before it is reset ]
      * @param  {number} ageBuckets [how many buckets for sliding window ]
-     * @return {void}
+     * @return {Promise<void>}
      */
-    addSummary(name: string,
+    async addSummary(name: string,
         help: string,
         labelsNames: Array<string>,
         maxAgeSeconds = 600,
         ageBuckets = 5,
         percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
-    ): void {
+    ): Promise<void> {
         if (!(name in this.metricList)) {
             const fullname = this.prefix + name;
             this.metricList[name] = this._createSummaryMetric(
@@ -264,7 +263,7 @@ export class PromMetrics {
             help,
             labelNames: labelsNames,
         });
-        return { name, metric: counter, functions: new Set(['inc', 'dec']) };
+        return { name, metric: counter, functions: new Set(['inc']) };
     }
 
     private _createHistogramMetric(name: string, help: string, labelsNames: Array<string>,
@@ -316,6 +315,7 @@ export class PromMetrics {
             inc: this.inc.bind(this),
             dec: this.dec.bind(this),
             observe: this.observe.bind(this),
+            shutdown: this.shutdown.bind(this),
         };
         return this.api;
     }

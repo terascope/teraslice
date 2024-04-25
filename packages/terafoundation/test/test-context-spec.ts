@@ -120,4 +120,16 @@ describe('TestContext', () => {
         });
         expect(results).toEqual({ client: 'hello' });
     });
+
+    it('should be able to init prom_metrics_api', async () => {
+        const context = new TestContext();
+        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes' };
+        context.sysconfig.terafoundation.prom_metrics_enabled = true;
+        const config = {
+            context,
+            logger: context.logger,
+            assignment: 'cluster-master'
+        };
+        expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
+    });
 });

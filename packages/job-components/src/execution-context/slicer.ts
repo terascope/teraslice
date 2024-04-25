@@ -54,10 +54,10 @@ export class SlicerExecutionContext
             await config.context.apis.foundation.promMetrics.init({
                 context: config.context,
                 logger: this.logger,
-                jobOverride: config.executionConfig.export_prom_metrics,
+                metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled,
                 assignment: 'execution_controller',
                 port: config.executionConfig.prom_metrics_port,
-                default_metrics: config.executionConfig.prom_default_metrics,
+                default_metrics: config.executionConfig.prom_metrics_add_default,
                 labels: {
                     ex_id: this.exId,
                     job_id: this.jobId,
@@ -72,8 +72,24 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        // fixme: remove example
-        await this.context.apis.foundation.promMetrics.addMetric('slices_enqueued', 'count of slices enqueued by this execution_controller', [], 'counter');
+        await this.context.apis.foundation.promMetrics.addMetric(
+            'execution_controller_info',
+            'Information about Teraslice execution controller',
+            ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+            'gauge'
+        );
+        this.context.apis.foundation.promMetrics.set(
+            'execution_controller_info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: this.config.teraslice_version
+            },
+            1
+        );
         return super.initialize(recoveryData);
     }
 
@@ -92,7 +108,6 @@ export class SlicerExecutionContext
 
     onSliceEnqueued(slice: Slice): void {
         this._runMethod('onSliceEnqueued', slice);
-        this.context.apis.foundation.promMetrics.inc('slices_enqueued', {}, 1);
     }
 
     onSliceDispatch(slice: Slice): void {

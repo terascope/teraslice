@@ -145,7 +145,6 @@ export class ClusterMaster {
                 logger: this.logger,
                 assignment: 'cluster_master',
                 port: foundation.prom_metrics_port,
-                default_metrics: foundation.prom_default_metrics
             });
 
             // fixme: remove example

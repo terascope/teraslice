@@ -88,7 +88,7 @@ export class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        // example usecase fixme
+        // fixme example usecase
         this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
 
         await Promise.all([
@@ -317,6 +317,7 @@ export class Worker {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
+                // fixme remove example
                 this.context.apis.foundation.promMetrics.inc('slices_complete', {}, 1);
                 return true;
             } catch (err) {

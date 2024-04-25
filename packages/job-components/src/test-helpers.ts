@@ -208,6 +208,11 @@ export class TestContext implements i.Context {
                         default: {}
                     },
                 },
+                asset_storage_connection_type: 'elasticsearch-next',
+                asset_storage_connection: 'default',
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
             },
             teraslice: {
                 action_timeout: 10000,
@@ -247,7 +252,7 @@ export class TestContext implements i.Context {
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
-        let promMetricsAPI: TestPromMetrics;
+        let promMetricsAPI: TestPromMetrics | null;
         this.apis = {
             foundation: {
                 makeLogger(...params: any[]): Logger {
@@ -318,9 +323,9 @@ export class TestContext implements i.Context {
                     return events;
                 },
                 promMetrics: {
-                    async init(config: i.CreatePromMetricsConfig) {
+                    async init(config: i.PromMetricsInitConfig) {
                         const { terafoundation, teraslice } = config.context.sysconfig;
-                        const metricsEnabledInTF = terafoundation.export_prom_metrics;
+                        const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
                         const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
 
                         if (promMetricsAPI) {
@@ -332,17 +337,12 @@ export class TestContext implements i.Context {
                             return false;
                         }
 
-                        let useDefaultMetrics: boolean;
-                        if (config.default_metrics !== undefined) {
-                            useDefaultMetrics = config.default_metrics;
-                        } else if (terafoundation.prom_default_metrics !== undefined) {
-                            useDefaultMetrics = terafoundation.prom_default_metrics;
-                        } else {
-                            useDefaultMetrics = true;
-                        }
+                        const useDefaultMetrics = config.default_metrics !== undefined
+                            ? config.default_metrics
+                            : terafoundation.prom_metrics_add_default;
 
-                        if (config.jobOverride
-                            || (config.jobOverride === undefined && metricsEnabledInTF)) {
+                        if (config.metrics_enabled_by_job === true
+                        || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
                             const apiConfig: i.PromMetricsAPIConfig = {
                                 assignment: config.assignment,
                                 port: portToUse,
@@ -486,6 +486,9 @@ export class TestContext implements i.Context {
                         }
                         return deleted;
                     },
+                    async shutdown(): Promise<void> {
+                        promMetricsAPI = null;
+                    }
                 },
             },
             registerAPI(namespace: string, apis: any): void {

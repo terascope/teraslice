@@ -383,7 +383,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: 'optional_String',
         };
 
-        schemas.export_prom_metrics = {
+        schemas.prom_metrics_enabled = {
             default: undefined,
             doc: 'Create a promethius exporter. Overrides terafoundation value',
             format: Boolean,
@@ -395,7 +395,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: Number
         };
 
-        schemas.prom_default_metrics = {
+        schemas.prom_metrics_add_default = {
             doc: 'Display default node metrics in prom client. Overrides terafoundation value',
             default: undefined,
             format: Boolean
