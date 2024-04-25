@@ -2,7 +2,7 @@ import promClient from 'prom-client';
 import express, { Request, Response } from 'express';
 import { Server } from 'http';
 import { Logger } from '@terascope/utils';
-import { FoundationContext, PromMetricsAPIConfig } from '../interfaces';
+import { FoundationContext, PromMetricsAPIConfig } from '../../interfaces';
 
 export type CloseExporter = () => void;
 
@@ -11,7 +11,7 @@ export default class Exporter {
     logger: Logger;
 
     constructor(context: FoundationContext) {
-        this.logger = context.apis.foundation.makeLogger({ module: 'promethius_exporter' });
+        this.logger = context.apis.foundation.makeLogger({ module: 'prometheus_exporter' });
     }
 
     async create(
@@ -38,7 +38,7 @@ export default class Exporter {
 
             this.metricServer = app.listen(port);
         } catch (err) {
-            this.logger.error('Promethius exporter creation failed: ', err);
+            this.logger.error('Prometheus exporter creation failed: ', err);
         }
     }
     async shutdown() {

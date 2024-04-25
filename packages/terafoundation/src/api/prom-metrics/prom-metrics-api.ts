@@ -4,7 +4,7 @@ import os from 'os';
 import {
     Gauge, Counter, Histogram, Summary
 } from 'prom-client';
-import * as i from '../interfaces';
+import * as i from '../../interfaces';
 
 import Exporter from './exporter';
 

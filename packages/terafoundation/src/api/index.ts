@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { createConnection, createClient as createDBClient } from '../connector-utils';
 import { createRootLogger } from './utils';
 import * as i from '../interfaces';
-import { PromMetrics } from '../prom-metrics/prom-metrics-api';
+import { PromMetrics } from './prom-metrics/prom-metrics-api';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
