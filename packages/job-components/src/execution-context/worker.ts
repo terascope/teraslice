@@ -138,6 +138,7 @@ export class WorkerExecutionContext
             ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
             'gauge'
         );
+        await this.context.apis.foundation.promMetrics.addMetric('slices_finished', 'number of slices a worker has completed', [], 'counter');
         this.context.apis.foundation.promMetrics.set(
             'worker_info',
             {

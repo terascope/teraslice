@@ -159,6 +159,7 @@ export type MetricList = Record<string, {
 }>;
 
 export interface PromMetricsAPI {
+    init: (config: PromMetricsInitConfig) => void;
     set: (name: string, labels: Record<string, string>, value: number) => void;
     inc: (name: string, labelValues: Record<string, string>, value: number) => void;
     dec: (name: string, labelValues: Record<string, string>, value: number) => void;
@@ -170,5 +171,6 @@ export interface PromMetricsAPI {
         percentiles: Array<number>) => Promise<void>;
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
     shutdown: () => Promise<void>;
 }
