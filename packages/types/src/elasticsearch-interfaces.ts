@@ -234,7 +234,8 @@ export interface ESMapping {
     order?: number;
     aliases?: any;
     index_patterns?: string[];
-    settings: ESIndexSettings;
+    settings?: ESIndexSettings;
+    version?: number;
 }
 
 export interface ESIndexSettings {
