@@ -228,8 +228,6 @@ export function fixMappingRequest(
         }
     }
 
-    console.log('===fin', Object.assign({}, defaultParams, params));
-
     return Object.assign({}, defaultParams, params);
 }
 
