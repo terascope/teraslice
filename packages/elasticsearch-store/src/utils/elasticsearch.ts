@@ -197,75 +197,76 @@ export function fixMappingRequest(
         if (mappings.properties) {
             defaultParams.include_type_name = false;
         } else {
-            // NOTE: if _meta & not properties, will fail in v7... if becomes an issue we can set
-            // include_type_name: false, but dataType.toEsMapping has properties so should be ok
-            defaultParams.include_type_name = true;
-            Object.values(mappings).forEach((typeMapping) => {
-                if (typeMapping && typeMapping._all) {
-                    delete typeMapping._all;
-                }
-                return '';
-            });
+            // i think only set include_type_name to true if mapping._doc
+            // v8 seems smart to convert whether stuff's on mapping._doc or not but v7 doesn't,
+            // then add the metadata fields to the _doc if it exists, otherwise
+            // v7 will fail cuz it will consider the metadata field an extra mapping
+            defaultParams.include_type_name = !!mappings._doc;
+            // all metadata needs to be under ._doc
 
-        //     // https://www.elastic.co/blog/moving-from-types-to-typeless-apis-in-elasticsearch-7-0
-        //     // if properties aren't set, see if we have any non-elasticsearch keys in mapping
-        //     // and if so assume they are types and add the metadata fields to those types
+            // https://www.elastic.co/blog/moving-from-types-to-typeless-apis-in-elasticsearch-7-0
+            // if properties aren't set, see if we have any non-elasticsearch keys in mapping
+            // and if so assume they are types and add the metadata fields to those types
 
-        //     const mappingParameters = ['runtime', 'properties', 'dynamic'];
-        //     const metadataFieldsDeprecatedInV6 = ['_type', '_uid', '_all'];
-        //     const metadataFields = ['_index', '_id', '_source', '_size', '_doc_count', '_field_names', '_ignored', '_routing', '_meta', '_tier'];
+            //     const mappingParameters = ['runtime', 'properties', 'dynamic'];
+            //     const metadataFieldsDeprecatedInV6 = ['_type', '_uid', '_all'];
+            // eslint-disable-next-line max-len
+            //     const metadataFields = ['_index', '_id', '_source', '_size', '_doc_count', '_field_names', '_ignored', '_routing', '_meta', '_tier'];
 
-        //     const typeMappings = Object.entries(mappings).filter(
-        //         ([field, typeMapping]) => typeMapping
-        //             && !metadataFields.includes(field)
-        //             && !metadataFieldsDeprecatedInV6.includes(field)
-        //             && !mappingParameters.includes(field)
-        //     );
+            //     const typeMappings = Object.entries(mappings).filter(
+            //         ([field, typeMapping]) => typeMapping
+            //             && !metadataFields.includes(field)
+            //             && !metadataFieldsDeprecatedInV6.includes(field)
+            //             && !mappingParameters.includes(field)
+            //     );
 
-        //     if (typeMappings.length) { // most likely just length 1
-        //         defaultParams.include_type_name = true;
-        //         const deleteFields = new Set<string>();
+            //     if (typeMappings.length) { // most likely just length 1
+            //         defaultParams.include_type_name = true;
+            //         const deleteFields = new Set<string>();
 
-        //         const addToProperties = isElasticsearch8(client) || isOpensearch(client);
-        //         if (addToProperties) {
-        //             mappings.properties = {} as any;
-        //         }
+            //         const addToProperties = isElasticsearch8(client) || isOpensearch(client);
+            //         if (addToProperties) {
+            //             mappings.properties = {} as any;
+            //         }
 
-        //         typeMappings.forEach(([typeName, typeMapping]) => {
-        //             if (!addToProperties) {
-        //                 metadataFields.forEach((field) => {
-        //                     if (mappings[field]) {
-        //                         deleteFields.add(field);
-        //                         typeMapping[field] = {
-        //                             ...typeMapping[field],
-        //                             ...mappings[field]
-        //                         };
-        //                     }
-        //                 });
-        //             }
+            //         typeMappings.forEach(([typeName, typeMapping]) => {
+            //             if (!addToProperties) {
+            //                 metadataFields.forEach((field) => {
+            //                     if (mappings[field]) {
+            //                         deleteFields.add(field);
+            //                         typeMapping[field] = {
+            //                             ...typeMapping[field],
+            //                             ...mappings[field]
+            //                         };
+            //                     }
+            //                 });
+            //             }
 
-        //             Object.keys(typeMapping).forEach((k) => {
-        //                 if (metadataFieldsDeprecatedInV6.includes(k)) {
-        //                     delete typeMapping[k];
-        //                     return;
-        //                 }
-        //             });
+            //             // Object.keys(typeMapping).forEach((k) => {
+            //             //     if (metadataFieldsDeprecatedInV6.includes(k)) {
+            //             //         delete typeMapping[k];
+            //             //         return;
+            //             //     }
+            //             // });
 
-        //             if (addToProperties) {
-        //                 mappings.properties[typeName] = { ...typeMapping };
-        //                 delete mappings[typeName];
-        //             }
-        //         });
+            //             if (addToProperties) {
+            //                 mappings.properties[typeName] = { ...typeMapping };
+            //                 delete mappings[typeName];
+            //             }
+            //         });
 
         //         // applied to the inner types instead of the outer body
         //         deleteFields.forEach((f) => { delete mappings[f]; });
         //     }
-        // }
+        }
+    } else {
+        defaultParams.include_type_name = true;
     }
 
     if (isElasticsearch8(client) || isOpensearch(client)) {
         delete defaultParams.include_type_name;
     }
+    console.log('===a', JSON.stringify(Object.assign({}, defaultParams, params), null, 4));
     return Object.assign({}, defaultParams, params);
 }
 

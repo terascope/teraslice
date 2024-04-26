@@ -298,27 +298,60 @@ describe('IndexManager->indexSetup()', () => {
             expect(temp[templateName]).toHaveProperty('version', newVersion);
         });
 
-        it('should apply _meta to new indices', async () => {
+        fit('should apply _meta to new indices', async () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
-
             mapping._meta = { baz: 'baz' };
-            mapping.properties = {};
+
+            // v6
+            // mapping.properties = { foo: { type: 'integer' } };
+            // mapping._meta = { baz: 'baz' };
+
+            // v7 include_type_name: true
+            // mapping._doc = { properties: { foo: { type: 'integer' } } };
+            //  mapping._doc._meta = { baz: 'baz' };
+            // mapping._meta will fail cuz considers it an extra mapping instead of metadata field
+
+            // v7 include_type_name: false
+            // mapping.properties = { foo: { type: 'integer' } };
+            // mapping._meta = { baz: 'baz' };
+
+            // v8 seems smarter
+            // mapping.properties = { foo: { type: 'integer' } };
+            // OR
+            // mapping._doc = { properties: { foo: { type: 'integer' } } };
+            //
+            // mapping._meta
+            // OR
+            // mapping._doc._meta = { baz: 'baz' };
+
+            // mapping._all = { enabled: true };
+            // mapping.bar = { _all: { enabled: true } };
 
             const mappings = esVersion !== 6 ? mapping : {
                 [config.name]: mapping
             };
+            try {
+                await indexManager.upsertTemplate({
+                    template: 'foo',
+                    settings: config.index_settings,
+                    index_patterns: ['foo*'],
+                    mappings,
+                    version
+                });
+            } catch (error) {
+                console.log('===err', error);
+                console.log('===err', error?.meta?.body?.error);
+                throw error;
+            }
 
-            await indexManager.upsertTemplate({
-                template: 'foo',
-                settings: config.index_settings,
-                index_patterns: ['foo*'],
-                mappings,
-                version
-            });
             await indexManager.client.indices.create({ index: 'foobar' });
 
             const newIdxMapping = await indexManager.getMapping('foobar');
+            console.log('===ne', JSON.stringify(newIdxMapping, null, 4));
+
+            const temp = await indexManager.getTemplate('foo', false);
+            console.log('===temp', JSON.stringify(temp, null, 4));
 
             if (esVersion === 6) {
                 expect(newIdxMapping.foobar.mappings[config.name]).toHaveProperty('_meta', { baz: 'baz' });
