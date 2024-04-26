@@ -155,7 +155,7 @@ export class ClusterMaster {
                 'gauge'
             );
             this.context.apis.foundation.promMetrics.set(
-                'execution_controller_info',
+                'info',
                 {
                     arch: this.context.arch,
                     clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,

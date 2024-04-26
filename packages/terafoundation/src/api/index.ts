@@ -201,24 +201,16 @@ export default function registerApis(context: i.FoundationContext): void {
                 return false;
             },
             set(name: string, labels: Record<string, string>, value: number): void {
-                if (promMetricsAPI) {
-                    promMetricsAPI.set(name, labels, value);
-                }
+                promMetricsAPI.set(name, labels, value);
             },
             inc(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetricsAPI) {
-                    promMetricsAPI.inc(name, labelValues, value);
-                }
+                promMetricsAPI.inc(name, labelValues, value);
             },
             dec(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetricsAPI) {
-                    promMetricsAPI.dec(name, labelValues, value);
-                }
+                promMetricsAPI.dec(name, labelValues, value);
             },
             observe(name: string, labelValues: Record<string, string>, value: number): void {
-                if (promMetricsAPI) {
-                    promMetricsAPI.observe(name, labelValues, value);
-                }
+                promMetricsAPI.observe(name, labelValues, value);
             },
             async addMetric(
                 name: string,
@@ -227,9 +219,7 @@ export default function registerApis(context: i.FoundationContext): void {
                 type: 'gauge' | 'counter' | 'histogram',
                 buckets?: Array<number>
             ): Promise<void> {
-                if (promMetricsAPI) {
-                    await promMetricsAPI.addMetric(name, help, labelNames, type, buckets);
-                }
+                await promMetricsAPI.addMetric(name, help, labelNames, type, buckets);
             },
             async addSummary(
                 name: string,
@@ -239,32 +229,22 @@ export default function registerApis(context: i.FoundationContext): void {
                 maxAgeSeconds: number,
                 percentiles: Array<number>
             ): Promise<void> {
-                if (promMetricsAPI) {
-                    await promMetricsAPI.addSummary(name,
-                        help,
-                        labelNames,
-                        ageBuckets,
-                        maxAgeSeconds,
-                        percentiles
-                    );
-                }
+                await promMetricsAPI.addSummary(name,
+                    help,
+                    labelNames,
+                    ageBuckets,
+                    maxAgeSeconds,
+                    percentiles
+                );
             },
             hasMetric(name: string): boolean {
-                if (promMetricsAPI) {
-                    return promMetricsAPI.hasMetric(name);
-                }
-                return false;
+                return promMetricsAPI.hasMetric(name);
             },
             async deleteMetric(name: string): Promise<boolean> {
-                if (promMetricsAPI) {
-                    return promMetricsAPI.deleteMetric(name);
-                }
-                return false;
+                return promMetricsAPI.deleteMetric(name);
             },
             async shutdown(): Promise<void> {
-                if (promMetricsAPI) {
-                    promMetricsAPI.shutdown();
-                }
+                promMetricsAPI.shutdown();
             }
         }
     };
@@ -302,4 +282,26 @@ export default function registerApis(context: i.FoundationContext): void {
 
     _registerFoundationAPIs();
     _registerLegacyAPIs();
+
+    /*
+        Setup proxy for 'promMetrics' here to have access to 'promMetricsAPI' variable.
+        This proxy allows the interception of the 'promMetrics' function calls in the case that
+        'promMetricsAPI' is undefined.
+    */
+    const promMetricsProxy = new Proxy(context.apis.foundation.promMetrics, {
+        get(promMetrics, funcName) {
+            if (funcName === 'init') {
+                return promMetrics[funcName];
+            } if (promMetricsAPI) {
+                return promMetrics[funcName];
+            } if (funcName === 'hasMetric' || funcName === 'deleteMetric') {
+                return () => false;
+            }
+            return () => {
+                /// return empty function
+            };
+        }
+    });
+    /// Set the global promMetrics to the promMetricsProxy to override functions everywhere
+    context.apis.foundation.promMetrics = promMetricsProxy;
 }
