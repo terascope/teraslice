@@ -191,18 +191,17 @@ export function fixMappingRequest(
         }
         delete params.body.template;
     }
-    const mappings: Record<string, any> = ts.get(params.body, 'mappings', {});
+
     // we do not support v5 anymore
     if (esVersion !== 6) {
-        if (mappings.properties) {
-            defaultParams.include_type_name = false;
-        } else {
-            // v8 seems to convert properly whether mapping._doc.whatever or mapping.whatever but
-            // v7 only seems to work w/include_type_name if properties are under "_doc" along w/
-            // metadata fields so only set include_type_name if _doc & ensure metadata is in _doc
-            defaultParams.include_type_name = !!mappings._doc;
+        const mappings: Record<string, any> = ts.get(params.body, 'mappings', {});
+        if (!mappings.properties && mappings._doc) {
+            // esV2/osV2 seem to convert properly if mapping._doc.properties or mapping.properties
+            // but esV7/osV1 only seem to work w/include_type_name if properties is under "_doc"
+            // along w/metadata fields so set include_type_name if _doc & ensure metadata is in _doc
+            defaultParams.include_type_name = true;
 
-            if (esVersion === 7 && defaultParams.include_type_name) {
+            if ((esVersion === 7 || esVersion === 1) && defaultParams.include_type_name) {
                 // move any metadata fields to _doc
                 const metadataFields = ['_index', '_id', '_source', '_size', '_doc_count', '_field_names', '_ignored', '_routing', '_meta', '_tier'];
                 metadataFields.forEach((f) => {
@@ -214,20 +213,22 @@ export function fixMappingRequest(
             }
         }
 
-        // v8 seems to do automatically
-        if (esVersion === 7) {
-            Object.values(mappings).forEach((typeMapping) => {
-                // _all deprecated in v6
-                if (typeMapping && typeMapping._all) {
-                    delete typeMapping._all;
-                }
-            });
+        // _all deprecated in esV6, esV8 & osV2 seems to strip automatically but esV7/osV1 don't
+        if (esVersion === 7 || esVersion === 1) {
+            if (mappings.include_type_name) {
+                Object.values(mappings).forEach((typeMapping) => {
+                    if (typeMapping && typeMapping._all) {
+                        delete typeMapping._all;
+                    }
+                });
+            } else if (mappings._all) {
+                // _all might be at root mapping level if not include_type_name
+                delete mappings._all;
+            }
         }
     }
 
-    if (isElasticsearch8(client) || isOpensearch(client)) {
-        delete defaultParams.include_type_name;
-    }
+    console.log('===fin', Object.assign({}, defaultParams, params));
 
     return Object.assign({}, defaultParams, params);
 }
