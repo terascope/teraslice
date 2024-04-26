@@ -1,6 +1,7 @@
 import * as ts from '@terascope/utils';
 import {
-    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
+    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution,
+    ESMapping
 } from '@terascope/types';
 import { Client } from '../elasticsearch-client';
 import { getErrorType } from './errors';
@@ -174,7 +175,7 @@ export function isOpensearch2(client: Client): boolean {
 
 // TODO: move this logic over to datatype
 export function fixMappingRequest(
-    client: Client, _params: Record<string, any>, isTemplate: boolean
+    client: Client, _params: { body: ESMapping, name?: string, index?: string }, isTemplate: boolean
 ): any {
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
@@ -192,26 +193,79 @@ export function fixMappingRequest(
     }
     // we do not support v5 anymore
     if (esVersion !== 6) {
-        const typeMappings: Record<string, any> = ts.get(params.body, 'mappings', {});
-        if (typeMappings.properties) {
+        const mappings: Record<string, any> = ts.get(params.body, 'mappings', {});
+        if (mappings.properties) {
             defaultParams.include_type_name = false;
         } else {
             // NOTE: if _meta & not properties, will fail in v7... if becomes an issue we can set
             // include_type_name: false, but dataType.toEsMapping has properties so should be ok
             defaultParams.include_type_name = true;
-            Object.values(typeMappings).forEach((typeMapping) => {
+            Object.values(mappings).forEach((typeMapping) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;
                 }
                 return '';
             });
-        }
+
+        //     // https://www.elastic.co/blog/moving-from-types-to-typeless-apis-in-elasticsearch-7-0
+        //     // if properties aren't set, see if we have any non-elasticsearch keys in mapping
+        //     // and if so assume they are types and add the metadata fields to those types
+
+        //     const mappingParameters = ['runtime', 'properties', 'dynamic'];
+        //     const metadataFieldsDeprecatedInV6 = ['_type', '_uid', '_all'];
+        //     const metadataFields = ['_index', '_id', '_source', '_size', '_doc_count', '_field_names', '_ignored', '_routing', '_meta', '_tier'];
+
+        //     const typeMappings = Object.entries(mappings).filter(
+        //         ([field, typeMapping]) => typeMapping
+        //             && !metadataFields.includes(field)
+        //             && !metadataFieldsDeprecatedInV6.includes(field)
+        //             && !mappingParameters.includes(field)
+        //     );
+
+        //     if (typeMappings.length) { // most likely just length 1
+        //         defaultParams.include_type_name = true;
+        //         const deleteFields = new Set<string>();
+
+        //         const addToProperties = isElasticsearch8(client) || isOpensearch(client);
+        //         if (addToProperties) {
+        //             mappings.properties = {} as any;
+        //         }
+
+        //         typeMappings.forEach(([typeName, typeMapping]) => {
+        //             if (!addToProperties) {
+        //                 metadataFields.forEach((field) => {
+        //                     if (mappings[field]) {
+        //                         deleteFields.add(field);
+        //                         typeMapping[field] = {
+        //                             ...typeMapping[field],
+        //                             ...mappings[field]
+        //                         };
+        //                     }
+        //                 });
+        //             }
+
+        //             Object.keys(typeMapping).forEach((k) => {
+        //                 if (metadataFieldsDeprecatedInV6.includes(k)) {
+        //                     delete typeMapping[k];
+        //                     return;
+        //                 }
+        //             });
+
+        //             if (addToProperties) {
+        //                 mappings.properties[typeName] = { ...typeMapping };
+        //                 delete mappings[typeName];
+        //             }
+        //         });
+
+        //         // applied to the inner types instead of the outer body
+        //         deleteFields.forEach((f) => { delete mappings[f]; });
+        //     }
+        // }
     }
 
     if (isElasticsearch8(client) || isOpensearch(client)) {
         delete defaultParams.include_type_name;
     }
-
     return Object.assign({}, defaultParams, params);
 }
 
