@@ -194,9 +194,9 @@ export function fixMappingRequest(
 
     // we do not support v5 anymore
     if (esVersion !== 6) {
-        const mappings: Record<string, any> = ts.get(params.body, 'mappings', {});
+        const mappings = params?.body?.mappings || {};
         if (!mappings.properties && mappings._doc) {
-            // esV2/osV2 seem to convert properly if mapping._doc.properties or mapping.properties
+            // esV8/osV2 seem to convert properly if mapping._doc.properties or mapping.properties
             // but esV7/osV1 only seem to work w/include_type_name if properties is under "_doc"
             // along w/metadata fields so set include_type_name if _doc & ensure metadata is in _doc
             defaultParams.include_type_name = true;
