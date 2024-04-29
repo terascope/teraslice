@@ -1,6 +1,7 @@
 import * as ts from '@terascope/utils';
 import {
-    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution
+    ESFieldType, ESTypeMapping, ClientMetadata, ElasticsearchDistribution,
+    ESMapping
 } from '@terascope/types';
 import { Client } from '../elasticsearch-client';
 import { getErrorType } from './errors';
@@ -174,7 +175,7 @@ export function isOpensearch2(client: Client): boolean {
 
 // TODO: move this logic over to datatype
 export function fixMappingRequest(
-    client: Client, _params: Record<string, any>, isTemplate: boolean
+    client: Client, _params: { body: ESMapping, name?: string, index?: string }, isTemplate: boolean
 ): any {
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
@@ -190,24 +191,41 @@ export function fixMappingRequest(
         }
         delete params.body.template;
     }
+
     // we do not support v5 anymore
     if (esVersion !== 6) {
-        const typeMappings: Record<string, any> = ts.get(params.body, 'mappings', {});
-        if (typeMappings.properties) {
-            defaultParams.include_type_name = false;
-        } else {
+        const mappings = params?.body?.mappings || {};
+        if (!mappings.properties && mappings._doc) {
+            // esV8/osV2 seem to convert properly if mapping._doc.properties or mapping.properties
+            // but esV7/osV1 only seem to work w/include_type_name if properties is under "_doc"
+            // along w/metadata fields so set include_type_name if _doc & ensure metadata is in _doc
             defaultParams.include_type_name = true;
-            Object.values(typeMappings).forEach((typeMapping) => {
-                if (typeMapping && typeMapping._all) {
-                    delete typeMapping._all;
-                }
-                return '';
-            });
-        }
-    }
 
-    if (isElasticsearch8(client) || isOpensearch(client)) {
-        delete defaultParams.include_type_name;
+            if ((esVersion === 7 || esVersion === 1) && defaultParams.include_type_name) {
+                // move any metadata fields to _doc
+                const metadataFields = ['_index', '_id', '_source', '_size', '_doc_count', '_field_names', '_ignored', '_routing', '_meta', '_tier'];
+                metadataFields.forEach((f) => {
+                    if (mappings[f]) {
+                        mappings._doc[f] = { ...mappings._doc[f], ...mappings[f] };
+                        delete mappings[f];
+                    }
+                });
+            }
+        }
+
+        // _all deprecated in esV6, esV8 & osV2 seems to strip automatically but esV7/osV1 don't
+        if (esVersion === 7 || esVersion === 1) {
+            if (mappings.include_type_name) {
+                Object.values(mappings).forEach((typeMapping) => {
+                    if (typeMapping && typeMapping._all) {
+                        delete typeMapping._all;
+                    }
+                });
+            } else if (mappings._all) {
+                // _all might be at root mapping level if not include_type_name
+                delete mappings._all;
+            }
+        }
     }
 
     return Object.assign({}, defaultParams, params);

@@ -88,6 +88,11 @@ export interface IndexConfig<T extends AnyObject> {
      * The default query access to use
     */
     default_query_access?: QueryAccess<T>;
+
+    /**
+     * Any metadata to add to the index mapping
+     */
+    _meta?: Record<string, any>;
 }
 
 /** Elasticsearch Index Schema, Mapping and Version */

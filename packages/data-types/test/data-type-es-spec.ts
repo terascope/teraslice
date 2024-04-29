@@ -43,6 +43,7 @@ describe('DataType (elasticsearch)', () => {
                         _all: {
                             enabled: false,
                         },
+                        _meta: { foo: 'foo' },
                         dynamic: false,
                         properties: {
                             hello: { type: 'text' },
@@ -62,7 +63,8 @@ describe('DataType (elasticsearch)', () => {
                 distribution: ElasticsearchDistribution.elasticsearch,
                 minorVersion: 8,
                 majorVersion: 6,
-                version: '6.8.6'
+                version: '6.8.6',
+                _meta: { foo: 'foo' }
             };
 
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
@@ -84,6 +86,7 @@ describe('DataType (elasticsearch)', () => {
                         foo: { type: 'keyword' },
                         bar: { type: 'keyword' },
                     },
+                    _meta: { foo: 'foo' },
                 },
                 settings: {},
             };
@@ -93,7 +96,8 @@ describe('DataType (elasticsearch)', () => {
                 distribution: ElasticsearchDistribution.elasticsearch,
                 minorVersion: 3,
                 majorVersion: 7,
-                version: '7.3.1'
+                version: '7.3.1',
+                _meta: { foo: 'foo' },
             };
 
             expect(dataType.toESMapping(mappingConfig)).toEqual(results);
