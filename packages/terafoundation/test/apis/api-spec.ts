@@ -79,8 +79,4 @@ describe('apis module', () => {
         expect(typeof context.apis.foundation.promMetrics.verifyAPI).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.shutdown).toBe('function');
     });
-
-    it('terafoundation promMetricsApi endpoints should not yet exist', () => {
-        expect(context.apis.foundation.promMetrics.api).toBeUndefined();
-    });
 });
