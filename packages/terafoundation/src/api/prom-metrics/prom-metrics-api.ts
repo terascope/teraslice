@@ -25,13 +25,19 @@ export class PromMetrics {
     ) {
         this.context = context;
         this.apiRunning = false;
-        /// These are initialized here but are overwritten in init()
         this.apiConfig = {} as i.PromMetricsAPIConfig;
         this.prefix = '';
         this.logger = logger.child({ module: 'prom_metrics' });
         this.metricList = {};
     }
 
+    /**
+     * Initialize the promMetrics API and create an exporter server. Will not initialize a new API
+     * if in native clustering or if the API has already been initialized.
+     * @param {i.PromMetricsInitConfig} config PromMetricsInitConfig values override those
+     * of terafoundation. This allows jobs to set different metrics configurations than the master.
+     * @returns {Promise<boolean>} Was the API initialized
+     */
     async init(config: i.PromMetricsInitConfig) {
         const { terafoundation, teraslice } = config.context.sysconfig;
         const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
@@ -42,8 +48,6 @@ export class PromMetrics {
             return false;
         }
 
-        // PromMetricsInitConfig values override those of terafoundation. This allows jobs to set
-        // different metrics configurations than the master.
         // If prom_metrics_add_default is defined in jobSpec use that value.
         // If not use the terafoundation value.
         const useDefaultMetrics = config.default_metrics !== undefined
@@ -177,7 +181,7 @@ export class PromMetrics {
      * @param  {Array<string>} labelsNames [list of label names]
      * @param  {'gauge' | 'counter' | 'histogram'} type [gauge,counter,histogram,or summary]
      * @param  {Array<number>} buckets [default buckets]
-     * @return {void}
+     * @return {Promise<void>}
      */
     async addMetric(
         name: string,
