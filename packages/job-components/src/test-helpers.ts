@@ -67,7 +67,7 @@ export function newTestExecutionContext(
             config,
             queue: [],
             reader: null,
-            slicer: () => { },
+            slicer: () => {},
             dynamicQueueLength: false,
             queueLength: 10000,
         };
@@ -75,9 +75,9 @@ export function newTestExecutionContext(
 
     return {
         config,
-        queue: config.operations.map(() => () => { }),
-        reader: () => { },
-        slicer: () => { },
+        queue: config.operations.map(() => () => {}),
+        reader: () => {},
+        slicer: () => {},
         dynamicQueueLength: false,
         queueLength: 10000,
     };
