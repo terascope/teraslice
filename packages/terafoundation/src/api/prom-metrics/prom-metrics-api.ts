@@ -17,26 +17,84 @@ export class PromMetrics {
     private api!: i.PromMetricsAPI;
     context: i.FoundationContext;
     apiConfig: i.PromMetricsAPIConfig;
+    apiRunning: boolean;
     logger: Logger;
 
     constructor(
         context: i.FoundationContext,
-        apiConfig: i.PromMetricsAPIConfig,
+        // apiConfig: i.PromMetricsAPIConfig,
         logger: Logger,
     ) {
         this.context = context;
-        this.apiConfig = apiConfig;
+        this.apiRunning = false;
+        /// These are initialized here but are overwritten in init()
+        this.apiConfig = {} as i.PromMetricsAPIConfig;
+        this.prefix = '';
+        // this.apiConfig = apiConfig;
         this.logger = logger.child({ module: 'prom_metrics' }); // FIXME
-        this.default_labels = {
-            name: context.sysconfig.teraslice.name,
-            assignment: apiConfig.assignment,
-            ...apiConfig.labels
-        };
+        // this.default_labels = {
+        //     name: context.sysconfig.teraslice.name,
+        //     assignment: apiConfig.assignment,
+        //     ...apiConfig.labels
+        // };
 
         // Prefix hard coded standardize the way these metrics appear in prometheus
-        this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
+        // this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
         this.metricList = {};
-        this.setPodName();
+    }
+
+    async init(config: i.PromMetricsInitConfig) {
+        const { terafoundation, teraslice } = config.context.sysconfig;
+        const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
+        const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
+
+        if (this.apiRunning) {
+            throw new Error('Prom metrics API cannot be initialized more than once.');
+        }
+
+        if (teraslice.cluster_manager_type === 'native') {
+            this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+            return false;
+        }
+
+        // PromMetricsAPIConfig overrides terafoundation. This allows jobs to set
+        // different metrics configurations than the master.
+        // If prom_metrics_add_default is defined in jobSpec use that value.
+        // If not use the terafoundation value.
+        const useDefaultMetrics = config.default_metrics !== undefined
+            ? config.default_metrics
+            : terafoundation.prom_metrics_add_default;
+
+        // If prom_metrics_enabled is true in jobConfig, or if not specified in
+        // jobSpec and true in terafoundation, then we enable metrics.
+        if (config.metrics_enabled_by_job === true
+        || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
+            const apiConfig: i.PromMetricsAPIConfig = {
+                assignment: config.assignment,
+                port: portToUse,
+                default_metrics: useDefaultMetrics,
+                labels: config.labels,
+                prefix: config.prefix
+            };
+
+            this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
+
+            this.default_labels = {
+                name: this.context.sysconfig.teraslice.name,
+                assignment: apiConfig.assignment,
+                ...apiConfig.labels
+            };
+            this.setPodName();
+            // const promMetrics = new PromMetrics(
+            //     config.context,
+            //     apiConfig,
+            //     config.logger
+            // );
+            await this.createAPI(apiConfig);
+            return true;
+        }
+        this.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+        return false;
     }
 
     setPodName(): void {
@@ -290,26 +348,29 @@ export class PromMetrics {
         return { name, metric: histogram, functions: new Set(['observe']) };
     }
 
-    async createAPI(): Promise<i.PromMetricsAPI> {
+    async createAPI(apiConfig: i.PromMetricsAPIConfig) {
         try {
             if (!this.metricExporter) {
-                this.apiConfig.labels = Object.assign(
+                apiConfig.labels = Object.assign(
                     {},
-                    this.apiConfig.labels,
+                    apiConfig.labels,
                     this.default_labels
                 );
                 this.metricExporter = new Exporter(this.context);
-                await this.metricExporter.create(this.apiConfig);
-                this.logger.info(`prom_metrics_API exporter created on port ${this.apiConfig.port}`);
+                await this.metricExporter.create(apiConfig);
+                this.logger.info(`prom_metrics_API exporter created on port ${apiConfig.port}`);
             }
         } catch (err) {
             this.logger.info('prom_metrics_API exporter already running');
             this.logger.error(err);
         }
+        // console.log('@@@ im bout to create this.api!!', this.api);
         this.api = {
+            init: this.init.bind(this),
             set: this.set.bind(this),
             addMetric: this.addMetric.bind(this),
             hasMetric: this.hasMetric.bind(this),
+            verifyAPI: this.verifyAPI.bind(this),
             deleteMetric: this.deleteMetric.bind(this),
             addSummary: this.addSummary.bind(this),
             inc: this.inc.bind(this),
@@ -317,7 +378,14 @@ export class PromMetrics {
             observe: this.observe.bind(this),
             shutdown: this.shutdown.bind(this),
         };
-        return this.api;
+        // console.log('right before making api positive: ', this.apiRunning);
+        this.apiRunning = true;
+        // console.log('@@@ this.api is defined!!!', this.api);
+        // return this.api;
+    }
+
+    verifyAPI(): boolean {
+        return this.apiRunning;
     }
 
     async shutdown(): Promise<void> {

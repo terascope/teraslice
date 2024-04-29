@@ -89,7 +89,7 @@ export class Worker {
         this.isInitialized = true;
 
         // fixme example usecase
-        this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
+        await this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
 
         await Promise.all([
             this.stateStorage.initialize(),
