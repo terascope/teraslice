@@ -181,7 +181,7 @@ describe('Test Helpers', () => {
         expect(results).toEqual({ client: 'hello' });
     });
 
-    it('should be able to init prom_metrics_api', async () => {
+    describe('MockPromMetrics', () => {
         const context = new TestContext('test-prom-metrics');
         context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
@@ -190,6 +190,50 @@ describe('Test Helpers', () => {
             logger: debugLogger('test-helpers-spec-logger'),
             assignment: 'cluster-master'
         };
-        expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
+
+        it('should be able to int a mock prom_metrics_api', async () => {
+            expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
+            expect(context.apis.foundation.promMetrics.verifyAPI()).toBe(true);
+        });
+
+        it('should throw if API already initialized', async () => {
+            await expect(context.apis.foundation.promMetrics.init(config)).rejects.toThrow('Prom metrics API cannot be initialized more than once.');
+        });
+
+        it('should add and delete metric', async () => {
+            await context.apis.foundation.promMetrics.addMetric('test_counter', 'test_counter help string', ['uuid'], 'counter');
+            expect(context.apis.foundation.promMetrics.hasMetric('test_counter')).toBe(true);
+            expect(await context.apis.foundation.promMetrics.deleteMetric('test_counter')).toBe(true);
+        });
+
+        it('should inc, dec, and set metric', async () => {
+            await context.apis.foundation.promMetrics.addMetric('test_gauge', 'test_gauge help string', ['uuid'], 'gauge');
+            context.apis.foundation.promMetrics.set('test_gauge', { uuid: '437Ev89h' }, 10);
+            context.apis.foundation.promMetrics.inc('test_gauge', { uuid: '437Ev89h' }, 1);
+            context.apis.foundation.promMetrics.dec('test_gauge', { uuid: '437Ev89h' }, 2);
+            expect(context.mockPromMetrics?.test_gauge.value).toBe(9);
+        });
+
+        it('should add and observe summary', async () => {
+            await context.apis.foundation.promMetrics.addSummary('test_summary', 'test_summary help string', ['uuid']);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 12);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 5);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 18);
+            expect(context.mockPromMetrics?.test_summary?.summary).toEqual({ sum: 35, count: 3 });
+        });
+
+        it('should add and observe histogram', async () => {
+            await context.apis.foundation.promMetrics.addMetric('test_histogram', 'test_histogram help string', ['uuid'], 'histogram');
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 10);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 30);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 2);
+            expect(context.mockPromMetrics?.test_histogram?.histogram)
+                .toEqual({ sum: 42, count: 3 });
+        });
+
+        it('should shutdown', async () => {
+            await context.apis.foundation.promMetrics.shutdown();
+            expect(context.mockPromMetrics).toBeNull();
+        });
     });
 });

@@ -2,14 +2,15 @@
 import 'jest-extended';
 import got from 'got';
 import { Counter } from 'prom-client';
+import { debugLogger } from '@terascope/utils';
 import Exporter from '../../src/api/prom-metrics/exporter';
-import { PromMetricsAPIConfig, TestContext } from '../../src';
+import { PromMetricsAPIConfig } from '../../src';
 
-describe('promMetrics foundation API', () => {
+describe('prometheus exporter', () => {
     let exporter: Exporter;
     beforeAll(() => {
-        const context = new TestContext({ name: 'exporter-test' });
-        exporter = new Exporter(context);
+        const logger = debugLogger('prometheus_exporter');
+        exporter = new Exporter(logger);
     });
     describe('create', () => {
         const config: PromMetricsAPIConfig = {
