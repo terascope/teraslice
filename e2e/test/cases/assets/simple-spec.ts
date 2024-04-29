@@ -62,7 +62,7 @@ describe('assets', () => {
         await ex.stop({ blocking: true });
     }
 
-    xit('after uploading an asset, it can be deleted', async () => {
+    it('after uploading an asset, it can be deleted', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
 
         const result = await terasliceHarness.teraslice.assets.upload(
