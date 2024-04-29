@@ -232,7 +232,7 @@ export class PromMetrics {
         const fullname = this.prefix + name;
         this.logger.info(`delete metric ${fullname}`);
         if (this.hasMetric(name)) {
-            deleted = delete this.metricList[name]; // fixme
+            deleted = delete this.metricList[name];
             try {
                 await this.metricExporter.deleteMetric(fullname);
             } catch (err) {
