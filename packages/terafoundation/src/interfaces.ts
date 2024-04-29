@@ -61,7 +61,7 @@ export interface FoundationAPIs {
     startWorkers(num: number, envOptions: Record<string, string>): void;
     promMetrics: {
         init(config: PromMetricsInitConfig): Promise<boolean>;
-    } & PromMetricsAPI
+    } & PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -158,7 +158,7 @@ export type MetricList = Record<string, {
     readonly functions?: Set<string>
 }>;
 
-export interface PromMetricsAPI {
+export interface PromMetrics {
     init: (config: PromMetricsInitConfig) => void;
     set: (name: string, labels: Record<string, string>, value: number) => void;
     inc: (name: string, labelValues: Record<string, string>, value: number) => void;
