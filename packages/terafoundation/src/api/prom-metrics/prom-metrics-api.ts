@@ -14,7 +14,6 @@ export class PromMetrics {
     default_labels!: Record<string, string>;
     prefix: string;
     private metricExporter!: Exporter;
-    private api!: i.PromMetricsAPI;
     context: i.FoundationContext;
     apiConfig: i.PromMetricsAPIConfig;
     apiRunning: boolean;
@@ -22,7 +21,6 @@ export class PromMetrics {
 
     constructor(
         context: i.FoundationContext,
-        // apiConfig: i.PromMetricsAPIConfig,
         logger: Logger,
     ) {
         this.context = context;
@@ -30,27 +28,14 @@ export class PromMetrics {
         /// These are initialized here but are overwritten in init()
         this.apiConfig = {} as i.PromMetricsAPIConfig;
         this.prefix = '';
-        // this.apiConfig = apiConfig;
-        this.logger = logger.child({ module: 'prom_metrics' }); // FIXME
-        // this.default_labels = {
-        //     name: context.sysconfig.teraslice.name,
-        //     assignment: apiConfig.assignment,
-        //     ...apiConfig.labels
-        // };
-
-        // Prefix hard coded standardize the way these metrics appear in prometheus
-        // this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
+        this.logger = logger.child({ module: 'prom_metrics' });
         this.metricList = {};
     }
 
     async init(config: i.PromMetricsInitConfig) {
         const { terafoundation, teraslice } = config.context.sysconfig;
         const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
-        const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
-
-        if (this.apiRunning) {
-            throw new Error('Prom metrics API cannot be initialized more than once.');
-        }
+        const portToUse = config.port || terafoundation.prom_metrics_port;
 
         if (teraslice.cluster_manager_type === 'native') {
             this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
@@ -84,25 +69,11 @@ export class PromMetrics {
                 assignment: apiConfig.assignment,
                 ...apiConfig.labels
             };
-            this.setPodName();
-            // const promMetrics = new PromMetrics(
-            //     config.context,
-            //     apiConfig,
-            //     config.logger
-            // );
             await this.createAPI(apiConfig);
             return true;
         }
         this.logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
         return false;
-    }
-
-    setPodName(): void {
-        // in a pod the hostname is the pod name
-        const host = os.hostname();
-        if (host.startsWith('ts-wkr-')) {
-            this.default_labels.pod_name = host;
-        }
     }
 
     /**
@@ -348,7 +319,16 @@ export class PromMetrics {
         return { name, metric: histogram, functions: new Set(['observe']) };
     }
 
-    async createAPI(apiConfig: i.PromMetricsAPIConfig) {
+    private _setPodName(): void {
+        // in a pod the hostname is the pod name
+        const host = os.hostname();
+        if (host.startsWith('ts-wkr-')) {
+            this.default_labels.pod_name = host;
+        }
+    }
+
+    private async createAPI(apiConfig: i.PromMetricsAPIConfig) {
+        this._setPodName();
         try {
             if (!this.metricExporter) {
                 apiConfig.labels = Object.assign(
@@ -364,24 +344,7 @@ export class PromMetrics {
             this.logger.info('prom_metrics_API exporter already running');
             this.logger.error(err);
         }
-        // console.log('@@@ im bout to create this.api!!', this.api);
-        this.api = {
-            init: this.init.bind(this),
-            set: this.set.bind(this),
-            addMetric: this.addMetric.bind(this),
-            hasMetric: this.hasMetric.bind(this),
-            verifyAPI: this.verifyAPI.bind(this),
-            deleteMetric: this.deleteMetric.bind(this),
-            addSummary: this.addSummary.bind(this),
-            inc: this.inc.bind(this),
-            dec: this.dec.bind(this),
-            observe: this.observe.bind(this),
-            shutdown: this.shutdown.bind(this),
-        };
-        // console.log('right before making api positive: ', this.apiRunning);
         this.apiRunning = true;
-        // console.log('@@@ this.api is defined!!!', this.api);
-        // return this.api;
     }
 
     verifyAPI(): boolean {
@@ -392,6 +355,7 @@ export class PromMetrics {
         this.logger.info('prom_metrics_API exporter shutdown');
         try {
             await this.metricExporter.shutdown();
+            this.apiRunning = false;
         } catch (err) {
             this.logger.error(`shutting down metric exporter ${err}`);
         }

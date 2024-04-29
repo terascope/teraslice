@@ -190,7 +190,6 @@ export class TestContext<
             return client;
         };
 
-        let promMetricsAPI: TestPromMetrics | null;
         this.apis.foundation.promMetrics = new PromMetrics(this, createRootLogger(this));
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {

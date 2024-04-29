@@ -13,8 +13,6 @@ export default function registerApis(context: i.FoundationContext): void {
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
 
-    let promMetricsAPI: i.PromMetricsAPI;
-
     // connection cache
     const connections = Object.create(null);
 
@@ -193,16 +191,16 @@ export default function registerApis(context: i.FoundationContext): void {
     _registerLegacyAPIs();
 
     /*
-        Setup proxy for 'promMetrics' here to have access to 'promMetricsAPI' variable.
-        This proxy allows the interception of the 'promMetrics' function calls in the case that
-        'promMetricsAPI' is undefined.
+     * Setup proxy for 'foundation.promMetrics' here to have access to 'PromMetrics' functions.
+     * This proxy allows the interception of the 'promMetrics' function calls in the case that
+     * 'PromMetrics' has not been initialized.
     */
     const promMetricsProxy = new Proxy(context.apis.foundation.promMetrics, {
         get(promMetrics, funcName) {
             const apiExists = promMetrics.verifyAPI();
             if (apiExists) {
                 if (funcName === 'init') {
-                    return () => false;
+                    throw new Error('Prom metrics API cannot be initialized more than once.');
                 }
                 return promMetrics[funcName];
             } if (funcName === 'init') {
@@ -210,11 +208,11 @@ export default function registerApis(context: i.FoundationContext): void {
             } if (funcName === 'hasMetric' || funcName === 'deleteMetric') {
                 return () => false;
             } if (
-                funcName === 'set' || funcName === 'addMetric' ||
-                funcName === 'addSummary' || funcName === 'inc' ||
-                funcName === 'dec' || funcName === 'observe' ||
-                funcName === 'shutdown' || funcName === 'setPodName'
-                ) {
+                funcName === 'set' || funcName === 'addMetric'
+                || funcName === 'addSummary' || funcName === 'inc'
+                || funcName === 'dec' || funcName === 'observe'
+                || funcName === 'shutdown'
+            ) {
                 return () => {
                     /// return empty function
                 };
