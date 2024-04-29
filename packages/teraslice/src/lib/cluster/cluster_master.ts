@@ -60,7 +60,6 @@ export class ClusterMaster {
 
     async initialize() {
         const clusterConfig = this.context.sysconfig.teraslice;
-        const foundation = this.context.sysconfig.terafoundation;
         const { logger } = this;
 
         try {
@@ -145,7 +144,7 @@ export class ClusterMaster {
                 context: this.context,
                 logger: this.logger,
                 assignment: 'cluster_master',
-                port: foundation.prom_metrics_port,
+                port: this.context.sysconfig.terafoundation.prom_metrics_port,
             });
 
             await this.context.apis.foundation.promMetrics.addMetric(
