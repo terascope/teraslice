@@ -42,7 +42,7 @@ export class PromMetrics {
             return false;
         }
 
-        // PromMetricsAPIConfig overrides terafoundation. This allows jobs to set
+        // PromMetricsInitConfig values override those of terafoundation. This allows jobs to set
         // different metrics configurations than the master.
         // If prom_metrics_add_default is defined in jobSpec use that value.
         // If not use the terafoundation value.
@@ -88,12 +88,11 @@ export class PromMetrics {
         if (!metric.functions || !metric.metric) {
             throw new Error(`Metric ${name} is not setup`);
         }
-        if (metric.functions.has('set')) {
+        if (metric.metric instanceof Gauge) {
             const labelValues = Object.keys(labels).map((key) => labels[key]);
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
-            // @ts-expect-error FIXME the types are wrong here
             res.set(value);
         } else {
             throw new Error(`set not available on ${name} metric`);
@@ -113,12 +112,11 @@ export class PromMetrics {
             throw new Error(`Metric ${name} is not setup`);
         }
 
-        if (metric.functions.has('inc')) {
+        if (metric.metric instanceof Counter || metric.metric instanceof Gauge) {
             const labelValues = Object.keys(labels).map((key) => labels[key]);
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
-            // @ts-expect-error FIXME the types are wrong here
             res.inc(value);
         } else {
             throw new Error(`inc not available on ${name} metric`);
@@ -138,12 +136,11 @@ export class PromMetrics {
             throw new Error(`Metric ${name} is not setup`);
         }
 
-        if (metric.functions.has('dec')) {
+        if (metric.metric instanceof Gauge) {
             const labelValues = Object.keys(labels).map((key) => labels[key]);
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
-            // @ts-expect-error FIXME the types are wrong here
             res.dec(value);
         } else {
             throw new Error(`dec not available on ${name} metric`);
@@ -162,12 +159,11 @@ export class PromMetrics {
             throw new Error(`Metric ${name} is not setup`);
         }
 
-        if (metric.functions.has('observe')) {
+        if (metric.metric instanceof Summary || metric.metric instanceof Histogram) {
             const labelValues = Object.keys(labels).map((key) => labels[key]);
             const res = metric.metric.labels(...labelValues.concat(
                 Object.values(this.default_labels)
             ));
-            // @ts-expect-error FIXME the types are wrong here
             res.observe(value);
         } else {
             throw new Error(`observe not available on ${name} metric`);

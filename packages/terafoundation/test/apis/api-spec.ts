@@ -23,7 +23,7 @@ describe('apis module', () => {
 
     it('context.apis.registerAPI should define a new API', () => {
         context.apis.registerAPI('testapi', {
-            testfunction: () => { }
+            testfunction: () => {}
         });
 
         expect(context.apis.testapi).toBeDefined();
@@ -33,11 +33,11 @@ describe('apis module', () => {
 
     it('Should throw an exception if redefining an API', () => {
         context.apis.registerAPI('testapi', {
-            testfunction: () => { }
+            testfunction: () => {}
         });
         expect(() => {
             context.apis.registerAPI('testapi', {
-                testfunction: () => { }
+                testfunction: () => {}
             });
         }).toThrowError('Registration of API endpoints for module testapi can only occur once');
     });
@@ -59,6 +59,7 @@ describe('apis module', () => {
         expect(context.apis.foundation.getSystemEvents).toBeDefined();
         expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
+        expect(context.apis.foundation.createClient).toBeDefined();
         expect(context.apis.foundation.promMetrics.init).toBeDefined();
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');

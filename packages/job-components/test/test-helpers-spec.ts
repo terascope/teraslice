@@ -191,7 +191,7 @@ describe('Test Helpers', () => {
             assignment: 'cluster-master'
         };
 
-        it('should be able to int a mock prom_metrics_api', async () => {
+        it('should be able to init a mock prom_metrics_api', async () => {
             expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
             expect(context.apis.foundation.promMetrics.verifyAPI()).toBe(true);
         });

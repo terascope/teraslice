@@ -301,7 +301,7 @@ describe('promMetrics foundation API', () => {
                 terafoundation: {
                     log_level: 'debug',
                     prom_metrics_enabled: true,
-                    prom_metrics_port: 3333,
+                    prom_metrics_port: 3334,
                     prom_metrics_add_default: false
                 },
                 teraslice: {
@@ -362,7 +362,7 @@ describe('promMetrics foundation API', () => {
                 terafoundation: {
                     log_level: 'debug',
                     prom_metrics_enabled: true,
-                    prom_metrics_port: 3333,
+                    prom_metrics_port: 3335,
                     prom_metrics_add_default: true
                 },
                 teraslice: {
@@ -451,7 +451,7 @@ describe('promMetrics foundation API', () => {
                 terafoundation: {
                     log_level: 'debug',
                     prom_metrics_enabled: true,
-                    prom_metrics_port: 3333,
+                    prom_metrics_port: 3336,
                     prom_metrics_add_default: false
                 },
                 teraslice: {
@@ -524,7 +524,7 @@ describe('promMetrics foundation API', () => {
                 terafoundation: {
                     log_level: 'debug',
                     prom_metrics_enabled: true,
-                    prom_metrics_port: 3333,
+                    prom_metrics_port: 3337,
                     prom_metrics_add_default: false
                 },
                 teraslice: {
