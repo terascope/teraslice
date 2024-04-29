@@ -88,9 +88,6 @@ export class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        // fixme example usecase
-        await this.context.apis.foundation.promMetrics.addMetric('slices_complete', 'number of slices a worker has completed', [], 'counter');
-
         await Promise.all([
             this.stateStorage.initialize(),
             this.analyticsStorage.initialize(),
@@ -317,8 +314,6 @@ export class Worker {
         return pWhile(async () => {
             try {
                 await this.client.sendSliceComplete(payload);
-                // fixme remove example
-                this.context.apis.foundation.promMetrics.inc('slices_complete', {}, 1);
                 return true;
             } catch (err) {
                 if (this.isShuttingDown) {

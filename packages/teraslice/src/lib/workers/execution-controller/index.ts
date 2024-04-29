@@ -281,9 +281,6 @@ export class ExecutionController {
             throw err;
         }
 
-        // example usecase fixme
-        await this.context.apis.foundation.promMetrics.addMetric('slices_dispatched', 'number of slices a slicer has dispatched', [], 'counter');
-
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
@@ -607,8 +604,6 @@ export class ExecutionController {
     }
 
     _dispatchSlice(slice: Slice, workerId: string) {
-        // example usecase fixme
-        this.context.apis.foundation.promMetrics.inc('slices_dispatched', {}, 1);
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
         return this.server
