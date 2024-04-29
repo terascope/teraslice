@@ -80,9 +80,14 @@ describe('promMetrics foundation API', () => {
                         expect(result).toBe(true);
                     });
 
+                    it('should be able to verifyApi', async () => {
+                        const apiExists = await context.apis.foundation.promMetrics.verifyAPI();
+                        expect(apiExists).toBe(true);
+                    });
+
                     it('should throw an error if promMetricsAPI is already initialized', async () => {
-                        await expect(() => context.apis.foundation.promMetrics.init(config))
-                            .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
+                        expect(() => context.apis.foundation.promMetrics.init(config))
+                            .toThrow('Prom metrics API cannot be initialized more than once.');
                     });
                 });
 
@@ -162,8 +167,8 @@ describe('promMetrics foundation API', () => {
                     });
 
                     it('should throw an error if promMetricsAPI is already initialized', async () => {
-                        await expect(() => context.apis.foundation.promMetrics.init(config))
-                            .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
+                        expect(() => context.apis.foundation.promMetrics.init(config))
+                            .toThrow('Prom metrics API cannot be initialized more than once.');
                     });
                 });
             });
@@ -282,8 +287,8 @@ describe('promMetrics foundation API', () => {
                     });
 
                     it('should throw an error if promMetricsAPI is already initialized', async () => {
-                        await expect(() => context.apis.foundation.promMetrics.init(config))
-                            .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
+                        expect(() => context.apis.foundation.promMetrics.init(config))
+                            .toThrow('Prom metrics API cannot be initialized more than once.');
                     });
                 });
             });

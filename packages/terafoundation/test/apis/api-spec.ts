@@ -23,7 +23,7 @@ describe('apis module', () => {
 
     it('context.apis.registerAPI should define a new API', () => {
         context.apis.registerAPI('testapi', {
-            testfunction: () => {}
+            testfunction: () => { }
         });
 
         expect(context.apis.testapi).toBeDefined();
@@ -33,11 +33,11 @@ describe('apis module', () => {
 
     it('Should throw an exception if redefining an API', () => {
         context.apis.registerAPI('testapi', {
-            testfunction: () => {}
+            testfunction: () => { }
         });
         expect(() => {
             context.apis.registerAPI('testapi', {
-                testfunction: () => {}
+                testfunction: () => { }
             });
         }).toThrowError('Registration of API endpoints for module testapi can only occur once');
     });
@@ -59,32 +59,17 @@ describe('apis module', () => {
         expect(context.apis.foundation.getSystemEvents).toBeDefined();
         expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
-        expect(context.apis.foundation.createClient).toBeDefined();
         expect(context.apis.foundation.promMetrics.init).toBeDefined();
-        expect(context.apis.foundation.promMetrics.set).toBeDefined();
-        expect(context.apis.foundation.promMetrics.inc).toBeDefined();
-        expect(context.apis.foundation.promMetrics.dec).toBeDefined();
-        expect(context.apis.foundation.promMetrics.observe).toBeDefined();
-        expect(context.apis.foundation.promMetrics.addMetric).toBeDefined();
-        expect(context.apis.foundation.promMetrics.addSummary).toBeDefined();
-        expect(context.apis.foundation.promMetrics.hasMetric).toBeDefined();
-        expect(context.apis.foundation.promMetrics.deleteMetric).toBeDefined();
-        expect(context.apis.foundation.promMetrics.shutdown).toBeDefined();
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
         expect(typeof context.apis.foundation.getConnection).toBe('function');
         expect(typeof context.apis.foundation.startWorkers).toBe('function');
-        expect(typeof context.apis.foundation.createClient).toBe('function');
-        expect(context.apis.foundation.promMetrics.init).toBe('function');
-        expect(context.apis.foundation.promMetrics.set).toBe('function');
-        expect(context.apis.foundation.promMetrics.inc).toBe('function');
-        expect(context.apis.foundation.promMetrics.dec).toBe('function');
-        expect(context.apis.foundation.promMetrics.observe).toBe('function');
-        expect(context.apis.foundation.promMetrics.addMetric).toBe('function');
-        expect(context.apis.foundation.promMetrics.addSummary).toBe('function');
-        expect(context.apis.foundation.promMetrics.hasMetric).toBe('function');
-        expect(context.apis.foundation.promMetrics.deleteMetric).toBe('function');
-        expect(context.apis.foundation.promMetrics.shutdown).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics).toBe('object');
+        expect(typeof context.apis.foundation.promMetrics.init).toBe('function');
+    });
+
+    it('terafoundation promMetricsApi endpoints should not yet exist', () => {
+        expect(context.apis.foundation.promMetrics.api).toBeUndefined();
     });
 });
