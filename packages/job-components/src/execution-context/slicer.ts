@@ -73,13 +73,13 @@ export class SlicerExecutionContext
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
         await this.context.apis.foundation.promMetrics.addMetric(
-            'execution_controller_info',
+            'info',
             'Information about Teraslice execution controller',
             ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
             'gauge'
         );
         this.context.apis.foundation.promMetrics.set(
-            'execution_controller_info',
+            'info',
             {
                 arch: this.context.arch,
                 clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,

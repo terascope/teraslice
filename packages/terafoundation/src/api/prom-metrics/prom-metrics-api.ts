@@ -336,7 +336,7 @@ export class PromMetrics {
                     apiConfig.labels,
                     this.default_labels
                 );
-                this.metricExporter = new Exporter(this.context);
+                this.metricExporter = new Exporter(this.logger);
                 await this.metricExporter.create(apiConfig);
                 this.logger.info(`prom_metrics_API exporter created on port ${apiConfig.port}`);
             }

@@ -112,23 +112,20 @@ export interface TestContextAPIs extends i.ContextAPIs {
     getTestClients(): TestClients;
 }
 
-export interface TestPromMetrics {
-    apiConfig: i.PromMetricsAPIConfig;
-    metricList: Record<string, {
-        readonly name?: string,
-        readonly help?: string,
-        readonly labelNames?: Array<string>,
-        readonly buckets?: Array<number>,
-        readonly percentiles?: Array<number>,
-        readonly ageBuckets?: number,
-        readonly maxAgeSeconds?: number
-        readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
-        readonly functions?: Set<string>,
-        value?: number;
-        summary?: object;
-        histogram?: object;
-    }>;
-}
+export type MockPromMetrics = Record<string, {
+    readonly name?: string,
+    readonly help?: string,
+    readonly labelNames?: Array<string>,
+    readonly buckets?: Array<number>,
+    readonly percentiles?: Array<number>,
+    readonly ageBuckets?: number,
+    readonly maxAgeSeconds?: number
+    readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
+    readonly functions?: Set<string>,
+    value?: number;
+    summary?: { count: number, sum: number};
+    histogram?: { count: number, sum: number};
+}>;
 
 type GetKeyOpts = {
     type: string;
@@ -184,6 +181,7 @@ export class TestContext implements i.Context {
     assignment: i.Assignment = 'worker';
     platform: string = process.platform;
     arch: string = process.arch;
+    mockPromMetrics: MockPromMetrics | null;
 
     constructor(testName: string, options: TestContextOptions = {}) {
         const logger = debugLogger(testName);
@@ -252,7 +250,7 @@ export class TestContext implements i.Context {
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
-        let promMetricsAPI: TestPromMetrics | null;
+        this.mockPromMetrics = null;
         this.apis = {
             foundation: {
                 makeLogger(...params: any[]): Logger {
@@ -326,9 +324,8 @@ export class TestContext implements i.Context {
                     async init(config: i.PromMetricsInitConfig) {
                         const { terafoundation, teraslice } = config.context.sysconfig;
                         const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
-                        const portToUse = config.port || terafoundation.prom_metrics_port || 3333;
 
-                        if (promMetricsAPI) {
+                        if (ctx.mockPromMetrics) {
                             throw new Error('Prom metrics API cannot be initialized more than once.');
                         }
 
@@ -337,48 +334,34 @@ export class TestContext implements i.Context {
                             return false;
                         }
 
-                        const useDefaultMetrics = config.default_metrics !== undefined
-                            ? config.default_metrics
-                            : terafoundation.prom_metrics_add_default;
-
                         if (config.metrics_enabled_by_job === true
                         || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
-                            const apiConfig: i.PromMetricsAPIConfig = {
-                                assignment: config.assignment,
-                                port: portToUse,
-                                default_metrics: useDefaultMetrics,
-                                labels: config.labels,
-                                prefix: config.prefix
-                            };
-                            promMetricsAPI = {
-                                apiConfig,
-                                metricList: {}
-                            };
+                            ctx.mockPromMetrics = {};
                             return true;
                         }
                         logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
                         return false;
                     },
                     set(name: string, labels: Record<string, string>, value: number): void {
-                        if (promMetricsAPI) {
-                            const metric = promMetricsAPI.metricList[name];
-                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value) {
-                                promMetricsAPI.metricList[name].value = value;
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics[name];
+                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value !== undefined) {
+                                ctx.mockPromMetrics[name].value = value;
                             }
                         }
                     },
                     inc(name: string, labelValues: Record<string, string>, value: number): void {
-                        if (promMetricsAPI) {
-                            const metric = promMetricsAPI.metricList[name];
-                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value) {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics[name];
+                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value !== undefined) {
                                 metric.value += value;
                             }
                         }
                     },
                     dec(name: string, labelValues: Record<string, string>, value: number): void {
-                        if (promMetricsAPI) {
-                            const metric = promMetricsAPI.metricList[name];
-                            if (this.hasMetric(name) && metric.functions?.has('dec') && metric.value) {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics[name];
+                            if (this.hasMetric(name) && metric.functions?.has('dec') && metric.value !== undefined) {
                                 metric.value -= value;
                             }
                         }
@@ -388,18 +371,20 @@ export class TestContext implements i.Context {
                         labelValues: Record<string, string>,
                         value: number
                     ): void {
-                        if (promMetricsAPI) {
-                            const metric = promMetricsAPI.metricList[name];
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics[name];
                             if (!metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
 
                             if (metric.functions.has('observe')) {
                                 if (metric.summary) {
-                                    metric.summary[value] = '?????'; // fixme
+                                    metric.summary.count += 1;
+                                    metric.summary.sum += value;
                                 }
                                 if (metric.histogram) {
-                                    metric.histogram[value] = '?????'; // fixme
+                                    metric.histogram.count += 1;
+                                    metric.histogram.sum += value;
                                 }
                             } else {
                                 throw new Error(`observe not available on ${name} metric`);
@@ -413,10 +398,10 @@ export class TestContext implements i.Context {
                         type: 'gauge' | 'counter' | 'histogram',
                         buckets?: Array<number>
                     ): Promise<void> {
-                        if (promMetricsAPI) {
+                        if (ctx.mockPromMetrics) {
                             if (!this.hasMetric(name)) {
                                 if (type === 'gauge') {
-                                    promMetricsAPI.metricList[name] = {
+                                    ctx.mockPromMetrics[name] = {
                                         name,
                                         help,
                                         labelNames,
@@ -426,7 +411,7 @@ export class TestContext implements i.Context {
                                     };
                                 }
                                 if (type === 'counter') {
-                                    promMetricsAPI.metricList[name] = {
+                                    ctx.mockPromMetrics[name] = {
                                         name,
                                         help,
                                         labelNames,
@@ -436,14 +421,17 @@ export class TestContext implements i.Context {
                                     };
                                 }
                                 if (type === 'histogram') {
-                                    promMetricsAPI.metricList[name] = {
+                                    ctx.mockPromMetrics[name] = {
                                         name,
                                         help,
                                         labelNames,
                                         buckets,
                                         metric: 'Histogram',
                                         functions: new Set<string>(['observe']),
-                                        histogram: {}
+                                        histogram: {
+                                            sum: 0,
+                                            count: 0
+                                        }
                                     };
                                 }
                             } else {
@@ -451,43 +439,49 @@ export class TestContext implements i.Context {
                             }
                         }
                     },
-                    addSummary(
+                    async addSummary(
                         name: string,
                         help: string,
                         labelNames: Array<string>,
-                        ageBuckets: number,
-                        maxAgeSeconds: number,
-                        percentiles: Array<number>
-                    ): void {
-                        if (promMetricsAPI) {
-                            promMetricsAPI.metricList[name] = {
+                        maxAgeSeconds = 600,
+                        ageBuckets = 5,
+                        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
+                    ): Promise<void> {
+                        if (ctx.mockPromMetrics) {
+                            ctx.mockPromMetrics[name] = {
                                 name,
                                 help,
                                 labelNames,
-                                percentiles,
                                 maxAgeSeconds,
-                                ageBuckets
+                                ageBuckets,
+                                percentiles,
+                                metric: 'Summary',
+                                functions: new Set<string>(['observe']),
+                                summary: {
+                                    sum: 0,
+                                    count: 0
+                                }
                             };
                         }
                     },
                     hasMetric(name: string): boolean {
-                        if (promMetricsAPI) {
-                            return (name in promMetricsAPI.metricList);
+                        if (ctx.mockPromMetrics) {
+                            return (name in ctx.mockPromMetrics);
                         }
                         return false;
                     },
                     async deleteMetric(name: string): Promise<boolean> {
                         let deleted = false;
-                        if (this.hasMetric(name)) {
-                            if (promMetricsAPI) {
-                                deleted = delete promMetricsAPI.metricList[name];
-                            }
-                            return false;
+                        if (ctx.mockPromMetrics) {
+                            deleted = delete ctx.mockPromMetrics[name];
                         }
                         return deleted;
                     },
+                    verifyAPI(): boolean {
+                        return ctx.mockPromMetrics !== null;
+                    },
                     async shutdown(): Promise<void> {
-                        promMetricsAPI = null;
+                        ctx.mockPromMetrics = null;
                     }
                 },
             },

@@ -59,9 +59,7 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    promMetrics: {
-        init(config: PromMetricsInitConfig): Promise<boolean>;
-    } & PromMetrics
+    promMetrics: PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -159,7 +157,7 @@ export type MetricList = Record<string, {
 }>;
 
 export interface PromMetrics {
-    init: (config: PromMetricsInitConfig) => void;
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
     set: (name: string, labels: Record<string, string>, value: number) => void;
     inc: (name: string, labelValues: Record<string, string>, value: number) => void;
     dec: (name: string, labelValues: Record<string, string>, value: number) => void;

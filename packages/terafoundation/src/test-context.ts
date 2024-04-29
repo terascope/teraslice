@@ -4,7 +4,6 @@ import * as i from './interfaces';
 import { CoreContext } from './core-context';
 import validateConfigs from './validate-configs';
 import { PromMetrics } from './api/prom-metrics/prom-metrics-api';
-import { createRootLogger } from './api/utils';
 
 interface ClientFactoryFns {
     [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
@@ -71,24 +70,6 @@ export interface TestContextOptions<S> {
     assignment?: any;
     clients?: TestClientConfig[];
     sysconfig?: ts.PartialDeep<i.FoundationSysConfig<S>>;
-}
-
-export interface TestPromMetrics {
-    apiConfig: i.PromMetricsAPIConfig;
-    metricList: Record<string, {
-        readonly name?: string,
-        readonly help?: string,
-        readonly labelNames?: Array<string>,
-        readonly buckets?: Array<number>,
-        readonly percentiles?: Array<number>,
-        readonly ageBuckets?: number,
-        readonly maxAgeSeconds?: number
-        readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
-        readonly functions?: Set<string>,
-        value?: number;
-        summary?: object;
-        histogram?: object;
-    }>;
 }
 
 function getDefaultSysconfig<S>(
@@ -190,7 +171,7 @@ export class TestContext<
             return client;
         };
 
-        this.apis.foundation.promMetrics = new PromMetrics(this, createRootLogger(this));
+        this.apis.foundation.promMetrics = new PromMetrics(ctx, ctx.logger);
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {

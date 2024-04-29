@@ -2,7 +2,7 @@ import promClient from 'prom-client';
 import express, { Request, Response } from 'express';
 import { Server } from 'http';
 import { Logger } from '@terascope/utils';
-import { FoundationContext, PromMetricsAPIConfig } from '../../interfaces';
+import { PromMetricsAPIConfig } from '../../interfaces';
 
 export type CloseExporter = () => void;
 
@@ -10,8 +10,8 @@ export default class Exporter {
     private metricServer!: Server;
     logger: Logger;
 
-    constructor(context: FoundationContext) {
-        this.logger = context.apis.foundation.makeLogger({ module: 'prometheus_exporter' });
+    constructor(logger: Logger) {
+        this.logger = logger.child({ module: 'prometheus_exporter' });
     }
 
     async create(

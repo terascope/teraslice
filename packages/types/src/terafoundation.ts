@@ -93,9 +93,7 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
-    promMetrics: {
-        init(config: PromMetricsInitConfig): Promise<boolean>;
-    } & PromMetrics
+    promMetrics: PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -170,27 +168,23 @@ export type Context<
     cluster: Cluster;
 }
 
-export interface PromMetricsInitConfig {
+export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
     context: Context,
     logger: Logger,
     metrics_enabled_by_job?: boolean,
-    assignment: string
     port?: number
-    default_metrics?: boolean,
-    labels?: Record<string, string>,
-    prefix?: string
+    default_metrics?: boolean
 }
-
 export interface PromMetricsAPIConfig {
     assignment: string
     port: number
     default_metrics: boolean,
-    labels?: Record<string, string>
+    labels?: Record<string, string>,
     prefix?: string
 }
 
 export interface PromMetrics {
-    init: (config: PromMetricsInitConfig) => void;
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
     set: (name: string, labels: Record<string, string>, value: number) => void;
     inc: (name: string, labelValues: Record<string, string>, value: number) => void;
     dec: (name: string, labelValues: Record<string, string>, value: number) => void;
@@ -202,5 +196,6 @@ export interface PromMetrics {
         percentiles: Array<number>) => Promise<void>;
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
     shutdown: () => Promise<void>;
 }

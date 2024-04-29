@@ -105,9 +105,7 @@ export interface FoundationApis {
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    promMetrics: {
-        init(config: PromMetricsInitConfig): Promise<boolean>;
-    } & PromMetricsAPI
+    promMetrics: PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -201,17 +199,13 @@ export interface ContextClusterConfig {
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
 
-export interface PromMetricsInitConfig {
+export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
     context: Context,
     logger: Logger,
     metrics_enabled_by_job?: boolean,
-    assignment: string
     port?: number
-    default_metrics?: boolean,
-    labels?: Record<string, string>,
-    prefix?: string
+    default_metrics?: boolean
 }
-
 export interface PromMetricsAPIConfig {
     assignment: string
     port: number
@@ -220,7 +214,8 @@ export interface PromMetricsAPIConfig {
     prefix?: string
 }
 
-export interface PromMetricsAPI {
+export interface PromMetrics {
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
     set: (name: string, labels: Record<string, string>, value: number) => void;
     inc: (name: string, labelValues: Record<string, string>, value: number) => void;
     dec: (name: string, labelValues: Record<string, string>, value: number) => void;
@@ -228,9 +223,10 @@ export interface PromMetricsAPI {
     addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
         buckets?: Array<number>) => Promise<void>;
     addSummary: (name: string, help: string, labelNames: Array<string>,
-        ageBuckets: number, maxAgeSeconds: number,
-        percentiles: Array<number>) => Promise<void>;
+        maxAgeSeconds?: number, ageBuckets?: number,
+        percentiles?: Array<number>) => Promise<void>;
     hasMetric: (name: string) => boolean;
     deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
     shutdown: () => Promise<void>;
 }
