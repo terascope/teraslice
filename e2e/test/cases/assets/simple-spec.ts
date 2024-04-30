@@ -1,11 +1,17 @@
 import 'jest-extended';
-import { createReadStream } from 'node:fs';
+import fs from 'node:fs';
+import os from 'os';
+import path from 'path';
+import decompress from 'decompress';
+import archiver from 'archiver';
 import {
     createS3Client,
     getS3Object,
     S3Client,
 } from '@terascope/file-asset-apis';
 import { Teraslice } from '@terascope/types';
+import { pWhile } from '@terascope/utils';
+import crypto from 'crypto';
 import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
@@ -32,7 +38,7 @@ describe('assets', () => {
      * @param {string}   assetPath   the relative path to the asset file
      */
     async function submitAndValidateAssetJob(jobSpecName: JobFixtureNames, assetPath: string) {
-        const fileStream = createReadStream(assetPath);
+        const fileStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
@@ -57,7 +63,7 @@ describe('assets', () => {
     }
 
     it('after uploading an asset, it can be deleted', async () => {
-        const testStream = createReadStream('test/fixtures/assets/example_asset_1.zip');
+        const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
 
         const result = await terasliceHarness.teraslice.assets.upload(
             testStream,
@@ -79,7 +85,7 @@ describe('assets', () => {
     // {"error":"asset.json was not found in root directory of asset bundle
     //    nor any immediate sub directory"}
     it('uploading a bad asset returns an error', async () => {
-        const testStream = createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
+        const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
         try {
             await terasliceHarness.teraslice.assets.upload(testStream, { blocking: true });
@@ -113,7 +119,7 @@ describe('assets', () => {
     it('can update an asset bundle and use the new asset', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
 
-        const fileStream = createReadStream(assetPath);
+        const fileStream = fs.createReadStream(assetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
@@ -173,6 +179,8 @@ describe('assets', () => {
 describe('s3 asset storage', () => {
     // If the connection type is S3 run tests to ensure assets are stored in S3
     if (ASSET_STORAGE_CONNECTION_TYPE === 's3') {
+        /// keep 'largeAssetPath' in outer scope so afterAll can cleanup even on failure
+        const largeAssetPath = fs.mkdtempSync(path.join(os.tmpdir(), 'example_large_asset_top'));
         let terasliceInfo: Teraslice.ApiRootResponse;
         let terasliceHarness: TerasliceHarness;
         let s3client: S3Client;
@@ -197,9 +205,14 @@ describe('s3 asset storage', () => {
             bucketName = `ts-assets-${terasliceInfo.name}`.replaceAll('_', '-');
         });
 
+        afterAll(async () => {
+            /// cleanup
+            fs.rmSync(largeAssetPath, { recursive: true, force: true });
+        });
+
         it('stores assets in s3', async () => {
             const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
-            const fileStream = createReadStream(assetPath);
+            const fileStream = fs.createReadStream(assetPath);
             const assetResponse = await terasliceHarness.teraslice.assets.upload(fileStream, {
                 blocking: true
             });
@@ -220,6 +233,96 @@ describe('s3 asset storage', () => {
             for (const record of assetRecords) {
                 expect(record._source?.blob).toBeUndefined();
             }
+        });
+
+        it('can upload and use large asset', async () => {
+            /// Create a large asset within the test so we don't have to a upload
+            /// large binary file to the repo
+            const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
+            if (!fs.existsSync(largeAssetPath)) {
+                fs.mkdirSync(largeAssetPath, { recursive: true });
+            }
+            const largeAssetPathSub = path.join(largeAssetPath, 'example_large_asset_sub');
+            if (!fs.existsSync(largeAssetPathSub)) {
+                fs.mkdirSync(largeAssetPathSub, { recursive: true });
+            }
+            const assetBuffer = fs.readFileSync(assetPath);
+            await decompress(assetBuffer, largeAssetPathSub);
+            fs.mkdirSync(path.join(largeAssetPathSub, '__static_assets'), { recursive: true });
+            const largeDocumentPath = path.join(largeAssetPathSub, '__static_assets', 'data.txt');
+            fs.writeFileSync(largeDocumentPath, '');
+            const writer = fs.createWriteStream(largeDocumentPath);
+            let generateComplete = false;
+
+            /// TODO: This functionality could be moved to utils at some point.
+            /// Writes a chunk of random string data to data.txt
+            /// It needs to be random to maintain size during compression
+            function writeData() {
+                /// chunk size in bytes
+                /// 5mb per chunk
+                const chunkSize = 5242880;
+                const stringChunk = crypto.randomBytes(chunkSize);
+                writer.write(stringChunk, writerCB);
+            }
+
+            /// Once the previous chunk is proccesed,
+            /// write another chunk until the bytes written is >= 60mb
+            /// This is so we don't hold all 60mb in memory
+            function writerCB(error: Error | null | void) {
+                if (error) {
+                    throw new Error(error.message);
+                }
+                const totalBytes = writer.bytesWritten;
+                if (totalBytes >= 62914560) {
+                    writer.end();
+                    generateComplete = true;
+                } else {
+                    writeData();
+                }
+            }
+            /// Once the write stream is ready start writing data to the file
+            writer.on('ready', () => {
+                writeData();
+            });
+
+            writer.on('error', (err) => {
+                throw new Error(err.message);
+            });
+            /// Wait for all data to be written to file
+            await pWhile(async () => generateComplete);
+
+            /// Change name in asset.json
+            const assetJSON = JSON.parse(fs.readFileSync(path.join(largeAssetPathSub, 'asset.json'), 'utf8'));
+            assetJSON.name = 'large-example-asset';
+            fs.writeFileSync(path.join(largeAssetPathSub, 'asset.json'), JSON.stringify(assetJSON, null, 2));
+
+            /// Zip the large asset
+            const zippedFile = fs.createWriteStream(path.join(largeAssetPath, 'example_large_asset.zip'));
+            const zipper = archiver('zip');
+            zipper.pipe(zippedFile);
+            zipper.on('error', (err) => {
+                throw new Error(err.message);
+            });
+            zipper.directory(largeAssetPathSub, false);
+            await zipper.finalize();
+
+            const fileStream = fs.createReadStream(path.join(largeAssetPath, 'example_large_asset.zip'));
+
+            /// Will throw error if unable to upload
+            await terasliceHarness.teraslice.assets.upload(fileStream, {
+                blocking: true
+            });
+
+            const jobSpec = terasliceHarness.newJob('generator-large-asset');
+            // // Set resource constraints on workers within CI
+            if (TEST_PLATFORM === 'kubernetes') {
+                jobSpec.resources_requests_cpu = 0.1;
+            }
+
+            const ex = await terasliceHarness.submitAndStart(jobSpec);
+            const status = await ex.waitForStatus('completed');
+
+            expect(status).toBe('completed');
         });
     }
 });

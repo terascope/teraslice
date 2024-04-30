@@ -89,7 +89,7 @@ export class S3Store {
 
     // TODO: if we want to use the S3 store more generically we can't
     // assume the key will have a '.zip' extension
-    async get(recordId: string) {
+    async get(recordId: string): Promise<Buffer> {
         const command = {
             Bucket: this.bucket,
             Key: `${recordId}.zip`
@@ -97,16 +97,31 @@ export class S3Store {
         try {
             this.logger.debug(`getting record with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             const client = this.api;
+            const bufferArray: Buffer[] = [];
+            let triggerReturn = false;
             const response = await s3RequestWithRetry({
                 client,
                 func: getS3Object,
                 params: command
             });
-            const s3File = await response.Body?.transformToString('base64');
-            if (typeof s3File !== 'string') {
-                throw new TSError(`Unable to get recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
-            }
-            return s3File;
+            /// Convert the response body to a Node read stream
+            const s3Stream = response.Body as NodeJS.ReadableStream;
+
+            /// Store the data coming into s3 into a buffer array
+            s3Stream.on('data', (chunk: Buffer) => {
+                bufferArray.push(chunk);
+            });
+            s3Stream.on('end', () => {
+                triggerReturn = true;
+            });
+            s3Stream.on('error', (err) => {
+                throw new TSError(`Unable to get recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.
+                Reason: ${err.message}`);
+            });
+
+            await pWhile(async () => triggerReturn);
+
+            return Buffer.concat(bufferArray);
         } catch (err) {
             if (err instanceof S3ClientResponse.NoSuchKey) {
                 throw new TSError(`recordId ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {

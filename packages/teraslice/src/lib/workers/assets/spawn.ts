@@ -61,7 +61,8 @@ export async function spawnAssetLoader(
 
             if (!isSuccess) {
                 const errMsg = get(message, 'error', `exit code ${code}`);
-                const error = new Error(`Failure to get assets, caused by ${errMsg}`);
+                const errOOM = 'If running out of memory, try consider increasing the memory allocation for the process by adding/modifying the "memory_execution_controller" or "resources_limits_memory" (for workers) field in the job file.';
+                const error = new Error(`Failure to get assets, caused by ${errMsg}\n${errOOM}`);
                 reject(error);
             } else {
                 resolve(get(message, 'assetIds', []));

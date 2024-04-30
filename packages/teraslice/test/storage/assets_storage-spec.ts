@@ -72,8 +72,11 @@ describe('AssetsStorage using S3 backend', () => {
     });
 
     it('can get an asset from S3', async () => {
+        /// create a buffer copy of example_asset_1.zip to test if it equals what s3 sends back
+        const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
+        const buffer = fs.readFileSync(filePath);
         const assetRecord = await storage.get('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
-        expect(assetRecord.blob).toStartWith('UEsDBAoAAAAAANxV');
+        expect(buffer.equals(assetRecord.blob as Buffer)).toBe(true);
         expect(assetRecord.name).toBe('ex1');
     });
 
