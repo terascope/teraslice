@@ -4,8 +4,9 @@ import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
     parseErrorInfo, parseList, logError,
-    TSError, startsWith, Logger
+    TSError, startsWith, Logger, pWhile
 } from '@terascope/utils';
+import { ExecutionStatusEnum } from '@terascope/types';
 import { ClusterMasterContext, TerasliceRequest, TerasliceResponse } from '../../../interfaces.js';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { ExecutionService, JobsService, ClusterServiceType } from '../services/index.js';
@@ -603,6 +604,7 @@ export class ApiService {
             });
 
         this.available = true;
+        this._updatePromMetrics();
     }
 
     private async _waitForStop(exId: string, blocking?: boolean): Promise<Record<string, any>> {
@@ -627,5 +629,166 @@ export class ApiService {
 
             checkExecution();
         });
+    }
+
+    private async _updatePromMetrics() {
+
+        if (this.context.sysconfig.terafoundation.prom_metrics_enabled) {
+
+            await pWhile(async () => {
+                return this.context.apis.foundation.promMetrics.verifyAPI();
+            }, {timeoutMs: 15000, error: 'Unable to verify that prom metrics API is running'});
+
+            /// Interval is hardcoded to refresh metrics every 10 seconds
+            setInterval(async () => {
+
+                try {
+                    this.logger.trace('Updating cluster_master prom metrics..');
+                    // const state = this.clusterService.getClusterState();
+                    const controllers = await this.executionService.getControllerStats();
+                    //// NOTE: The query size for jobs is hardcoded to 200
+                    // const jobs = await this.jobsStorage.search('job_id:*', 0, 200);
+
+                    for (const controller of controllers) {
+                        // console.log('controllerString: ', controllerString);
+                        // console.log(' type of controllerString: ', typeof controllerString);
+                        // const controller = JSON.parse(controllerString);
+                        // const ex = await this.executionService.getExecutionContext(controller.ex_id);
+                        // console.log('controller: ', controller);
+                        // console.log(' type of controller: ', typeof controller);
+                        const controllerLabels = {
+                            ex_id: controller.ex_id,
+                            job_id: controller.job_id,
+                            job_name: controller.name
+                        };
+
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_workers_active',
+                            controllerLabels,
+                            controller.workers_active
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_workers_available',
+                            controllerLabels,
+                            controller.workers_available
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_workers_joined',
+                            controllerLabels,
+                            controller.workers_joined
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_workers_reconnected',
+                            controllerLabels,
+                            controller.workers_reconnected
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_workers_disconnected',
+                            controllerLabels,
+                            controller.workers_disconnected
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_slices_processed',
+                            controllerLabels,
+                            controller.processed
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_slices_failed',
+                            controllerLabels,
+                            controller.failed
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_slices_queued',
+                            controllerLabels,
+                            controller.queued
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'controller_slicers_count',
+                            controllerLabels,
+                            controller.slicers
+                        );
+                    }
+                    const exList = await this.executionStorage.search('ex_id:*');
+                    for (const ex of exList) {
+                        const controllerLabels = {
+                            ex_id: ex.ex_id,
+                            job_id: ex.job_id,
+                            job_name: ex.name
+                        };
+                        //// Ex specific
+                        if (ex.resources_requests_cpu) {
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_cpu_request',
+                                controllerLabels,
+                                ex.resources_requests_cpu
+                            );
+                        }
+                        if (ex.resources_limits_cpu) {
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_cpu_limit',
+                                controllerLabels,
+                                ex.resources_limits_cpu
+                            );
+                        }
+                        if (ex.resources_requests_memory) {
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_memory_request',
+                                controllerLabels,
+                                ex.resources_requests_memory
+                            );
+                        }
+                        if (ex.resources_limits_memory) {
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_memory_limit',
+                                controllerLabels,
+                                ex.resources_limits_memory
+                            );
+                        }
+                        this.context.apis.foundation.promMetrics.set(
+                            'execution_created_timestamp_seconds',
+                            controllerLabels,
+                            new Date(ex._created).getTime() / 1000
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'execution_updated_timestamp_seconds',
+                            controllerLabels,
+                            new Date(ex._updated).getTime() / 1000
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'execution_slicers',
+                            controllerLabels,
+                            ex.slicers
+                        );
+                        this.context.apis.foundation.promMetrics.set(
+                            'execution_workers',
+                            controllerLabels,
+                            ex.workers
+                        );
+                        for (const status in ExecutionStatusEnum) {
+                            const statusLabels = {
+                                ...controllerLabels,
+                                status: ExecutionStatusEnum[status]
+                            };
+                            let state: number;
+                            if (ExecutionStatusEnum[status] === ex._status) {
+                                state = 1;
+                            } else {
+                                state = 0;
+                            }
+                            this.context.apis.foundation.promMetrics.set(
+                                'execution_status',
+                                statusLabels,
+                                state
+                            );
+                        }
+                    }
+
+                    this.logger.trace('Updated cluster_master prom metrics..');
+                } catch (err) {
+                    this.logger.error(`Unable to update cluster_master prom metrics. Reason: ${err.message}`);
+                }
+
+            }, 10000);
+        }
     }
 }
