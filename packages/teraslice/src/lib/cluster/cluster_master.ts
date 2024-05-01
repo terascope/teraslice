@@ -215,5 +215,6 @@ export class ClusterMaster {
             }));
 
         await this.messagingServer.shutdown();
+        await this.context.apis.foundation.promMetrics.shutdown();
     }
 }
