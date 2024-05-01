@@ -40,6 +40,12 @@ describe('promMetrics foundation API', () => {
                 const result = await context.apis.foundation.promMetrics.init(config);
                 expect(result).toBe(false);
             });
+
+            it('should not throw an error when making a call to uninitialized promMetricsAPI', async () => {
+                expect(async () => context.apis.foundation.promMetrics.addMetric('native_counter', 'help message', ['uuid'], 'counter')).not.toThrow();
+                expect(async () => context.apis.foundation.promMetrics.inc('native_counter', { uuid: 'fsd784bf' }, 1)).not.toThrow();
+                expect(context.apis.foundation.promMetrics.hasMetric('native_counter')).toBe(false);
+            });
         });
 
         describe('in kubernetes clustering', () => {
