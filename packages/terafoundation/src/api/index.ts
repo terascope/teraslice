@@ -3,6 +3,7 @@ import * as ts from '@terascope/utils';
 import { createConnection, createClient as createDBClient } from '../connector-utils';
 import { createRootLogger } from './utils';
 import * as i from '../interfaces';
+import { PromMetrics } from './prom-metrics/prom-metrics-api';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
@@ -151,7 +152,8 @@ export default function registerApis(context: i.FoundationContext): void {
             }
 
             return workers;
-        }
+        },
+        promMetrics: new PromMetrics(context, context.logger)
     };
     function _registerFoundationAPIs() {
         registerAPI('foundation', foundationApis);
@@ -187,4 +189,37 @@ export default function registerApis(context: i.FoundationContext): void {
 
     _registerFoundationAPIs();
     _registerLegacyAPIs();
+
+    /*
+     * Setup proxy for 'foundation.promMetrics' here to have access to 'PromMetrics' functions.
+     * This proxy allows the interception of the 'promMetrics' function calls in the case that
+     * 'PromMetrics' has not been initialized.
+    */
+    const promMetricsProxy = new Proxy(context.apis.foundation.promMetrics, {
+        get(promMetrics, funcName) {
+            const apiExists = promMetrics.verifyAPI();
+            if (apiExists) {
+                if (funcName === 'init') {
+                    throw new Error('Prom metrics API cannot be initialized more than once.');
+                }
+                return promMetrics[funcName];
+            } if (funcName === 'init') {
+                return promMetrics[funcName];
+            } if (funcName === 'hasMetric' || funcName === 'deleteMetric') {
+                return () => false;
+            } if (
+                funcName === 'set' || funcName === 'addMetric'
+                || funcName === 'addSummary' || funcName === 'inc'
+                || funcName === 'dec' || funcName === 'observe'
+                || funcName === 'shutdown'
+            ) {
+                return () => {
+                    /// return empty function
+                };
+            }
+            return promMetrics[funcName];
+        }
+    });
+    /// Set the global promMetrics to the promMetricsProxy to override functions everywhere
+    context.apis.foundation.promMetrics = promMetricsProxy;
 }

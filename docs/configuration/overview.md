@@ -42,6 +42,9 @@ teraslice:
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
 |  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
 |   **logging**   | `String[]` |  `["console"]`  | Logging destinations. Expects an array of logging targets. options: `console`, `file` |
+| **prom_metrics_enabled** | `Boolean` |  `false` | Create prometheus exporters. Kubernetes clustering only |
+| **prom_metrics_port** | `Number` |  `3333` | Port of prometheus exporter server. Kubernetes clustering only. Metrics will be visible at `http://localhost:<PORT>/metrics` |
+| **prom_metrics_add_default** | `Boolean` |  `true` | Display default node metrics in prom exporter. Kubernetes clustering only |
 |   **workers**   |  `Number`  |       `4`       |                             Number of workers per server                              |
 
 ## Teraslice Configuration Reference

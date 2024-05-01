@@ -38,7 +38,7 @@ export class AssetsService {
 
     async initialize() {
         try {
-            this.assetsStorage = await new AssetsStorage(this.context);
+            this.assetsStorage = new AssetsStorage(this.context);
             await this.assetsStorage.initialize();
 
             this.app.get('/status', (req, res) => {

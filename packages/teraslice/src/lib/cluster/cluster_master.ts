@@ -11,6 +11,7 @@ import {
 } from './services/index.js';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../storage/index.js';
 import { ClusterMasterContext } from '../../interfaces.js';
+import { getPackageJSON } from '../utils/file_utils.js';
 
 export class ClusterMaster {
     context: ClusterMasterContext;
@@ -139,6 +140,32 @@ export class ClusterMaster {
             // this needs to be last
             await services.apiService.initialize();
 
+            await this.context.apis.foundation.promMetrics.init({
+                context: this.context,
+                logger: this.logger,
+                assignment: 'cluster_master',
+                port: this.context.sysconfig.terafoundation.prom_metrics_port,
+            });
+
+            await this.context.apis.foundation.promMetrics.addMetric(
+                'info',
+                'Information about Teraslice cluster master',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+                'gauge'
+            );
+            this.context.apis.foundation.promMetrics.set(
+                'info',
+                {
+                    arch: this.context.arch,
+                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                    name: this.context.sysconfig.teraslice.name,
+                    node_version: process.version,
+                    platform: this.context.platform,
+                    teraslice_version: getPackageJSON().version
+                },
+                1
+            );
+
             this.logger.info('cluster master is ready!');
             this.running = true;
         } catch (err) {
@@ -188,5 +215,6 @@ export class ClusterMaster {
             }));
 
         await this.messagingServer.shutdown();
+        await this.context.apis.foundation.promMetrics.shutdown();
     }
 }

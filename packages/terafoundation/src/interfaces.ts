@@ -1,4 +1,7 @@
 import { Format } from 'convict';
+import type {
+    Gauge, Counter, Histogram, Summary
+} from 'prom-client';
 import { EventEmitter } from 'events';
 import { Logger, Overwrite } from '@terascope/utils';
 import {
@@ -56,6 +59,7 @@ export interface FoundationAPIs {
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
+    promMetrics: PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -101,9 +105,12 @@ export type FoundationSysConfig<S> = {
         log_path: string;
         log_level: LogLevelConfig;
         logging: LogType[];
-        asset_storage_connection_type?: string;
-        asset_storage_connection?: string;
+        asset_storage_connection_type: string;
+        asset_storage_connection: string;
         asset_storage_bucket?: string;
+        prom_metrics_enabled: boolean;
+        prom_metrics_port: number;
+        prom_metrics_add_default: boolean;
     };
 } & S;
 
@@ -127,3 +134,41 @@ export type FoundationContext<
 export type ParsedArgs<S> = {
     configfile: FoundationSysConfig<S>;
 };
+
+export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
+    context: FoundationContext,
+    logger: Logger,
+    metrics_enabled_by_job?: boolean,
+    port?: number
+    default_metrics?: boolean
+}
+export interface PromMetricsAPIConfig {
+    assignment: string
+    port: number
+    default_metrics: boolean,
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
+export type MetricList = Record<string, {
+    readonly name?: string,
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>,
+    readonly functions?: Set<string>
+}>;
+
+export interface PromMetrics {
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
+        buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        ageBuckets: number, maxAgeSeconds: number,
+        percentiles: Array<number>) => Promise<void>;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
+    shutdown: () => Promise<void>;
+}

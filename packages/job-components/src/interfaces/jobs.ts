@@ -127,6 +127,12 @@ export interface ValidatedJobConfig {
     volumes?: Volume[];
     /** This will only be available in the context of k8s */
     kubernetes_image?: string;
+    /** This will only be available in the context of k8s */
+    prom_metrics_enabled?: boolean;
+    /** This will only be available in the context of k8s */
+    prom_metrics_port?: number;
+    /** This will only be available in the context of k8s */
+    prom_metrics_add_default?: boolean;
 }
 
 export interface Targets {
@@ -158,6 +164,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
     metadata: AnyObject;
+    teraslice_version: string;
 }
 
 /**

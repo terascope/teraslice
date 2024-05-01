@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import * as i from './interfaces';
 import { CoreContext } from './core-context';
 import validateConfigs from './validate-configs';
+import { PromMetrics } from './api/prom-metrics/prom-metrics-api';
 
 interface ClientFactoryFns {
     [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
@@ -169,6 +170,8 @@ export class TestContext<
 
             return client;
         };
+
+        this.apis.foundation.promMetrics = new PromMetrics(ctx, ctx.logger);
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {

@@ -60,11 +60,24 @@ describe('apis module', () => {
         expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
         expect(context.apis.foundation.createClient).toBeDefined();
+        expect(context.apis.foundation.promMetrics.init).toBeDefined();
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
         expect(typeof context.apis.foundation.getConnection).toBe('function');
         expect(typeof context.apis.foundation.startWorkers).toBe('function');
         expect(typeof context.apis.foundation.createClient).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics).toBe('object');
+        expect(typeof context.apis.foundation.promMetrics.init).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.set).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.inc).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.dec).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.observe).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.addMetric).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.addSummary).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.hasMetric).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.deleteMetric).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.verifyAPI).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.shutdown).toBe('function');
     });
 });
