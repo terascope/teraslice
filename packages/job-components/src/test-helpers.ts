@@ -113,18 +113,16 @@ export interface TestContextAPIs extends i.ContextAPIs {
 }
 
 export type MockPromMetrics = Record<string, {
-    readonly name?: string,
-    readonly help?: string,
-    readonly labelNames?: Array<string>,
+    readonly name: string,
+    readonly help: string,
+    readonly labelNames: Array<string>,
     readonly buckets?: Array<number>,
     readonly percentiles?: Array<number>,
     readonly ageBuckets?: number,
     readonly maxAgeSeconds?: number
-    readonly metric?: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
-    readonly functions?: Set<string>,
-    value?: number;
-    summary?: { count: number, sum: number};
-    histogram?: { count: number, sum: number};
+    readonly metric: 'Gauge' | 'Counter' | 'Histogram' | 'Summary',
+    readonly functions: Set<string>,
+    labels: Record<string, { sum: number, count: number, value: number}>
 }>;
 
 type GetKeyOpts = {
@@ -163,9 +161,18 @@ function isPromise(p: any): boolean {
     return false;
 }
 
+export function getLabelKey(labels: Record<string, string>): string {
+    let labelKey = '';
+    for (const [key, value] of Object.entries(labels).sort()) {
+        labelKey += `${key}:${value},`;
+    }
+    return labelKey;
+}
+
 export interface TestContextOptions {
     assignment?: i.Assignment;
     clients?: TestClientConfig[];
+    cluster_manager_type?: i.ClusterManagerType;
 }
 
 const _cachedClients = new WeakMap<TestContext, CachedClients>();
@@ -216,7 +223,7 @@ export class TestContext implements i.Context {
                 action_timeout: 10000,
                 analytics_rate: 10000,
                 assets_directory: path.join(process.cwd(), 'assets'),
-                cluster_manager_type: 'native',
+                cluster_manager_type: options.cluster_manager_type || 'native',
                 hostname: 'localhost',
                 index_rollover_frequency: {
                     analytics: 'yearly',
@@ -342,27 +349,47 @@ export class TestContext implements i.Context {
                         logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
                         return false;
                     },
-                    set(name: string, labels: Record<string, string>, value: number): void {
+                    set(name: string, labelValues: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
                             const metric = ctx.mockPromMetrics[name];
-                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value !== undefined) {
-                                ctx.mockPromMetrics[name].value = value;
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+                            if (metric.functions.has('inc')) {
+                                const labelKey = getLabelKey(labelValues);
+                                metric.labels[labelKey] = { sum: 0, count: 0, value };
                             }
                         }
                     },
                     inc(name: string, labelValues: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
                             const metric = ctx.mockPromMetrics[name];
-                            if (this.hasMetric(name) && metric.functions?.has('inc') && metric.value !== undefined) {
-                                metric.value += value;
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+                            if (metric.functions.has('inc')) {
+                                const labelKey = getLabelKey(labelValues);
+                                if (Object.keys(metric.labels).includes(labelKey)) {
+                                    metric.labels[labelKey].value += value;
+                                } else {
+                                    metric.labels[labelKey] = { sum: 0, count: 0, value };
+                                }
                             }
                         }
                     },
                     dec(name: string, labelValues: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
                             const metric = ctx.mockPromMetrics[name];
-                            if (this.hasMetric(name) && metric.functions?.has('dec') && metric.value !== undefined) {
-                                metric.value -= value;
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+                            if (metric.functions.has('dec')) {
+                                const labelKey = getLabelKey(labelValues);
+                                if (Object.keys(metric.labels).includes(labelKey)) {
+                                    metric.labels[labelKey].value -= value;
+                                } else {
+                                    metric.labels[labelKey] = { sum: 0, count: 0, value: -value };
+                                }
                             }
                         }
                     },
@@ -373,18 +400,24 @@ export class TestContext implements i.Context {
                     ): void {
                         if (ctx.mockPromMetrics) {
                             const metric = ctx.mockPromMetrics[name];
-                            if (!metric.functions || !metric.metric) {
+                            if (!metric || !metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
 
                             if (metric.functions.has('observe')) {
-                                if (metric.summary) {
-                                    metric.summary.count += 1;
-                                    metric.summary.sum += value;
-                                }
-                                if (metric.histogram) {
-                                    metric.histogram.count += 1;
-                                    metric.histogram.sum += value;
+                                const labelKey = getLabelKey(labelValues);
+                                if (Object.keys(metric.labels).includes(labelKey)) {
+                                    metric.labels[labelKey] = {
+                                        sum: metric.labels[labelKey].sum += value,
+                                        count: metric.labels[labelKey].count + 1,
+                                        value: 0
+                                    };
+                                } else {
+                                    metric.labels[labelKey] = {
+                                        sum: value,
+                                        count: 1,
+                                        value: 0
+                                    };
                                 }
                             } else {
                                 throw new Error(`observe not available on ${name} metric`);
@@ -407,7 +440,7 @@ export class TestContext implements i.Context {
                                         labelNames,
                                         metric: 'Gauge',
                                         functions: new Set<string>(['inc', 'dec', 'set']),
-                                        value: 0
+                                        labels: {}
                                     };
                                 }
                                 if (type === 'counter') {
@@ -417,7 +450,7 @@ export class TestContext implements i.Context {
                                         labelNames,
                                         metric: 'Counter',
                                         functions: new Set<string>(['inc', 'dec']),
-                                        value: 0
+                                        labels: {}
                                     };
                                 }
                                 if (type === 'histogram') {
@@ -428,10 +461,7 @@ export class TestContext implements i.Context {
                                         buckets,
                                         metric: 'Histogram',
                                         functions: new Set<string>(['observe']),
-                                        histogram: {
-                                            sum: 0,
-                                            count: 0
-                                        }
+                                        labels: {}
                                     };
                                 }
                             } else {
@@ -457,10 +487,7 @@ export class TestContext implements i.Context {
                                 percentiles,
                                 metric: 'Summary',
                                 functions: new Set<string>(['observe']),
-                                summary: {
-                                    sum: 0,
-                                    count: 0
-                                }
+                                labels: {}
                             };
                         }
                     },
