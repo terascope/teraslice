@@ -484,7 +484,6 @@ export class ApiService {
                 return stats;
             });
         });
-
         v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not get execution statistics');
             requestHandler(() => this._controllerStats());
@@ -632,30 +631,19 @@ export class ApiService {
     }
 
     private async _updatePromMetrics() {
-
         if (this.context.sysconfig.terafoundation.prom_metrics_enabled) {
-
-            await pWhile(async () => {
-                return this.context.apis.foundation.promMetrics.verifyAPI();
-            }, {timeoutMs: 15000, error: 'Unable to verify that prom metrics API is running'});
+            await pWhile(async () => this.context.apis.foundation.promMetrics.verifyAPI(), { timeoutMs: 15000, error: 'Unable to verify that prom metrics API is running' });
 
             /// Interval is hardcoded to refresh metrics every 10 seconds
             setInterval(async () => {
-
                 try {
                     this.logger.trace('Updating cluster_master prom metrics..');
                     // const state = this.clusterService.getClusterState();
                     const controllers = await this.executionService.getControllerStats();
-                    //// NOTE: The query size for jobs is hardcoded to 200
+                    /// / NOTE: The query size for jobs is hardcoded to 200
                     // const jobs = await this.jobsStorage.search('job_id:*', 0, 200);
 
                     for (const controller of controllers) {
-                        // console.log('controllerString: ', controllerString);
-                        // console.log(' type of controllerString: ', typeof controllerString);
-                        // const controller = JSON.parse(controllerString);
-                        // const ex = await this.executionService.getExecutionContext(controller.ex_id);
-                        // console.log('controller: ', controller);
-                        // console.log(' type of controller: ', typeof controller);
                         const controllerLabels = {
                             ex_id: controller.ex_id,
                             job_id: controller.job_id,
@@ -715,7 +703,7 @@ export class ApiService {
                             job_id: ex.job_id,
                             job_name: ex.name
                         };
-                        //// Ex specific
+                        /// / Ex specific
                         if (ex.resources_requests_cpu) {
                             this.context.apis.foundation.promMetrics.set(
                                 'execution_cpu_request',
@@ -765,21 +753,23 @@ export class ApiService {
                             ex.workers
                         );
                         for (const status in ExecutionStatusEnum) {
-                            const statusLabels = {
-                                ...controllerLabels,
-                                status: ExecutionStatusEnum[status]
-                            };
-                            let state: number;
-                            if (ExecutionStatusEnum[status] === ex._status) {
-                                state = 1;
-                            } else {
-                                state = 0;
+                            if (ExecutionStatusEnum[status]) {
+                                const statusLabels = {
+                                    ...controllerLabels,
+                                    status: ExecutionStatusEnum[status]
+                                };
+                                let state: number;
+                                if (ExecutionStatusEnum[status] === ex._status) {
+                                    state = 1;
+                                } else {
+                                    state = 0;
+                                }
+                                this.context.apis.foundation.promMetrics.set(
+                                    'execution_status',
+                                    statusLabels,
+                                    state
+                                );
                             }
-                            this.context.apis.foundation.promMetrics.set(
-                                'execution_status',
-                                statusLabels,
-                                state
-                            );
                         }
                     }
 
@@ -787,7 +777,6 @@ export class ApiService {
                 } catch (err) {
                     this.logger.error(`Unable to update cluster_master prom metrics. Reason: ${err.message}`);
                 }
-
             }, 10000);
         }
     }
