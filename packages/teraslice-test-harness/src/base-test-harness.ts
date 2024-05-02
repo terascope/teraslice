@@ -2,6 +2,7 @@ import {
     ExecutionConfig, JobValidator, TestContext,
     JobConfig, ExecutionContextConfig, Assignment,
     makeExecutionContext, TestClientConfig,
+    ClusterManagerType,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
 import {
@@ -25,10 +26,14 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         this.context = new TestContext(testName, {
             assignment,
             clients: options.clients,
+            cluster_manager_type: options.cluster_manager_type,
         });
 
         this.events = this.context.apis.foundation.getSystemEvents();
-        const config = this.makeContextConfig(job, this._getAssetDirs(options.assetDir));
+        const config = this.makeContextConfig(
+            job,
+            this._getAssetDirs(options.assetDir),
+            options.cluster_manager_type);
         this.executionContext = makeExecutionContext(config) as U;
     }
 
@@ -44,10 +49,12 @@ export default class BaseTestHarness<U extends ExecutionContext> {
 
     protected makeContextConfig(
         job: JobConfig,
-        assets: string[] = [process.cwd()]
+        assets: string[] = [process.cwd()],
+        cluster_manager_type: ClusterManagerType = 'native'
     ): ExecutionContextConfig {
         const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
         this.context.sysconfig.teraslice.assets_directory = assets;
+        this.context.sysconfig.teraslice.cluster_manager_type = cluster_manager_type;
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
