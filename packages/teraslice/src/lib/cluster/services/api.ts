@@ -631,10 +631,17 @@ export class ApiService {
     }
 
     private async _updatePromMetrics() {
+        function extractVersionFromImageTag(imageTag: string): string {
+            // Define the version number regex pattern
+            const versionRegex = /(\d+\.\d+\.\d+)/;
+            const match = imageTag.match(versionRegex);
+            return match ? match[0] : 'Version number not available';
+        }
+
         if (this.context.sysconfig.terafoundation.prom_metrics_enabled) {
             try {
                 const apiTimeout = 15000;
-                const apiTimeoutError = `Unable to verify that prom metrics API is running after ${apiTimeout/1000} seconds`
+                const apiTimeoutError = `Unable to verify that prom metrics API is running after ${apiTimeout / 1000} seconds`;
                 await pWhile(
                     async () => this.context.apis.foundation.promMetrics.verifyAPI(),
                     { timeoutMs: apiTimeout, error: apiTimeoutError }
@@ -781,13 +788,7 @@ export class ApiService {
                         const clusterState = this.clusterService.getClusterState();
 
                         /// Filter out information about kubernetes ex pods
-                        let filteredExecutions = {};
-                        function extractVersionFromImageTag(imageTag: string): string {
-                            // Define the version number regex pattern
-                            const versionRegex = /(\d+\.\d+\.\d+)/;
-                            const match = imageTag.match(versionRegex);
-                            return match ? match[0] : 'Version number not available';
-                        }
+                        const filteredExecutions = {};
                         for (const cluster in clusterState) {
                             if (clusterState[cluster].active) {
                                 for (const worker of clusterState[cluster].active) {
@@ -799,7 +800,7 @@ export class ApiService {
                                             image: worker.image,
                                             version: extractVersionFromImageTag(worker.image)
 
-                                        }
+                                        };
                                         this.context.apis.foundation.promMetrics.set(
                                             'execution_info',
                                             exLabel,
@@ -812,7 +813,7 @@ export class ApiService {
 
                         this.logger.trace('Updated cluster_master prom metrics..');
                     } catch (err) {
-                        this.logger.error(err,'Unable to update cluster_master prom metrics.');
+                        this.logger.error(err, 'Unable to update cluster_master prom metrics.');
                     }
                 }, 10000);
             } else {
