@@ -231,6 +231,14 @@ export class ClusterMaster {
      */
     async addMasterMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        /*
+            TODO: After reviewing these metrics, I've conluded that all of these
+            can be handled by th execution controller. We might move these into the execution
+            controller metrics down the line. The master can maybe keep track of how many ex
+            controllers there are? Some sort of overview of everything and leave the specifics
+            to each ex.
+
+        */
         await Promise.all([
             this.context.apis.foundation.promMetrics.addMetric(
                 'controller_workers_active',
@@ -272,12 +280,6 @@ export class ClusterMaster {
                 'controller_slicers_count',
                 'Number of execution controllers (slicers) running for this execution.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
-            ),
-            this.context.apis.foundation.promMetrics.addMetric(
-                'query_duration_seconds',
-                'Total time to complete the named query, in seconds.',
-                ['query_name'],
                 'gauge'
             ),
             // Execution Related Metrics
@@ -359,12 +361,6 @@ export class ClusterMaster {
                 ['ex_id', 'job_id', 'job_name'],
                 'gauge'
             ),
-            // this.context.apis.foundation.promMetrics.addMetric(
-            //     '_exporter_errors',
-            //     'Number of errors encountered by teraslice exporter.',
-            //     ['error_type'],
-            //     'gauge'
-            // ),
         ]);
     }
 }
