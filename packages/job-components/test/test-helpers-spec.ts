@@ -7,6 +7,7 @@ import {
     newTestExecutionContext,
     newTestExecutionConfig,
     TestContext,
+    getLabelKey,
 } from '../src';
 
 describe('Test Helpers', () => {
@@ -253,6 +254,28 @@ describe('Test Helpers', () => {
         it('should shutdown', async () => {
             await context.apis.foundation.promMetrics.shutdown();
             expect(context.mockPromMetrics).toBeNull();
+        });
+    });
+
+    describe('getLabelKey', () => {
+        it('should produce the same key with any label order', async () => {
+            const key1 = getLabelKey({
+                arch: 'arm64',
+                clustering_type: 'kubernetes',
+                name: 'worker:test-job',
+                node_version: 'v18.19.1',
+                platform: 'darwin',
+                teraslice_version: '1.4.0',
+            });
+            const key2 = getLabelKey({
+                teraslice_version: '1.4.0',
+                clustering_type: 'kubernetes',
+                platform: 'darwin',
+                name: 'worker:test-job',
+                node_version: 'v18.19.1',
+                arch: 'arm64',
+            });
+            expect(key1).toEqual(key2);
         });
     });
 });

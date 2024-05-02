@@ -161,12 +161,12 @@ function isPromise(p: any): boolean {
     return false;
 }
 
-function getLabelKey(labels: Record<string, string>): string {
-    let key = '';
-    for (const entry of Object.entries(labels).sort()) {
-        key += `${entry[0]}:${entry[1]},`;
+export function getLabelKey(labels: Record<string, string>): string {
+    let labelKey = '';
+    for (const [key, value] of Object.entries(labels).sort()) {
+        labelKey += `${key}:${value},`;
     }
-    return key;
+    return labelKey;
 }
 
 export interface TestContextOptions {
