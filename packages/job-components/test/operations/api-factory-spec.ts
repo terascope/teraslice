@@ -1,4 +1,4 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import { AnyObject } from '@terascope/utils';
 import {
     ExecutionContextAPI, newTestExecutionConfig, TestContext,

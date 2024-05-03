@@ -1,4 +1,4 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JobValidator, TestContext, JobConfig } from '../src/index.js';

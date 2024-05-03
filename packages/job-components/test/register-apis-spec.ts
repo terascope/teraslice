@@ -1,4 +1,4 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AnyObject } from '@terascope/utils';
@@ -76,11 +76,12 @@ describe('registerApis', () => {
         const clients: TestClientConfig[] = [
             {
                 type: 'elasticsearch-next',
-                create() {
+                async createClient() {
                     return {
                         client: {
                             'elasticsearch-next': true,
                         },
+                        log
                     };
                 },
             },

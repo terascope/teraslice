@@ -10,6 +10,7 @@ import {
     has,
     joinList,
 } from '@terascope/utils';
+import { resolve } from 'import-meta-resolve';
 import {
     OperationAPIConstructor,
     FetcherConstructor,
@@ -62,6 +63,7 @@ export class OperationLoader {
         dirPath: string, opName: string, type: OperationTypeName
     ): Promise<T> {
         const repository = await this._getBundledRepository(dirPath);
+
         if (repository == null) {
             throw new Error(`Empty asset repository found at path: ${dirPath}`);
         }
@@ -77,7 +79,7 @@ export class OperationLoader {
             throw new Error(`Operation ${opName}, does not have ${repoType} registered`);
         }
 
-        return opType;
+        return opType.default ?? opType;
     }
 
     private async isBundledOperation(dirPath: string, name: string): Promise<boolean> {
@@ -99,20 +101,7 @@ export class OperationLoader {
             return AssetBundleType.BUNDLED;
         }
 
-        if (await this.isLegacyOperation(codePath)) {
-            return AssetBundleType.LEGACY;
-        }
-
         return AssetBundleType.STANDARD;
-    }
-
-    private async isLegacyOperation(codePath: string): Promise<boolean> {
-        try {
-            const results = await this.require(codePath);
-            return ['newReader', 'newSlicer', 'newProcessor'].some((key) => has(results, key));
-        } catch (_err) {
-            return false;
-        }
     }
 
     async find(name: string, assetIds?: string[]): Promise<FindOperationResults> {
@@ -299,7 +288,6 @@ export class OperationLoader {
 
     private async findOrThrow(name: string, assetIds?: string[]): Promise<OperationResults> {
         this.verifyOpName(name);
-
         const results = await this.find(name, assetIds);
 
         if (!results.path) {
@@ -344,8 +332,12 @@ export class OperationLoader {
         } else {
             for (const filePath of filePaths) {
                 try {
-                    const mod = await import(filePath);
-                    return mod.default || mod;
+                    const modPath = filePath.startsWith('//file:') ? fileURLToPath(new URL(filePath)) : filePath;
+                    const mod = await import(modPath);
+                    // importing bundled cjs assets like this seems to cause them
+                    // to be wrapped twice in the `default` key
+                    const core = mod.default ?? mod;
+                    return core.default ?? core;
                 } catch (_err) {
                     err = _err;
                 }
@@ -364,17 +356,18 @@ export class OperationLoader {
         if (fs.existsSync(filePath)) return filePath;
 
         try {
-            return require.resolve(filePath);
+            return resolve(filePath, import.meta.url);
         } catch (err) {
             for (const ext of this.availableExtensions) {
                 try {
                     return pathModule.dirname(
-                        require.resolve(
+                        resolve(
                             pathModule.format({
                                 dir: filePath,
                                 name: 'schema',
                                 ext,
-                            })
+                            }),
+                            import.meta.url
                         )
                     );
                 } catch (_err) {

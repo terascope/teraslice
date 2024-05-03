@@ -1,4 +1,4 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import { times } from '@terascope/utils';
 import {
     TestContext, newTestExecutionConfig, WorkerContext,

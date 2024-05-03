@@ -93,7 +93,6 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create?: i.ClientFactoryFn;
     createClient?: i.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;

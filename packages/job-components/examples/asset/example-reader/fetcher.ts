@@ -1,12 +1,10 @@
-'use strict';
+import got from 'got';
+import { Fetcher } from '@terascope/job-components';
 
-const got = require('got');
-const { Fetcher } = require('@terascope/job-components');
-
-class ExampleFetcher extends Fetcher {
+export default class ExampleFetcher extends Fetcher {
     async fetch(startingData) {
         const statusCode = await this.getStatusCode(startingData.fromUrl);
-        const result = [];
+        const result: Record<string, any>[] = [];
         for (let i = 0; i < statusCode; i++) {
             result.push({
                 id: i,
@@ -28,5 +26,3 @@ class ExampleFetcher extends Fetcher {
         return response.statusCode;
     }
 }
-
-module.exports = ExampleFetcher;

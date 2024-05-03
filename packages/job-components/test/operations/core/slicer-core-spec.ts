@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import {
     newTestExecutionConfig, TestContext, WorkerContext,
     ExecutionContextAPI, OperationAPI, OpAPIFn

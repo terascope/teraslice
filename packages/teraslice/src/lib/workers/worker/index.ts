@@ -334,7 +334,7 @@ export class Worker {
 
         return new Promise((resolve, reject) => {
             let timeout: NodeJS.Timeout | undefined;
-            let interval: NodeJS.Timer | undefined;
+            let interval: NodeJS.Timeout | undefined;
 
             const done = (err?: Error) => {
                 clearInterval(interval);
