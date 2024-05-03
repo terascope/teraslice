@@ -132,6 +132,7 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
+        await this.addWorkerMetrics();
         await this.context.apis.foundation.promMetrics.addMetric(
             'worker_info',
             'Information about Teraslice worker',
@@ -447,5 +448,26 @@ export class WorkerExecutionContext
 
     private get _slice() {
         return this.sliceState && this.sliceState.slice;
+    }
+
+    /**
+     * Adds all prom metrics specific to the worker.
+     *
+     * If trying to add a new metric for the worker, it belongs here.
+     * @async
+     * @function addWorkerMetrics
+     * @return {Promise<void>}
+     */
+    async addWorkerMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        await Promise.all([
+            // All metrics go inside here
+            // this.context.apis.foundation.promMetrics.addMetric(
+            //     'example_metric',
+            //     'This is an example of adding a metric',
+            //     ['example_label_1', 'Example_label_2'],
+            //     'gauge'
+            // )
+        ]);
     }
 }

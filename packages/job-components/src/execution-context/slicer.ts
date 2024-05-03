@@ -72,6 +72,7 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
+        await this.addExecutionMetrics();
         await this.context.apis.foundation.promMetrics.addMetric(
             'info',
             'Information about Teraslice execution controller',
@@ -116,5 +117,26 @@ export class SlicerExecutionContext
 
     onSliceComplete(result: SliceResult): void {
         this._runMethod('onSliceComplete', result);
+    }
+
+    /**
+     * Adds all prom metrics specific to the execution_controller.
+     *
+     * If trying to add a new metric for the execution_controller, it belongs here.
+     * @async
+     * @function addExecutionMetrics
+     * @return {Promise<void>}
+     */
+    async addExecutionMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        await Promise.all([
+            // All metrics go inside here
+            // this.context.apis.foundation.promMetrics.addMetric(
+            //     'example_metric',
+            //     'This is an example of adding a metric',
+            //     ['example_label_1', 'Example_label_2'],
+            //     'gauge'
+            // )
+        ]);
     }
 }
