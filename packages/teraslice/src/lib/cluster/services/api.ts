@@ -630,6 +630,14 @@ export class ApiService {
         });
     }
 
+    /**
+     * Starts an interval if prom metrics is enabled to periodically grab
+     * cluster state/info and set metrics.
+     * @async
+     * @private
+     * @function _updatePromMetrics
+     * @return {Promise<void>}
+     */
     private async _updatePromMetrics() {
         function extractVersionFromImageTag(imageTag: string): string {
             // Define the version number regex pattern
