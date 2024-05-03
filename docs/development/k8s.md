@@ -385,6 +385,14 @@ this.context.apis.foundation.promMetrics.inc(
     1 // amount to increment by
 );
 ```
+Additionally, there are convenience methods available in the execution, cluster_master, and worker classes for adding metrics. These methods streamline the process by submitting an array of addMetric() functions immediately after initializing the prom metrics API. Each method is tailored to a specific assignment:
+| Assignment | Method Name |
+| ---------- | ----------- |
+| Cluster_master | `addMasterMetrics()` |
+| Execution_controller | `addExecutionMetrics()` |
+| Worker | `addWorkerMetrics()` |
+
+Using these assignment-specific methods allows you to add metrics directly related to the associated assignment without adding it globally. This will prevent adding metrics to a context that can't or won't utilize the metric.
 
 The label names as well as the metric name must match when using `inc`, `dec`, `set`, or `observe` to modify a metric.
 
