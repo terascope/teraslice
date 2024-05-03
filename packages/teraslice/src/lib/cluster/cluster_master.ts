@@ -228,6 +228,7 @@ export class ClusterMaster {
      * @async
      * @function addMasterMetrics
      * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async addMasterMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);

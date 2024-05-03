@@ -457,6 +457,7 @@ export class WorkerExecutionContext
      * @async
      * @function addWorkerMetrics
      * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async addWorkerMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);

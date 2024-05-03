@@ -126,6 +126,7 @@ export class SlicerExecutionContext
      * @async
      * @function addExecutionMetrics
      * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async addExecutionMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
