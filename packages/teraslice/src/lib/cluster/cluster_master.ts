@@ -140,12 +140,15 @@ export class ClusterMaster {
             // this needs to be last
             await services.apiService.initialize();
 
+            /// initialize promClient
             await this.context.apis.foundation.promMetrics.init({
                 context: this.context,
                 logger: this.logger,
                 assignment: 'cluster_master',
                 port: this.context.sysconfig.terafoundation.prom_metrics_port,
             });
+
+            await this.setupPromMetrics();
 
             await this.context.apis.foundation.promMetrics.addMetric(
                 'info',
@@ -216,5 +219,149 @@ export class ClusterMaster {
 
         await this.messagingServer.shutdown();
         await this.context.apis.foundation.promMetrics.shutdown();
+    }
+
+    /**
+     * Adds all prom metrics specific to the cluster_master.
+     *
+     * If trying to add a new metric for the cluster_master, it belongs here.
+     * @async
+     * @function setupPromMetrics
+     * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
+     */
+    async setupPromMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        /*
+            TODO: After reviewing these metrics, I've conluded that all of these
+            can be handled by th execution controller. We might move these into the execution
+            controller metrics down the line. The master can maybe keep track of how many ex
+            controllers there are? Some sort of overview of everything and leave the specifics
+            to each ex.
+
+        */
+        await Promise.all([
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_workers_active',
+                'Number of Teraslice workers actively processing slices.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_workers_available',
+                'Number of Teraslice workers running and waiting for work.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_workers_joined',
+                'Total number of Teraslice workers that have joined the execution controller for this job.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_workers_reconnected',
+                'Total number of Teraslice workers that have reconnected to the execution controller for this job.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_workers_disconnected',
+                'Total number of Teraslice workers that have disconnected from execution controller for this job.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_info',
+                'Information about Teraslice execution.',
+                ['ex_id', 'job_id', 'image', 'version'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_slicers_count',
+                'Number of execution controllers (slicers) running for this execution.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            // Execution Related Metrics
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_cpu_limit',
+                'CPU core limit for a Teraslice worker container.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_cpu_request',
+                'Requested number of CPU cores for a Teraslice worker container.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_memory_limit',
+                'Memory limit for Teraslice a worker container.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_memory_request',
+                'Requested amount of memory for a Teraslice worker container.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_status',
+                'Current status of the Teraslice execution.',
+                ['ex_id', 'job_id', 'job_name', 'status'],
+                'gauge'
+            ),
+            /*
+                TODO: The following gauges should be Counters. This was not done because
+                teraslice master already provided the count total for most of these metrics.
+                So setting the gauge is the only real way to gather the metrics in master.
+                Solution to convert would be setting the count in the ex process.
+            */
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_slices_processed',
+                'Number of slices processed.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_slices_failed',
+                'Number of slices failed.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'controller_slices_queued',
+                'Number of slices queued for processing.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_created_timestamp_seconds',
+                'Execution creation time.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_updated_timestamp_seconds',
+                'Execution update time.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_slicers',
+                'Number of slicers defined on the execution.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+            this.context.apis.foundation.promMetrics.addMetric(
+                'execution_workers',
+                'Number of workers defined on the execution.  Note that the number of actual workers can differ from this value.',
+                ['ex_id', 'job_id', 'job_name'],
+                'gauge'
+            ),
+        ]);
     }
 }
