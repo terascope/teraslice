@@ -132,7 +132,7 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
-        await this.addWorkerMetrics();
+        await this.setupPromMetrics();
         await this.context.apis.foundation.promMetrics.addMetric(
             'worker_info',
             'Information about Teraslice worker',
@@ -455,11 +455,11 @@ export class WorkerExecutionContext
      *
      * If trying to add a new metric for the worker, it belongs here.
      * @async
-     * @function addWorkerMetrics
+     * @function setupPromMetrics
      * @return {Promise<void>}
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
-    async addWorkerMetrics() {
+    async setupPromMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
         await Promise.all([
             // All metrics go inside here

@@ -72,7 +72,7 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        await this.addExecutionMetrics();
+        await this.setupPromMetrics();
         await this.context.apis.foundation.promMetrics.addMetric(
             'info',
             'Information about Teraslice execution controller',
@@ -124,11 +124,11 @@ export class SlicerExecutionContext
      *
      * If trying to add a new metric for the execution_controller, it belongs here.
      * @async
-     * @function addExecutionMetrics
+     * @function setupPromMetrics
      * @return {Promise<void>}
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
-    async addExecutionMetrics() {
+    async setupPromMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
         await Promise.all([
             // All metrics go inside here
