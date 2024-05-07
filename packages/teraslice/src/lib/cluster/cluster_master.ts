@@ -148,7 +148,7 @@ export class ClusterMaster {
                 port: this.context.sysconfig.terafoundation.prom_metrics_port,
             });
 
-            await this.addMasterMetrics();
+            await this.setupPromMetrics();
 
             await this.context.apis.foundation.promMetrics.addMetric(
                 'info',
@@ -226,11 +226,11 @@ export class ClusterMaster {
      *
      * If trying to add a new metric for the cluster_master, it belongs here.
      * @async
-     * @function addMasterMetrics
+     * @function setupPromMetrics
      * @return {Promise<void>}
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
-    async addMasterMetrics() {
+    async setupPromMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
         /*
             TODO: After reviewing these metrics, I've conluded that all of these
