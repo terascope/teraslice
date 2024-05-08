@@ -26,6 +26,7 @@ export class WorkerExecutionContext
     /** the active (or last) run slice */
     sliceState: WorkerSliceState | undefined;
     status: WorkerStatus = 'initializing';
+    private slicesFinished = 0;
 
     private readonly _fetcher: FetcherCore;
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
@@ -115,8 +116,13 @@ export class WorkerExecutionContext
         }
 
         (async () => {
+            if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
+                this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+                return;
+            }
+
             await config.context.apis.foundation.promMetrics.init({
-                context: config.context,
+                foundation: this.context.sysconfig.terafoundation,
                 logger: this.logger,
                 metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled,
                 assignment: 'worker',
@@ -133,24 +139,6 @@ export class WorkerExecutionContext
 
     async initialize(): Promise<void> {
         await this.setupPromMetrics();
-        await this.context.apis.foundation.promMetrics.addMetric(
-            'worker_info',
-            'Information about Teraslice worker',
-            ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
-            'gauge'
-        );
-        this.context.apis.foundation.promMetrics.set(
-            'worker_info',
-            {
-                arch: this.context.arch,
-                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                name: this.context.sysconfig.teraslice.name,
-                node_version: process.version,
-                platform: this.context.platform,
-                teraslice_version: this.config.teraslice_version
-            },
-            1
-        );
         await super.initialize();
         this.status = 'idle';
     }
@@ -326,6 +314,7 @@ export class WorkerExecutionContext
     }
 
     async onSliceFinished(): Promise<void> {
+        this.slicesFinished++;
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
     }
@@ -450,6 +439,10 @@ export class WorkerExecutionContext
         return this.sliceState && this.sliceState.slice;
     }
 
+    getSlicesFinished() {
+        return this.slicesFinished;
+    }
+
     /**
      * Adds all prom metrics specific to the worker.
      *
@@ -461,14 +454,39 @@ export class WorkerExecutionContext
      */
     async setupPromMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         await Promise.all([
-            // All metrics go inside here
-            // this.context.apis.foundation.promMetrics.addMetric(
-            //     'example_metric',
-            //     'This is an example of adding a metric',
-            //     ['example_label_1', 'Example_label_2'],
-            //     'gauge'
-            // )
+            this.context.apis.foundation.promMetrics.addGauge(
+                'info',
+                'Information about Teraslice worker',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+            ),
+            this.context.apis.foundation.promMetrics.addGauge(
+                'slices_finished',
+                'Number of slices the worker has finished',
+                [],
+                function collect() {
+                    const slicesFinished = self.getSlicesFinished();
+                    const defaultLabels = {
+                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
+                    };
+                    this.set(defaultLabels, slicesFinished);
+                }
+            )
         ]);
+
+        this.context.apis.foundation.promMetrics.set(
+            'info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: this.config.teraslice_version
+            },
+            1
+        );
     }
 }

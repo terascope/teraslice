@@ -153,7 +153,7 @@ export default function registerApis(context: i.FoundationContext): void {
 
             return workers;
         },
-        promMetrics: new PromMetrics(context, context.logger)
+        promMetrics: new PromMetrics(context.name, context.logger)
     };
     function _registerFoundationAPIs() {
         registerAPI('foundation', foundationApis);
@@ -208,10 +208,11 @@ export default function registerApis(context: i.FoundationContext): void {
             } if (funcName === 'hasMetric' || funcName === 'deleteMetric') {
                 return () => false;
             } if (
-                funcName === 'set' || funcName === 'addMetric'
+                funcName === 'set' || funcName === 'addGauge'
+                || funcName === 'addCounter' || funcName === 'addHistogram'
                 || funcName === 'addSummary' || funcName === 'inc'
                 || funcName === 'dec' || funcName === 'observe'
-                || funcName === 'shutdown'
+                || funcName === 'getDefaultLabels' || funcName === 'shutdown'
             ) {
                 return () => {
                     /// return empty function

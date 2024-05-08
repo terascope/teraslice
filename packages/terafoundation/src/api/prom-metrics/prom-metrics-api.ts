@@ -2,30 +2,31 @@ import { Logger } from '@terascope/utils';
 
 import os from 'os';
 import {
-    Gauge, Counter, Histogram, Summary
+    Gauge, Counter, Histogram, Summary,
+    CollectFunction
 } from 'prom-client';
-import * as i from '../../interfaces';
+import { Terafoundation as tf } from '@terascope/types';
 
 import Exporter from './exporter';
 
 export class PromMetrics {
-    readonly metricList!: i.MetricList;
+    readonly metricList!: tf.MetricList;
 
     default_labels!: Record<string, string>;
     prefix: string;
     private metricExporter!: Exporter;
-    context: i.FoundationContext;
-    apiConfig: i.PromMetricsAPIConfig;
+    name: string;
+    apiConfig: tf.PromMetricsAPIConfig;
     apiRunning: boolean;
     logger: Logger;
 
     constructor(
-        context: i.FoundationContext,
+        name: string,
         logger: Logger,
     ) {
-        this.context = context;
+        this.name = name;
         this.apiRunning = false;
-        this.apiConfig = {} as i.PromMetricsAPIConfig;
+        this.apiConfig = {} as tf.PromMetricsAPIConfig;
         this.prefix = '';
         this.logger = logger.child({ module: 'prom_metrics' });
         this.metricList = {};
@@ -38,27 +39,21 @@ export class PromMetrics {
      * of terafoundation. This allows jobs to set different metrics configurations than the master.
      * @returns {Promise<boolean>} Was the API initialized
      */
-    async init(config: i.PromMetricsInitConfig) {
-        const { terafoundation, teraslice } = config.context.sysconfig;
-        const metricsEnabledInTF = terafoundation.prom_metrics_enabled;
-        const portToUse = config.port || terafoundation.prom_metrics_port;
-
-        if (teraslice.cluster_manager_type === 'native') {
-            this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
-            return false;
-        }
+    async init(config: tf.PromMetricsInitConfig) {
+        const metricsEnabledInTF = config.foundation.prom_metrics_enabled;
+        const portToUse = config.port || config.foundation.prom_metrics_port;
 
         // If prom_metrics_add_default is defined in jobSpec use that value.
         // If not use the terafoundation value.
         const useDefaultMetrics = config.default_metrics !== undefined
             ? config.default_metrics
-            : terafoundation.prom_metrics_add_default;
+            : config.foundation.prom_metrics_add_default;
 
         // If prom_metrics_enabled is true in jobConfig, or if not specified in
         // jobSpec and true in terafoundation, then we enable metrics.
         if (config.metrics_enabled_by_job === true
         || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
-            const apiConfig: i.PromMetricsAPIConfig = {
+            const apiConfig: tf.PromMetricsAPIConfig = {
                 assignment: config.assignment,
                 port: portToUse,
                 default_metrics: useDefaultMetrics,
@@ -69,7 +64,7 @@ export class PromMetrics {
             this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
 
             this.default_labels = {
-                name: this.context.sysconfig.teraslice.name,
+                name: this.name,
                 assignment: apiConfig.assignment,
                 ...apiConfig.labels
             };
@@ -175,40 +170,113 @@ export class PromMetrics {
     }
 
     /**
-     * [addMetric (define) new metric]
+     * [addGauge (define) new gauge]
      * @param  {string} name [metric name]
      * @param  {string} help [metric help]
      * @param  {Array<string>} labelsNames [list of label names]
-     * @param  {'gauge' | 'counter' | 'histogram'} type [gauge,counter,histogram,or summary]
-     * @param  {Array<number>} buckets [default buckets]
+     * @param  {CollectFunction<Gauge>} collectFn [fn invoked when metrics endpoint scraped]
      * @return {Promise<void>}
      */
-    async addMetric(
+    async addGauge(
         name: string,
         help: string,
         labelsNames: Array<string>,
-        type: 'gauge' | 'counter' | 'histogram',
-        buckets: Array<number> = [0.1, 5, 15, 50, 100, 500]
+        collectFn?: CollectFunction<Gauge>,
     ): Promise<void> {
         if (!this.hasMetric(name)) {
             const fullname = this.prefix + name;
-            if (type === 'gauge') {
-                this.metricList[name] = this._createGaugeMetric(
-                    fullname, help, labelsNames.concat(Object.keys(this.default_labels))
-                );
-            }
-            if (type === 'counter') {
-                this.metricList[name] = this._createCounterMetric(
-                    fullname, help, labelsNames.concat(Object.keys(this.default_labels))
-                );
-            }
-            if (type === 'histogram') {
-                this.metricList[name] = this._createHistogramMetric(
-                    fullname, help, labelsNames.concat(Object.keys(this.default_labels)), buckets
-                );
-            }
+            this.metricList[name] = this._createGaugeMetric(
+                fullname, help, labelsNames.concat(Object.keys(this.default_labels)), collectFn
+            );
         } else {
             this.logger.info(`metric ${name} already defined in metric list`);
+        }
+    }
+
+    /**
+     * [addCounter (define) new counter metric]
+     * @param  {string} name [metric name]
+     * @param  {string} help [metric help]
+     * @param  {Array<string>} labelsNames [list of label names]
+     * @param  {CollectFunction<Counter>} collectFn [fn invoked when metrics endpoint scraped]
+     * @return {Promise<void>}
+     */
+    async addCounter(
+        name: string,
+        help: string,
+        labelsNames: Array<string>,
+        collectFn?: CollectFunction<Counter>,
+    ): Promise<void> {
+        if (!this.hasMetric(name)) {
+            const fullname = this.prefix + name;
+            this.metricList[name] = this._createCounterMetric(
+                fullname, help, labelsNames.concat(Object.keys(this.default_labels)), collectFn
+            );
+        } else {
+            this.logger.info(`metric ${name} already defined in metric list`);
+        }
+    }
+
+    /**
+     * [addHistogram (define) new histogram metric]
+     * @param  {string} name [metric name]
+     * @param  {string} help [metric help]
+     * @param  {Array<string>} labelsNames [list of label names]
+     * @param  {CollectFunction<Histogram>} collectFn [fn invoked when metrics endpoint scraped]
+     * @return {Promise<void>}
+     */
+    async addHistogram(
+        name: string,
+        help: string,
+        labelsNames: Array<string>,
+        collectFn?: CollectFunction<Histogram>,
+        buckets: Array<number> = [0.1, 5, 15, 50, 100, 500],
+    ): Promise<void> {
+        if (!this.hasMetric(name)) {
+            const fullname = this.prefix + name;
+            this.metricList[name] = this._createHistogramMetric(
+                fullname,
+                help,
+                labelsNames.concat(Object.keys(this.default_labels)),
+                buckets,
+                collectFn
+            );
+        } else {
+            this.logger.info(`metric ${name} already defined in metric list`);
+        }
+    }
+
+    /**
+     * [addSummary (define) new summary metric]
+     * @param  {string} name [metric name]
+     * @param  {string} help [metric help]
+     * @param  {Array<string>} labelsNames [list of label names]
+     * @param  {CollectFunction<Summary>} collectFn [fn invoked when metrics endpoint scraped]
+     * @param  {Array<number>} percentiles [metric percentiles, default[0.01, 0.1, 0.9, 0.99] ]
+     * @param  {number} maxAgeSeconds [how old a bucket can be before it is reset ]
+     * @param  {number} ageBuckets [how many buckets for sliding window ]
+     * @return {Promise<void>}
+     */
+    async addSummary(
+        name: string,
+        help: string,
+        labelsNames: Array<string>,
+        collectFn?: CollectFunction<Summary>,
+        maxAgeSeconds = 600,
+        ageBuckets = 5,
+        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
+    ): Promise<void> {
+        if (!(name in this.metricList)) {
+            const fullname = this.prefix + name;
+            this.metricList[name] = this._createSummaryMetric(
+                fullname,
+                help,
+                labelsNames.concat(Object.keys(this.default_labels)),
+                percentiles,
+                maxAgeSeconds,
+                ageBuckets,
+                collectFn,
+            );
         }
     }
 
@@ -245,78 +313,59 @@ export class PromMetrics {
         return deleted;
     }
 
-    /**
-     * [addSummary (define) new summary metric]
-     * @param  {string} name [metric name]
-     * @param  {string} help [metric help]
-     * @param  {Array<string>} labelsNames [list of label names]
-     * @param  {Array<number>} percentiles [metric percentiles, default[0.01, 0.1, 0.9, 0.99] ]
-     * @param  {number} maxAgeSeconds [how old a bucket can be before it is reset ]
-     * @param  {number} ageBuckets [how many buckets for sliding window ]
-     * @return {Promise<void>}
-     */
-    async addSummary(name: string,
-        help: string,
-        labelsNames: Array<string>,
-        maxAgeSeconds = 600,
-        ageBuckets = 5,
-        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
-    ): Promise<void> {
-        if (!(name in this.metricList)) {
-            const fullname = this.prefix + name;
-            this.metricList[name] = this._createSummaryMetric(
-                fullname,
-                help,
-                labelsNames.concat(Object.keys(this.default_labels)),
-                percentiles,
-                maxAgeSeconds,
-                ageBuckets
-            );
-        }
-    }
-
     private _createGaugeMetric(name: string, help: string,
-        labelsNames: Array<string>): any {
+        labelsNames: Array<string>, collect?: CollectFunction<Gauge>): any {
         const gauge = new Gauge({
             name,
             help,
             labelNames: labelsNames,
+            collect
         });
         return { name, metric: gauge, functions: new Set(['inc', 'dec', 'set']) };
     }
 
     private _createCounterMetric(name: string, help: string,
-        labelsNames: Array<string>): any {
+        labelsNames: Array<string>, collect?: CollectFunction<Counter>): any {
         const counter = new Counter({
             name,
             help,
             labelNames: labelsNames,
+            collect
         });
         return { name, metric: counter, functions: new Set(['inc']) };
     }
 
     private _createHistogramMetric(name: string, help: string, labelsNames: Array<string>,
-        buckets: Array<number>): any {
+        buckets: Array<number>, collect?: CollectFunction<Histogram>): any {
         const histogram = new Histogram({
             name,
             help,
             labelNames: labelsNames,
-            buckets
+            buckets,
+            collect
         });
         return { name, metric: histogram, functions: new Set(['observe']) };
     }
 
-    private _createSummaryMetric(name: string, help: string, labelsNames: Array<string>,
-        percentiles: Array<number>, ageBuckets: number, maxAgeSeconds: number): any {
-        const histogram = new Summary({
+    private _createSummaryMetric(
+        name: string,
+        help: string,
+        labelsNames: Array<string>,
+        percentiles: Array<number>,
+        ageBuckets: number,
+        maxAgeSeconds: number,
+        collect?: CollectFunction<Summary>,
+    ): any {
+        const summary = new Summary({
             name,
             help,
             labelNames: labelsNames,
             percentiles,
             maxAgeSeconds,
-            ageBuckets
+            ageBuckets,
+            collect
         });
-        return { name, metric: histogram, functions: new Set(['observe']) };
+        return { name, metric: summary, functions: new Set(['observe']) };
     }
 
     private _setPodName(): void {
@@ -327,7 +376,7 @@ export class PromMetrics {
         }
     }
 
-    private async createAPI(apiConfig: i.PromMetricsAPIConfig) {
+    private async createAPI(apiConfig: tf.PromMetricsAPIConfig) {
         this._setPodName();
         try {
             if (!this.metricExporter) {
@@ -345,6 +394,10 @@ export class PromMetrics {
             this.logger.error(err);
         }
         this.apiRunning = true;
+    }
+
+    getDefaultLabels() {
+        return this.default_labels;
     }
 
     verifyAPI(): boolean {
