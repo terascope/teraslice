@@ -41,7 +41,7 @@
         "@terascope/types": "^0.16.0",
         "@terascope/utils": "^0.58.0",
         "chalk": "^4.1.2",
-        "cli-table3": "^0.6.3",
+        "cli-table3": "^0.6.4",
         "easy-table": "^1.2.0",
         "esbuild": "^0.15.9",
         "events": "^3.3.0",
