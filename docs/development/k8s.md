@@ -349,12 +349,32 @@ yarn run ts-scripts k8s-env --rebuild --skip-build --reset-store
 
 ## Prometheus Metrics API
 
-The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metrics` package. Use of its API can be enabled using `prom_metrics_enabled` in the terafoundation config and overwritten in the job config. The `init` function can be found at `context.apis.foundation.promMetrics.init`. It is called on startup of the Teraslice master, execution_Controller, and worker, but only creates the API if `prom_metrics_enabled` is true.
+The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metrics` package. Use of its API can be enabled using `prom_metrics_enabled` in the terafoundation config and overwritten in the job config. The `init` function can be found at `context.apis.foundation.promMetrics.init`. It is called on startup of the Teraslice master, execution_controller, and worker, but only creates the API if `prom_metrics_enabled` is true.
+
+### Functions
+
+
+| Name             | Description                                                                                                                             | Type                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| init | initialize the API and create exporter server | (config: PromMetricsInitConfig) => Promise<boolean> |
+| set | set the value of a gauge | (name: string, labels: Record<string, string>, value: number) => void |
+| inc | increment the value of a counter or gauge | (name: string, labelValues: Record<string, string>, value: number) => void |
+| dec | decrement the value of a gauge | (name: string, labelValues: Record<string, string>, value: number) => void |
+| observe | observe a histogram or summary | (name: string, labelValues: Record<string, string>, value: number) => void |
+| addGauge | add a gauge metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Gauge>) => Promise<void\> |
+| addCounter | add a counter metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Counter>) => Promise<void\> |
+| addHistogram | add a histogram metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void\> |
+| addSummary | add a summary metric | (name: string, help: string, labelNames: Array<string\>,       collectFn?: CollectFunction<Summary\>, maxAgeSeconds?: number, ageBuckets?: number, percentiles?: Array<number>) => Promise<void\> |
+| hasMetric | check if a metric exists | (name: string) => boolean |
+| deleteMetric | delete a metric from the metric list | (name: string) => Promise<boolean\> |
+| verifyAPI | verfiy that the API is running | () => boolean |
+| shutdown | disable API and shutdown exporter server | () => Promise<void\> |
+| getDefaultLabels | retrieve the default labels set at init | () => Record<string, string> |
 
 Example init:
 ```typescript
 await config.context.apis.foundation.promMetrics.init({
-    context: config.context,
+    foundation: this.context.sysconfig.terafoundation,
     logger: this.logger,
     metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled, // optional job override
     assignment: 'execution_controller',
@@ -370,13 +390,12 @@ await config.context.apis.foundation.promMetrics.init({
 
 Once initialized all of the other functions under `context.apis.foundation.promMetrics` will be enabled. It's important to note that the foundation level wrapper functions allow all of the prom metrics functions to be called even if metrics are disabled or the API hasn't been initialized. There is no need to make checks at the level where a function is called, and failures will never throw errors.
 
-Example addMetric:
+Example Counter:
 ```typescript
-await this.context.apis.foundation.promMetrics.addMetric(
+await this.context.apis.foundation.promMetrics.addCounter(
     'slices_dispatched', // name
     'number of slices a slicer has dispatched', // help or description
     ['class'], // label names specific to this metric
-    'counter'); // metric type
 
 // now we can increment the counter anywhere else in the code
 this.context.apis.foundation.promMetrics.inc(
@@ -384,6 +403,23 @@ this.context.apis.foundation.promMetrics.inc(
     { class: 'ExecutionController' }, // label names and values
     1 // amount to increment by
 );
+```
+
+Example Gauge using collect() callback:
+```typescript
+const self = this; // rename `this` to use inside collect()
+await this.context.apis.foundation.promMetrics.addGauge(
+    'slices_dispatched', // name
+    'number of slices a slicer has dispatched', // help or description
+    ['class'], // label names specific to this metric
+    function collect() { // callback fn updates value only when '/metrics' endpoint is hit
+        const slicesFinished = self.getSlicesDispatched(); // get current value from local momory
+        const labels = { // 'set()' needs both default labels and labels specific to metric to match the correct gauge
+            ...self.context.apis.foundation.promMetrics.getDefaultLabels(),
+            class: 'SlicerExecutionContext'
+        };
+        this.set(labels, slicesFinished); // this refers to the Gauge
+    }
 ```
 
 The label names as well as the metric name must match when using `inc`, `dec`, `set`, or `observe` to modify a metric.

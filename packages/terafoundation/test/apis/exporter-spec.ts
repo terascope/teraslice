@@ -3,8 +3,8 @@ import 'jest-extended';
 import got from 'got';
 import { Counter } from 'prom-client';
 import { debugLogger } from '@terascope/utils';
+import { Terafoundation as tf } from '@terascope/types';
 import Exporter from '../../src/api/prom-metrics/exporter';
-import { PromMetricsAPIConfig } from '../../src';
 
 describe('prometheus exporter', () => {
     let exporter: Exporter;
@@ -13,7 +13,7 @@ describe('prometheus exporter', () => {
         exporter = new Exporter(logger);
     });
     describe('create', () => {
-        const config: PromMetricsAPIConfig = {
+        const config: tf.PromMetricsAPIConfig = {
             assignment: 'worker',
             port: 3344,
             default_metrics: false,

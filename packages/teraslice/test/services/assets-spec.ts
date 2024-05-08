@@ -37,6 +37,9 @@ describe('Assets Service', () => {
         prom_metrics_enabled: false,
         prom_metrics_port: 3333,
         prom_metrics_add_default: true,
+        log_path: process.cwd(),
+        log_level: 'info',
+        logging: ['console'],
         connectors: {
             s3: {
                 default: {

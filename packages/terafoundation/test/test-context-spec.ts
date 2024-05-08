@@ -126,7 +126,7 @@ describe('TestContext', () => {
         context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes' };
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
-            context,
+            foundation: context.sysconfig.terafoundation,
             logger: context.logger,
             assignment: 'cluster-master'
         };

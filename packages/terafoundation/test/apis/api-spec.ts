@@ -60,7 +60,21 @@ describe('apis module', () => {
         expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
         expect(context.apis.foundation.createClient).toBeDefined();
+        expect(context.apis.foundation.promMetrics).toBeDefined();
         expect(context.apis.foundation.promMetrics.init).toBeDefined();
+        expect(context.apis.foundation.promMetrics.set).toBeDefined();
+        expect(context.apis.foundation.promMetrics.inc).toBeDefined();
+        expect(context.apis.foundation.promMetrics.dec).toBeDefined();
+        expect(context.apis.foundation.promMetrics.observe).toBeDefined();
+        expect(context.apis.foundation.promMetrics.addGauge).toBeDefined();
+        expect(context.apis.foundation.promMetrics.addCounter).toBeDefined();
+        expect(context.apis.foundation.promMetrics.addHistogram).toBeDefined();
+        expect(context.apis.foundation.promMetrics.addSummary).toBeDefined();
+        expect(context.apis.foundation.promMetrics.hasMetric).toBeDefined();
+        expect(context.apis.foundation.promMetrics.deleteMetric).toBeDefined();
+        expect(context.apis.foundation.promMetrics.verifyAPI).toBeDefined();
+        expect(context.apis.foundation.promMetrics.shutdown).toBeDefined();
+        expect(context.apis.foundation.promMetrics.getDefaultLabels).toBeDefined();
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
@@ -73,11 +87,14 @@ describe('apis module', () => {
         expect(typeof context.apis.foundation.promMetrics.inc).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.dec).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.observe).toBe('function');
-        expect(typeof context.apis.foundation.promMetrics.addMetric).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.addGauge).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.addCounter).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.addHistogram).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.addSummary).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.hasMetric).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.deleteMetric).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.verifyAPI).toBe('function');
         expect(typeof context.apis.foundation.promMetrics.shutdown).toBe('function');
+        expect(typeof context.apis.foundation.promMetrics.getDefaultLabels).toBe('function');
     });
 });

@@ -187,7 +187,7 @@ describe('Test Helpers', () => {
         context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
-            context,
+            foundation: context.sysconfig.terafoundation,
             logger: debugLogger('test-helpers-spec-logger'),
             assignment: 'cluster-master'
         };
@@ -201,14 +201,17 @@ describe('Test Helpers', () => {
             await expect(context.apis.foundation.promMetrics.init(config)).rejects.toThrow('Prom metrics API cannot be initialized more than once.');
         });
 
-        it('should add and delete metric', async () => {
-            await context.apis.foundation.promMetrics.addMetric('test_counter', 'test_counter help string', ['uuid'], 'counter');
+        it('should add, inc and delete counter', async () => {
+            await context.apis.foundation.promMetrics.addCounter('test_counter', 'test_counter help string', ['uuid'], function collect() {
+                this.inc();
+            });
+            context.apis.foundation.promMetrics.inc('test_counter', {}, 1);
             expect(context.apis.foundation.promMetrics.hasMetric('test_counter')).toBe(true);
             expect(await context.apis.foundation.promMetrics.deleteMetric('test_counter')).toBe(true);
         });
 
-        it('should inc, dec, and set metric', async () => {
-            await context.apis.foundation.promMetrics.addMetric('test_gauge', 'test_gauge help string', ['uuid'], 'gauge');
+        it('should inc, dec, and set gauge', async () => {
+            await context.apis.foundation.promMetrics.addGauge('test_gauge', 'test_gauge help string', ['uuid']);
             context.apis.foundation.promMetrics.set('test_gauge', { uuid: '437Ev89h' }, 10);
             context.apis.foundation.promMetrics.inc('test_gauge', { uuid: '437Ev89h' }, 1);
             context.apis.foundation.promMetrics.dec('test_gauge', { uuid: '437Ev89h' }, 2);
@@ -238,7 +241,7 @@ describe('Test Helpers', () => {
         });
 
         it('should add and observe histogram', async () => {
-            await context.apis.foundation.promMetrics.addMetric('test_histogram', 'test_histogram help string', ['uuid'], 'histogram');
+            await context.apis.foundation.promMetrics.addHistogram('test_histogram', 'test_histogram help string', ['uuid']);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 10);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 30);
             context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 2);
