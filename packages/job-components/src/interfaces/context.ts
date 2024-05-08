@@ -63,8 +63,6 @@ export interface TerasliceConfig {
 }
 
 export interface TerafoundationConfig {
-    workers?: number;
-    environment?: 'production'|'development'|'test'|string;
     connectors: Record<string, any>;
     log_path: string;
     log_level: tf.LogLevelConfig;
