@@ -140,8 +140,8 @@ export type SysConfig<S> = {
 } & S;
 
 export type Foundation = {
-    workers?: number;
-    environment?: 'production'|'development'|'test'|string;
+    workers: number;
+    environment: 'production'|'development'|'test'|string;
     connectors: Record<string, any>;
     log_path: string;
     log_level: LogLevelConfig;
@@ -172,7 +172,7 @@ export type Context<
 }
 
 export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
-    foundation: Foundation,
+    foundation: Omit<Foundation, 'workers' | 'environment'> & { workers?: number, environment?: 'production'|'development'|'test'|string },
     logger: Logger,
     metrics_enabled_by_job?: boolean,
     port?: number
