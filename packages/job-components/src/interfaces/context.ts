@@ -64,9 +64,6 @@ export interface TerasliceConfig {
 
 export interface TerafoundationConfig {
     connectors: Record<string, any>;
-    log_path: string;
-    log_level: tf.LogLevelConfig;
-    logging: tf.LogType[];
     asset_storage_connection_type: string;
     asset_storage_connection: string;
     asset_storage_bucket?: string;

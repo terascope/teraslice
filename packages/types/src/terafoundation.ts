@@ -172,7 +172,12 @@ export type Context<
 }
 
 export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
-    foundation: Omit<Foundation, 'workers' | 'environment'> & { workers?: number, environment?: 'production'|'development'|'test'|string },
+    foundation: { workers?: number,
+        environment?: 'production'|'development'|'test'|string,
+        log_path?: string,
+        log_level?: LogLevelConfig,
+        logging?: LogType[]
+    } & Omit<Foundation, 'workers' | 'environment' | 'log_path' | 'log_level' | 'logging'>,
     logger: Logger,
     metrics_enabled_by_job?: boolean,
     port?: number

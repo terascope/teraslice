@@ -215,9 +215,6 @@ export class TestContext implements i.Context {
                         default: {}
                     },
                 },
-                log_path: process.cwd(),
-                log_level: 'info',
-                logging: ['console'],
                 asset_storage_connection_type: 'elasticsearch-next',
                 asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
