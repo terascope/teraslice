@@ -1,12 +1,12 @@
 import _cluster from 'node:cluster';
 import { get, isFunction, getFullErrorStack } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 import { getArgs } from './sysconfig.js';
 import validateConfigs from './validate-configs.js';
-import * as i from './interfaces.js';
 import { CoreContext, handleStdStreams } from './core-context.js';
 import master from './master.js';
 
-const cluster: i.Cluster = (_cluster as any);
+const cluster: Terafoundation.Cluster = (_cluster as any);
 
 // this module is not really testable
 /* istanbul ignore next */
@@ -19,8 +19,8 @@ export class ClusterContext<
     D extends string = string
 > extends CoreContext<S, A, D> {
     constructor(
-        config: i.FoundationConfig<S, A, D>,
-        sysconfig: i.FoundationSysConfig<S>
+        config: Terafoundation.Config<S, A, D>,
+        sysconfig: Terafoundation.SysConfig<S>
     ) {
         super(config, cluster, sysconfig);
         this._errorHandler = this._errorHandler.bind(this);
@@ -93,7 +93,7 @@ export class ClusterContext<
         A = Record<string, any>,
         D extends string = string
     >(
-        config: i.FoundationConfig<S, A, D>,
+        config: Terafoundation.Config<S, A, D>,
     ) {
         const parsedArgs = await getArgs<S>(
             config.default_config_file

@@ -1,12 +1,12 @@
-import pkg from 'bluebird';
 import { Logger } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
+import pkg from 'bluebird';
 // @ts-expect-error
 import { WebHDFSClient } from 'node-webhdfs';
-import { TerafoundationConnector } from '../interfaces.js';
 
 const { promisifyAll } = pkg;
 
-const connector: TerafoundationConnector = {
+const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
         let highAvailibility = false;
         let currentNameNode;

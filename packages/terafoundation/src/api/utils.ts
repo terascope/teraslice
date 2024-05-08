@@ -5,18 +5,18 @@ import {
     toBoolean, debugLogger, isTest,
     Logger, includes
 } from '@terascope/utils';
-import * as i from '../interfaces.js';
+import { Terafoundation } from '@terascope/types';
 
 type LogLevelObj = {
-    [type in i.LogType]: i.LogLevelType;
+    [type in Terafoundation.LogType]: Terafoundation.LogLevelType;
 };
 
-function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
+function getLogLevel(level: Terafoundation.LogLevelConfig): LogLevelObj {
     // Set the same level for all logging types.
     if (typeof level === 'string') {
         return {
-            console: level as i.LogLevelType,
-            file: level as i.LogLevelType
+            console: level as Terafoundation.LogLevelType,
+            file: level as Terafoundation.LogLevelType
         };
     }
 
@@ -28,7 +28,7 @@ function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
 }
 
 export function createRootLogger(
-    context: i.FoundationContext<Record<string, any>>
+    context: Terafoundation.Context<Record<string, any>>
 ): Logger {
     const useDebugLogger = (toBoolean(process.env.USE_DEBUG_LOGGER || isTest))
                         && !toBoolean(process.env.TESTING_LOG_LEVEL);

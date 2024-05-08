@@ -1,6 +1,6 @@
 import { Logger, isString, isFunction } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 import registerApis from './api/index.js';
-import * as i from './interfaces.js';
 
 /**
  * CoreContext
@@ -9,10 +9,10 @@ export class CoreContext<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string,
-> implements i.FoundationContext<S, A, D> {
-    readonly cluster: i.Cluster;
-    readonly sysconfig!: i.FoundationSysConfig<S>;
-    readonly apis!: i.ContextAPIs & A;
+> implements Terafoundation.Context<S, A, D> {
+    readonly cluster: Terafoundation.Cluster;
+    readonly sysconfig!: Terafoundation.SysConfig<S>;
+    readonly apis!: Terafoundation.ContextAPIs & A;
     readonly logger!: Logger;
     readonly name: string;
     readonly arch = process.arch;
@@ -21,9 +21,9 @@ export class CoreContext<
     cluster_name?: string;
 
     constructor(
-        config: i.FoundationConfig<S, A, D>,
-        cluster: i.Cluster,
-        sysconfig: i.FoundationSysConfig<S>,
+        config: Terafoundation.Config<S, A, D>,
+        cluster: Terafoundation.Cluster,
+        sysconfig: Terafoundation.SysConfig<S>,
         assignment?: D
     ) {
         this.sysconfig = sysconfig;

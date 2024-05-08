@@ -1,6 +1,6 @@
-import { FoundationContext } from './interfaces.js';
+import type { Terafoundation } from '@terascope/types';
 
-export default function workerModule(context: FoundationContext): void {
+export default function workerModule(context: Terafoundation.Context): void {
     const { logger } = context;
     logger.info('Stub Worker.');
 }

@@ -1,11 +1,11 @@
 import 'jest-extended';
 import os from 'node:os';
-import { Cluster } from '../src/index.js';
+import type { Terafoundation } from '@terascope/types';
 import validateConfigs from '../src/validate-configs.js';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
-        const cluster: Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isWorker: true,
             isMaster: false,
             worker: {

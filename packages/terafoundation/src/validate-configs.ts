@@ -4,13 +4,13 @@ import {
     TSError, isFunction, isPlainObject,
     isEmpty, concat, PartialDeep, pMap
 } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchema } from './connector-utils.js';
 import { foundationSchema } from './schema.js';
-import * as i from './interfaces.js';
 
 // TODO: check to see if this is global enough
 convict.addFormats(convict_format_with_validator);
@@ -43,7 +43,7 @@ function validateConfig(
 
 function extractSchema<S>(
     fn: any,
-    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
+    sysconfig: PartialDeep<Terafoundation.SysConfig<S>>
 ): Record<string, any> {
     if (isFunction(fn)) {
         return fn(sysconfig);
@@ -65,10 +65,10 @@ export default async function validateConfigs<
     A = Record<string, unknown>,
     D extends string = string
 >(
-    cluster: i.Cluster,
-    config: i.FoundationConfig<S, A, D>,
-    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
-): Promise<i.FoundationSysConfig<S>> {
+    cluster: Terafoundation.Cluster,
+    config: Terafoundation.Config<S, A, D>,
+    sysconfig: PartialDeep<Terafoundation.SysConfig<S>>
+): Promise<Terafoundation.SysConfig<S>> {
     if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');
     }

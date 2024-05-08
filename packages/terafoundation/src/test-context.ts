@@ -2,13 +2,13 @@ import {
     isString, AnyObject, PartialDeep,
     get, isFunction, getTypeOf
 } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
-import * as i from './interfaces.js';
 import { CoreContext } from './core-context.js';
 import validateConfigs from './validate-configs.js';
 
 interface ClientFactoryFns {
-    [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
+    [prop: string]: Terafoundation.ClientFactoryFn | Terafoundation.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
@@ -17,8 +17,8 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create?: i.ClientFactoryFn;
-    createClient?: i.CreateClientFactoryFn;
+    create?: Terafoundation.ClientFactoryFn;
+    createClient?: Terafoundation.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;
 }
@@ -48,7 +48,7 @@ function getKey(opts: GetKeyOpts) {
 }
 
 function setConnectorConfig<T extends Record<string, any>>(
-    sysconfig: i.FoundationSysConfig<Record<string, any>>,
+    sysconfig: Terafoundation.SysConfig<Record<string, any>>,
     opts: GetKeyOpts,
     config: T,
     override = true
@@ -71,12 +71,12 @@ export interface TestContextOptions<S> {
     name?: string;
     assignment?: any;
     clients?: TestClientConfig[];
-    sysconfig?: PartialDeep<i.FoundationSysConfig<S>>;
+    sysconfig?: PartialDeep<Terafoundation.SysConfig<S>>;
 }
 
 function getDefaultSysconfig<S>(
     options: TestContextOptions<S>
-): PartialDeep<i.FoundationSysConfig<S>> {
+): PartialDeep<Terafoundation.SysConfig<S>> {
     return {
         terafoundation: {
             connectors: {
@@ -99,9 +99,9 @@ export class TestContext<
     D extends string = string,
 > extends CoreContext<S, A & TestContextAPIs, D> {
     constructor(
-        config: i.FoundationConfig<S, A & TestContextAPIs, D>,
+        config: Terafoundation.Config<S, A & TestContextAPIs, D>,
         cluster: any,
-        sysconfig: i.FoundationSysConfig<S>
+        sysconfig: Terafoundation.SysConfig<S>
     ) {
         super(config, cluster, sysconfig);
 
@@ -110,7 +110,7 @@ export class TestContext<
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
-        this.apis.foundation.createClient = async (opts: i.ConnectionConfig) => {
+        this.apis.foundation.createClient = async (opts: Terafoundation.ConnectionConfig) => {
             const { cached } = opts;
 
             const cachedClients = _cachedClients.get(ctx) || {};
@@ -185,11 +185,11 @@ export class TestContext<
         D extends string = string,
     >(options: TestContextOptions<S> = {}) {
         const defaultSysconfig = getDefaultSysconfig(options);
-        const config: i.FoundationConfig<S, A & TestContextAPIs, D> = {
+        const config: Terafoundation.Config<S, A & TestContextAPIs, D> = {
             name: options.name || 'test-context',
         };
 
-        const cluster: i.Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isMaster: false,
             worker: {
                 id: nanoid(8),

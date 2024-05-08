@@ -1,8 +1,8 @@
 import { Logger } from '@terascope/utils';
 import { createS3Client } from '@terascope/file-asset-apis';
-import { TerafoundationConnector } from '../interfaces.js';
+import type { Terafoundation } from '@terascope/types';
 
-const connector: TerafoundationConnector = {
+const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
         const client = await createS3Client(customConfig, logger);
         return { client, logger };

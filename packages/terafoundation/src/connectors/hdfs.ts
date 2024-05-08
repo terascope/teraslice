@@ -1,9 +1,9 @@
 import { Logger } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 // @ts-expect-error
 import { WebHDFSClient } from 'node-webhdfs';
-import { TerafoundationConnector } from '../interfaces.js';
 
-const connector: TerafoundationConnector = {
+const connector: Terafoundation.Connector = {
     async createClient(customConfig: Record<string, any>, logger: Logger) {
         logger.info(`Using hdfs hosts: ${customConfig.host}`);
 

@@ -1,13 +1,13 @@
 import { EventEmitter } from 'node:events';
 import { isPlainObject, times } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';
-import * as i from '../interfaces.js';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-export default function registerApis(context: i.FoundationContext): void {
+export default function registerApis(context: Terafoundation.Context): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
     context.logger = createRootLogger(context);
@@ -15,7 +15,7 @@ export default function registerApis(context: i.FoundationContext): void {
     // connection cache
     const connections = Object.create(null);
 
-    const foundationApis: i.FoundationAPIs = {
+    const foundationApis: Terafoundation.FoundationAPIs = {
         async createClient(options) {
             const { type, endpoint = 'default', cached } = options;
 
@@ -61,6 +61,12 @@ export default function registerApis(context: i.FoundationContext): void {
 
             throw new Error(`No connection configuration found for ${type}`);
         },
+        // @ts-expect-error we are doing this for backwards compatibility,
+        // though removing it from types will ensure proper code changes when updated
+        // need to remove this in the future
+        async createClientAsync(options) {
+            return this.createClient(options);
+        },
         makeLogger(...args: any[]) {
             // If there is already a logger defined we're just creating a
             // child logger using the same config.
@@ -91,7 +97,7 @@ export default function registerApis(context: i.FoundationContext): void {
                 env.service_context = JSON.stringify(envOptions);
             }
 
-            const workers: i.FoundationWorker[] = [];
+            const workers: Terafoundation.FoundationWorker[] = [];
             if (cluster.isMaster) {
                 context.logger.info(`Starting ${num} ${env.assignment}`);
                 times(num, () => {

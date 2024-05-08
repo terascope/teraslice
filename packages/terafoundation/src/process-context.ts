@@ -1,8 +1,9 @@
+import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
 import validateConfigs from './validate-configs.js';
 import { CoreContext } from './core-context.js';
 import { getArgs } from './sysconfig.js';
-import * as i from './interfaces.js';
+import { ParsedArgs } from './interfaces.js';
 
 /**
  * A Single Process Context, this should be used when running
@@ -23,10 +24,10 @@ export class ProcessContext<
         A = Record<string, any>,
         D extends string = string
     >(
-        config: i.FoundationConfig<S, A, D>,
-        overrideArgs?: i.ParsedArgs<S>
+        config: Terafoundation.Config<S, A, D>,
+        overrideArgs?: ParsedArgs<S>
     ) {
-        const cluster: i.Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isMaster: false,
             worker: {
                 id: nanoid(8),

@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import yaml from 'js-yaml';
 import { cloneDeep } from '@terascope/utils';
-import * as i from './interfaces.js';
+import { ParsedArgs } from './interfaces.js';
 
 export function getDefaultConfigFile(): string|undefined {
     const cwd = process.cwd();
@@ -42,7 +42,7 @@ export function getDefaultConfigFile(): string|undefined {
 
 export async function getArgs<S = Record<string, unknown>>(
     defaultConfigFile?: string,
-): Promise<i.ParsedArgs<S>> {
+): Promise<ParsedArgs<S>> {
     const yargsInstance = yargs(hideBin(process.argv));
 
     const { argv } = await yargsInstance.usage('Usage: $0 [options]')
@@ -62,7 +62,7 @@ export async function getArgs<S = Record<string, unknown>>(
         })
         .wrap(yargsInstance.terminalWidth());
 
-    return (argv as unknown) as i.ParsedArgs<S>;
+    return (argv as unknown) as ParsedArgs<S>;
 }
 
 export async function parseConfigFile<D = Record<string, any>>(file: string): Promise<D> {

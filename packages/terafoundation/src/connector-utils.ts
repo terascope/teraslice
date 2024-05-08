@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TSError, parseError, Logger } from '@terascope/utils';
-import { TerafoundationConnector } from './interfaces.js';
+import type { Terafoundation } from '@terascope/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +13,7 @@ type ErrorResult = {
 async function requireConnector(
     filePath: string,
     errors: ErrorResult[]
-): Promise<TerafoundationConnector | null> {
+): Promise<Terafoundation.Connector | null> {
     let valid = true;
     let mod: any;
 
@@ -58,7 +58,7 @@ async function requireConnector(
 async function guardedRequire(
     filePath: string,
     errors: ErrorResult[]
-): Promise<TerafoundationConnector | null> {
+): Promise<Terafoundation.Connector | null> {
     try {
         return requireConnector(filePath, errors);
     } catch (error) {
@@ -74,7 +74,7 @@ async function guardedRequire(
 export async function getConnectorModule(
     name: string,
     reason: string
-): Promise<TerafoundationConnector | null> {
+): Promise<Terafoundation.Connector | null> {
     let mod;
 
     // collect the errors
