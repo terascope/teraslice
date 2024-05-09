@@ -26,7 +26,6 @@ export class WorkerExecutionContext
     /** the active (or last) run slice */
     sliceState: WorkerSliceState | undefined;
     status: WorkerStatus = 'initializing';
-    private slicesFinished = 0;
 
     private readonly _fetcher: FetcherCore;
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
@@ -114,34 +113,9 @@ export class WorkerExecutionContext
                 return results;
             });
         }
-
-        (async () => {
-            if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
-                this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
-                return;
-            }
-
-            const { terafoundation } = this.context.sysconfig;
-            await config.context.apis.foundation.promMetrics.init({
-                assignment: 'worker',
-                logger: this.logger,
-                tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
-                tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
-                tf_prom_metrics_port: terafoundation.prom_metrics_port,
-                job_prom_metrics_add_default: config.executionConfig.prom_metrics_add_default,
-                job_prom_metrics_enabled: config.executionConfig.prom_metrics_enabled,
-                job_prom_metrics_port: config.executionConfig.prom_metrics_port,
-                labels: {
-                    ex_id: this.exId,
-                    job_id: this.jobId,
-                    job_name: this.config.name,
-                }
-            });
-        })();
     }
 
     async initialize(): Promise<void> {
-        await this.setupPromMetrics();
         await super.initialize();
         this.status = 'idle';
     }
@@ -317,7 +291,6 @@ export class WorkerExecutionContext
     }
 
     async onSliceFinished(): Promise<void> {
-        this.slicesFinished++;
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
     }
@@ -440,56 +413,5 @@ export class WorkerExecutionContext
 
     private get _slice() {
         return this.sliceState && this.sliceState.slice;
-    }
-
-    getSlicesFinished() {
-        return this.slicesFinished;
-    }
-
-    /**
-     * Adds all prom metrics specific to the worker.
-     *
-     * If trying to add a new metric for the worker, it belongs here.
-     * @async
-     * @function setupPromMetrics
-     * @return {Promise<void>}
-     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
-     */
-    async setupPromMetrics() {
-        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
-        await Promise.all([
-            this.context.apis.foundation.promMetrics.addGauge(
-                'info',
-                'Information about Teraslice worker',
-                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
-            ),
-            this.context.apis.foundation.promMetrics.addGauge(
-                'slices_finished',
-                'Number of slices the worker has finished',
-                [],
-                function collect() {
-                    const slicesFinished = self.getSlicesFinished();
-                    const defaultLabels = {
-                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
-                    };
-                    this.set(defaultLabels, slicesFinished);
-                }
-            )
-        ]);
-
-        this.context.apis.foundation.promMetrics.set(
-            'info',
-            {
-                arch: this.context.arch,
-                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                name: this.context.sysconfig.teraslice.name,
-                node_version: process.version,
-                platform: this.context.platform,
-                teraslice_version: this.config.teraslice_version
-            },
-            1
-        );
     }
 }

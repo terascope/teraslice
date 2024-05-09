@@ -374,12 +374,14 @@ The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metri
 Example init:
 ```typescript
 await config.context.apis.foundation.promMetrics.init({
-    foundation: this.context.sysconfig.terafoundation,
-    logger: this.logger,
-    metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled, // optional job override
     assignment: 'execution_controller',
-    port: config.executionConfig.prom_metrics_port, // optional job override
-    default_metrics: config.executionConfig.prom_metrics_add_default, // optional job override
+    logger: this.logger,
+    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+    job_prom_metrics_add_default: config.executionConfig.prom_metrics_add_default, // optional job override
+    job_prom_metrics_enabled: config.executionConfig.prom_metrics_enabled, // optional job override
+    job_prom_metrics_port: config.executionConfig.prom_metrics_port, // optional job override
     labels: { // optional default labels on all metrics for this teraslice process
         ex_id: this.exId,
         job_id: this.jobId,
