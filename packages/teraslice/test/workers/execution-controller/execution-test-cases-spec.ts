@@ -3,7 +3,7 @@ import {
     isNotNil
 } from '@terascope/utils';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
-import { ExecutionRecord } from '@terascope/types';
+import { ExecutionConfig } from '@terascope/types';
 import { TestContext } from '../helpers/index.js';
 import { getTestCases } from '../helpers/execution-controller-helper.js';
 import { findPort } from '../../../src/lib/utils/port_utils.js';
@@ -154,7 +154,7 @@ describe('ExecutionController Test Cases', () => {
         let slices: any;
         let exStore: ExecutionStorage;
         let stateStore: StateStorage;
-        let executionRecord: ExecutionRecord;
+        let executionRecord: ExecutionConfig;
 
         beforeAll(async () => {
             slices = [];

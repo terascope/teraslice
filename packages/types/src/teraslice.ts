@@ -1,3 +1,5 @@
+import { SysConfig as BaseSysconfig } from './terafoundation.js';
+
 export type ClusterManagerType = 'native'|'kubernetes';
 
 export interface AssetRecord {
@@ -61,7 +63,7 @@ export interface AnalyticsRecord {
 
 // TODO: make type for valid states
 // TODO: fix types here
-export interface JobRecord extends ValidatedJobConfig {
+export interface JobConfig extends ValidatedJobConfig {
     job_id: string;
     _context: 'job';
     _created: string | Date;
@@ -74,7 +76,7 @@ export enum RecoveryCleanupType {
     pending = 'pending'
 }
 
-export interface ExecutionRecord extends ValidatedJobConfig {
+export interface ExecutionConfig extends ValidatedJobConfig {
     job_id: string;
     ex_id: string;
     _context: 'ex';
@@ -167,8 +169,15 @@ export interface Slice {
     _created: string;
 }
 
+/**
+ * The metadata created by the Slicer and ran through a job pipeline
+ *
+ * See [[Slice]]
+ */
 export interface SliceRequest {
+    /** A reserved key for sending work to a particular worker */
     request_worker?: string;
+    /** The slice request can contain any metdata */
     [prop: string]: any;
 }
 
@@ -191,7 +200,7 @@ export interface SliceCompletePayload {
 
 export type LifeCycle = 'once' | 'persistent';
 
-export interface JobConfig extends Partial<ValidatedJobConfig> {
+export interface JobConfigParams extends Partial<ValidatedJobConfig> {
     operations: OpConfig[];
 }
 
@@ -285,6 +294,7 @@ export interface ValidatedJobConfig {
     kubernetes_image?: string;
 }
 
+// TODO: rename ExecutionControllerTargets???
 export interface Targets {
     key: string;
     value: string;
@@ -482,6 +492,12 @@ export interface Config {
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }
+
+interface _TerasliceConfig {
+    teraslice: Config,
+}
+
+export interface SysConfig extends BaseSysconfig<_TerasliceConfig> {}
 
 export interface ConnectionConfig {
     connection: string|'default';

@@ -4,7 +4,7 @@ import {
 } from '@terascope/utils';
 import { Context, RecoveryCleanupType } from '@terascope/job-components';
 import { v4 as uuid } from 'uuid';
-import { JobRecord, ExecutionRecord } from '@terascope/types';
+import { JobConfig, ExecutionConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
@@ -54,13 +54,13 @@ export class ExecutionStorage {
         this.logger.info('execution storage initialized');
     }
 
-    async get(exId: string): Promise<ExecutionRecord> {
+    async get(exId: string): Promise<ExecutionConfig> {
         const results = await this.backend.get(exId);
-        return results as ExecutionRecord;
+        return results as ExecutionConfig;
     }
 
     // encompasses all executions in either initialization or running statuses
-    async getActiveExecution(exId: string): Promise<ExecutionRecord> {
+    async getActiveExecution(exId: string): Promise<ExecutionConfig> {
         const str = this.getTerminalStatuses().map((state) => ` _status:${state} `).join('OR');
         const query = `ex_id:"${exId}" NOT (${str.trim()})`;
         const executions = await this.backend.search(query, undefined, 1, '_created:desc') as any[];
@@ -71,7 +71,7 @@ export class ExecutionStorage {
             });
         }
 
-        return executions[0] as ExecutionRecord;
+        return executions[0] as ExecutionConfig;
     }
 
     async search(
@@ -80,12 +80,12 @@ export class ExecutionStorage {
         size?: number,
         sort?: string,
         fields?: string | string[]
-    ): Promise<ExecutionRecord[]> {
+    ): Promise<ExecutionConfig[]> {
         const results = await this.backend.search(query, from, size, sort, fields);
-        return results as ExecutionRecord[];
+        return results as ExecutionConfig[];
     }
 
-    async create(record: JobRecord | ExecutionRecord, status = 'pending'): Promise<ExecutionRecord> {
+    async create(record: JobConfig | ExecutionConfig, status = 'pending'): Promise<ExecutionConfig> {
         if (!this._isValidStatus(status)) {
             throw new Error(`Unknown status "${status}" on execution create`);
         }
@@ -118,14 +118,14 @@ export class ExecutionStorage {
             });
         }
 
-        return doc as unknown as ExecutionRecord;
+        return doc as unknown as ExecutionConfig;
     }
 
     async updatePartial(
         exId: string,
         applyChanges: (doc: Record<string, any>) => Promise<Record<string, any>>
-    ): Promise<ExecutionRecord> {
-        return this.backend.updatePartial(exId, applyChanges) as unknown as ExecutionRecord;
+    ): Promise<ExecutionConfig> {
+        return this.backend.updatePartial(exId, applyChanges) as unknown as ExecutionConfig;
     }
 
     /**
@@ -171,7 +171,7 @@ export class ExecutionStorage {
     }
 
     async getMetadata(exId: string) {
-        const ex = await this.get(exId) as ExecutionRecord;
+        const ex = await this.get(exId) as ExecutionConfig;
         return ex.metadata ?? {};
     }
     // TODO: type this
@@ -185,7 +185,7 @@ export class ExecutionStorage {
     // TODO: put a type of return
     async getStatus(exId: string): Promise<string> {
         try {
-            const result = await this.get(exId) as ExecutionRecord;
+            const result = await this.get(exId) as ExecutionConfig;
             return result._status;
         } catch (err) {
             throw new TSError(err, {
@@ -244,15 +244,15 @@ export class ExecutionStorage {
     async setStatus(
         exId: string,
         status: string,
-        body?: Partial<ExecutionRecord>
-    ): Promise<ExecutionRecord> {
+        body?: Partial<ExecutionConfig>
+    ): Promise<ExecutionConfig> {
         try {
             return await this.updatePartial(exId, async (existing) => {
                 this._verifyStatus(existing._status, status);
                 return Object.assign(existing, body, {
                     _status: status,
                     _updated: makeISODate()
-                }) as ExecutionRecord;
+                }) as ExecutionConfig;
             });
         } catch (err) {
             throw new TSError(err, {
@@ -313,7 +313,7 @@ export class ExecutionStorage {
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
     async createRecoveredExecution(
-        recoverFrom: ExecutionRecord,
+        recoverFrom: ExecutionConfig,
         cleanupType?: RecoveryCleanupType
     ) {
         if (!recoverFrom) {
@@ -325,7 +325,7 @@ export class ExecutionStorage {
 
         const recoverFromId = recoverFrom.ex_id;
 
-        const ex = Object.assign({}, recoverFrom) as ExecutionRecord;
+        const ex = Object.assign({}, recoverFrom) as ExecutionConfig;
         if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
         }

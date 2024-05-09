@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { TSError, makeISODate, Logger } from '@terascope/utils';
-import { Context, ValidatedJobConfig, JobConfig } from '@terascope/job-components';
-import { JobRecord } from '@terascope/types';
+import { Context, ValidatedJobConfig, JobConfigParams } from '@terascope/job-components';
+import { JobConfig } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { TerasliceElasticsearchStorage, TerasliceESStorageConfig } from './backends/elasticsearch_store.js';
 
@@ -38,9 +38,9 @@ export class JobsStorage {
         this.logger.info('job storage initialized');
     }
 
-    async get(jobId: string): Promise<JobRecord> {
+    async get(jobId: string): Promise<JobConfig> {
         const doc = await this.backend.get(jobId);
-        return doc as JobRecord;
+        return doc as JobConfig;
     }
 
     async search(
@@ -49,12 +49,12 @@ export class JobsStorage {
         size?: number,
         sort?: string,
         fields?: string | string[]
-    ): Promise<JobRecord[]> {
+    ): Promise<JobConfig[]> {
         const results = await this.backend.search(query, from, size, sort, fields);
-        return results as JobRecord[];
+        return results as JobConfig[];
     }
 
-    async create(record: ValidatedJobConfig): Promise<JobRecord> {
+    async create(record: ValidatedJobConfig): Promise<JobConfig> {
         const date = makeISODate();
         const doc = Object.assign({}, record, {
             job_id: uuid(),
@@ -71,10 +71,10 @@ export class JobsStorage {
             });
         }
 
-        return doc as JobRecord;
+        return doc as JobConfig;
     }
 
-    async update(jobId: string, updateSpec: JobConfig): Promise<JobRecord> {
+    async update(jobId: string, updateSpec: JobConfigParams): Promise<JobConfig> {
         // We want to save the whole job as it is posted, update api does partial doc updates
         const results = await this.backend.indexWithId(jobId, Object.assign(
             {},
@@ -86,7 +86,7 @@ export class JobsStorage {
             }
         ));
 
-        return results as JobRecord;
+        return results as JobConfig;
     }
 
     async remove(jobId: string) {

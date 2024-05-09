@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { pDelay, times, random } from '@terascope/utils';
 import { RecoveryCleanupType } from '@terascope/job-components';
 import { ExecutionController as ExController } from '@terascope/teraslice-messaging';
-import { ExecutionRecord } from '@terascope/types';
+import { ExecutionConfig } from '@terascope/types';
 import { TestContext } from '../helpers/index.js';
 import { makeShutdownEarlyFn, getTestCases, ShutdownFn } from '../helpers/execution-controller-helper.js';
 import { ExecutionController } from '../../../src/lib/workers/execution-controller/index.js';
@@ -347,7 +347,7 @@ describe('ExecutionController Special Tests', () => {
         let exStore: ExecutionStorage;
         let stateStore: StateStorage;
         let shutdownEarlyFn: ShutdownFn;
-        let executionRecord: ExecutionRecord;
+        let executionRecord: ExecutionConfig;
 
         beforeAll(async () => {
             slices = [];

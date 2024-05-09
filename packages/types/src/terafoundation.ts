@@ -3,6 +3,7 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'node:cluster';
+
 import type { Overwrite } from './utility';
 import type { Logger } from './logger';
 
@@ -51,7 +52,12 @@ export interface ConnectionConfig {
     cached?: boolean;
     type: string;
 }
+export interface ConnectorOutput {
+    client: any;
+    logger: Logger
+}
 
+// TODO: should this be deleted????
 export type ClientFactoryFn = (
     config: Record<string, any>,
     logger: Logger,
@@ -62,7 +68,7 @@ export type CreateClientFactoryFn = (
     config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
-) => Promise<{ client: any }>;
+) => Promise<ConnectorOutput>;
 
 export interface FoundationAPIs {
     /** Create a child logger */
@@ -70,18 +76,7 @@ export interface FoundationAPIs {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
-}
-
-export interface LegacyFoundationApis {
-    /** Create a child logger */
-    makeLogger(metadata?: Record<string, string>): Logger;
-    /** Create the root logger (usually done automatically) */
-    makeLogger(name: string, filename: string): Logger;
-    getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
+    createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
@@ -132,7 +127,6 @@ export type Context<
 > = {
     sysconfig: SysConfig<S>;
     apis: ContextAPIs & A;
-    foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
     arch: string;
@@ -140,4 +134,12 @@ export type Context<
     assignment: D;
     cluster_name?: string;
     cluster: Cluster;
+}
+
+// the interface for the connector itself
+export interface Connector {
+    createClient: (
+        moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+    ) => Promise<ConnectorOutput>
+    config_schema: () => Record<string, any>
 }

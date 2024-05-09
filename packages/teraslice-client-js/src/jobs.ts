@@ -11,7 +11,7 @@ export default class Jobs extends Client {
         autoBind(this);
     }
 
-    async submit(jobSpec: Teraslice.JobConfig, shouldNotStart?: boolean): Promise<Job> {
+    async submit(jobSpec: Teraslice.JobConfigParams, shouldNotStart?: boolean): Promise<Job> {
         if (!jobSpec) {
             throw new TSError('Submit requires a jobSpec', {
                 statusCode: 400
@@ -28,7 +28,7 @@ export default class Jobs extends Client {
     async list(
         status?: Teraslice.JobListStatusQuery,
         searchOptions: SearchOptions = {}
-    ): Promise<Teraslice.JobRecord[]> {
+    ): Promise<Teraslice.JobConfig[]> {
         const query = _parseListOptions(status);
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }

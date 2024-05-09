@@ -22,7 +22,7 @@ describe('Teraslice Jobs', () => {
 
     const date = new Date().toISOString();
 
-    const list: Teraslice.JobRecord[] = [
+    const list: Teraslice.JobConfig[] = [
         {
             job_id: 'some-random-job-id',
             active: true,

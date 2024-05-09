@@ -74,7 +74,7 @@ export default class Ex extends Client {
         return this.get(`/ex/${this._exId}/controller`, requestOptions);
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionRecord> {
+    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {
         return this.get(`/ex/${this._exId}`, requestOptions);
     }
 

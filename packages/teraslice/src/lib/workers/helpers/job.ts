@@ -1,14 +1,14 @@
 import { makeISODate } from '@terascope/utils';
 import {
     JobValidator, Context, RecoveryCleanupType,
-    Slice, JobConfig
+    Slice, JobConfigParams
 } from '@terascope/job-components';
-import { ExecutionRecord, JobRecord } from '@terascope/types';
+import { ExecutionConfig, JobConfig } from '@terascope/types';
 import { terasliceOpPath } from '../../config/index.js';
 import { JobsStorage, ExecutionStorage, StateStorage } from '../../storage/index.js';
 
 // TODO: fix type here
-export async function validateJob(context: Context, jobSpec: JobConfig) {
+export async function validateJob(context: Context, jobSpec: JobConfigParams) {
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,
     });
@@ -22,7 +22,7 @@ export async function validateJob(context: Context, jobSpec: JobConfig) {
 
 interface TestExecution {
     context: Context
-    config: JobRecord | ExecutionRecord;
+    config: JobConfig | ExecutionConfig;
     stores?: { jobStore: JobsStorage, exStore: ExecutionStorage, stateStore: StateStorage};
     isRecovery?: boolean;
     cleanupType?: RecoveryCleanupType;
