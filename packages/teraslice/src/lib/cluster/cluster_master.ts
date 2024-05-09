@@ -144,11 +144,13 @@ export class ClusterMaster {
             if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
                 this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
             } else {
+                const { terafoundation } = this.context.sysconfig;
                 await this.context.apis.foundation.promMetrics.init({
-                    foundation: this.context.sysconfig.terafoundation,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     logger: this.logger,
-                    assignment: 'cluster_master',
-                    port: this.context.sysconfig.terafoundation.prom_metrics_port,
+                    assignment: 'cluster_master'
                 });
 
                 await this.setupPromMetrics();

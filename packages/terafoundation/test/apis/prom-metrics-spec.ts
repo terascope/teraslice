@@ -26,8 +26,11 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker'
                 };
@@ -74,11 +77,14 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker',
-                    metrics_enabled_by_job: false
+                    job_prom_metrics_enabled: false
                 };
 
                 beforeAll(() => {
@@ -113,11 +119,14 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker',
-                    metrics_enabled_by_job: true
+                    job_prom_metrics_enabled: true
                 };
 
                 beforeAll(() => {
@@ -159,8 +168,11 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker'
                 };
@@ -197,11 +209,14 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker',
-                    metrics_enabled_by_job: false
+                    job_prom_metrics_enabled: false
                 };
 
                 beforeAll(() => {
@@ -236,11 +251,14 @@ describe('promMetrics foundation API', () => {
                     name: 'tera-test'
                 } as any;
 
+                const { terafoundation } = context.sysconfig;
                 const config = {
-                    foundation: context.sysconfig.terafoundation,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     logger: debugLogger('prom-metrics-spec-logger'),
                     assignment: 'worker',
-                    metrics_enabled_by_job: true
+                    job_prom_metrics_enabled: true
                 };
 
                 beforeAll(() => {
@@ -282,12 +300,13 @@ describe('promMetrics foundation API', () => {
             name: 'tera-test'
         } as any;
 
+        const { terafoundation } = context.sysconfig;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
             assignment: 'cluster-master',
-            port: 3333,
-            default_metrics: false,
             labels: {},
             prefix: 'foundation_test_'
         };
@@ -313,7 +332,7 @@ describe('promMetrics foundation API', () => {
 
         it('should be able to increment a counter', async () => {
             context.apis.foundation.promMetrics.inc('counter1', { uuid: '5g3kJr' }, 17);
-            const response: Record<string, any> = await got(`http://127.0.0.1:${config.port}/metrics`, {
+            const response: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
                 throwHttpErrors: true
             });
 
@@ -347,12 +366,13 @@ describe('promMetrics foundation API', () => {
             name: 'tera-test'
         } as any;
 
+        const { terafoundation } = context.sysconfig;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
             assignment: 'cluster-master',
-            port: 3333,
-            default_metrics: true,
             labels: {},
             prefix: 'foundation_test_'
         };
@@ -378,7 +398,7 @@ describe('promMetrics foundation API', () => {
 
         it('should be able to increment a gauge', async () => {
             context.apis.foundation.promMetrics.inc('gauge1', { uuid: 'h3L8JB6i' }, 28);
-            const response: Record<string, any> = await got(`http://127.0.0.1:${config.port}/metrics`, {
+            const response: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
                 throwHttpErrors: true
             });
 
@@ -392,7 +412,7 @@ describe('promMetrics foundation API', () => {
 
         it('should be able to decrement a gauge', async () => {
             context.apis.foundation.promMetrics.dec('gauge1', { uuid: 'h3L8JB6i' }, 5);
-            const response: Record<string, any> = await got(`http://127.0.0.1:${config.port}/metrics`, {
+            const response: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
                 throwHttpErrors: true
             });
 
@@ -406,7 +426,7 @@ describe('promMetrics foundation API', () => {
 
         it('should be able to set a gauge', async () => {
             context.apis.foundation.promMetrics.set('gauge1', { uuid: 'h3L8JB6i' }, 103);
-            const response: Record<string, any> = await got(`http://127.0.0.1:${config.port}/metrics`, {
+            const response: Record<string, any> = await got(`http://127.0.0.1:${config.tf_prom_metrics_port}/metrics`, {
                 throwHttpErrors: true
             });
 
@@ -440,8 +460,11 @@ describe('promMetrics foundation API', () => {
             name: 'tera-test'
         } as any;
 
+        const { terafoundation } = context.sysconfig;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
             assignment: 'cluster-master',
             prefix: 'foundation_test_'
@@ -517,8 +540,11 @@ describe('promMetrics foundation API', () => {
             name: 'tera-test'
         } as any;
 
+        const { terafoundation } = context.sysconfig;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
             assignment: 'cluster-master',
             prefix: 'foundation_test_'
@@ -593,8 +619,11 @@ describe('promMetrics foundation API', () => {
             name: 'tera-test-labels'
         } as any;
 
+        const { terafoundation } = context.sysconfig;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+            tf_prom_metrics_port: terafoundation.prom_metrics_port,
+            tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
             assignment: 'cluster-master',
             prefix: 'foundation_test_',

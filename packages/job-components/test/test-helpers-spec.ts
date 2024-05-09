@@ -185,11 +185,12 @@ describe('Test Helpers', () => {
     describe('MockPromMetrics', () => {
         const context = new TestContext('test-prom-metrics');
         context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
-        context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
-            foundation: context.sysconfig.terafoundation,
+            assignment: 'cluster-master',
             logger: debugLogger('test-helpers-spec-logger'),
-            assignment: 'cluster-master'
+            tf_prom_metrics_enabled: true,
+            tf_prom_metrics_port: 3333,
+            tf_prom_metrics_add_default: false,
         };
 
         it('should be able to init a mock prom_metrics_api', async () => {

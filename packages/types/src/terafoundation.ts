@@ -171,18 +171,19 @@ export type Context<
     cluster: Cluster;
 }
 
-export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
-    foundation: { workers?: number,
-        environment?: 'production'|'development'|'test'|string,
-        log_path?: string,
-        log_level?: LogLevelConfig,
-        logging?: LogType[]
-    } & Omit<Foundation, 'workers' | 'environment' | 'log_path' | 'log_level' | 'logging'>,
+export interface PromMetricsInitConfig {
+    assignment: string
     logger: Logger,
-    metrics_enabled_by_job?: boolean,
-    port?: number
-    default_metrics?: boolean
+    tf_prom_metrics_enabled: boolean;
+    tf_prom_metrics_port: number;
+    tf_prom_metrics_add_default: boolean;
+    job_prom_metrics_enabled?: boolean,
+    job_prom_metrics_port?: number
+    job_prom_metrics_add_default?: boolean
+    labels?: Record<string, string>,
+    prefix?: string
 }
+
 export interface PromMetricsAPIConfig {
     assignment: string
     port: number

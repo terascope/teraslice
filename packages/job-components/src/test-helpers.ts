@@ -331,14 +331,14 @@ export class TestContext implements i.Context {
                 },
                 promMetrics: {
                     async init(config: tf.PromMetricsInitConfig) {
-                        const metricsEnabledInTF = config.foundation.prom_metrics_enabled;
+                        const { job_prom_metrics_enabled, tf_prom_metrics_enabled } = config;
 
                         if (ctx.mockPromMetrics) {
                             throw new Error('Prom metrics API cannot be initialized more than once.');
                         }
 
-                        if (config.metrics_enabled_by_job === true
-                        || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
+                        if (job_prom_metrics_enabled === true
+                        || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
                             ctx.mockPromMetrics = {};
                             return true;
                         }

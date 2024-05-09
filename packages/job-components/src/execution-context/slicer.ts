@@ -56,14 +56,16 @@ export class SlicerExecutionContext
                 this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
                 return;
             }
-
+            const { terafoundation } = this.context.sysconfig;
             await config.context.apis.foundation.promMetrics.init({
-                foundation: this.context.sysconfig.terafoundation,
-                logger: this.logger,
-                metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled,
                 assignment: 'execution_controller',
-                port: config.executionConfig.prom_metrics_port,
-                default_metrics: config.executionConfig.prom_metrics_add_default,
+                logger: this.logger,
+                tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                job_prom_metrics_add_default: config.executionConfig.prom_metrics_add_default,
+                job_prom_metrics_enabled: config.executionConfig.prom_metrics_enabled,
+                job_prom_metrics_port: config.executionConfig.prom_metrics_port,
                 labels: {
                     ex_id: this.exId,
                     job_id: this.jobId,

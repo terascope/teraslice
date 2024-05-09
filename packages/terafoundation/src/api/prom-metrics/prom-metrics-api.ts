@@ -40,25 +40,28 @@ export class PromMetrics {
      * @returns {Promise<boolean>} Was the API initialized
      */
     async init(config: tf.PromMetricsInitConfig) {
-        const metricsEnabledInTF = config.foundation.prom_metrics_enabled;
-        const portToUse = config.port || config.foundation.prom_metrics_port;
+        const {
+            assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
+            job_prom_metrics_port, tf_prom_metrics_add_default, tf_prom_metrics_enabled,
+            tf_prom_metrics_port, labels, prefix
+        } = config;
 
-        // If prom_metrics_add_default is defined in jobSpec use that value.
-        // If not use the terafoundation value.
-        const useDefaultMetrics = config.default_metrics !== undefined
-            ? config.default_metrics
-            : config.foundation.prom_metrics_add_default;
+        const portToUse = job_prom_metrics_port || tf_prom_metrics_port;
 
-        // If prom_metrics_enabled is true in jobConfig, or if not specified in
-        // jobSpec and true in terafoundation, then we enable metrics.
-        if (config.metrics_enabled_by_job === true
-        || (config.metrics_enabled_by_job === undefined && metricsEnabledInTF)) {
+        const useDefaultMetrics = job_prom_metrics_add_default !== undefined
+            ? job_prom_metrics_add_default
+            : tf_prom_metrics_add_default;
+
+        // If job_prom_metrics_enabled is true, or if not specified and
+        // tf_prom_metrics_enabled is true, then we enable metrics.
+        if (job_prom_metrics_enabled === true
+            || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
             const apiConfig: tf.PromMetricsAPIConfig = {
-                assignment: config.assignment,
+                assignment,
                 port: portToUse,
                 default_metrics: useDefaultMetrics,
-                labels: config.labels,
-                prefix: config.prefix
+                labels,
+                prefix
             };
 
             this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
