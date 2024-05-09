@@ -49,22 +49,6 @@ export class SlicerExecutionContext
         this.addOperation(op);
 
         this._resetMethodRegistry();
-
-        (async () => {
-            await config.context.apis.foundation.promMetrics.init({
-                context: config.context,
-                logger: this.logger,
-                metrics_enabled_by_job: config.executionConfig.prom_metrics_enabled,
-                assignment: 'execution_controller',
-                port: config.executionConfig.prom_metrics_port,
-                default_metrics: config.executionConfig.prom_metrics_add_default,
-                labels: {
-                    ex_id: this.exId,
-                    job_id: this.jobId,
-                    job_name: this.config.name,
-                }
-            });
-        })();
     }
 
     /**
@@ -72,25 +56,6 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        await this.setupPromMetrics();
-        await this.context.apis.foundation.promMetrics.addMetric(
-            'info',
-            'Information about Teraslice execution controller',
-            ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
-            'gauge'
-        );
-        this.context.apis.foundation.promMetrics.set(
-            'info',
-            {
-                arch: this.context.arch,
-                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                name: this.context.sysconfig.teraslice.name,
-                node_version: process.version,
-                platform: this.context.platform,
-                teraslice_version: this.config.teraslice_version
-            },
-            1
-        );
         return super.initialize(recoveryData);
     }
 
@@ -117,27 +82,5 @@ export class SlicerExecutionContext
 
     onSliceComplete(result: SliceResult): void {
         this._runMethod('onSliceComplete', result);
-    }
-
-    /**
-     * Adds all prom metrics specific to the execution_controller.
-     *
-     * If trying to add a new metric for the execution_controller, it belongs here.
-     * @async
-     * @function setupPromMetrics
-     * @return {Promise<void>}
-     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
-     */
-    async setupPromMetrics() {
-        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
-        await Promise.all([
-            // All metrics go inside here
-            // this.context.apis.foundation.promMetrics.addMetric(
-            //     'example_metric',
-            //     'This is an example of adding a metric',
-            //     ['example_label_1', 'Example_label_2'],
-            //     'gauge'
-            // )
-        ]);
     }
 }

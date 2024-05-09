@@ -141,33 +141,20 @@ export class ClusterMaster {
             await services.apiService.initialize();
 
             /// initialize promClient
-            await this.context.apis.foundation.promMetrics.init({
-                context: this.context,
-                logger: this.logger,
-                assignment: 'cluster_master',
-                port: this.context.sysconfig.terafoundation.prom_metrics_port,
-            });
+            if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
+                this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+            } else {
+                const { terafoundation } = this.context.sysconfig;
+                await this.context.apis.foundation.promMetrics.init({
+                    tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                    tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                    tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                    logger: this.logger,
+                    assignment: 'cluster_master'
+                });
 
-            await this.setupPromMetrics();
-
-            await this.context.apis.foundation.promMetrics.addMetric(
-                'info',
-                'Information about Teraslice cluster master',
-                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
-                'gauge'
-            );
-            this.context.apis.foundation.promMetrics.set(
-                'info',
-                {
-                    arch: this.context.arch,
-                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                    name: this.context.sysconfig.teraslice.name,
-                    node_version: process.version,
-                    platform: this.context.platform,
-                    teraslice_version: getPackageJSON().version
-                },
-                1
-            );
+                await this.setupPromMetrics();
+            }
 
             this.logger.info('cluster master is ready!');
             this.running = true;
@@ -241,78 +228,71 @@ export class ClusterMaster {
 
         */
         await Promise.all([
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
+                'info',
+                'Information about Teraslice cluster master',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version']
+            ),
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_workers_active',
                 'Number of Teraslice workers actively processing slices.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_workers_available',
                 'Number of Teraslice workers running and waiting for work.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_workers_joined',
                 'Total number of Teraslice workers that have joined the execution controller for this job.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_workers_reconnected',
                 'Total number of Teraslice workers that have reconnected to the execution controller for this job.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_workers_disconnected',
                 'Total number of Teraslice workers that have disconnected from execution controller for this job.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_info',
                 'Information about Teraslice execution.',
                 ['ex_id', 'job_id', 'image', 'version'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_slicers_count',
                 'Number of execution controllers (slicers) running for this execution.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
             // Execution Related Metrics
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_cpu_limit',
                 'CPU core limit for a Teraslice worker container.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_cpu_request',
                 'Requested number of CPU cores for a Teraslice worker container.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_memory_limit',
                 'Memory limit for Teraslice a worker container.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_memory_request',
                 'Requested amount of memory for a Teraslice worker container.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_status',
                 'Current status of the Teraslice execution.',
                 ['ex_id', 'job_id', 'job_name', 'status'],
-                'gauge'
             ),
             /*
                 TODO: The following gauges should be Counters. This was not done because
@@ -320,48 +300,54 @@ export class ClusterMaster {
                 So setting the gauge is the only real way to gather the metrics in master.
                 Solution to convert would be setting the count in the ex process.
             */
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_slices_processed',
                 'Number of slices processed.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_slices_failed',
                 'Number of slices failed.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'controller_slices_queued',
                 'Number of slices queued for processing.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_created_timestamp_seconds',
                 'Execution creation time.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_updated_timestamp_seconds',
                 'Execution update time.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_slicers',
                 'Number of slicers defined on the execution.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
-            this.context.apis.foundation.promMetrics.addMetric(
+            this.context.apis.foundation.promMetrics.addGauge(
                 'execution_workers',
                 'Number of workers defined on the execution.  Note that the number of actual workers can differ from this value.',
                 ['ex_id', 'job_id', 'job_name'],
-                'gauge'
             ),
         ]);
+
+        this.context.apis.foundation.promMetrics.set(
+            'info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: getPackageJSON().version
+            },
+            1
+        );
     }
 }

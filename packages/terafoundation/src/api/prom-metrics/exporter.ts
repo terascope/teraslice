@@ -2,7 +2,7 @@ import promClient from 'prom-client';
 import express, { Request, Response } from 'express';
 import { Server } from 'http';
 import { Logger } from '@terascope/utils';
-import { PromMetricsAPIConfig } from '../../interfaces';
+import { Terafoundation as tf } from '@terascope/types';
 
 export type CloseExporter = () => void;
 
@@ -15,7 +15,7 @@ export default class Exporter {
     }
 
     async create(
-        promMetricsAPIConfig: PromMetricsAPIConfig
+        promMetricsAPIConfig: tf.PromMetricsAPIConfig
     ) {
         try {
             if (promMetricsAPIConfig.default_metrics) {

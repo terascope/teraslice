@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { Logger } from '@terascope/utils';
+import { Terafoundation as tf } from '@terascope/types';
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
 
@@ -105,7 +106,7 @@ export interface FoundationApis {
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    promMetrics: PromMetrics
+    promMetrics: tf.PromMetrics
 }
 
 export interface LegacyFoundationApis {
@@ -198,35 +199,3 @@ export interface ContextClusterConfig {
 }
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
-
-export interface PromMetricsInitConfig extends Omit<PromMetricsAPIConfig, 'port' | 'default_metrics'> {
-    context: Context,
-    logger: Logger,
-    metrics_enabled_by_job?: boolean,
-    port?: number
-    default_metrics?: boolean
-}
-export interface PromMetricsAPIConfig {
-    assignment: string
-    port: number
-    default_metrics: boolean,
-    labels?: Record<string, string>,
-    prefix?: string
-}
-
-export interface PromMetrics {
-    init: (config: PromMetricsInitConfig) => Promise<boolean>;
-    set: (name: string, labels: Record<string, string>, value: number) => void;
-    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
-    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
-    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
-    addMetric: (name: string, help: string, labelNames: Array<string>, type: 'gauge' | 'counter' | 'histogram',
-        buckets?: Array<number>) => Promise<void>;
-    addSummary: (name: string, help: string, labelNames: Array<string>,
-        maxAgeSeconds?: number, ageBuckets?: number,
-        percentiles?: Array<number>) => Promise<void>;
-    hasMetric: (name: string) => boolean;
-    deleteMetric: (name: string) => Promise<boolean>;
-    verifyAPI: () => boolean;
-    shutdown: () => Promise<void>;
-}
