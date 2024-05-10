@@ -35,5 +35,8 @@
     "terascope": {
         "testSuite": "disabled",
         "enableTypedoc": true
+    },
+    "dependencies": {
+        "prom-client": "^15.1.2"
     }
 }
