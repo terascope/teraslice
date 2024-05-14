@@ -106,7 +106,7 @@ export interface FoundationApis {
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    promMetrics: tf.PromMetrics
+    promMetrics: tf.PromMetrics;
 }
 
 export interface LegacyFoundationApis {
