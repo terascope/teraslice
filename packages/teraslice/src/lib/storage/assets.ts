@@ -40,6 +40,36 @@ function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     };
 }
 
+export function getBackendConfig(context: Context, logger: Logger) {
+    let connectionType: string;
+    let storageConnection: string;
+    let storageBucket: string | undefined;
+    /// Check teraslice first before setting to terafoundation configs
+    if (context.sysconfig.teraslice.asset_storage_connection_type) {
+        connectionType = context.sysconfig.teraslice.asset_storage_connection_type;
+    } else {
+        connectionType = context.sysconfig.terafoundation.asset_storage_connection_type;
+    }
+    if (context.sysconfig.teraslice.asset_storage_connection) {
+        storageConnection = context.sysconfig.teraslice.asset_storage_connection;
+    } else {
+        storageConnection = context.sysconfig.terafoundation.asset_storage_connection;
+    }
+    if (context.sysconfig.teraslice.asset_storage_bucket) {
+        storageBucket = context.sysconfig.teraslice.asset_storage_bucket;
+    } else {
+        storageBucket = context.sysconfig.terafoundation.asset_storage_bucket;
+    }
+    const s3BackendConfig: TerasliceS3StorageConfig = {
+        context,
+        terafoundation: context.sysconfig.terafoundation,
+        connection: storageConnection,
+        bucket: storageBucket,
+        logger
+    };
+    return { s3BackendConfig, assetConnectionType: connectionType };
+}
+
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
@@ -71,17 +101,9 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        if (context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
-            if (context.sysconfig.terafoundation.asset_storage_connection) {
-                const s3BackendConfig: TerasliceS3StorageConfig = {
-                    context,
-                    terafoundation: context.sysconfig.terafoundation,
-                    connection: context.sysconfig.terafoundation.asset_storage_connection,
-                    bucket: context.sysconfig.terafoundation.asset_storage_bucket,
-                    logger
-                };
-                this.s3Backend = new S3Store(s3BackendConfig);
-            }
+        const assetConfig = getBackendConfig(context, logger);
+        if (assetConfig.assetConnectionType === 's3' && assetConfig.s3BackendConfig.connection) {
+            this.s3Backend = new S3Store(assetConfig.s3BackendConfig);
         }
     }
 
