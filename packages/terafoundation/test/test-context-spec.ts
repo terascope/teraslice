@@ -130,7 +130,7 @@ describe('TestContext', () => {
             tf_prom_metrics_port: 3333,
             tf_prom_metrics_add_default: false,
             logger: context.logger,
-            assignment: 'cluster-master'
+            assignment: 'master'
         };
         expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
     });

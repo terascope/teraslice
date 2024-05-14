@@ -306,7 +306,7 @@ describe('promMetrics foundation API', () => {
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
-            assignment: 'cluster-master',
+            assignment: 'master',
             labels: {},
             prefix: 'foundation_test_'
         };
@@ -372,7 +372,7 @@ describe('promMetrics foundation API', () => {
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
-            assignment: 'cluster-master',
+            assignment: 'master',
             labels: {},
             prefix: 'foundation_test_'
         };
@@ -466,7 +466,7 @@ describe('promMetrics foundation API', () => {
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
-            assignment: 'cluster-master',
+            assignment: 'master',
             prefix: 'foundation_test_'
         };
 
@@ -546,7 +546,7 @@ describe('promMetrics foundation API', () => {
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
-            assignment: 'cluster-master',
+            assignment: 'master',
             prefix: 'foundation_test_'
         };
         beforeAll(async () => {
@@ -625,7 +625,7 @@ describe('promMetrics foundation API', () => {
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
             logger: debugLogger('prom-metrics-spec-logger'),
-            assignment: 'cluster-master',
+            assignment: 'master',
             prefix: 'foundation_test_',
             labels: { default1: 'value1' }
         };
@@ -642,7 +642,7 @@ describe('promMetrics foundation API', () => {
         it('should get all the default labels', () => {
             expect(context.apis.foundation.promMetrics.getDefaultLabels()).toEqual({
                 name: 'tera-test-labels',
-                assignment: 'cluster-master',
+                assignment: 'master',
                 default1: 'value1'
             });
         });
