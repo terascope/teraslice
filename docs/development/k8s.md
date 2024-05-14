@@ -409,15 +409,15 @@ this.context.apis.foundation.promMetrics.inc(
 
 Example Gauge using collect() callback:
 ```typescript
-const self = this; // rename `this` to use inside collect()
+const { context, getSlicesDispatched } = this;
 await this.context.apis.foundation.promMetrics.addGauge(
     'slices_dispatched', // name
     'number of slices a slicer has dispatched', // help or description
     ['class'], // label names specific to this metric
     function collect() { // callback fn updates value only when '/metrics' endpoint is hit
-        const slicesFinished = self.getSlicesDispatched(); // get current value from local momory
+        const slicesFinished = getSlicesDispatched(); // get current value from local momory
         const labels = { // 'set()' needs both default labels and labels specific to metric to match the correct gauge
-            ...self.context.apis.foundation.promMetrics.getDefaultLabels(),
+            ...context.apis.foundation.promMetrics.getDefaultLabels(),
             class: 'SlicerExecutionContext'
         };
         this.set(labels, slicesFinished); // this refers to the Gauge
