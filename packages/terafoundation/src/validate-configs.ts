@@ -50,6 +50,10 @@ function extractSchema<S>(
         if (result.schema) {
             return result.schema;
         }
+        /// Do not include validator function in the result
+        if (result.validatorFn) {
+            delete result.validatorFn;
+        }
         return result;
     }
     if (isPlainObject(fn)) {
