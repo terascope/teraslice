@@ -72,17 +72,17 @@ export function foundationSchema() {
             default: workerCount
         },
         asset_storage_connection_type: {
-            doc: 'Name of the connection type used to store assets',
+            doc: '[Depricated] Name of the connection type used to store assets',
             default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
             format: String
         },
         asset_storage_connection: {
-            doc: 'Name of the connection used to store assets.',
+            doc: '[Depricated] Name of the connection used to store assets.',
             default: 'default',
             format: String
         },
         asset_storage_bucket: {
-            doc: 'Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
+            doc: '[Depricated] Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
             default: undefined,
             format: String
         },
@@ -110,6 +110,8 @@ export function foundationValidatorFn<S>(
     subconfig: Record<string, any>,
     _sysconfig: Terafoundation.SysConfig<S>
 ): void {
+    /// Everything related to asset storage connection is Depricated
+    /// Remove for teraslice 2.0
     const typedSubconfig = subconfig as Terafoundation.Foundation;
     const connectionType = typedSubconfig.asset_storage_connection_type
         || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
