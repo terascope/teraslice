@@ -4,7 +4,7 @@ import { jest } from '@jest/globals';
 import OperationCore from '../../../src/operations/core/operation-core.js';
 import {
     OperationAPI, ExecutionContextAPI, OpAPIFn,
-    TestContext, WorkerContext, newTestExecutionConfig
+    TestContext, Context, newTestExecutionConfig
 } from '../../../src/index.js';
 
 describe('OperationCore', () => {
@@ -27,7 +27,7 @@ describe('OperationCore', () => {
         exContextApi.addToRegistry('hello', HelloAPI);
         context.apis.registerAPI('executionContext', exContextApi);
 
-        operation = new OperationCore(context as WorkerContext, opConfig, exConfig);
+        operation = new OperationCore(context as Context, opConfig, exConfig);
     });
 
     describe('->initialize', () => {

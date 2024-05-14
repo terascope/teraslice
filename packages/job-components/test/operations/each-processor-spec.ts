@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     EachProcessor, newTestExecutionConfig, TestContext,
-    WorkerContext
+    Context
 } from '../../src/index.js';
 
 describe('EachProcessor', () => {
@@ -24,7 +24,7 @@ describe('EachProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleProcessor(context as Context, opConfig, exConfig);
     });
 
     beforeEach(() => {

@@ -1,7 +1,8 @@
 import convict from 'convict';
 import { cloneDeep, pMap } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import {
-    Context, OpConfig, JobConfig, ValidatedJobConfig
+    Context, OpConfig, ValidatedJobConfig
 } from './interfaces';
 import { validateJobConfig } from './config-validators.js';
 import { jobSchema } from './job-schemas.js';
@@ -24,7 +25,7 @@ export class JobValidator {
     }
 
     /** Validate the job configuration, including the Operations and APIs configuration */
-    async validateConfig(jobSpec: JobConfig): Promise<ValidatedJobConfig> {
+    async validateConfig(jobSpec: Teraslice.JobConfigParams): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];

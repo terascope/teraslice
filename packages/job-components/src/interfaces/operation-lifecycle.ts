@@ -1,6 +1,7 @@
 import { DataEntity } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import {
-    Slice, SlicerRecoveryData, SliceResult, ExecutionStats
+    SlicerRecoveryData, SliceResult, ExecutionStats
 } from './operations.js';
 
 export interface OperationLifeCycle {
@@ -103,13 +104,13 @@ export interface SlicerOperationLifeCycle extends OperationLifeCycle {
      * A method called by the "Execution Controller" to give a "Slicer"
      * the opportunity to track the slices enqueued by the execution controller
      */
-    onSliceEnqueued?(slice: Slice): void;
+    onSliceEnqueued?(slice: Teraslice.Slice): void;
 
     /**
      * A method called by the "Execution Controller" to give a "Slicer"
      * the opportunity to track the slices disptached by the execution controller
      */
-    onSliceDispatch?(slice: Slice): void;
+    onSliceDispatch?(slice: Teraslice.Slice): void;
 
     /**
      * A method called by the "Execution Controller" to give a "Slicer"

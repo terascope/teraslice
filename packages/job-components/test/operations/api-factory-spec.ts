@@ -68,7 +68,7 @@ describe('APIFactory', () => {
         expect(results).toMatchObject(expectedData);
         expect(api.size).toEqual(1);
 
-        const secondApi = await context.apis.executionContext.getAPI(apiName);
+        const secondApi: API = await context.apis.executionContext.getAPI(apiName);
 
         expect(secondApi.size).toEqual(1);
         expect(secondApi.get('test')).toMatchObject(expectedData);

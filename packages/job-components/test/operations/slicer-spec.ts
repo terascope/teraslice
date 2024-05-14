@@ -2,7 +2,7 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import {
     Slicer, SlicerResult, newTestExecutionConfig,
-    TestContext, WorkerContext
+    TestContext, Context
 } from '../../src/index.js';
 
 describe('Slicer', () => {
@@ -33,7 +33,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as Context, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -110,7 +110,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

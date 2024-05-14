@@ -1,7 +1,7 @@
 import 'jest-extended';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { JobValidator, TestContext, JobConfig } from '../src/index.js';
+import { JobValidator, TestContext, JobConfigParams } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,7 +16,7 @@ describe('JobValidator', () => {
 
     describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', () => {
-            const jobSpec: JobConfig = Object.freeze({
+            const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
                 autorecover: true,
@@ -43,7 +43,7 @@ describe('JobValidator', () => {
 
         it('will throw based off op validation errors', () => {
         // if subslice_by_key, then it needs type specified or it will error
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -63,7 +63,7 @@ describe('JobValidator', () => {
         });
 
         it('throws an error with faulty operation configuration', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 operations: [
                     {
@@ -81,7 +81,7 @@ describe('JobValidator', () => {
         });
 
         it('will properly read an operation', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -101,7 +101,7 @@ describe('JobValidator', () => {
 
         it('will throw based off opValition errors', () => {
             // if subslice_by_key, then it needs type specified or it will error
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -121,7 +121,7 @@ describe('JobValidator', () => {
         });
 
         it('will throw based off crossValidation errors', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 lifecycle: 'persistent',
                 assets: ['fixtures'],
@@ -149,7 +149,7 @@ describe('JobValidator', () => {
                 terasliceOpPath,
             });
 
-            const jobSpec: JobConfig = Object.freeze({
+            const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
                 autorecover: true,

@@ -1,10 +1,6 @@
 import {
-    APIConstructor,
-    SlicerConstructor,
-    ProcessorConstructor,
-    FetcherConstructor,
-    ObserverConstructor,
-    SchemaConstructor
+    APIConstructor, SlicerConstructor, ProcessorConstructor,
+    FetcherConstructor, ObserverConstructor, SchemaConstructor
 } from '../operations/interfaces.js';
 
 export const ASSET_KEYWORD = 'ASSETS';

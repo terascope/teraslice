@@ -2,36 +2,19 @@ import fs from 'node:fs';
 import * as pathModule from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-    isString,
-    uniq,
-    parseError,
-    castArray,
-    get,
-    has,
-    joinList,
+    isString, uniq, parseError,
+    castArray, get, has, joinList,
 } from '@terascope/utils';
 import { resolve } from 'import-meta-resolve';
 import {
-    OperationAPIConstructor,
-    FetcherConstructor,
-    SlicerConstructor,
-    ProcessorConstructor,
-    ObserverConstructor,
-    SchemaConstructor,
-    ProcessorModule,
-    APIModule,
-    ReaderModule,
+    OperationAPIConstructor, FetcherConstructor, SlicerConstructor,
+    ProcessorConstructor, ObserverConstructor, SchemaConstructor,
+    ProcessorModule, APIModule, ReaderModule,
 } from '../operations/index.js';
 import {
-    ASSET_KEYWORD,
-    LoaderOptions,
-    ValidLoaderOptions,
-    AssetBundleType,
-    OperationLocationType,
-    OpTypeToRepositoryKey,
-    OperationResults,
-    FindOperationResults,
-    OperationTypeName
+    ASSET_KEYWORD, LoaderOptions, ValidLoaderOptions,
+    AssetBundleType, OperationLocationType, OpTypeToRepositoryKey,
+    OperationResults, FindOperationResults, OperationTypeName
 } from './interfaces.js';
 
 const dirname = pathModule.dirname(fileURLToPath(import.meta.url));

@@ -1,10 +1,7 @@
 import { cloneDeep } from '@terascope/utils';
 import {
-    SlicerOperationLifeCycle,
-    ExecutionStats,
-    Slice,
-    SliceResult,
-    SlicerRecoveryData,
+    SlicerOperationLifeCycle, ExecutionStats, Slice,
+    SliceResult, SlicerRecoveryData,
 } from '../interfaces/index.js';
 import SlicerCore from '../operations/core/slicer-core.js';
 import { ExecutionContextConfig, JobAPIInstances } from './interfaces.js';

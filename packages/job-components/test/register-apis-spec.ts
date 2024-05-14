@@ -4,13 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { AnyObject } from '@terascope/utils';
 import {
     registerApis, OperationAPI, newTestJobConfig,
-    TestContext, TestClientConfig,
+    TestContext, TestClientConfig, MetadataFns
 } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
+    const { logger } = context;
     const assetDir = path.join(dirname, 'fixtures');
     context.sysconfig.teraslice.assets_directory = [assetDir];
     const jobConfig = newTestJobConfig();
@@ -81,52 +82,56 @@ describe('registerApis', () => {
                         client: {
                             'elasticsearch-next': true,
                         },
-                        log
+                        logger
                     };
                 },
             },
             {
                 type: 'elasticsearch-next',
                 endpoint: 'otherConnection',
-                create() {
+                async createClient() {
                     return {
                         client: {
                             'elasticsearch-next': true,
                             endpoint: 'otherConnection',
                         },
+                        logger
                     };
                 },
             },
             {
                 type: 'elasticsearch-next',
                 endpoint: 'thirdConnection',
-                create() {
+                async createClient() {
                     return {
                         client: {
                             'elasticsearch-next': true,
                             endpoint: 'thirdConnection',
                         },
+                        logger
                     };
                 },
             },
             {
                 type: 'kafka',
                 endpoint: 'someConnection',
-                create() {
+                async createClient() {
                     return {
                         client: {
                             kafka: true,
                         },
+                        logger
                     };
                 },
             },
             {
                 type: 'mongo',
-                create() {
+                async createClient() {
                     return {
                         client: {
                             mongo: true,
                         },
+                        logger
                     };
                 },
             },
@@ -216,16 +221,17 @@ describe('registerApis', () => {
                 throw err;
             };
 
-            failingContext.foundation.getConnection = makeError;
+            failingContext.apis.foundation.createClient = makeError;
 
+            // @ts-expect-error
             expect(() => failingContext.apis.op_runner.getClient())
-                .toThrowError(err);
+                .toThrow(err);
         });
 
-        it('getClientAsync will return an async client', async () => {
-            const { getClientAsync } = context.apis.op_runner;
+        it('getClient will return an async client', async () => {
+            const { getClient: gClient } = context.apis.op_runner;
 
-            const results = await getClientAsync(
+            const results = await gClient(
                 {
                     connection: 'default',
                     connection_cache: true,
@@ -245,6 +251,8 @@ describe('registerApis', () => {
                 return () => 'hello';
             }
         }
+
+        type apiType = () => string;
 
         describe('->addToRegistry', () => {
             it('should succeed', () => {
@@ -266,12 +274,12 @@ describe('registerApis', () => {
             });
 
             it('should return the api and return hello when called', async () => {
-                const result = await context.apis.executionContext.initAPI('hello');
+                const result = await context.apis.executionContext.initAPI<apiType>('hello');
                 expect(result()).toEqual('hello');
             });
 
             it('should not throw the API is already created', async () => {
-                const result = await context.apis.executionContext.initAPI('hello');
+                const result = await context.apis.executionContext.initAPI<apiType>('hello');
                 expect(result()).toEqual('hello');
             });
         });
@@ -288,7 +296,7 @@ describe('registerApis', () => {
             });
 
             it('should return the api and return hello when called', () => {
-                const result = context.apis.executionContext.getAPI('hello');
+                const result = context.apis.executionContext.getAPI<apiType>('hello');
                 expect(result()).toEqual('hello');
             });
         });
@@ -301,6 +309,7 @@ describe('registerApis', () => {
             });
 
             it('should throw if setting without a key', async () => {
+                // @ts-expect-error its supposed to throw
                 await expect(context.apis.executionContext.setMetadata(null)).toReject();
             });
 
@@ -314,10 +323,10 @@ describe('registerApis', () => {
                 }
 
                 async function updateApi(_exId: string, metadata: AnyObject) {
-                    return Object.assign({}, metadata);
+                    Object.assign({}, metadata);
                 }
 
-                const apis = { get: getApi, update: updateApi };
+                const apis: MetadataFns = { get: getApi, update: updateApi };
 
                 const getTestExpectations = await getApi();
                 const updateTestExpectations = await updateApi(testExId, metaData);

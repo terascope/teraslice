@@ -1,4 +1,3 @@
-import { Context, WorkerContext } from '../interfaces/index.js';
 import { SlicerExecutionContext } from './slicer.js';
 import { WorkerExecutionContext } from './worker.js';
 import { ExecutionContextConfig } from './interfaces.js';
@@ -8,14 +7,6 @@ export * from './interfaces.js';
 export * from './slicer.js';
 export * from './worker.js';
 export * from './utils.js';
-
-export function isWorkerContext(context: Context): context is WorkerContext {
-    return context.assignment === 'worker';
-}
-
-export function isSlicerContext(context: Context): context is WorkerContext {
-    return context.assignment === 'execution_controller';
-}
 
 export function isWorkerExecutionContext(context: unknown): context is WorkerExecutionContext {
     return context instanceof WorkerExecutionContext;
@@ -31,11 +22,11 @@ export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
 export async function makeExecutionContext(
     config: ExecutionContextConfig
 ): Promise<ExecutionContext> {
-    if (isSlicerContext(config.context)) {
+    if (config.context.assignment === 'execution_controller') {
         return SlicerExecutionContext.createContext(config);
     }
 
-    if (isWorkerContext(config.context)) {
+    if (config.context.assignment === 'worker') {
         return WorkerExecutionContext.createContext(config);
     }
 

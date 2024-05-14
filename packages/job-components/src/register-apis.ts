@@ -1,14 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseJSON, castArray } from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 import {
-    ConnectionConfig,
-    Context,
-    ValidatedJobConfig,
-    ExecutionConfig,
-    OpConfig,
-    GetClientConfig,
-    WorkerContextAPIs
+    Context, ValidatedJobConfig, ExecutionConfig,
+    OpConfig, GetClientConfig,
 } from './interfaces/index.js';
 import { ExecutionContextAPI } from './execution-context/index.js';
 
@@ -68,7 +64,7 @@ export async function getClient(
     config: GetClientConfig,
     type: string
 ): Promise<any> {
-    const clientConfig: ConnectionConfig = {
+    const clientConfig: Terafoundation.ConnectionConfig = {
         type,
         cached: true,
         endpoint: 'default',
@@ -92,7 +88,8 @@ export function registerApis(
     job: ValidatedJobConfig | ExecutionConfig,
     assetIds?: string[]
 ): void {
-    const cleanupApis: (keyof WorkerContextAPIs)[] = ['op_runner', 'executionContext', 'job_runner', 'assets'];
+    const cleanupApis = ['op_runner', 'executionContext', 'job_runner', 'assets'];
+
     for (const api of cleanupApis) {
         if (context.apis[api] != null) {
             delete context.apis[api];
@@ -103,6 +100,10 @@ export function registerApis(
 
     context.apis.registerAPI('op_runner', {
         getClient(config: GetClientConfig, type: string): Promise<{ client: any }> {
+            return getClient(context, config, type);
+        },
+        // For backward compatibility, but it will not show up on the type
+        getClientAsync(config: GetClientConfig, type: string): Promise<{ client: any }> {
             return getClient(context, config, type);
         },
     });

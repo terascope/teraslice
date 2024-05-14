@@ -1,12 +1,8 @@
 import '../../formats.js'; // require to add the schema formats
 import Core from './core.js';
 import {
-    ExecutionConfig,
-    WorkerOperationLifeCycle,
-    OpAPI,
-    OpConfig,
-    WorkerContext,
-    DeadLetterAction,
+    ExecutionConfig, WorkerOperationLifeCycle, OpAPI,
+    OpConfig, Context, DeadLetterAction,
     DeadLetterAPIFn,
 } from '../../interfaces/index.js';
 import { makeExContextLogger } from '../../utils.js';
@@ -21,13 +17,13 @@ import { makeExContextLogger } from '../../utils.js';
  */
 
 export default class OperationCore<T = OpConfig>
-    extends Core<WorkerContext>
+    extends Core<Context>
     implements WorkerOperationLifeCycle {
     // ...
     readonly opConfig: Readonly<OpConfig & T>;
     deadLetterAction: DeadLetterAction;
 
-    constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
+    constructor(context: Context, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = makeExContextLogger(context, executionConfig, 'operation', {
             opName: opConfig._op,
         });

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src/index.js';
+import { TestContext, newTestExecutionConfig, Context } from '../../src/index.js';
 import Fetcher from '../../src/builtin/test-reader/fetcher.js';
 import Slicer from '../../src/builtin/test-reader/slicer.js';
 import Schema from '../../src/builtin/test-reader/schema.js';
@@ -41,7 +41,7 @@ describe('Test Reader', () => {
         exConfig.lifecycle = 'once';
 
         const slicer = new Slicer(
-            context as WorkerContext,
+            context as Context,
             opConfig,
             exConfig
         );
@@ -70,7 +70,7 @@ describe('Test Reader', () => {
 
             beforeAll(async () => {
                 fetcher = new Fetcher(
-                    context as WorkerContext,
+                    context as Context,
                     opConfig,
                     exConfig
                 );
@@ -102,7 +102,7 @@ describe('Test Reader', () => {
 
             beforeAll(async () => {
                 fetcher = new Fetcher(
-                    context as WorkerContext,
+                    context as Context,
                     opConfig,
                     exConfig
                 );

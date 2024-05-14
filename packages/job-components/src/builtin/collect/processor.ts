@@ -1,12 +1,12 @@
 import { DataEntity, Collector } from '@terascope/utils';
 import { CollectConfig } from './interfaces.js';
 import { BatchProcessor } from '../../operations/index.js';
-import { WorkerContext, ExecutionConfig } from '../../interfaces/index.js';
+import { Context, ExecutionConfig } from '../../interfaces/index.js';
 
 export default class Collect extends BatchProcessor<CollectConfig> {
     collector: Collector<DataEntity>;
 
-    constructor(context: WorkerContext, opConfig: CollectConfig, executionConfig: ExecutionConfig) {
+    constructor(context: Context, opConfig: CollectConfig, executionConfig: ExecutionConfig) {
         super(context, opConfig, executionConfig);
         this.collector = new Collector(opConfig);
     }

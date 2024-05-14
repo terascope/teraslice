@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
     OperationLoader, newTestExecutionConfig, TestContext,
-    WorkerContext
+    Context
 } from '../src/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -107,7 +107,7 @@ describe('OperationLoader', () => {
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
-            new op.Processor(context as WorkerContext, opConfig, exConfig);
+            new op.Processor(context as Context, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -140,7 +140,7 @@ describe('OperationLoader', () => {
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
-            new op.Processor(context as WorkerContext, opConfig, exConfig);
+            new op.Processor(context as Context, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -170,12 +170,12 @@ describe('OperationLoader', () => {
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
-            new op.Slicer(context as WorkerContext, opConfig, exConfig);
+            new op.Slicer(context as Context, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Fetcher).not.toBeNil();
         expect(() => {
-            new op.Fetcher(context as WorkerContext, opConfig, exConfig);
+            new op.Fetcher(context as Context, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -202,7 +202,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
+            new op.API(context as Context, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
 
@@ -218,7 +218,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
+            new op.API(context as Context, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
 
@@ -234,7 +234,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
+            new op.API(context as Context, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
 
@@ -249,7 +249,6 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            // @ts-expect-error
             new op.API(context, { _name: 'example-observer' }, exConfig);
         }).not.toThrow();
     });

@@ -1,106 +1,35 @@
-import { Schema } from 'convict';
 import { Logger } from '@terascope/utils';
-import {
-    ValidatedJobConfig, OpConfig, ExecutionConfig, LegacyExecutionContext
-} from './jobs.js';
-import { Context, SysConfig } from './context.js';
+import { Teraslice } from '@terascope/types';
 
-export type CrossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
-export type SelfValidationFn = (config: OpConfig) => void;
-export type SliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number | string;
+export type CrossValidationFn = (
+    job: Teraslice.ValidatedJobConfig, sysconfig: Teraslice.SysConfig
+) => void;
+export type SelfValidationFn = (config: Teraslice.OpConfig) => void;
 
-export interface LegacyOperation {
-    crossValidation?: CrossValidationFn;
-    selfValidation?: SelfValidationFn;
-    schema(context?: Context): Schema<any>;
-}
-
-export interface LegacyReader extends LegacyOperation {
-    slicerQueueLength?: SliceQueueLengthFn;
-    schema(context?: Context): Schema<any>;
-    newReader(
-        context: Context,
-        opConfig: OpConfig,
-        exectutionConfig: ExecutionConfig
-    ): Promise<ReaderFn<any>>;
-    newSlicer(
-        context: Context,
-        executionContext: LegacyExecutionContext,
-        recoveryData: SlicerRecoveryData[],
-        logger: Logger
-    ): Promise<SlicerFns>;
-}
-
-export type ReaderFn<T> = (sliceRequest: SliceRequest, logger: Logger) => Promise<T> | T;
-
-export interface LegacyProcessor extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
-    newProcessor(
-        context: Context,
-        opConfig: OpConfig,
-        executionConfig: ExecutionConfig
-    ): Promise<ProcessorFn<any>>;
-}
+export type ReaderFn<T> = (sliceRequest: Teraslice.SliceRequest, logger: Logger) => Promise<T> | T;
 
 export type ProcessorFn<T> = (
     data: T,
     logger: Logger,
-    sliceRequest: SliceRequest
+    sliceRequest: Teraslice.SliceRequest
 ) => Promise<T> | T;
 
 /**
- * The metadata created by the Slicer and ran through a job pipeline
- *
- * See [[Slice]]
- */
-export interface SliceRequest {
-    /** A reserved key for sending work to a particular worker */
-    request_worker?: string;
-    /** The slice request can contain any metdata */
-    [prop: string]: any;
-}
-
-/**
- * The metadata given to Slicer after succefully recovering the execution
+ * The metadata given to Slicer after successfully recovering the execution
  */
 export interface SlicerRecoveryData {
     slicer_id: number;
-    lastSlice?: SliceRequest;
+    lastSlice?: Teraslice.SliceRequest;
 }
 
-/**
- * A trackable set of work to be preformed by a "Worker"
- */
-export interface Slice {
-    /**
-     * A unique identifier for the slice
-     */
-    slice_id: string;
-    /**
-     * A reference to the slicer that created the slice.
-     */
-    slicer_id: number;
-    /**
-     * A reference to the slicer
-     */
-    slicer_order: number;
-    request: SliceRequest;
-    _created: string;
-}
+export const sliceAnalyticsMetrics: readonly (keyof Teraslice.SliceAnalyticsData)[] = ['memory', 'size', 'time'];
 
-export interface SliceAnalyticsData {
-    time: number[];
-    size: number[];
-    memory: number[];
-}
-
-export const sliceAnalyticsMetrics: readonly (keyof SliceAnalyticsData)[] = ['memory', 'size', 'time'];
-
-export type SlicerResult = Slice | SliceRequest | SliceRequest[] | null;
+export type SlicerResult =
+    Teraslice.Slice | Teraslice.SliceRequest | Teraslice.SliceRequest[] | null;
 
 export interface SliceResult {
-    slice: Slice;
-    analytics: SliceAnalyticsData;
+    slice: Teraslice.Slice;
+    analytics: Teraslice.SliceAnalyticsData;
     error?: string;
 }
 

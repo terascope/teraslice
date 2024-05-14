@@ -3,7 +3,7 @@ import {
     ExecutionConfig,
     WorkerOperationLifeCycle,
     SlicerOperationLifeCycle,
-    WorkerContext,
+    Context,
     APIConfig,
     DeadLetterAction,
     DeadLetterAPIFn
@@ -14,14 +14,14 @@ import { makeExContextLogger } from '../../utils.js';
  * A base class for supporting APIs that run within an Execution Context.
  */
 export default abstract class APICore<T = APIConfig>
-    extends Core<WorkerContext>
+    extends Core<Context>
     implements WorkerOperationLifeCycle, SlicerOperationLifeCycle {
     // ...
     readonly apiConfig: Readonly<APIConfig & T>;
     deadLetterAction: DeadLetterAction;
 
     constructor(
-        context: WorkerContext,
+        context: Context,
         apiConfig: APIConfig & T,
         executionConfig: ExecutionConfig
     ) {

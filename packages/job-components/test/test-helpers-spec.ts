@@ -2,8 +2,8 @@ import 'jest-extended';
 import { EventEmitter } from 'node:events';
 import { debugLogger } from '@terascope/utils';
 import {
-    newTestJobConfig, newTestSlice, newTestExecutionContext,
-    newTestExecutionConfig, TestContext,
+    newTestJobConfig, newTestSlice, newTestExecutionConfig,
+    TestContext,
 } from '../src/index.js';
 
 describe('Test Helpers', () => {
@@ -60,26 +60,6 @@ describe('Test Helpers', () => {
         expect(slice._created).toBeString();
     });
 
-    it('should have a newTestExecutionContext (ExecutionController)', () => {
-        expect(newTestExecutionConfig).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('execution_controller', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeNull();
-        expect(exContext.slicer).toBeFunction();
-    });
-
-    it('should have a newTestExecutionContext (Worker)', () => {
-        expect(newTestExecutionContext).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('worker', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeFunction();
-        expect(exContext.slicer).toBeFunction();
-    });
-
     it('should have a TestContext', () => {
         expect(TestContext).toBeTruthy();
         const context = new TestContext('test-name');
@@ -89,27 +69,22 @@ describe('Test Helpers', () => {
         expect(context).toHaveProperty('apis');
         expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
-        expect(() => {
-            context.apis.foundation.getConnection({
-                endpoint: 'default',
-                type: 'example',
-            });
-        }).toThrowError('No client was found for connection "example:default"');
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
-        expect(context.apis.foundation.makeLogger('hello')).toBeTruthy();
+        expect(context.apis.foundation.makeLogger({ hello: 'world' })).toBeTruthy();
 
         const api = { there: () => 'peter' };
         expect(context.apis.registerAPI('hello', api)).toBeUndefined();
         expect(context.apis.hello.there()).toEqual('peter');
     });
 
-    it('should be able to get and set clients', () => {
+    it('should be able to get and set clients', async () => {
+        const logger = debugLogger('test-name');
         const context = new TestContext('test-clients', {
             clients: [
                 {
-                    create() {
-                        return { client: 'hello' };
+                    async createClient() {
+                        return { client: 'hello', logger };
                     },
                     type: 'test'
                 }
@@ -118,7 +93,7 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
+        await expect(context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
         })).toEqual({ client: 'hello' });
@@ -133,8 +108,8 @@ describe('Test Helpers', () => {
 
         context.apis.setTestClients([
             {
-                create() {
-                    return { client: 'howdy' };
+                async createClient() {
+                    return { client: 'howdy', logger };
                 },
                 type: 'test'
             }
@@ -142,7 +117,7 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
+        await expect(context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
         })).toEqual({ client: 'howdy' });
@@ -157,11 +132,12 @@ describe('Test Helpers', () => {
     });
 
     it('should be able to get and set async clients', async () => {
+        const logger = debugLogger('test-name');
         const context = new TestContext('test-clients', {
             clients: [
                 {
                     async createClient() {
-                        return { client: 'hello' };
+                        return { client: 'hello', logger };
                     },
                     type: 'test'
                 }

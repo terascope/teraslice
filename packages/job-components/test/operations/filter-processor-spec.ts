@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     FilterProcessor, newTestExecutionConfig, TestContext,
-    WorkerContext
+    Context
 } from '../../src/index.js';
 
 describe('FilterProcessor', () => {
@@ -21,7 +21,7 @@ describe('FilterProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleProcessor(context as Context, opConfig, exConfig);
     });
 
     describe('->filter', () => {

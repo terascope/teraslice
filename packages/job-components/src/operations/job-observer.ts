@@ -1,6 +1,7 @@
 import { times } from '@terascope/utils';
 import {
-    ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext
+    ExecutionConfig, APIConfig, SliceAnalyticsData,
+    Context
 } from '../interfaces/index.js';
 import Observer from './observer.js';
 
@@ -22,7 +23,7 @@ export default class JobObserver extends Observer {
     // in-flight analytics
     private _initialized: OpAnalytics | null;
 
-    constructor(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig) {
+    constructor(context: Context, apiConfig: APIConfig, executionConfig: ExecutionConfig) {
         super(context, apiConfig, executionConfig);
 
         this._opLength = executionConfig.operations.length;

@@ -47,7 +47,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid op', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -55,7 +55,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -76,7 +76,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid operations', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -84,7 +84,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -101,7 +101,7 @@ describe('when using native clustering', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.teraslice.assets_directory = [dirname];
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -109,7 +109,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -134,7 +134,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid api', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -142,7 +142,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -166,7 +166,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without api _name', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -174,7 +174,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -197,7 +197,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with duplicate api names', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -205,7 +205,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {
@@ -235,7 +235,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known api connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -243,7 +243,7 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-            };
+            });
 
             const schema = jobSchema(context);
             const job = {

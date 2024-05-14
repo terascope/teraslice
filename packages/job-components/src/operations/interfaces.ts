@@ -1,9 +1,6 @@
 import {
-    ExecutionConfig,
-    Context,
-    OpConfig,
-    APIConfig,
-    WorkerContext
+    ExecutionConfig, Context, OpConfig,
+    APIConfig
 } from '../interfaces/index.js';
 import FetcherCore from './core/fetcher-core.js';
 import SchemaCore, { OpType } from './core/schema-core.js';
@@ -15,12 +12,12 @@ import ParallelSlicer from './parallel-slicer.js';
 import OperationAPI from './operation-api.js';
 
 export type APICoreConstructor<U> = {
-    new (context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;
+    new (context: Context, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;
 };
 
 export type OperationCoreConstructor<U> = {
     new <T = OpConfig>(
-        context: WorkerContext,
+        context: Context,
         opConfig: OpConfig & T,
         executionConfig: ExecutionConfig
     ): U;
@@ -28,7 +25,7 @@ export type OperationCoreConstructor<U> = {
 
 export type SlicerCoreConstructor<U> = {
     new <T = OpConfig>(
-        context: WorkerContext,
+        context: Context,
         opConfig: OpConfig & T,
         executionConfig: ExecutionConfig
     ): U;

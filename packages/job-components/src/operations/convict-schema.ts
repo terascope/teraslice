@@ -1,15 +1,11 @@
 import convict from 'convict';
 import {
-    has,
-    get,
-    toString,
+    has, get, toString,
     isDeepEqual
 } from '@terascope/utils';
 import SchemaCore, { OpType } from './core/schema-core.js';
 import {
-    Context,
-    OpConfig,
-    APIConfig,
+    Context, OpConfig, APIConfig,
     ValidatedJobConfig
 } from '../interfaces/index.js';
 import { validateOpConfig, validateAPIConfig } from '../config-validators.js';

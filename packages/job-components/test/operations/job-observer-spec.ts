@@ -1,14 +1,14 @@
 import 'jest-extended';
 import { times } from '@terascope/utils';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext,
+    TestContext, newTestExecutionConfig, Context,
     JobObserver, SliceAnalyticsData
 } from '../../src/index.js';
 
 describe('JobObserver', () => {
     let observer: JobObserver;
 
-    const context = new TestContext('teraslice-operations') as WorkerContext;
+    const context = new TestContext('teraslice-operations') as Context;
     const exConfig = newTestExecutionConfig();
     exConfig.operations = [
         {

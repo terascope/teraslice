@@ -2,7 +2,7 @@ import 'jest-extended';
 import { jest } from '@jest/globals';
 import {
     ParallelSlicer, SlicerFn, newTestExecutionConfig,
-    TestContext, WorkerContext
+    TestContext, Context
 } from '../../src/index.js';
 
 describe('ParallelSlicer', () => {
@@ -48,7 +48,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -205,7 +205,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);
@@ -362,7 +362,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

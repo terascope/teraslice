@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     Fetcher, newTestExecutionConfig, TestContext,
-    WorkerContext
+    Context
 } from '../../src/index.js';
 
 describe('Fetcher', () => {
@@ -23,7 +23,7 @@ describe('Fetcher', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleFetcher(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleFetcher(context as Context, opConfig, exConfig);
     });
 
     describe('->fetch', () => {

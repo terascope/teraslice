@@ -1,18 +1,10 @@
 import os from 'node:os';
 import convict from 'convict';
 import {
-    AnyObject,
-    DataEncoding,
-    dataEncodings,
-    flatten,
-    getField,
-    getTypeOf,
-    hasOwn,
-    isNotNil,
-    isNumber,
-    isPlainObject,
-    isString,
-    logLevels,
+    AnyObject, DataEncoding, dataEncodings,
+    flatten, getField, getTypeOf,
+    hasOwn, isNotNil, isNumber,
+    isPlainObject, isString, logLevels,
 } from '@terascope/utils';
 import { Context } from './interfaces/index.js';
 

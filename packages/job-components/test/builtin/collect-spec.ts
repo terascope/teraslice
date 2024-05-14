@@ -2,7 +2,7 @@ import 'jest-extended';
 import { promisify } from 'node:util';
 import { DataEntity, times } from '@terascope/utils';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext,
+    TestContext, newTestExecutionConfig, Context,
 } from '../../src/index.js';
 import Collect from '../../src/builtin/collect/processor.js';
 import Schema from '../../src/builtin/collect/schema.js';
@@ -17,13 +17,13 @@ describe('Collect Processor', () => {
     };
 
     const exConfig = newTestExecutionConfig();
-    let context: WorkerContext;
+    let context: Context;
     let collect: Collect;
 
     // @ts-expect-error
     const getQueue = (): DataEntity[] => collect.collector._queue;
     beforeEach(() => {
-        context = new TestContext('collect') as WorkerContext;
+        context = new TestContext('collect') as Context;
         collect = new Collect(context, opConfig, exConfig);
     });
 

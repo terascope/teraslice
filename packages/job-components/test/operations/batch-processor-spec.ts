@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     BatchProcessor, newTestExecutionConfig, TestContext,
-    WorkerContext
+    Context
 } from '../../src/index.js';
 
 describe('BatchProcessor', () => {
@@ -24,7 +24,7 @@ describe('BatchProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleBatchProcessor(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleBatchProcessor(context as Context, opConfig, exConfig);
     });
 
     describe('->onBatch', () => {
