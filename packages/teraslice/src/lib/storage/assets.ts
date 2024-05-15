@@ -41,25 +41,20 @@ function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
 }
 
 export function getBackendConfig(context: Context, logger: Logger) {
-    let connectionType: string;
-    let storageConnection: string;
-    let storageBucket: string | undefined;
+    const { terafoundation, teraslice } = context.sysconfig;
+
+    const connectionType = teraslice.asset_storage_connection_type
+        ? teraslice.asset_storage_connection_type
+        : terafoundation.asset_storage_connection_type;
+
+    const storageConnection = teraslice.asset_storage_connection
+        ? teraslice.asset_storage_connection
+        : terafoundation.asset_storage_connection;
+
+    const storageBucket = teraslice.asset_storage_bucket
+        ? teraslice.asset_storage_bucket
+        : terafoundation.asset_storage_bucket;
     /// Check teraslice first before setting to terafoundation configs
-    if (context.sysconfig.teraslice.asset_storage_connection_type) {
-        connectionType = context.sysconfig.teraslice.asset_storage_connection_type;
-    } else {
-        connectionType = context.sysconfig.terafoundation.asset_storage_connection_type;
-    }
-    if (context.sysconfig.teraslice.asset_storage_connection) {
-        storageConnection = context.sysconfig.teraslice.asset_storage_connection;
-    } else {
-        storageConnection = context.sysconfig.terafoundation.asset_storage_connection;
-    }
-    if (context.sysconfig.teraslice.asset_storage_bucket) {
-        storageBucket = context.sysconfig.teraslice.asset_storage_bucket;
-    } else {
-        storageBucket = context.sysconfig.terafoundation.asset_storage_bucket;
-    }
     const s3BackendConfig: TerasliceS3StorageConfig = {
         context,
         terafoundation: context.sysconfig.terafoundation,
