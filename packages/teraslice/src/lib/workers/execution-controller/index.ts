@@ -1113,9 +1113,7 @@ export class ExecutionController {
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async setupPromMetrics() {
-        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
+        const { context, executionAnalytics } = this;
         await Promise.all([
             this.context.apis.foundation.promMetrics.addGauge(
                 'info',
@@ -1127,9 +1125,9 @@ export class ExecutionController {
                 'Number of slices processed by all workers',
                 [],
                 function collect() {
-                    const slicesProcessed = self.executionAnalytics.get('processed');
+                    const slicesProcessed = executionAnalytics.get('processed');
                     const defaultLabels = {
-                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
+                        ...context.apis.foundation.promMetrics.getDefaultLabels()
                     };
                     this.set(defaultLabels, slicesProcessed);
                 }

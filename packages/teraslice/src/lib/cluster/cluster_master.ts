@@ -150,7 +150,8 @@ export class ClusterMaster {
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     logger: this.logger,
-                    assignment: 'cluster_master'
+                    assignment: 'master',
+                    prefix: 'teraslice_'
                 });
 
                 await this.setupPromMetrics();
@@ -229,7 +230,7 @@ export class ClusterMaster {
         */
         await Promise.all([
             this.context.apis.foundation.promMetrics.addGauge(
-                'info',
+                'master_info',
                 'Information about Teraslice cluster master',
                 ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version']
             ),
@@ -338,7 +339,7 @@ export class ClusterMaster {
         ]);
 
         this.context.apis.foundation.promMetrics.set(
-            'info',
+            'master_info',
             {
                 arch: this.context.arch,
                 clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,

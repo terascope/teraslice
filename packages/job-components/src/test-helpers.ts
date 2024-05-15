@@ -6,6 +6,9 @@ import {
     makeISODate
 } from '@terascope/utils';
 import { Terafoundation as tf } from '@terascope/types';
+import promClient, {
+    CollectFunction, Counter, Gauge, Histogram, Summary
+} from 'prom-client';
 import * as i from './interfaces';
 
 function newId(prefix: string): string {
@@ -111,21 +114,14 @@ export interface TestClients {
 export interface TestContextAPIs extends i.ContextAPIs {
     setTestClients(clients: TestClientConfig[]): void;
     getTestClients(): TestClients;
+    scrapePromMetrics(): Promise<string>;
 }
 
-export type MockPromMetrics = Record<string, {
-    readonly name: string,
-    readonly help: string,
-    readonly labelNames: Array<string>,
-    readonly buckets?: Array<number>,
-    readonly percentiles?: Array<number>,
-    readonly ageBuckets?: number,
-    readonly maxAgeSeconds?: number,
-    readonly functions: Set<string>,
-    labels: Record<string, { sum: number, count: number, value: number}>
-    collect?: tf.CollectFunction<tf.Gauge> | tf.CollectFunction<tf.Counter>
-    | tf.CollectFunction<tf.Histogram> | tf.CollectFunction<tf.Summary>,
-}>;
+export interface MockPromMetrics {
+    metricList: tf.MetricList;
+    defaultLabels: Record<string, string>;
+    prefix: string;
+}
 
 type GetKeyOpts = {
     type: string;
@@ -331,90 +327,120 @@ export class TestContext implements i.Context {
                 },
                 promMetrics: {
                     async init(config: tf.PromMetricsInitConfig) {
-                        const { job_prom_metrics_enabled, tf_prom_metrics_enabled } = config;
+                        const {
+                            assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
+                            tf_prom_metrics_add_default, tf_prom_metrics_enabled,
+                            labels, prefix
+                        } = config;
 
                         if (ctx.mockPromMetrics) {
                             throw new Error('Prom metrics API cannot be initialized more than once.');
                         }
 
+                        const useDefaultMetrics = job_prom_metrics_add_default !== undefined
+                            ? job_prom_metrics_add_default
+                            : tf_prom_metrics_add_default;
+
+                        const defaultLabels = {
+                            name: 'mockPromMetrics',
+                            assignment,
+                            ...labels
+                        };
+
+                        const finalPrefix = prefix || `teraslice_${config.assignment}_`;
+
+                        if (useDefaultMetrics) {
+                            const defaultMetricsConfig = {
+                                prefix: finalPrefix,
+                                labels: defaultLabels
+                            };
+                            promClient.collectDefaultMetrics(defaultMetricsConfig);
+                        }
+
                         if (job_prom_metrics_enabled === true
                         || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
-                            ctx.mockPromMetrics = {};
+                            ctx.mockPromMetrics = {
+                                metricList: {},
+                                prefix: finalPrefix,
+                                defaultLabels
+                            };
                             return true;
                         }
                         logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
                         return false;
                     },
-                    set(name: string, labelValues: Record<string, string>, value: number): void {
+                    set(name: string, labels: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
-                            const metric = ctx.mockPromMetrics[name];
-                            if (!metric || !metric.functions) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
-                            if (metric.functions.has('inc')) {
-                                const labelKey = getLabelKey(labelValues);
-                                metric.labels[labelKey] = { sum: 0, count: 0, value };
+                            if (metric.metric instanceof Gauge) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.set(value);
+                            } else {
+                                throw new Error(`set not available on ${name} metric`);
                             }
                         }
                     },
-                    inc(name: string, labelValues: Record<string, string>, value: number): void {
+                    inc(name: string, labels: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
-                            const metric = ctx.mockPromMetrics[name];
-                            if (!metric || !metric.functions) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
-                            if (metric.functions.has('inc')) {
-                                const labelKey = getLabelKey(labelValues);
-                                if (Object.keys(metric.labels).includes(labelKey)) {
-                                    metric.labels[labelKey].value += value;
-                                } else {
-                                    metric.labels[labelKey] = { sum: 0, count: 0, value };
-                                }
+                            if (metric.metric instanceof Counter
+                                || metric.metric instanceof Gauge
+                            ) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.inc(value);
+                            } else {
+                                throw new Error(`inc not available on ${name} metric`);
                             }
                         }
                     },
-                    dec(name: string, labelValues: Record<string, string>, value: number): void {
+                    dec(name: string, labels: Record<string, string>, value: number): void {
                         if (ctx.mockPromMetrics) {
-                            const metric = ctx.mockPromMetrics[name];
-                            if (!metric || !metric.functions) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
-                            if (metric.functions.has('dec')) {
-                                const labelKey = getLabelKey(labelValues);
-                                if (Object.keys(metric.labels).includes(labelKey)) {
-                                    metric.labels[labelKey].value -= value;
-                                } else {
-                                    metric.labels[labelKey] = { sum: 0, count: 0, value: -value };
-                                }
+
+                            if (metric.metric instanceof Gauge) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.dec(value);
+                            } else {
+                                throw new Error(`dec not available on ${name} metric`);
                             }
                         }
                     },
                     observe(
                         name: string,
-                        labelValues: Record<string, string>,
+                        labels: Record<string, string>,
                         value: number
                     ): void {
                         if (ctx.mockPromMetrics) {
-                            const metric = ctx.mockPromMetrics[name];
-                            if (!metric || !metric.functions) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
                                 throw new Error(`Metric ${name} is not setup`);
                             }
 
-                            if (metric.functions.has('observe')) {
-                                const labelKey = getLabelKey(labelValues);
-                                if (Object.keys(metric.labels).includes(labelKey)) {
-                                    metric.labels[labelKey] = {
-                                        sum: metric.labels[labelKey].sum += value,
-                                        count: metric.labels[labelKey].count + 1,
-                                        value: 0
-                                    };
-                                } else {
-                                    metric.labels[labelKey] = {
-                                        sum: value,
-                                        count: 1,
-                                        value: 0
-                                    };
-                                }
+                            if (metric.metric instanceof Summary
+                                || metric.metric instanceof Histogram) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.observe(value);
                             } else {
                                 throw new Error(`observe not available on ${name} metric`);
                             }
@@ -424,17 +450,21 @@ export class TestContext implements i.Context {
                         name: string,
                         help: string,
                         labelNames: Array<string>,
-                        collect?: tf.CollectFunction<tf.Gauge>
+                        collect?: CollectFunction<Gauge>
                     ): Promise<void> {
                         if (ctx.mockPromMetrics) {
                             if (!this.hasMetric(name)) {
-                                ctx.mockPromMetrics[name] = {
-                                    name,
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const gauge = new Gauge({
+                                    name: fullname,
                                     help,
                                     labelNames,
-                                    collect,
-                                    functions: new Set<string>(['inc', 'dec', 'set']),
-                                    labels: {}
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: gauge,
+                                    functions: new Set<string>(['inc', 'dec', 'set'])
                                 };
                             } else {
                                 logger.info(`metric ${name} already defined in metric list`);
@@ -445,17 +475,21 @@ export class TestContext implements i.Context {
                         name: string,
                         help: string,
                         labelNames: Array<string>,
-                        collect?: tf.CollectFunction<tf.Counter>
+                        collect?: CollectFunction<Counter>
                     ): Promise<void> {
                         if (ctx.mockPromMetrics) {
                             if (!this.hasMetric(name)) {
-                                ctx.mockPromMetrics[name] = {
-                                    name,
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const counter = new Counter({
+                                    name: fullname,
                                     help,
                                     labelNames,
-                                    collect,
-                                    functions: new Set<string>(['inc']),
-                                    labels: {}
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: counter,
+                                    functions: new Set<string>(['inc'])
                                 };
                             } else {
                                 logger.info(`metric ${name} already defined in metric list`);
@@ -466,17 +500,23 @@ export class TestContext implements i.Context {
                         name: string,
                         help: string,
                         labelNames: Array<string>,
-                        collect?: tf.CollectFunction<tf.Histogram>
+                        collect?: CollectFunction<Histogram>,
+                        buckets: number[] = [0.1, 5, 15, 50, 100, 500]
                     ): Promise<void> {
                         if (ctx.mockPromMetrics) {
                             if (!this.hasMetric(name)) {
-                                ctx.mockPromMetrics[name] = {
-                                    name,
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const histogram = new Histogram({
+                                    name: fullname,
                                     help,
                                     labelNames,
-                                    collect,
-                                    functions: new Set<string>(['observe']),
-                                    labels: {}
+                                    buckets,
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: histogram,
+                                    functions: new Set<string>(['observe'])
                                 };
                             } else {
                                 logger.info(`metric ${name} already defined in metric list`);
@@ -487,23 +527,27 @@ export class TestContext implements i.Context {
                         name: string,
                         help: string,
                         labelNames: Array<string>,
-                        collect?: tf.CollectFunction<tf.Summary>,
+                        collect?: CollectFunction<Summary>,
                         maxAgeSeconds = 600,
                         ageBuckets = 5,
                         percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
                     ): Promise<void> {
                         if (ctx.mockPromMetrics) {
                             if (!this.hasMetric(name)) {
-                                ctx.mockPromMetrics[name] = {
-                                    name,
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const summary = new Summary({
+                                    name: fullname,
                                     help,
                                     labelNames,
-                                    collect,
+                                    percentiles,
                                     maxAgeSeconds,
                                     ageBuckets,
-                                    percentiles,
-                                    functions: new Set<string>(['observe']),
-                                    labels: {}
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: summary,
+                                    functions: new Set<string>(['observe'])
                                 };
                             } else {
                                 logger.info(`metric ${name} already defined in metric list`);
@@ -512,16 +556,29 @@ export class TestContext implements i.Context {
                     },
                     hasMetric(name: string): boolean {
                         if (ctx.mockPromMetrics) {
-                            return (name in ctx.mockPromMetrics);
+                            return (name in ctx.mockPromMetrics.metricList);
                         }
                         return false;
                     },
                     async deleteMetric(name: string): Promise<boolean> {
                         let deleted = false;
                         if (ctx.mockPromMetrics) {
-                            deleted = delete ctx.mockPromMetrics[name];
+                            const fullname = ctx.mockPromMetrics.prefix + name;
+                            if (ctx.mockPromMetrics.metricList[name]) {
+                                deleted = delete ctx.mockPromMetrics.metricList[name];
+                                promClient.register.removeSingleMetric(fullname);
+                            } else {
+                                throw new Error(`metric ${name} not defined in metric list`);
+                            }
+                            return deleted;
                         }
                         return deleted;
+                    },
+                    getDefaultLabels() {
+                        if (ctx.mockPromMetrics) {
+                            return ctx.mockPromMetrics.defaultLabels;
+                        }
+                        return {};
                     },
                     verifyAPI(): boolean {
                         return ctx.mockPromMetrics !== null;
@@ -571,6 +628,12 @@ export class TestContext implements i.Context {
                 });
 
                 return clients;
+            },
+            async scrapePromMetrics(): Promise<string> {
+                if (ctx.mockPromMetrics) {
+                    return promClient.register.metrics();
+                }
+                return '';
             },
         } as TestContextAPIs;
 
