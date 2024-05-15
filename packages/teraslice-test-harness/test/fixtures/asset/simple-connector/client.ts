@@ -1,4 +1,4 @@
-export = class SimpleClient {
+export default class SimpleClient {
     fetchRecord(id: number): { id: number, data: number[] } {
         return {
             id,

@@ -15,6 +15,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
+    "type": "module",
     "directories": {
         "lib": "dist/src",
         "test": "test"
