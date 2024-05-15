@@ -96,9 +96,9 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        const assetConfig = getBackendConfig(context, logger);
-        if (assetConfig.assetConnectionType === 's3' && assetConfig.s3BackendConfig.connection) {
-            this.s3Backend = new S3Store(assetConfig.s3BackendConfig);
+        const { assetConnectionType, s3BackendConfig } = getBackendConfig(context, logger);
+        if (assetConnectionType === 's3' && s3BackendConfig.connection) {
+            this.s3Backend = new S3Store(s3BackendConfig);
         }
     }
 
