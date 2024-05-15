@@ -1,20 +1,13 @@
-import {
-    Slicer, times, WorkerContext, ExecutionConfig
-} from '@terascope/job-components';
+import { Slicer, times, SlicerRecoveryData } from '@terascope/job-components';
 import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 
 export default class TestSlicer extends Slicer<SimpleReaderConfig> {
-    client: SimpleClient;
+    client!: SimpleClient;
 
-    constructor(
-        context: WorkerContext,
-        opConfig: SimpleReaderConfig,
-        executionConfig: ExecutionConfig
-    ) {
-        super(context, opConfig, executionConfig);
-
-        this.client = this.context.apis.op_runner.getClient({}, 'simple-client');
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+        await super.initialize(recoveryData);
+        this.client = await this.context.apis.op_runner.getClient({}, 'simple-client');
     }
 
     async slice(): Promise<{ count: number }[]|null> {

@@ -1,6 +1,6 @@
 import {
     DataEntity,
-    JobConfig,
+    JobConfigParams,
     Slice,
     RunSliceResult,
     SliceAnalyticsData,
@@ -28,7 +28,7 @@ export default class JobTestHarness {
     readonly workerHarness: WorkerTestHarness;
     readonly slicerHarness: SlicerTestHarness;
 
-    constructor(job: JobConfig, options: JobHarnessOptions) {
+    constructor(job: JobConfigParams, options: JobHarnessOptions) {
         this.workerHarness = new WorkerTestHarness(job, options);
         this.slicerHarness = new SlicerTestHarness(job, options);
     }

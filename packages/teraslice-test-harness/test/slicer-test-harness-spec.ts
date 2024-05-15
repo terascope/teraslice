@@ -2,25 +2,30 @@ import 'jest-extended';
 import path from 'path';
 import {
     newTestJobConfig, Slicer, uniq,
-    AnyObject, LifeCycle
+    AnyObject, LifeCycle, TestClientConfig,
+    debugLogger
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
 
 describe('SlicerTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');
-    const clients = [
+    const logger = debugLogger('SlicerTestHarness');
+
+    const clients: TestClientConfig[] = [
         {
             type: 'example',
-            create: () => ({
+            createClient: async () => ({
                 client: {
                     say() {
                         return 'hello';
                     }
-                }
+                },
+                logger
             })
         }
     ];
+
     describe('when given a valid job config', () => {
         const job = newTestJobConfig();
         job.analytics = true;

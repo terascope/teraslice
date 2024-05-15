@@ -1,6 +1,6 @@
 import {
     ExecutionConfig, JobValidator, TestContext,
-    JobConfig, ExecutionContextConfig, Assignment,
+    JobConfigParams, ExecutionContextConfig, Assignment,
     makeExecutionContext, TestClientConfig,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
@@ -17,10 +17,12 @@ import { resolveAssetDir } from './utils';
 */
 export default class BaseTestHarness<U extends ExecutionContext> {
     readonly events: EventEmitter;
-    readonly executionContext: U;
+    executionContext!: U;
     readonly context: TestContext;
+    readonly job: JobConfigParams;
+    readonly assetPaths: string [];
 
-    constructor(job: JobConfig, options: JobHarnessOptions, assignment: Assignment) {
+    constructor(job: JobConfigParams, options: JobHarnessOptions, assignment: Assignment) {
         const testName = [assignment, job.name].filter((s) => s).join(':');
         this.context = new TestContext(testName, {
             assignment,
@@ -28,30 +30,31 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         });
 
         this.events = this.context.apis.foundation.getSystemEvents();
-        const config = this.makeContextConfig(job, this._getAssetDirs(options.assetDir));
-        this.executionContext = makeExecutionContext(config) as U;
+        this.job = job;
+        this.assetPaths = this._getAssetDirs(options.assetDir);
     }
-
     /**
-     * Initialize any test cod
+     * Initialize any test code
     */
     async initialize(): Promise<void> {
+        const config = await this.makeContextConfig(this.job, this.assetPaths);
+        this.executionContext = await makeExecutionContext(config) as U;
     }
 
     setClients(clients: TestClientConfig[]): void {
         this.context.apis.setTestClients(clients);
     }
 
-    protected makeContextConfig(
-        job: JobConfig,
+    protected async makeContextConfig(
+        job: JobConfigParams,
         assets: string[] = [process.cwd()]
-    ): ExecutionContextConfig {
+    ): Promise<ExecutionContextConfig> {
         const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
         this.context.sysconfig.teraslice.assets_directory = assets;
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
-        const executionConfig = jobValidator.validateConfig(job) as ExecutionConfig;
+        const executionConfig = await jobValidator.validateConfig(job) as ExecutionConfig;
         return {
             context: this.context,
             executionConfig,

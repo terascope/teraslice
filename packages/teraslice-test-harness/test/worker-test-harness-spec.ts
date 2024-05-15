@@ -6,22 +6,27 @@ import {
     DataEntity,
     Fetcher,
     BatchProcessor,
-    NoopProcessor
+    NoopProcessor,
+    debugLogger,
+    TestClientConfig
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
 describe('WorkerTestHarness', () => {
-    const clients = [
+    const logger = debugLogger('WorkerTestHarness');
+
+    const clients: TestClientConfig[] = [
         {
             type: 'example',
-            create: () => ({
+            createClient: async () => ({
                 client: {
                     say() {
                         return 'hello';
-                    },
+                    }
                 },
-            }),
-        },
+                logger
+            })
+        }
     ];
 
     describe('when given a valid job config', () => {

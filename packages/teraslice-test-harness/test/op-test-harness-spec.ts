@@ -1,18 +1,24 @@
 import 'jest-extended';
-import { DataEntity, OpConfig } from '@terascope/job-components';
+import {
+    DataEntity, OpConfig, TestClientConfig,
+    debugLogger
+} from '@terascope/job-components';
 import { OpTestHarness } from '../src';
-import transformer from './fixtures/asset/transformer';
+import transformer from './fixtures/asset/transformer/processor.js';
 
 describe('OpTestHarness', () => {
-    const clients = [
+    const logger = debugLogger('OpTestHarness');
+
+    const clients: TestClientConfig[] = [
         {
             type: 'example',
-            create: () => ({
+            createClient: async () => ({
                 client: {
                     say() {
                         return 'hello';
                     }
-                }
+                },
+                logger
             })
         }
     ];

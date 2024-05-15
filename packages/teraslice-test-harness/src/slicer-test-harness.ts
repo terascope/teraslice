@@ -1,6 +1,6 @@
 import {
     SlicerExecutionContext,
-    JobConfig,
+    JobConfigParams,
     Slice,
     SliceRequest,
     SliceResult,
@@ -37,7 +37,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     private _emitInterval: any;
 
-    constructor(job: JobConfig, options: JobHarnessOptions) {
+    constructor(job: JobConfigParams, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');
 
         const { config } = this.executionContext;

@@ -1,6 +1,6 @@
 import {
     WorkerExecutionContext,
-    JobConfig,
+    JobConfigParams,
     Slice,
     DataEntity,
     RunSliceResult,
@@ -25,7 +25,7 @@ import { JobHarnessOptions } from './interfaces';
  * @todo Add support for attaching APIs and Observers
  */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionContext> {
-    constructor(job: JobConfig, options: JobHarnessOptions = {}) {
+    constructor(job: JobConfigParams, options: JobHarnessOptions = {}) {
         super(job, options, 'worker');
     }
 

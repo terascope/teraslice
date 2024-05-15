@@ -5,22 +5,26 @@ import {
     DataEntity,
     Slicer,
     Fetcher,
-    BatchProcessor
+    BatchProcessor,
+    debugLogger,
+    TestClientConfig
 } from '@terascope/job-components';
 import { JobTestHarness } from '../src';
 
 describe('JobTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');
+    const logger = debugLogger('JobTestHarness');
 
-    const clients = [
+    const clients: TestClientConfig[] = [
         {
             type: 'example',
-            create: () => ({
+            createClient: async () => ({
                 client: {
                     say() {
                         return 'hello';
                     }
-                }
+                },
+                logger
             })
         }
     ];
