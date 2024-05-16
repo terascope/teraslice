@@ -129,59 +129,40 @@ export class AssetSrc {
      */
     async generateRegistry(): Promise<[AssetRegistry, string]> {
         const assetRegistry: AssetRegistry = {};
-        let fileExt: 'ts' | 'js';
+        const typescript = fs.existsSync(path.join(this.srcDir, 'tsconfig.json'));
+        const fileExt = typescript ? 'ts' : 'js';
 
-        // typescript repo
-        if (fs.existsSync(path.join(this.srcDir, 'tsconfig.json'))) {
-            fileExt = 'ts';
-            const files = await this.operatorFiles('ts');
-            for (const file of files) {
-                const parsedPath = path.parse(file);
-                const opDirectory = parsedPath.dir.split(path.sep).pop();
-
-                const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
-                if (opDirectory) {
-                    let importName: string;
-                    if (pathName === 'Processor') {
-                        importName = toPascalCase(opDirectory);
-                    } else if (opDirectory.endsWith('api')) {
-                        if (pathName === 'API') {
-                            importName = toPascalCase(opDirectory).slice(0, -3) + pathName;
-                        } else {
-                            importName = `${toPascalCase(opDirectory).slice(0, -3)}API${pathName}`;
-                        }
-                    } else {
-                        importName = toPascalCase(opDirectory) + pathName;
-                    }
-                    set(
-                        assetRegistry,
-                        `${opDirectory}.${pathName}`,
-                        [importName, parsedPath.name]
-                    );
-                } else {
-                    throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
-                }
+        const files = await this.operatorFiles(fileExt);
+        for (const file of files) {
+            const parsedPath = path.parse(file);
+            const opDirectory = parsedPath.dir.split(path.sep).pop();
+            if (!opDirectory) {
+                throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
-        } else {
-            // javascript repo
-            fileExt = 'js';
-            const files = await this.operatorFiles('js');
-            for (const file of files) {
-                const parsedPath = path.parse(file);
-                const opDirectory = parsedPath.dir.split(path.sep).pop();
 
-                const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
-
-                if (opDirectory) {
-                    set(
-                        assetRegistry,
-                        `${opDirectory}.${pathName}`,
-                        parsedPath.base
-                    );
+            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+            let value: string | [string, string];
+            if (typescript) {
+                let importName: string;
+                if (pathName === 'Processor') {
+                    importName = toPascalCase(opDirectory);
+                } else if (opDirectory.endsWith('api')) {
+                    importName = pathName === 'API'
+                        ? toPascalCase(opDirectory).slice(0, -3) + pathName
+                        : `${toPascalCase(opDirectory).slice(0, -3)}API${pathName}`;
                 } else {
-                    throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+                    importName = toPascalCase(opDirectory) + pathName;
                 }
+                value = [importName, parsedPath.name];
+            } else {
+                value = parsedPath.base;
             }
+
+            set(
+                assetRegistry,
+                `${opDirectory}.${pathName}`,
+                value
+            );
         }
 
         return [assetRegistry, fileExt];

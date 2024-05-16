@@ -13,7 +13,6 @@ export default {
     builder(yargs) {
         yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.option('registry', yargsOptions.buildOption('registry'));
         yargs.example(
             '$0 asset registry',
             'Add or update registry on existing asset'
