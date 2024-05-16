@@ -206,7 +206,8 @@ export class AssetsService {
                 record.id = asset._id;
                 return record;
             });
-            if (getBackendConfig(this.context, this.logger).assetConnectionType === 's3') {
+            const { assetConnectionType } = getBackendConfig(this.context, this.logger);
+            if (assetConnectionType === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
                 return makeTable(req, s3Defaults, updatedAssets, mapping);
