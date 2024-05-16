@@ -118,8 +118,8 @@ export class AssetSrc {
      *   slicer.js
      * @returns {Array} array of paths to all of the operator files
      */
-    async operatorFiles(): Promise<string[]> {
-        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+    async operatorFiles(ext: 'js' | 'ts'): Promise<string[]> {
+        const matchString = path.join(this.srcDir, 'asset', `**/{api,fetcher,processor,schema,slicer}.${ext}`);
         return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
@@ -127,28 +127,64 @@ export class AssetSrc {
      * generates the registry object that is used to generate the index.js asset
      * registry
      */
-    async generateRegistry(): Promise<AssetRegistry> {
+    async generateRegistry(): Promise<[AssetRegistry, string]> {
         const assetRegistry: AssetRegistry = {};
-        const files = await this.operatorFiles();
+        let fileExt: 'ts' | 'js';
 
-        for (const file of files) {
-            const parsedPath = path.parse(file);
-            const opDirectory = parsedPath.dir.split(path.sep).pop();
+        // typescript repo
+        if (fs.existsSync(path.join(this.srcDir, 'tsconfig.json'))) {
+            fileExt = 'ts';
+            const files = await this.operatorFiles('ts');
+            for (const file of files) {
+                const parsedPath = path.parse(file);
+                const opDirectory = parsedPath.dir.split(path.sep).pop();
 
-            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+                const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+                if (opDirectory) {
+                    let importName: string;
+                    if (pathName === 'Processor') {
+                        importName = toPascalCase(opDirectory);
+                    } else if (opDirectory.endsWith('api')) {
+                        if (pathName === 'API') {
+                            importName = toPascalCase(opDirectory).slice(0, -3) + pathName;
+                        } else {
+                            importName = `${toPascalCase(opDirectory).slice(0, -3)}API${pathName}`;
+                        }
+                    } else {
+                        importName = toPascalCase(opDirectory) + pathName;
+                    }
+                    set(
+                        assetRegistry,
+                        `${opDirectory}.${pathName}`,
+                        [importName, parsedPath.name]
+                    );
+                } else {
+                    throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+                }
+            }
+        } else {
+            // javascript repo
+            fileExt = 'js';
+            const files = await this.operatorFiles('js');
+            for (const file of files) {
+                const parsedPath = path.parse(file);
+                const opDirectory = parsedPath.dir.split(path.sep).pop();
 
-            if (opDirectory) {
-                set(
-                    assetRegistry,
-                    `${opDirectory}.${pathName}`,
-                    parsedPath.base
-                );
-            } else {
-                throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+                const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+
+                if (opDirectory) {
+                    set(
+                        assetRegistry,
+                        `${opDirectory}.${pathName}`,
+                        parsedPath.base
+                    );
+                } else {
+                    throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
+                }
             }
         }
 
-        return assetRegistry;
+        return [assetRegistry, fileExt];
     }
 
     async build(): Promise<ZipResults> {
