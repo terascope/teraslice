@@ -49,7 +49,7 @@ export function getBackendConfig(context: Context, logger: Logger) {
 
     const storageConnection = teraslice.asset_storage_connection
         ? teraslice.asset_storage_connection
-        : terafoundation.asset_storage_connection;
+        : terafoundation.asset_storage_connection as string;
 
     const storageBucket = teraslice.asset_storage_bucket
         ? teraslice.asset_storage_bucket

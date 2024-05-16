@@ -443,8 +443,8 @@ export interface Config {
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;
     assets_directory?: string[] | string;
-    asset_storage_connection_type: string| 'elasticsearch-next';
-    asset_storage_connection: string|'default';
+    asset_storage_connection_type: string;
+    asset_storage_connection: string;
     asset_storage_bucket: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;

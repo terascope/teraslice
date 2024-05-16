@@ -31,11 +31,6 @@ describe('Assets Service', () => {
     /// This is so we don't share indices and buckets with other test suites
     const context = new TestContext(`${TEST_INDEX_PREFIX}assets-spec-test`, contextOptions);
     context.sysconfig.terafoundation = {
-        /// / All asset_storage related setting are deprecated and need to be
-        /// / removed for teraslice version 2.0
-        asset_storage_connection_type: 's3',
-        asset_storage_connection: 'default',
-        asset_storage_bucket: 'assets-spec-test-bucket',
         prom_metrics_enabled: false,
         prom_metrics_port: 3333,
         prom_metrics_add_default: true,
@@ -57,6 +52,9 @@ describe('Assets Service', () => {
             },
         }
     };
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
+    context.sysconfig.teraslice.asset_storage_connection = 'default';
+    context.sysconfig.teraslice.asset_storage_bucket = 'assets-spec-test-bucket';
     context.sysconfig.teraslice.api_response_timeout = 30000;
     /// Setting port for the asset service
     process.env.port = '55678';
