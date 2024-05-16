@@ -155,46 +155,15 @@ $ teraslice-cli assets remove <cluster-alias> <asset-id>
 Asset <asset-id> deleted from <cluster-alias>
 ```
 
-### assets init
+### assets registry
 
-Creates a new asset framework or adds a new processor to an existing asset with the `--processor` option
+Creates a new asset registry or updates the existing registry. If a javascript repo the registry will be at `assets/index.js`. If a typescript repo the registry will be at `asset/src/index.ts`. A registry is required to properly bundle assets using ESBuild.
 
 ```sh
 teraslice-cli assets init
 ```
 
-An asset is composed of processors that reside in the asset_name/asset directory.  This command creates the basic asset directory structure.  The teraslice-cli will ask for an asset name and brief description before creating the asset file structure, test framework, and it's needed dependencies.  It will create working tests in the test directory.  If `yarn` is installed then the cli will use `yarn` to install the dependencies, otherwise it will use `npm`.  Use `yarn test` or `npm test` to run the test suite.
 
-Asset directory contents
-
-```sh
-<asset_name>
-- asset
-    package.json
-    asset.json
-    yarn.lock # or package-lock.json
-    node_modules
-    - processor
-    index.js
-    processor.js
-    schema.js
-- spec
-    asset-spec.js
-node_modules
-package.json
-.eslintrc
-yarn.lock # or package-lock.json
-```
-
-If the `asset/asset.json` contains a *falsey* value for `node_version`, `platform`, or `arch`, the values will not be automatically added and teraslice will not add any restrictions. This is useful for making an asset bundle that isn't by locked down by node version or os.
-
-To create a new processor in an already made asset use the `--processor` option.
-
-```sh
-teraslice-cli assets init --processor
-```
-
-The processor will be added to the `asset` directory with an associated test file in the test directory.  If there is no asset directory in the cwd then the cli will not create the processor.  The cli will prompt for a name and type before creating the new processor.  The three processor types are batch, filter, and map.  The batch processor expects the entire slice array for the input while the filter and map functions expect one item at a time.  See example code in a generated processor.
 
 ## TJM (teraslice job manager)
 

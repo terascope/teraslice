@@ -9,12 +9,12 @@ const yargsOptions = new YargsOptions();
 
 export default {
     command: 'registry',
-    describe: 'Creates or updates a registry for an asset bundle at `assets/index.js` or `assets/src/index.ts`',
+    describe: 'Creates or updates a registry for an asset bundle at `assets/index.js` or `assets/src/index.ts`\n',
     builder(yargs) {
         yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.example(
-            '$0 asset registry',
+            '$0 assets registry',
             'Add or update registry on existing asset'
         );
         return yargs;
