@@ -1,0 +1,1 @@
+{"program":{"fileNames":[],"fileInfos":[],"root":[],"options":{"composite":true,"declaration":true,"declarationMap":true,"esModuleInterop":true,"module":1,"noFallthroughCasesInSwitch":true,"outDir":"./dist","preserveConstEnums":true,"rootDir":"./src","skipLibCheck":true,"sourceMap":true,"strict":true,"target":6},"referencedMap":[],"exportedModulesMap":[]},"version":"5.3.3"}
