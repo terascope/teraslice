@@ -77,7 +77,7 @@ export function foundationSchema() {
             format: String
         },
         asset_storage_connection: {
-            doc: '[Depricated] Name of the connection used to store assets.',
+            doc: '[Deprecated] Name of the connection used to store assets.',
             default: 'default',
             format: String
         },
