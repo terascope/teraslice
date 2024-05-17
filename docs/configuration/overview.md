@@ -31,7 +31,7 @@ teraslice:
 ```
 
 ## Terafoundation Configuration Reference
-NOTE: All `asset_storage` related fields are depricated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
+NOTE: All `asset_storage` related fields are deprecated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
