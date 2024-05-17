@@ -411,7 +411,8 @@ export class Worker {
      */
     async setupPromMetrics() {
         this.logger.info(`adding ${this.context.assignment} prom metrics...`);
-        const { context, getSlicesProcessed } = this;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         await Promise.all([
             this.context.apis.foundation.promMetrics.addGauge(
                 'info',
@@ -423,9 +424,9 @@ export class Worker {
                 'Number of slices the worker has processed',
                 [],
                 function collect() {
-                    const slicesProcessed = getSlicesProcessed();
+                    const slicesProcessed = self.getSlicesProcessed();
                     const defaultLabels = {
-                        ...context.apis.foundation.promMetrics.getDefaultLabels()
+                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
                     };
                     this.set(defaultLabels, slicesProcessed);
                 }
