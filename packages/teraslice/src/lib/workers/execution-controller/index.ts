@@ -1113,6 +1113,7 @@ export class ExecutionController {
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async setupPromMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
         const { context, executionAnalytics } = this;
         await Promise.all([
             this.context.apis.foundation.promMetrics.addGauge(
