@@ -22,6 +22,9 @@ export interface TerasliceConfig {
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;
     assets_directory?: string[] | string;
+    asset_storage_connection_type?: string;
+    asset_storage_connection?: string;
+    asset_storage_bucket?: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
@@ -64,8 +67,8 @@ export interface TerasliceConfig {
 
 export interface TerafoundationConfig {
     connectors: Record<string, any>;
-    asset_storage_connection_type: string;
-    asset_storage_connection: string;
+    asset_storage_connection_type?: string;
+    asset_storage_connection?: string;
     asset_storage_bucket?: string;
     prom_metrics_enabled: boolean;
     prom_metrics_port: number;

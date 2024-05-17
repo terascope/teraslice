@@ -31,12 +31,13 @@ teraslice:
 ```
 
 ## Terafoundation Configuration Reference
+NOTE: All `asset_storage` related fields are deprecated. Please use the fields in the teraslice config instead. Also the `asset_storage` fields in the teraslice config will take precedence over the ones that are in terafoundation.
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
-| **asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
-| **asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
-| **asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
+| **[Deprecated]asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
+| **[Deprecated]asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
+| **[Deprecated]asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
 | **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
 | **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
@@ -55,6 +56,9 @@ teraslice:
 |               **analytics_rate**                |             `duration`             |          `60000`           |                                           Rate in ms in which to push analytics to cluster master                                           |
 |            **api_response_timeout**             |             `duration`             |          `300000`          |    maximum time, in milliseconds, requests to the teraslice API will wait to complete a response without error (e.g. posting large assets)  |
 |              **assets_directory**               |              `String`              |      `"$PWD/assets"`       |                                                        directory to look for assets                                                         |
+| **asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
+| **asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
+| **asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
 |                **assets_volume**                |              `String`              |             -              |                                                      name of shared asset volume (k8s)                                                      |
 |             **autoload_directory**              |              `String`              |     `"$PWD/autoload"`      |                                     directory to look for assets to auto deploy when teraslice boots up                                     |
 |            **cluster_manager_type**             |     `"native"`, `"kubernetes"`     |         `"native"`         |                                               determines which cluster system should be used                                                |

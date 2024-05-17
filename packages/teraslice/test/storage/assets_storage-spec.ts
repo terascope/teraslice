@@ -29,8 +29,6 @@ describe('AssetsStorage using S3 backend', () => {
     const context = new TestContext(`${TEST_INDEX_PREFIX}assets-storage-test`, options) as any;
 
     context.sysconfig.terafoundation = {
-        asset_storage_connection_type: 's3',
-        asset_storage_connection: 'default',
         connectors: {
             'elasticsearch-next': {
                 default: {
@@ -49,6 +47,8 @@ describe('AssetsStorage using S3 backend', () => {
             }
         }
     };
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
+    context.sysconfig.teraslice.asset_storage_connection = 'default';
     context.sysconfig.teraslice.api_response_timeout = 30000;
 
     beforeAll(async () => {

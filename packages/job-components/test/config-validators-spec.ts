@@ -54,12 +54,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -88,13 +88,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
-
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
             const schema = jobSchema(context);
             const job = {
                 operations: [{ _op: 'noop' }],
@@ -118,12 +117,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -156,12 +155,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -193,12 +192,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -229,12 +228,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
@@ -272,12 +271,12 @@ describe('when using native clustering', () => {
                         },
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
             };
+            context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
+            context.sysconfig.teraslice.asset_storage_connection = 'default';
 
             const schema = jobSchema(context);
             const job = {
