@@ -82,7 +82,7 @@ export function foundationSchema() {
             format: String
         },
         asset_storage_bucket: {
-            doc: '[Depricated] Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
+            doc: '[Deprecated] Name of S3 bucket used to store assets. Can only be used if "asset_storage_connection_type" is "s3".',
             default: undefined,
             format: String
         },
