@@ -110,7 +110,7 @@ export function foundationValidatorFn<S>(
     subconfig: Record<string, any>,
     _sysconfig: Terafoundation.SysConfig<S>
 ): void {
-    /// Everything related to asset storage connection is Depricated
+    /// Everything related to asset storage connection is Deprecated
     /// Remove for teraslice 2.0
     const typedSubconfig = subconfig as Terafoundation.Foundation;
     const connectionType = typedSubconfig.asset_storage_connection_type
