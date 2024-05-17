@@ -72,7 +72,7 @@ export function foundationSchema() {
             default: workerCount
         },
         asset_storage_connection_type: {
-            doc: '[Depricated] Name of the connection type used to store assets',
+            doc: '[Deprecated] Name of the connection type used to store assets',
             default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
             format: String
         },
