@@ -1,0 +1,12 @@
+{
+    "name": "test-asset-typescript-package",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "author": "",
+    "scripts": {
+        "build": "tsc --build"
+     },
+    "devDependencies": { },
+    "dependencies": {}
+}

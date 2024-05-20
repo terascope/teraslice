@@ -1,31 +1,22 @@
 import path from 'node:path';
-import Generator from 'yeoman-generator';
-
+import fs from 'fs-extra';
+import EJS from 'ejs';
 import { AssetSrc } from '../../helpers/asset-src.js';
 import { getTemplatePath } from '../utils.js';
 
-export default class extends Generator {
-    constructor(args: string|string[], opts: Record<string, any>) {
-        super(args, opts);
-        this.argument('asset_path', { type: String, required: true });
-        this.option('new', {
-            type: Boolean
-        });
-        this.sourceRoot(getTemplatePath('registry'));
-    }
+/**
+ * Generates an index file within the asset directory of an asset bundle,
+ * ensuring ESBuild bundles all asset resources
+ * @param {string} assetBaseDir base directory of the asset bundle
+ */
+export async function generateRegistry(assetBaseDir: string): Promise<void> {
+    const asset = new AssetSrc(assetBaseDir);
+    const [registry, fileExt] = await asset.generateRegistry();
+    const templatePath = path.join(getTemplatePath('registry'), `index-${fileExt}.ejs`);
+    const templateString = fs.readFileSync(templatePath, 'utf8');
+    const compiledTemplate = EJS.compile(templateString);
+    const renderedRegistry = compiledTemplate({ registry });
 
-    paths(): void {
-        this.destinationRoot(path.join(this.options.asset_path, 'asset'));
-    }
-
-    async default(): Promise<void> {
-        const asset = new AssetSrc(this.options.asset_path);
-        const registry = await asset.generateRegistry();
-
-        this.fs.copyTpl(
-            this.templatePath('index.ejs'),
-            this.destinationPath('index.js'),
-            { registry }
-        );
-    }
+    const destination = fileExt === 'js' ? path.join(assetBaseDir, 'asset', 'index.js') : path.join(assetBaseDir, 'asset', 'src', 'index.ts');
+    fs.writeFileSync(destination, renderedRegistry);
 }

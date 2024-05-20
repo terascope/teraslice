@@ -13,7 +13,8 @@ import {
     TSError,
     toPascalCase,
     set,
-    toUpperCase
+    toUpperCase,
+    toLowerCase
 } from '@terascope/utils';
 
 import reply from './reply.js';
@@ -30,7 +31,12 @@ interface AssetRegistry {
     }
 }
 
-type OpType = 'API' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
+// These should match AssetRepositoryKey values from
+// @terascope/job-components/src/operation-loader/interfaces.ts
+const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Observer'] as const;
+
+type OpTypeTuple = typeof OP_TYPES;
+type OpType = OpTypeTuple[number];
 
 export class AssetSrc {
     /**
@@ -111,15 +117,17 @@ export class AssetSrc {
 
     /**
      * operatorFiles finds all of the Teraslice operator files, including:
-     *   api.js
-     *   fetcher.js
-     *   processor.js
-     *   schema.js
-     *   slicer.js
+     *   api.js/ts
+     *   fetcher.js/ts
+     *   processor.js/ts
+     *   schema.js/ts
+     *   slicer.js/ts
+     *   observer.js/ts
      * @returns {Array} array of paths to all of the operator files
      */
-    async operatorFiles(): Promise<string[]> {
-        const matchString = path.join(this.srcDir, 'asset', '**/{api,fetcher,processor,schema,slicer}.js');
+    async operatorFiles(ext: 'js' | 'ts'): Promise<string[]> {
+        const OP_TYPE_FILE_NAMES = OP_TYPES.map(toLowerCase);
+        const matchString = path.join(this.srcDir, 'asset', `**/{${OP_TYPE_FILE_NAMES}}.${ext}`);
         return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
@@ -127,28 +135,45 @@ export class AssetSrc {
      * generates the registry object that is used to generate the index.js asset
      * registry
      */
-    async generateRegistry(): Promise<AssetRegistry> {
+    async generateRegistry(): Promise<[AssetRegistry, string]> {
         const assetRegistry: AssetRegistry = {};
-        const files = await this.operatorFiles();
+        const typescript = fs.existsSync(path.join(this.srcDir, 'tsconfig.json'));
+        const fileExt = typescript ? 'ts' : 'js';
 
+        const files = await this.operatorFiles(fileExt);
         for (const file of files) {
             const parsedPath = path.parse(file);
             const opDirectory = parsedPath.dir.split(path.sep).pop();
-
-            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
-
-            if (opDirectory) {
-                set(
-                    assetRegistry,
-                    `${opDirectory}.${pathName}`,
-                    parsedPath.base
-                );
-            } else {
+            if (!opDirectory) {
                 throw new Error(`Error: unable to get 'op_directory' from ${parsedPath}`);
             }
+
+            const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
+            let value: string | [string, string];
+            if (typescript) {
+                let importName: string;
+                if (pathName === 'Processor') {
+                    importName = toPascalCase(opDirectory);
+                } else if (opDirectory.endsWith('api')) {
+                    importName = pathName === 'API'
+                        ? toPascalCase(opDirectory).slice(0, -3) + pathName
+                        : `${toPascalCase(opDirectory).slice(0, -3)}API${pathName}`;
+                } else {
+                    importName = toPascalCase(opDirectory) + pathName;
+                }
+                value = [importName, parsedPath.name];
+            } else {
+                value = parsedPath.base;
+            }
+
+            set(
+                assetRegistry,
+                `${opDirectory}.${pathName}`,
+                value
+            );
         }
 
-        return assetRegistry;
+        return [assetRegistry, fileExt];
     }
 
     async build(): Promise<ZipResults> {
