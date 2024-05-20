@@ -13,7 +13,8 @@ import {
     TSError,
     toPascalCase,
     set,
-    toUpperCase
+    toUpperCase,
+    toLowerCase
 } from '@terascope/utils';
 
 import reply from './reply.js';
@@ -30,7 +31,12 @@ interface AssetRegistry {
     }
 }
 
-type OpType = 'API' | 'Fetcher' | 'Processor' | 'Schema' | 'Slicer';
+// These should match AssetRepositoryKey values from
+// @terascope/job-components/src/operation-loader/interfaces.ts
+const OP_TYPES = ['API', 'Fetcher', 'Processor', 'Schema', 'Slicer', 'Observer'] as const;
+
+type OpTypeTuple = typeof OP_TYPES;
+type OpType = OpTypeTuple[number];
 
 export class AssetSrc {
     /**
@@ -111,15 +117,17 @@ export class AssetSrc {
 
     /**
      * operatorFiles finds all of the Teraslice operator files, including:
-     *   api.js
-     *   fetcher.js
-     *   processor.js
-     *   schema.js
-     *   slicer.js
+     *   api.js/ts
+     *   fetcher.js/ts
+     *   processor.js/ts
+     *   schema.js/ts
+     *   slicer.js/ts
+     *   observer.js/ts
      * @returns {Array} array of paths to all of the operator files
      */
     async operatorFiles(ext: 'js' | 'ts'): Promise<string[]> {
-        const matchString = path.join(this.srcDir, 'asset', `**/{api,fetcher,processor,schema,slicer}.${ext}`);
+        const OP_TYPE_FILE_NAMES = OP_TYPES.map(toLowerCase);
+        const matchString = path.join(this.srcDir, 'asset', `**/{${OP_TYPE_FILE_NAMES}}.${ext}`);
         return glob(matchString, { ignore: ['**/node_modules/**', '**/_*/**', '**/.*/**'] });
     }
 
