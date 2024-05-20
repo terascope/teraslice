@@ -157,7 +157,7 @@ Asset <asset-id> deleted from <cluster-alias>
 
 ### assets registry
 
-Creates a new asset registry or updates the existing registry. If a javascript repo the registry will be at `assets/index.js`. If a typescript repo the registry will be at `asset/src/index.ts`. A registry is required to properly bundle assets using ESBuild.
+Creates a new asset registry or updates the existing registry. If a javascript repo the registry will be at `asset/index.js`. If a typescript repo the registry will be at `asset/src/index.ts`. A registry is required to properly bundle assets using ESBuild.
 
 ```sh
 teraslice-cli assets init
