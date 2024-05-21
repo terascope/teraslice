@@ -433,7 +433,6 @@ export class ExecutionService {
 
             try {
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'scheduling');
-                // @ts-expect-error TODO: figure this out
                 execution = await this.clusterService.allocateSlicer(execution);
 
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'initializing', {
@@ -442,7 +441,6 @@ export class ExecutionService {
                 });
 
                 try {
-                    // @ts-expect-error TODO: figure this out
                     await this.clusterService.allocateWorkers(execution, execution.workers);
                 } catch (err) {
                     throw new TSError(err, {

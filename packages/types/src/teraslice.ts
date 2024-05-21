@@ -487,21 +487,17 @@ export interface Config {
     slicer_allocation_attempts: number|3;
     slicer_port_range: string|'45679:46678';
     slicer_timeout: number|180000;
-    state: ConnectionConfig;
+    state: { connection: string };
     env_vars: { [key: string]: string };
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }
 
-interface _TerasliceConfig {
+export interface TerasliceConfig {
     teraslice: Config,
 }
 
-export interface SysConfig extends BaseSysconfig<_TerasliceConfig> {}
-
-export interface ConnectionConfig {
-    connection: string|'default';
-}
+export interface SysConfig extends BaseSysconfig<TerasliceConfig> {}
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
 

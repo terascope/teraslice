@@ -34,7 +34,7 @@ export class AnalyticsStorage {
             storageName: 'analytics',
             logger
         };
-        this.workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker.id}`;
+        this.workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker?.id}`;
         this.timeseriesFormat = config.index_rollover_frequency.analytics as TimeseriesFormat;
         this.baseIndex = _index;
         this.logger = logger;

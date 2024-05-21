@@ -19,4 +19,4 @@ export default class SimpleClient {
     isFinished(): boolean {
         return false;
     }
-};
+}

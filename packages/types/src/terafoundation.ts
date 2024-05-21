@@ -52,17 +52,11 @@ export interface ConnectionConfig {
     cached?: boolean;
     type: string;
 }
+
 export interface ConnectorOutput {
     client: any;
     logger: Logger
 }
-
-// TODO: should this be deleted????
-export type ClientFactoryFn = (
-    config: Record<string, any>,
-    logger: Logger,
-    options: ConnectionConfig
-) => { client: any };
 
 export type CreateClientFactoryFn = (
     config: Record<string, any>,
@@ -77,7 +71,7 @@ export interface FoundationAPIs {
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
     createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
+    startWorkers(num: number, envOptions: Record<string, any>): void;
 }
 
 export type ContextAPIs = {
@@ -105,19 +99,21 @@ export type Cluster = Overwrite<NodeJSCluster, {
     };
 }>;
 
+export interface TerafoundationConfig {
+    workers: number;
+    environment: 'production'|'development'|'test'|string;
+    connectors: Record<string, Record<string, any>>;
+    log_path: string;
+    log_level: LogLevelConfig;
+    logging: LogType[];
+    asset_storage_connection_type?: string;
+    asset_storage_connection?: string;
+    asset_storage_bucket?: string;
+}
+
 export type SysConfig<S> = {
     _nodeName: string;
-    terafoundation: {
-        workers: number;
-        environment: 'production'|'development'|'test'|string;
-        connectors: Record<string, any>;
-        log_path: string;
-        log_level: LogLevelConfig;
-        logging: LogType[];
-        asset_storage_connection_type?: string;
-        asset_storage_connection?: string;
-        asset_storage_bucket?: string;
-    };
+    terafoundation: TerafoundationConfig;
 } & S;
 
 export type Context<

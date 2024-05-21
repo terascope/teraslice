@@ -64,7 +64,7 @@ export class JobsService {
      * @returns {Promise<import('@terascope/job-components').ValidatedJobConfig>}
     */
     private async _validateJobSpec(
-        jobSpec: Partial<ValidatedJobConfig>
+        jobSpec: JobConfig | JobConfigParams
     ): Promise<ValidatedJobConfig | JobConfig> {
         const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
         const validJob = await this.jobValidator.validateConfig(parsedAssetJob);

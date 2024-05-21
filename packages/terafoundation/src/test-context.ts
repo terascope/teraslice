@@ -8,7 +8,7 @@ import { CoreContext } from './core-context.js';
 import validateConfigs from './validate-configs.js';
 
 interface ClientFactoryFns {
-    [prop: string]: Terafoundation.ClientFactoryFn | Terafoundation.CreateClientFactoryFn;
+    [prop: string]: Terafoundation.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
@@ -17,7 +17,6 @@ export interface CachedClients {
 
 export interface TestClientConfig {
     type: string;
-    create?: Terafoundation.ClientFactoryFn;
     createClient?: Terafoundation.CreateClientFactoryFn;
     config?: Record<string, any>;
     endpoint?: string;
@@ -140,8 +139,8 @@ export class TestContext<
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {
-                const { create, createClient, config: connectionConfig = {} } = clientConfig;
-                const createFN = createClient || create;
+                const { createClient, config: connectionConfig = {} } = clientConfig;
+                const createFN = createClient;
                 const clientFns = _createClientFns.get(ctx) || {};
 
                 const key = getKey(clientConfig);
