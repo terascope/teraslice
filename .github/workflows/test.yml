@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -83,7 +83,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -117,7 +117,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -151,7 +151,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -185,7 +185,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -223,7 +223,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.1.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
