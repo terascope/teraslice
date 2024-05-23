@@ -40,6 +40,9 @@ export class PromMetrics {
      * @returns {Promise<boolean>} Was the API initialized
      */
     async init(config: tf.PromMetricsInitConfig) {
+        if (this.apiRunning) {
+            throw new Error('Prom metrics API cannot be initialized more than once.');
+        }
         const {
             assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
             job_prom_metrics_port, tf_prom_metrics_add_default, tf_prom_metrics_enabled,
