@@ -8,7 +8,7 @@
     },
     "include": [
         "test",
-        "./test/fixtures/jobs/**.json",
+        "./test/fixtures/jobs/**.ts",
         "./test/fixtures/assets/**.zip"
     ]
 }
