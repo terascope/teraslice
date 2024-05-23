@@ -14,6 +14,8 @@ COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 COPY types /app/source/types
 
+RUN python -V
+
 RUN yarn --prod=false --frozen-lockfile \
     && yarn build \
     && yarn \
