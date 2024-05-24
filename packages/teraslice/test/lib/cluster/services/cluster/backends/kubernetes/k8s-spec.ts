@@ -43,13 +43,30 @@ describe('k8s', () => {
             });
 
         const clientConfig = {
-            url: _url,
-            auth: {
-                user: 'admin',
-                pass: 'fakepass',
-            },
-            insecureSkipTlsVerify: true,
+            clusters: [{
+                name: 'cluster',
+                server: _url,
+                skipTLSVerify: true
+            }],
+            users: [{
+                name: 'admin',
+                password: 'fakepass'
+            }],
+            contexts: [{
+                name: 'context',
+                user: 'user',
+                cluster: 'cluster'
+            }],
+            currentContext: 'context'
         };
+        // {
+        //     url: _url,
+        //     auth: {
+        //         user: 'admin',
+        //         pass: 'fakepass',
+        //     },
+        //     insecureSkipTlsVerify: true,
+        // };
         k8s = new K8s(logger, clientConfig, null, 1, 1);
         await k8s.init();
     });
