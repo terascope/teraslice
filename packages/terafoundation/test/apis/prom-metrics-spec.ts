@@ -56,8 +56,8 @@ describe('promMetrics foundation API', () => {
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
-                    expect(() => context.apis.foundation.promMetrics.init(config))
-                        .toThrow('Prom metrics API cannot be initialized more than once.');
+                    await expect(() => context.apis.foundation.promMetrics.init(config))
+                        .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
                 });
             });
 
@@ -145,8 +145,8 @@ describe('promMetrics foundation API', () => {
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
-                    expect(() => context.apis.foundation.promMetrics.init(config))
-                        .toThrow('Prom metrics API cannot be initialized more than once.');
+                    await expect(() => context.apis.foundation.promMetrics.init(config))
+                        .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
                 });
             });
         });
@@ -277,8 +277,8 @@ describe('promMetrics foundation API', () => {
                 });
 
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
-                    expect(() => context.apis.foundation.promMetrics.init(config))
-                        .toThrow('Prom metrics API cannot be initialized more than once.');
+                    await expect(() => context.apis.foundation.promMetrics.init(config))
+                        .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
                 });
             });
         });

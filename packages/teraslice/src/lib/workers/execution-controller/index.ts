@@ -9,7 +9,9 @@ import {
     pDelay, getFullErrorStack, logError,
     pWhile, makeISODate, Logger
 } from '@terascope/utils';
-import { Context, SlicerExecutionContext, Slice } from '@terascope/job-components';
+import {
+    Context, SlicerExecutionContext, Slice, isPromAvailable
+} from '@terascope/job-components';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { StateStorage, ExecutionStorage, SliceState } from '../../storage/index.js';
 import { makeLogger, generateWorkerId } from '../helpers/terafoundation.js';
@@ -140,23 +142,24 @@ export class ExecutionController {
             this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
         } else {
             const { terafoundation } = this.context.sysconfig;
+            const { config, exId, jobId } = this.executionContext;
             await this.context.apis.foundation.promMetrics.init({
                 assignment: 'execution_controller',
                 logger: this.logger,
                 tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                 tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                 tf_prom_metrics_port: terafoundation.prom_metrics_port,
-                job_prom_metrics_add_default: this.executionContext.config.prom_metrics_add_default,
-                job_prom_metrics_enabled: this.executionContext.config.prom_metrics_enabled,
-                job_prom_metrics_port: this.executionContext.config.prom_metrics_port,
+                job_prom_metrics_add_default: config.prom_metrics_add_default,
+                job_prom_metrics_enabled: config.prom_metrics_enabled,
+                job_prom_metrics_port: config.prom_metrics_port,
                 labels: {
-                    ex_id: this.exId,
-                    job_id: this.executionContext.jobId,
-                    job_name: this.executionContext.config.name,
+                    ex_id: exId,
+                    job_id: jobId,
+                    job_name: config.name,
                 }
             });
+            await this.setupPromMetrics();
         }
-        await this.setupPromMetrics();
 
         await Promise.all([
             this.executionStorage.initialize(),
@@ -1113,39 +1116,41 @@ export class ExecutionController {
      * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
      */
     async setupPromMetrics() {
-        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
-        const { context, executionAnalytics } = this;
-        await Promise.all([
-            this.context.apis.foundation.promMetrics.addGauge(
-                'info',
-                'Information about Teraslice execution controller',
-                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
-            ),
-            this.context.apis.foundation.promMetrics.addGauge(
-                'slices_processed',
-                'Number of slices processed by all workers',
-                [],
-                function collect() {
-                    const slicesProcessed = executionAnalytics.get('processed');
-                    const defaultLabels = {
-                        ...context.apis.foundation.promMetrics.getDefaultLabels()
-                    };
-                    this.set(defaultLabels, slicesProcessed);
-                }
-            )
-        ]);
+        if (isPromAvailable(this.context)) {
+            this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+            const { context, executionAnalytics } = this;
+            await Promise.all([
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'info',
+                    'Information about Teraslice execution controller',
+                    ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+                ),
+                this.context.apis.foundation.promMetrics.addGauge(
+                    'slices_processed',
+                    'Number of slices processed by all workers',
+                    [],
+                    function collect() {
+                        const slicesProcessed = executionAnalytics.get('processed');
+                        const defaultLabels = {
+                            ...context.apis.foundation.promMetrics.getDefaultLabels()
+                        };
+                        this.set(defaultLabels, slicesProcessed);
+                    }
+                )
+            ]);
 
-        this.context.apis.foundation.promMetrics.set(
-            'info',
-            {
-                arch: this.context.arch,
-                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
-                name: this.context.sysconfig.teraslice.name,
-                node_version: process.version,
-                platform: this.context.platform,
-                teraslice_version: this.executionContext.config.teraslice_version
-            },
-            1
-        );
+            this.context.apis.foundation.promMetrics.set(
+                'info',
+                {
+                    arch: this.context.arch,
+                    clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                    name: this.context.sysconfig.teraslice.name,
+                    node_version: process.version,
+                    platform: this.context.platform,
+                    teraslice_version: this.executionContext.config.teraslice_version
+                },
+                1
+            );
+        }
     }
 }
