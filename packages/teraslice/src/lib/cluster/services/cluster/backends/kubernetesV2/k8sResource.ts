@@ -8,7 +8,7 @@ import type { TerasliceConfig, ExecutionConfig } from '@terascope/job-components
 import { safeEncode } from '../../../../../utils/encoding_utils.js';
 import { setMaxOldSpaceViaEnv } from './utils.js';
 
-const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetes/');
+const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetesV2/');
 
 interface K8sConfig {
     clusterName: string,

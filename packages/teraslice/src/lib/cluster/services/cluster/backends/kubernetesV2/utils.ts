@@ -6,7 +6,7 @@ import { isTest } from '@terascope/utils';
 
 const MAX_RETRIES = isTest ? 2 : 3;
 const RETRY_DELAY = isTest ? 50 : 1000; // time in ms
-const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetes/');
+const resourcePath = path.join(process.cwd(), './packages/teraslice/src/lib/cluster/services/cluster/backends/kubernetesV2/');
 
 export function makeTemplate(folder: string, fileName: string) {
     const filePath = path.join(resourcePath, folder, `${fileName}.hbs`);
