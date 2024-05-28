@@ -1,8 +1,12 @@
 import { NativeClustering } from './backends/native/index.js';
 import { KubernetesClusterBackend } from './backends/kubernetes/index.js';
+import { KubernetesClusterBackendV2 } from './backends/kubernetesV2/index.js';
 import { ClusterMasterContext } from '../../../../interfaces.js';
 
-export type ClusterServiceType = NativeClustering | KubernetesClusterBackend;
+export type ClusterServiceType =
+    NativeClustering
+    | KubernetesClusterBackend
+    | KubernetesClusterBackendV2;
 
 export function makeClustering(
     context: ClusterMasterContext,
@@ -16,6 +20,10 @@ export function makeClustering(
 
     if (clusterType === 'kubernetes') {
         return new KubernetesClusterBackend(context, clusterMasterServer);
+    }
+
+    if (clusterType === 'kubernetesV2') {
+        return new KubernetesClusterBackendV2(context, clusterMasterServer);
     }
 
     throw new Error(`unknown cluster service ${clusterType}, cannot find cluster module`);
