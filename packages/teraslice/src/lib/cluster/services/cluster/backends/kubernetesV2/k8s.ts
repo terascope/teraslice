@@ -2,38 +2,34 @@ import {
     TSError, get, isEmpty,
     pDelay, pRetry, Logger
 } from '@terascope/utils';
-// import KubeClient from 'kubernetes-client';
-// // @ts-expect-error
-// import Request from 'kubernetes-client/backends/request/index.js';
-import * as k8sClient from '@kubernetes/client-node';
-import { User, Cluster, Context } from '@kubernetes/client-node';
+import * as k8s from '@kubernetes/client-node';
 import { IncomingMessage } from 'node:http';
 import { getRetryConfig } from './utils.js';
 
-// // @ts-expect-error
-// const { Client, KubeConfig } = KubeClient;
-
 interface kubeConfigOptions {
-    clusters: Cluster[];
-    contexts: Context[];
-    currentContext: Context['name'];
-    users: User[];
+    clusters: k8s.Cluster[];
+    contexts: k8s.Context[];
+    currentContext: k8s.Context['name'];
+    users: k8s.User[];
 }
+
+type K8sObjectList =
+    k8s.V1DeploymentList | k8s.V1ServiceList
+    | k8s.V1JobList | k8s.V1PodList;
 
 export class K8s {
     logger: Logger;
     apiPollDelay: number;
     defaultNamespace: string;
     shutdownTimeout: number;
-    // client: any;
-    kc: k8sClient.KubeConfig;
-    k8sAppsV1Api: k8sClient.AppsV1Api;
-    k8sBatchV1Api: k8sClient.BatchV1Api;
-    k8sCoreV1Api: k8sClient.CoreV1Api;
+    kc: k8s.KubeConfig;
+    k8sAppsV1Api: k8s.AppsV1Api;
+    k8sBatchV1Api: k8s.BatchV1Api;
+    k8sCoreV1Api: k8s.CoreV1Api;
 
     constructor(
         logger: Logger,
-        clientConfig: kubeConfigOptions,
+        clientConfig: kubeConfigOptions | null,
         defaultNamespace: string | null,
         apiPollDelay: number,
         shutdownTimeout: number
@@ -43,45 +39,20 @@ export class K8s {
         this.logger = logger;
         this.shutdownTimeout = shutdownTimeout; // this is in milliseconds
 
-        this.kc = new k8sClient.KubeConfig();
+        this.kc = new k8s.KubeConfig();
 
         if (clientConfig) {
             this.kc.loadFromOptions(clientConfig);
-            // this.client = new Client({ // this looks like the deprecated way: https://github.com/godaddy/kubernetes-client/blob/master/merging-with-kubernetes.md
-            //     config: clientConfig
-            // });
         } else if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
-            // configures the client when running inside k8s
             this.kc.loadFromCluster();
-            // const kubeconfig = new KubeConfig();
-            // kubeconfig.loadFromCluster();
-            // const backend = new Request({ kubeconfig });
-            // this.client = new Client({ backend });
         } else {
-            // configures the client from .kube/config file
             this.kc.loadFromDefault();
-            // this.client = new Client({ version: '1.13' });
         }
 
-        this.k8sAppsV1Api = this.kc.makeApiClient(k8sClient.AppsV1Api);
-        this.k8sBatchV1Api = this.kc.makeApiClient(k8sClient.BatchV1Api);
-        this.k8sCoreV1Api = this.kc.makeApiClient(k8sClient.CoreV1Api);
+        this.k8sAppsV1Api = this.kc.makeApiClient(k8s.AppsV1Api);
+        this.k8sBatchV1Api = this.kc.makeApiClient(k8s.BatchV1Api);
+        this.k8sCoreV1Api = this.kc.makeApiClient(k8s.CoreV1Api);
     }
-
-    // /**
-    //  * init() Must be called after creating object.
-    //  * @return {Promise} [description]
-    //  */
-    // async init() {
-    //     try {
-    //         await this.client.loadSpec();
-    //     } catch (err) {
-    //         const error = new TSError(err, {
-    //             reason: 'Failure calling k8s loadSpec'
-    //         });
-    //         throw error;
-    //     }
-    // }
 
     /**
      * Returns the k8s NamespaceList object
@@ -91,7 +62,6 @@ export class K8s {
         let namespaces;
         try {
             namespaces = await pRetry(() => this.k8sCoreV1Api.listNamespace(), getRetryConfig());
-            // this.client.api.v1.namespaces.get()
         } catch (err) {
             const error = new TSError(err, {
                 reason: 'Failure getting in namespaces'
@@ -127,14 +97,13 @@ export class K8s {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
-            // this.client.api.v1.namespaces(namespace).pods().get({ qs: { labelSelector: selector } })
-            let pod;
+            let pod: k8s.V1Pod | undefined;
             if (typeof result !== 'undefined' && result) {
                 // NOTE: This assumes the first pod returned.
                 pod = get(result, 'body.items[0]');
             }
 
-            if (typeof pod !== 'undefined' && pod) {
+            if (pod) {
                 if (get(pod, 'status.phase') === 'Running') return pod;
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
@@ -166,11 +135,8 @@ export class K8s {
             const result = await pRetry(() => this.k8sCoreV1Api
                 .listNamespacedPod(namespace, undefined, undefined, undefined, undefined, selector),
             getRetryConfig());
-            // this.client.api.v1.namespaces(namespace).pods().get({ qs: { labelSelector: selector } })
 
-            // if (typeof result !== 'undefined' && result) {
-            const podList:k8sClient.V1Pod[] | undefined = get(result, 'body.items');
-            // }
+            const podList:k8s.V1Pod[] | undefined = get(result, 'body.items');
 
             if (podList && Array.isArray(podList)) {
                 if (podList.length === number) return podList;
@@ -196,7 +162,7 @@ export class K8s {
         const namespace = ns || this.defaultNamespace;
         let responseObj: {
             response: IncomingMessage,
-            body: k8sClient.V1PodList | k8sClient.V1DeploymentList | k8sClient.V1ServiceList | k8sClient.V1JobList
+            body: k8s.V1PodList | k8s.V1DeploymentList | k8s.V1ServiceList | k8s.V1JobList
         };
 
         try {
@@ -209,7 +175,6 @@ export class K8s {
                     undefined,
                     selector
                 ), getRetryConfig());
-                // this.client.api.v1.namespaces(namespace).pods().get({ qs: { labelSelector: selector } })
             } else if (objType === 'deployments') {
                 responseObj = await pRetry(() => this.k8sAppsV1Api.listNamespacedDeployment(
                     namespace,
@@ -219,7 +184,6 @@ export class K8s {
                     undefined,
                     selector
                 ), getRetryConfig());
-                // this.client.apis.apps.v1.namespaces(namespace).deployments().get({ qs: { labelSelector: selector } })
             } else if (objType === 'services') {
                 responseObj = await pRetry(() => this.k8sCoreV1Api.listNamespacedService(
                     namespace,
@@ -229,7 +193,6 @@ export class K8s {
                     undefined,
                     selector
                 ), getRetryConfig());
-                // this.client.api.v1.namespaces(namespace).services().get({ qs: { labelSelector: selector } })
             } else if (objType === 'jobs') {
                 responseObj = await pRetry(() => this.k8sBatchV1Api.listNamespacedJob(
                     namespace,
@@ -239,7 +202,6 @@ export class K8s {
                     undefined,
                     selector
                 ), getRetryConfig());
-                // this.client.apis.batch.v1.namespaces(namespace).jobs().get({ qs: { labelSelector: selector } })
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
                 this.logger.error(error);
@@ -285,22 +247,19 @@ export class K8s {
     async post(manifest: Record<string, any>, manifestType: string) {
         let responseObj: {
             response: IncomingMessage,
-            body: k8sClient.V1Service | k8sClient.V1Deployment | k8sClient.V1Job
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
         };
 
         try {
             if (manifestType === 'service') {
                 responseObj = await this.k8sCoreV1Api
                     .createNamespacedService(this.defaultNamespace, manifest);
-                // this.client.api.v1.namespaces(this.defaultNamespace).service.post({ body: manifest });
             } else if (manifestType === 'deployment') {
                 responseObj = await this.k8sAppsV1Api
                     .createNamespacedDeployment(this.defaultNamespace, manifest);
-                // this.client.apis.apps.v1.namespaces(this.defaultNamespace).deployments.post({ body: manifest });
             } else if (manifestType === 'job') {
                 responseObj = await this.k8sBatchV1Api
                     .createNamespacedJob(this.defaultNamespace, manifest);
-                // this.client.apis.batch.v1.namespaces(this.defaultNamespace).jobs.post({ body: manifest });
             } else {
                 const error = new Error(`Invalid manifestType: ${manifestType}`);
                 return Promise.reject(error);
@@ -332,13 +291,12 @@ export class K8s {
     async patch(record: Record<string, any>, name: string) {
         let responseObj: {
             response: IncomingMessage,
-            body: k8sClient.V1Service | k8sClient.V1Deployment | k8sClient.V1Job
+            body: k8s.V1Service | k8s.V1Deployment | k8s.V1Job
         };
 
         try {
             responseObj = await pRetry(() => this.k8sAppsV1Api
                 .patchNamespacedDeployment(name, this.defaultNamespace, record), getRetryConfig());
-            // this.client.apis.apps.v1.namespaces(this.defaultNamespace).deployments(name).patch({ body: record })
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -367,13 +325,13 @@ export class K8s {
     async delete(name: string, objType: string, force?: boolean) {
         let responseObj: {
             response: IncomingMessage,
-            body: k8sClient.V1Status | k8sClient.V1Pod | k8sClient.V1Service
+            body: k8s.V1Status | k8s.V1Pod | k8s.V1Service
         };
 
         // To get a Job to remove the associated pods you have to
         // include a body like the one below with the delete request.
         // To force: setting gracePeriodSeconds to 1 will send a SIGKILL command to the resource
-        const deleteOptions: k8sClient.V1DeleteOptions = {
+        const deleteOptions: k8s.V1DeleteOptions = {
             apiVersion: 'v1',
             kind: 'DeleteOptions',
             propagationPolicy: 'Background'
@@ -396,7 +354,6 @@ export class K8s {
                         undefined,
                         deleteOptions
                     ), getRetryConfig());
-                // this.client.api.v1.namespaces(this.defaultNamespace).services(name).delete()
             } else if (objType === 'deployments') {
                 responseObj = await pRetry(() => this.k8sAppsV1Api
                     .deleteNamespacedDeployment(
@@ -409,7 +366,6 @@ export class K8s {
                         undefined,
                         deleteOptions
                     ), getRetryConfig());
-                // this.client.apis.apps.v1.namespaces(this.defaultNamespace).deployments(name).delete()
             } else if (objType === 'jobs') {
                 responseObj = await pRetry(() => this.k8sBatchV1Api
                     .deleteNamespacedJob(
@@ -422,7 +378,6 @@ export class K8s {
                         undefined,
                         deleteOptions
                     ), getRetryConfig());
-                // this.client.apis.batch.v1.namespaces(this.defaultNamespace).jobs(name).delete(deleteOptions)
             } else if (objType === 'pods') {
                 responseObj = await pRetry(() => this.k8sCoreV1Api
                     .deleteNamespacedPod(
@@ -435,7 +390,6 @@ export class K8s {
                         undefined,
                         deleteOptions
                     ), getRetryConfig());
-                // this.client.api.v1.namespaces(this.defaultNamespace).pods(name).delete(deleteOptions)
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -481,8 +435,8 @@ export class K8s {
      */
     async _deleteObjByExId(exId: string, nodeType: string, objType: string, force?: boolean) {
         let objList: K8sObjectList;
-        let forcePodsList: k8sClient.V1PodList | undefined;
-        let deleteResponse;
+        let forcePodsList: k8s.V1PodList | undefined;
+        const deleteResponses: Array<k8s.V1Pod[] | k8s.V1Pod | k8s.V1Service | k8s.V1Status> = [];
 
         try {
             objList = await this.list(`app.kubernetes.io/component=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
@@ -494,7 +448,7 @@ export class K8s {
 
         if (force) {
             try {
-                forcePodsList = await this.list(`teraslice.terascope.io/exId=${exId}`, 'pods') as k8sClient.V1PodList;
+                forcePodsList = await this.list(`teraslice.terascope.io/exId=${exId}`, 'pods') as k8s.V1PodList;
             } catch (e) {
                 const err = new Error(`Request pods list in _deleteObjByExId with exId: ${exId} failed with: ${e}`);
                 this.logger.error(err);
@@ -507,7 +461,7 @@ export class K8s {
             return Promise.resolve();
         }
 
-        const deletePodResponses = [];
+        const deletePodResponses: k8s.V1Pod[] = [];
         if (forcePodsList?.items) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} force deleting all pods`);
             for (const pod of forcePodsList.items) {
@@ -521,7 +475,8 @@ export class K8s {
                 }
                 const podName = pod.metadata.name;
                 try {
-                    deletePodResponses.push(await this.delete(podName, 'pods', force));
+                    const V1Pod = await this.delete(podName, 'pods', force) as k8s.V1Pod;
+                    deletePodResponses.push(V1Pod);
                 } catch (e) {
                     const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${podName} failed with: ${e}`);
                     this.logger.error(err);
@@ -539,7 +494,7 @@ export class K8s {
         this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
         try {
-            deleteResponse = await this.delete(name, objType, force);
+            deleteResponses.push(await this.delete(name, objType, force));
         } catch (e) {
             const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -547,9 +502,9 @@ export class K8s {
         }
 
         if (deletePodResponses.length > 0) {
-            deleteResponse.deletePodResponses = deletePodResponses;
+            deleteResponses.push(deletePodResponses);
         }
-        return deleteResponse;
+        return deleteResponses;
     }
 
     /**
@@ -564,13 +519,13 @@ export class K8s {
         let newScale;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
-        const listResponse = await this.list(`app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`, 'deployments');
+        const listResponse = await this.list(`app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`, 'deployments') as k8s.V1DeploymentList;
         this.logger.debug(`k8s worker query listResponse: ${JSON.stringify(listResponse)}`);
 
         // the selector provided to list above should always result in a single
         // deployment in the response.
         // TODO: test for more than 1 and error
-        const workerDeployment = listResponse.items[0] as k8sClient.V1Deployment;
+        const workerDeployment = listResponse.items[0];
         if (!workerDeployment.spec?.replicas) {
             throw new Error('replicas is undefined in worker deployment spec');
         }
@@ -597,21 +552,9 @@ export class K8s {
         if (!workerDeployment.metadata?.name) {
             throw new Error('name is undefined in worker deployment metadata');
         }
-        const patchResponseBody = await this.patch(scalePatch, workerDeployment.metadata.name);
+        const patchResponseBody = await this
+            .patch(scalePatch, workerDeployment.metadata.name) as k8s.V1Deployment;
         this.logger.debug(`k8s.scaleExecution patchResponseBody: ${JSON.stringify(patchResponseBody)}`);
         return patchResponseBody;
     }
 }
-
-// interface DeleteOptions {
-//     body: {
-//         apiVersion: string,
-//         kind: string,
-//         propagationPolicy: string,
-//         gracePeriodSeconds?: number
-//     }
-// }
-
-type K8sObjectList =
-    k8sClient.V1DeploymentList | k8sClient.V1ServiceList
-    | k8sClient.V1JobList | k8sClient.V1PodList;

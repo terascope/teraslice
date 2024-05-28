@@ -3,6 +3,7 @@ import {
     cloneDeep, pRetry, Logger
 } from '@terascope/utils';
 import type { Context, ExecutionConfig } from '@terascope/job-components';
+import * as K8sClient from '@kubernetes/client-node';
 import { makeLogger } from '../../../../../workers/helpers/terafoundation.js';
 import { K8sResource } from './k8sResource.js';
 import { gen } from './k8sState.js';
@@ -19,7 +20,7 @@ import { StopExecutionOptions } from '../../../interfaces.js';
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-export class KubernetesClusterBackend {
+export class KubernetesClusterBackendV2 {
     context: Context;
     k8s: K8s;
     logger: Logger;
@@ -116,11 +117,11 @@ export class KubernetesClusterBackend {
 
         this.logger.debug(exJob, 'execution allocating slicer');
 
-        const jobResult = await this.k8s.post(exJob, 'job');
+        const jobResult = await this.k8s.post(exJob, 'job') as K8sClient.V1Job;
         this.logger.debug(jobResult, 'k8s slicer job submitted');
 
-        let controllerLabel;
-        if (jobResult.spec.selector.matchLabels['controller-uid']) {
+        let controllerLabel: string;
+        if (jobResult.spec?.selector?.matchLabels?.['controller-uid'] !== undefined) {
             /// If running on kubernetes < v1.27.0
             controllerLabel = 'controller-uid';
         } else {
@@ -128,7 +129,7 @@ export class KubernetesClusterBackend {
             controllerLabel = 'batch.kubernetes.io/controller-uid';
         }
 
-        const controllerUid = jobResult.spec.selector.matchLabels[controllerLabel];
+        const controllerUid = jobResult.spec?.selector?.matchLabels?.[controllerLabel];
 
         const pod = await this.k8s.waitForSelectedPod(
             `${controllerLabel}=${controllerUid}`,
@@ -136,6 +137,10 @@ export class KubernetesClusterBackend {
             this.context.sysconfig.teraslice.slicer_timeout
         );
 
+        if (!pod.status?.podIP) {
+            const error = new Error('pod.status.podIP must be defined');
+            return Promise.reject(error);
+        }
         this.logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
         execution.slicer_hostname = `${pod.status.podIP}`;
 
@@ -247,7 +252,5 @@ export class KubernetesClusterBackend {
             this.logger.trace('cluster_master requesting cluster state update.');
             this._getClusterState();
         }, this.context.sysconfig.teraslice.node_state_interval);
-
-        await this.k8s.init();
     }
 }
