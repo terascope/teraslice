@@ -192,7 +192,7 @@ export class K8s {
                 // TODO: switch to a teraslice client
                 const kubectlResponse = await execa.command(`curl http://${config.HOST_IP}:${this.tsPort}`);
                 response = JSON.parse(kubectlResponse.stdout);
-                if (response.clustering_type === 'kubernetes') {
+                if (response.clustering_type === 'kubernetes' || response.clustering_type === 'kubernetesV2') {
                     terasliceRunning = true;
                 }
             } catch (err) {

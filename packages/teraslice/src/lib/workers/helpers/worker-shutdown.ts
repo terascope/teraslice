@@ -38,7 +38,8 @@ export function shutdownHandler(
         || process.env.assignment
         || 'unknown-assignment';
 
-    const isK8s = get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetes';
+    const isK8s = get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetes'
+        || get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetesV2';
     // this is native clustering only
     const isProcessRestart = process.env.process_restart;
     // everything but the k8s execution_controller should not be allowed be allowed to

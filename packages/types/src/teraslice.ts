@@ -1,6 +1,6 @@
 import { SysConfig as BaseSysconfig } from './terafoundation.js';
 
-export type ClusterManagerType = 'native'|'kubernetes';
+export type ClusterManagerType = 'native'|'kubernetes'|'kubernetesV2';
 
 export interface AssetRecord {
     blob: SharedArrayBuffer | string | Buffer
