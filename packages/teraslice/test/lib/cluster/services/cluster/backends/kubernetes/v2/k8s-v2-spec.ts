@@ -2,15 +2,11 @@
 // output for nock
 //   env DEBUG='nock*' make test
 
-// import fs from 'node:fs';
 import nock from 'nock';
-// import path from 'node:path';
 import { debugLogger } from '@terascope/job-components';
-import { K8s } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
+import { K8s } from '../../../../../../../../src/lib/cluster/services/cluster/backends/kubernetesV2/k8s.js';
 
 const logger = debugLogger('k8s-v2-spec');
-
-// const swaggerFile = path.join(__dirname, 'files', 'swagger.json');
 
 const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';
@@ -20,8 +16,6 @@ describe('k8s', () => {
 
     beforeEach(async () => {
         nock(_url)
-            // .get('/swagger.json')
-            // .reply(200, fs.readFileSync(swaggerFile, 'utf-8'))
             .get('/api/v1/namespaces')
             .reply(200, {
                 kind: 'NamespaceList',
