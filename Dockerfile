@@ -14,6 +14,9 @@ COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 COPY types /app/source/types
 
+# Check to see if distutils is installed because python 3.12 removed it
+RUN python3 -c "import distutils" || (apk update && apk add py3-setuptools)
+
 RUN yarn --prod=false --frozen-lockfile \
     && yarn build \
     && yarn \

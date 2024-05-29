@@ -16,15 +16,15 @@ import {
 } from './config.js';
 import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
-import generatorToESJob from './fixtures/jobs/generate-to-es.json' assert { type: 'json' };
-import generatorAssetJob from './fixtures/jobs/generator-asset.json' assert { type: 'json' };
-import generatorLargeAssetJob from './fixtures/jobs/generator-large-asset.json' assert { type: 'json' };
-import generatorJob from './fixtures/jobs/generator.json' assert { type: 'json' };
-import idJob from './fixtures/jobs/id.json' assert { type: 'json' };
-import kafkaReaderJob from './fixtures/jobs/kafka-reader.json' assert { type: 'json' };
-import kafkaSenderJob from './fixtures/jobs/kafka-sender.json' assert { type: 'json' };
-import multisendJob from './fixtures/jobs/multisend.json' assert { type: 'json' };
-import reindexJob from './fixtures/jobs/reindex.json' assert { type: 'json' };
+import generatorToESJob from './fixtures/jobs/generate-to-es.js';
+import generatorAssetJob from './fixtures/jobs/generator-asset.js';
+import generatorLargeAssetJob from './fixtures/jobs/generator-large-asset.js';
+import generatorJob from './fixtures/jobs/generator.js';
+import idJob from './fixtures/jobs/id.js';
+import kafkaReaderJob from './fixtures/jobs/kafka-reader.js';
+import kafkaSenderJob from './fixtures/jobs/kafka-sender.js';
+import multisendJob from './fixtures/jobs/multisend.js';
+import reindexJob from './fixtures/jobs/reindex.js';
 import { defaultAssetBundles } from './download-assets.js';
 
 const JobDict = Object.freeze({
