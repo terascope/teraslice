@@ -25,7 +25,7 @@ teraslice:
   shutdown_timeout: 30000
   assets_directory: "/app/assets/"
   autoload_directory: "/app/autoload"
-  cluster_manager_type: "kubernetes"
+  cluster_manager_type: "" # set dynamically w/ scripts/src/helpers/config.ts CLUSTERING_TYPE, defaults to 'native'
   master: true
   master_hostname: "127.0.0.1"
   kubernetes_image: "" # set dynamically w/ scripts/src/helpers/config.ts NODE_VERSION: teraslice-workspace:e2e-nodev${NODE_VERSION}
