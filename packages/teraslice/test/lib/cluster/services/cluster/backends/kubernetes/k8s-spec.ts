@@ -50,7 +50,6 @@ describe('k8s', () => {
             },
             insecureSkipTlsVerify: true,
         };
-
         k8s = new K8s(logger, clientConfig, null, 1, 1);
         await k8s.init();
     });
