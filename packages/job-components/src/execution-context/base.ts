@@ -120,6 +120,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
                     this.events.removeListener(event, listener);
                 });
         });
+        await this.context.apis.foundation.promMetrics.shutdown();
     }
 
     get api(): ExecutionContextAPI {

@@ -1,7 +1,8 @@
 import 'jest-extended';
 import os from 'node:os';
-import type { Terafoundation } from '@terascope/types';
+import type { Terafoundation, PartialDeep } from '@terascope/types';
 import validateConfigs from '../src/validate-configs.js';
+import { getConnectorSchemaAndValFn } from '../src/connector-utils.js';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
@@ -14,7 +15,11 @@ describe('Validate Configs', () => {
         } as any;
 
         const configFile = {
-            terafoundation: {},
+            terafoundation: {
+                connectors: {
+                    'elasticsearch-next': {}
+                }
+            },
             other: {
                 test: 'custom'
             }
@@ -121,7 +126,6 @@ describe('Validate Configs', () => {
                                 accessKeyId: null,
                                 certLocation: '',
                                 endpoint: '127.0.0.1:80',
-                                maxRedirects: 10,
                                 maxRetries: 3,
                                 region: 'us-east-1',
                                 bucketEndpoint: false,
@@ -138,7 +142,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe("when using using a connector that doesn't exist", () => {
+    describe("when using a connector that doesn't exist", () => {
         const configFile = {
             terafoundation: {
                 connectors: {
@@ -253,7 +257,10 @@ describe('Validate Configs', () => {
                         default: {}
                     },
                     s3: {
-                        minio1: {},
+                        minio1: {
+                            accessKeyId: 'test',
+                            secretAccessKey: 'test'
+                        },
                     }
                 }
             },
@@ -268,9 +275,9 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .rejects.toThrow('Error validating configuration, caused by Error: asset_storage_connection: minio2 not found in terafoundation.connectors.s3: value was "minio2"');
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('minio2 not found in terafoundation.connectors.s3');
         });
     });
 
@@ -345,13 +352,13 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', async () => {
-            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .rejects.toThrow('Error validating configuration, caused by Error: asset_storage_connection_type: Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3: value was "kafka"');
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3');
         });
     });
 
-    describe('when given a config with an elasticsearch with no default connection', () => {
+    describe('when given a config without an asset_storage_connection_type and with an elasticsearch-next with no default connection', () => {
         const configFile = {
             terafoundation: {
                 connectors: {
@@ -398,5 +405,53 @@ describe('Validate Configs', () => {
                 _nodeName: os.hostname()
             });
         });
+    });
+
+    describe('when given a config_schema with a validator fn that fails', () => {
+        const configFile = {
+            teraslice: {
+                workers: 4
+            },
+            terafoundation: {
+                asset_storage_bucket: 'testBucket',
+                connectors: {
+                    'elasticsearch-next': {
+                        default: {}
+                    }
+                },
+                workers: 3
+            }
+        };
+        const cluster = {
+            isMaster: true,
+        };
+
+        const testFn = (
+            subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
+            sysconfig: Terafoundation.SysConfig<any>) => {
+            const typedSubConfig = subconfig as unknown as Terafoundation.SysConfig<any>;
+            if (sysconfig.terafoundation.workers !== typedSubConfig.workers) {
+                throw new Error('validatorFn test failed');
+            }
+        };
+        const config = {
+            config_schema() {
+                return { schema: { teraslice: {} }, validatorFn: testFn };
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .toThrow('Cross-field validation failed for \'teraslice\': Error: validatorFn test failed');
+        });
+    });
+});
+
+describe('getConnectorInitializers', () => {
+    it('should return an initializer with schema key', async () => {
+        const connector = 'elasticsearch-next';
+
+        const results = await getConnectorSchemaAndValFn(connector);
+        expect(results).toContainKey('schema');
     });
 });

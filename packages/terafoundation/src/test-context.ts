@@ -6,6 +6,7 @@ import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
 import { CoreContext } from './core-context.js';
 import validateConfigs from './validate-configs.js';
+import { PromMetrics } from './api/prom-metrics/prom-metrics-api';
 
 interface ClientFactoryFns {
     [prop: string]: Terafoundation.CreateClientFactoryFn;
@@ -136,6 +137,8 @@ export class TestContext<
 
             return client;
         };
+
+        this.apis.foundation.promMetrics = new PromMetrics(ctx.name, ctx.logger);
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {

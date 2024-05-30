@@ -40,6 +40,31 @@ function _metaIsUnique(backend: TerasliceElasticsearchStorage) {
     };
 }
 
+export function getBackendConfig(context: Context, logger: Logger) {
+    const { terafoundation, teraslice } = context.sysconfig;
+
+    const connectionType = teraslice.asset_storage_connection_type
+        ? teraslice.asset_storage_connection_type
+        : terafoundation.asset_storage_connection_type;
+
+    const storageConnection = teraslice.asset_storage_connection
+        ? teraslice.asset_storage_connection
+        : terafoundation.asset_storage_connection as string;
+
+    const storageBucket = teraslice.asset_storage_bucket
+        ? teraslice.asset_storage_bucket
+        : terafoundation.asset_storage_bucket;
+    /// Check teraslice first before setting to terafoundation configs
+    const s3BackendConfig: TerasliceS3StorageConfig = {
+        context,
+        terafoundation: context.sysconfig.terafoundation,
+        connection: storageConnection,
+        bucket: storageBucket,
+        logger
+    };
+    return { s3BackendConfig, assetConnectionType: connectionType };
+}
+
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
@@ -71,17 +96,9 @@ export class AssetsStorage {
         this.assetsPath = config.assets_directory as string;
         this.esBackend = new TerasliceElasticsearchStorage(esBackendConfig);
 
-        if (context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
-            if (context.sysconfig.terafoundation.asset_storage_connection) {
-                const s3BackendConfig: TerasliceS3StorageConfig = {
-                    context,
-                    terafoundation: context.sysconfig.terafoundation,
-                    connection: context.sysconfig.terafoundation.asset_storage_connection,
-                    bucket: context.sysconfig.terafoundation.asset_storage_bucket,
-                    logger
-                };
-                this.s3Backend = new S3Store(s3BackendConfig);
-            }
+        const { assetConnectionType, s3BackendConfig } = getBackendConfig(context, logger);
+        if (assetConnectionType === 's3' && s3BackendConfig.connection) {
+            this.s3Backend = new S3Store(s3BackendConfig);
         }
     }
 

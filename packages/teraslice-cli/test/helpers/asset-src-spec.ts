@@ -8,7 +8,8 @@ import { AssetSrc } from '../../src/helpers/asset-src.js';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('AssetSrc', () => {
-    const srcDir = path.join(dirname, '../fixtures/testAsset');
+    const JSTestAssetSrcDir = path.join(dirname, '../fixtures/testAsset');
+    const TSTestAssetSrcDir = path.join(dirname, '../fixtures/testAssetTypescript');
     const buildAssetDir = path.join(dirname, '../fixtures/testAssetWithBuild');
 
     it('should have srcDir and assetFile properties', () => {
@@ -55,8 +56,8 @@ describe('AssetSrc', () => {
     });
 
     it('can call generateRegistry for older assets', async () => {
-        const oldTestAsset = new AssetSrc(srcDir);
-        const registry = await oldTestAsset.generateRegistry();
+        const oldTestAsset = new AssetSrc(JSTestAssetSrcDir);
+        const [registry] = await oldTestAsset.generateRegistry();
 
         expect(registry).toEqual({
             proc: {
@@ -68,6 +69,24 @@ describe('AssetSrc', () => {
                 API: 'api.js',
                 Schema: 'schema.js',
                 Fetcher: 'fetcher.js'
+            }
+        });
+    });
+
+    it('can call generateRegistry on typescript assets', async () => {
+        const typescriptTestAsset = new AssetSrc(TSTestAssetSrcDir);
+        const [registry] = await typescriptTestAsset.generateRegistry();
+
+        expect(registry).toEqual({
+            proc: {
+                Processor: ['Proc', 'processor'],
+                Schema: ['ProcSchema', 'schema'],
+                Slicer: ['ProcSlicer', 'slicer']
+            },
+            proc2: {
+                API: ['Proc2API', 'api'],
+                Schema: ['Proc2Schema', 'schema'],
+                Fetcher: ['Proc2Fetcher', 'fetcher']
             }
         });
     });

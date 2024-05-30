@@ -3,7 +3,10 @@ import {
     Cluster as NodeJSCluster,
     Worker as NodeJSWorker
 } from 'node:cluster';
-
+import {
+    CollectFunction, Counter, Gauge,
+    Histogram, Summary
+} from 'prom-client';
 import type { Overwrite } from './utility';
 import type { Logger } from './logger';
 
@@ -23,6 +26,26 @@ interface SchemaObj<T = any> {
     nullable?: boolean | undefined;
     [key: string]: any;
 }
+
+export type Schema<T> = {
+    [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
+};
+
+export type Initializers<S = Record<string, any>> = {
+    schema: Schema<S>
+    validatorFn?: ValidatorFn<S>
+}
+
+export type ValidationObj<S>= {
+    subconfig: Record<string, any>,
+    validatorFn?: ValidatorFn<S>,
+    connector?: boolean
+}
+
+export type ValidatorFn<S = Record<string, any>> = (
+    config: Record<string, any>,
+    sysconfig: SysConfig<S>
+) => void
 
 export type Config<
     S = Record<string, any>,
@@ -72,6 +95,7 @@ export interface FoundationAPIs {
     getSystemEvents(): EventEmitter;
     createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
     startWorkers(num: number, envOptions: Record<string, any>): void;
+    promMetrics: PromMetrics
 }
 
 export type ContextAPIs = {
@@ -109,6 +133,9 @@ export interface TerafoundationConfig {
     asset_storage_connection_type?: string;
     asset_storage_connection?: string;
     asset_storage_bucket?: string;
+    prom_metrics_enabled: boolean;
+    prom_metrics_port: number;
+    prom_metrics_add_default: boolean;
 }
 
 export type SysConfig<S> = {
@@ -133,9 +160,63 @@ export type Context<
 }
 
 // the interface for the connector itself
-export interface Connector {
+export interface Connector<S = Record<string, any>> {
     createClient: (
         moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
     ) => Promise<ConnectorOutput>
-    config_schema: () => Record<string, any>
+    config_schema: () => Schema<S>,
+    validate_config?: ValidatorFn<S>
 }
+
+export interface PromMetricsInitConfig {
+    assignment: string
+    logger: Logger,
+    tf_prom_metrics_enabled: boolean;
+    tf_prom_metrics_port: number;
+    tf_prom_metrics_add_default: boolean;
+    job_prom_metrics_enabled?: boolean,
+    job_prom_metrics_port?: number
+    job_prom_metrics_add_default?: boolean
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
+export interface PromMetricsAPIConfig {
+    assignment: string
+    port: number
+    default_metrics: boolean,
+    labels?: Record<string, string>,
+    prefix?: string
+}
+
+export interface PromMetrics {
+    init: (config: PromMetricsInitConfig) => Promise<boolean>;
+    set: (name: string, labels: Record<string, string>, value: number) => void;
+    inc: (name: string, labelValues: Record<string, string>, value: number) => void;
+    dec: (name: string, labelValues: Record<string, string>, value: number) => void;
+    observe: (name: string, labelValues: Record<string, string>, value: number) => void;
+    addGauge: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Gauge>) => Promise<void>;
+    addCounter: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Counter>) => Promise<void>;
+    addHistogram: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void>;
+    addSummary: (name: string, help: string, labelNames: Array<string>,
+        collectFn?: CollectFunction<Summary>, maxAgeSeconds?: number,
+        ageBuckets?: number, percentiles?: Array<number>) => Promise<void>;
+    hasMetric: (name: string) => boolean;
+    deleteMetric: (name: string) => Promise<boolean>;
+    verifyAPI: () => boolean;
+    shutdown: () => Promise<void>;
+    getDefaultLabels: () => Record<string, string>;
+}
+
+export type MetricList = Record<string, {
+    readonly name?: string,
+    readonly metric?: Gauge<any> | Counter<any> | Histogram<any> | Summary<any>,
+    readonly functions?: Set<string>
+}>;
+
+export type {
+    CollectFunction, Counter, Gauge, Histogram, Summary
+} from 'prom-client';

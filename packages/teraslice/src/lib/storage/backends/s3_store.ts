@@ -6,14 +6,12 @@ import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
     S3ClientResponse,
     createS3Bucket,
-    createS3Client,
     deleteS3Object,
     doesBucketExist,
     getS3Object,
     listS3Objects,
     putS3Object,
     S3Client,
-    S3ClientConfig,
     s3RequestWithRetry
 } from '@terascope/file-asset-apis';
 import {} from '@terascope/types';
@@ -55,13 +53,13 @@ export class S3Store {
     }
 
     async initialize() {
-        this.api = await createS3Client(
-            this.terafoundation.connectors.s3[this.connection] as S3ClientConfig
-        );
+        const { client } = await this.context.apis.foundation
+            .createClient({ type: 's3', cached: true, endpoint: this.connection });
+
+        this.api = client;
 
         await pWhile(async () => {
             try {
-                const client = this.api;
                 const exists = await doesBucketExist(client, { Bucket: this.bucket });
                 if (!exists) {
                     await createS3Bucket(client, { Bucket: this.bucket });
@@ -93,7 +91,7 @@ export class S3Store {
 
     // TODO: if we want to use the S3 store more generically we can't
     // assume the key will have a '.zip' extension
-    async get(recordId: string) {
+    async get(recordId: string): Promise<Buffer> {
         const command = {
             Bucket: this.bucket,
             Key: `${recordId}.zip`
@@ -101,16 +99,31 @@ export class S3Store {
         try {
             this.logger.debug(`getting record with id: ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
             const client = this.api;
+            const bufferArray: Buffer[] = [];
+            let triggerReturn = false;
             const response = await s3RequestWithRetry({
                 client,
                 func: getS3Object,
                 params: command
             });
-            const s3File = await response.Body?.transformToString('base64');
-            if (typeof s3File !== 'string') {
-                throw new TSError(`Unable to get recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.`);
-            }
-            return s3File;
+            /// Convert the response body to a Node read stream
+            const s3Stream = response.Body as NodeJS.ReadableStream;
+
+            /// Store the data coming into s3 into a buffer array
+            s3Stream.on('data', (chunk: Buffer) => {
+                bufferArray.push(chunk);
+            });
+            s3Stream.on('end', () => {
+                triggerReturn = true;
+            });
+            s3Stream.on('error', (err) => {
+                throw new TSError(`Unable to get recordId ${recordId} from s3 ${this.connection} connection, ${this.bucket} bucket.
+                Reason: ${err.message}`);
+            });
+
+            await pWhile(async () => triggerReturn);
+
+            return Buffer.concat(bufferArray);
         } catch (err) {
             if (err instanceof S3ClientResponse.NoSuchKey) {
                 throw new TSError(`recordId ${recordId} does not exist in s3 ${this.connection} connection, ${this.bucket} bucket.`, {

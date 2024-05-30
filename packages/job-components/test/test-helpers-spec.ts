@@ -153,4 +153,92 @@ describe('Test Helpers', () => {
 
         expect(results).toEqual({ client: 'hello' });
     });
+
+    describe('MockPromMetrics', () => {
+        const context = new TestContext('test-prom-metrics');
+        context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+        const config = {
+            assignment: 'master',
+            logger: debugLogger('test-helpers-spec-logger'),
+            tf_prom_metrics_enabled: true,
+            tf_prom_metrics_port: 3333,
+            tf_prom_metrics_add_default: false,
+        };
+
+        it('should be able to init a mock prom_metrics_api', async () => {
+            expect(await context.apis.foundation.promMetrics.init(config)).toBe(true);
+            expect(context.apis.foundation.promMetrics.verifyAPI()).toBe(true);
+        });
+
+        it('should throw if API already initialized', async () => {
+            await expect(context.apis.foundation.promMetrics.init(config)).rejects.toThrow('Prom metrics API cannot be initialized more than once.');
+        });
+
+        it('should add, inc and delete counter', async () => {
+            await context.apis.foundation.promMetrics.addCounter('test_counter', 'test_counter help string', ['uuid', 'name', 'assignment'], function collect() {
+                this.inc({ uuid: 'e&vgv%56' }, 1);
+            });
+            context.apis.foundation.promMetrics.inc('test_counter', { uuid: 'e&vgv%56' }, 1);
+            expect(context.apis.foundation.promMetrics.hasMetric('test_counter')).toBe(true);
+            expect(await context.apis.foundation.promMetrics.deleteMetric('test_counter')).toBe(true);
+        });
+
+        it('should inc, dec, and set gauge', async () => {
+            await context.apis.foundation.promMetrics.addGauge('test_gauge', 'help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.set('test_gauge', { uuid: '437Ev89h' }, 10);
+            context.apis.foundation.promMetrics.inc('test_gauge', { uuid: '437Ev89h' }, 1);
+            context.apis.foundation.promMetrics.dec('test_gauge', { uuid: '437Ev89h' }, 2);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('437Ev89h'))[0].split(' ')[1];
+            expect(sum).toBe('9');
+        });
+
+        it('should throw if inc called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.inc('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+
+        it('should throw if dec called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.dec('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+
+        it('should throw if set called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.set('missing_test_gauge', { uuid: 'fg7HUI5' }, 1))
+                .toThrow('Metric missing_test_gauge is not setup');
+        });
+        it('should add and observe summary', async () => {
+            await context.apis.foundation.promMetrics.addSummary('test_summary', 'test_summary help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 12);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 5);
+            context.apis.foundation.promMetrics.observe('test_summary', { uuid: '34rhEqrX' }, 18);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('test_summary_sum'))[0].split(' ')[1];
+            const count = metrics.split('\n').filter((line) => line.includes('test_summary_count'))[0].split(' ')[1];
+            expect(sum).toBe('35');
+            expect(count).toBe('3');
+        });
+
+        it('should add and observe histogram', async () => {
+            await context.apis.foundation.promMetrics.addHistogram('test_histogram', 'test_histogram help string', ['uuid', 'name', 'assignment']);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 10);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 30);
+            context.apis.foundation.promMetrics.observe('test_histogram', { uuid: 'dEF4Kby6' }, 2);
+            const metrics: string = await context.apis.scrapePromMetrics();
+            const sum = metrics.split('\n').filter((line) => line.includes('test_histogram_sum'))[0].split(' ')[1];
+            const count = metrics.split('\n').filter((line) => line.includes('test_histogram_count'))[0].split(' ')[1];
+            expect(sum).toBe('42');
+            expect(count).toBe('3');
+        });
+
+        it('should throw if observe called on metric that doesn\'t exist', async () => {
+            expect(() => context.apis.foundation.promMetrics.observe('missing_test_histogram', { uuid: 'Hz4XpL9' }, 1))
+                .toThrow('Metric missing_test_histogram is not setup');
+        });
+
+        it('should shutdown', async () => {
+            await context.apis.foundation.promMetrics.shutdown();
+            expect(context.mockPromMetrics).toBeNull();
+        });
+    });
 });

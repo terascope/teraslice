@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.57.0",
+    "version": "0.59.2",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -28,7 +28,7 @@
         "debug": "^4.3.4"
     },
     "dependencies": {
-        "@terascope/types": "^0.15.0",
+        "@terascope/types": "^0.17.2",
         "@turf/bbox": "^6.4.0",
         "@turf/bbox-polygon": "^6.4.0",
         "@turf/boolean-contains": "^6.4.0",
@@ -52,7 +52,7 @@
         "ip-bigint": "^3.0.3",
         "ip-cidr": "^3.1.0",
         "ip6addr": "^0.2.5",
-        "ipaddr.js": "^2.0.1",
+        "ipaddr.js": "^2.2.0",
         "is-cidr": "^4.0.2",
         "is-ip": "^3.1.0",
         "is-plain-object": "^5.0.0",

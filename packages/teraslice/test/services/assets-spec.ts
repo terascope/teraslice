@@ -1,7 +1,9 @@
 import { TestContext, TestContextOptions } from '@terascope/job-components';
 import fs from 'node:fs';
 import got from 'got';
+import { Logger } from '@terascope/utils';
 import { createClient } from 'elasticsearch-store';
+import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsService } from '../../src/lib/cluster/services/assets';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
@@ -11,7 +13,18 @@ describe('Assets Service', () => {
         clients: [
             {
                 type: 'elasticsearch-next',
-                createClient,
+                async createClient(customConfig: Record<string, any>, logger: Logger) {
+                    const client = await createClient(customConfig, logger);
+                    return { client, logger };
+                },
+                endpoint: 'default'
+            },
+            {
+                type: 's3',
+                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                    const client = await createS3Client(customConfig, logger);
+                    return { client, logger };
+                },
                 endpoint: 'default'
             }
         ]
@@ -20,10 +33,10 @@ describe('Assets Service', () => {
     /// It's important to keep the test context name unique
     /// This is so we don't share indices and buckets with other test suites
     const context = new TestContext(`${TEST_INDEX_PREFIX}assets-spec-test`, contextOptions);
-    context.sysconfig.terafoundation = {
-        asset_storage_connection_type: 's3',
-        asset_storage_connection: 'default',
-        asset_storage_bucket: 'assets-spec-test-bucket',
+    context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
+        prom_metrics_enabled: false,
+        prom_metrics_port: 3333,
+        prom_metrics_add_default: true,
         connectors: {
             s3: {
                 default: {
@@ -41,7 +54,10 @@ describe('Assets Service', () => {
                 },
             },
         }
-    };
+    });
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
+    context.sysconfig.teraslice.asset_storage_connection = 'default';
+    context.sysconfig.teraslice.asset_storage_bucket = 'assets-spec-test-bucket';
     context.sysconfig.teraslice.api_response_timeout = 30000;
     /// Setting port for the asset service
     process.env.port = '55678';

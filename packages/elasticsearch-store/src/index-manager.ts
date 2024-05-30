@@ -1,5 +1,7 @@
 import * as ts from '@terascope/utils';
-import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
+import {
+    ClientParams, ClientResponse, ClientMetadata, ESMapping
+} from '@terascope/types';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
 import { Client } from './elasticsearch-client';
@@ -103,12 +105,13 @@ export class IndexManager {
 
         logger.trace(`Using ${this.clientMetadata.distribution} version ${this.clientMetadata.version}`);
 
-        const body: any = config.data_type.toESMapping({
+        const body = config.data_type.toESMapping({
             typeName: config.name,
             overrides: {
                 settings,
             },
-            ...this.clientMetadata
+            ...this.clientMetadata,
+            ...config._meta && { _meta: config._meta }
         });
 
         const enableMutations = (
@@ -384,13 +387,13 @@ export class IndexManager {
      * Safely create or update a template
      */
     async upsertTemplate(
-        template: Record<string, any>, logger?: ts.Logger
+        template: ESMapping, logger?: ts.Logger
     ): Promise<void> {
         const { template: name, version } = template;
 
         try {
-            const templates = await this.getTemplate(name, true);
-            const latestVersion = templates[name].version;
+            const templates = await this.getTemplate(name || '', true);
+            const latestVersion = templates[name || ''].version;
             if (version === latestVersion) return;
         } catch (err) {
             if (err.statusCode !== 404) {

@@ -18,6 +18,7 @@ import { scaleWorkers, getElapsed } from './docker-helpers.js';
 import signale from './signale.js';
 import generatorToESJob from './fixtures/jobs/generate-to-es.json' assert { type: 'json' };
 import generatorAssetJob from './fixtures/jobs/generator-asset.json' assert { type: 'json' };
+import generatorLargeAssetJob from './fixtures/jobs/generator-large-asset.json' assert { type: 'json' };
 import generatorJob from './fixtures/jobs/generator.json' assert { type: 'json' };
 import idJob from './fixtures/jobs/id.json' assert { type: 'json' };
 import kafkaReaderJob from './fixtures/jobs/kafka-reader.json' assert { type: 'json' };
@@ -29,6 +30,7 @@ import { defaultAssetBundles } from './download-assets.js';
 const JobDict = Object.freeze({
     'generate-to-es': generatorToESJob,
     'generator-asset': generatorAssetJob,
+    'generator-large-asset': generatorLargeAssetJob,
     generator: generatorJob,
     id: idJob,
     'kafka-reader': kafkaReaderJob,

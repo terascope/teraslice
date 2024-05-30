@@ -64,14 +64,14 @@ export class JobsService {
      * @returns {Promise<import('@terascope/job-components').ValidatedJobConfig>}
     */
     private async _validateJobSpec(
-        jobSpec: JobConfig | JobConfigParams
+        jobSpec: Partial<JobConfig | JobConfigParams>
     ): Promise<ValidatedJobConfig | JobConfig> {
         const parsedAssetJob = await this._ensureAssets(cloneDeep(jobSpec));
         const validJob = await this.jobValidator.validateConfig(parsedAssetJob);
         return validJob;
     }
 
-    async submitJob(jobSpec: Partial<ValidatedJobConfig>, shouldRun?: boolean) {
+    async submitJob(jobSpec: Partial<JobConfig | JobConfigParams>, shouldRun?: boolean) {
         // @ts-expect-error
         if (jobSpec.job_id) {
             throw new TSError('Job cannot include a job_id on submit', {
@@ -112,10 +112,18 @@ export class JobsService {
         return this.updateJob(jobId, job);
     }
 
-    async updateJob(jobId: string, jobSpec: Partial<JobConfig>) {
+    async updateJob(jobId: string, jobSpec: Partial<JobConfig | JobConfigParams>) {
         await this._validateJobSpec(jobSpec);
 
         const originalJob = await this.jobsStorage.get(jobId);
+
+        // If job is switching from active to inactive job validation is skipped
+        // This allows for old jobs that are missing required resources to be marked inactive
+        if (originalJob.active !== false && jobSpec.active === false) {
+            this.logger.info(`Skipping job validation to set jobId ${jobId} as _inactive`);
+        } else {
+            await this._validateJobSpec(jobSpec);
+        }
 
         return this.jobsStorage.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
@@ -307,7 +315,7 @@ export class JobsService {
         return this.executionService.setWorkers(exId, workerCount);
     }
 
-    private async _ensureAssets(jobConfig: JobConfig | JobConfigParams) {
+    private async _ensureAssets(jobConfig: Partial<JobConfig | JobConfigParams>) {
         const jobAssets = uniq(jobConfig.assets || []) as string [];
 
         if (isEmpty(jobAssets)) {

@@ -74,7 +74,9 @@ export class JobsStorage {
         return doc as JobConfig;
     }
 
-    async update(jobId: string, updateSpec: JobConfigParams): Promise<JobConfig> {
+    async update(
+        jobId: string, updateSpec: Partial<JobConfig | JobConfigParams>
+    ): Promise<JobConfig> {
         // We want to save the whole job as it is posted, update api does partial doc updates
         const results = await this.backend.indexWithId(jobId, Object.assign(
             {},

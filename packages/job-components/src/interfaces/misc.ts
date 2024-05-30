@@ -3,7 +3,7 @@ export type {
     SliceRequest, APIConfig, Slice, SliceAnalyticsData,
     ValidatedJobConfig, JobConfigParams, SysConfig,
     DeadLetterAction, DeadLetterAPIFn, Assignment,
-    LifeCycle, Config as TerasliceConfig
+    LifeCycle, Config as TerasliceConfig, ClusterManagerType
 } from '@terascope/types';
 
 // this is an enum, cant export as type

@@ -17,3 +17,4 @@ export {
     config,
     stores
 };
+import.meta.url

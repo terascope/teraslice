@@ -106,4 +106,9 @@ export interface ESMappingOptions extends ClientMetadata {
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;
+
+    /**
+     * Any metadata to add to the index mapping
+     */
+    _meta?: Record<string, any>;
 }

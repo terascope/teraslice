@@ -6,6 +6,9 @@ import {
     isFunction, debugLogger, Logger,
     makeISODate
 } from '@terascope/utils';
+import promClient, {
+    CollectFunction, Counter, Gauge, Histogram, Summary
+} from 'prom-client';
 import * as i from './interfaces/index.js';
 
 function newId(): number {
@@ -64,6 +67,18 @@ export interface CachedClients {
     [prop: string]: any;
 }
 
+export interface TestContextAPIs extends i.ExecutionContextAPIs {
+    setTestClients(clients: i.TestClientConfig[]): void;
+    getTestClients(): i.TestClients;
+    scrapePromMetrics(): Promise<string>;
+}
+
+export interface MockPromMetrics {
+    metricList: Terafoundation.MetricList;
+    defaultLabels: Record<string, string>;
+    prefix: string;
+}
+
 type GetKeyOpts = {
     type: string;
     endpoint?: string;
@@ -92,9 +107,16 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
+const proxyApi = new Proxy({}, {
+    get(target) {
+        throw new Error(`${target} is not implemented`);
+    }
+});
+
 export interface TestContextOptions {
     assignment?: i.Assignment;
     clients?: i.TestClientConfig[];
+    cluster_manager_type?: i.ClusterManagerType;
 }
 
 const _cachedClients = new WeakMap<TestContext, CachedClients>();
@@ -109,6 +131,7 @@ export class TestContext implements i.Context {
     assignment: i.Assignment = 'worker';
     platform: string = process.platform;
     arch: string = process.arch;
+    mockPromMetrics: MockPromMetrics | null;
 
     constructor(testName: string, options: TestContextOptions = {}) {
         const logger = debugLogger(testName);
@@ -139,12 +162,20 @@ export class TestContext implements i.Context {
                         default: {}
                     },
                 },
+                asset_storage_connection_type: 'elasticsearch-next',
+                asset_storage_connection: 'default',
+                prom_metrics_enabled: false,
+                prom_metrics_port: 3333,
+                prom_metrics_add_default: true,
             },
             teraslice: {
                 action_timeout: 10000,
                 analytics_rate: 10000,
                 assets_directory: path.join(process.cwd(), 'assets'),
-                cluster_manager_type: 'native',
+                asset_storage_connection_type: 'elasticsearch-next',
+                asset_storage_connection: 'default',
+                asset_storage_bucket: '',
+                cluster_manager_type: options.cluster_manager_type || 'native',
                 hostname: 'localhost',
                 index_rollover_frequency: {
                     analytics: 'yearly',
@@ -178,11 +209,13 @@ export class TestContext implements i.Context {
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});
 
+        this.mockPromMetrics = null;
         this.apis = {
             foundation: {
                 makeLogger(...params: any[]): Logger {
                     return logger.child(params[0]);
                 },
+                startWorkers: () => {},
                 async createClient(opts: i.ConnectionConfig) {
                     const { cached } = opts;
 
@@ -212,6 +245,268 @@ export class TestContext implements i.Context {
                 },
                 getSystemEvents(): EventEmitter {
                     return events;
+                },
+                promMetrics: {
+                    async init(config: Terafoundation.PromMetricsInitConfig) {
+                        const {
+                            assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
+                            tf_prom_metrics_add_default, tf_prom_metrics_enabled,
+                            labels, prefix
+                        } = config;
+
+                        if (ctx.mockPromMetrics) {
+                            throw new Error('Prom metrics API cannot be initialized more than once.');
+                        }
+
+                        const useDefaultMetrics = job_prom_metrics_add_default !== undefined
+                            ? job_prom_metrics_add_default
+                            : tf_prom_metrics_add_default;
+
+                        const defaultLabels = {
+                            name: 'mockPromMetrics',
+                            assignment,
+                            ...labels
+                        };
+
+                        const finalPrefix = prefix || `teraslice_${config.assignment}_`;
+
+                        if (useDefaultMetrics) {
+                            const defaultMetricsConfig = {
+                                prefix: finalPrefix,
+                                labels: defaultLabels
+                            };
+                            promClient.collectDefaultMetrics(defaultMetricsConfig);
+                        }
+
+                        if (job_prom_metrics_enabled === true
+                        || (job_prom_metrics_enabled === undefined && tf_prom_metrics_enabled)) {
+                            ctx.mockPromMetrics = {
+                                metricList: {},
+                                prefix: finalPrefix,
+                                defaultLabels
+                            };
+                            return true;
+                        }
+                        logger.warn('Cannot create PromMetricsAPI because metrics are disabled.');
+                        return false;
+                    },
+                    set(name: string, labels: Record<string, string>, value: number): void {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+                            if (metric.metric instanceof Gauge) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.set(value);
+                            } else {
+                                throw new Error(`set not available on ${name} metric`);
+                            }
+                        }
+                    },
+                    inc(name: string, labels: Record<string, string>, value: number): void {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+                            if (metric.metric instanceof Counter
+                                || metric.metric instanceof Gauge
+                            ) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.inc(value);
+                            } else {
+                                throw new Error(`inc not available on ${name} metric`);
+                            }
+                        }
+                    },
+                    dec(name: string, labels: Record<string, string>, value: number): void {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+
+                            if (metric.metric instanceof Gauge) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.dec(value);
+                            } else {
+                                throw new Error(`dec not available on ${name} metric`);
+                            }
+                        }
+                    },
+                    observe(
+                        name: string,
+                        labels: Record<string, string>,
+                        value: number
+                    ): void {
+                        if (ctx.mockPromMetrics) {
+                            const metric = ctx.mockPromMetrics.metricList[name];
+                            if (!metric || !metric.functions || !metric.metric) {
+                                throw new Error(`Metric ${name} is not setup`);
+                            }
+
+                            if (metric.metric instanceof Summary
+                                || metric.metric instanceof Histogram) {
+                                const labelValues = Object.keys(labels).map((key) => labels[key]);
+                                const res = metric.metric.labels(...labelValues.concat(
+                                    Object.values(this.getDefaultLabels())
+                                ));
+                                res.observe(value);
+                            } else {
+                                throw new Error(`observe not available on ${name} metric`);
+                            }
+                        }
+                    },
+                    async addGauge(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        collect?: CollectFunction<Gauge>
+                    ): Promise<void> {
+                        if (ctx.mockPromMetrics) {
+                            if (!this.hasMetric(name)) {
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const gauge = new Gauge({
+                                    name: fullname,
+                                    help,
+                                    labelNames,
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: gauge,
+                                    functions: new Set<string>(['inc', 'dec', 'set'])
+                                };
+                            } else {
+                                logger.info(`metric ${name} already defined in metric list`);
+                            }
+                        }
+                    },
+                    async addCounter(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        collect?: CollectFunction<Counter>
+                    ): Promise<void> {
+                        if (ctx.mockPromMetrics) {
+                            if (!this.hasMetric(name)) {
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const counter = new Counter({
+                                    name: fullname,
+                                    help,
+                                    labelNames,
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: counter,
+                                    functions: new Set<string>(['inc'])
+                                };
+                            } else {
+                                logger.info(`metric ${name} already defined in metric list`);
+                            }
+                        }
+                    },
+                    async addHistogram(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        collect?: CollectFunction<Histogram>,
+                        buckets: number[] = [0.1, 5, 15, 50, 100, 500]
+                    ): Promise<void> {
+                        if (ctx.mockPromMetrics) {
+                            if (!this.hasMetric(name)) {
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const histogram = new Histogram({
+                                    name: fullname,
+                                    help,
+                                    labelNames,
+                                    buckets,
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: histogram,
+                                    functions: new Set<string>(['observe'])
+                                };
+                            } else {
+                                logger.info(`metric ${name} already defined in metric list`);
+                            }
+                        }
+                    },
+                    async addSummary(
+                        name: string,
+                        help: string,
+                        labelNames: Array<string>,
+                        collect?: CollectFunction<Summary>,
+                        maxAgeSeconds = 600,
+                        ageBuckets = 5,
+                        percentiles: Array<number> = [0.01, 0.1, 0.9, 0.99]
+                    ): Promise<void> {
+                        if (ctx.mockPromMetrics) {
+                            if (!this.hasMetric(name)) {
+                                const fullname = ctx.mockPromMetrics.prefix + name;
+                                const summary = new Summary({
+                                    name: fullname,
+                                    help,
+                                    labelNames,
+                                    percentiles,
+                                    maxAgeSeconds,
+                                    ageBuckets,
+                                    collect
+                                });
+                                ctx.mockPromMetrics.metricList[name] = {
+                                    name,
+                                    metric: summary,
+                                    functions: new Set<string>(['observe'])
+                                };
+                            } else {
+                                logger.info(`metric ${name} already defined in metric list`);
+                            }
+                        }
+                    },
+                    hasMetric(name: string): boolean {
+                        if (ctx.mockPromMetrics) {
+                            return (name in ctx.mockPromMetrics.metricList);
+                        }
+                        return false;
+                    },
+                    async deleteMetric(name: string): Promise<boolean> {
+                        let deleted = false;
+                        if (ctx.mockPromMetrics) {
+                            const fullname = ctx.mockPromMetrics.prefix + name;
+                            if (ctx.mockPromMetrics.metricList[name]) {
+                                deleted = delete ctx.mockPromMetrics.metricList[name];
+                                promClient.register.removeSingleMetric(fullname);
+                            } else {
+                                throw new Error(`metric ${name} not defined in metric list`);
+                            }
+                            return deleted;
+                        }
+                        return deleted;
+                    },
+                    getDefaultLabels() {
+                        if (ctx.mockPromMetrics) {
+                            return ctx.mockPromMetrics.defaultLabels;
+                        }
+                        return {};
+                    },
+                    verifyAPI(): boolean {
+                        return ctx.mockPromMetrics !== null;
+                    },
+                    async shutdown(): Promise<void> {
+                        ctx.mockPromMetrics = null;
+                    }
                 },
             },
             registerAPI(namespace: string, apis: any): void {
@@ -255,6 +550,16 @@ export class TestContext implements i.Context {
 
                 return clients;
             },
+            async scrapePromMetrics(): Promise<string> {
+                if (ctx.mockPromMetrics) {
+                    return promClient.register.metrics();
+                }
+                return '';
+            },
+            op_runner: proxyApi as any,
+            assets: proxyApi as any,
+            job_runner: proxyApi as any,
+            executionContext: proxyApi as any
         } as i.TestContextApis & Terafoundation.ContextAPIs;
 
         if (options.clients) {

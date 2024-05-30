@@ -5,6 +5,7 @@ import type { Context } from '@terascope/job-components';
 import { AssetsStorage } from '../../storage/index.js';
 import { makeLogger } from '../helpers/terafoundation.js';
 import { saveAsset } from '../../utils/file_utils.js';
+import { getBackendConfig } from '../../storage/assets.js';
 
 export class AssetLoader {
     readonly context: Context;
@@ -53,8 +54,14 @@ export class AssetLoader {
 
                 const assetRecord = await this.assetsStorage.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
+                let buff: Buffer;
 
-                const buff = Buffer.from(assetRecord.blob as string, 'base64');
+                if (getBackendConfig(this.context, this.logger).assetConnectionType === 's3') {
+                    buff = assetRecord.blob as Buffer;
+                } else {
+                    buff = Buffer.from(assetRecord.blob as string, 'base64');
+                }
+
                 const saveResult = await saveAsset(
                     this.logger,
                     this.assetsDirectory,

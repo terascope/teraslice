@@ -6,6 +6,16 @@ import { downloadRelease } from '@terascope/fetch-github-release';
 import signale from './signale.js';
 import { AUTOLOAD_PATH } from './config.js';
 
+type AssetInfo = {
+    name: string;
+    version: semver.SemVer | null;
+    newerVersion?: semver.SemVer | null;
+    repo: string;
+    bundle: boolean;
+    fileName: string;
+    assetNodeVersion: string;
+}
+
 /**
  * This will get the correct teraslice node version so
  * we can download the correct asset
@@ -39,24 +49,34 @@ export const defaultAssetBundles = [
     }
 ];
 
-function assetFileInfo(assetName: string) {
-    const [name, version] = assetName.split('-');
+function assetFileInfo(assetName: string): AssetInfo {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [name, version, _, assetNodeVersion] = assetName.split('-');
     return {
         name,
         version: semver.coerce(version),
         repo: `${name}-assets`,
         bundle: assetName.includes('-bundle'),
-        fileName: assetName
+        fileName: assetName,
+        assetNodeVersion
     };
 }
 
-function getOlderAsset(assets: any[], assetName: string) {
+function getOlderAssets(assets: AssetInfo[], assetName: string): AssetInfo[] {
     const { name, version } = assetFileInfo(assetName);
 
-    return assets.find((a) => {
-        if (a.name !== name) return false;
-        // @ts-expect-error TODO: fix this
-        return semver.gt(version, a.version) && a.bundle;
+    // If we have no version we can't compare to other versions
+    if (version === null) {
+        return [];
+    }
+    return assets.filter((other) => {
+        if (other.name !== name) return false;
+
+        // Asset file name should always contain node version. If it doesn't, lets delete it.
+        if (other.version === null) {
+            return true;
+        }
+        return semver.gt(version, other.version);
     });
 }
 
@@ -79,7 +99,7 @@ function listAssets() {
         .map(assetFileInfo);
 }
 
-function count(arr: any[], fn:(arg: any) => boolean) {
+function count(arr: any[], fn: (arg: any) => boolean) {
     let c = 0;
 
     for (const v of arr) {
@@ -89,29 +109,53 @@ function count(arr: any[], fn:(arg: any) => boolean) {
     return c;
 }
 
-function deleteOlderAssets() {
-    const duplicateAssets = listAssets().filter(({ name }, i, all) => {
+/**
+ * Returns all assets in autoload directory with a
+ * name that matches any other asset present
+ * @returns {AssetInfo[]}
+ */
+function listDuplicateAssets(): AssetInfo[] {
+    return listAssets().filter(({ name }, i, all) => {
         const c = count(all, (a) => a.name === name);
         return c > 1;
     });
+}
+
+/**
+ * Checks node version of all assets in the autoload directory.
+ * Deletes those that don't match the teraslice node version.
+ */
+function deleteAssetsWithWrongNodeVersions() {
+    const duplicateAssets = listDuplicateAssets();
+
+    const assetsWithWrongNodeVersion = duplicateAssets
+        .filter((asset) => asset.assetNodeVersion !== nodeVersion);
+
+    for (const asset of assetsWithWrongNodeVersion) {
+        signale.warn(`Deleting asset ${asset.fileName} because node version does not match ${nodeVersion}`);
+        fs.unlinkSync(path.join(AUTOLOAD_PATH, asset.fileName));
+    }
+}
+
+/**
+ * Compares version numbers of duplicate assets. Deletes older versions
+ */
+function deleteOlderAssets() {
+    const duplicateAssets = listDuplicateAssets();
 
     const olderAssets = duplicateAssets
-        .reduce((acc, current, index, src) => {
+        .reduce((acc: AssetInfo[], current, index, src) => {
             const without = src.filter((a, i) => index !== i);
-            const older = getOlderAsset(without, current.fileName);
-            if (older) {
-                older.newerVersion = current.version;
+            const older = getOlderAssets(without, current.fileName);
+            if (older.length > 0) {
+                for (const asset of older) {
+                    asset.newerVersion = current.version;
+                    if (!acc.includes(asset)) acc.push(asset);
+                }
                 return acc;
             }
-            // @ts-expect-error
             return acc.concat([current]);
-        }, [])
-        .filter(({ name, newerVersion, bundle }, index, arr) => {
-            if (newerVersion == null && bundle) {
-                return arr.find((a: any, i) => i !== index && a.name === name && a.bundle);
-            }
-            return newerVersion == null;
-        }) as any[];
+        }, []);
 
     for (const asset of olderAssets) {
         const b = asset.bundle ? ' [bundle]' : ' [non-bundle]';
@@ -121,8 +165,10 @@ function deleteOlderAssets() {
 }
 
 function logAssets() {
-    const assets = listAssets().map(({ name, bundle, version }) => {
-        if (bundle) return `${name}@v${version} [bundle]`;
+    const assets = listAssets().map(({
+        name, bundle, version, assetNodeVersion
+    }) => {
+        if (bundle) return `${name}@v${version}-node-${assetNodeVersion} [bundle]`;
         return `${name}@v${version} [non-bundle]`;
     });
     if (!assets.length) return;
@@ -131,7 +177,8 @@ function logAssets() {
 }
 
 /**
- * @todo change this to not download both the bundled and non-bundled versions
+ * Download all bundled assets described in the
+ * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
     await Promise.all(defaultAssetBundles.map(({ repo }) => downloadRelease(
@@ -144,6 +191,7 @@ export async function downloadAssets() {
         disableLogging
     )));
 
+    deleteAssetsWithWrongNodeVersions();
     deleteOlderAssets();
     logAssets();
 }

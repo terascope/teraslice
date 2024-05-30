@@ -17,6 +17,7 @@ import { ExecutionAnalytics } from './execution-analytics.js';
 import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
 import { Metrics } from '../metrics/index.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class ExecutionController {
     readonly context: Context;
@@ -136,6 +137,28 @@ export class ExecutionController {
     }
 
     async initialize() {
+        if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
+            this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+        } else {
+            const { terafoundation } = this.context.sysconfig;
+            await this.context.apis.foundation.promMetrics.init({
+                assignment: 'execution_controller',
+                logger: this.logger,
+                tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                job_prom_metrics_add_default: this.executionContext.config.prom_metrics_add_default,
+                job_prom_metrics_enabled: this.executionContext.config.prom_metrics_enabled,
+                job_prom_metrics_port: this.executionContext.config.prom_metrics_port,
+                labels: {
+                    ex_id: this.exId,
+                    job_id: this.executionContext.jobId,
+                    job_name: this.executionContext.config.name,
+                }
+            });
+        }
+        await this.setupPromMetrics();
+
         await Promise.all([
             this.executionStorage.initialize(),
             this.stateStorage.initialize(),
@@ -1079,5 +1102,51 @@ export class ExecutionController {
         }
 
         this.pendingDispatches++;
+    }
+
+    /**
+     * Adds all prom metrics specific to the execution_controller.
+     *
+     * If trying to add a new metric for the execution_controller, it belongs here.
+     * @async
+     * @function setupPromMetrics
+     * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
+     */
+    async setupPromMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        const { context, executionAnalytics } = this;
+        await Promise.all([
+            this.context.apis.foundation.promMetrics.addGauge(
+                'info',
+                'Information about Teraslice execution controller',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+            ),
+            this.context.apis.foundation.promMetrics.addGauge(
+                'slices_processed',
+                'Number of slices processed by all workers',
+                [],
+                function collect() {
+                    const slicesProcessed = executionAnalytics.get('processed');
+                    const defaultLabels = {
+                        ...context.apis.foundation.promMetrics.getDefaultLabels()
+                    };
+                    this.set(defaultLabels, slicesProcessed);
+                }
+            )
+        ]);
+
+        this.context.apis.foundation.promMetrics.set(
+            'info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: getPackageJSON().version
+            },
+            1
+        );
     }
 }

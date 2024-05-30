@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { TestContext, TestContextOptions } from '@terascope/job-components';
+import { Logger } from '@terascope/utils';
 import { createClient } from 'elasticsearch-store';
+import { createS3Client } from '@terascope/file-asset-apis';
 import { AssetsStorage } from '../../src/lib/storage';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
@@ -11,7 +13,18 @@ describe('AssetsStorage using S3 backend', () => {
         clients: [
             {
                 type: 'elasticsearch-next',
-                createClient,
+                async createClient(customConfig: Record<string, any>, logger: Logger) {
+                    const client = await createClient(customConfig, logger);
+                    return { client, logger };
+                },
+                endpoint: 'default'
+            },
+            {
+                type: 's3',
+                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                    const client = await createS3Client(customConfig, logger);
+                    return { client, logger };
+                },
                 endpoint: 'default'
             }
         ]
@@ -19,8 +32,6 @@ describe('AssetsStorage using S3 backend', () => {
     const context = new TestContext(`${TEST_INDEX_PREFIX}assets-storage-test`, options) as any;
 
     context.sysconfig.terafoundation = {
-        asset_storage_connection_type: 's3',
-        asset_storage_connection: 'default',
         connectors: {
             'elasticsearch-next': {
                 default: {
@@ -39,6 +50,8 @@ describe('AssetsStorage using S3 backend', () => {
             }
         }
     };
+    context.sysconfig.teraslice.asset_storage_connection_type = 's3';
+    context.sysconfig.teraslice.asset_storage_connection = 'default';
     context.sysconfig.teraslice.api_response_timeout = 30000;
 
     beforeAll(async () => {
@@ -62,8 +75,11 @@ describe('AssetsStorage using S3 backend', () => {
     });
 
     it('can get an asset from S3', async () => {
+        /// create a buffer copy of example_asset_1.zip to test if it equals what s3 sends back
+        const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
+        const buffer = fs.readFileSync(filePath);
         const assetRecord = await storage.get('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
-        expect(assetRecord.blob).toStartWith('UEsDBAoAAAAAANxV');
+        expect(buffer.equals(assetRecord.blob as Buffer)).toBe(true);
         expect(assetRecord.name).toBe('ex1');
     });
 

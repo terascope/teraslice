@@ -11,6 +11,7 @@ import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { Metrics } from '../metrics/index.js';
 import { SliceExecution } from './slice.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class Worker {
     stateStorage: StateStorage;
@@ -85,6 +86,28 @@ export class Worker {
     }
 
     async initialize() {
+        if (this.context.sysconfig.teraslice.cluster_manager_type === 'native') {
+            this.logger.warn('Skipping PromMetricsAPI initialization: incompatible with native clustering.');
+        } else {
+            const { terafoundation } = this.context.sysconfig;
+            await this.context.apis.foundation.promMetrics.init({
+                assignment: 'worker',
+                logger: this.logger,
+                tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
+                tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
+                tf_prom_metrics_port: terafoundation.prom_metrics_port,
+                job_prom_metrics_add_default: this.executionContext.config.prom_metrics_add_default,
+                job_prom_metrics_enabled: this.executionContext.config.prom_metrics_enabled,
+                job_prom_metrics_port: this.executionContext.config.prom_metrics_port,
+                labels: {
+                    ex_id: this.executionContext.exId,
+                    job_id: this.executionContext.jobId,
+                    job_name: this.executionContext.config.name,
+                }
+            });
+        }
+        await this.setupPromMetrics();
+
         const { context } = this;
         this.isInitialized = true;
 
@@ -372,5 +395,56 @@ export class Worker {
                 done(err);
             }, this.shutdownTimeout);
         });
+    }
+
+    getSlicesProcessed() {
+        return this.slicesProcessed;
+    }
+
+    /**
+     * Adds all prom metrics specific to the worker.
+     *
+     * If trying to add a new metric for the worker, it belongs here.
+     * @async
+     * @function setupPromMetrics
+     * @return {Promise<void>}
+     * @link https://terascope.github.io/teraslice/docs/development/k8s#prometheus-metrics-api
+     */
+    async setupPromMetrics() {
+        this.logger.info(`adding ${this.context.assignment} prom metrics...`);
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        await Promise.all([
+            this.context.apis.foundation.promMetrics.addGauge(
+                'info',
+                'Information about Teraslice worker',
+                ['arch', 'clustering_type', 'name', 'node_version', 'platform', 'teraslice_version'],
+            ),
+            this.context.apis.foundation.promMetrics.addGauge(
+                'slices_processed',
+                'Number of slices the worker has processed',
+                [],
+                function collect() {
+                    const slicesProcessed = self.getSlicesProcessed();
+                    const defaultLabels = {
+                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
+                    };
+                    this.set(defaultLabels, slicesProcessed);
+                }
+            )
+        ]);
+
+        this.context.apis.foundation.promMetrics.set(
+            'info',
+            {
+                arch: this.context.arch,
+                clustering_type: this.context.sysconfig.teraslice.cluster_manager_type,
+                name: this.context.sysconfig.teraslice.name,
+                node_version: process.version,
+                platform: this.context.platform,
+                teraslice_version: getPackageJSON().version
+            },
+            1
+        );
     }
 }

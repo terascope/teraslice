@@ -70,7 +70,8 @@ export default class Options {
             choices: [
                 'node16',
                 'node18',
-                'node20'
+                'node20',
+                'node22'
             ],
             // I have disabled this because for some reason this requirement was
             // being enforced even when `bundle-target` wasn't specified.

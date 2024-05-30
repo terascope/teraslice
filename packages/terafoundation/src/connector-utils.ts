@@ -10,10 +10,10 @@ type ErrorResult = {
     message: string;
 }
 
-async function requireConnector(
+async function requireConnector<S>(
     filePath: string,
     errors: ErrorResult[]
-): Promise<Terafoundation.Connector | null> {
+): Promise<Terafoundation.Connector<S> | null> {
     let valid = true;
     let mod: any;
 
@@ -39,6 +39,14 @@ async function requireConnector(
         valid = false;
     }
 
+    if (mod && mod.validate_config && typeof mod.validate_config !== 'function') {
+        errors.push({
+            filePath,
+            message: `Connector ${filePath} validate_config must be a function`,
+        });
+        valid = false;
+    }
+
     if (mod && typeof mod.createClient !== 'function') {
         errors.push({
             filePath,
@@ -55,10 +63,10 @@ async function requireConnector(
     return null;
 }
 
-async function guardedRequire(
+async function guardedRequire<S>(
     filePath: string,
     errors: ErrorResult[]
-): Promise<Terafoundation.Connector | null> {
+): Promise<Terafoundation.Connector<S> | null> {
     try {
         return requireConnector(filePath, errors);
     } catch (error) {
@@ -71,17 +79,17 @@ async function guardedRequire(
     }
 }
 
-export async function getConnectorModule(
+export async function getConnectorModule<S = Record<string, any>>(
     name: string,
     reason: string
-): Promise<Terafoundation.Connector | null> {
-    let mod;
+): Promise<Terafoundation.Connector<S> | null> {
+    let mod: Terafoundation.Connector<S> | null;
 
     // collect the errors
     const errors: ErrorResult[] = [];
 
     const localPath = `${path.join(dirname, 'connectors', name)}.js`;
-    mod = await guardedRequire(localPath, errors);
+    mod = await guardedRequire<S>(localPath, errors);
 
     // check if its a node module
     if (!mod) {
@@ -119,16 +127,19 @@ export async function getConnectorModule(
     return null;
 }
 
-export async function getConnectorSchema(name: string): Promise<Record<string, any>> {
+export async function getConnectorSchemaAndValFn<S>(
+    name: string
+): Promise<Terafoundation.Initializers<S>> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
-    const mod = await getConnectorModule(name, reason);
+    const mod = await getConnectorModule<S>(name, reason);
 
     if (!mod) {
-        throw new TSError(`Could not find connector: ${name} to extract its schema`);
+        console.warn(`[WARNING] ${reason}`);
+        return { schema: {} as Terafoundation.Schema<S> };
     }
 
-    return mod.config_schema();
+    return { schema: mod.config_schema(), validatorFn: mod.validate_config };
 }
 
 export async function createClient(

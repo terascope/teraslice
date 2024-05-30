@@ -6,6 +6,7 @@ import {
 import type { Context } from '@terascope/job-components';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { AssetsStorage } from '../../storage/index.js';
+import { getBackendConfig } from '../../storage/assets.js';
 import {
     makeTable, handleTerasliceRequest, getSearchOptions,
     sendError,
@@ -38,7 +39,7 @@ export class AssetsService {
 
     async initialize() {
         try {
-            this.assetsStorage = await new AssetsStorage(this.context);
+            this.assetsStorage = new AssetsStorage(this.context);
             await this.assetsStorage.initialize();
 
             this.app.get('/status', (req, res) => {
@@ -205,8 +206,8 @@ export class AssetsService {
                 record.id = asset._id;
                 return record;
             });
-
-            if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
+            const { assetConnectionType } = getBackendConfig(this.context, this.logger);
+            if (assetConnectionType === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 const updatedAssets = this.getS3AssetStatus(s3Assets, assets);
                 return makeTable(req, s3Defaults, updatedAssets, mapping);
@@ -233,7 +234,8 @@ export class AssetsService {
                 return record;
             });
 
-            if (this.context.sysconfig.terafoundation.asset_storage_connection_type === 's3') {
+            const { assetConnectionType } = getBackendConfig(this.context, this.logger);
+            if (assetConnectionType === 's3') {
                 const s3Assets = await this.assetsStorage.grabS3Info();
                 const updatedAssets = this.getS3AssetStatus(s3Assets, mappedRecords);
                 return updatedAssets;

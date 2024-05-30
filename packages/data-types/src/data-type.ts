@@ -111,13 +111,14 @@ export class DataType {
      */
     toESMapping({
         typeName, overrides, distribution = ElasticsearchDistribution.elasticsearch,
-        majorVersion = 6, minorVersion = 8, version = '6.8.6'
+        majorVersion = 6, minorVersion = 8, version = '6.8.6', _meta
     }: Partial<i.ESMappingOptions> = {}): ESMapping {
         const indexType = typeName || this.name || '_doc';
 
         const mappingSettings: ESTypeMappings = {
             dynamic: false,
             properties: {},
+            ..._meta && { _meta }
         };
 
         if (

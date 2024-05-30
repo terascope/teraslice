@@ -25,7 +25,9 @@ export class JobValidator {
     }
 
     /** Validate the job configuration, including the Operations and APIs configuration */
-    async validateConfig(jobSpec: Teraslice.JobConfigParams): Promise<ValidatedJobConfig> {
+    async validateConfig(
+        jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>
+    ): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];

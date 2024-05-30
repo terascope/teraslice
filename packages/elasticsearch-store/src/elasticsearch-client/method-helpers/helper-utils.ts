@@ -29,13 +29,17 @@ function validDistributionAndVersion(
 }
 
 export function ensureNoTypeInMapping(mappings: Record<string, any> | undefined) {
+    const parsed: Record<string, any> = {};
     if (mappings != null) {
         for (const [k, v] of Object.entries(mappings)) {
-            if (k === 'properties') return { [k]: v };
+            if (k === 'properties') parsed[k] = v;
+            if (k === '_meta') parsed[k] = v;
 
-            if (v.properties) return { properties: v.properties };
+            if (v.properties) parsed.properties = v.properties;
+            if (v._meta) parsed._meta = v._meta;
         }
     }
+    return parsed;
 }
 
 export function ensureTypeInMapping(body: ESTypes.IndexTemplateProperties | undefined) {

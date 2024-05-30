@@ -1,13 +1,28 @@
 import fse from 'fs-extra';
-import { TerafoundationConfig, TestContext } from '@terascope/job-components';
-import { DeleteBucketCommand } from '@aws-sdk/client-s3';
+import { Logger } from '@terascope/utils';
+import { TestContext, TestContextOptions } from '@terascope/job-components';
+import { createS3Client, deleteS3Bucket } from '@terascope/file-asset-apis';
 import { S3Store } from '../../src/lib/storage/backends/s3_store';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('S3 backend test', () => {
     let s3Backend: S3Store;
-    const context = new TestContext(`${TEST_INDEX_PREFIX}s3-store-test`) as any;
-    const mockTerafoundation: TerafoundationConfig = {
+    const contextOptions: TestContextOptions = {
+        // assignment: 'assets_service',
+        clients: [
+            {
+                type: 's3',
+                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                    const client = await createS3Client(customConfig, logger);
+                    return { client, logger };
+                },
+                endpoint: 'default'
+            }
+        ]
+
+    };
+    const context = new TestContext(`${TEST_INDEX_PREFIX}s3-store-test`, contextOptions) as any;
+    context.sysconfig.terafoundation = {
         connectors: {
             s3: {
                 default: {
@@ -26,7 +41,7 @@ describe('S3 backend test', () => {
         beforeEach(async () => {
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: 'ts-assets'
             });
@@ -39,10 +54,10 @@ describe('S3 backend test', () => {
         });
 
         it('should throw error trying to verify client if bucket does not exist', async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
 
             const response = await s3Backend.verifyClient();
             expect(response).toEqual(false);
@@ -52,10 +67,10 @@ describe('S3 backend test', () => {
             const response = await s3Backend.verifyClient();
             expect(response).toEqual(true);
 
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
         });
     });
 
@@ -63,7 +78,7 @@ describe('S3 backend test', () => {
         beforeAll(async () => {
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: 'ts-assets'
             });
@@ -72,10 +87,10 @@ describe('S3 backend test', () => {
         });
 
         afterAll(async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: 'ts-assets'
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
             await s3Backend.shutdown();
         });
 
@@ -95,11 +110,12 @@ describe('S3 backend test', () => {
 
         it('should be able to download asset', async () => {
             const filePath = 'e2e/test/fixtures/assets/example_asset_2.zip';
-            await s3Backend.save('ex2', fse.readFileSync(filePath), 30000);
+            const fileBuffer = fse.readFileSync(filePath);
+            await s3Backend.save('ex2', fileBuffer, 30000);
 
             const result = await s3Backend.get('ex2');
 
-            expect(result).toStartWith('UEsDBAo');
+            expect(result.equals(fileBuffer)).toBe(true);
             await s3Backend.remove('ex2');
         });
     });
@@ -108,10 +124,10 @@ describe('S3 backend test', () => {
         let bucketName: string;
 
         afterAll(async () => {
-            const command = new DeleteBucketCommand({
+            const command = {
                 Bucket: bucketName
-            });
-            await s3Backend.api.send(command);
+            };
+            await deleteS3Bucket(s3Backend.api, command);
             await s3Backend.shutdown();
         });
 
@@ -119,7 +135,7 @@ describe('S3 backend test', () => {
             bucketName = `ts-assets-${TEST_INDEX_PREFIX}s3-store-test`.replaceAll('_', '-');
             s3Backend = new S3Store({
                 context,
-                terafoundation: mockTerafoundation,
+                terafoundation: context.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: undefined
             });
@@ -130,10 +146,11 @@ describe('S3 backend test', () => {
         });
 
         it('should create a bucket name where underscores in teraslice.name are replaced by dashes', async () => {
-            const contextWithUnderscoreName = new TestContext('s3_backend_underscores') as any;
+            const contextWithUnderscoreName = new TestContext('s3_backend_underscores', contextOptions) as any;
+            contextWithUnderscoreName.sysconfig.terafoundation = context.sysconfig.terafoundation;
             s3Backend = new S3Store({
                 context: contextWithUnderscoreName,
-                terafoundation: mockTerafoundation,
+                terafoundation: contextWithUnderscoreName.sysconfig.terafoundation,
                 connection: 'default',
                 bucket: undefined
             });

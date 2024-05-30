@@ -90,7 +90,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     _has_errors: boolean;
     _slicer_stats: Record<string, any>;
     _failureReason?: string
-    slicer_port?: number;
+    slicer_port: number;
     slicer_hostname: string;
 }
 
@@ -292,6 +292,12 @@ export interface ValidatedJobConfig {
     volumes?: Volume[];
     /** This will only be available in the context of k8s */
     kubernetes_image?: string;
+    /** This will only be available in the context of k8s */
+    prom_metrics_enabled?: boolean;
+    /** This will only be available in the context of k8s */
+    prom_metrics_port?: number;
+    /** This will only be available in the context of k8s */
+    prom_metrics_add_default?: boolean;
 }
 
 // TODO: rename ExecutionControllerTargets???
@@ -453,6 +459,9 @@ export interface Config {
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;
     assets_directory?: string[] | string;
+    asset_storage_connection_type: string;
+    asset_storage_connection: string;
+    asset_storage_bucket: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
