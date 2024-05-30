@@ -7,12 +7,10 @@ import { makeExecutionContext } from './dist/src/lib/workers/context/execution-c
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ExecutionController } from './dist/src/lib/workers/execution-controller/index.js';
 import { Worker } from './dist/src/lib/workers/worker/index.js';
-import { getPackageJSON } from './dist/src/lib/utils/file_utils.js';
 
 class Service {
     constructor(context) {
         this.executionConfig = this._getExecutionConfigFromEnv();
-        this.executionConfig.teraslice_version = getPackageJSON().version;
         this.context = context;
 
         this.logger = this.context.logger;

@@ -390,38 +390,43 @@ await config.context.apis.foundation.promMetrics.init({
 });
 ```
 
-Once initialized all of the other functions under `context.apis.foundation.promMetrics` will be enabled. It's important to note that the foundation level wrapper functions allow all of the prom metrics functions to be called even if metrics are disabled or the API hasn't been initialized. There is no need to make checks at the level where a function is called, and failures will never throw errors.
+Once initialized all of the other functions under `context.apis.foundation.promMetrics` will be enabled. Any calls to promMetricsAPI functions should be wrapped in a check using the `job-components` utility function `isPromAvailable()`.
 
 Example Counter:
 ```typescript
-await this.context.apis.foundation.promMetrics.addCounter(
-    'slices_dispatched', // name
-    'number of slices a slicer has dispatched', // help or description
-    ['class'], // label names specific to this metric
-
-// now we can increment the counter anywhere else in the code
-this.context.apis.foundation.promMetrics.inc(
-    'slices_dispatched', // name
-    { class: 'ExecutionController' }, // label names and values
-    1 // amount to increment by
-);
+if (isPromAvailable(this.context)) {
+    await this.context.apis.foundation.promMetrics.addCounter(
+        'slices_dispatched', // name
+        'number of slices a slicer has dispatched', // help or description
+        ['class'], // label names specific to this metric
+    );
+    // now we can increment the counter anywhere else in the code
+    this.context.apis.foundation.promMetrics.inc(
+        'slices_dispatched', // name
+        { class: 'ExecutionController' }, // label names and values
+        1 // amount to increment by
+    );
+}
 ```
 
 Example Gauge using collect() callback:
 ```typescript
 const self = this;
-await this.context.apis.foundation.promMetrics.addGauge(
-    'slices_dispatched', // name
-    'number of slices a slicer has dispatched', // help or description
-    ['class'], // label names specific to this metric
-    function collect() { // callback fn updates value only when '/metrics' endpoint is hit
-        const slicesFinished = self.getSlicesDispatched(); // get current value from local momory
-        const labels = { // 'set()' needs both default labels and labels specific to metric to match the correct gauge
-            ...self.context.apis.foundation.promMetrics.getDefaultLabels(),
-            class: 'SlicerExecutionContext'
-        };
-        this.set(labels, slicesFinished); // 'this' refers to the Gauge
-    }
+if (isPromAvailable(this.context)) {
+    await this.context.apis.foundation.promMetrics.addGauge(
+        'slices_dispatched', // name
+        'number of slices a slicer has dispatched', // help or description
+        ['class'], // label names specific to this metric
+        function collect() { // callback fn updates value only when '/metrics' endpoint is hit
+            const slicesFinished = self.getSlicesDispatched(); // get current value from local momory
+            const labels = { // 'set()' needs both default labels and labels specific to metric to match the correct gauge
+                ...self.context.apis.foundation.promMetrics.getDefaultLabels(),
+                class: 'SlicerExecutionContext'
+            };
+            this.set(labels, slicesFinished); // 'this' refers to the Gauge
+        }
+    );
+}
 ```
 
 The label names as well as the metric name must match when using `inc`, `dec`, `set`, or `observe` to modify a metric.

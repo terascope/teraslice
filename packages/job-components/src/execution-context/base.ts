@@ -8,6 +8,7 @@ import { registerApis } from '../register-apis.js';
 import { ExecutionConfig, Context, OperationLifeCycle } from '../interfaces/index.js';
 import { EventHandlers, ExecutionContextConfig } from './interfaces.js';
 import { ExecutionContextAPI } from './api.js';
+import { isPromAvailable } from '../utils';
 
 /**
  * A base class for an Execution Context
@@ -120,7 +121,10 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
                     this.events.removeListener(event, listener);
                 });
         });
-        await this.context.apis.foundation.promMetrics.shutdown();
+
+        if (isPromAvailable(this.context)) {
+            await this.context.apis.foundation.promMetrics.shutdown();
+        }
     }
 
     get api(): ExecutionContextAPI {
