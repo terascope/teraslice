@@ -22,7 +22,7 @@ export type TestOptions = {
     nodeVersion: string;
     jestArgs?: string[];
     ignoreMount: boolean;
-    testPlatform: string;
+    testPlatform: 'native'|'kubernetes'|'kubernetesV2';
     kindClusterName: string;
     k8sVersion?: string;
 };

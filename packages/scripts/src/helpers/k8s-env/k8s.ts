@@ -3,9 +3,9 @@ import fs from 'fs';
 import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
-import { AnyObject, debugLogger, pDelay } from '@terascope/utils';
+import { cloneDeep, debugLogger, pDelay } from '@terascope/utils';
+import { Terafoundation as TF, Teraslice as TS } from '@terascope/types';
 import { getE2eK8sDir } from '../../helpers/packages';
-import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import * as config from '../config';
 import { getVolumesFromDockerfile } from '../kind';
@@ -39,7 +39,7 @@ export class K8s {
     async createNamespace(yamlFile: string, namespaceCategory: string) {
         signale.pending(`Creating new namespace for ${namespaceCategory}`);
 
-        const namespaceSpec = this.loadYamlFile(yamlFile);
+        const namespaceSpec = this.loadYamlFile(yamlFile) as k8sClient.V1Namespace;
 
         try {
             const createNamespaceRes = await this.k8sCoreV1Api.createNamespace(namespaceSpec);
@@ -88,7 +88,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(wait = false, options: K8sEnvOptions | undefined = undefined) {
+    async deployK8sTeraslice(clustering: 'kubernetes' | 'kubernetesV2', wait: boolean, assetStorage = 'elasticsearch-next') {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -101,13 +101,12 @@ export class K8s {
         const baseConfigMap = this.loadYamlFile('baseConfigmap.yaml') as k8sClient.V1ConfigMap;
         try {
             /// Creates configmap for teraslice-master
-            const masterConfigMap = baseConfigMap;
-            const masterTerafoundation: AnyObject = this.loadYamlFile('masterConfig/teraslice.yaml');
-            masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
-            if (options) {
-                const storageType = options.assetStorage;
-                masterTerafoundation.teraslice.asset_storage_connection_type = storageType;
-            }
+            const masterTerafoundation = this.loadYamlFile('masterConfig/teraslice.yaml') as TF.SysConfig<{ teraslice: TS.Config }>;
+            const { teraslice } = masterTerafoundation;
+            teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            teraslice.cluster_manager_type = clustering;
+            teraslice.asset_storage_connection_type = assetStorage;
+            const masterConfigMap = cloneDeep(baseConfigMap);
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
             const response = await this.k8sCoreV1Api
@@ -119,13 +118,12 @@ export class K8s {
 
         try {
             /// Creates configmap for teraslice-worker
-            const workerConfigMap = baseConfigMap;
-            const workerTerafoundation: AnyObject = this.loadYamlFile('workerConfig/teraslice.yaml');
-            workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
-            if (options) {
-                const storageType = options.assetStorage;
-                workerTerafoundation.teraslice.asset_storage_connection_type = storageType;
-            }
+            const workerTerafoundation = this.loadYamlFile('workerConfig/teraslice.yaml') as TF.SysConfig<{ teraslice: TS.Config }>;
+            const { teraslice } = workerTerafoundation;
+            teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            teraslice.cluster_manager_type = clustering;
+            teraslice.asset_storage_connection_type = assetStorage;
+            const workerConfigMap = cloneDeep(baseConfigMap);
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
             const response = await this.k8sCoreV1Api
@@ -286,7 +284,7 @@ export class K8s {
         }
     }
 
-    loadYamlFile(yamlFile: string, encoding: BufferEncoding = 'utf8'): k8sClient.V1Namespace {
+    loadYamlFile(yamlFile: string, encoding: BufferEncoding = 'utf8'): any {
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
             throw new Error('Missing k8s e2e test directory');

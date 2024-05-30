@@ -178,6 +178,7 @@ const defaultNodeVersion = '18.19.1';
 export const NODE_VERSION = process.env.NODE_VERSION || defaultNodeVersion;
 
 export const {
+    CLUSTERING_TYPE = 'kubernetes',
     TEST_PLATFORM = 'native',
     K8S_VERSION = undefined,
     TERASLICE_IMAGE = undefined

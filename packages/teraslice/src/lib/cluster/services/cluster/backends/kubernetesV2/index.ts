@@ -33,7 +33,7 @@ export class KubernetesClusterBackendV2 {
         const clusterName = get(context, 'sysconfig.teraslice.name');
 
         this.context = context;
-        this.logger = makeLogger(context, 'kubernetes_cluster_service');
+        this.logger = makeLogger(context, 'kubernetesV2_cluster_service');
         this.clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
         this.clusterState = {};
         this.clusterStateInterval = undefined;
@@ -244,7 +244,7 @@ export class KubernetesClusterBackendV2 {
     }
 
     async initialize() {
-        this.logger.info('kubernetes clustering initializing');
+        this.logger.info('kubernetesV2 clustering initializing');
 
         // Periodically update cluster state, update period controlled by:
         //  context.sysconfig.teraslice.node_state_interval

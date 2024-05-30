@@ -15,6 +15,8 @@ export interface K8sEnvOptions {
     assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
+    clusteringType: 'kubernetes' | 'kubernetesV2',
+    keepOpen: boolean
     dev: boolean;
 }
 
