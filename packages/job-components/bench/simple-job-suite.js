@@ -1,15 +1,13 @@
-'use strict';
-
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const { Suite } = require('../../utils/bench/helpers');
-const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src');
+import { Suite } from '@terascope/utils/bench/helpers.js';
+import { TestContext, newTestExecutionConfig, WorkerExecutionContext } from '../dist/src/index.js';
 
-const SimpleFetcher = require('./fixtures/simple-reader/fetcher');
-const SimpleMap = require('./fixtures/simple-map/processor');
-const SimpleFilter = require('./fixtures/simple-filter/processor');
-const SimpleEach = require('./fixtures/simple-each/processor');
+import SimpleFetcher from './fixtures/simple-reader/fetcher.js';
+import SimpleMap from './fixtures/simple-map/processor.js';
+import SimpleFilter from './fixtures/simple-filter/processor.js';
+import SimpleEach from './fixtures/simple-each/processor.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

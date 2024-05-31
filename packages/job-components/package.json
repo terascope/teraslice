@@ -24,7 +24,7 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
+        "benchmark": "NODE_OPTIONS='--experimental-vm-modules' yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "test": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test . --",

@@ -35,7 +35,7 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         this.events = this.context.apis.foundation.getSystemEvents();
         this.job = job;
         this.assetPaths = this._getAssetDirs(options.assetDir);
-        this.clusterType = options.cluster_manager_type
+        this.clusterType = options.cluster_manager_type;
     }
     /**
      * Initialize any test code
