@@ -283,47 +283,68 @@ describe('k8s', () => {
 
     describe('->scaleExecution', () => {
         let scope: nock.Scope;
-
+        let deployment: {
+            apiVersion: string,
+            kind: string,
+            metadata: { name: string},
+            spec: { replicas: number },
+            status: string
+        };
         beforeEach(() => {
+            deployment = {
+                apiVersion: 'v1',
+                kind: 'Deployment',
+                metadata: { name: 'dname' },
+                spec: { replicas: 5 },
+                status: 'Success'
+            };
+
             scope = nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments')
                 .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, {
                     kind: 'DeploymentList',
-                    items: [
-                        { spec: { replicas: 5 }, metadata: { name: 'dname' } }
-                    ]
+                    items: [deployment]
                 });
         });
 
         it('can set nodes to a deployment to 2', async () => {
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
-                spec: {
-                    replicas: 2,
+            deployment.spec.replicas = 2;
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
+                {
+                    op: 'replace',
+                    path: '/spec/replicas',
+                    value: 2
                 }
-            }).reply(200, (uri, requestBody) => requestBody);
+            ]).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'set');
             expect(response.spec?.replicas).toEqual(2);
         });
 
         it('can add 2 nodes to a deployment with 5 to get 7', async () => {
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
-                spec: {
-                    replicas: 7,
+            deployment.spec.replicas = 7;
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
+                {
+                    op: 'replace',
+                    path: '/spec/replicas',
+                    value: 7
                 }
-            }).reply(200, (uri, requestBody) => requestBody);
+            ]).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'add');
             expect(response.spec?.replicas).toEqual(7);
         });
 
         it('can remove 2 nodes from a deployment with 5 to get 3', async () => {
-            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
-                spec: {
-                    replicas: 3,
+            deployment.spec.replicas = 3;
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', [
+                {
+                    op: 'replace',
+                    path: '/spec/replicas',
+                    value: 3
                 }
-            }).reply(200, (uri, requestBody) => requestBody);
+            ]).reply(200, deployment);
 
             const response = await k8s.scaleExecution('abcde1234', 2, 'remove');
             expect(response.spec?.replicas).toEqual(3);
