@@ -35,9 +35,6 @@ NOTE: All `asset_storage` related fields are deprecated. Please use the fields i
 
 |      Field      |    Type    |     Default     |                                      Description                                      |
 | :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
-| **[Deprecated]asset_storage_bucket** |  `String` | `ts-assets-<teraslice.name>` |       Name of S3 bucket if using S3 external asset storage.        |
-| **[Deprecated]asset_storage_connection** |  `String`  | `"default"` |       Name of the connection of `asset_storage_connection_type` where asset bundles will be stored.        |
-| **[Deprecated]asset_storage_connection_type** |  `String`  | `"elasticsearch-next"` |       Name of the connection type that will store asset bundles. options: `elasticsearch-next`, `s3`.        |
 | **connectors** |  `Object`  | none |       Required. An object whose keys are connection types and values are objects describing each connection of that type. See [Terafoundation Connectors](#terafoundation-connectors).        |
 | **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
 |  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |

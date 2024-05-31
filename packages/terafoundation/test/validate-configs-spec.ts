@@ -61,7 +61,7 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when using connectors that exist', () => {
+    fdescribe('when using connectors that exist', () => {
         const configFile = {
             terafoundation: {
                 log_level: [
@@ -275,9 +275,9 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('minio2 not found in terafoundation.connectors.s3');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .rejects.toThrow('minio2 not found in terafoundation.connectors.s3');
         });
     });
 

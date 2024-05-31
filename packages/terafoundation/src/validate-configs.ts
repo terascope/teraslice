@@ -11,7 +11,7 @@ import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
 import { getConnectorSchemaAndValFn } from './connector-utils';
-import { foundationSchema, foundationValidatorFn } from './schema';
+import { foundationSchema } from './schema';
 
 // TODO: check to see if this is global enough
 convict.addFormats(convict_format_with_validator);
@@ -150,7 +150,6 @@ export default async function validateConfigs<
             });
 
             listOfValidations[schemaKey] = {
-                validatorFn: foundationValidatorFn,
                 subconfig: validatedConfig
             };
         } else {
