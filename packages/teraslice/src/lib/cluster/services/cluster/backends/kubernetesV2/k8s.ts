@@ -295,8 +295,19 @@ export class K8s {
         };
 
         try {
+            const options = { headers: { 'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH } };
             responseObj = await pRetry(() => this.k8sAppsV1Api
-                .patchNamespacedDeployment(name, this.defaultNamespace, record), getRetryConfig());
+                .patchNamespacedDeployment(
+                    name,
+                    this.defaultNamespace,
+                    record,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    options,
+                ), getRetryConfig());
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -526,7 +537,7 @@ export class K8s {
         // deployment in the response.
         // TODO: test for more than 1 and error
         const workerDeployment = listResponse.items[0];
-        if (!workerDeployment.spec?.replicas) {
+        if (workerDeployment.spec?.replicas === undefined) {
             throw new Error('replicas is undefined in worker deployment spec');
         }
         this.logger.info(`Current Scale for exId=${exId}: ${workerDeployment.spec?.replicas}`);
@@ -543,11 +554,13 @@ export class K8s {
 
         this.logger.info(`New Scale for exId=${exId}: ${newScale}`);
 
-        const scalePatch = {
-            spec: {
-                replicas: newScale
+        const scalePatch = [
+            {
+                op: 'replace',
+                path: '/spec/replicas',
+                value: newScale
             }
-        };
+        ];
 
         if (!workerDeployment.metadata?.name) {
             throw new Error('name is undefined in worker deployment metadata');
