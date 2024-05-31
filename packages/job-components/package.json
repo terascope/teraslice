@@ -32,7 +32,7 @@
         "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^0.15.0",
+        "@terascope/types": "^0.17.2",
         "@terascope/utils": "^0.59.2",
         "convict": "^6.2.4",
         "convict-format-with-moment": "^6.2.0",

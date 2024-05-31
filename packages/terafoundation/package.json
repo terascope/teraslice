@@ -10,8 +10,8 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "dist/src/index.js",
     "type": "module",
+    "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",

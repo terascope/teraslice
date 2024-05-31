@@ -13,9 +13,9 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "type": "module",
     "directories": {
         "lib": "dist/src",
         "test": "test"

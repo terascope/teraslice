@@ -8,7 +8,7 @@ import _ from 'lodash';
  * @param  {Object} clusterState     Teraslice Cluster State
  * @param  {String} clusterNameLabel k8s label containing clusterName
  */
-export function gen(k8sPods: any, clusterState: any) {
+export function gen(k8sPods: any, clusterState: Record<string, any>) {
     // Make sure we clean up the old
     const hostIPs = _.uniq(_.map(k8sPods.items, 'status.hostIP'));
     const oldHostIps = _.difference(_.keys(clusterState), hostIPs);

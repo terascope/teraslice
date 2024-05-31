@@ -4,6 +4,7 @@ import { Teraslice } from '@terascope/types';
 export type CrossValidationFn = (
     job: Teraslice.ValidatedJobConfig, sysconfig: Teraslice.SysConfig
 ) => void;
+
 export type SelfValidationFn = (config: Teraslice.OpConfig) => void;
 
 export type ReaderFn<T> = (sliceRequest: Teraslice.SliceRequest, logger: Logger) => Promise<T> | T;

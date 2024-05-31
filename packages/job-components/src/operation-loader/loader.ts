@@ -5,7 +5,6 @@ import {
     isString, uniq, parseError,
     castArray, get, has, joinList,
 } from '@terascope/utils';
-// @ts-expect-error
 import { resolve } from 'import-meta-resolve';
 import {
     OperationAPIConstructor, FetcherConstructor, SlicerConstructor,
