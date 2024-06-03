@@ -138,7 +138,7 @@ export class TerasliceHarness {
         if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             try {
                 cleanupIndex(this.client, `${SPEC_INDEX_PREFIX}*`);
-                await showState(TERASLICE_PORT);
+                await showState(TERASLICE_PORT); // adds logs at debug level
             } catch (err) {
                 signale.error('Failure to clean indices and assets', err);
                 throw err;
@@ -404,6 +404,24 @@ export class TerasliceHarness {
         return this.forLength(_forWorkers, workerCount + 1);
     }
 
+    async waitForWorkerCount(exId: string, workerCount = DEFAULT_WORKERS, timeoutMs = 30000) {
+        const endAt = Date.now() + timeoutMs;
+
+        const _waitForK8sWorker = async (): Promise<number> => {
+            if (Date.now() > endAt) {
+                throw new Error(`Failure scaling workers to ${workerCount} within ${timeoutMs}ms`);
+            }
+
+            const workers = (await this.teraslice.executions.wrap(exId).workers()).length;
+
+            if (workerCount === workers) return workers;
+            await pDelay(1000);
+            return _waitForK8sWorker();
+        };
+
+        return _waitForK8sWorker();
+    }
+
     async scaleWorkersAndWait(workersToAdd = 0) {
         const workerCount = DEFAULT_WORKERS + workersToAdd;
         await pDelay(500);
@@ -625,5 +643,24 @@ export class TerasliceHarness {
             .filter((assetObj) => baseAssetNames.includes(assetObj.name))
             .map((assetObj) => assetObj.id);
         return baseAssetIds;
+    }
+
+    async addWorkers(exId: string, workersToAdd: number): Promise<number> {
+        const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
+        const workerCount = currentWorkers + workersToAdd;
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?add=${workersToAdd}`);
+        return this.waitForWorkerCount(exId, workerCount);
+    }
+
+    async removeWorkers(exId: string, workersToRemove: number): Promise<number> {
+        const currentWorkers = (await this.teraslice.executions.wrap(exId).workers()).length;
+        const workerCount = currentWorkers - workersToRemove;
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?remove=${workersToRemove}`);
+        return this.waitForWorkerCount(exId, workerCount);
+    }
+
+    async setWorkers(exId: string, workerTotal: number): Promise<number> {
+        await this.teraslice.jobs.post(`ex/${exId}/_workers?total=${workerTotal}`);
+        return this.waitForWorkerCount(exId, workerTotal);
     }
 }
