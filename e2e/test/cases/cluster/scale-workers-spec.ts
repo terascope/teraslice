@@ -25,6 +25,10 @@ describe('scale execution', () => {
         job = await terasliceHarness.submitAndStart(jobSpec);
     });
 
+    afterAll(async () => {
+        await job.stop();
+    });
+
     it(`should start with ${DEFAULT_WORKERS} workers`, async () => {
         let runningWorkers: WorkerNode[] = [];
         while (runningWorkers.length === 0) {
