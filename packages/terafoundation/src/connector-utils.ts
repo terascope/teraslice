@@ -4,6 +4,7 @@ import { TSError, parseError, Logger } from '@terascope/utils';
 import type { Terafoundation } from '@terascope/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+const builtinConnectorPath = path.join(dirname, '../dist/src/connectors');
 
 type ErrorResult = {
     filePath: string;
@@ -88,7 +89,7 @@ export async function getConnectorModule<S = Record<string, any>>(
     // collect the errors
     const errors: ErrorResult[] = [];
 
-    const localPath = `${path.join(dirname, 'connectors', name)}.js`;
+    const localPath = `${path.join(builtinConnectorPath, name)}.js`;
     mod = await guardedRequire<S>(localPath, errors);
 
     // check if its a node module

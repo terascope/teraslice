@@ -101,6 +101,7 @@ export default async function validateConfigs<
 
     const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
     const schema = extractSchema(config.config_schema, sysconfig);
+
     schema.terafoundation = foundationSchema();
 
     const result: any = {};
@@ -116,6 +117,7 @@ export default async function validateConfigs<
     for (const schemaKey of schemaKeys) {
         const subSchema = schema[schemaKey] || {};
         const subConfig: Record<string, any> = sysconfig[schemaKey] || {};
+
         const validatedConfig = validateConfig(cluster, subSchema, subConfig);
         result[schemaKey] = validatedConfig;
 
@@ -130,6 +132,7 @@ export default async function validateConfigs<
                     schema: connectorSchema,
                     validatorFn: connValidatorFn
                 } = await getConnectorSchemaAndValFn(connector);
+
                 result[schemaKey].connectors[connector] = {};
 
                 for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
@@ -143,25 +146,26 @@ export default async function validateConfigs<
 
                     listOfValidations[`${connector}:${connection}`] = {
                         validatorFn: connValidatorFn,
-                        subconfig: validatedConnConfig,
+                        config: validatedConnConfig,
                         connector: true
                     };
                 }
             });
 
             listOfValidations[schemaKey] = {
-                subconfig: validatedConfig
+                config: validatedConfig
             };
         } else {
             listOfValidations[schemaKey] = {
                 validatorFn: extractValidatorFn<S>(config.config_schema, sysconfig),
-                subconfig: validatedConfig
+                config: validatedConfig
             };
         }
     }
 
     // Annotate the config with some information about this instance.
     const hostname = os.hostname();
+
     if (process.env.POD_IP) {
         result._nodeName = process.env.POD_IP;
     } else if (cluster.worker) {
@@ -176,7 +180,7 @@ export default async function validateConfigs<
 
         if (validatorObj.validatorFn) {
             try {
-                validatorObj.validatorFn(cloneDeep(validatorObj.subconfig), cloneDeep(result));
+                validatorObj.validatorFn(cloneDeep(validatorObj.config), cloneDeep(result));
             } catch (err) {
                 throw new TSError(`Cross-field validation failed for ${validatorObj.connector ? 'connector ' : ''}'${name}': ${err}`);
             }
