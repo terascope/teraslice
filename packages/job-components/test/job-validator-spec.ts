@@ -15,7 +15,7 @@ describe('JobValidator', () => {
     });
 
     describe('->validateConfig', () => {
-        it('returns a completed and valid jobConfig', () => {
+        it('returns a completed and valid jobConfig', async () => {
             const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
@@ -37,11 +37,11 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = api.validateConfig(jobSpec);
+            const validJob = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
-        it('will throw based off op validation errors', () => {
+        it('will throw based off op validation errors', async () => {
         // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfigParams = {
                 name: 'test',
@@ -57,12 +57,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('throws an error with faulty operation configuration', () => {
+        it('throws an error with faulty operation configuration', async () => {
             const jobSpec: JobConfigParams = {
                 name: 'test',
                 operations: [
@@ -75,12 +75,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('will properly read an operation', () => {
+        it('will properly read an operation', async () => {
             const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
@@ -94,12 +94,15 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
+            try {
+                const results = await api.validateConfig(jobSpec);
+                expect(results).toBeDefined();
+            } catch (_err) {
+                throw new Error('should not have thrown');
+            }
         });
 
-        it('will throw based off opValition errors', () => {
+        it('will throw based off opValition errors', async () => {
             // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfigParams = {
                 name: 'test',
@@ -115,12 +118,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('will throw based off crossValidation errors', () => {
+        it('will throw based off crossValidation errors', async () => {
             const jobSpec: JobConfigParams = {
                 name: 'test',
                 lifecycle: 'persistent',
@@ -136,12 +139,12 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('can instantiate with an array of asset_paths', () => {
+        it('can instantiate with an array of asset_paths', async () => {
             const testContext = new TestContext('teraslice-operations');
             testContext.sysconfig.teraslice.assets_directory = [dirname];
 
@@ -170,7 +173,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = testApi.validateConfig(jobSpec);
+            const validJob = await testApi.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
     });
@@ -184,16 +187,16 @@ describe('JobValidator', () => {
 
             expect(() => {
                 api.hasSchema(opCode, 'test');
-            }).not.toThrowError();
+            }).not.toThrow();
             expect(() => {
                 api.hasSchema(badCode1, 'test');
-            }).toThrowError('test schema needs to return an object');
+            }).toThrow('test schema needs to return an object');
             expect(() => {
                 api.hasSchema(badCode2, 'test');
-            }).toThrowError('test needs to have a method named "schema"');
+            }).toThrow('test needs to have a method named "schema"');
             expect(() => {
                 api.hasSchema(badCode3, 'test');
-            }).toThrowError('test needs to have a method named "schema"');
+            }).toThrow('test needs to have a method named "schema"');
         });
     });
 });

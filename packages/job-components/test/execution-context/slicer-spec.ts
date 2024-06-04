@@ -24,15 +24,17 @@ describe('SlicerExecutionContext', () => {
     describe('when constructed', () => {
         const context = new TestContext('slicer-execution-context');
         context.sysconfig.teraslice.assets_directory = assetDir;
+        let executionContext: SlicerExecutionContext;
 
-        const executionContext = new SlicerExecutionContext({
-            context,
-            executionConfig,
-            assetIds,
-            terasliceOpPath,
+        beforeAll(async () => {
+            executionContext = await SlicerExecutionContext.createContext({
+                context,
+                executionConfig,
+                assetIds,
+                terasliceOpPath,
+            });
+            await executionContext.initialize();
         });
-
-        beforeAll(() => executionContext.initialize());
 
         afterAll(() => executionContext.shutdown());
 

@@ -162,8 +162,6 @@ export class TestContext implements i.Context {
                         default: {}
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,

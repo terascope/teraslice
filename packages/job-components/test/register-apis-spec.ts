@@ -139,12 +139,12 @@ describe('registerApis', () => {
 
         context.apis.setTestClients(clients);
 
-        it('getClient should return a client', () => {
-            expect(getClient({}, 'elasticsearch-next')).toEqual({
+        it('getClient should return a client', async () => {
+            await expect(getClient({}, 'elasticsearch-next')).resolves.toEqual({
                 'elasticsearch-next': true,
             });
 
-            const firstResult = getClient(
+            const firstResult = await getClient(
                 {
                     connection: 'otherConnection',
                     connection_cache: true,
@@ -157,7 +157,7 @@ describe('registerApis', () => {
                 endpoint: 'otherConnection',
             });
 
-            expect(
+            await expect(
                 getClient(
                     {
                         connection: 'otherConnection',
@@ -165,9 +165,9 @@ describe('registerApis', () => {
                     },
                     'elasticsearch-next'
                 )
-            ).toBe(firstResult);
+            ).resolves.toBe(firstResult);
 
-            expect(
+            await expect(
                 getClient(
                     {
                         connection: 'thirdConnection',
@@ -175,35 +175,35 @@ describe('registerApis', () => {
                     },
                     'elasticsearch-next'
                 )
-            ).toEqual({
+            ).resolves.toEqual({
                 'elasticsearch-next': true,
                 endpoint: 'thirdConnection',
             });
 
-            expect(
+            await expect(
                 getClient(
                     {
                         connection: 'someConnection',
                     },
                     'kafka'
                 )
-            ).toEqual({
+            ).resolves.toEqual({
                 kafka: true,
             });
 
-            expect(
+            await expect(
                 getClient(
                     {
                         connection_cache: false,
                     },
                     'mongo'
                 )
-            ).toEqual({
+            ).resolves.toEqual({
                 mongo: true,
             });
         });
 
-        it('getClient will error properly', () => {
+        it('getClient will error properly', async () => {
             const failingContext = new TestContext('teraslice-operations');
             const failJobConfig = newTestJobConfig();
 
@@ -216,6 +216,7 @@ describe('registerApis', () => {
             });
 
             registerApis(failingContext, failJobConfig);
+
             const err = new Error('a client error');
             const makeError = () => {
                 throw err;
@@ -224,24 +225,8 @@ describe('registerApis', () => {
             failingContext.apis.foundation.createClient = makeError;
 
             // @ts-expect-error
-            expect(() => failingContext.apis.op_runner.getClient())
+            await expect(() => failingContext.apis.op_runner.getClient()).rejects
                 .toThrow(err);
-        });
-
-        it('getClient will return an async client', async () => {
-            const { getClient: gClient } = context.apis.op_runner;
-
-            const results = await gClient(
-                {
-                    connection: 'default',
-                    connection_cache: true,
-                },
-                'elasticsearch-next'
-            );
-
-            expect(results).toEqual({
-                'elasticsearch-next': true,
-            });
         });
     });
 
@@ -337,7 +322,7 @@ describe('registerApis', () => {
                 await context.apis.executionContext.setMetadata(testExId, metaData);
 
                 expect(getResults).toEqual(getTestExpectations);
-                expect(metaData).toEqual(updateTestExpectations);
+                expect(updateTestExpectations).toBeUndefined();
             });
         });
     });

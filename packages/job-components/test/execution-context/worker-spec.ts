@@ -49,7 +49,7 @@ describe('WorkerExecutionContext', () => {
         let executionContext: WorkerExecutionContext;
 
         beforeAll(async () => {
-            executionContext = new WorkerExecutionContext({
+            executionContext = await WorkerExecutionContext.createContext({
                 context,
                 executionConfig,
                 assetIds,
@@ -272,14 +272,14 @@ describe('WorkerExecutionContext', () => {
 
         let executionContext: WorkerExecutionContext;
 
-        beforeAll(() => {
-            executionContext = new WorkerExecutionContext({
+        beforeAll(async () => {
+            executionContext = await WorkerExecutionContext.createContext({
                 context,
                 executionConfig,
                 assetIds,
                 terasliceOpPath,
             });
-            return executionContext.initialize();
+            await executionContext.initialize();
         });
 
         afterAll(() => {

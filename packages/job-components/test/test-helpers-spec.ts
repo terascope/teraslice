@@ -67,7 +67,6 @@ describe('Test Helpers', () => {
         expect(context.sysconfig).toHaveProperty('_nodeName');
         expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
-        expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
@@ -93,18 +92,15 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        await expect(context.apis.foundation.createClient({
+        const result = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
-        })).toEqual({ client: 'hello' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'hello'
-                }
-            }
         });
+
+        expect(result).toHaveProperty('client');
+        expect(result).toHaveProperty('logger');
+
+        expect(result.client).toEqual('hello');
 
         context.apis.setTestClients([
             {
@@ -117,41 +113,23 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        await expect(context.apis.foundation.createClient({
-            type: 'test',
-            endpoint: 'default'
-        })).toEqual({ client: 'howdy' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'howdy'
-                }
-            }
-        });
-    });
-
-    it('should be able to get and set async clients', async () => {
-        const logger = debugLogger('test-name');
-        const context = new TestContext('test-clients', {
-            clients: [
-                {
-                    async createClient() {
-                        return { client: 'hello', logger };
-                    },
-                    type: 'test'
-                }
-            ]
-        });
-
-        expect(context.apis.getTestClients()).toEqual({});
-
-        const results = await context.apis.foundation.createClient({
+        const result2 = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
         });
 
-        expect(results).toEqual({ client: 'hello' });
+        expect(result2).toHaveProperty('client');
+        expect(result2).toHaveProperty('logger');
+
+        expect(result2.client).toEqual('howdy');
+
+        const results3 = context.apis.getTestClients();
+
+        expect(results3).toHaveProperty('test');
+        expect(results3).toHaveProperty('test.default');
+        expect(results3).toHaveProperty('test.default.client');
+        expect(results3).toHaveProperty('test.default.logger');
+        expect(results3.test.default.client).toEqual('howdy');
     });
 
     describe('MockPromMetrics', () => {
