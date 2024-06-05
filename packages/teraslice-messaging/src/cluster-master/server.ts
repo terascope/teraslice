@@ -97,7 +97,6 @@ export class Server extends core.Server {
             });
         });
 
-
         this.handleResponse(socket, 'cluster:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
