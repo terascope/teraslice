@@ -2314,7 +2314,7 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@terascope/fetch-github-release@^0.8.7":
+"@terascope/fetch-github-release@^0.8.10":
   version "0.8.10"
   resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.8.10.tgz#243b8a50f963f4c2c5771689e2b94e94265db179"
   integrity sha512-bTLmiEotEca8YTi+PcvznisIHMEKYLU0Uj322rkbMJlr6LqXFvIKv2dzuwMhSADO7eUeKlC4mXUs8Nt2ftpdWA==
@@ -11941,7 +11941,7 @@ ts-api-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-1.3.0.tgz#4b490e27129f1e8e686b45cc4ab63714dc60eea1"
   integrity sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==
 
-ts-jest@^29.1.3:
+ts-jest@^29.1.4:
   version "29.1.4"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-29.1.4.tgz#26f8a55ce31e4d2ef7a1fd47dc7fa127e92793ef"
   integrity sha512-YiHwDhSvCiItoAgsKtoLFCuakDzDsJ1DLDnSouTaTmdOcOwIkSzbLXduaQ6M5DRVhuZC/NYaaZ/mtHbWMv/S6Q==
