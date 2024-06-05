@@ -413,7 +413,7 @@ export class ExecutionController {
             /// Cleans up kubernetes resources. For native, kills processes
             if (errorList.includes(shutdownError.message)) {
                 this.logger.error('sent request to cluster_master to cleanup job resources.');
-                this.client.sendExecutionError(shutdownError.message);
+                await this.client.sendExecutionFinished(shutdownError.message);
             }
         }
         if (this.isShutdown) return;

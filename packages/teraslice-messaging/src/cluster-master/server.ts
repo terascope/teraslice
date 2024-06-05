@@ -74,23 +74,9 @@ export class Server extends core.Server {
         });
     }
 
-    onExecutionError(fn: (clientId: string, error?: core.ResponseError) => void): void {
-        this.on('execution:error', (msg) => {
-            fn(msg.scope, msg.error);
-        });
-    }
-
     private onConnection(exId: string, socket: SocketIO.Socket) {
         this.handleResponse(socket, 'execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', {
-                scope: exId,
-                payload: {},
-                error: msg.payload.error,
-            });
-        });
-
-        this.handleResponse(socket, 'execution:error', (msg: core.Message) => {
-            this.emit('execution:error', {
                 scope: exId,
                 payload: {},
                 error: msg.payload.error,

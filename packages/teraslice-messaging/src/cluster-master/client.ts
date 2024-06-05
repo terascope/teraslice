@@ -77,16 +77,6 @@ export class Client extends core.Client {
         );
     }
 
-    sendExecutionError(error: string) {
-        return this.send(
-            'execution:error',
-            { error },
-            {
-                volatile: true,
-            }
-        );
-    }
-
     onExecutionAnalytics(fn: core.MessageHandler) {
         this.handleResponse(this.socket, 'execution:analytics', fn);
     }
