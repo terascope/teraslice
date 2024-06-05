@@ -233,7 +233,7 @@ export class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown(block?: boolean, event?: string, shutdownError?: Error) {
+    async shutdown(event?: string, shutdownError?: Error, block?: boolean) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         const { exId } = this.executionContext;

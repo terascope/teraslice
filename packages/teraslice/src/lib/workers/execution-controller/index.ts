@@ -403,7 +403,18 @@ export class ExecutionController {
         await this._endExecution();
     }
 
-    async shutdown(block = true) {
+    async shutdown(eventType?: string, shutdownError?: Error, block: boolean = true) {
+        if (eventType === 'error' && shutdownError) {
+            /// Add errors to this list as needed. Errors not in this list won't cleanup resources
+            const errorList = [
+                'index specified in reader does not exist'
+            ];
+            /// Tell cluster_master that shutdown is due to a specific error
+            /// Cleans up kubernetes resources. For native, kills processes
+            if (errorList.includes(shutdownError.message)) {
+                this.client.sendExecutionError(shutdownError.message);
+            }
+        }
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {

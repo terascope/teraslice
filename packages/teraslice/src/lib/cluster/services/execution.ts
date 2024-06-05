@@ -76,6 +76,8 @@ export class ExecutionService {
         // listen for an execution finished events
         // TODO: look closer at the types of the callback
         this.clusterMasterServer.onExecutionFinished(this._finishExecution.bind(this) as any);
+        // listen for a failed execution event to cleanup resources
+        this.clusterMasterServer.onExecutionError(this._DeleteFailedEx.bind(this) as any);
 
         // lets call this before calling it
         // in the background
@@ -253,6 +255,10 @@ export class ExecutionService {
             });
             logError(this.logger, stopError);
         }
+    }
+
+    private async _DeleteFailedEx(exId: string, err?: Error) {
+        this._finishExecution(exId, err);
     }
 
     async stopExecution(exId: string, options: StopExecutionOptions) {
