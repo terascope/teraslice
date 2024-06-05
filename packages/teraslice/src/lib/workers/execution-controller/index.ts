@@ -899,13 +899,20 @@ export class ExecutionController {
 
         const invalidStateMsg = (state: string) => {
             const prefix = `Execution ${this.exId} was starting in ${state} status`;
-            return `${prefix} sending execution:finished event to cluster master`;
+            return `${prefix}, sending execution:finished event to cluster master`;
         };
 
         if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
             error = new Error(invalidStateMsg('running'));
+            // FIXME: are there any cases where wouln't want to update the status to failed?
+            this.logger.warn(`Changing execution status from ${status} to failed`);
+            await this.executionStorage.setStatus(
+                this.exId,
+                'failed',
+                this.executionStorage.executionMetaData(null, getFullErrorStack(error))
+            );
         } else {
             return true;
         }
