@@ -37,7 +37,7 @@ export type Initializers<S = Record<string, any>> = {
 }
 
 export type ValidationObj<S>= {
-    subconfig: Record<string, any>,
+    config: Record<string, any>,
     validatorFn?: ValidatorFn<S>,
     connector?: boolean
 }
@@ -130,9 +130,6 @@ export interface TerafoundationConfig {
     log_path: string;
     log_level: LogLevelConfig;
     logging: LogType[];
-    asset_storage_connection_type?: string;
-    asset_storage_connection?: string;
-    asset_storage_bucket?: string;
     prom_metrics_enabled: boolean;
     prom_metrics_port: number;
     prom_metrics_add_default: boolean;

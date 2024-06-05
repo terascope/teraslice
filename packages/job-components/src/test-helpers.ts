@@ -107,12 +107,6 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
-const proxyApi = new Proxy({}, {
-    get(target) {
-        throw new Error(`${target} is not implemented`);
-    }
-});
-
 export interface TestContextOptions {
     assignment?: i.Assignment;
     clients?: i.TestClientConfig[];
@@ -554,10 +548,10 @@ export class TestContext implements i.Context {
                 }
                 return '';
             },
-            op_runner: proxyApi as any,
-            assets: proxyApi as any,
-            job_runner: proxyApi as any,
-            executionContext: proxyApi as any
+            op_runner: {} as any,
+            assets: {} as any,
+            job_runner: {} as any,
+            executionContext: {} as any
         } as i.TestContextApis & Terafoundation.ContextAPIs;
 
         if (options.clients) {

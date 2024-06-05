@@ -1,5 +1,5 @@
 import ip from 'ip';
-import path from 'path';
+import path from 'node:path';
 import { Terafoundation, Teraslice } from '@terascope/types';
 import {
     isPlainObject, isString, isArray,
