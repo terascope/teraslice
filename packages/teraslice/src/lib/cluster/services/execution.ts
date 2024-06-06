@@ -241,10 +241,10 @@ export class ExecutionService {
         }
 
         const runningStatuses = this.executionStorage.getRunningStatuses();
-        // FIXME: what are all the possible statuses we could be at here.
-        // Could any running statuses ever be a valid?
+
         if (runningStatuses.includes(status)) {
-            // execution controller failed before updating its status, eg execution controller OOM
+            // This should never happen. If we get here with a running status
+            // something has gone wrong. Mark execution as failed before shutdown.
             this.logger.warn(`Cluster_master is changing status of execution ${exId} from ${status} to failed`);
             await this.executionStorage.setStatus(
                 exId,

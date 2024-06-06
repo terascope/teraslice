@@ -906,7 +906,9 @@ export class ExecutionController {
             error = new Error(invalidStateMsg('terminal'));
         } else if (includes(runningStatuses, status)) {
             error = new Error(invalidStateMsg('running'));
-            // FIXME: are there any cases where wouln't want to update the status to failed?
+            // If in a running status the execution process
+            // crashed and k8s is trying to restart the pod,
+            // e.g. execution controller OOM.
             this.logger.warn(`Changing execution status from ${status} to failed`);
             await this.executionStorage.setStatus(
                 this.exId,
