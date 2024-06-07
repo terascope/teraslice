@@ -23,12 +23,15 @@ async function requireConnector<S>(
 
     try {
         mod = await import(filePath);
+
+        if (mod && mod.default) {
+            mod = mod.default;
+            if (mod.default) {
+                mod = mod.default;
+            }
+        }
     } catch (err) {
         valid = false;
-    }
-
-    if (mod && mod.default) {
-        mod = mod.default;
     }
 
     if (typeof mod !== 'object') {
@@ -54,7 +57,7 @@ async function requireConnector<S>(
     if (mod && typeof mod.createClient !== 'function') {
         errors.push({
             filePath,
-            message: `Connector ${filePath} missing required create function`
+            message: `Connector ${filePath} missing required createClient function`
         });
 
         valid = false;
