@@ -52,8 +52,7 @@
         "express": "^4.19.2",
         "fs-extra": "^11.2.0",
         "gc-stats": "^1.4.0",
-        "got": "^11.8.3",
-        "gotESM": "npm:got@^13.0.0",
+        "got": "^13.0.0",
         "ip": "^2.0.1",
         "kubernetes-client": "^9.0.0",
         "lodash": "^4.17.21",
@@ -76,7 +75,6 @@
         "convict": "^6.2.4",
         "convict-format-with-moment": "^6.2.0",
         "convict-format-with-validator": "^6.2.0",
-        "got": "^11.8.3",
         "jest-fixtures": "^0.6.0",
         "js-yaml": "^4.1.0",
         "nock": "^13.5.1"

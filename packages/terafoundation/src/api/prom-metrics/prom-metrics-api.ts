@@ -5,7 +5,7 @@ import {
     CollectFunction
 } from 'prom-client';
 import { Terafoundation as tf } from '@terascope/types';
-import Exporter from './exporter';
+import Exporter from './exporter.js';
 
 export class PromMetrics {
     readonly metricList!: tf.MetricList;

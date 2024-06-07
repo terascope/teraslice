@@ -10,8 +10,8 @@ import type { Terafoundation } from '@terascope/types';
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
 import convict_format_with_moment from 'convict-format-with-moment';
-import { getConnectorSchemaAndValFn } from './connector-utils';
-import { foundationSchema } from './schema';
+import { getConnectorSchemaAndValFn } from './connector-utils.js';
+import { foundationSchema } from './schema.js';
 
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);

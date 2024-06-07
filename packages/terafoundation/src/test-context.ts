@@ -6,7 +6,7 @@ import type { Terafoundation } from '@terascope/types';
 import { nanoid } from 'nanoid';
 import { CoreContext } from './core-context.js';
 import validateConfigs from './validate-configs.js';
-import { PromMetrics } from './api/prom-metrics/prom-metrics-api';
+import { PromMetrics } from './api/prom-metrics/prom-metrics-api.js';
 
 interface ClientFactoryFns {
     [prop: string]: Terafoundation.CreateClientFactoryFn;

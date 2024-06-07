@@ -5,7 +5,7 @@ import got from 'got';
 import {
     Counter, Gauge, Histogram, Summary
 } from 'prom-client';
-import api from '../../src/api';
+import api from '../../src/api/index.js';
 
 describe('promMetrics foundation API', () => {
     describe('init', () => {

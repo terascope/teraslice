@@ -3,7 +3,7 @@ import { isPlainObject, times } from '@terascope/utils';
 import type { Terafoundation } from '@terascope/types';
 import { createClient as createDBClient } from '../connector-utils.js';
 import { createRootLogger } from './utils.js';
-import { PromMetrics } from './prom-metrics/prom-metrics-api';
+import { PromMetrics } from './prom-metrics/prom-metrics-api.js';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.

@@ -4,7 +4,7 @@ import got from 'got';
 import { Counter } from 'prom-client';
 import { debugLogger } from '@terascope/utils';
 import { Terafoundation as tf } from '@terascope/types';
-import Exporter from '../../src/api/prom-metrics/exporter';
+import Exporter from '../../src/api/prom-metrics/exporter.js';
 
 describe('prometheus exporter', () => {
     let exporter: Exporter;
