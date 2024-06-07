@@ -35,9 +35,10 @@ export async function bumpPackages(options: BumpPackageOptions, isAsset: boolean
         signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
     }
 
-    if (rootInfo.terascope.version !== 2) {
-        syncVersions(_packages, rootInfo);
-    }
+    // if (rootInfo.terascope.version !== 2) {
+    //     signale.info(`${ JSON.stringify({ _packages, rootInfo})}`)
+    //     syncVersions(_packages, rootInfo);
+    // }
 
     for (const pkgInfo of packages) {
         await updatePkgJSON(pkgInfo);

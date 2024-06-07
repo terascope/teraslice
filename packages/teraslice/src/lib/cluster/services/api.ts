@@ -1,6 +1,5 @@
 import { Router, Express } from 'express';
 import bodyParser from 'body-parser';
-import got from 'got';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import { RecoveryCleanupType, TerasliceConfig } from '@terascope/job-components';
 import {
@@ -19,6 +18,18 @@ import {
 import { getPackageJSON } from '../../utils/file_utils.js';
 
 const terasliceVersion = getPackageJSON().version;
+
+let gotESMModule: any;
+
+async function getGotESM() {
+    if (gotESMModule) return gotESMModule;
+    // temporary hack as typescript will compile this to a require statement
+    // until we export esm modules, revert this back when we get there
+    // @ts-expect-error
+    const module = await import('gotESM');
+    gotESMModule = module.default;
+    return module.default;
+}
 
 function validateCleanupType(cleanupType: RecoveryCleanupType) {
     if (cleanupType && !RecoveryCleanupType[cleanupType]) {
@@ -127,6 +138,8 @@ export class ApiService {
     }
 
     private async _redirect(req: TerasliceRequest, res: TerasliceResponse) {
+        const module = await getGotESM();
+
         const options = {
             prefixUrl: this.assetsUrl,
             headers: req.headers,
@@ -143,7 +156,7 @@ export class ApiService {
         try {
             await streamPipeline(
                 req,
-                got.stream[method](uri, options),
+                module.stream[method](uri, options),
                 res,
             );
         } catch (err) {

@@ -34,12 +34,8 @@ export class ClusterMaster {
                 prefixUrl: this.assetsUrl,
                 responseType: 'json',
                 throwHttpErrors: true,
-                timeout: {
-                    request: 900
-                },
-                retry: {
-                    limit: 0
-                },
+                timeout: 900,
+                retry: 0,
             });
             return get(response, 'body.available', false);
         } catch (err) {

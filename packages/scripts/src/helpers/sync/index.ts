@@ -8,7 +8,7 @@ import { executeHook } from '../hooks';
 import { Hook } from '../interfaces';
 
 export async function syncAll(options: SyncOptions): Promise<void> {
-    await utils.verifyCommitted(options);
+    // await utils.verifyCommitted(options);
 
     let pkgInfos = listPackages();
     if (options.tsconfigOnly) {
@@ -19,7 +19,6 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     const files: string[] = [];
 
     const rootInfo = getRootInfo();
-
     utils.syncVersions(pkgInfos, rootInfo);
 
     await executeHook(Hook.AFTER_SYNC, options.quiet === true, rootInfo.version);
