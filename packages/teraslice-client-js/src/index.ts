@@ -27,7 +27,7 @@ class TerasliceClient {
     }
 }
 
-export * from './interfaces';
+export * from './interfaces.js';
 export {
     TerasliceClient,
     Assets,
