@@ -35,7 +35,7 @@
         "@terascope/types": "^0.17.2",
         "@terascope/utils": "^0.59.2",
         "auto-bind": "^4.0.0",
-        "got": "^13.0.0"
+        "got": "^11.8.3"
     },
     "devDependencies": {
         "nock": "^13.5.1"

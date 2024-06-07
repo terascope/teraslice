@@ -32,9 +32,7 @@ export default class Client {
                 limit: isTest ? 0 : 3,
                 maxRetryAfter: 15000 // 15 seconds
             },
-            timeout: {
-                request: config.timeout,
-            },
+            timeout: config.timeout,
             responseType: 'json'
         });
     }
