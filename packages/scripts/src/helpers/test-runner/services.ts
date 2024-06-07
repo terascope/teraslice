@@ -371,9 +371,7 @@ async function checkRestrainedOpensearch(
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: {
-                        limit: 0
-                    }
+                    retry: 0
                 }));
             } catch (err) {
                 error = err.message;
@@ -440,7 +438,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: { limit: 0 },
+                    retry: 0,
                 }));
             } catch (err) {
                 error = err.message;
@@ -504,7 +502,7 @@ async function checkRestrainedElasticsearch(
                 ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: { limit: 0 },
+                    retry: 0,
                 }));
             } catch (err) {
                 error = err.message;
@@ -566,7 +564,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
                 ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: { limit: 0 },
+                    retry: 0,
                 }));
             } catch (err) {
                 error = err.message;
@@ -629,7 +627,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                     prefixUrl: host,
                     responseType: 'json',
                     throwHttpErrors: false,
-                    retry: { limit: 0 },
+                    retry: 0,
                 }));
             } catch (err) {
                 error = err.message;
@@ -680,7 +678,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
                     prefixUrl: managementEndpoint,
                     responseType: 'json',
                     throwHttpErrors: false,
-                    retry: { limit: 0 },
+                    retry: 0,
                     username: config.RABBITMQ_USER,
                     password: config.RABBITMQ_PASSWORD
                 }));
