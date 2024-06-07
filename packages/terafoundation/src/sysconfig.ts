@@ -77,6 +77,6 @@ export async function parseConfigFile<D = Record<string, any>>(file: string): Pr
         return yaml.load(config) as D;
     }
 
-    const json = await import(configFile) as D;
-    return cloneDeep(json);
+    const json = fs.readFileSync(configFile, 'utf8');
+    return JSON.parse(json);
 }
