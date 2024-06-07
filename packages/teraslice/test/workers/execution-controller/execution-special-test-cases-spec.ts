@@ -367,14 +367,15 @@ describe('ExecutionController Special Tests', () => {
                 analytics
             });
 
-            await testContext.addClusterMaster();
-
+            // needs to be in this order
             await testContext.initialize(true, {
                 isRecovery,
                 cleanupType,
                 lastStatus,
                 recoverySlices
             });
+
+            await testContext.addClusterMaster();
 
             const { clusterMaster, exId } = testContext;
 
@@ -501,7 +502,7 @@ describe('ExecutionController Special Tests', () => {
                 return Promise.all(times(workers, startWorker));
             }
 
-            const requestAnayltics = setTimeout(async () => {
+            const requestAnalytics = setTimeout(async () => {
                 try {
                     await clusterMaster.sendExecutionAnalyticsRequest(exId);
                 } catch (err) {
@@ -509,11 +510,11 @@ describe('ExecutionController Special Tests', () => {
                 }
             }, 100);
 
-            testContext.attachCleanup(() => clearTimeout(requestAnayltics));
+            testContext.attachCleanup(() => clearTimeout(requestAnalytics));
 
             await Promise.all([shutdownEarlyFn.wait(), startWorkers(), exController.run()]);
 
-            clearTimeout(requestAnayltics);
+            clearTimeout(requestAnalytics);
 
             executionRecord = await exStore.get(exId);
         });

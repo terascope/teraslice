@@ -1,5 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/utils';
+import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';
 
@@ -37,7 +38,7 @@ describe('cluster api', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.05;
         }
-        const alteredJob = cloneDeep(jobSpec);
+        const alteredJob: Partial<JobConfig> = cloneDeep(jobSpec);
         alteredJob.workers = 3;
         delete alteredJob.slicers;
 

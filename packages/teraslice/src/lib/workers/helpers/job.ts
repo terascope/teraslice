@@ -79,6 +79,7 @@ export async function initializeTestExecution({
     const slicerPort = job.slicer_port;
 
     let ex: any;
+
     if (isRecovery) {
         ex = await stores.exStore.create(job, lastStatus);
 

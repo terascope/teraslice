@@ -14,14 +14,14 @@ describe('AssetsStorage using S3 backend', () => {
             {
                 type: 'elasticsearch-next',
                 async createClient(customConfig: Record<string, any>, logger: Logger) {
-                    const client = await createClient(customConfig, logger);
+                    const { client } = await createClient(customConfig, logger);
                     return { client, logger };
                 },
                 endpoint: 'default'
             },
             {
                 type: 's3',
-                createClient: async (customConfig: Record<string, any>, logger: Logger) => {
+                async createClient(customConfig: Record<string, any>, logger: Logger) {
                     const client = await createS3Client(customConfig, logger);
                     return { client, logger };
                 },

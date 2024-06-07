@@ -19,6 +19,7 @@ describe('ExecutionController', () => {
                 slicerPort: port,
             });
 
+            // needs to be in this order
             await testContext.initialize(true);
             await testContext.addClusterMaster();
 
@@ -99,6 +100,7 @@ describe('ExecutionController', () => {
                 probationWindow
             });
 
+            // needs to be in this order
             await testContext.initialize(true);
             await testContext.addClusterMaster();
 

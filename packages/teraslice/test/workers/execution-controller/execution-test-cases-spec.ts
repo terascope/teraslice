@@ -172,8 +172,9 @@ describe('ExecutionController Test Cases', () => {
                 updateMetadata
             });
 
-            await testContext.addClusterMaster();
+            // needs to be in this order
             await testContext.initialize(true);
+            await testContext.addClusterMaster();
 
             const { clusterMaster, exId } = testContext;
 

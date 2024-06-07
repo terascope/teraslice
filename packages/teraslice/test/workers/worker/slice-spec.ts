@@ -346,7 +346,6 @@ describe('Slice', () => {
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: true });
-
                 slice = await setupSlice(testContext);
             });
 
@@ -366,7 +365,6 @@ describe('Slice', () => {
 
             beforeEach(async () => {
                 testContext = new TestContext({ analytics: true });
-
                 slice = await setupSlice(testContext);
                 slice.slice = 'hello-there' as any;
             });

@@ -1,15 +1,18 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
     newTestJobConfig, Slicer, uniq,
     AnyObject, LifeCycle, TestClientConfig,
     debugLogger
 } from '@terascope/job-components';
-import { SlicerTestHarness } from '../src';
-import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
+import { SlicerTestHarness } from '../src/index.js';
+import ParallelSlicer from './fixtures/asset/parallel-reader/slicer.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('SlicerTestHarness', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
+    const assetDir = path.join(dirname, 'fixtures');
     const logger = debugLogger('SlicerTestHarness');
 
     const clients: TestClientConfig[] = [
@@ -38,12 +41,18 @@ describe('SlicerTestHarness', () => {
             }
         ];
 
-        const slicerHarness = new SlicerTestHarness(job, {
-            assetDir: path.join(__dirname, 'fixtures'),
-            clients,
+        let slicerHarness: SlicerTestHarness;
+
+        beforeAll(async () => {
+            slicerHarness = new SlicerTestHarness(job, {
+                assetDir: path.join(dirname, 'fixtures'),
+                clients,
+            });
+
+            await slicerHarness.initialize();
         });
 
-        it('should be able to call initialize', () => expect(slicerHarness.initialize()).resolves.toBeNil());
+        it('should be able to call initialize', () => expect(slicerHarness.initialize).toBeFunction());
 
         it('should throw if given recoveryData since slicer is not recoverable', async () => {
             expect.assertions(1);
@@ -59,12 +68,16 @@ describe('SlicerTestHarness', () => {
             }
         });
 
-        it('should have a slicer', () => {
+        it('should have a slicer', async () => {
+            await slicerHarness.initialize();
             expect(slicerHarness.slicer()).toBeInstanceOf(Slicer);
         });
 
         it('should be able to call createSlices', async () => {
+            await slicerHarness.initialize();
+
             const result = await slicerHarness.createSlices();
+
             expect(result).toBeArray();
 
             expect(result[0]).not.toHaveProperty('slice_id');

@@ -173,7 +173,6 @@ export class TerasliceElasticsearchStorage {
 
         await pWhile(async () => {
             try {
-                // TODO: should pull from context.apis not from job-components
                 const client = await getClient(this.context, connectionConfig, 'elasticsearch-next');
 
                 this.api = elasticsearchApi(client, this.logger, options);

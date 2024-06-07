@@ -4,7 +4,10 @@ import { TSError, parseError, Logger } from '@terascope/utils';
 import type { Terafoundation } from '@terascope/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const builtinConnectorPath = path.join(dirname, '../dist/src/connectors');
+const pathFragments = dirname.split('/');
+const terafoundationPathIndex = pathFragments.findIndex((name) => name === 'terafoundation') + 1;
+
+const builtinConnectorPath = pathFragments.slice(0, terafoundationPathIndex).concat(['dist', 'src', 'connectors']).join('/');
 
 type ErrorResult = {
     filePath: string;
