@@ -315,8 +315,12 @@ export class OperationLoader {
         } else {
             for (const filePath of filePaths) {
                 try {
-                    const modPath = filePath.startsWith('//file:') ? fileURLToPath(new URL(filePath)) : filePath;
+                    let modPath = filePath;
+                    if (modPath.startsWith('//file:')) {
+                        modPath = pathModule.join(fileURLToPath(new URL(filePath)), 'dist', 'index.js');
+                    }
                     const mod = await import(modPath);
+
                     // importing bundled cjs assets like this seems to cause them
                     // to be wrapped twice in the `default` key
                     const core = mod.default ?? mod;
