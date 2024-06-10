@@ -114,7 +114,7 @@ export default function registerApis(context: Terafoundation.Context): void {
 
             return workers;
         },
-        promMetrics: new PromMetrics(context.name, context.logger)
+        promMetrics: new PromMetrics(context.logger)
     };
     function _registerFoundationAPIs() {
         registerAPI('foundation', foundationApis);

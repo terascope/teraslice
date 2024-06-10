@@ -136,6 +136,7 @@ describe('Test Helpers', () => {
         const context = new TestContext('test-prom-metrics');
         context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
         const config = {
+            terasliceName: context.sysconfig.teraslice.name,
             assignment: 'master',
             logger: debugLogger('test-helpers-spec-logger'),
             tf_prom_metrics_enabled: true,

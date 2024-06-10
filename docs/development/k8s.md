@@ -374,6 +374,7 @@ The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metri
 Example init:
 ```typescript
 await config.context.apis.foundation.promMetrics.init({
+    terasliceName: context.sysconfig.teraslice.name,
     assignment: 'execution_controller',
     logger: this.logger,
     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,

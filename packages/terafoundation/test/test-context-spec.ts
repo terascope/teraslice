@@ -71,6 +71,7 @@ describe('TestContext', () => {
         context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes' };
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
+            terasliceName: context.sysconfig.teraslice.name,
             tf_prom_metrics_enabled: true,
             tf_prom_metrics_port: 3333,
             tf_prom_metrics_add_default: false,

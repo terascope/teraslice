@@ -166,24 +166,25 @@ export interface Connector<S = Record<string, any>> {
 }
 
 export interface PromMetricsInitConfig {
-    assignment: string
-    logger: Logger,
+    terasliceName: string;
+    assignment: string;
+    logger: Logger;
     tf_prom_metrics_enabled: boolean;
     tf_prom_metrics_port: number;
     tf_prom_metrics_add_default: boolean;
-    job_prom_metrics_enabled?: boolean,
-    job_prom_metrics_port?: number
-    job_prom_metrics_add_default?: boolean
-    labels?: Record<string, string>,
-    prefix?: string
+    job_prom_metrics_enabled?: boolean;
+    job_prom_metrics_port?: number;
+    job_prom_metrics_add_default?: boolean;
+    labels?: Record<string, string>;
+    prefix?: string;
 }
 
 export interface PromMetricsAPIConfig {
-    assignment: string
-    port: number
-    default_metrics: boolean,
-    labels?: Record<string, string>,
-    prefix?: string
+    assignment: string;
+    port: number;
+    default_metrics: boolean;
+    labels?: Record<string, string>;
+    prefix?: string;
 }
 
 export interface PromMetrics {
