@@ -152,6 +152,7 @@ async function _saveAsset(
         }
         return metadata;
     } catch (err) {
+        console.log('\n\nam i deleting here', err, '\n\n')
         await deleteDir(newPath);
         throw err;
     }

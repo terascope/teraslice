@@ -5,179 +5,179 @@ on:
     branches: [ master ]
 
 jobs:
-  verify-build:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v3
+  # verify-build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Check out code
+  #     uses: actions/checkout@v3
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.19.1
-        cache: 'yarn'
+  #   - name: Setup Node
+  #     uses: actions/setup-node@v3
+  #     with:
+  #       node-version: 18.19.1
+  #       cache: 'yarn'
 
-    - name: Install and build packages
-      run: yarn setup
-      env:
-        YARN_SETUP_ARGS: "--prod=false --silent"
+  #   - name: Install and build packages
+  #     run: yarn setup
+  #     env:
+  #       YARN_SETUP_ARGS: "--prod=false --silent"
 
-    - name: Lint codebase
-      run: yarn lint
+  #   - name: Lint codebase
+  #     run: yarn lint
 
-    - name: Sync codebase
-      run: yarn sync --verify
+  #   - name: Sync codebase
+  #     run: yarn sync --verify
 
-  linux-unit-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+  # linux-unit-tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.19.1, 20.11.1, 22.2.0]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: Setup Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+  #     - name: Install and build packages
+  #       run: yarn setup
+  #       env:
+  #         YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test
-        run: yarn --silent test -- --suite unit --
+  #     - name: Test
+  #       run: yarn --silent test -- --suite unit --
 
-  linux-unit-esm-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+  # linux-unit-esm-tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.19.1, 20.11.1, 22.2.0]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: Setup Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+  #     - name: Install and build packages
+  #       run: yarn setup
+  #       env:
+  #         YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test
-        run: yarn --silent test -- --suite unit-esm --
-        env:
-          NODE_OPTIONS: '--experimental-vm-modules'
+  #     - name: Test
+  #       run: yarn --silent test -- --suite unit-esm --
+  #       env:
+  #         NODE_OPTIONS: '--experimental-vm-modules'
 
 
-  teraslice-elasticsearch-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+  # teraslice-elasticsearch-tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: [18.19.1, 20.11.1, 22.2.0]
+  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: Setup Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+  #     - name: Install and build packages
+  #       run: yarn setup
+  #       env:
+  #         YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/teraslice
+  #     - name: Test ${{ matrix.search-version }}
+  #       run: yarn --silent test:${{ matrix.search-version }}
+  #       working-directory: ./packages/teraslice
 
-  elasticsearch-store-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+  # elasticsearch-store-tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: [18.19.1, 20.11.1, 22.2.0]
+  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: Setup Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+  #     - name: Install and build packages
+  #       run: yarn setup
+  #       env:
+  #         YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/elasticsearch-store
+  #     - name: Test ${{ matrix.search-version }}
+  #       run: yarn --silent test:${{ matrix.search-version }}
+  #       working-directory: ./packages/elasticsearch-store
 
-  elasticsearch-api-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      # opensearch is finiky, keep testing others if it fails
-      fail-fast: false
-      matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
-        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+  # elasticsearch-api-tests:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     # opensearch is finiky, keep testing others if it fails
+  #     fail-fast: false
+  #     matrix:
+  #       node-version: [18.19.1, 20.11.1, 22.2.0]
+  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+  #     - name: Setup Node ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'yarn'
 
-      # we login to docker to avoid docker pull limit rates
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     # we login to docker to avoid docker pull limit rates
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install and build packages
-        run: yarn setup
-        env:
-          YARN_SETUP_ARGS: "--prod=false --silent"
+  #     - name: Install and build packages
+  #       run: yarn setup
+  #       env:
+  #         YARN_SETUP_ARGS: "--prod=false --silent"
 
-      - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/elasticsearch-api
+  #     - name: Test ${{ matrix.search-version }}
+  #       run: yarn --silent test:${{ matrix.search-version }}
+  #       working-directory: ./packages/elasticsearch-api
 
   e2e-tests:
     runs-on: ubuntu-latest

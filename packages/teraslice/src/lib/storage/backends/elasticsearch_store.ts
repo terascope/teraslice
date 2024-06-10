@@ -181,6 +181,7 @@ export class TerasliceElasticsearchStorage {
 
                 return true;
             } catch (err) {
+                console.log('\n\nerr in store', err)
                 const error = new TSError(err, {
                     reason: `Failure initializing ${this.recordType} index: ${this.defaultIndexName}`,
                 });
