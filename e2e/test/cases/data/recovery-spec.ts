@@ -31,7 +31,7 @@ describe('recovery', () => {
             path.join(CONFIG_PATH, 'teraslice-master.json')
         );
         sysconfig.teraslice.assets_directory = ASSETS_PATH;
-        context = makeTerafoundationContext({
+        context = await makeTerafoundationContext({
             sysconfig
         });
 

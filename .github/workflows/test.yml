@@ -216,6 +216,8 @@ jobs:
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
         working-directory: ./e2e
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
 
   e2e-k8s-tests:
     runs-on: ubuntu-latest
@@ -258,6 +260,8 @@ jobs:
       - name: Test k8s elasticsearch7
         run: yarn --silent test:k8s --node-version ${{ matrix.node-version }}
         working-directory: ./e2e
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
 
   e2e-external-storage-tests:
     runs-on: ubuntu-latest
@@ -295,3 +299,5 @@ jobs:
       - name: Test external Asset Storage opensearch1
         run: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
         working-directory: ./e2e
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
