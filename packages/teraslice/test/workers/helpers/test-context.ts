@@ -189,7 +189,6 @@ export class TestContext {
 
         if (!exists) {
             const err = new Error(`Asset Directory ${assetDir} does not exist`);
-            console.error(err.stack); // eslint-disable-line no-console
             throw err;
         }
 

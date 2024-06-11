@@ -288,6 +288,22 @@ export class OperationLoader {
         return results as OperationResults;
     }
 
+    private _adjustFilePath(filePath: string): string {
+        let results = filePath;
+
+        const chunks = results.split('/').pop() as string;
+        const isAsset = chunks.length === 40;
+        // currently /app/assets/${assetID} throw as an invalid url
+        // we don't fully know why
+        if (results.startsWith('//file:')) {
+            results = pathModule.join(fileURLToPath(new URL(filePath)), 'dist', 'index.js');
+        } else if (results.startsWith('/app') && isAsset) {
+            results = pathModule.join(filePath, 'index.js');
+        }
+
+        return results;
+    }
+
     private async require<T>(
         dir: string,
         type?: OperationTypeName,
@@ -315,10 +331,7 @@ export class OperationLoader {
         } else {
             for (const filePath of filePaths) {
                 try {
-                    let modPath = filePath;
-                    if (modPath.startsWith('//file:')) {
-                        modPath = pathModule.join(fileURLToPath(new URL(filePath)), 'dist', 'index.js');
-                    }
+                    const modPath = this._adjustFilePath(filePath);
                     const mod = await import(modPath);
 
                     // importing bundled cjs assets like this seems to cause them

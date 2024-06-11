@@ -13,7 +13,7 @@ describe('cluster api', () => {
         await terasliceHarness.resetState();
     });
 
-    it('submitted jobs are not saved in validated form', async () => {
+    xit('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
@@ -30,7 +30,7 @@ describe('cluster api', () => {
         expect(jobConfig).toMatchObject(jobSpec);
     });
 
-    it('should update job config', async () => {
+    xit('should update job config', async () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;

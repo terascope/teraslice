@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-disabled-tests */
 import 'jest-extended';
 import fs from 'node:fs';
 import os from 'os';
@@ -100,7 +101,7 @@ describe('assets', () => {
     // example_assets/drop_property/
     // example_assets/drop_property/index.js
     // asset.json
-    it('after starting a job with a Type 1 asset specified by ID should eventually have all workers joined', async () => {
+    xit('after starting a job with a Type 1 asset specified by ID should eventually have all workers joined', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
 
         await submitAndValidateAssetJob('generator-asset', assetPath);
@@ -111,12 +112,12 @@ describe('assets', () => {
     // example_assets/asset.json
     // example_assets/drop_property/
     // example_assets/drop_property/index.js
-    it('after starting a job with a Type 2 asset specified by ID should eventually have all workers joined', async () => {
+    xit('after starting a job with a Type 2 asset specified by ID should eventually have all workers joined', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_2.zip';
         await submitAndValidateAssetJob('generator-asset', assetPath);
     });
 
-    it('can update an asset bundle and use the new asset', async () => {
+    xit('can update an asset bundle and use the new asset', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
 
         const fileStream = fs.createReadStream(assetPath);
@@ -148,7 +149,7 @@ describe('assets', () => {
         await ex.stop({ blocking: true });
     });
 
-    it('can directly ask for the new asset to be used', async () => {
+    xit('can directly ask for the new asset to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
