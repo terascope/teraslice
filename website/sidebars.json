@@ -15,7 +15,7 @@
             "management-apis/endpoints-json",
             "management-apis/endpoints-txt"
         ],
-        "Jobs": [
+        "Job Development": [
             "jobs/overview",
             "jobs/configuration",
             "jobs/types-of-operations",
@@ -26,7 +26,10 @@
             "jobs/development",
             "jobs/testing"
         ],
-        "Development": [
+        "Asset Development": [
+            "asset-development/overview"
+        ],
+        "Teraslice Development": [
             "development/overview",
             "development/packages",
             "development/scripts",
