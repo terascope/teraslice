@@ -76,7 +76,9 @@ module.exports={
     "footer": {
       "links": [],
       "copyright": "Copyright © 2024 Terascope, LLC",
-      "logo": {}
+      "logo": {
+        "src": "img/logo.png"
+      }
     },
     "algolia": {
       "apiKey": "b074b9b57bfd2e4d8b411aee052825d2",
