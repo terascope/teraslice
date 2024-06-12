@@ -302,8 +302,8 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
         } catch (err) {
             throw new ts.TSError(`Error generating ca-certificates for minio: ${err.message}`);
         }
+        signale.success('Successfully created new certificates for minio');
     }
-    signale.success('Successfully created new certificates for minio');
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -639,14 +639,15 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             let statusCode: number;
+            const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
             try {
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
                     responseType: 'json',
                     throwHttpErrors: false,
-                    https: {
-                        certificateAuthority: fs.readFileSync(path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem'))
-                    },
+                    https: config.ENCRYPT_MINIO
+                        ? { certificateAuthority: fs.readFileSync(rootCaPath) }
+                        : {},
                     retry: 0,
                 }));
             } catch (err) {
