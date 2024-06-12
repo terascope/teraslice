@@ -25,6 +25,7 @@ const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '../assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
+const ROOT_CERT_PATH = path.join(BASE_PATH, 'test/certs/CAs/rootCA.pem');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
@@ -52,6 +53,7 @@ const {
     TERASLICE_PORT = '45678',
     ASSET_STORAGE_CONNECTION_TYPE = 'elasticsearch-next',
     ASSET_STORAGE_CONNECTION = 'default',
+    ENCRYPT_MINIO = false,
     MINIO_HOST = 'http://127.0.0.1:49000',
     MINIO_ACCESS_KEY = 'minioadmin',
     MINIO_SECRET_KEY = 'minioadmin'
@@ -107,5 +109,7 @@ export {
     ASSET_STORAGE_CONNECTION,
     MINIO_HOST,
     MINIO_ACCESS_KEY,
-    MINIO_SECRET_KEY
+    MINIO_SECRET_KEY,
+    ENCRYPT_MINIO,
+    ROOT_CERT_PATH
 };

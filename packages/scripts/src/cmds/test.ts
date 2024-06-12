@@ -20,6 +20,7 @@ type Options = {
     'elasticsearch-version': string;
     'kafka-version': string;
     'minio-version': string;
+    'encrypt-minio': boolean;
     'rabbitmq-version': string;
     'opensearch-version': string;
     'node-version': string;
@@ -106,6 +107,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.MINIO_VERSION,
             })
+            .option('encrypt-minio', {
+                description: 'Add TLS encryption to minio service',
+                type: 'boolean',
+                default: config.ENCRYPT_MINIO,
+            })
             .option('rabbitmq-version', {
                 description: 'The rabbitmq version to use',
                 type: 'string',
@@ -159,6 +165,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
         const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
+        const encryptMinio = hoistJestArg(argv, 'encrypt-minio', 'boolean');
         const rabbitmqVersion = hoistJestArg(argv, 'rabbitmq-version', 'string');
         const opensearchVersion = hoistJestArg(argv, 'opensearch-version', 'string');
         const nodeVersion = hoistJestArg(argv, 'node-version', 'string');
@@ -186,6 +193,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             kafkaImageVersion: config.KAFKA_IMAGE_VERSION,
             zookeeperVersion: config.ZOOKEEPER_VERSION,
             minioVersion,
+            encryptMinio,
             rabbitmqVersion,
             opensearchVersion,
             nodeVersion,

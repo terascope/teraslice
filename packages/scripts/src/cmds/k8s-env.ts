@@ -32,6 +32,11 @@ const cmd: CommandModule = {
                 type: 'string',
                 default: config.MINIO_VERSION,
             })
+            .option('encrypt-minio', {
+                description: 'Add TLS encryption to minio service',
+                type: 'boolean',
+                default: config.ENCRYPT_MINIO,
+            })
             .option('rabbitmq-version', {
                 description: 'The rabbitmq version to use',
                 type: 'string',
@@ -104,6 +109,7 @@ const cmd: CommandModule = {
             kafkaImageVersion: kafkaCPVersion,
             zookeeperVersion: kafkaCPVersion,
             minioVersion: argv.minioVersion as string,
+            encryptMinio: argv['encrypt-minio'] as boolean,
             rabbitmqVersion: argv.rabbitmqVersion as string,
             opensearchVersion: argv.opensearchVersion as string,
             nodeVersion: argv['node-version'] as string,
