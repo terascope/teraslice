@@ -297,7 +297,7 @@ export class OperationLoader {
         // we don't fully know why
         if (results.startsWith('//file:')) {
             results = pathModule.join(fileURLToPath(new URL(filePath)), 'dist', 'index.js');
-        } else if (results.startsWith('/app') && isAsset) {
+        } else if (isAsset) {
             results = pathModule.join(filePath, 'index.js');
         }
 
