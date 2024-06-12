@@ -134,7 +134,9 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/data']
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
-        mount: `type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`,
+        mount: config.ENCRYPT_MINIO
+            ? `type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`
+            : '',
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
@@ -296,8 +298,6 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
         try {
             signale.pending('Generating new ca-certificates for minio...');
             const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
-            execa.commandSync('command -v grep');
-            execa.commandSync('command -v mkcert');
             await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
         } catch (err) {
             throw new ts.TSError(`Error generating ca-certificates for minio: ${err.message}`);
