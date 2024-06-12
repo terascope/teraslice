@@ -15,7 +15,8 @@ import { pWhile } from '@terascope/utils';
 import crypto from 'crypto';
 import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
 import {
-    ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST,
+    MINIO_SECRET_KEY, TEST_PLATFORM, ENCRYPT_MINIO
 } from '../../config.js';
 
 describe('assets', () => {
@@ -192,8 +193,11 @@ describe('s3 asset storage', () => {
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
             forcePathStyle: true,
-            sslEnabled: false,
-            region: 'test-region'
+            sslEnabled: ENCRYPT_MINIO === 'true',
+            region: 'test-region',
+            caCertificate: ENCRYPT_MINIO === 'true'
+                ? fs.readFileSync('test/certs/CAs/rootCA.pem', 'utf8')
+                : ''
         };
 
         beforeAll(async () => {
