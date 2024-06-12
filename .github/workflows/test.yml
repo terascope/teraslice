@@ -325,7 +325,10 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Install mkcert
-        run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+        run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && sudo chmod 777 mkcert-v*-linux-amd64 && sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+
+      - name: Install grep
+        run: sudo apt update && sudo apt install grep
 
       - name: Compile e2e code
         run: yarn build
