@@ -330,6 +330,12 @@ jobs:
       - name: Install grep
         run: sudo apt update && sudo apt install grep
 
+      - name: Check mkcert
+        run: command -v mkcert
+
+      - name: Check grep
+        run: command -v grep
+
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
