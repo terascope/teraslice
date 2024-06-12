@@ -23,7 +23,7 @@ const pathLength = filePath.lastIndexOf('e2e') + 3;
 
 const BASE_PATH = filePath.slice(0, pathLength);
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
-const ASSETS_PATH = path.join(BASE_PATH, '.assets');
+const ASSETS_PATH = path.join(BASE_PATH, '../assets');
 const AUTOLOAD_PATH = path.join(BASE_PATH, 'autoload');
 const LOG_PATH = path.join(BASE_PATH, 'logs/teraslice.log');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;

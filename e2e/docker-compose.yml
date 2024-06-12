@@ -15,7 +15,7 @@ services:
             - ./logs:/app/logs:delegated
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
-            - ./.assets:/app/assets:delegated
+            - ../assets:/app/assets:delegated
     teraslice-worker:
         image: teraslice-workspace:e2e-nodev${NODE_VERSION}
         deploy:
@@ -31,4 +31,4 @@ services:
             - ./logs:/app/logs:delegated
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
-            - ./.assets:/app/assets:delegated
+            - ../assets:/app/assets:delegated
