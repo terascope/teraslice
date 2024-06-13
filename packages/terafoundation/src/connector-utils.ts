@@ -1,19 +1,39 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { TSError, parseError, Logger } from '@terascope/utils';
-import { Terafoundation } from '@terascope/types';
+import type { Terafoundation } from '@terascope/types';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const pathFragments = dirname.split('/');
+const terafoundationPathIndex = pathFragments.findIndex((name) => name === 'terafoundation') + 1;
+
+const builtinConnectorPath = pathFragments.slice(0, terafoundationPathIndex).concat(['dist', 'src', 'connectors']).join('/');
 
 type ErrorResult = {
     filePath: string;
     message: string;
 }
 
-function requireConnector(filePath: string, errors: ErrorResult[]) {
-    let mod = require(filePath);
-
-    if (mod && mod.default) {
-        mod = mod.default;
-    }
+async function requireConnector<S>(
+    filePath: string,
+    errors: ErrorResult[]
+): Promise<Terafoundation.Connector<S> | null> {
     let valid = true;
+    let mod: any;
+
+    try {
+        mod = await import(filePath);
+
+        if (mod && mod.default) {
+            mod = mod.default;
+            if (mod.default) {
+                mod = mod.default;
+            }
+        }
+    } catch (err) {
+        valid = false;
+    }
+
     if (typeof mod !== 'object') {
         valid = false;
     }
@@ -34,61 +54,68 @@ function requireConnector(filePath: string, errors: ErrorResult[]) {
         valid = false;
     }
 
-    if (mod && typeof mod.create !== 'function') {
+    if (mod && typeof mod.createClient !== 'function') {
         errors.push({
             filePath,
-            message: `Connector ${filePath} missing required create function`
+            message: `Connector ${filePath} missing required createClient function`
         });
+
         valid = false;
     }
 
-    if (valid) return mod;
+    if (valid) {
+        return mod;
+    }
+
     return null;
 }
 
-function guardedRequire(filePath: string, errors: ErrorResult[]) {
+async function guardedRequire<S>(
+    filePath: string,
+    errors: ErrorResult[]
+): Promise<Terafoundation.Connector<S> | null> {
     try {
         return requireConnector(filePath, errors);
     } catch (error) {
-        if (error.code === 'MODULE_NOT_FOUND') {
-            return false;
-        }
-
         errors.push({
             filePath,
             message: parseError(error, true),
         });
+
         return null;
     }
 }
 
-export function getConnectorModule(name: string, reason: string): any {
-    let mod;
+export async function getConnectorModule<S = Record<string, any>>(
+    name: string,
+    reason: string
+): Promise<Terafoundation.Connector<S> | null> {
+    let mod: Terafoundation.Connector<S> | null;
 
     // collect the errors
     const errors: ErrorResult[] = [];
 
-    const localPath = path.join(__dirname, 'connectors', name);
-    mod = guardedRequire(localPath, errors);
+    const localPath = `${path.join(builtinConnectorPath, name)}.js`;
+    mod = await guardedRequire<S>(localPath, errors);
 
     // check if its a node module
     if (!mod) {
-        mod = guardedRequire(name, errors);
+        mod = await guardedRequire(name, errors);
     }
 
     // Still not found check for a connector with underscores
     if (!mod) {
-        mod = guardedRequire(`terafoundation_${name}_connector`, errors);
+        mod = await guardedRequire(`terafoundation_${name}_connector`, errors);
     }
 
     // Still not found check for a connector with dashes
     if (!mod) {
-        mod = guardedRequire(`terafoundation-${name}-connector`, errors);
+        mod = await guardedRequire(`terafoundation-${name}-connector`, errors);
     }
 
     // Stil not found check for the @terascope namespace
     if (!mod) {
-        mod = guardedRequire(`@terascope/${name}`, errors);
+        mod = await guardedRequire(`@terascope/${name}`, errors);
     }
 
     if (mod) return mod;
@@ -103,33 +130,23 @@ export function getConnectorModule(name: string, reason: string): any {
             }
         });
     }
+
     return null;
 }
 
-export function getConnectorSchemaAndValFn<S>(
+export async function getConnectorSchemaAndValFn<S>(
     name: string
-): Terafoundation.Initializers<S> {
+): Promise<Terafoundation.Initializers<S>> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
-    const mod = getConnectorModule(name, reason);
+    const mod = await getConnectorModule<S>(name, reason);
+
     if (!mod) {
         console.warn(`[WARNING] ${reason}`);
-        return { schema: {} };
+        return { schema: {} as Terafoundation.Schema<S> };
     }
+
     return { schema: mod.config_schema(), validatorFn: mod.validate_config };
-}
-
-export function createConnection(
-    name: string, moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
-): any {
-    const reason = `Could not find connector implementation for: ${name}\n`;
-
-    const mod = getConnectorModule(name, reason);
-    if (!mod) {
-        throw new Error(reason);
-    }
-
-    return mod.create(moduleConfig, logger, options);
 }
 
 export async function createClient(
@@ -137,7 +154,7 @@ export async function createClient(
 ) {
     const reason = `Could not find connector implementation for: ${name}\n`;
 
-    const mod = getConnectorModule(name, reason);
+    const mod = await getConnectorModule(name, reason);
     if (!mod) {
         throw new Error(reason);
     }

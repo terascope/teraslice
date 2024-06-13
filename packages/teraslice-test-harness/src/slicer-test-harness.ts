@@ -1,6 +1,6 @@
 import {
     SlicerExecutionContext,
-    JobConfig,
+    JobConfigParams,
     Slice,
     SliceRequest,
     SliceResult,
@@ -37,13 +37,8 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     private _emitInterval: any;
 
-    constructor(job: JobConfig, options: JobHarnessOptions) {
+    constructor(job: JobConfigParams, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');
-
-        const { config } = this.executionContext;
-        if (config.recovered_execution && !this.slicer().isRecoverable()) {
-            throw new Error('Slicer is not recoverable');
-        }
     }
 
     slicer<T extends SlicerCore = SlicerCore>(): T {
@@ -56,6 +51,11 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     */
     async initialize(recoveryData: SlicerRecoveryData[] = []): Promise<void> {
         await super.initialize();
+
+        const { config } = this.executionContext;
+        if (config.recovered_execution && !this.slicer().isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
         // teraslice checks to see if slicer is recoverable
         // should throw test recoveryData if slicer is not recoverable
         if (recoveryData.length > 0) {

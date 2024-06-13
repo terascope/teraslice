@@ -1,19 +1,18 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pDelay, DataEntity } from '@terascope/utils';
-import { terasliceOpPath } from '../helpers';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    FetcherCore,
-    ProcessorCore,
-    newTestSlice
-} from '../../src';
+    WorkerExecutionContext, TestContext, newTestExecutionConfig,
+    FetcherCore, ProcessorCore, newTestSlice
+} from '../../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname, '..');
+    const assetDir = path.join(dirname, '..');
 
     const context = new TestContext('worker-execution-context');
 
@@ -50,7 +49,7 @@ describe('WorkerExecutionContext', () => {
         let executionContext: WorkerExecutionContext;
 
         beforeAll(async () => {
-            executionContext = new WorkerExecutionContext({
+            executionContext = await WorkerExecutionContext.createContext({
                 context,
                 executionConfig,
                 assetIds,
@@ -273,14 +272,14 @@ describe('WorkerExecutionContext', () => {
 
         let executionContext: WorkerExecutionContext;
 
-        beforeAll(() => {
-            executionContext = new WorkerExecutionContext({
+        beforeAll(async () => {
+            executionContext = await WorkerExecutionContext.createContext({
                 context,
                 executionConfig,
                 assetIds,
                 terasliceOpPath,
             });
-            return executionContext.initialize();
+            await executionContext.initialize();
         });
 
         afterAll(() => {

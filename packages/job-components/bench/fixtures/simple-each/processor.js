@@ -1,8 +1,6 @@
-'use strict';
+import { EachProcessor } from '../../../dist/src/index.js';
 
-const { EachProcessor } = require('../../../dist/src');
-
-class SimpleEach extends EachProcessor {
+export default class SimpleEach extends EachProcessor {
     constructor(...args) {
         super(...args);
         this.counter = 0;
@@ -13,5 +11,3 @@ class SimpleEach extends EachProcessor {
         this.counter++;
     }
 }
-
-module.exports = SimpleEach;

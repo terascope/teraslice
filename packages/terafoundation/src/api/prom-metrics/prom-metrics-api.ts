@@ -1,13 +1,11 @@
 import { Logger } from '@terascope/utils';
-
-import os from 'os';
+import os from 'node:os';
 import {
     Gauge, Counter, Histogram, Summary,
     CollectFunction
 } from 'prom-client';
 import { Terafoundation as tf } from '@terascope/types';
-
-import Exporter from './exporter';
+import Exporter from './exporter.js';
 
 export class PromMetrics {
     readonly metricList!: tf.MetricList;

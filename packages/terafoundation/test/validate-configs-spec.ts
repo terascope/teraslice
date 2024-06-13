@@ -1,13 +1,12 @@
 import 'jest-extended';
-import os from 'os';
-import { PartialDeep, Terafoundation } from 'packages/types/dist/src';
-import { Cluster } from '../src';
-import validateConfigs from '../src/validate-configs';
-import { getConnectorSchemaAndValFn } from '../src/connector-utils';
+import os from 'node:os';
+import type { Terafoundation, PartialDeep } from '@terascope/types';
+import validateConfigs from '../src/validate-configs.js';
+import { getConnectorSchemaAndValFn } from '../src/connector-utils.js';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
-        const cluster: Cluster = {
+        const cluster: Terafoundation.Cluster = {
             isWorker: true,
             isMaster: false,
             worker: {
@@ -45,8 +44,10 @@ describe('Validate Configs', () => {
             ]
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(cluster, config as any, configFile as any);
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
+                cluster, config as any, configFile as any
+            );
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
@@ -83,8 +84,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -153,8 +154,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(
+        it('should return a valid config', async () => {
+            const validatedConfig = await validateConfigs(
                 { foo: 'bar' } as any,
                 { foo: 'bar' } as any,
                 configFile as any
@@ -187,8 +188,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -208,207 +209,8 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
-        });
-    });
-
-    describe('when given an invalid asset_storage_bucket', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_bucket: 123,
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
-        });
-    });
-
-    describe('when given an invalid asset_storage_connection', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connection: 123,
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
-        });
-    });
-
-    describe('when given an asset_storage_connection that does not exist on that connection type', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connection_type: 's3',
-                asset_storage_connection: 'minio2',
-                connectors: {
-                    'elasticsearch-next': {
-                        default: {}
-                    },
-                    s3: {
-                        minio1: {
-                            accessKeyId: 'test',
-                            secretAccessKey: 'test'
-                        },
-                    }
-                }
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('minio2 not found in terafoundation.connectors.s3');
-        });
-    });
-
-    describe('when given an invalid asset_storage_connection_type', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connection_type: 123,
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrow('Error validating configuration');
-        });
-    });
-
-    describe('when given an asset_storage_connection_type that does not exist', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connection_type: 's3',
-                connectors: {
-                    'elasticsearch-next': {
-                        default: {}
-                    }
-                }
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('asset_storage_connection_type not found in terafoundation.connectors');
-        });
-    });
-    describe('when given an asset_storage_connection_type that is invalid', () => {
-        const configFile = {
-            terafoundation: {
-                asset_storage_connection_type: 'kafka',
-                connectors: {
-                    'elasticsearch-next': {
-                        default: {}
-                    },
-                    kafka: {
-                        default: {}
-                    }
-                }
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Invalid asset_storage_connection_type. Valid types: elasticsearch-next,s3');
-        });
-    });
-
-    describe('when given a config without an asset_storage_connection_type and with an elasticsearch-next with no default connection', () => {
-        const configFile = {
-            terafoundation: {
-                connectors: {
-                    'elasticsearch-next': {
-                        'not-default': {}
-                    }
-                }
-            },
-            other: {}
-        };
-        const cluster = {
-            isMaster: true,
-        };
-        const config = {
-            config_schema() {
-                return {};
-            }
-        };
-
-        const validatedConfig = validateConfigs(cluster as any, config as any, configFile as any);
-        it('should return valid config', () => {
-            expect(validatedConfig).toMatchObject({
-                terafoundation: {
-                    environment: 'test',
-                    logging: ['console'],
-                    log_level: 'info',
-                    asset_storage_bucket: undefined,
-                    connectors: {
-                        'elasticsearch-next': {
-                            'not-default': {
-                                node: ['http://127.0.0.1:9200'],
-                                sniffOnStart: false,
-                                sniffOnConnectionFault: false,
-                                requestTimeout: 120000,
-                                maxRetries: 3
-                            }
-                        }
-                    },
-                },
-                other: {},
-                _nodeName: os.hostname()
-            });
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any)).rejects.toThrow('Error validating configuration');
         });
     });
 
@@ -418,7 +220,6 @@ describe('Validate Configs', () => {
                 workers: 4
             },
             terafoundation: {
-                asset_storage_bucket: 'testBucket',
                 connectors: {
                     'elasticsearch-next': {
                         default: {}
@@ -434,8 +235,8 @@ describe('Validate Configs', () => {
         const testFn = (
             subconfig: PartialDeep<Terafoundation.SysConfig<any>>,
             sysconfig: Terafoundation.SysConfig<any>) => {
-            const typedSubconfig = subconfig as unknown as Terafoundation.Foundation;
-            if (sysconfig.terafoundation.workers !== typedSubconfig.workers) {
+            const typedSubConfig = subconfig as unknown as Terafoundation.SysConfig<any>;
+            if (sysconfig.terafoundation.workers !== typedSubConfig.workers) {
                 throw new Error('validatorFn test failed');
             }
         };
@@ -445,16 +246,18 @@ describe('Validate Configs', () => {
             }
         };
 
-        it('should throw an error', () => {
-            expect(() => validateConfigs(cluster as any, config as any, configFile as any))
-                .toThrow('Cross-field validation failed for \'teraslice\': Error: validatorFn test failed');
+        it('should throw an error', async () => {
+            await expect(() => validateConfigs(cluster as any, config as any, configFile as any))
+                .rejects.toThrow('Cross-field validation failed for \'teraslice\': Error: validatorFn test failed');
         });
     });
 });
 
 describe('getConnectorInitializers', () => {
-    it('should return an initializer with schema key', () => {
+    it('should return an initializer with schema key', async () => {
         const connector = 'elasticsearch-next';
-        expect(getConnectorSchemaAndValFn(connector)).toContainKey('schema');
+
+        const results = await getConnectorSchemaAndValFn(connector);
+        expect(results).toContainKey('schema');
     });
 });

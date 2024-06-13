@@ -19,7 +19,6 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     const files: string[] = [];
 
     const rootInfo = getRootInfo();
-
     utils.syncVersions(pkgInfos, rootInfo);
 
     await executeHook(Hook.AFTER_SYNC, options.quiet === true, rootInfo.version);

@@ -1,11 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { jest } from '@jest/globals';
 import {
-    ParallelSlicer,
-    SlicerFn,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    ParallelSlicer, SlicerFn, newTestExecutionConfig,
+    TestContext, Context
+} from '../../src/index.js';
 
 describe('ParallelSlicer', () => {
     class ExampleParallelSlicer<T = Record<string, any>> extends ParallelSlicer<T> {
@@ -50,7 +48,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -207,7 +205,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);
@@ -364,7 +362,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as Context, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

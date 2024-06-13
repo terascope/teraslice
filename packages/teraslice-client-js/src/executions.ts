@@ -3,8 +3,8 @@ import {
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
-import Client from './client';
-import Ex from './ex';
+import Client from './client.js';
+import Ex from './ex.js';
 
 import { ClientConfig, SearchOptions } from './interfaces';
 
@@ -19,7 +19,7 @@ export default class Executions extends Client {
     /**
      * Similar to jobs.submit but returns an instance of Ex not a Job
     */
-    async submit(jobSpec: Teraslice.JobConfig, shouldNotStart?: boolean): Promise<Ex> {
+    async submit(jobSpec: Teraslice.JobConfigParams, shouldNotStart?: boolean): Promise<Ex> {
         if (!jobSpec) {
             throw new TSError('Submit requires a jobSpec', {
                 statusCode: 400
@@ -37,7 +37,7 @@ export default class Executions extends Client {
         return this.wrap(job.ex_id);
     }
 
-    async list(options?: ListOptions): Promise<Teraslice.ExecutionRecord[]> {
+    async list(options?: ListOptions): Promise<Teraslice.ExecutionConfig[]> {
         const query = _parseListOptions(options);
         return this.get('/ex', { searchParams: query } as SearchOptions);
     }

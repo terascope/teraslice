@@ -1,5 +1,5 @@
-import { SlicerResult, OpConfig } from '../interfaces';
-import SlicerCore from './core/slicer-core';
+import { SlicerResult, OpConfig } from '../interfaces/index.js';
+import SlicerCore from './core/slicer-core.js';
 
 /**
  * The simpliest form a "Slicer"

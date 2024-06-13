@@ -1,4 +1,4 @@
-import util from 'util';
+import util from 'node:util';
 import autoBind from 'auto-bind';
 import {
     pDelay, isString, toString,
@@ -9,8 +9,8 @@ import {
     ClientConfig,
     SearchOptions,
     RequestOptions
-} from './interfaces';
-import Client from './client';
+} from './interfaces.js';
+import Client from './client.js';
 
 /*
  * This is basically a wrapper around the job_id that acts as a proxy
@@ -89,19 +89,19 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: Teraslice.JobRecord): Promise<Teraslice.JobRecord> {
+    async update(jobSpec: Teraslice.JobConfig): Promise<Teraslice.JobConfig> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
     async updatePartial(
-        jobSpec: Partial<Teraslice.JobRecord>
-    ): Promise<Teraslice.JobRecord> {
+        jobSpec: Partial<Teraslice.JobConfig>
+    ): Promise<Teraslice.JobConfig> {
         const current = await this.config();
-        const body: Teraslice.JobRecord = Object.assign({}, current, jobSpec);
+        const body: Teraslice.JobConfig = Object.assign({}, current, jobSpec);
         return this.update(body);
     }
 
-    async execution(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionRecord> {
+    async execution(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {
         return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
@@ -182,7 +182,7 @@ export default class Job extends Client {
         return checkStatus();
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.JobRecord> {
+    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.JobConfig> {
         return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 

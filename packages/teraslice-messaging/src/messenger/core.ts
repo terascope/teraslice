@@ -1,10 +1,10 @@
 import ms from 'ms';
 import pEvent from 'p-event';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
     toString, isInteger, debugLogger, Logger
 } from '@terascope/utils';
-import * as i from './interfaces';
+import * as i from './interfaces.js';
 
 const _logger = debugLogger('teraslice-messaging:core');
 

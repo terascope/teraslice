@@ -11,6 +11,7 @@ import { generateWorkerId, makeLogger } from '../helpers/terafoundation.js';
 import { waitForWorkerShutdown } from '../helpers/worker-shutdown.js';
 import { Metrics } from '../metrics/index.js';
 import { SliceExecution } from './slice.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class Worker {
     stateStorage: StateStorage;
@@ -357,7 +358,7 @@ export class Worker {
 
         return new Promise((resolve, reject) => {
             let timeout: NodeJS.Timeout | undefined;
-            let interval: NodeJS.Timer | undefined;
+            let interval: NodeJS.Timeout | undefined;
 
             const done = (err?: Error) => {
                 clearInterval(interval);
@@ -443,7 +444,7 @@ export class Worker {
                     name: this.context.sysconfig.teraslice.name,
                     node_version: process.version,
                     platform: this.context.platform,
-                    teraslice_version: this.executionContext.config.teraslice_version
+                    teraslice_version: getPackageJSON().version
                 },
                 1
             );

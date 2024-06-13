@@ -1,9 +1,8 @@
 import { ProcessContext } from 'terafoundation';
 import { getTerasliceConfig } from '../../config/index.js';
 
-export function makeTerafoundationContext({ sysconfig } = {} as any) {
-    // @ts-expect-error
-    return new ProcessContext(getTerasliceConfig(), sysconfig ? {
+export async function makeTerafoundationContext({ sysconfig } = {} as any) {
+    return ProcessContext.createContext(getTerasliceConfig(), sysconfig ? {
         configfile: sysconfig
     } : undefined);
 }

@@ -1,19 +1,22 @@
-import 'jest-extended'; // require for type definitions
-import * as path from 'path';
-import { JobValidator, TestContext, JobConfig } from '../src';
+import 'jest-extended';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { JobValidator, TestContext, JobConfigParams } from '../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = __dirname;
+    context.sysconfig.teraslice.assets_directory = dirname;
 
-    const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
+    const terasliceOpPath = path.join(dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
         terasliceOpPath,
     });
 
     describe('->validateConfig', () => {
-        it('returns a completed and valid jobConfig', () => {
-            const jobSpec: JobConfig = Object.freeze({
+        it('returns a completed and valid jobConfig', async () => {
+            const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
                 autorecover: true,
@@ -34,13 +37,13 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = api.validateConfig(jobSpec);
+            const validJob = await api.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
 
-        it('will throw based off op validation errors', () => {
+        it('will throw based off op validation errors', async () => {
         // if subslice_by_key, then it needs type specified or it will error
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -54,13 +57,13 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('throws an error with faulty operation configuration', () => {
-            const jobSpec: JobConfig = {
+        it('throws an error with faulty operation configuration', async () => {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 operations: [
                     {
@@ -72,13 +75,13 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('will properly read an operation', () => {
-            const jobSpec: JobConfig = {
+        it('will properly read an operation', async () => {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -91,14 +94,17 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
+            try {
+                const results = await api.validateConfig(jobSpec);
+                expect(results).toBeDefined();
+            } catch (_err) {
+                throw new Error('should not have thrown');
+            }
         });
 
-        it('will throw based off opValition errors', () => {
+        it('will throw based off opValition errors', async () => {
             // if subslice_by_key, then it needs type specified or it will error
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 assets: ['fixtures'],
                 operations: [
@@ -112,13 +118,13 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('will throw based off crossValidation errors', () => {
-            const jobSpec: JobConfig = {
+        it('will throw based off crossValidation errors', async () => {
+            const jobSpec: JobConfigParams = {
                 name: 'test',
                 lifecycle: 'persistent',
                 assets: ['fixtures'],
@@ -133,20 +139,20 @@ describe('JobValidator', () => {
                 ],
             };
 
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
+            await expect(
+                () => api.validateConfig(jobSpec)
+            ).rejects.toThrow();
         });
 
-        it('can instantiate with an array of asset_paths', () => {
+        it('can instantiate with an array of asset_paths', async () => {
             const testContext = new TestContext('teraslice-operations');
-            testContext.sysconfig.teraslice.assets_directory = [__dirname];
+            testContext.sysconfig.teraslice.assets_directory = [dirname];
 
             const testApi = new JobValidator(context, {
                 terasliceOpPath,
             });
 
-            const jobSpec: JobConfig = Object.freeze({
+            const jobSpec: JobConfigParams = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
                 autorecover: true,
@@ -167,7 +173,7 @@ describe('JobValidator', () => {
                 ],
             });
 
-            const validJob = testApi.validateConfig(jobSpec);
+            const validJob = await testApi.validateConfig(jobSpec);
             expect(validJob).toMatchObject(jobSpec);
         });
     });
@@ -181,16 +187,16 @@ describe('JobValidator', () => {
 
             expect(() => {
                 api.hasSchema(opCode, 'test');
-            }).not.toThrowError();
+            }).not.toThrow();
             expect(() => {
                 api.hasSchema(badCode1, 'test');
-            }).toThrowError('test schema needs to return an object');
+            }).toThrow('test schema needs to return an object');
             expect(() => {
                 api.hasSchema(badCode2, 'test');
-            }).toThrowError('test needs to have a method named "schema"');
+            }).toThrow('test needs to have a method named "schema"');
             expect(() => {
                 api.hasSchema(badCode3, 'test');
-            }).toThrowError('test needs to have a method named "schema"');
+            }).toThrow('test needs to have a method named "schema"');
         });
     });
 });

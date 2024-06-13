@@ -1,8 +1,10 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { AnyObject } from '@terascope/utils';
 import {
-    ExecutionContextAPI, newTestExecutionConfig, TestContext, APIFactoryRegistry, AnyObject
-} from '../../src';
-import FactoryAPITest from '../fixtures/asset/api-factory/api';
+    ExecutionContextAPI, newTestExecutionConfig, TestContext,
+    APIFactoryRegistry
+} from '../../src/index.js';
+import FactoryAPITest from '../fixtures/asset/api-factory/api.js';
 
 type API = APIFactoryRegistry<AnyObject, AnyObject>;
 
@@ -66,7 +68,7 @@ describe('APIFactory', () => {
         expect(results).toMatchObject(expectedData);
         expect(api.size).toEqual(1);
 
-        const secondApi = await context.apis.executionContext.getAPI(apiName);
+        const secondApi: API = await context.apis.executionContext.getAPI(apiName);
 
         expect(secondApi.size).toEqual(1);
         expect(secondApi.get('test')).toMatchObject(expectedData);

@@ -19,6 +19,7 @@ import { ExecutionAnalytics } from './execution-analytics.js';
 import { SliceAnalytics } from './slice-analytics.js';
 import { Scheduler } from './scheduler.js';
 import { Metrics } from '../metrics/index.js';
+import { getPackageJSON } from '../../utils/file_utils.js';
 
 export class ExecutionController {
     readonly context: Context;
@@ -1147,7 +1148,7 @@ export class ExecutionController {
                     name: this.context.sysconfig.teraslice.name,
                     node_version: process.version,
                     platform: this.context.platform,
-                    teraslice_version: this.executionContext.config.teraslice_version
+                    teraslice_version: getPackageJSON().version
                 },
                 1
             );

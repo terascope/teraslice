@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { EventEmitter } from 'events';
-import { debugLogger } from '@terascope/job-components';
+import { EventEmitter } from 'node:events';
+import { debugLogger } from '@terascope/utils';
 import Socket from 'socket.io';
 import { nodeMaster } from '../src/lib/cluster/node_master.js';
 

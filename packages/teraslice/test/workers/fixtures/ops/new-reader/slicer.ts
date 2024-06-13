@@ -1,4 +1,5 @@
-import { ParallelSlicer, pDelay, times } from '@terascope/job-components';
+import { ParallelSlicer } from '@terascope/job-components';
+import { pDelay, times } from '@terascope/utils';
 
 export default class ExampleSlicer extends ParallelSlicer {
     async newSlicer(id: number) {

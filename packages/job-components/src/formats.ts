@@ -1,4 +1,4 @@
-import { addFormat, Format, addFormats as nativeAddFormats } from 'convict';
+import pkg from 'convict';
 // @ts-expect-error no types
 import convict_format_with_validator from 'convict-format-with-validator';
 // @ts-expect-error no types
@@ -12,10 +12,12 @@ import {
     toInteger,
 } from '@terascope/utils';
 
+const { addFormat, addFormats: nativeAddFormats } = pkg;
+
 nativeAddFormats(convict_format_with_validator);
 nativeAddFormats(convict_format_with_moment);
 
-export const formats: Format[] = [
+export const formats: pkg.Format[] = [
     {
         name: 'required_String',
         validate(val: unknown) {

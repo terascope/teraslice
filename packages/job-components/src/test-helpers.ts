@@ -1,23 +1,23 @@
-import path from 'path';
-import { EventEmitter } from 'events';
+import path from 'node:path';
+import { EventEmitter } from 'node:events';
+import { Terafoundation } from '@terascope/types';
 import {
     random, isString, getTypeOf,
     isFunction, debugLogger, Logger,
     makeISODate
 } from '@terascope/utils';
-import { Terafoundation as tf } from '@terascope/types';
 import promClient, {
     CollectFunction, Counter, Gauge, Histogram, Summary
 } from 'prom-client';
-import * as i from './interfaces';
+import * as i from './interfaces/index.js';
 
-function newId(prefix: string): string {
-    return `${prefix}-${random(10000, 99999)}`;
+function newId(): number {
+    return random(10000, 99999);
 }
 
 export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     return {
-        slice_id: newId('slice-id'),
+        slice_id: `slice-id-${newId()}`,
         slicer_id: random(0, 99999),
         slicer_order: random(0, 99999),
         request,
@@ -26,7 +26,7 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
 }
 
 export function newTestJobConfig(
-    defaults: Partial<i.JobConfig> = {}
+    defaults: Partial<i.JobConfigParams> = {}
 ): i.ValidatedJobConfig {
     return Object.assign(
         {
@@ -48,77 +48,33 @@ export function newTestJobConfig(
     );
 }
 
-export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.ExecutionConfig {
+export function newTestExecutionConfig(
+    jobConfig: Partial<i.JobConfigParams> = {}
+): i.ExecutionConfig {
     const exConfig = newTestJobConfig(jobConfig) as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
-    exConfig.ex_id = newId('ex-id');
-    exConfig.job_id = newId('job-id');
+    exConfig.ex_id = `ex-id-${newId()}`;
+    exConfig.job_id = `job-id-${newId()}`;
     if (!exConfig.metadata) exConfig.metadata = {};
     return exConfig;
 }
-
-/**
- * Create a new Execution Context
- * @deprecated use the new WorkerExecutionContext and SlicerExecutionContext
- */
-export function newTestExecutionContext(
-    type: i.Assignment,
-    config: i.ExecutionConfig
-): i.LegacyExecutionContext {
-    if (type === 'execution_controller') {
-        return {
-            config,
-            queue: [],
-            reader: null,
-            slicer: () => {},
-            dynamicQueueLength: false,
-            queueLength: 10000,
-        };
-    }
-
-    return {
-        config,
-        queue: config.operations.map(() => () => {}),
-        reader: () => {},
-        slicer: () => {},
-        dynamicQueueLength: false,
-        queueLength: 10000,
-    };
-}
-
 interface ClientFactoryFns {
-    [prop: string]: i.ClientFactoryFn | i.CreateClientFactoryFn;
+    [prop: string]: i.CreateClientFactoryFn;
 }
 
 export interface CachedClients {
     [prop: string]: any;
 }
 
-export interface TestClientConfig {
-    type: string;
-    create?: i.ClientFactoryFn;
-    createClient?: i.CreateClientFactoryFn;
-    config?: Record<string, any>;
-    endpoint?: string;
-}
-
-export interface TestClientsByEndpoint {
-    [endpoint: string]: any;
-}
-
-export interface TestClients {
-    [type: string]: TestClientsByEndpoint;
-}
-
-export interface TestContextAPIs extends i.ContextAPIs {
-    setTestClients(clients: TestClientConfig[]): void;
-    getTestClients(): TestClients;
+export interface TestContextAPIs extends i.ExecutionContextAPIs {
+    setTestClients(clients: i.TestClientConfig[]): void;
+    getTestClients(): i.TestClients;
     scrapePromMetrics(): Promise<string>;
 }
 
 export interface MockPromMetrics {
-    metricList: tf.MetricList;
+    metricList: Terafoundation.MetricList;
     defaultLabels: Record<string, string>;
     prefix: string;
 }
@@ -151,25 +107,9 @@ function setConnectorConfig<T extends Record<string, any>>(
     return connectors[type][endpoint];
 }
 
-function isPromise(p: any): boolean {
-    if (p && typeof p === 'object' && typeof p?.then === 'function') {
-        return true;
-    }
-
-    return false;
-}
-
-export function getLabelKey(labels: Record<string, string>): string {
-    let labelKey = '';
-    for (const [key, value] of Object.entries(labels).sort()) {
-        labelKey += `${key}:${value},`;
-    }
-    return labelKey;
-}
-
 export interface TestContextOptions {
     assignment?: i.Assignment;
-    clients?: TestClientConfig[];
+    clients?: i.TestClientConfig[];
     cluster_manager_type?: i.ClusterManagerType;
 }
 
@@ -179,9 +119,8 @@ const _createClientFns = new WeakMap<TestContext, ClientFactoryFns>();
 export class TestContext implements i.Context {
     logger: Logger;
     sysconfig: i.SysConfig;
-    cluster: i.ContextClusterConfig;
-    apis: TestContextAPIs | i.WorkerContextAPIs | i.ContextAPIs;
-    foundation: i.LegacyFoundationApis;
+    cluster: Terafoundation.Cluster;
+    apis: i.TestContextApis & Terafoundation.ContextAPIs;
     name: string;
     assignment: i.Assignment = 'worker';
     platform: string = process.platform;
@@ -199,20 +138,24 @@ export class TestContext implements i.Context {
         this.logger = logger;
 
         this.cluster = {
+            // @ts-expect-error
             worker: {
-                id: newId('id'),
+                id: newId(),
             },
         };
 
         const sysconfig: i.SysConfig = {
             terafoundation: {
+                workers: 8,
+                environment: 'test',
+                log_path: '',
+                log_level: { console: 'debug' } as any,
+                logging: ['console'],
                 connectors: {
                     'elasticsearch-next': {
                         default: {}
                     },
                 },
-                asset_storage_connection_type: 'elasticsearch-next',
-                asset_storage_connection: 'default',
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
@@ -248,7 +191,7 @@ export class TestContext implements i.Context {
                 worker_disconnect_timeout: 3000,
                 workers: 1,
             },
-            _nodeName: `${newId(testName)}__${this.cluster.worker.id}`,
+            _nodeName: `${testName}-${newId()}__${this?.cluster?.worker?.id}`,
         };
 
         this.sysconfig = sysconfig;
@@ -264,40 +207,7 @@ export class TestContext implements i.Context {
                 makeLogger(...params: any[]): Logger {
                     return logger.child(params[0]);
                 },
-                getConnection(opts: i.ConnectionConfig): { client: any } {
-                    const { cached } = opts;
-
-                    const cachedClients = _cachedClients.get(ctx) || {};
-                    const key = getKey(opts);
-                    if (cached && cachedClients[key] != null) {
-                        return cachedClients[key];
-                    }
-
-                    const clientFns = _createClientFns.get(ctx) || {};
-                    const create = clientFns[key];
-
-                    if (!create) throw new Error(`No client was found for connection "${key}"`);
-                    if (!isFunction(create)) {
-                        const actual = getTypeOf(create);
-                        throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
-                    }
-
-                    const config = setConnectorConfig(sysconfig, opts, {}, false);
-
-                    const client = create(config, logger, opts);
-
-                    if (isPromise(client)) {
-                        throw new Error('Cannot call a sync client creation method using an async function, please use createClient instead');
-                    }
-
-                    if (client) {
-                        cachedClients[key] = client;
-                    }
-
-                    _cachedClients.set(ctx, cachedClients);
-
-                    return client as { client: any };
-                },
+                startWorkers: () => {},
                 async createClient(opts: i.ConnectionConfig) {
                     const { cached } = opts;
 
@@ -329,7 +239,7 @@ export class TestContext implements i.Context {
                     return events;
                 },
                 promMetrics: {
-                    async init(config: tf.PromMetricsInitConfig) {
+                    async init(config: Terafoundation.PromMetricsInitConfig) {
                         const {
                             assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
                             tf_prom_metrics_add_default, tf_prom_metrics_enabled,
@@ -594,10 +504,10 @@ export class TestContext implements i.Context {
             registerAPI(namespace: string, apis: any): void {
                 this[namespace] = apis;
             },
-            setTestClients(clients: TestClientConfig[] = []) {
+            setTestClients(clients: i.TestClientConfig[] = []) {
                 clients.forEach((clientConfig) => {
-                    const { create, createClient, config: connectionConfig = {} } = clientConfig;
-                    const createFN = createClient || create;
+                    const { createClient, config: connectionConfig = {} } = clientConfig;
+                    const createFN = createClient;
                     const clientFns = _createClientFns.get(ctx) || {};
 
                     const key = getKey(clientConfig);
@@ -618,7 +528,7 @@ export class TestContext implements i.Context {
                     setConnectorConfig(ctx.sysconfig, clientConfig, connectionConfig, true);
                 });
             },
-            getTestClients(): TestClients {
+            getTestClients(): i.TestClients {
                 const cachedClients = _cachedClients.get(ctx) || {};
                 const clients = {};
 
@@ -638,14 +548,14 @@ export class TestContext implements i.Context {
                 }
                 return '';
             },
-        } as TestContextAPIs;
+            op_runner: {} as any,
+            assets: {} as any,
+            job_runner: {} as any,
+            executionContext: {} as any
+        } as i.TestContextApis & Terafoundation.ContextAPIs;
 
-        this.foundation = {
-            getConnection: this.apis.foundation.getConnection,
-            getEventEmitter: this.apis.foundation.getSystemEvents,
-            makeLogger: this.apis.foundation.makeLogger,
-        };
-
-        this.apis.setTestClients(options.clients);
+        if (options.clients) {
+            this.apis.setTestClients(options.clients);
+        }
     }
 }

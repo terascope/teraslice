@@ -1,13 +1,14 @@
 import convict from 'convict';
-import { cloneDeep } from '@terascope/utils';
+import { cloneDeep, pMap } from '@terascope/utils';
+import { Teraslice } from '@terascope/types';
 import {
-    Context, OpConfig, JobConfig, ValidatedJobConfig
+    Context, OpConfig, ValidatedJobConfig
 } from './interfaces';
-import { validateJobConfig } from './config-validators';
-import { jobSchema } from './job-schemas';
-import { OperationLoader } from './operation-loader';
-import { registerApis } from './register-apis';
-import { OperationModule } from './operations';
+import { validateJobConfig } from './config-validators.js';
+import { jobSchema } from './job-schemas.js';
+import { OperationLoader } from './operation-loader/index.js';
+import { registerApis } from './register-apis.js';
+import { OperationModule } from './operations/index.js';
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -24,7 +25,9 @@ export class JobValidator {
     }
 
     /** Validate the job configuration, including the Operations and APIs configuration */
-    validateConfig(jobSpec: JobConfig): ValidatedJobConfig {
+    async validateConfig(
+        jobSpec: Partial<Teraslice.JobConfig | Teraslice.JobConfigParams>
+    ): Promise<ValidatedJobConfig> {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
@@ -50,20 +53,26 @@ export class JobValidator {
             return schema.validate(opConfig);
         };
 
-        jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
+        jobConfig.operations = await pMap(jobConfig.operations, async (opConfig, index) => {
             if (index === 0) {
-                return handleModule(opConfig, this.opLoader.loadReader(opConfig._op, assetIds));
+                return handleModule(
+                    opConfig,
+                    await this.opLoader.loadReader(opConfig._op, assetIds)
+                );
             }
 
-            return handleModule(opConfig, this.opLoader.loadProcessor(opConfig._op, assetIds));
+            return handleModule(
+                opConfig,
+                await this.opLoader.loadProcessor(opConfig._op, assetIds)
+            );
         });
 
         validateJobFns.forEach((fn) => { fn(jobConfig); });
 
         validateJobFns = [];
 
-        jobConfig.apis = jobConfig.apis.map((apiConfig) => {
-            const { Schema } = this.opLoader.loadAPI(apiConfig._name, assetIds);
+        jobConfig.apis = await pMap(jobConfig.apis, async (apiConfig) => {
+            const { Schema } = await this.opLoader.loadAPI(apiConfig._name, assetIds);
             const schema = new Schema(this.context, 'api');
 
             validateJobFns.push((job) => {

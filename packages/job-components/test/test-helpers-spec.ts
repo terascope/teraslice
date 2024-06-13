@@ -1,14 +1,10 @@
 import 'jest-extended';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
+import { debugLogger } from '@terascope/utils';
 import {
-    debugLogger,
-    newTestJobConfig,
-    newTestSlice,
-    newTestExecutionContext,
-    newTestExecutionConfig,
+    newTestJobConfig, newTestSlice, newTestExecutionConfig,
     TestContext,
-    getLabelKey,
-} from '../src';
+} from '../src/index.js';
 
 describe('Test Helpers', () => {
     it('should have a debugLogger', async () => {
@@ -64,26 +60,6 @@ describe('Test Helpers', () => {
         expect(slice._created).toBeString();
     });
 
-    it('should have a newTestExecutionContext (ExecutionController)', () => {
-        expect(newTestExecutionConfig).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('execution_controller', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeNull();
-        expect(exContext.slicer).toBeFunction();
-    });
-
-    it('should have a newTestExecutionContext (Worker)', () => {
-        expect(newTestExecutionContext).toBeFunction();
-
-        const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext('worker', exConfig);
-        expect(exContext.config).toEqual(exConfig);
-        expect(exContext.reader).toBeFunction();
-        expect(exContext.slicer).toBeFunction();
-    });
-
     it('should have a TestContext', () => {
         expect(TestContext).toBeTruthy();
         const context = new TestContext('test-name');
@@ -91,29 +67,23 @@ describe('Test Helpers', () => {
         expect(context.sysconfig).toHaveProperty('_nodeName');
         expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
-        expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
-        expect(() => {
-            context.apis.foundation.getConnection({
-                endpoint: 'default',
-                type: 'example',
-            });
-        }).toThrowError('No client was found for connection "example:default"');
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
-        expect(context.apis.foundation.makeLogger('hello')).toBeTruthy();
+        expect(context.apis.foundation.makeLogger({ hello: 'world' })).toBeTruthy();
 
         const api = { there: () => 'peter' };
         expect(context.apis.registerAPI('hello', api)).toBeUndefined();
         expect(context.apis.hello.there()).toEqual('peter');
     });
 
-    it('should be able to get and set clients', () => {
+    it('should be able to get and set clients', async () => {
+        const logger = debugLogger('test-name');
         const context = new TestContext('test-clients', {
             clients: [
                 {
-                    create() {
-                        return { client: 'hello' };
+                    async createClient() {
+                        return { client: 'hello', logger };
                     },
                     type: 'test'
                 }
@@ -122,23 +92,20 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
+        const result = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
-        })).toEqual({ client: 'hello' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'hello'
-                }
-            }
         });
+
+        expect(result).toHaveProperty('client');
+        expect(result).toHaveProperty('logger');
+
+        expect(result.client).toEqual('hello');
 
         context.apis.setTestClients([
             {
-                create() {
-                    return { client: 'howdy' };
+                async createClient() {
+                    return { client: 'howdy', logger };
                 },
                 type: 'test'
             }
@@ -146,40 +113,23 @@ describe('Test Helpers', () => {
 
         expect(context.apis.getTestClients()).toEqual({});
 
-        expect(context.apis.foundation.getConnection({
-            type: 'test',
-            endpoint: 'default'
-        })).toEqual({ client: 'howdy' });
-
-        expect(context.apis.getTestClients()).toEqual({
-            test: {
-                default: {
-                    client: 'howdy'
-                }
-            }
-        });
-    });
-
-    it('should be able to get and set async clients', async () => {
-        const context = new TestContext('test-clients', {
-            clients: [
-                {
-                    async createClient() {
-                        return { client: 'hello' };
-                    },
-                    type: 'test'
-                }
-            ]
-        });
-
-        expect(context.apis.getTestClients()).toEqual({});
-
-        const results = await context.apis.foundation.createClient({
+        const result2 = await context.apis.foundation.createClient({
             type: 'test',
             endpoint: 'default'
         });
 
-        expect(results).toEqual({ client: 'hello' });
+        expect(result2).toHaveProperty('client');
+        expect(result2).toHaveProperty('logger');
+
+        expect(result2.client).toEqual('howdy');
+
+        const results3 = context.apis.getTestClients();
+
+        expect(results3).toHaveProperty('test');
+        expect(results3).toHaveProperty('test.default');
+        expect(results3).toHaveProperty('test.default.client');
+        expect(results3).toHaveProperty('test.default.logger');
+        expect(results3.test.default.client).toEqual('howdy');
     });
 
     describe('MockPromMetrics', () => {
@@ -267,28 +217,6 @@ describe('Test Helpers', () => {
         it('should shutdown', async () => {
             await context.apis.foundation.promMetrics.shutdown();
             expect(context.mockPromMetrics).toBeNull();
-        });
-    });
-
-    describe('getLabelKey', () => {
-        it('should produce the same key with any label order', async () => {
-            const key1 = getLabelKey({
-                arch: 'arm64',
-                clustering_type: 'kubernetes',
-                name: 'worker:test-job',
-                node_version: 'v18.19.1',
-                platform: 'darwin',
-                teraslice_version: '1.4.0',
-            });
-            const key2 = getLabelKey({
-                teraslice_version: '1.4.0',
-                clustering_type: 'kubernetes',
-                platform: 'darwin',
-                name: 'worker:test-job',
-                node_version: 'v18.19.1',
-                arch: 'arm64',
-            });
-            expect(key1).toEqual(key2);
         });
     });
 });

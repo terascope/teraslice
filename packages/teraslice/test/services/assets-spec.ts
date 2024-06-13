@@ -1,5 +1,5 @@
 import { TestContext, TestContextOptions } from '@terascope/job-components';
-import fs from 'fs';
+import fs from 'node:fs';
 import got from 'got';
 import { Logger } from '@terascope/utils';
 import { createClient } from 'elasticsearch-store';
@@ -13,7 +13,10 @@ describe('Assets Service', () => {
         clients: [
             {
                 type: 'elasticsearch-next',
-                createClient,
+                async createClient(customConfig: Record<string, any>, logger: Logger) {
+                    const { client } = await createClient(customConfig, logger);
+                    return { client, logger };
+                },
                 endpoint: 'default'
             },
             {
@@ -30,7 +33,7 @@ describe('Assets Service', () => {
     /// It's important to keep the test context name unique
     /// This is so we don't share indices and buckets with other test suites
     const context = new TestContext(`${TEST_INDEX_PREFIX}assets-spec-test`, contextOptions);
-    context.sysconfig.terafoundation = {
+    context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
         prom_metrics_enabled: false,
         prom_metrics_port: 3333,
         prom_metrics_add_default: true,
@@ -51,7 +54,7 @@ describe('Assets Service', () => {
                 },
             },
         }
-    };
+    });
     context.sysconfig.teraslice.asset_storage_connection_type = 's3';
     context.sysconfig.teraslice.asset_storage_connection = 'default';
     context.sysconfig.teraslice.asset_storage_bucket = 'assets-spec-test-bucket';

@@ -1,11 +1,7 @@
-'use strict';
+import { Slicer } from '../../../dist/src/index.js';
 
-const { Slicer } = require('../../../dist/src');
-
-class SimpleSlicer extends Slicer {
+export default class SimpleSlicer extends Slicer {
     async slice() {
         return { hello: true };
     }
 }
-
-module.exports = SimpleSlicer;

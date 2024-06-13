@@ -1,21 +1,23 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
-    get, set, AnyObject, Logger, isTest, isString
+    get, set, AnyObject,
+    Logger, isTest, isString
 } from '@terascope/utils';
 import {
-    OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext
-} from '../interfaces';
-import { isOperationAPI, getOperationAPIType } from './utils';
-import { Observer, APIConstructor } from '../operations';
-import { JobAPIInstances } from './interfaces';
-import { makeExContextLogger } from '../utils';
+    OpAPI, Context, ExecutionConfig,
+    APIConfig
+} from '../interfaces/index.js';
+import { isOperationAPI, getOperationAPIType } from './utils.js';
+import { Observer, APIConstructor } from '../operations/index.js';
+import { JobAPIInstances } from './interfaces.js';
+import { makeExContextLogger } from '../utils.js';
 
-interface MetadataFns {
+export interface MetadataFns {
     update: (exId: string, metadata: AnyObject) => Promise<void>;
     get: (exId: string) => Promise<AnyObject>;
 }
 
-const _metadataFns = new WeakMap<WorkerContext, MetadataFns>();
+const _metadataFns = new WeakMap<Context, MetadataFns>();
 
 /**
  * A utility API exposed on the Terafoundation Context APIs.
@@ -28,13 +30,13 @@ const _metadataFns = new WeakMap<WorkerContext, MetadataFns>();
  */
 export class ExecutionContextAPI {
     private readonly _apis: JobAPIInstances = {};
-    private readonly _context: WorkerContext;
+    private readonly _context: Context;
     private readonly _events: EventEmitter;
     private readonly _executionConfig: ExecutionConfig;
     private readonly _logger: Logger;
 
     constructor(context: Context, executionConfig: ExecutionConfig) {
-        this._context = context as WorkerContext;
+        this._context = context;
         this._events = context.apis.foundation.getSystemEvents();
         this._executionConfig = executionConfig;
         this._logger = this.makeLogger('execution_context_api');

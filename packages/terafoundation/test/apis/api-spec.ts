@@ -1,5 +1,5 @@
 import 'jest-extended';
-import api from '../../src/api';
+import api from '../../src/api/index.js';
 
 describe('apis module', () => {
     const context = {
@@ -42,22 +42,9 @@ describe('apis module', () => {
         }).toThrowError('Registration of API endpoints for module testapi can only occur once');
     });
 
-    it('deprecated terafoundation api endpoints should exist', () => {
-        expect(context.foundation.makeLogger).toBeDefined();
-        expect(context.foundation.getEventEmitter).toBeDefined();
-        expect(context.foundation.getConnection).toBeDefined();
-        expect(context.foundation.startWorkers).toBeDefined();
-
-        expect(typeof context.foundation.makeLogger).toBe('function');
-        expect(typeof context.foundation.getEventEmitter).toBe('function');
-        expect(typeof context.foundation.getConnection).toBe('function');
-        expect(typeof context.foundation.startWorkers).toBe('function');
-    });
-
     it('updated terafoundation api endpoints should exist', () => {
         expect(context.apis.foundation.makeLogger).toBeDefined();
         expect(context.apis.foundation.getSystemEvents).toBeDefined();
-        expect(context.apis.foundation.getConnection).toBeDefined();
         expect(context.apis.foundation.startWorkers).toBeDefined();
         expect(context.apis.foundation.createClient).toBeDefined();
         expect(context.apis.foundation.promMetrics).toBeDefined();
@@ -78,7 +65,6 @@ describe('apis module', () => {
 
         expect(typeof context.apis.foundation.makeLogger).toBe('function');
         expect(typeof context.apis.foundation.getSystemEvents).toBe('function');
-        expect(typeof context.apis.foundation.getConnection).toBe('function');
         expect(typeof context.apis.foundation.startWorkers).toBe('function');
         expect(typeof context.apis.foundation.createClient).toBe('function');
         expect(typeof context.apis.foundation.promMetrics).toBe('object');

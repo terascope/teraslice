@@ -1,13 +1,14 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import { Schema } from 'convict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { logLevels } from '@terascope/utils';
 import {
-    jobSchema,
-    validateJobConfig,
-    validateOpConfig,
-    TestContext,
-    validateAPIConfig,
-    logLevels
-} from '../src';
+    jobSchema, validateJobConfig, validateOpConfig,
+    TestContext, validateAPIConfig,
+} from '../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -46,7 +47,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid op', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -57,7 +58,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 
@@ -80,7 +81,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid operations', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -91,7 +92,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
             const schema = jobSchema(context);
@@ -108,8 +109,8 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known operation connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.teraslice.assets_directory = [__dirname];
-            context.sysconfig.terafoundation = {
+            context.sysconfig.teraslice.assets_directory = [dirname];
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -120,7 +121,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 
@@ -147,7 +148,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with an invalid api', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -158,7 +159,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 
@@ -184,7 +185,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without api _name', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -195,7 +196,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 
@@ -220,7 +221,7 @@ describe('when using native clustering', () => {
     describe('when passed a job with duplicate api names', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -231,7 +232,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 
@@ -263,7 +264,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known api connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.terafoundation = {
+            context.sysconfig.terafoundation = Object.assign(context.sysconfig.terafoundation, {
                 connectors: {
                     elasticsearch: {
                         t1: {
@@ -274,7 +275,7 @@ describe('when using native clustering', () => {
                 prom_metrics_enabled: false,
                 prom_metrics_port: 3333,
                 prom_metrics_add_default: true,
-            };
+            });
             context.sysconfig.teraslice.asset_storage_connection_type = 'elasticsearch-next';
             context.sysconfig.teraslice.asset_storage_connection = 'default';
 

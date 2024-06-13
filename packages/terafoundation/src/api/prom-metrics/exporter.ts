@@ -1,6 +1,6 @@
 import promClient from 'prom-client';
 import express, { Request, Response } from 'express';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { Logger } from '@terascope/utils';
 import { Terafoundation as tf } from '@terascope/types';
 

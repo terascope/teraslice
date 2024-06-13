@@ -1,5 +1,6 @@
 import {
-    Logger, TSError, isTest, logError, pDelay, pWhile, random
+    Logger, TSError, isTest,
+    logError, pDelay, pWhile, random
 } from '@terascope/utils';
 import { Context, TerafoundationConfig } from '@terascope/job-components';
 import {
@@ -13,6 +14,7 @@ import {
     S3Client,
     s3RequestWithRetry
 } from '@terascope/file-asset-apis';
+import {} from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 
 export interface TerasliceS3StorageConfig {

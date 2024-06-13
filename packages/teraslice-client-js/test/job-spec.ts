@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import Job from '../src/job';
+import Job from '../src/job.js';
 
 describe('Teraslice Job', () => {
     let scope: nock.Scope;
@@ -76,7 +76,7 @@ describe('Teraslice Job', () => {
     };
     const date = new Date().toISOString();
 
-    const executionResults: Teraslice.ExecutionRecord[] = [
+    const executionResults: Teraslice.ExecutionConfig[] = [
         {
             active: true,
             analytics: false,
@@ -308,7 +308,7 @@ describe('Teraslice Job', () => {
 
     describe('->update', () => {
         describe('when updating the whole config', () => {
-            const body: Teraslice.JobRecord = {
+            const body: Teraslice.JobConfig = {
                 name: 'hello',
                 apis: [],
                 operations: [],
@@ -343,7 +343,7 @@ describe('Teraslice Job', () => {
 
     describe('->updatePartial', () => {
         describe('when updating a partial config', () => {
-            const body: Teraslice.JobRecord = {
+            const body: Teraslice.JobConfig = {
                 name: 'hello',
                 apis: [],
                 operations: [],

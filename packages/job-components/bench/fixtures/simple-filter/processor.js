@@ -1,11 +1,7 @@
-'use strict';
+import { FilterProcessor } from '../../../dist/src/index.js';
 
-const { FilterProcessor } = require('../../../dist/src');
-
-class SimpleFilter extends FilterProcessor {
+export default class SimpleFilter extends FilterProcessor {
     filter(data) {
         return data.filterMe;
     }
 }
-
-module.exports = SimpleFilter;

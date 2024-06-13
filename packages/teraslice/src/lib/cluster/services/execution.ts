@@ -7,7 +7,7 @@ import {
 } from '@terascope/utils';
 import type { RecoveryCleanupType } from '@terascope/job-components';
 import { ClusterMaster } from '@terascope/teraslice-messaging';
-import { ExecutionRecord, JobRecord } from '@terascope/types';
+import { ExecutionConfig, JobConfig } from '@terascope/types';
 import type { ExecutionStorage, StateStorage } from '../../storage/index.js';
 import type {
     ClusterMasterContext, NodeState, ExecutionNodeWorker,
@@ -34,7 +34,7 @@ import { StopExecutionOptions } from './interfaces.js';
 
 export class ExecutionService {
     logger: Logger;
-    pendingExecutionQueue = new Queue<ExecutionRecord>();
+    pendingExecutionQueue = new Queue<ExecutionConfig>();
     isNative: boolean;
     context: ClusterMasterContext;
     clusterMasterServer: ClusterMaster.Server;
@@ -81,7 +81,7 @@ export class ExecutionService {
         // in the background
         await this.reapExecutions();
 
-        const pending = await executionStorage.search('_status:pending', undefined, 10000, '_created:asc') as ExecutionRecord[];
+        const pending = await executionStorage.search('_status:pending', undefined, 10000, '_created:asc') as ExecutionConfig[];
         for (const execution of pending) {
             this.logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
             this.enqueue(execution);
@@ -103,7 +103,7 @@ export class ExecutionService {
         );
     }
 
-    enqueue(ex: ExecutionRecord) {
+    enqueue(ex: ExecutionConfig) {
         const size = this.pendingExecutionQueue.size();
         this.logger.debug(ex, `enqueueing execution to be processed (queue size ${size})`);
         this.pendingExecutionQueue.enqueue(cloneDeep(ex));
@@ -158,7 +158,7 @@ export class ExecutionService {
         this.reapInterval = undefined;
 
         const query = this.executionStorage.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
-        const executions = await this.executionStorage.search(query) as ExecutionRecord[];
+        const executions = await this.executionStorage.search(query) as ExecutionConfig[];
 
         await Promise.all(executions.map(async (execution) => {
             if (!this.isNative) return;
@@ -210,7 +210,7 @@ export class ExecutionService {
      * @param {import('@terascope/job-components').ExecutionConfig} execution
      * @returns {boolean}
     */
-    isExecutionTerminal(execution: ExecutionRecord) {
+    isExecutionTerminal(execution: ExecutionConfig) {
         const terminalList = this.executionStorage.getTerminalStatuses();
         return terminalList.find((tStat) => tStat === execution._status) != null;
     }
@@ -360,16 +360,16 @@ export class ExecutionService {
     /**
      * Create a new execution context
      *
-     * @param {string|import('@terascope/job-components').JobConfig} job
+     * @param {string|import('@terascope/job-components').JobConfigParams} job
      * @return {Promise<NewExecutionResult>}
     */
-    async createExecutionContext(job: JobRecord) {
+    async createExecutionContext(job: JobConfig) {
         const ex = await this.executionStorage.create(job);
         this.enqueue(ex);
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
-    async getExecutionContext(exId: string): Promise<ExecutionRecord> {
+    async getExecutionContext(exId: string): Promise<ExecutionConfig> {
         try {
             const record = this.executionStorage.get(exId);
             if (!record) {
@@ -389,7 +389,7 @@ export class ExecutionService {
             query = `ex_id:"${exId}" AND (${query.trim()})`;
         }
 
-        const exs = await this.executionStorage.search(query, undefined, undefined, '_created:desc') as ExecutionRecord[];
+        const exs = await this.executionStorage.search(query, undefined, undefined, '_created:desc') as ExecutionConfig[];
         return exs.map((ex) => ex.ex_id);
     }
 
@@ -401,12 +401,12 @@ export class ExecutionService {
      * @return {Promise<NewExecutionResult>}
     */
     async recoverExecution(
-        exIdOrEx: string | ExecutionRecord,
+        exIdOrEx: string | ExecutionConfig,
         cleanupType?: RecoveryCleanupType
     ) {
         const recoverFromEx = isString(exIdOrEx)
             ? await this.getExecutionContext(exIdOrEx)
-            : cloneDeep(exIdOrEx) as ExecutionRecord;
+            : cloneDeep(exIdOrEx) as ExecutionConfig;
 
         if (!recoverFromEx) {
             throw new Error(`Could not find execution: ${exIdOrEx} to recover from`);
@@ -427,13 +427,12 @@ export class ExecutionService {
             if (!canAllocate) return;
 
             allocatingExecution = true;
-            let execution = this.pendingExecutionQueue.dequeue() as ExecutionRecord;
+            let execution = this.pendingExecutionQueue.dequeue() as ExecutionConfig;
 
             this.logger.info(`Scheduling execution: ${execution.ex_id}`);
 
             try {
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'scheduling');
-                // @ts-expect-error TODO: figure this out
                 execution = await this.clusterService.allocateSlicer(execution);
 
                 execution = await this.executionStorage.setStatus(execution.ex_id, 'initializing', {
@@ -442,7 +441,6 @@ export class ExecutionService {
                 });
 
                 try {
-                    // @ts-expect-error TODO: figure this out
                     await this.clusterService.allocateWorkers(execution, execution.workers);
                 } catch (err) {
                     throw new TSError(err, {
@@ -494,7 +492,7 @@ export class ExecutionService {
             // sometimes in development an execution gets stuck in stopping
             // status since the process gets force killed in before it
             // can be updated to stopped.
-            const stopping = await this.executionStorage.search('_status:stopping') as ExecutionRecord[];
+            const stopping = await this.executionStorage.search('_status:stopping') as ExecutionConfig[];
 
             for (const execution of stopping) {
                 const updatedAt = new Date(execution._updated).getTime();

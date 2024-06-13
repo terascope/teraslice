@@ -1,4 +1,4 @@
-export = class SimpleClient {
+export default class SimpleClient {
     fetchRecord(id: number): { id: number, data: number[] } {
         return {
             id,
@@ -19,4 +19,4 @@ export = class SimpleClient {
     isFinished(): boolean {
         return false;
     }
-};
+}

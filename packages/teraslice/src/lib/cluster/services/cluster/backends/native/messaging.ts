@@ -159,7 +159,6 @@ export class Messaging {
     }
 
     private _findAndSend(filterFn: any, msg: any, msgHookFn?: any) {
-        // @ts-expect-error
         const childProcesses = this.context.cluster.workers as any;
         const children = _.filter(childProcesses, filterFn);
         if (children.length === 0 && msg.response) {

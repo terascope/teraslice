@@ -5,12 +5,15 @@
 import fs from 'node:fs';
 import nock from 'nock';
 import path from 'node:path';
-import { debugLogger } from '@terascope/job-components';
+import { fileURLToPath } from 'node:url';
+import { debugLogger } from '@terascope/utils';
 import { K8s } from '../../../../../../../src/lib/cluster/services/cluster/backends/kubernetes/k8s.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const logger = debugLogger('k8s-spec');
 
-const swaggerFile = path.join(__dirname, 'files', 'swagger.json');
+const swaggerFile = path.join(dirname, 'files', 'swagger.json');
 
 const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';

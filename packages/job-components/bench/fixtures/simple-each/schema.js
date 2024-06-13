@@ -1,11 +1,7 @@
-'use strict';
+import { ConvictSchema } from '../../../dist/src/index.js';
 
-const { ConvictSchema } = require('../../../dist/src');
-
-class Schema extends ConvictSchema {
+export default class Schema extends ConvictSchema {
     build() {
         return {};
     }
 }
-
-module.exports = Schema;

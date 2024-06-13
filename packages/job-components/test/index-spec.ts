@@ -1,5 +1,5 @@
-import 'jest-extended'; // require for type definitions
-import * as index from '../src/index';
+import 'jest-extended';
+import * as index from '../src/index.js';
 
 describe('Job Components Exports', () => {
     it('should be truthy', () => {

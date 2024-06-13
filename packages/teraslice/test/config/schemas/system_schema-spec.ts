@@ -1,7 +1,15 @@
 import convict from 'convict';
+// @ts-expect-error no types
+import convict_format_with_validator from 'convict-format-with-validator';
+// @ts-expect-error no types
+import convict_format_with_moment from 'convict-format-with-moment';
+import { formats } from '@terascope/job-components';
 import { config_schema } from '../../../src/lib/config/schemas/system.js';
 // load any convict schema
-import('@terascope/job-components');
+
+convict.addFormats(convict_format_with_validator);
+convict.addFormats(convict_format_with_moment);
+formats.forEach((format) => convict.addFormat(format));
 
 describe('system_schema', () => {
     const schema = config_schema().schema.teraslice;

@@ -1,4 +1,4 @@
-import { Context, OpConfig, ValidatedJobConfig } from '../../interfaces';
+import { Context, OpConfig, ValidatedJobConfig } from '../../interfaces/index.js';
 
 /**
  * A base class for supporting "Schema" definition

@@ -1,7 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext
-} from '../../src';
+    MapProcessor, newTestExecutionConfig, TestContext,
+    Context
+} from '../../src/index.js';
 
 describe('MapProcessor', () => {
     class ExampleProcessor extends MapProcessor<Record<string, any>> {
@@ -20,7 +22,7 @@ describe('MapProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleProcessor(context as Context, opConfig, exConfig);
     });
 
     describe('->map', () => {

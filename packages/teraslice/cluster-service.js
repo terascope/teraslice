@@ -41,7 +41,7 @@ class Service {
 }
 
 async function main() {
-    const context = makeTerafoundationContext();
+    const context = await makeTerafoundationContext();
     const cmd = new Service(context);
 
     cmd.shutdownHandler = shutdownHandler(context, () => {

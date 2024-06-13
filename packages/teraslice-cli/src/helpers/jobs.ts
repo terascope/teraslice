@@ -75,7 +75,7 @@ export default class Jobs {
         return this.jobs;
     }
 
-    async submitJobConfig(jobConfig: Teraslice.JobConfig) {
+    async submitJobConfig(jobConfig: Teraslice.JobConfigParams) {
         try {
             return this.teraslice.client.jobs.submit(jobConfig, true);
         } catch (e) {
@@ -240,7 +240,7 @@ export default class Jobs {
 
     private async getJobState(
         job: JobMetadata
-    ): Promise<[Teraslice.ExecutionRecord, Teraslice.ExecutionList]> {
+    ): Promise<[Teraslice.ExecutionConfig, Teraslice.ExecutionList]> {
         try {
             return Promise.all([job.api.execution(), job.api.controller()]);
         } catch (e) {

@@ -7,12 +7,10 @@ import { makeExecutionContext } from './dist/src/lib/workers/context/execution-c
 import { makeTerafoundationContext } from './dist/src/lib/workers/context/terafoundation-context.js';
 import { ExecutionController } from './dist/src/lib/workers/execution-controller/index.js';
 import { Worker } from './dist/src/lib/workers/worker/index.js';
-import { getPackageJSON } from './dist/src/lib/utils/file_utils.js';
 
 class Service {
     constructor(context) {
         this.executionConfig = this._getExecutionConfigFromEnv();
-        this.executionConfig.teraslice_version = getPackageJSON().version;
         this.context = context;
 
         this.logger = this.context.logger;
@@ -69,16 +67,22 @@ class Service {
     }
 }
 
-const context = makeTerafoundationContext();
-const cmd = new Service(context);
+async function main() {
+    const context = await makeTerafoundationContext();
+    const cmd = new Service(context);
 
-cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
-    if (!cmd.instance) return Promise.resolve();
-    return cmd.instance.shutdown(true, event, err);
-});
+    cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
+        if (!cmd.instance) return Promise.resolve();
+        return cmd.instance.shutdown(true, event, err);
+    });
 
-Promise.resolve()
-    .then(() => cmd.initialize())
-    .then(() => cmd.run())
-    .then(() => cmd.shutdown())
-    .catch((err) => cmd.shutdown(err));
+    try {
+        await cmd.initialize();
+        await cmd.run();
+        await cmd.shutdown();
+    } catch (err) {
+        cmd.shutdown(err);
+    }
+}
+
+main();

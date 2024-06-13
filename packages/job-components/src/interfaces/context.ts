@@ -1,131 +1,5 @@
-import { EventEmitter } from 'events';
-import { Logger } from '@terascope/utils';
-import { Terafoundation as tf } from '@terascope/types';
-import { OpConfig } from './jobs';
+import type { Teraslice, Terafoundation } from '@terascope/types';
 import { ExecutionContextAPI } from '../execution-context';
-
-export interface ClusterStateConfig {
-    connection: string|'default';
-}
-
-export type RolloverFrequency = 'daily'|'montly'|'yearly';
-
-export interface IndexRolloverFrequency {
-    state: RolloverFrequency;
-    analytics: RolloverFrequency;
-}
-
-export type ClusterManagerType = 'native'|'kubernetes';
-
-export interface TerasliceConfig {
-    action_timeout: number|300000;
-    analytics_rate: number|60000;
-    api_response_timeout?: number|300000;
-    assets_directory?: string[] | string;
-    asset_storage_connection_type?: string;
-    asset_storage_connection?: string;
-    asset_storage_bucket?: string;
-    assets_volume?: string;
-    cluster_manager_type: ClusterManagerType;
-    /** This will only be available in the context of k8s */
-    cpu?: number;
-    /** This will only be available in the context of k8s */
-    cpu_execution_controller?: number|0.5;
-    /** This will only be available in the context of k8s */
-    ephemeral_storage?: boolean|false;
-    execution_controller_targets?: ExecutionControllerTargets[];
-    hostname: string;
-    index_rollover_frequency: IndexRolloverFrequency;
-    kubernetes_api_poll_delay?: number|1000;
-    kubernetes_config_map_name?: string|'teraslice-worker';
-    kubernetes_image_pull_secret?: string|'';
-    kubernetes_image?: string|'terascope/teraslice';
-    kubernetes_namespace?: string|'default';
-    kubernetes_overrides_enabled?: boolean|false;
-    kubernetes_priority_class_name?: string|'';
-    kubernetes_worker_antiaffinity?: boolean|false;
-    master_hostname: string|'localhost';
-    master: boolean|false;
-    /** This will only be available in the context of k8s */
-    memory?: number;
-    /** This will only be available in the context of k8s */
-    memory_execution_controller?: number|512000000; // 512 MB
-    name: string|'teracluster';
-    network_latency_buffer: number|15000;
-    node_disconnect_timeout: number|300000;
-    node_state_interval: number|5000;
-    port: number|5678;
-    shutdown_timeout: number|number;
-    slicer_allocation_attempts: number|3;
-    slicer_port_range: string|'45679:46678';
-    slicer_timeout: number|180000;
-    state: ClusterStateConfig;
-    env_vars: { [key: string]: string };
-    worker_disconnect_timeout: number|300000;
-    workers: number|4;
-}
-
-export interface TerafoundationConfig {
-    connectors: Record<string, any>;
-    asset_storage_connection_type?: string;
-    asset_storage_connection?: string;
-    asset_storage_bucket?: string;
-    prom_metrics_enabled: boolean;
-    prom_metrics_port: number;
-    prom_metrics_add_default: boolean;
-}
-
-export interface SysConfig {
-    terafoundation: TerafoundationConfig;
-    teraslice: TerasliceConfig;
-    _nodeName: string;
-}
-
-export interface ConnectionConfig {
-    endpoint: string;
-    cached?: boolean;
-    type: string;
-}
-
-export type ClientFactoryFn = (
-    config: Record<string, any>,
-    logger: Logger,
-    options: ConnectionConfig
-) => { client: any };
-
-export type CreateClientFactoryFn = (
-    config: Record<string, any>,
-    logger: Logger,
-    options: ConnectionConfig
-) => Promise<{ client: any }>;
-
-export interface ExecutionControllerTargets {
-    key: string;
-    value: string;
-}
-
-export interface FoundationApis {
-    makeLogger(...params: any[]): Logger;
-    getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    promMetrics: tf.PromMetrics;
-}
-
-export interface LegacyFoundationApis {
-    makeLogger(...params: any[]): Logger;
-    getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-}
-
-export interface ContextApis {
-    readonly foundation: FoundationApis;
-    registerAPI(namespace: string, apis: any): void;
-    [namespace: string]: any;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ContextAPIs extends ContextApis {}
 
 export interface GetClientConfig {
     connection?: string;
@@ -140,13 +14,12 @@ export interface GetClientConfig {
 * it will log it and emit `client:initialization:error`
 */
 export interface OpRunnerAPI {
-    getClient(config: GetClientConfig, type: string): any;
-    getClientAsync(config: GetClientConfig, type: string): Promise<any>;
+    getClient(config: GetClientConfig, type: string): Promise<any>;
 }
 
 export interface JobRunnerAPI {
     /** Get the first opConfig from an operation name */
-    getOpConfig(name: string): OpConfig|undefined;
+    getOpConfig(name: string): Teraslice.OpConfig|undefined;
 }
 
 export interface AssetsAPI {
@@ -155,11 +28,11 @@ export interface AssetsAPI {
 }
 
 /**
- * WorkerContext includes the type definitions for
+ * Context includes the type definitions for
  * the APIs available to Worker or Slicer.
  * This extends the Terafoundation Context.
 */
-export interface WorkerContextAPIs extends ContextAPIs {
+export interface ExecutionContextAPIs {
     /**
      * Includes an API for getting a client from Terafoundation
     */
@@ -178,27 +51,30 @@ export interface WorkerContextAPIs extends ContextAPIs {
     executionContext: ExecutionContextAPI;
 }
 
-export interface WorkerContext extends Context {
-    apis: WorkerContextAPIs;
-    assignment: 'execution_controller'|'worker';
+export interface Context extends Terafoundation.Context<Teraslice.SysConfig, ExecutionContextAPIs> {
+    assignment: Teraslice.Assignment
 }
 
-export interface Context {
-    apis: ContextAPIs;
-    arch: string;
-    assignment: Assignment;
-    foundation: LegacyFoundationApis;
-    logger: Logger;
-    name: string;
-    platform: string;
-    sysconfig: SysConfig;
-    cluster: ContextClusterConfig;
+export interface TestClientConfig {
+    type: string;
+    createClient?: Terafoundation.CreateClientFactoryFn;
+    config?: Record<string, any>;
+    endpoint?: string;
 }
 
-export interface ContextClusterConfig {
-    worker: {
-        id: string;
-    };
+export interface TestContextApis extends ExecutionContextAPIs {
+    setTestClients(clients: TestClientConfig[]): void;
+    getTestClients(): TestClients;
 }
 
-export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';
+export interface TestClients {
+    [type: string]: TestClientsByEndpoint;
+}
+
+export interface TestClientsByEndpoint {
+    [endpoint: string]: any;
+}
+
+export interface TestContextType extends Terafoundation.Context<
+Teraslice.SysConfig, TestContextApis> {
+}

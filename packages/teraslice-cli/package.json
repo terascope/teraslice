@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "1.6.1",
+    "version": "2.0.0",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -50,7 +50,6 @@
         "fs-extra": "^11.2.0",
         "glob": "^8.0.3",
         "glob-promise": "5.0.0",
-        "got": "^11.8.3",
         "js-yaml": "^4.1.0",
         "pretty-bytes": "^5.6.0",
         "prompts": "^2.4.2",
@@ -91,7 +90,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "cli",
+        "testSuite": "unit-esm",
         "enableTypedoc": true
     }
 }

@@ -1,20 +1,21 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
-    isFunction, cloneDeep, pMap, Logger, toHumanTime
+    isFunction, cloneDeep, pMap,
+    Logger, toHumanTime
 } from '@terascope/utils';
-import { OperationLoader } from '../operation-loader';
-import { registerApis } from '../register-apis';
-import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
-import { EventHandlers, ExecutionContextConfig } from './interfaces';
-import { ExecutionContextAPI } from './api';
-import { isPromAvailable } from '../utils';
+import { OperationLoader } from '../operation-loader/index.js';
+import { registerApis } from '../register-apis.js';
+import { ExecutionConfig, Context, OperationLifeCycle } from '../interfaces/index.js';
+import { EventHandlers, ExecutionContextConfig } from './interfaces.js';
+import { ExecutionContextAPI } from './api.js';
+import { isPromAvailable } from '../utils.js';
 
 /**
  * A base class for an Execution Context
  */
 export default class BaseExecutionContext<T extends OperationLifeCycle> {
     readonly config: ExecutionConfig;
-    readonly context: WorkerContext;
+    readonly context: Context;
 
     readonly assetIds: string[] = [];
 
@@ -48,7 +49,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         });
 
         registerApis(config.context, executionConfig, config.assetIds);
-        this.context = config.context as WorkerContext;
+        this.context = config.context as Context;
 
         this.assetIds = config.assetIds || [];
 

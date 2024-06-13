@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "1.8.0",
+    "version": "2.0.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -83,7 +83,7 @@
                 "search": [],
                 "restrained": [],
                 "unit": [],
-                "cli": [],
+                "unit-esm": [],
                 "_for_testing_": [
                     "elasticsearch"
                 ],

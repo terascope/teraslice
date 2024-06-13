@@ -15,7 +15,7 @@ export interface GithubAssetConfig {
 export interface JobMetadata {
     id: string;
     api: Job;
-    config: Teraslice.JobRecord;
+    config: Teraslice.JobConfig;
     status: Teraslice.ExecutionStatus | RegisteredStatus;
 }
 
@@ -25,7 +25,7 @@ export interface StatusUpdate {
     errorMessage?: string;
 }
 
-export interface JobConfigFile extends Teraslice.JobConfig {
+export interface JobConfigFile extends Teraslice.JobConfigParams {
     __metadata: {
         cli: {
             cluster: string;

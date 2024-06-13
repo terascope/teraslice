@@ -1,15 +1,11 @@
 /* eslint-disable max-classes-per-file */
-
-import 'jest-extended'; // require for type definitions
-import OperationCore from '../../../src/operations/core/operation-core';
+import 'jest-extended';
+import { jest } from '@jest/globals';
+import OperationCore from '../../../src/operations/core/operation-core.js';
 import {
-    OperationAPI,
-    ExecutionContextAPI,
-    OpAPIFn,
-    TestContext,
-    WorkerContext,
-    newTestExecutionConfig
-} from '../../../src';
+    OperationAPI, ExecutionContextAPI, OpAPIFn,
+    TestContext, Context, newTestExecutionConfig
+} from '../../../src/index.js';
 
 describe('OperationCore', () => {
     class HelloAPI extends OperationAPI {
@@ -31,7 +27,7 @@ describe('OperationCore', () => {
         exContextApi.addToRegistry('hello', HelloAPI);
         context.apis.registerAPI('executionContext', exContextApi);
 
-        operation = new OperationCore(context as WorkerContext, opConfig, exConfig);
+        operation = new OperationCore(context as Context, opConfig, exConfig);
     });
 
     describe('->initialize', () => {
@@ -102,6 +98,7 @@ describe('OperationCore', () => {
             beforeAll(() => {
                 ogError = operation.logger.error;
                 operation.deadLetterAction = 'log';
+                // @ts-expect-error
                 operation.logger.error = jest.fn();
             });
 
@@ -182,6 +179,7 @@ describe('OperationCore', () => {
         let ogReject: any;
         beforeEach(() => {
             ogReject = operation.rejectRecord;
+            // @ts-expect-error
             operation.rejectRecord = jest.fn();
         });
 

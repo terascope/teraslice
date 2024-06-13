@@ -6,7 +6,7 @@ import {
     get, random, isInteger, Logger
 } from '@terascope/utils';
 import elasticsearchApi from '@terascope/elasticsearch-api';
-import { getClientAsync, Context } from '@terascope/job-components';
+import { getClient, Context } from '@terascope/job-components';
 import { ClientParams } from '@terascope/types';
 import { makeLogger } from '../../workers/helpers/terafoundation.js';
 import { timeseriesIndex } from '../../utils/date_utils.js';
@@ -165,10 +165,6 @@ export class TerasliceElasticsearchStorage {
         }
 
         const { connection } = config.state;
-        // TODO: write a ticket on this
-        // if (config.state.endpoint) {
-        //     connection += `:${config.state.endpoint}`;
-        // }
 
         const options = {
             full_response: !!this.options.fullResponse,
@@ -177,7 +173,7 @@ export class TerasliceElasticsearchStorage {
 
         await pWhile(async () => {
             try {
-                const client = await getClientAsync(this.context, connectionConfig, 'elasticsearch-next');
+                const client = await getClient(this.context, connectionConfig, 'elasticsearch-next');
 
                 this.api = elasticsearchApi(client, this.logger, options);
                 await this._createIndex(newIndex);

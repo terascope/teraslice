@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Teraslice } from '@terascope/types';
-import Ex from '../src/ex';
+import Ex from '../src/ex.js';
 
 describe('Teraslice Ex', () => {
     let scope: nock.Scope;

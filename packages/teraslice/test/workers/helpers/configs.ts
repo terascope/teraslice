@@ -1,4 +1,5 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import Chance from 'chance';
 import pickBy from 'lodash/pickBy';
@@ -6,8 +7,9 @@ import { ValidatedJobConfig } from '@terascope/types';
 import { newId } from '../../../src/lib/utils/id_utils.js';
 
 const { SEARCH_TEST_HOST } = process.env;
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
+const opsPath = path.join(dirname, '..', 'fixtures', 'ops');
 
 const chance = new Chance();
 

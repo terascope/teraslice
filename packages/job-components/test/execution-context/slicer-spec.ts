@@ -1,15 +1,16 @@
 import 'jest-extended';
-import path from 'path';
-import { terasliceOpPath } from '../helpers';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { terasliceOpPath } from '../helpers/index.js';
 import {
-    SlicerExecutionContext,
-    TestContext,
-    newTestExecutionConfig
-} from '../../src';
+    SlicerExecutionContext, TestContext, newTestExecutionConfig
+} from '../../src/index.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('SlicerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname, '..');
+    const assetDir = path.join(dirname, '..');
     const executionConfig = newTestExecutionConfig();
     executionConfig.operations = [
         {
@@ -23,15 +24,17 @@ describe('SlicerExecutionContext', () => {
     describe('when constructed', () => {
         const context = new TestContext('slicer-execution-context');
         context.sysconfig.teraslice.assets_directory = assetDir;
+        let executionContext: SlicerExecutionContext;
 
-        const executionContext = new SlicerExecutionContext({
-            context,
-            executionConfig,
-            assetIds,
-            terasliceOpPath,
+        beforeAll(async () => {
+            executionContext = await SlicerExecutionContext.createContext({
+                context,
+                executionConfig,
+                assetIds,
+                terasliceOpPath,
+            });
+            await executionContext.initialize();
         });
-
-        beforeAll(() => executionContext.initialize());
 
         afterAll(() => executionContext.shutdown());
 

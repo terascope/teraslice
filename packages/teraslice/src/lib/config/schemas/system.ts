@@ -1,5 +1,5 @@
 import ip from 'ip';
-import path from 'path';
+import path from 'node:path';
 import { Terafoundation, Teraslice } from '@terascope/types';
 import {
     isPlainObject, isString, isArray,
@@ -324,12 +324,12 @@ export const schema = {
     },
     asset_storage_connection_type: {
         doc: 'Name of the connection type used to store assets',
-        default: undefined,
+        default: DEFAULT_ASSET_STORAGE_CONNECTION_TYPE,
         format: String
     },
     asset_storage_connection: {
         doc: 'Name of the connection used to store assets.',
-        default: undefined,
+        default: 'default',
         format: String
     },
     asset_storage_bucket: {
@@ -343,10 +343,10 @@ export function configSchema() {
     return {
         schema: { teraslice: schema },
         validatorFn: (
-            subconfig: Teraslice.Config,
+            config: Teraslice.Config,
             sysconfig: Terafoundation.SysConfig<Teraslice.Config>
         ) => {
-            const connectionType = subconfig.asset_storage_connection_type
+            const connectionType = config.asset_storage_connection_type
                 || DEFAULT_ASSET_STORAGE_CONNECTION_TYPE;
             const connectionTypesPresent = Object.keys(sysconfig.terafoundation.connectors);
             const validConnectionTypes = ['elasticsearch-next', 's3'];
@@ -356,6 +356,7 @@ export function configSchema() {
                 .includes(connectionType)) {
                 throw new Error(`Invalid asset_storage_connection_type. Valid types: ${validConnectionTypes.toString()}`);
             }
+
             if (!connectionTypesPresent
                 .includes(connectionType)) {
                 throw new Error('asset_storage_connection_type not found in terafoundation.connectors');
@@ -367,14 +368,14 @@ export function configSchema() {
             /// Exclude elasticsearch as this connection type does not utilize this value
             if (
                 connectionType !== 'elasticsearch-next'
-                && subconfig.asset_storage_connection
-                && !connectionsPresent.includes(subconfig.asset_storage_connection)
+                && config.asset_storage_connection
+                && !connectionsPresent.includes(config.asset_storage_connection)
             ) {
-                throw new Error(`${subconfig.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
+                throw new Error(`${config.asset_storage_connection} not found in terafoundation.connectors.${connectionType}`);
             }
 
             // checks on asset_storage_bucket
-            if (subconfig.asset_storage_bucket && connectionType !== 's3') {
+            if (config.asset_storage_bucket && connectionType !== 's3') {
                 throw new Error('asset_storage_bucket can only be used if asset_storage_connection_type is set to "s3"');
             }
             // TODO: add regex to check if valid bucket name

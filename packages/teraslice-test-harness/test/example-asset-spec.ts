@@ -1,29 +1,30 @@
 import 'jest-extended';
-import path from 'path';
-import { DataEntity, TestClientConfig } from '@terascope/job-components';
+import { jest } from '@jest/globals';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DataEntity, TestClientConfig, debugLogger } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness, newTestJobConfig, newTestSlice,
     SlicerTestHarness, WorkerTestHarness
-} from '../src';
-import SimpleAPIClass from './fixtures/asset/simple-api/api';
-import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
+} from '../src/index.js';
+import SimpleAPIClass from './fixtures/asset/simple-api/api.js';
+import { SimpleAPI } from './fixtures/asset/simple-api/interfaces.js';
 
-jest.mock('./fixtures/asset/simple-connector/client');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Example Asset', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
-
+    const assetDir = path.join(dirname, 'fixtures');
+    const logger = debugLogger('example-asset');
     const apiName = 'simple-api';
     const simpleClient = new SimpleClient();
     const clientConfig: TestClientConfig = {
         type: 'simple-client',
-        create: jest.fn(() => ({ client: simpleClient })),
+        createClient: jest.fn(async () => ({ client: simpleClient, logger })),
     };
 
     beforeEach(() => {
-        jest.restoreAllMocks();
-        clientConfig.create = jest.fn(() => ({ client: simpleClient }));
+        clientConfig.createClient = jest.fn(async () => ({ client: simpleClient, logger }));
     });
 
     describe('using the WorkerTestHarness', () => {
@@ -50,7 +51,7 @@ describe('Example Asset', () => {
 
         beforeEach(async () => {
             // @ts-expect-error
-            simpleClient.fetchRecord.mockImplementation((id: number) => ({
+            simpleClient.fetchRecord = jest.fn((id: number) => ({
                 id,
                 data: {
                     a: 'b',
@@ -72,7 +73,7 @@ describe('Example Asset', () => {
         });
 
         it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(1);
+            expect(clientConfig.createClient).toHaveBeenCalledTimes(1);
         });
 
         it('should return a list of records', async () => {
@@ -133,9 +134,7 @@ describe('Example Asset', () => {
         let harness: SlicerTestHarness;
 
         beforeEach(async () => {
-            const mockedSliceRequest = jest.fn()
-                .mockImplementation((count: number) => ({ count, super: 'man' }));
-
+            const mockedSliceRequest = jest.fn((count: number) => ({ count, super: 'man' }));
             simpleClient.sliceRequest = mockedSliceRequest;
 
             harness = new SlicerTestHarness(job, {
@@ -151,7 +150,7 @@ describe('Example Asset', () => {
         });
 
         it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(1);
+            expect(clientConfig.createClient).toHaveBeenCalledTimes(1);
         });
 
         it('should return a list of records', async () => {
@@ -201,9 +200,7 @@ describe('Example Asset', () => {
             });
 
             await harness.initialize();
-            const mockedSliceRequest = jest.fn()
-                .mockImplementation((count: number) => ({ count }));
-
+            const mockedSliceRequest = jest.fn((count: number) => ({ count }));
             simpleClient.sliceRequest = mockedSliceRequest;
         });
 
@@ -212,7 +209,7 @@ describe('Example Asset', () => {
         });
 
         it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(2);
+            expect(clientConfig.createClient).toHaveBeenCalledTimes(2);
         });
 
         it('should batches of results', async () => {
@@ -239,7 +236,7 @@ describe('Example Asset', () => {
             const batches = await harness.run();
 
             // @ts-expect-error
-            simpleClient.isFinished.mockReturnValue(true);
+            simpleClient.isFinished = true;
 
             expect(batches).toBeArrayOfSize(10);
 

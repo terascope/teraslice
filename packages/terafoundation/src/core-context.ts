@@ -1,6 +1,6 @@
-import * as ts from '@terascope/utils';
-import registerApis from './api';
-import * as i from './interfaces';
+import { Logger, isString, isFunction } from '@terascope/utils';
+import type { Terafoundation } from '@terascope/types';
+import registerApis from './api/index.js';
 
 /**
  * CoreContext
@@ -9,12 +9,11 @@ export class CoreContext<
     S = Record<string, any>,
     A = Record<string, any>,
     D extends string = string,
-> implements i.FoundationContext<S, A, D> {
-    readonly cluster: i.Cluster;
-    readonly sysconfig: i.FoundationSysConfig<S>;
-    readonly apis!: i.ContextAPIs & A;
-    readonly foundation!: i.LegacyFoundationApis;
-    readonly logger!: ts.Logger;
+> implements Terafoundation.Context<S, A, D> {
+    readonly cluster: Terafoundation.Cluster;
+    readonly sysconfig!: Terafoundation.SysConfig<S>;
+    readonly apis!: Terafoundation.ContextAPIs & A;
+    readonly logger!: Logger;
     readonly name: string;
     readonly arch = process.arch;
     readonly platform = process.platform;
@@ -22,9 +21,9 @@ export class CoreContext<
     cluster_name?: string;
 
     constructor(
-        config: i.FoundationConfig<S, A, D>,
-        cluster: i.Cluster,
-        sysconfig: i.FoundationSysConfig<S>,
+        config: Terafoundation.Config<S, A, D>,
+        cluster: Terafoundation.Cluster,
+        sysconfig: Terafoundation.SysConfig<S>,
         assignment?: D
     ) {
         this.sysconfig = sysconfig;
@@ -44,12 +43,14 @@ export class CoreContext<
             process.title = config.name;
         }
 
-        if (ts.isFunction(config.cluster_name)) {
+        if (isFunction(config.cluster_name)) {
             this.cluster_name = config.cluster_name(this.sysconfig);
         }
-        if (ts.isString(config.cluster_name)) {
+
+        if (isString(config.cluster_name)) {
             this.cluster_name = config.cluster_name;
         }
+
         registerApis(this);
     }
 }

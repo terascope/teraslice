@@ -62,15 +62,15 @@ export class SliceExecution {
 
             sliceSuccess = true;
             await this._markCompleted();
-        } catch (_err) {
-            const err = _err || new Error(`Unknown slice error, got ${getTypeOf(_err)} error`);
+        } catch (err) {
+            const error = err || new Error(`Unknown slice error, got ${getTypeOf(err)} error`);
             // avoid incorrectly marking
             // the slice as failed when it fails
             // to mark it as "complete"
             if (!sliceSuccess) {
-                await this._markFailed(err);
+                await this._markFailed(error);
             }
-            throw err;
+            throw error;
         } finally {
             if (result) {
                 await this._logAnalytics(result);

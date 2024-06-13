@@ -42,7 +42,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
         },
     });
 
-    new ClusterContext(terasliceConfig);
+    await ClusterContext.createContext(terasliceConfig);
 }
 
 function deprecatedUseOf(name) {

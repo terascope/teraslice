@@ -1,4 +1,4 @@
-import { OperationAPI } from '../../../../src';
+import { OperationAPI } from '../../../../src/index.js';
 
 // @ts-expect-error
 export default class ExampleAPI extends OperationAPI {

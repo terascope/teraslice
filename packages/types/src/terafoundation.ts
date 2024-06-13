@@ -4,7 +4,8 @@ import {
     Worker as NodeJSWorker
 } from 'node:cluster';
 import {
-    CollectFunction, Counter, Gauge, Histogram, Summary
+    CollectFunction, Counter, Gauge,
+    Histogram, Summary
 } from 'prom-client';
 import type { Overwrite } from './utility';
 import type { Logger } from './logger';
@@ -30,19 +31,19 @@ export type Schema<T> = {
     [P in keyof T]: Schema<T[P]> | SchemaObj<T[P]>;
 };
 
-export type Initializers<S> = {
-    schema: Schema<Record<string, any>>
+export type Initializers<S = Record<string, any>> = {
+    schema: Schema<S>
     validatorFn?: ValidatorFn<S>
 }
 
 export type ValidationObj<S>= {
-    subconfig: Record<string, any>,
+    config: Record<string, any>,
     validatorFn?: ValidatorFn<S>,
     connector?: boolean
 }
 
-export type ValidatorFn<S> = (
-    subconfig: Record<string, any>,
+export type ValidatorFn<S = Record<string, any>> = (
+    config: Record<string, any>,
     sysconfig: SysConfig<S>
 ) => void
 
@@ -75,17 +76,16 @@ export interface ConnectionConfig {
     type: string;
 }
 
-export type ClientFactoryFn = (
-    config: Record<string, any>,
-    logger: Logger,
-    options: ConnectionConfig
-) => { client: any };
+export interface ConnectorOutput {
+    client: any;
+    logger: Logger
+}
 
 export type CreateClientFactoryFn = (
     config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
-) => Promise<{ client: any }>;
+) => Promise<ConnectorOutput>;
 
 export interface FoundationAPIs {
     /** Create a child logger */
@@ -93,20 +93,9 @@ export interface FoundationAPIs {
     /** Create the root logger (usually done automatically) */
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    createClient(config: ConnectionConfig): Promise<{ client: any }>;
-    startWorkers(num: number, envOptions: Record<string, string>): void;
+    createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
+    startWorkers(num: number, envOptions: Record<string, any>): void;
     promMetrics: PromMetrics
-}
-
-export interface LegacyFoundationApis {
-    /** Create a child logger */
-    makeLogger(metadata?: Record<string, string>): Logger;
-    /** Create the root logger (usually done automatically) */
-    makeLogger(name: string, filename: string): Logger;
-    getEventEmitter(): EventEmitter;
-    getConnection(config: ConnectionConfig): { client: any };
-    startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
 export type ContextAPIs = {
@@ -134,25 +123,22 @@ export type Cluster = Overwrite<NodeJSCluster, {
     };
 }>;
 
-export type SysConfig<S> = {
-    _nodeName: string;
-    terafoundation: Foundation
-} & S;
-
-export type Foundation = {
+export interface TerafoundationConfig {
     workers: number;
     environment: 'production'|'development'|'test'|string;
-    connectors: Record<string, any>;
+    connectors: Record<string, Record<string, any>>;
     log_path: string;
     log_level: LogLevelConfig;
     logging: LogType[];
-    asset_storage_connection_type: string;
-    asset_storage_connection: string;
-    asset_storage_bucket?: string;
     prom_metrics_enabled: boolean;
     prom_metrics_port: number;
     prom_metrics_add_default: boolean;
-};
+}
+
+export type SysConfig<S> = {
+    _nodeName: string;
+    terafoundation: TerafoundationConfig;
+} & S;
 
 export type Context<
     S = Record<string, any>,
@@ -161,7 +147,6 @@ export type Context<
 > = {
     sysconfig: SysConfig<S>;
     apis: ContextAPIs & A;
-    foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
     arch: string;
@@ -169,6 +154,15 @@ export type Context<
     assignment: D;
     cluster_name?: string;
     cluster: Cluster;
+}
+
+// the interface for the connector itself
+export interface Connector<S = Record<string, any>> {
+    createClient: (
+        moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+    ) => Promise<ConnectorOutput>
+    config_schema: () => Schema<S>,
+    validate_config?: ValidatorFn<S>
 }
 
 export interface PromMetricsInitConfig {

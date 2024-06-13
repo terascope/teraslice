@@ -1,5 +1,4 @@
 import {
-    WorkerContext,
     WorkerExecutionContext,
     SlicerExecutionContext,
     TestClientConfig,
@@ -10,8 +9,9 @@ import {
     ClusterManagerType
 } from '@terascope/job-components';
 
+export type { Context } from '@terascope/job-components';
+
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
-export type Context = WorkerContext;
 
 export interface JobHarnessOptions {
     assetDir?: string | string[];

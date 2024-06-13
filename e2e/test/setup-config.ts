@@ -20,8 +20,6 @@ const baseConfig = {
             'file'
         ],
         log_path: '/app/logs',
-        asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
-        asset_storage_connection: ASSET_STORAGE_CONNECTION,
         connectors: {
             'elasticsearch-next': {
                 default: {
@@ -64,6 +62,8 @@ const baseConfig = {
         name: CLUSTER_NAME,
         master: true,
         master_hostname: HOST_IP,
+        asset_storage_connection_type: ASSET_STORAGE_CONNECTION_TYPE,
+        asset_storage_connection: ASSET_STORAGE_CONNECTION,
         index_settings: {
             analytics: {
                 number_of_shards: 1,

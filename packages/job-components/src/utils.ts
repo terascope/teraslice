@@ -1,17 +1,17 @@
 import { get, Logger } from '@terascope/utils';
-import { Context, ExecutionConfig } from './interfaces';
+import { Context, ExecutionConfig } from './interfaces/index';
 
 export function makeContextLogger(context: Context, moduleName: string, extra = {}): Logger {
-    return context.apis.foundation.makeLogger(
-        Object.assign(
-            {
-                module: moduleName,
-                worker_id: get(context, 'cluster.worker.id'),
-                assignment: get(context, 'assignment'),
-            },
-            extra
-        )
-    );
+    const meta = Object.assign(
+        {
+            module: moduleName,
+            worker_id: get(context, 'cluster.worker.id'),
+            assignment: get(context, 'assignment'),
+        },
+        extra
+    ) as Record<string, any>;
+
+    return context.apis.foundation.makeLogger(meta);
 }
 
 export function makeExContextLogger(

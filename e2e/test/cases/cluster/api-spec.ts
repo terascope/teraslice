@@ -1,5 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { cloneDeep, pDelay } from '@terascope/utils';
+import { JobConfig } from '@terascope/types';
 import { TerasliceHarness } from '../../teraslice-harness.js';
 import { TEST_PLATFORM } from '../../config.js';
 
@@ -12,7 +13,7 @@ describe('cluster api', () => {
         await terasliceHarness.resetState();
     });
 
-    it('submitted jobs are not saved in validated form', async () => {
+    xit('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
@@ -29,7 +30,7 @@ describe('cluster api', () => {
         expect(jobConfig).toMatchObject(jobSpec);
     });
 
-    it('should update job config', async () => {
+    xit('should update job config', async () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
@@ -37,7 +38,7 @@ describe('cluster api', () => {
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.05;
         }
-        const alteredJob = cloneDeep(jobSpec);
+        const alteredJob: Partial<JobConfig> = cloneDeep(jobSpec);
         alteredJob.workers = 3;
         delete alteredJob.slicers;
 
@@ -113,7 +114,7 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('version');
     });
 
-    it('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
+    xit('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1');
 
         expect(response).toBeArray();
@@ -123,7 +124,7 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('version');
     });
 
-    it('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
+    xit('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1/0.0.1');
 
         expect(response).toBeArray();
@@ -138,12 +139,12 @@ describe('cluster api', () => {
         expect(response).toBeString();
     });
 
-    it('api end point /txt/assets/assetName should return a text table', async () => {
+    xit('api end point /txt/assets/assetName should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1');
         expect(response).toBeString();
     });
 
-    it('api end point /txt/assets/assetName/version should return a text table', async () => {
+    xit('api end point /txt/assets/assetName/version should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
     });

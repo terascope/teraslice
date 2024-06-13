@@ -1,11 +1,9 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
+import { DataEntity } from '@terascope/utils';
 import {
-    DataEntity,
-    BatchProcessor,
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext
-} from '../../src';
+    BatchProcessor, newTestExecutionConfig, TestContext,
+    Context
+} from '../../src/index.js';
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor<Record<string, any>> {
@@ -26,7 +24,7 @@ describe('BatchProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleBatchProcessor(context as WorkerContext, opConfig, exConfig);
+        operation = new ExampleBatchProcessor(context as Context, opConfig, exConfig);
     });
 
     describe('->onBatch', () => {

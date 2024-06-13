@@ -51,7 +51,6 @@ export async function getTerasliceClusterType(
     try {
         clusterInfo = await terasliceClient.cluster.info();
         if (has(clusterInfo, 'clustering_type')) {
-            // @ts-expect-error
             clusteringType = clusterInfo.clustering_type;
         } else {
             clusteringType = 'native';

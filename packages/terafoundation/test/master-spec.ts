@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
+import { jest } from '@jest/globals';
 import { debugLogger } from '@terascope/utils';
-import masterModule from '../src/master';
+import masterModule from '../src/master.js';
 
 describe('master', () => {
     const events = new EventEmitter();
@@ -13,9 +14,11 @@ describe('master', () => {
                 workers: 0
             }
         },
-        foundation: {
-            getEventEmitter() {
-                return events;
+        apis: {
+            foundation: {
+                getSystemEvents() {
+                    return events;
+                }
             }
         },
         cluster,

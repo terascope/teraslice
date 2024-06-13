@@ -371,7 +371,7 @@ async function checkRestrainedOpensearch(
                     https: { rejectUnauthorized: false },
                     responseType: 'json',
                     throwHttpErrors: true,
-                    retry: 0,
+                    retry: 0
                 }));
             } catch (err) {
                 error = err.message;

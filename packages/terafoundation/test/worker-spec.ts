@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import workerModule from '../src/worker';
+import workerModule from '../src/worker.js';
 
 describe('worker', () => {
     it('should not throw when constructed', () => {

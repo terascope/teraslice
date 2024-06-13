@@ -1,14 +1,10 @@
 /* eslint-disable max-classes-per-file */
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import {
-    newTestExecutionConfig,
-    TestContext,
-    WorkerContext,
-    ExecutionContextAPI,
-    OperationAPI,
-    OpAPIFn
-} from '../../../src';
-import SlicerCore from '../../../src/operations/core/slicer-core';
+    newTestExecutionConfig, TestContext, Context,
+    ExecutionContextAPI, OperationAPI, OpAPIFn
+} from '../../../src/index.js';
+import SlicerCore from '../../../src/operations/core/slicer-core.js';
 
 describe('SlicerCore', () => {
     class ExampleSlicerCore extends SlicerCore {
@@ -36,7 +32,7 @@ describe('SlicerCore', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        slicer = new ExampleSlicerCore(context as WorkerContext, opConfig, exConfig);
+        slicer = new ExampleSlicerCore(context as Context, opConfig, exConfig);
 
         const exContextApi = new ExecutionContextAPI(context, exConfig);
         exContextApi.addToRegistry('hello', HelloAPI);

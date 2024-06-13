@@ -4,8 +4,8 @@ import {
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
 import autoBind from 'auto-bind';
-import Client from './client';
-import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
+import Client from './client.js';
+import { ClientConfig, SearchOptions, RequestOptions } from './interfaces.js';
 
 export default class Ex extends Client {
     private readonly _exId: string;
@@ -74,7 +74,7 @@ export default class Ex extends Client {
         return this.get(`/ex/${this._exId}/controller`, requestOptions);
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionRecord> {
+    async config(requestOptions: RequestOptions = {}): Promise<Teraslice.ExecutionConfig> {
         return this.get(`/ex/${this._exId}`, requestOptions);
     }
 

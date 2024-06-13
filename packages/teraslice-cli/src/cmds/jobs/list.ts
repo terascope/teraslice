@@ -20,7 +20,7 @@ export default {
         return yargs;
     },
     async handler(argv: any) {
-        let response: Teraslice.JobConfig[];
+        let response: Teraslice.JobConfigParams[];
         const active = false;
         const parse = true;
         const cliConfig = new Config(argv);
