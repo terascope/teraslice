@@ -14,7 +14,7 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Verify npm authentication
-        run: yarn npm whoami
+        run: npm whoami
 
       # we login to docker to publish new teraslice image
       - name: Login to Docker Hub
