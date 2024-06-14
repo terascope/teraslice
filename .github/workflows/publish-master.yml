@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -48,6 +49,7 @@ jobs:
         run: yarn ts-scripts publish -t dev docker
 
   build-docs:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: build-release
     steps:
@@ -71,6 +73,7 @@ jobs:
           path: ./website/build/teraslice
 
   publish-docs:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: build-docs
     permissions:
