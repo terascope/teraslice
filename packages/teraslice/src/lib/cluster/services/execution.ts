@@ -255,10 +255,6 @@ export class ExecutionService {
         }
     }
 
-    private async _DeleteFailedEx(exId: string, err?: Error) {
-        this._finishExecution(exId, err);
-    }
-
     async stopExecution(exId: string, options: StopExecutionOptions) {
         const execution = await this.getExecutionContext(exId);
 
