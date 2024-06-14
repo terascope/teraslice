@@ -240,6 +240,19 @@ export class ExecutionService {
             return;
         }
 
+        const runningStatuses = this.executionStorage.getRunningStatuses();
+
+        if (runningStatuses.includes(status)) {
+            // This should never happen. If we get here with a running status
+            // something has gone wrong. Mark execution as failed before shutdown.
+            this.logger.warn(`Cluster_master is changing status of execution ${exId} from ${status} to failed`);
+            await this.executionStorage.setStatus(
+                exId,
+                'failed',
+                this.executionStorage.executionMetaData(null, getFullErrorStack(err))
+            );
+        }
+
         this.logger.debug(`execution ${exId} finished, shutting down execution`);
 
         try {
