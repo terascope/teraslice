@@ -1,5 +1,5 @@
 ---
-title: ElasticSearch (elasticsearch-assets)
+title: "ElasticSearch (elasticsearch-assets)"
 sidebar_label: Elasticsearch
 ---
 

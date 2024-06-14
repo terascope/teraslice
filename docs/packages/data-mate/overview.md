@@ -1,6 +1,6 @@
 ---
-title: Data-Mate
-sidebar_label: Data-Mate
+title: "Data-Mate"
+sidebar_label: "Data-Mate"
 ---
 
 > A teraslice library for validating and transforming data
