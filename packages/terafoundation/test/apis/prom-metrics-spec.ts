@@ -56,6 +56,11 @@ describe('promMetrics foundation API', () => {
                     expect(apiExists).toBe(true);
                 });
 
+                it('should have correct default labels', async () => {
+                    const labels = await context.apis.foundation.promMetrics.getDefaultLabels();
+                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test' });
+                });
+
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
                     await expect(() => context.apis.foundation.promMetrics.init(config))
                         .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
