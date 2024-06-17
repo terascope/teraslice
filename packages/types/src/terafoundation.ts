@@ -94,7 +94,7 @@ export interface FoundationAPIs {
     makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
     createClient(config: ConnectionConfig): Promise<ConnectorOutput>;
-    startWorkers(num: number, envOptions: Record<string, any>): void;
+    startWorkers(num: number, envOptions: Record<string, any>): FoundationWorker[];
     promMetrics: PromMetrics
 }
 

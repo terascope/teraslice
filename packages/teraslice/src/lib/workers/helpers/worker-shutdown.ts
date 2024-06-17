@@ -99,7 +99,12 @@ export function shutdownHandler(
 
     async function exit(event: string, err?: Error) {
         if (api.exiting) return;
-
+        /// Potential logic for cluster_master and asset_service
+        if (err) {
+            if (err.name.includes('Error')) {
+                setStatusCode(1);
+            }
+        }
         api.exiting = true;
         startTime = Date.now();
 

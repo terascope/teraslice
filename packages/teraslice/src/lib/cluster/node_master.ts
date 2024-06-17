@@ -2,6 +2,7 @@ import ms from 'ms';
 import _ from 'lodash';
 import { Mutex } from 'async-mutex';
 import { getFullErrorStack } from '@terascope/utils';
+import { Terafoundation } from '@terascope/types';
 import { makeLogger } from '../workers/helpers/terafoundation.js';
 import { Messaging } from './services/cluster/backends/native/messaging.js';
 import { spawnAssetLoader } from '../workers/assets/spawn.js';
@@ -170,10 +171,10 @@ export async function nodeMaster(context: ClusterMasterContext) {
                     logger.warn(`reducing allocation to ${newWorkers} workers.`);
                 }
 
-                let workers = [];
+                let workers: Terafoundation.FoundationWorker[] = [];
                 if (newWorkers > 0) {
                     logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
-                    // @ts-expect-error
+
                     workers = context.apis.foundation.startWorkers(newWorkers, {
                         NODE_TYPE: 'worker',
                         EX: safeEncode(createWorkerMsg.job),
@@ -396,19 +397,31 @@ export async function nodeMaster(context: ClusterMasterContext) {
     if (context.sysconfig.teraslice.master) {
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
 
-        context.apis.foundation.startWorkers(1, {
+        const [clusterMaster] = context.apis.foundation.startWorkers(1, {
             assignment: 'cluster_master',
             assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
 
+        clusterMaster.on('exit', (code: any) => {
+            if (code !== 0) {
+                throw Error(`Cluster master has shutdown with exit code ${code}!`);
+            }
+        });
+
         logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
 
-        context.apis.foundation.startWorkers(1, {
+        const [assetService] = context.apis.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
             port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
+        });
+
+        assetService.on('exit', (code: any) => {
+            if (code !== 0) {
+                throw Error(`Asset Service has shutdown with exit code ${code}!`);
+            }
         });
     }
 }

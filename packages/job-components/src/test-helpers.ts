@@ -207,7 +207,10 @@ export class TestContext implements i.Context {
                 makeLogger(...params: any[]): Logger {
                     return logger.child(params[0]);
                 },
-                startWorkers: () => {},
+                startWorkers() {
+                    const workers: Terafoundation.FoundationWorker[] = [];
+                    return workers;
+                },
                 async createClient(opts: i.ConnectionConfig) {
                     const { cached } = opts;
 
