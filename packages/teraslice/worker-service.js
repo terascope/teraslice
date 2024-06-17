@@ -73,7 +73,7 @@ async function main() {
 
     cmd.shutdownHandler = shutdownHandler(context, (event, err) => {
         if (!cmd.instance) return Promise.resolve();
-        return cmd.instance.shutdown(true, event, err);
+        return cmd.instance.shutdown(event, err, true);
     });
 
     try {
