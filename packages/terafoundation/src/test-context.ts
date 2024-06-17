@@ -138,7 +138,7 @@ export class TestContext<
             return client;
         };
 
-        this.apis.foundation.promMetrics = new PromMetrics(ctx.name, ctx.logger);
+        this.apis.foundation.promMetrics = new PromMetrics(ctx.logger);
 
         this.apis.setTestClients = (clients: TestClientConfig[] = []) => {
             clients.forEach((clientConfig) => {

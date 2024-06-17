@@ -68,9 +68,10 @@ describe('TestContext', () => {
 
     it('should be able to init prom_metrics_api', async () => {
         const context = await TestContext.createContext();
-        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes' };
+        context.sysconfig.teraslice = { cluster_manager_type: 'kubernetes', name: 'ts-test' };
         context.sysconfig.terafoundation.prom_metrics_enabled = true;
         const config = {
+            terasliceName: context.sysconfig.teraslice.name,
             tf_prom_metrics_enabled: true,
             tf_prom_metrics_port: 3333,
             tf_prom_metrics_add_default: false,

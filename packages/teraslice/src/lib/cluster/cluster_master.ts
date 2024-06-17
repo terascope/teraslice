@@ -147,6 +147,7 @@ export class ClusterMaster {
             } else {
                 const { terafoundation } = this.context.sysconfig;
                 await this.context.apis.foundation.promMetrics.init({
+                    terasliceName: this.context.sysconfig.teraslice.name,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,

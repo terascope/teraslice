@@ -21,13 +21,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -55,6 +56,11 @@ describe('promMetrics foundation API', () => {
                     expect(apiExists).toBe(true);
                 });
 
+                it('should have correct default labels', async () => {
+                    const labels = await context.apis.foundation.promMetrics.getDefaultLabels();
+                    expect(labels).toEqual({ assignment: 'worker', name: 'tera-test' });
+                });
+
                 it('should throw an error if promMetricsAPI is already initialized', async () => {
                     await expect(() => context.apis.foundation.promMetrics.init(config))
                         .rejects.toThrow('Prom metrics API cannot be initialized more than once.');
@@ -72,13 +78,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -114,13 +121,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -163,13 +171,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -204,13 +213,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -246,13 +256,14 @@ describe('promMetrics foundation API', () => {
                         },
                         teraslice: {
                             cluster_manager_type: 'kubernetes',
+                            name: 'tera-test'
                         }
                     },
-                    name: 'tera-test'
                 } as any;
 
-                const { terafoundation } = context.sysconfig;
+                const { terafoundation, teraslice } = context.sysconfig;
                 const config = {
+                    terasliceName: teraslice.name,
                     tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
                     tf_prom_metrics_port: terafoundation.prom_metrics_port,
                     tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -295,13 +306,14 @@ describe('promMetrics foundation API', () => {
                 },
                 teraslice: {
                     cluster_manager_type: 'kubernetes',
+                    name: 'tera-test'
                 }
             },
-            name: 'tera-test'
         } as any;
 
-        const { terafoundation } = context.sysconfig;
+        const { terafoundation, teraslice } = context.sysconfig;
         const config = {
+            terasliceName: teraslice.name,
             tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -361,13 +373,14 @@ describe('promMetrics foundation API', () => {
                 },
                 teraslice: {
                     cluster_manager_type: 'kubernetes',
+                    name: 'tera-test'
                 }
             },
-            name: 'tera-test'
         } as any;
 
-        const { terafoundation } = context.sysconfig;
+        const { terafoundation, teraslice } = context.sysconfig;
         const config = {
+            terasliceName: teraslice.name,
             tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -455,13 +468,14 @@ describe('promMetrics foundation API', () => {
                 },
                 teraslice: {
                     cluster_manager_type: 'kubernetes',
+                    name: 'tera-test'
                 }
             },
-            name: 'tera-test'
         } as any;
 
-        const { terafoundation } = context.sysconfig;
+        const { terafoundation, teraslice } = context.sysconfig;
         const config = {
+            terasliceName: teraslice.name,
             tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -535,13 +549,14 @@ describe('promMetrics foundation API', () => {
                 },
                 teraslice: {
                     cluster_manager_type: 'kubernetes',
+                    name: 'tera-test'
                 }
             },
-            name: 'tera-test'
         } as any;
 
-        const { terafoundation } = context.sysconfig;
+        const { terafoundation, teraslice } = context.sysconfig;
         const config = {
+            terasliceName: teraslice.name,
             tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,
@@ -614,13 +629,14 @@ describe('promMetrics foundation API', () => {
                 },
                 teraslice: {
                     cluster_manager_type: 'kubernetes',
+                    name: 'tera-test-labels'
                 }
             },
-            name: 'tera-test-labels'
         } as any;
 
-        const { terafoundation } = context.sysconfig;
+        const { terafoundation, teraslice } = context.sysconfig;
         const config = {
+            terasliceName: teraslice.name,
             tf_prom_metrics_enabled: terafoundation.prom_metrics_enabled,
             tf_prom_metrics_port: terafoundation.prom_metrics_port,
             tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,

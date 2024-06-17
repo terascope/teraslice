@@ -145,6 +145,7 @@ export class ExecutionController {
             const { terafoundation } = this.context.sysconfig;
             const { config, exId, jobId } = this.executionContext;
             await this.context.apis.foundation.promMetrics.init({
+                terasliceName: this.context.sysconfig.teraslice.name,
                 assignment: 'execution_controller',
                 logger: this.logger,
                 tf_prom_metrics_add_default: terafoundation.prom_metrics_add_default,

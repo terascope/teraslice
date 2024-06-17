@@ -13,16 +13,13 @@ export class PromMetrics {
     default_labels!: Record<string, string>;
     prefix: string;
     private metricExporter!: Exporter;
-    name: string;
     apiConfig: tf.PromMetricsAPIConfig;
     apiRunning: boolean;
     logger: Logger;
 
     constructor(
-        name: string,
         logger: Logger,
     ) {
-        this.name = name;
         this.apiRunning = false;
         this.apiConfig = {} as tf.PromMetricsAPIConfig;
         this.prefix = '';
@@ -44,7 +41,7 @@ export class PromMetrics {
         const {
             assignment, job_prom_metrics_add_default, job_prom_metrics_enabled,
             job_prom_metrics_port, tf_prom_metrics_add_default, tf_prom_metrics_enabled,
-            tf_prom_metrics_port, labels, prefix
+            tf_prom_metrics_port, labels, prefix, terasliceName
         } = config;
 
         const portToUse = job_prom_metrics_port || tf_prom_metrics_port;
@@ -68,7 +65,7 @@ export class PromMetrics {
             this.prefix = apiConfig.prefix || `teraslice_${apiConfig.assignment}_`;
 
             this.default_labels = {
-                name: this.name,
+                name: terasliceName,
                 assignment: apiConfig.assignment,
                 ...apiConfig.labels
             };

@@ -646,7 +646,8 @@ export class ApiService {
             return match ? match[0] : 'Version number not available';
         }
 
-        if (this.context.sysconfig.terafoundation.prom_metrics_enabled) {
+        const { terafoundation, teraslice } = this.context.sysconfig;
+        if (terafoundation.prom_metrics_enabled && teraslice.cluster_manager_type !== 'native') {
             try {
                 const apiTimeout = 15000;
                 const apiTimeoutError = `Unable to verify that prom metrics API is running after ${apiTimeout / 1000} seconds`;
