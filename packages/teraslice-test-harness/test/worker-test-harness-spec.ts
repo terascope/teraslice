@@ -105,6 +105,24 @@ describe('WorkerTestHarness', () => {
         });
 
         it('should be able to call shutdown', () => expect(workerHarness.shutdown()).resolves.toBeNil());
+
+        it('should not throw if shutdown is called before initialized', async () => {
+            let test: WorkerTestHarness;
+
+            try {
+                test = new WorkerTestHarness(job, {
+                    assetDir: path.join(dirname, 'fixtures'),
+                    clients,
+                });
+
+                await expect(test.shutdown()).resolves.not.toThrow();
+            } finally {
+                // @ts-expect-error
+                if (test) {
+                    await test.shutdown();
+                }
+            }
+        });
     });
 
     describe('when using assets and multiple assetDirs', () => {

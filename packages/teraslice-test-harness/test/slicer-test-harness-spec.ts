@@ -94,6 +94,24 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call shutdown', () => expect(slicerHarness.shutdown()).resolves.toBeNil());
+
+        it('should not throw if shutdown is called before initialized', async () => {
+            let test: SlicerTestHarness;
+
+            try {
+                test = new SlicerTestHarness(job, {
+                    assetDir: path.join(dirname, 'fixtures'),
+                    clients,
+                });
+
+                await expect(test.shutdown()).resolves.not.toThrow();
+            } finally {
+                // @ts-expect-error
+                if (test) {
+                    await test.shutdown();
+                }
+            }
+        });
     });
 
     describe('when given a slicer that is recoverable', () => {
