@@ -346,9 +346,9 @@ export class JobsService {
      * This ensures that the Prometheus exporter server can be scraped.
      * Check if prom_metrics_enabled is true on jobSpec or teraslice config.
      * If so, add or update external_ports property with correct port.
-     * @param {Partial<JobRecord>} jobSpec
+     * @param {Partial<JobConfig>} jobSpec
     */
-    addExternalPortsToJobSpec(jobSpec: Partial<JobRecord>) {
+    addExternalPortsToJobSpec(jobSpec: Partial<JobConfig>) {
         const {
             prom_metrics_enabled: enabledInTF,
             prom_metrics_port: tfPort
