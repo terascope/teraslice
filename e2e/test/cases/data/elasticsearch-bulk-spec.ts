@@ -14,7 +14,7 @@ describe('elasticsearch bulk', () => {
         const jobSpec = terasliceHarness.newJob('multisend');
         const specIndex = terasliceHarness.newSpecIndex('elasticsearch-bulk');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.name = 'multisend';

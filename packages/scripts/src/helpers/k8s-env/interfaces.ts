@@ -14,6 +14,8 @@ export interface K8sEnvOptions {
     assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
+    clusteringType: 'kubernetes' | 'kubernetesV2',
+    keepOpen: boolean
 }
 
 // TODO: create a common parent for each resource type,

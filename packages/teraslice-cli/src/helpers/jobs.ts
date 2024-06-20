@@ -89,7 +89,7 @@ export default class Jobs {
         for (const jobFile of cliConfig.args.jobFile) {
             const jobConfig = getJobConfigFromFile(cliConfig.args.srcDir, jobFile) as JobConfigFile;
             if (
-                clusterStats.clustering_type === 'kubernetes'
+                (clusterStats.clustering_type === 'kubernetes' || clusterStats.clustering_type === 'kubernetesV2')
                 && jobConfig.kubernetes_image !== undefined
                 && !jobConfig.kubernetes_image?.includes(clusterStats.teraslice_version)
                 && !jobConfig.kubernetes_image?.includes('dev-')

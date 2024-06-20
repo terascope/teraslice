@@ -504,7 +504,7 @@ export class ApiService {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
             }
 
-            if (this.clusterType === 'kubernetes') {
+            if (this.clusterType === 'kubernetes' || this.clusterType === 'kubernetesV2') {
                 defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
             }
 

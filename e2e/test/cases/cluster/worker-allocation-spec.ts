@@ -10,7 +10,7 @@ async function workersTest(
     const jobSpec = harness.newJob('reindex');
     const specIndex = harness.newSpecIndex('worker-allocation');
     // Set resource constraints on workers within CI
-    if (TEST_PLATFORM === 'kubernetes') {
+    if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
         jobSpec.resources_requests_cpu = 0.1;
     }
     jobSpec.name = 'worker allocation';

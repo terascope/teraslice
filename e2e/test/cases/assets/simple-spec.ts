@@ -42,7 +42,7 @@ describe('assets', () => {
         const fileStream = fs.createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob(jobSpecName);
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         const { workers } = jobSpec; // save for comparison
@@ -124,7 +124,7 @@ describe('assets', () => {
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         const { workers } = jobSpec;
@@ -152,7 +152,7 @@ describe('assets', () => {
     xit('can directly ask for the new asset to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
+        if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
             jobSpec.resources_requests_cpu = 0.1;
         }
         jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
@@ -316,7 +316,7 @@ describe('s3 asset storage', () => {
 
             const jobSpec = terasliceHarness.newJob('generator-large-asset');
             // // Set resource constraints on workers within CI
-            if (TEST_PLATFORM === 'kubernetes') {
+            if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
                 jobSpec.resources_requests_cpu = 0.1;
             }
 
