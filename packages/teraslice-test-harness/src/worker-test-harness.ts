@@ -171,11 +171,6 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         // its undefined or null here
         return response;
     }
-
-    async shutdown(): Promise<void> {
-        await super.shutdown();
-        await this.executionContext.shutdown();
-    }
 }
 
 function isSlice(input: Slice | SliceRequest): input is Slice {

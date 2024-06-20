@@ -81,5 +81,8 @@ export default class BaseTestHarness<U extends ExecutionContext> {
     */
     async shutdown(): Promise<void> {
         this.events.removeAllListeners();
+        if (this.executionContext) {
+            await this.executionContext.shutdown();
+        }
     }
 }

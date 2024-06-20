@@ -204,6 +204,5 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             clearInterval(this._emitInterval);
         }
         await super.shutdown();
-        await this.executionContext.shutdown();
     }
 }
