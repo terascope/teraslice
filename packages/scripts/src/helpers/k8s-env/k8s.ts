@@ -58,6 +58,147 @@ export class K8s {
         }
     }
 
+    mountLocalTeraslice(masterDeployment: k8sClient.V1Deployment) {
+        if (masterDeployment.spec?.template.spec?.containers[0].volumeMounts) {
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'packages',
+                mountPath: '/app/source/packages'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'scripts',
+                mountPath: '/app/source/scripts'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'types',
+                mountPath: '/app/source/types'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'yarn',
+                mountPath: '/app/source/.yarn'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'yarnci',
+                mountPath: '/app/source/.yarnclean'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'packagejson',
+                mountPath: '/app/source/package.json'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'yarnlock',
+                mountPath: '/app/source/yarn.lock'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'tsconfigjson',
+                mountPath: '/app/source/tsconfig.json'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'yarnrc',
+                mountPath: '/app/source/.yarnrc'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'servicejs',
+                mountPath: '/app/source/service.js'
+            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'nodemodules',
+                mountPath: '/app/source/node_modules'
+            });
+        }
+        if (masterDeployment.spec?.template.spec?.volumes) {
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'packages',
+                hostPath: {
+                    path: '/packages',
+                    type: 'Directory'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'scripts',
+                hostPath: {
+                    path: '/scripts',
+                    type: 'Directory'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'types',
+                hostPath: {
+                    path: '/types',
+                    type: 'Directory'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'yarn',
+                hostPath: {
+                    path: '/.yarn',
+                    type: 'Directory'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'yarnci',
+                hostPath: {
+                    path: '/.yarnclean.ci',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'packagejson',
+                hostPath: {
+                    path: '/package.json',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'yarnlock',
+                hostPath: {
+                    path: '/yarn.lock',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'tsconfigjson',
+                hostPath: {
+                    path: '/tsconfig.json',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'yarnrc',
+                hostPath: {
+                    path: '/.yarnrc',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'servicejs',
+                hostPath: {
+                    path: '/service.js',
+                    type: 'File'
+                }
+            });
+            masterDeployment.spec.template.spec.volumes.push({
+                name: 'nodemodules',
+                hostPath: {
+                    path: '/node_modules',
+                    type: 'Directory'
+                }
+            });
+        }
+        /// Potentially add an entrypoint override
+        if (masterDeployment.spec?.template.spec?.containers[0].args) {
+            masterDeployment.spec.template.spec.containers[0].args = ['./scripts/entrypoint-dev.sh'];
+        }
+        /// Pass in env so master passes volumes to ex's and workers
+        if (masterDeployment.spec?.template.spec?.containers[0].env) {
+            masterDeployment.spec.template.spec.containers[0].env = [
+                {
+                    name: 'MOUNT_LOCAL_TERASLICE',
+                    value: 'true'
+                }
+            ];
+        }
+    }
+
     async deployK8sTeraslice(wait = false, options: K8sEnvOptions | undefined = undefined) {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
@@ -113,6 +254,9 @@ export class K8s {
             }
             if (yamlTSMasterDeployment.spec?.template.spec?.containers[0]) {
                 yamlTSMasterDeployment.spec.template.spec.containers[0].image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            }
+            if (options?.dev) {
+                this.mountLocalTeraslice(yamlTSMasterDeployment);
             }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
             logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);

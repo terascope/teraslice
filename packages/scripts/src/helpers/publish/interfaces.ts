@@ -20,4 +20,5 @@ export interface PublishOptions {
     */
     publishOutdatedPackages?: boolean;
     nodeVersion?: string;
+    useDevFile?: boolean;
 }
