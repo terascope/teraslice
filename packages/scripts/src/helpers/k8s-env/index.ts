@@ -1,3 +1,4 @@
+import execa from 'execa';
 import {
     dockerTag,
     isKindInstalled,
@@ -38,7 +39,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
 
     signale.pending('Creating kind cluster');
     try {
-        await kind.createCluster(options.tsPort);
+        await kind.createCluster(options.tsPort, options.dev);
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
@@ -67,6 +68,19 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     }
 
     await kind.loadTerasliceImage(e2eImage);
+
+    // If --dev is true, we must run yarn setup before creating resources
+    // We need a local node_modules folder built to add it as a volume
+    if (options.dev) {
+        signale.info('Running yarn setup...');
+        try {
+            execa.commandSync('yarn setup');
+        } catch (err) {
+            signale.fatal(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+    }
 
     await ensureServices('k8s-env', {
         ...options,
@@ -144,7 +158,8 @@ async function buildAndTagTerasliceImage(options:K8sEnvOptions) {
                 dryRun: true,
                 nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
-                type: PublishType.Dev
+                type: PublishType.Dev,
+                useDevFile: options.dev
             };
             runImage = await buildDevDockerImage(publishOptions);
         } catch (err) {

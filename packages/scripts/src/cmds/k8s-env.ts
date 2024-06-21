@@ -93,6 +93,11 @@ const cmd: CommandModule = {
                 default: 'elasticsearch-next',
                 choices: ['elasticsearch-next', 's3'],
             })
+            .option('dev', {
+                description: 'Mounts local teraslice to k8s resources for faster development.',
+                type: 'boolean',
+                default: false
+            })
             .check((args) => {
                 if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
@@ -118,7 +123,8 @@ const cmd: CommandModule = {
             kindClusterName: argv['cluster-name'] as string,
             k8sVersion: argv['k8s-version'] as string,
             terasliceImage: argv['teraslice-image'] as string,
-            assetStorage: argv['asset-storage'] as string
+            assetStorage: argv['asset-storage'] as string,
+            dev: Boolean(argv.dev)
         };
 
         if (Boolean(argv.rebuild) === true) {
