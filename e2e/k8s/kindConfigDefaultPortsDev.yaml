@@ -1,0 +1,45 @@
+#
+#   This config file is used in the case that "--dev" is enabled in k8s-env
+#   which will mount the host machines teraslice repo to the k8s resources
+#
+kind: Cluster
+name: k8s-env
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30200 # Map internal elasticsearch service to host port
+    hostPort: 9200
+  - containerPort: 30678 # Map internal teraslice service to host port
+    hostPort: 5678
+  - containerPort: 30092 # Map internal kafka service to host port
+    hostPort: 9092
+  - containerPort: 30900 # Map internal minio service to host port
+    hostPort: 9000
+  extraMounts:
+  - hostPath: ./e2e/autoload
+    containerPath: /autoload
+  ### All extra mounts that the Dockerfile.dev image needs to run teraslice
+  - hostPath: ./packages
+    containerPath: /packages
+  - hostPath: ./scripts
+    containerPath: /scripts
+  - hostPath: ./types
+    containerPath: /types
+  - hostPath: ./.yarn
+    containerPath: /.yarn
+  - hostPath: ./.yarnclean.ci
+    containerPath: /.yarnclean.ci
+  - hostPath: ./package.json
+    containerPath: /package.json
+  - hostPath: ./yarn.lock
+    containerPath: /yarn.lock
+  - hostPath: ./tsconfig.json
+    containerPath: /tsconfig.json
+  - hostPath: ./.yarnrc
+    containerPath: /.yarnrc
+  - hostPath: ./service.js
+    containerPath: /service.js
+  - hostPath: ./node_modules
+    containerPath: /node_modules
+  ###
