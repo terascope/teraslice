@@ -85,6 +85,9 @@ export class K8sResource {
         this._setTargets();
         this._setResources();
         this._setVolumes();
+        if (process.env.MOUNT_LOCAL_TERASLICE === 'true') {
+            this._mountLocalTeraslice();
+        }
         this._setAssetsVolume();
         this._setImagePullSecret();
         this._setEphemeralStorage();
@@ -106,6 +109,143 @@ export class K8sResource {
         if (this.terasliceConfig.kubernetes_overrides_enabled) {
             this._mergePodSpecOverlay();
         }
+    }
+
+    _mountLocalTeraslice() {
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'packages',
+            mountPath: '/app/source/packages'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'scripts',
+            mountPath: '/app/source/scripts'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'types',
+            mountPath: '/app/source/types'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'yarn',
+            mountPath: '/app/source/.yarn'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'yarnci',
+            mountPath: '/app/source/.yarnclean'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'packagejson',
+            mountPath: '/app/source/package.json'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'yarnlock',
+            mountPath: '/app/source/yarn.lock'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'tsconfigjson',
+            mountPath: '/app/source/tsconfig.json'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'yarnrc',
+            mountPath: '/app/source/.yarnrc'
+        });
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'servicejs',
+            mountPath: '/app/source/service.js'
+        });
+
+        this.resource.spec.template.spec.containers[0].volumeMounts.push({
+            name: 'nodemodules',
+            mountPath: '/app/source/node_modules'
+        });
+
+        this.resource.spec.template.spec.volumes.push({
+            name: 'packages',
+            hostPath: {
+                path: '/packages',
+                type: 'Directory'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'scripts',
+            hostPath: {
+                path: '/scripts',
+                type: 'Directory'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'types',
+            hostPath: {
+                path: '/types',
+                type: 'Directory'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'yarn',
+            hostPath: {
+                path: '/.yarn',
+                type: 'Directory'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'yarnci',
+            hostPath: {
+                path: '/.yarnclean.ci',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'packagejson',
+            hostPath: {
+                path: '/package.json',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'yarnlock',
+            hostPath: {
+                path: '/yarn.lock',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'tsconfigjson',
+            hostPath: {
+                path: '/tsconfig.json',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'yarnrc',
+            hostPath: {
+                path: '/.yarnrc',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'servicejs',
+            hostPath: {
+                path: '/service.js',
+                type: 'File'
+            }
+
+        });
+        this.resource.spec.template.spec.volumes.push({
+            name: 'nodemodules',
+            hostPath: {
+                path: '/node_modules',
+                type: 'Directory'
+            }
+
+        });
     }
 
     _makeConfig(): K8sConfig {
