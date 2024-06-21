@@ -76,7 +76,7 @@ export class K8s {
             masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             if (options) {
                 const storageType = options.assetStorage;
-                masterTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+                masterTerafoundation.teraslice.asset_storage_connection_type = storageType;
             }
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
@@ -94,7 +94,7 @@ export class K8s {
             workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             if (options) {
                 const storageType = options.assetStorage;
-                workerTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+                workerTerafoundation.teraslice.asset_storage_connection_type = storageType;
             }
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
