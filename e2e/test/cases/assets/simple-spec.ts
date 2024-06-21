@@ -172,7 +172,7 @@ describe('s3 asset storage', () => {
 
             const response = await getS3Object(s3client, { Bucket: bucketName, Key: `${assetId}.zip` });
             const base64 = await response.Body?.transformToString('base64');
-            expect(base64).toStartWith('UEsDBAoAAAAAAAs6O');
+            expect(base64).toStartWith('UEsDBBQAAgAIAFBl0');
         });
 
         it('does not create the "blob" field when storing asset metadata in ES', async () => {
