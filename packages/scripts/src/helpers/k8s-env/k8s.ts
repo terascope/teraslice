@@ -184,18 +184,23 @@ export class K8s {
                 }
             });
         }
-        /// Potentially add an entrypoint override
-        if (masterDeployment.spec?.template.spec?.containers[0].args) {
-            masterDeployment.spec.template.spec.containers[0].args = ['./scripts/entrypoint-dev.sh'];
-        }
         /// Pass in env so master passes volumes to ex's and workers
-        if (masterDeployment.spec?.template.spec?.containers[0].env) {
-            masterDeployment.spec.template.spec.containers[0].env = [
-                {
-                    name: 'MOUNT_LOCAL_TERASLICE',
-                    value: 'true'
-                }
-            ];
+        if (masterDeployment.spec?.template.spec?.containers[0]) {
+            if (masterDeployment.spec.template.spec.containers[0].env) {
+                masterDeployment.spec.template.spec.containers[0].env.push(
+                    {
+                        name: 'MOUNT_LOCAL_TERASLICE',
+                        value: 'true'
+                    }
+                );
+            } else {
+                masterDeployment.spec.template.spec.containers[0].env = [
+                    {
+                        name: 'MOUNT_LOCAL_TERASLICE',
+                        value: 'true'
+                    }
+                ];
+            }
         }
     }
 
