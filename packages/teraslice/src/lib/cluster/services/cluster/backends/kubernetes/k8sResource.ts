@@ -86,7 +86,7 @@ export class K8sResource {
         this._setResources();
         this._setVolumes();
         if (process.env.MOUNT_LOCAL_TERASLICE === 'true') {
-            this._mountLocalTeraslice();
+            this._mountLocalTeraslice(resourceName);
         }
         this._setAssetsVolume();
         this._setImagePullSecret();
@@ -111,7 +111,7 @@ export class K8sResource {
         }
     }
 
-    _mountLocalTeraslice() {
+    _mountLocalTeraslice(contextType: string) {
         this.resource.spec.template.spec.containers[0].volumeMounts.push({
             name: 'packages',
             mountPath: '/app/source/packages'
@@ -246,6 +246,13 @@ export class K8sResource {
             }
 
         });
+        if (contextType === 'execution_controller') {
+            this.resource.spec.template.spec.containers[0].args = [
+                'yarn',
+                'node',
+                'service.js'
+            ];
+        }
     }
 
     _makeConfig(): K8sConfig {
