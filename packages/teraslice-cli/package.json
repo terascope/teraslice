@@ -44,7 +44,7 @@
         "cli-table3": "^0.6.4",
         "easy-table": "^1.2.0",
         "ejs": "^3.1.10",
-        "esbuild": "^0.21.3",
+        "esbuild": "^0.21.5",
         "events": "^3.3.0",
         "execa": "^5.1.0",
         "fs-extra": "^11.2.0",
