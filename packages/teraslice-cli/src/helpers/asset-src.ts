@@ -3,22 +3,20 @@ import prettyBytes from 'pretty-bytes';
 import glob from 'glob-promise';
 import fs from 'fs-extra';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import tmp from 'tmp';
 import { build } from 'esbuild';
-
 import {
-    isCI,
-    toInteger,
-    TSError,
-    toPascalCase,
-    set,
-    toUpperCase,
-    toLowerCase
+    isCI, toInteger, TSError,
+    toPascalCase, set, toUpperCase,
+    toLowerCase,
 } from '@terascope/utils';
 
 import reply from './reply.js';
 import { wasmPlugin, getPackage } from './utils.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 interface ZipResults {
     name: string;
@@ -55,7 +53,7 @@ export class AssetSrc {
     outputFileName: string;
     debug: boolean;
     overwrite: boolean;
-
+    isESM = false;
     devMode = false;
 
     constructor(
@@ -82,6 +80,10 @@ export class AssetSrc {
 
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
+        }
+
+        if (this.packageJson.type === 'module') {
+            this.isESM = true;
         }
 
         const asset = fs.readJSONSync(this.assetFile);
@@ -150,6 +152,7 @@ export class AssetSrc {
 
             const pathName = parsedPath.name === 'api' ? toUpperCase(parsedPath.name) : toPascalCase(parsedPath.name);
             let value: string | [string, string];
+
             if (typescript) {
                 let importName: string;
                 if (pathName === 'Processor') {
@@ -178,7 +181,7 @@ export class AssetSrc {
 
     async build(): Promise<ZipResults> {
         let zipOutput;
-
+        const { isESM } = this;
         if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
             throw new Error(`Zipfile already exists "${this.outputFileName}"`);
         }
@@ -243,6 +246,14 @@ export class AssetSrc {
             spaces: 4,
         });
 
+        if (isESM) {
+            const esmModule = { type: 'module' };
+            // write asset.json into bundleDir
+            await fs.writeJSON(path.join(bundleDir.name, 'package.json'), esmModule, {
+                spaces: 4,
+            });
+        }
+
         // run npm --cwd srcDir/asset --prod --silent --no-progress
         reply.info('* running yarn --prod --no-progress');
         await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
@@ -264,15 +275,19 @@ export class AssetSrc {
             reply.fatal(`Unable to resolve entry point due to error: ${err}`);
         }
 
+        const injectPath = path.join(dirname, './esm-shims.js');
+
         const result = await build({
             bundle: true,
+            format: 'esm',
             entryPoints: [entryPoint],
             outdir: bundleDir.name,
             platform: 'node',
             sourcemap: false,
             target: this.bundleTarget,
             plugins: [wasmPlugin],
-            keepNames: true
+            keepNames: true,
+            ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 
         // Test require the asset to make sure it loads, if the process node
