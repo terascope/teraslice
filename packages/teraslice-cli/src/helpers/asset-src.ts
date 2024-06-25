@@ -53,7 +53,7 @@ export class AssetSrc {
     outputFileName: string;
     debug: boolean;
     overwrite: boolean;
-
+    isESM = false;
     devMode = false;
 
     constructor(
@@ -80,6 +80,10 @@ export class AssetSrc {
 
         if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
+        }
+
+        if (this.packageJson.type === 'module') {
+            this.isESM = true;
         }
 
         const asset = fs.readJSONSync(this.assetFile);
@@ -177,7 +181,7 @@ export class AssetSrc {
 
     async build(): Promise<ZipResults> {
         let zipOutput;
-
+        const { isESM } = this;
         if (!this.overwrite && fs.pathExistsSync(this.outputFileName)) {
             throw new Error(`Zipfile already exists "${this.outputFileName}"`);
         }
@@ -242,11 +246,13 @@ export class AssetSrc {
             spaces: 4,
         });
 
-        const esmModule = { type: 'module' };
-        // write asset.json into bundleDir
-        await fs.writeJSON(path.join(bundleDir.name, 'package.json'), esmModule, {
-            spaces: 4,
-        });
+        if (isESM) {
+            const esmModule = { type: 'module' };
+            // write asset.json into bundleDir
+            await fs.writeJSON(path.join(bundleDir.name, 'package.json'), esmModule, {
+                spaces: 4,
+            });
+        }
 
         // run npm --cwd srcDir/asset --prod --silent --no-progress
         reply.info('* running yarn --prod --no-progress');
@@ -270,6 +276,7 @@ export class AssetSrc {
         }
 
         const injectPath = path.join(dirname, './esm-shims.js');
+
         const result = await build({
             bundle: true,
             format: 'esm',
@@ -280,7 +287,7 @@ export class AssetSrc {
             target: this.bundleTarget,
             plugins: [wasmPlugin],
             keepNames: true,
-            inject: [injectPath]
+            ...(isESM && { format: 'esm', inject: [injectPath] })
         });
 
         // Test require the asset to make sure it loads, if the process node
