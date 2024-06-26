@@ -279,7 +279,6 @@ export class AssetSrc {
 
         const result = await build({
             bundle: true,
-            format: 'esm',
             entryPoints: [entryPoint],
             outdir: bundleDir.name,
             platform: 'node',
