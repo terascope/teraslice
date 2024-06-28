@@ -13,7 +13,7 @@ import {
 import { Teraslice } from '@terascope/types';
 import { pWhile } from '@terascope/utils';
 import crypto from 'crypto';
-import { TerasliceHarness, JobFixtureNames } from '../../teraslice-harness.js';
+import { TerasliceHarness } from '../../teraslice-harness.js';
 import {
     ASSET_STORAGE_CONNECTION_TYPE, MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY, TEST_PLATFORM
 } from '../../config.js';
@@ -26,42 +26,6 @@ describe('assets', () => {
         await terasliceHarness.init();
         await terasliceHarness.resetState();
     });
-
-    /**
-     * Uploads the specified asset file and then submits the specified job config
-     * it then waits for the job to enter the running state, then waits for
-     * the requested number of workers to enter the joined state.  Then that has
-     * happened it tests to see that the number of workers joined is the number
-     * of workers requested.  This reasoning is a bit circular, but a worker
-     * won't enter the `joined` state if it fails to load its assets.
-     *
-     * @param {string}   jobSpecName the name of job to run
-     * @param {string}   assetPath   the relative path to the asset file
-     */
-    async function submitAndValidateAssetJob(jobSpecName: JobFixtureNames, assetPath: string) {
-        const fileStream = fs.createReadStream(assetPath);
-        const jobSpec = terasliceHarness.newJob(jobSpecName);
-        // Set resource constraints on workers within CI
-        if (TEST_PLATFORM === 'kubernetes') {
-            jobSpec.resources_requests_cpu = 0.1;
-        }
-        const { workers } = jobSpec; // save for comparison
-
-        const result = await terasliceHarness.teraslice.assets.upload(
-            fileStream,
-            { blocking: true }
-        );
-        // NOTE: In this case, the asset is referenced by the ID
-        // assigned by teraslice and not it's name.
-        jobSpec.assets = [result._id, 'standard', 'elasticsearch'];
-
-        const ex = await terasliceHarness.submitAndStart(jobSpec);
-
-        const r = await terasliceHarness.forWorkersJoined(ex.id(), workers as number, 25);
-        expect(r).toEqual(workers);
-
-        await ex.stop({ blocking: true });
-    }
 
     it('after uploading an asset, it can be deleted', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
@@ -96,31 +60,16 @@ describe('assets', () => {
         }
     });
 
-    // Type 1 Asset - asset.json at top level of zipfile
-    // example_assets/
-    // example_assets/drop_property/
-    // example_assets/drop_property/index.js
-    // asset.json
-    xit('after starting a job with a Type 1 asset specified by ID should eventually have all workers joined', async () => {
-        const assetPath = 'test/fixtures/assets/example_asset_1.zip';
+    it('can update an asset bundle and use the new asset', async () => {
+        const olderAssetPath = 'test/fixtures/assets/example_asset_1.zip';
+        const olderStream = fs.createReadStream(olderAssetPath);
+        await terasliceHarness.teraslice.assets.upload(
+            olderStream,
+            { blocking: true }
+        );
 
-        await submitAndValidateAssetJob('generator-asset', assetPath);
-    });
-
-    // Type 2 Asset - asset.json in subdirectory of zipfile
-    // example_assets/
-    // example_assets/asset.json
-    // example_assets/drop_property/
-    // example_assets/drop_property/index.js
-    xit('after starting a job with a Type 2 asset specified by ID should eventually have all workers joined', async () => {
-        const assetPath = 'test/fixtures/assets/example_asset_2.zip';
-        await submitAndValidateAssetJob('generator-asset', assetPath);
-    });
-
-    xit('can update an asset bundle and use the new asset', async () => {
-        const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
-
-        const fileStream = fs.createReadStream(assetPath);
+        const newerAssetPath = 'test/fixtures/assets/example_asset_1updated.zip';
+        const fileStream = fs.createReadStream(newerAssetPath);
         // the asset on this job already points to 'ex1' so it should use the latest available asset
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
@@ -149,16 +98,18 @@ describe('assets', () => {
         await ex.stop({ blocking: true });
     });
 
-    xit('can directly ask for the new asset to be used', async () => {
+    it('can directly ask for a specific asset version to be used', async () => {
         const jobSpec = terasliceHarness.newJob('generator-asset');
         // Set resource constraints on workers within CI
         if (TEST_PLATFORM === 'kubernetes') {
             jobSpec.resources_requests_cpu = 0.1;
         }
-        jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
+        // the previous test confirms the newer version will be used by default
+        // now we test to see if we can select the older version
+        jobSpec.assets = ['ex1:0.0.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;
 
-        const assetResponse = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.1.1');
+        const assetResponse = await terasliceHarness.teraslice.assets.getAsset('ex1', '0.0.1');
         const assetId = assetResponse[0].id;
 
         const ex = await terasliceHarness.submitAndStart(jobSpec);
@@ -221,7 +172,7 @@ describe('s3 asset storage', () => {
 
             const response = await getS3Object(s3client, { Bucket: bucketName, Key: `${assetId}.zip` });
             const base64 = await response.Body?.transformToString('base64');
-            expect(base64).toStartWith('UEsDBAoAAAAAAAs6O');
+            expect(base64).toStartWith('UEsDBBQAAgAIAFBl0');
         });
 
         it('does not create the "blob" field when storing asset metadata in ES', async () => {

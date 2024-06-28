@@ -63,14 +63,14 @@ describe('AssetsStorage using S3 backend', () => {
         const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
         const buffer = fs.readFileSync(filePath);
         const result = await storage.save(buffer);
-        expect(result.assetId).toBe('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
+        expect(result.assetId).toBe('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
     });
 
     it('can grab asset info from S3', async () => {
         const list = await storage.grabS3Info();
         expect(list).toEqual([{
-            File: '2909ec5fd38466cf6276cc14ede25096f1f34ee9.zip',
-            Size: 2759
+            File: 'caf0e5ce7cf1edc864f306b1d9edbad0f7060545.zip',
+            Size: 162711
         }]);
     });
 
@@ -78,13 +78,13 @@ describe('AssetsStorage using S3 backend', () => {
         /// create a buffer copy of example_asset_1.zip to test if it equals what s3 sends back
         const filePath = 'e2e/test/fixtures/assets/example_asset_1.zip';
         const buffer = fs.readFileSync(filePath);
-        const assetRecord = await storage.get('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
+        const assetRecord = await storage.get('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
         expect(buffer.equals(assetRecord.blob as Buffer)).toBe(true);
         expect(assetRecord.name).toBe('ex1');
     });
 
     it('can delete an asset from S3', async () => {
-        await storage.remove('2909ec5fd38466cf6276cc14ede25096f1f34ee9');
+        await storage.remove('caf0e5ce7cf1edc864f306b1d9edbad0f7060545');
         const list = await storage.grabS3Info();
         expect(list).toBeEmpty();
     });

@@ -13,7 +13,7 @@ describe('cluster api', () => {
         await terasliceHarness.resetState();
     });
 
-    xit('submitted jobs are not saved in validated form', async () => {
+    it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = createReadStream(assetPath);
         const jobSpec = terasliceHarness.newJob('generator-asset');
@@ -30,7 +30,7 @@ describe('cluster api', () => {
         expect(jobConfig).toMatchObject(jobSpec);
     });
 
-    xit('should update job config', async () => {
+    it('should update job config', async () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = terasliceHarness.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
@@ -114,7 +114,7 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('version');
     });
 
-    xit('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
+    it('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1');
 
         expect(response).toBeArray();
@@ -124,7 +124,7 @@ describe('cluster api', () => {
         expect(response[0]).toHaveProperty('version');
     });
 
-    xit('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
+    it('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
         const response = await terasliceHarness.teraslice.cluster.get('/assets/ex1/0.0.1');
 
         expect(response).toBeArray();
@@ -139,12 +139,12 @@ describe('cluster api', () => {
         expect(response).toBeString();
     });
 
-    xit('api end point /txt/assets/assetName should return a text table', async () => {
+    it('api end point /txt/assets/assetName should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1');
         expect(response).toBeString();
     });
 
-    xit('api end point /txt/assets/assetName/version should return a text table', async () => {
+    it('api end point /txt/assets/assetName/version should return a text table', async () => {
         const response = await terasliceHarness.teraslice.cluster.txt('assets/ex1/0.0.1');
         expect(response).toBeString();
     });
