@@ -308,7 +308,7 @@ export interface Targets {
 
 export interface ExternalPort {
     name: string;
-    containerPort: number
+    port: number
 }
 
 export interface Volume {

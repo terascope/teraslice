@@ -79,6 +79,7 @@ export class JobsService {
             });
         }
 
+        this.addExternalPortsToJobSpec(jobSpec);
         const validJob = await this._validateJobSpec(jobSpec);
 
         // We don't create with the fully parsed validJob as it changes the asset names
@@ -122,6 +123,7 @@ export class JobsService {
         if (originalJob.active !== false && jobSpec.active === false) {
             this.logger.info(`Skipping job validation to set jobId ${jobId} as _inactive`);
         } else {
+            this.addExternalPortsToJobSpec(jobSpec);
             await this._validateJobSpec(jobSpec);
         }
 
@@ -337,5 +339,35 @@ export class JobsService {
         parsedAssetJob.assets = assetIds;
 
         return parsedAssetJob;
+    }
+
+    /**
+     * Automatically add external_ports to jobSpec if needed.
+     * This ensures that the Prometheus exporter server can be scraped.
+     * Check if prom_metrics_enabled is true on jobSpec or teraslice config.
+     * If so, add or update external_ports property with correct port.
+     * @param {Partial<JobConfig>} jobSpec
+    */
+    addExternalPortsToJobSpec(jobSpec: Partial<JobConfig>) {
+        const {
+            prom_metrics_enabled: enabledInTF,
+            prom_metrics_port: tfPort
+        } = this.context.sysconfig.terafoundation;
+        const { prom_metrics_enabled: enabledInJob, prom_metrics_port: jobPort } = jobSpec;
+        const portToUse: number = jobPort || tfPort;
+
+        if (enabledInJob === true || (enabledInJob === undefined && enabledInTF)) {
+            let portPresent = false;
+            if (!jobSpec.external_ports) {
+                jobSpec.external_ports = [];
+            }
+            for (const item of jobSpec.external_ports) {
+                const currentPort = typeof item === 'number' ? item : item.port;
+                if (currentPort === portToUse) portPresent = true;
+            }
+            if (!portPresent) {
+                jobSpec.external_ports.push({ name: 'metrics', port: portToUse });
+            }
+        }
     }
 }

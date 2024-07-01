@@ -246,7 +246,6 @@ export class K8sResource {
                         .push(
                             {
                                 name: portValue.name,
-                                // @ts-expect-error TODO: don't know types here
                                 containerPort: portValue.port
                             }
                         );
