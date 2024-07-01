@@ -5,7 +5,8 @@ import {
     WORKERS_PER_NODE, KAFKA_BROKER,
     TEST_HOST, TERASLICE_PORT, CLUSTER_NAME,
     HOST_IP, CONFIG_PATH, ASSET_STORAGE_CONNECTION,
-    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST
+    ASSET_STORAGE_CONNECTION_TYPE, MINIO_HOST,
+    ENCRYPT_MINIO, ROOT_CERT_PATH
 } from './config.js';
 
 const baseConfig = {
@@ -41,7 +42,8 @@ const baseConfig = {
                     secretAccessKey: 'minioadmin',
                     forcePathStyle: true,
                     sslEnabled: false,
-                    region: 'us-east-1'
+                    region: 'us-east-1',
+                    caCertificate: ''
                 }
             }
         }
@@ -99,6 +101,11 @@ export default async function setupTerasliceConfig() {
 async function writeMasterConfig() {
     const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
+    if (ENCRYPT_MINIO === 'true') {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        masterConfig.terafoundation.connectors.s3.default.sslEnabled = true;
+        masterConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
@@ -109,6 +116,11 @@ async function writeMasterConfig() {
 async function writeWorkerConfig() {
     const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
+    if (ENCRYPT_MINIO === 'true') {
+        const rootCA = fse.readFileSync(ROOT_CERT_PATH, 'utf8');
+        workerConfig.terafoundation.connectors.s3.default.sslEnabled = true;
+        workerConfig.terafoundation.connectors.s3.default.caCertificate = rootCA;
+    }
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {

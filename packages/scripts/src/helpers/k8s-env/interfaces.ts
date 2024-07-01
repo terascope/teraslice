@@ -4,6 +4,7 @@ export interface K8sEnvOptions {
     kafkaImageVersion: string,
     zookeeperVersion: string,
     minioVersion: string;
+    encryptMinio: boolean;
     rabbitmqVersion: string;
     opensearchVersion: string;
     nodeVersion: string;

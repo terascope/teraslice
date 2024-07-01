@@ -23,6 +23,7 @@ describe('Test Runner Helpers', () => {
         kafkaImageVersion: '',
         zookeeperVersion: '',
         minioVersion: '',
+        encryptMinio: false,
         rabbitmqVersion: '',
         opensearchVersion: '',
         nodeVersion: '',

@@ -16,6 +16,7 @@ export type TestOptions = {
     kafkaImageVersion: any;
     zookeeperVersion: string;
     minioVersion: string;
+    encryptMinio: boolean;
     rabbitmqVersion: string;
     opensearchVersion: string;
     nodeVersion: string;

@@ -5,6 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import * as ts from '@terascope/utils';
 import { Kafka } from 'kafkajs';
+import execa from 'execa';
 import { getServicesForSuite, getRootDir } from '../misc';
 import {
     dockerRun,
@@ -133,12 +134,17 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
             ? ['/data']
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
+        mount: config.ENCRYPT_MINIO
+            ? `type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`
+            : '',
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
         },
         network: config.DOCKER_NETWORK_NAME,
-        args: ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+        args: config.ENCRYPT_MINIO
+            ? ['server', '-S', '/opt/certs', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+            : ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
     },
     [Service.RabbitMQ]: {
         image: config.RABBITMQ_DOCKER_IMAGE,
@@ -287,6 +293,17 @@ export async function ensureZookeeper(options: TestOptions): Promise<() => void>
 
 export async function ensureMinio(options: TestOptions): Promise<() => void> {
     let fn = () => { };
+    // Create fresh certs before loading minio if encryption enabled
+    if (options.encryptMinio) {
+        try {
+            signale.pending('Generating new ca-certificates for minio...');
+            const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
+            await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
+        } catch (err) {
+            throw new ts.TSError(`Error generating ca-certificates for minio: ${err.message}`);
+        }
+        signale.success('Successfully created new certificates for minio');
+    }
     const startTime = Date.now();
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
@@ -622,11 +639,15 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             let statusCode: number;
+            const rootCaPath = path.join(getRootDir(), 'e2e/test/certs/CAs/rootCA.pem');
             try {
                 ({ statusCode } = await got('minio/health/live', {
                     prefixUrl: host,
                     responseType: 'json',
                     throwHttpErrors: false,
+                    https: config.ENCRYPT_MINIO
+                        ? { certificateAuthority: fs.readFileSync(rootCaPath) }
+                        : {},
                     retry: 0,
                 }));
             } catch (err) {

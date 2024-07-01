@@ -18,6 +18,7 @@ describe('services', () => {
         kafkaImageVersion: 'very-bad-version',
         zookeeperVersion: 'very-bad-version',
         minioVersion: 'very-bad-version',
+        encryptMinio: false,
         rabbitmqVersion: 'very-bad-version',
         opensearchVersion: 'very-bad-version',
         nodeVersion: 'very-bad-version',

@@ -59,6 +59,7 @@ e2e/logs/*
 e2e/.config
 e2e/.assets
 e2e/dist
+e2e/test/certs
 
 # package dist directory
 packages/**/dist
