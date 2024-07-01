@@ -32,7 +32,7 @@
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
         "start:dev": "yarn build && env NODE_ENV=development node service.js",
-        "start:nodemon": "nodemon service.js",
+        "start:nodemon": "nodemon --exitcrash service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
     },
