@@ -185,22 +185,20 @@ export class K8s {
             });
         }
         /// Pass in env so master passes volumes to ex's and workers
-        if (masterDeployment.spec?.template.spec?.containers[0]) {
-            if (masterDeployment.spec.template.spec.containers[0].env) {
-                masterDeployment.spec.template.spec.containers[0].env.push(
-                    {
-                        name: 'MOUNT_LOCAL_TERASLICE',
-                        value: 'true'
-                    }
-                );
-            } else {
-                masterDeployment.spec.template.spec.containers[0].env = [
-                    {
-                        name: 'MOUNT_LOCAL_TERASLICE',
-                        value: 'true'
-                    }
-                ];
-            }
+        if (masterDeployment.spec?.template.spec?.containers[0].env) {
+            masterDeployment.spec.template.spec.containers[0].env.push(
+                {
+                    name: 'MOUNT_LOCAL_TERASLICE',
+                    value: 'true'
+                }
+            );
+        } else if (masterDeployment.spec?.template.spec?.containers[0]) {
+            masterDeployment.spec.template.spec.containers[0].env = [
+                {
+                    name: 'MOUNT_LOCAL_TERASLICE',
+                    value: 'true'
+                }
+            ];
         }
     }
 
