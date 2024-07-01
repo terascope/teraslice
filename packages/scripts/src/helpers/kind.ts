@@ -22,7 +22,7 @@ export class Kind {
         this.k8sVersion = k8sVersion;
     }
 
-    async createCluster(teraslicePort = TERASLICE_PORT): Promise<void> {
+    async createCluster(teraslicePort = TERASLICE_PORT, devMode: boolean = false): Promise<void> {
         this.kindVersion = await this.getKindVersion();
 
         const e2eK8sDir = getE2eK8sDir();
@@ -33,10 +33,12 @@ export class Kind {
         let configPath: string;
 
         // clusterName must match 'name' in kind config yaml file
-        if (this.clusterName === 'k8s-env') {
-            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
+        if (this.clusterName === 'k8s-env' && devMode) {
+            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPortsDev.yaml');
         } else if (this.clusterName === 'k8s-e2e') {
             configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
+        } else if (this.clusterName === 'k8s-env') {
+            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
         } else {
             signale.error(`No config file for cluster with name ${this.clusterName}`);
             process.exit(1);

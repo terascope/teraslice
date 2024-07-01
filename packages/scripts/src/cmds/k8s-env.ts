@@ -10,6 +10,7 @@ const cmd: CommandModule = {
     builder(yargs) {
         return yargs
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice from your local repository and elasticsearch.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --dev', 'Start a kind kubernetes cluster running teraslice in dev mode. Faster build times.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2', 'Start a kind kubernetes cluster running teraslice from a specific docker image and elasticsearch.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
@@ -93,6 +94,11 @@ const cmd: CommandModule = {
                 default: 'elasticsearch-next',
                 choices: ['elasticsearch-next', 's3'],
             })
+            .option('dev', {
+                description: 'Mounts local teraslice to k8s resources for faster development.',
+                type: 'boolean',
+                default: false
+            })
             .check((args) => {
                 if (args['asset-storage'] === 's3' && process.env.TEST_MINIO !== 'true') {
                     throw new Error('You chose "s3" as an asset storage but don\'t have the minio service enabled.\n'
@@ -118,7 +124,8 @@ const cmd: CommandModule = {
             kindClusterName: argv['cluster-name'] as string,
             k8sVersion: argv['k8s-version'] as string,
             terasliceImage: argv['teraslice-image'] as string,
-            assetStorage: argv['asset-storage'] as string
+            assetStorage: argv['asset-storage'] as string,
+            dev: Boolean(argv.dev)
         };
 
         if (Boolean(argv.rebuild) === true) {
