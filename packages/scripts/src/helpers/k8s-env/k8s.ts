@@ -8,6 +8,7 @@ import { getE2eK8sDir } from '../../helpers/packages';
 import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import * as config from '../config';
+import { getVolumesFromDockerfile } from '../kind';
 
 const logger = debugLogger('ts-scripts:k8s-env');
 export class K8s {
@@ -59,144 +60,29 @@ export class K8s {
     }
 
     mountLocalTeraslice(masterDeployment: k8sClient.V1Deployment) {
+        const dockerfileMounts = getVolumesFromDockerfile(true);
         if (masterDeployment.spec?.template.spec?.containers[0].volumeMounts) {
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'packages',
-                mountPath: '/app/source/packages'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'scripts',
-                mountPath: '/app/source/scripts'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'types',
-                mountPath: '/app/source/types'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'yarn',
-                mountPath: '/app/source/.yarn'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'yarnci',
-                mountPath: '/app/source/.yarnclean'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'packagejson',
-                mountPath: '/app/source/package.json'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'yarnlock',
-                mountPath: '/app/source/yarn.lock'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'tsconfigjson',
-                mountPath: '/app/source/tsconfig.json'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'yarnrc',
-                mountPath: '/app/source/.yarnrc'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'servicejs',
-                mountPath: '/app/source/service.js'
-            });
-            masterDeployment.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'nodemodules',
-                mountPath: '/app/source/node_modules'
-            });
+            masterDeployment.spec.template.spec.containers[0].volumeMounts
+                .push(...dockerfileMounts.volumeMounts);
         }
         if (masterDeployment.spec?.template.spec?.volumes) {
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'packages',
-                hostPath: {
-                    path: '/packages',
-                    type: 'Directory'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'scripts',
-                hostPath: {
-                    path: '/scripts',
-                    type: 'Directory'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'types',
-                hostPath: {
-                    path: '/types',
-                    type: 'Directory'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'yarn',
-                hostPath: {
-                    path: '/.yarn',
-                    type: 'Directory'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'yarnci',
-                hostPath: {
-                    path: '/.yarnclean.ci',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'packagejson',
-                hostPath: {
-                    path: '/package.json',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'yarnlock',
-                hostPath: {
-                    path: '/yarn.lock',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'tsconfigjson',
-                hostPath: {
-                    path: '/tsconfig.json',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'yarnrc',
-                hostPath: {
-                    path: '/.yarnrc',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'servicejs',
-                hostPath: {
-                    path: '/service.js',
-                    type: 'File'
-                }
-            });
-            masterDeployment.spec.template.spec.volumes.push({
-                name: 'nodemodules',
-                hostPath: {
-                    path: '/node_modules',
-                    type: 'Directory'
-                }
-            });
+            masterDeployment.spec.template.spec.volumes
+                .push(...dockerfileMounts.volumes);
         }
+
         /// Pass in env so master passes volumes to ex's and workers
         if (masterDeployment.spec?.template.spec?.containers[0].env) {
             masterDeployment.spec.template.spec.containers[0].env.push(
                 {
                     name: 'MOUNT_LOCAL_TERASLICE',
-                    value: 'true'
+                    value: JSON.stringify(dockerfileMounts)
                 }
             );
         } else if (masterDeployment.spec?.template.spec?.containers[0]) {
             masterDeployment.spec.template.spec.containers[0].env = [
                 {
                     name: 'MOUNT_LOCAL_TERASLICE',
-                    value: 'true'
+                    value: JSON.stringify(dockerfileMounts)
                 }
             ];
         }

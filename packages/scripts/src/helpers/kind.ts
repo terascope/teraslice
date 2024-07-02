@@ -4,9 +4,10 @@ import path from 'path';
 import execa from 'execa';
 import yaml from 'js-yaml';
 import { Logger, debugLogger } from '@terascope/utils';
+import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale';
 import { getE2eK8sDir } from '../helpers/packages';
-import { KindCluster } from './interfaces';
+import { KindCluster, TsVolumeSet } from './interfaces';
 import { TERASLICE_PORT } from './config';
 
 export class Kind {
@@ -33,9 +34,7 @@ export class Kind {
         let configPath: string;
 
         // clusterName must match 'name' in kind config yaml file
-        if (this.clusterName === 'k8s-env' && devMode) {
-            configPath = path.join(e2eK8sDir, 'kindConfigDefaultPortsDev.yaml');
-        } else if (this.clusterName === 'k8s-e2e') {
+        if (this.clusterName === 'k8s-e2e') {
             configPath = path.join(e2eK8sDir, 'kindConfigTestPorts.yaml');
         } else if (this.clusterName === 'k8s-env') {
             configPath = path.join(e2eK8sDir, 'kindConfigDefaultPorts.yaml');
@@ -50,6 +49,10 @@ export class Kind {
         }
         if (configFile.nodes[0].extraMounts) {
             configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
+            if (devMode) {
+                const dockerFileMounts = getVolumesFromDockerfile(true).extraMounts;
+                configFile.nodes[0].extraMounts.push(...dockerFileMounts);
+            }
         }
         configFile.nodes[0].extraPortMappings[1].hostPort = Number.parseInt(teraslicePort, 10);
         const updatedYaml = yaml.dump(configFile);
@@ -96,6 +99,82 @@ export class Kind {
             throw new Error('Kind version could not be determined.');
         }
     }
+}
+
+export function getVolumesFromDockerfile(
+    mountNodeModules: boolean,
+    dockerfilePath = path.join(process.cwd(), 'Dockerfile')
+):TsVolumeSet {
+    const finalResult:TsVolumeSet = {
+        extraMounts: [],
+        volumes: [],
+        volumeMounts: []
+    };
+    const dockerfile = fs.readFileSync(dockerfilePath, 'utf-8');
+
+    const dockerfileArray = dockerfile.split(/\r?\n/);
+
+    const copyLines = dockerfileArray.filter((line) => {
+        if (line.substring(0, 4) === 'COPY') {
+            return true;
+        }
+        return false;
+    }).map((value) => value.slice(5).split(' '));
+
+    if (mountNodeModules) {
+        copyLines.push(['node_modules', '/app/source/node_modules']);
+    }
+
+    /// Check if directory or file
+    for (const line of copyLines) {
+        for (let index = 0; index < line.length - 1; index++) {
+            const exMount:any = {
+                hostPath: '',
+                containerPath: ''
+            };
+            const volume:V1Volume = {
+                name: ''
+            };
+            const volumeMount:V1VolumeMount = {
+                name: '',
+                mountPath: ''
+            };
+            const currentMount = line[index];
+            const containerDir = line[line.length - 1];
+            const fileStat = fs.statSync(currentMount);
+
+            // Map exMount
+            exMount.hostPath = `./${currentMount}`;
+            // Must be an absolute path
+            exMount.containerPath = currentMount.substring(0, 1) === '/' ? currentMount : `/${currentMount}`;
+
+            // remove all '/', '_' and '.' from name
+            volumeMount.name = currentMount.replace(/[./_]/g, '');
+
+            volume.name = volumeMount.name;
+            if (fileStat.isFile()) {
+                volume.hostPath = {
+                    path: exMount.containerPath,
+                    type: 'File'
+                };
+                /// If it's a file we need to map the path with the file name
+                volumeMount.mountPath = path.join(containerDir, currentMount);
+                // volumeMount.mountPath = containerDir;
+            } else if (fileStat.isDirectory()) {
+                volume.hostPath = {
+                    path: exMount.containerPath,
+                    type: 'Directory'
+                };
+                volumeMount.mountPath = containerDir;
+            } else {
+                throw new Error(`Path ${line[index]} is neither a file or directory`);
+            }
+            finalResult.extraMounts.push(exMount);
+            finalResult.volumeMounts.push(volumeMount);
+            finalResult.volumes.push(volume);
+        }
+    }
+    return finalResult;
 }
 
 const kindToK8sVersionMap = {
