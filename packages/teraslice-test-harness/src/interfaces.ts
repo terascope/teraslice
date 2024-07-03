@@ -19,10 +19,6 @@ export interface JobHarnessOptions {
     cluster_manager_type?: ClusterManagerType
 }
 
-export interface OpTestHarnessOptions {
-    clients?: TestClientConfig[];
-}
-
 export type AnyOperationConstructor = ProcessorConstructor|SlicerConstructor;
 
 export interface SliceResults {
