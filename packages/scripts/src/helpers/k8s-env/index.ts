@@ -21,7 +21,6 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
-
     const kind = new Kind(options.k8sVersion, options.kindClusterName);
     // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
@@ -40,7 +39,11 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     // If --dev is true, we must run yarn setup before creating resources
     // We need a local node_modules folder built to add it as a volume
     if (options.dev) {
-        signale.info('Running yarn setup...');
+        if (process.version.substring(1) !== options.nodeVersion) {
+            throw new Error(`The node version this process is running on (${process.version}) does not match
+            the --node-version set in k8s-env (v${options.nodeVersion}). Check your version by running "node -v"`);
+        }
+        signale.info(`Running yarn setup with node ${process.version}...`);
         try {
             execa.commandSync('yarn setup');
         } catch (err) {
