@@ -2339,13 +2339,6 @@
     lz4-asm "^0.4.2"
     node-gzip "^1.1.2"
 
-"@terascope/teraslice-op-test-harness@^1.24.1":
-  version "1.24.1"
-  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.24.1.tgz#f3170cb5f659c927fb907d34c940181f9bfe48fa"
-  integrity sha512-T7tQ35S//2SY2gOgZxs7uPCEfLH0wAig2YV6gVTYLVBj7NivRtKgJx2EbwJGGQb0n3gNhNj/zn6AUKZ03+Q41A==
-  dependencies:
-    bluebird "^3.7.2"
-
 "@terascope/types@^0.15.1":
   version "0.15.1"
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.15.1.tgz#2898c7361c57687d1b53a741c7555e8cba7804ca"
