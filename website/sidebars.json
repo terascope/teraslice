@@ -207,15 +207,6 @@
                 ]
             }
         ],
-        "Legacy": [
-            {
-                "type": "subcategory",
-                "label": "teraslice-op-test-harness",
-                "ids": [
-                    "packages/teraslice-op-test-harness/overview"
-                ]
-            }
-        ],
         "Internal": [
             {
                 "type": "subcategory",
