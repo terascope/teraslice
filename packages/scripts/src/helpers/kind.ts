@@ -50,7 +50,7 @@ export class Kind {
         if (configFile.nodes[0].extraMounts) {
             configFile.nodes[0].extraMounts[0].hostPath = path.join(e2eK8sDir, '..', 'autoload');
             if (devMode) {
-                const dockerFileMounts = getVolumesFromDockerfile(true).extraMounts;
+                const dockerFileMounts = getVolumesFromDockerfile(true, this.logger).extraMounts;
                 configFile.nodes[0].extraMounts.push(...dockerFileMounts);
             }
         }
@@ -103,6 +103,7 @@ export class Kind {
 
 export function getVolumesFromDockerfile(
     mountNodeModules: boolean,
+    logger: Logger,
     dockerfilePath = path.join(process.cwd(), 'Dockerfile')
 ):TsVolumeSet {
     const finalResult:TsVolumeSet = {
@@ -110,69 +111,80 @@ export function getVolumesFromDockerfile(
         volumes: [],
         volumeMounts: []
     };
-    const dockerfile = fs.readFileSync(dockerfilePath, 'utf-8');
+    try {
+        logger.debug(`Reading Dockerfile at path: ${dockerfilePath}`);
+        const dockerfile = fs.readFileSync(dockerfilePath, 'utf-8');
 
-    const dockerfileArray = dockerfile.split(/\r?\n/);
+        const dockerfileArray = dockerfile.split(/\r?\n/);
 
-    const copyLines = dockerfileArray.filter((line) => {
-        if (line.substring(0, 4) === 'COPY') {
-            return true;
-        }
-        return false;
-    }).map((value) => value.slice(5).split(' '));
-
-    if (mountNodeModules) {
-        copyLines.push(['node_modules', '/app/source/node_modules']);
-    }
-
-    /// Check if directory or file
-    for (const line of copyLines) {
-        for (let index = 0; index < line.length - 1; index++) {
-            const exMount:any = {
-                hostPath: '',
-                containerPath: ''
-            };
-            const volume:V1Volume = {
-                name: ''
-            };
-            const volumeMount:V1VolumeMount = {
-                name: '',
-                mountPath: ''
-            };
-            const currentMount = line[index];
-            const containerDir = line[line.length - 1];
-            const fileStat = fs.statSync(currentMount);
-
-            // Map exMount
-            exMount.hostPath = `./${currentMount}`;
-            // Must be an absolute path
-            exMount.containerPath = currentMount.substring(0, 1) === '/' ? currentMount : `/${currentMount}`;
-
-            // remove all '/', '_' and '.' from name
-            volumeMount.name = currentMount.replace(/[./_]/g, '');
-
-            volume.name = volumeMount.name;
-            if (fileStat.isFile()) {
-                volume.hostPath = {
-                    path: exMount.containerPath,
-                    type: 'File'
-                };
-                /// If it's a file we need to map the path with the file name
-                volumeMount.mountPath = path.join(containerDir, currentMount);
-                // volumeMount.mountPath = containerDir;
-            } else if (fileStat.isDirectory()) {
-                volume.hostPath = {
-                    path: exMount.containerPath,
-                    type: 'Directory'
-                };
-                volumeMount.mountPath = containerDir;
-            } else {
-                throw new Error(`Path ${line[index]} is neither a file or directory`);
+        const copyLines = dockerfileArray.filter((line) => {
+            if (line.substring(0, 4) === 'COPY') {
+                return true;
             }
-            finalResult.extraMounts.push(exMount);
-            finalResult.volumeMounts.push(volumeMount);
-            finalResult.volumes.push(volume);
+            return false;
+        }).map((value) => value.slice(5).split(' '));
+
+        if (mountNodeModules) {
+            copyLines.push(['node_modules', '/app/source/node_modules']);
         }
+        // Grab all files/directories found in dockerfile to show in debugger
+        const foundVolumes = [];
+        for (const line of copyLines) {
+            foundVolumes.push(...line.slice(0, -1));
+        }
+        logger.info(`Found the following files/directories to be used as volume Mounts: ${foundVolumes}`);
+
+        /// Check if directory or file
+        for (const line of copyLines) {
+            for (let index = 0; index < line.length - 1; index++) {
+                const exMount:any = {
+                    hostPath: '',
+                    containerPath: ''
+                };
+                const volume:V1Volume = {
+                    name: ''
+                };
+                const volumeMount:V1VolumeMount = {
+                    name: '',
+                    mountPath: ''
+                };
+                const currentMount = line[index];
+                const containerDir = line[line.length - 1];
+                const fileStat = fs.statSync(currentMount);
+
+                // Map exMount
+                exMount.hostPath = `./${currentMount}`;
+                // Must be an absolute path
+                exMount.containerPath = currentMount.substring(0, 1) === '/' ? currentMount : `/${currentMount}`;
+
+                // remove all '/', '_' and '.' from name
+                volumeMount.name = currentMount.replace(/[./_]/g, '');
+
+                volume.name = volumeMount.name;
+                if (fileStat.isFile()) {
+                    volume.hostPath = {
+                        path: exMount.containerPath,
+                        type: 'File'
+                    };
+                    /// If it's a file we need to map the path with the file name
+                    volumeMount.mountPath = path.join(containerDir, currentMount);
+                    // volumeMount.mountPath = containerDir;
+                } else if (fileStat.isDirectory()) {
+                    volume.hostPath = {
+                        path: exMount.containerPath,
+                        type: 'Directory'
+                    };
+                    volumeMount.mountPath = containerDir;
+                } else {
+                    throw new Error(`Path ${line[index]} is neither a file or directory`);
+                }
+                finalResult.extraMounts.push(exMount);
+                finalResult.volumeMounts.push(volumeMount);
+                finalResult.volumes.push(volume);
+            }
+        }
+    } catch (err) {
+        throw new Error(`Failed to extract Docker volumes from Dockerfile. Reason: ${err}`);
     }
     return finalResult;
 }

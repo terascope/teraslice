@@ -60,7 +60,7 @@ export class K8s {
     }
 
     mountLocalTeraslice(masterDeployment: k8sClient.V1Deployment) {
-        const dockerfileMounts = getVolumesFromDockerfile(true);
+        const dockerfileMounts = getVolumesFromDockerfile(true, logger);
         if (masterDeployment.spec?.template.spec?.containers[0].volumeMounts) {
             masterDeployment.spec.template.spec.containers[0].volumeMounts
                 .push(...dockerfileMounts.volumeMounts);
