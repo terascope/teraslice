@@ -8,6 +8,7 @@ import { getE2eK8sDir } from '../../helpers/packages';
 import { K8sEnvOptions } from './interfaces';
 import signale from '../signale';
 import * as config from '../config';
+import { getVolumesFromDockerfile } from '../kind';
 
 const logger = debugLogger('ts-scripts:k8s-env');
 export class K8s {
@@ -58,6 +59,35 @@ export class K8s {
         }
     }
 
+    mountLocalTeraslice(masterDeployment: k8sClient.V1Deployment) {
+        const dockerfileMounts = getVolumesFromDockerfile(true, logger);
+        if (masterDeployment.spec?.template.spec?.containers[0].volumeMounts) {
+            masterDeployment.spec.template.spec.containers[0].volumeMounts
+                .push(...dockerfileMounts.volumeMounts);
+        }
+        if (masterDeployment.spec?.template.spec?.volumes) {
+            masterDeployment.spec.template.spec.volumes
+                .push(...dockerfileMounts.volumes);
+        }
+
+        /// Pass in env so master passes volumes to ex's and workers
+        if (masterDeployment.spec?.template.spec?.containers[0].env) {
+            masterDeployment.spec.template.spec.containers[0].env.push(
+                {
+                    name: 'MOUNT_LOCAL_TERASLICE',
+                    value: JSON.stringify(dockerfileMounts)
+                }
+            );
+        } else if (masterDeployment.spec?.template.spec?.containers[0]) {
+            masterDeployment.spec.template.spec.containers[0].env = [
+                {
+                    name: 'MOUNT_LOCAL_TERASLICE',
+                    value: JSON.stringify(dockerfileMounts)
+                }
+            ];
+        }
+    }
+
     async deployK8sTeraslice(wait = false, options: K8sEnvOptions | undefined = undefined) {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
@@ -76,7 +106,7 @@ export class K8s {
             masterTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             if (options) {
                 const storageType = options.assetStorage;
-                masterTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+                masterTerafoundation.teraslice.asset_storage_connection_type = storageType;
             }
             masterConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(masterTerafoundation) };
             masterConfigMap.metadata = { name: 'teraslice-master' };
@@ -94,7 +124,7 @@ export class K8s {
             workerTerafoundation.teraslice.kubernetes_image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             if (options) {
                 const storageType = options.assetStorage;
-                workerTerafoundation.terafoundation.asset_storage_connection_type = storageType;
+                workerTerafoundation.teraslice.asset_storage_connection_type = storageType;
             }
             workerConfigMap.data = { 'teraslice.yaml': k8sClient.dumpYaml(workerTerafoundation) };
             workerConfigMap.metadata = { name: 'teraslice-worker' };
@@ -113,6 +143,9 @@ export class K8s {
             }
             if (yamlTSMasterDeployment.spec?.template.spec?.containers[0]) {
                 yamlTSMasterDeployment.spec.template.spec.containers[0].image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
+            }
+            if (options?.dev) {
+                this.mountLocalTeraslice(yamlTSMasterDeployment);
             }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);
             logger.debug('deployK8sTeraslice yamlTSMasterDeployment: ', response.body);

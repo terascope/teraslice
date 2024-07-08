@@ -1,4 +1,5 @@
 import { EmptyObject } from '@terascope/utils';
+import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 
 export type PackageInfo = {
     dir: string;
@@ -156,4 +157,10 @@ export type KindCluster = {
             ];
         }
     ]
+}
+
+export interface TsVolumeSet {
+    extraMounts: any[],
+    volumes: V1Volume[],
+    volumeMounts: V1VolumeMount[]
 }

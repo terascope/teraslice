@@ -1,3 +1,4 @@
+import execa from 'execa';
 import {
     dockerTag,
     isKindInstalled,
@@ -20,7 +21,6 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
-
     const kind = new Kind(options.k8sVersion, options.kindClusterName);
     // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
@@ -36,9 +36,26 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
+    // If --dev is true, we must run yarn setup before creating resources
+    // We need a local node_modules folder built to add it as a volume
+    if (options.dev) {
+        if (process.version.substring(1) !== options.nodeVersion) {
+            throw new Error(`The node version this process is running on (${process.version}) does not match
+            the --node-version set in k8s-env (v${options.nodeVersion}). Check your version by running "node -v"`);
+        }
+        signale.info(`Running yarn setup with node ${process.version}...`);
+        try {
+            execa.commandSync('yarn setup');
+        } catch (err) {
+            signale.fatal(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+    }
+
     signale.pending('Creating kind cluster');
     try {
-        await kind.createCluster(options.tsPort);
+        await kind.createCluster(options.tsPort, options.dev);
     } catch (err) {
         signale.error(err);
         // Do not destroy existing cluster if that was the cause of failure
@@ -144,7 +161,8 @@ async function buildAndTagTerasliceImage(options:K8sEnvOptions) {
                 dryRun: true,
                 nodeSuffix: true,
                 nodeVersion: options.nodeVersion,
-                type: PublishType.Dev
+                type: PublishType.Dev,
+                useDevFile: options.dev
             };
             runImage = await buildDevDockerImage(publishOptions);
         } catch (err) {

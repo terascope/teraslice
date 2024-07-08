@@ -15,6 +15,7 @@ export interface K8sEnvOptions {
     assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;
+    dev: boolean;
 }
 
 // TODO: create a common parent for each resource type,

@@ -85,6 +85,9 @@ export class K8sResource {
         this._setTargets();
         this._setResources();
         this._setVolumes();
+        if (process.env.MOUNT_LOCAL_TERASLICE !== undefined) {
+            this._mountLocalTeraslice(resourceName);
+        }
         this._setAssetsVolume();
         this._setImagePullSecret();
         this._setEphemeralStorage();
@@ -105,6 +108,20 @@ export class K8sResource {
 
         if (this.terasliceConfig.kubernetes_overrides_enabled) {
             this._mergePodSpecOverlay();
+        }
+    }
+
+    _mountLocalTeraslice(contextType: string) {
+        const devMounts = JSON.parse(process.env.MOUNT_LOCAL_TERASLICE as string);
+        this.resource.spec.template.spec.containers[0].volumeMounts.push(...devMounts.volumeMounts);
+        this.resource.spec.template.spec.volumes.push(...devMounts.volumes);
+
+        if (contextType === 'execution_controller') {
+            this.resource.spec.template.spec.containers[0].args = [
+                'yarn',
+                'node',
+                'service.js'
+            ];
         }
     }
 
