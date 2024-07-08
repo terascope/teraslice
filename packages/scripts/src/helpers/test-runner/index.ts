@@ -6,7 +6,7 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
-import { ensureServices, pullServices } from './services';
+import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
@@ -229,10 +229,10 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    if (isCI && options.testPlatform === 'native') {
-        // pull the services first in CI
-        await pullServices(suite, options);
-    }
+    // if (isCI && options.testPlatform === 'native') {
+    //     // pull the services first in CI
+    //     await pullServices(suite, options);
+    // }
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
