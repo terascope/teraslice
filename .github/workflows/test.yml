@@ -60,7 +60,9 @@ jobs:
         YARN_SETUP_ARGS: "--prod=false --silent"
 
     - name: Create Docker Image List
-      run: yarn docker:listImages
+      run: |
+        yarn docker:listImages
+        cat ./images/image-list.txt
 
     - name: Restore Docker image cache
       id: docker-cache
@@ -77,6 +79,7 @@ jobs:
       run: |
         mkdir -p /tmp/docker_cache
         while IFS= read -r image; do
+          echo "pulling image: $image"
           docker pull "$image"
           docker save "$image" | gzip > "/tmp/docker_cache/$(echo $image | tr '/:' '__').tar.gz"
         done < ./images/image-list.txt
@@ -181,7 +184,9 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
-        run: yarn docker:listImages
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
       - name: Restore Docker image cache
         id: docker-cache
@@ -197,7 +202,6 @@ jobs:
         # run: yarn docker:loadImagesFromCache
         run: |
           for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            if
             gzip -dc "$tar_gz" | docker load
           done
 
