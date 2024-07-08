@@ -68,8 +68,8 @@ jobs:
       with:
         path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-        restore-keys: |
-          docker-images-
+        # restore-keys: |
+        #   docker-images-
 
     - name: Pull and save Docker images
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
@@ -189,8 +189,8 @@ jobs:
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-          restore-keys: |
-            docker-images-
+          # restore-keys: |
+          #   docker-images-
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
@@ -201,12 +201,12 @@ jobs:
             gzip -dc "$tar_gz" | docker load
           done
 
-      - name: Pull Docker images if cache is not hit
-        if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-        run: |
-          while IFS= read -r image; do
-            docker pull "$image"
-          done < image-list.txt
+      # - name: Pull Docker images if cache is not hit
+      #   if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
+      #   run: |
+      #     while IFS= read -r image; do
+      #       docker pull "$image"
+      #     done < image-list.txt
 
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }}

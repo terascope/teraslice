@@ -20,15 +20,15 @@ export async function images(action: ImagesAction): Promise<void> {
  */
 async function createImageList(imagesPath: string): Promise<void> {
     const list = 'terascope/node-base:18.19.1\n'
-               + 'terascope/node-base:20.11.1\n'
-               + 'terascope/node-base:22.2.0\n'
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
-               + `${config.KAFKA_DOCKER_IMAGE}:3.1\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:3.1\n`
-               + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`;
+    //    + 'terascope/node-base:20.11.1\n'
+    //    + 'terascope/node-base:22.2.0\n'
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6`;
+    //    + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
+    //    + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
+    //    + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
+    //    + `${config.KAFKA_DOCKER_IMAGE}:3.1\n`
+    //    + `${config.ZOOKEEPER_DOCKER_IMAGE}:3.1\n`
+    //    + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`;
     if (!fse.existsSync(imagesPath)) {
         await fse.emptyDir(imagesPath);
     }
