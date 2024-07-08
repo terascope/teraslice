@@ -60,7 +60,7 @@ jobs:
         YARN_SETUP_ARGS: "--prod=false --silent"
 
     - name: Create Docker Image List
-      run: yarn dockerImageList
+      run: yarn docker:listImages
 
     - name: Restore Docker image cache
       id: docker-cache
@@ -181,7 +181,7 @@ jobs:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
       - name: Create Docker Image List
-        run: yarn dockerImageList
+        run: yarn docker:listImages
 
       - name: Restore Docker image cache
         id: docker-cache
