@@ -37,7 +37,7 @@ export default async () => {
     if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
-        await k8s.deployK8sTeraslice(TEST_PLATFORM, true);
+        await k8s.deployK8sTeraslice(TEST_PLATFORM, true, false);
         await teraslice.waitForTeraslice();
         await setAlias(TERASLICE_PORT);
     } else {
