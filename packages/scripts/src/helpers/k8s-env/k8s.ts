@@ -88,7 +88,7 @@ export class K8s {
         }
     }
 
-    async deployK8sTeraslice(clustering: 'kubernetes' | 'kubernetesV2', wait: boolean, assetStorage = 'elasticsearch-next') {
+    async deployK8sTeraslice(clustering: 'kubernetes' | 'kubernetesV2', wait: boolean, dev: boolean, assetStorage = 'elasticsearch-next') {
         signale.pending('Begin teraslice deployment...');
         const e2eK8sDir = getE2eK8sDir();
         if (!e2eK8sDir) {
@@ -142,7 +142,7 @@ export class K8s {
             if (yamlTSMasterDeployment.spec?.template.spec?.containers[0]) {
                 yamlTSMasterDeployment.spec.template.spec.containers[0].image = `teraslice-workspace:e2e-nodev${config.NODE_VERSION}`;
             }
-            if (options?.dev) {
+            if (dev) {
                 this.mountLocalTeraslice(yamlTSMasterDeployment);
             }
             const response = await this.k8sAppsV1Api.createNamespacedDeployment('ts-dev1', yamlTSMasterDeployment);

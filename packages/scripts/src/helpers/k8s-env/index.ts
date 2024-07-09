@@ -104,7 +104,12 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     });
 
     try {
-        await k8s.deployK8sTeraslice(options.clusteringType, true, options.assetStorage);
+        await k8s.deployK8sTeraslice(
+            options.clusteringType,
+            true,
+            options.dev,
+            options.assetStorage
+        );
     } catch (err) {
         signale.fatal('Error deploying Teraslice: ', err);
         if (!options.keepOpen) {
@@ -147,7 +152,12 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     try {
-        await k8s.deployK8sTeraslice(options.clusteringType, true, options.assetStorage);
+        await k8s.deployK8sTeraslice(
+            options.clusteringType,
+            true,
+            options.dev,
+            options.assetStorage
+        );
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
         process.exit(1);
