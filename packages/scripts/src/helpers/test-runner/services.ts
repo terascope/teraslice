@@ -160,65 +160,6 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
-export async function pullServices(suite: string, options: TestOptions): Promise<void> {
-    const launchServices = getServicesForSuite(suite);
-
-    try {
-        const images: string[] = [];
-
-        if (launchServices.includes(Service.Elasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Opensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.RestrainedOpensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.RestrainedElasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaImageVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Zookeeper)) {
-            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${options.zookeeperVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.Minio)) {
-            const image = `${config.MINIO_DOCKER_IMAGE}:${options.minioVersion}`;
-            images.push(image);
-        }
-
-        if (launchServices.includes(Service.RabbitMQ)) {
-            const image = `${config.RABBITMQ_DOCKER_IMAGE}`;
-            images.push(image);
-        }
-
-        await Promise.all(images.map(async (image) => {
-            const label = `docker pull ${image}`;
-            signale.time(label);
-            await dockerPull(image);
-            signale.timeEnd(label);
-        }));
-    } catch (err) {
-        throw new ts.TSError(err, {
-            message: `Failed to pull services for test suite "${suite}", ${err.message}`
-        });
-    }
-}
-
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
     const promises: Promise<(() => void)>[] = [];

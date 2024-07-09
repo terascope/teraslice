@@ -229,11 +229,6 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    // if (isCI && options.testPlatform === 'native') {
-    //     // pull the services first in CI
-    //     await pullServices(suite, options);
-    // }
-
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
             const devImage = getDevDockerImage(options.nodeVersion);
