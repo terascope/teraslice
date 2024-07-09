@@ -1,5 +1,6 @@
 import fse from 'fs-extra';
-import execa = require('execa')
+import execa = require('execa');
+// import { Gzip } from 'node:zlib';
 import path from 'node:path';
 import * as config from '../config';
 import { ImagesAction } from './interfaces';
@@ -11,6 +12,10 @@ export async function images(action: ImagesAction): Promise<void> {
 
     if (action === ImagesAction.Load) {
         return loadImages('./images');
+    }
+
+    if (action === ImagesAction.Save) {
+        // return saveImages('/tmp/docker_cache/');
     }
 }
 
@@ -26,8 +31,8 @@ async function createImageList(imagesPath: string): Promise<void> {
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
-               + `${config.KAFKA_DOCKER_IMAGE}:3.1\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:3.1\n`
+               + `${config.KAFKA_DOCKER_IMAGE}:7.1.9\n`
+               + `${config.ZOOKEEPER_DOCKER_IMAGE}:7.1.9\n`
                + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`;
     if (!fse.existsSync(imagesPath)) {
         await fse.emptyDir(imagesPath);
@@ -36,13 +41,21 @@ async function createImageList(imagesPath: string): Promise<void> {
 }
 
 async function loadImages(imagesPath: string): Promise<void> {
-    const imagesString = fse.readFileSync(path.join(imagesPath, 'image-list.txt'), 'utf-8');
-    const imagesArray = imagesString.split('\n');
+    try {
+        const imagesString = fse.readFileSync(path.join(imagesPath, 'image-list.txt'), 'utf-8');
+        const imagesArray = imagesString.split('\n');
 
-    const promiseArray = imagesArray.map(async (imageName) => execa.command(`docker load ${imageName}`));
+        const promiseArray = imagesArray.map(async (imageName) => execa.command(`docker load ${imageName}`));
 
-    Promise.all(promiseArray);
+        await Promise.all(promiseArray);
+    } catch (err) {
+        throw new Error(`Unable to load docker images due to error: ${err}`);
+    }
 }
+
+// async function saveImages(imageSavePath: string): Promise<void> {
+
+// }
 
 // const list = {
 //     baseDockerImageNode18: 'terascope/node-base:18.19.1',

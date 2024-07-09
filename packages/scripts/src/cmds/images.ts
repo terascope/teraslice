@@ -14,6 +14,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         return yargs
             .example('$0 images list', 'Get the list of images needed for a test.')
             .example('$0 images load', 'Load the docker images needed for a test.')
+            .example('$0 images save', 'Save the docker images needed for a test.')
             .positional('action', {
                 description: 'The action to take',
                 choices: Object.values(ImagesAction),
