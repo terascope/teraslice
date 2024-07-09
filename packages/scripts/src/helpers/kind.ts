@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import execa from 'execa';
 import yaml from 'js-yaml';
-import { Logger, debugLogger } from '@terascope/utils';
+import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale';
 import { getE2eK8sDir } from '../helpers/packages';
@@ -83,7 +83,20 @@ export class Kind {
         serviceName: string, serviceImage: string, version: string
     ): Promise<void> {
         try {
-            const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name ${this.clusterName}`);
+            let subprocess;
+            const cachePath = '/tmp/docker_cache';
+            if (isCI) {
+                const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
+                const filePath = path.join(cachePath, `${fileName}.tar.gz`);
+                const unzippedFilePath = path.join(cachePath, `${fileName}.tar`);
+                if (!fs.existsSync(filePath)) {
+                    throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
+                }
+                await execa.command(`gzip -dc ${filePath}`);
+                subprocess = await execa.command(`kind load image-archive ${unzippedFilePath} --name ${this.clusterName}`);
+            } else {
+                subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name ${this.clusterName}`);
+            }
             this.logger.debug(subprocess.stderr);
         } catch (err) {
             this.logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
