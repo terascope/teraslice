@@ -88,14 +88,12 @@ export class Kind {
             if (isCI) {
                 const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
                 const filePath = path.join(cachePath, `${fileName}.tar.gz`);
-                const unzippedFilePath = path.join(cachePath, `${fileName}.tar`);
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
-                await execa.command(`gzip -dc ${filePath}`);
-                subprocess = await execa.command(`kind load image-archive ${unzippedFilePath} --name ${this.clusterName}`);
+                subprocess = await execa.command(`kind --name ${this.clusterName} load image-archive <(gunzip -c ${filePath})`);
             } else {
-                subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name ${this.clusterName}`);
+                subprocess = await execa.command(`kind --name ${this.clusterName} load docker-image ${serviceImage}:${version}`);
             }
             this.logger.debug(subprocess.stderr);
         } catch (err) {
