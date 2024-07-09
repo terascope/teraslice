@@ -86,6 +86,8 @@ export class Kind {
             let subprocess;
             const cachePath = '/tmp/docker_cache';
             if (isCI) {
+                // In CI we load images directly from the github docker image cache
+                // Without this we run out of disk space
                 const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
                 const filePath = path.join(cachePath, `${fileName}.tar.gz`);
                 if (!fs.existsSync(filePath)) {
