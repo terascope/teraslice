@@ -12,7 +12,6 @@ import {
     DockerRunOptions,
     getContainerInfo,
     dockerStop,
-    dockerPull,
     k8sStartService,
     k8sStopService
 } from '../scripts';
