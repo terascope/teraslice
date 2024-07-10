@@ -76,4 +76,4 @@ docs/packages/*/api
 .ts-test-config
 
 # CI test files
-images
+images/*

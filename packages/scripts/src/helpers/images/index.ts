@@ -30,7 +30,7 @@ async function createImageList(imagesPath: string): Promise<void> {
     const list = 'terascope/node-base:18.19.1\n'
                + 'terascope/node-base:20.11.1\n'
                + 'terascope/node-base:22.2.0\n'
-            //    + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
@@ -44,14 +44,52 @@ async function createImageList(imagesPath: string): Promise<void> {
     fse.writeFileSync(path.join(imagesPath, 'image-list.txt'), list);
 }
 
+/**
+ * Parses a test script to determine which docker images it will require
+ * @param {string} script The test script from a package.json
+ * @param {Record<string, string>} list Object with keywords as keys and image tags as values
+ * @returns {string[]} An arrray of image tags
+ */
+function parseTestScript(script: string, list: Record<string, string>): string[] {
+    const imagesList: string[] = [];
+
+    script.split(' ').forEach((part, scriptIdx, scriptArr) => {
+        if (part === 'TEST_KAFKA=\'true\'') {
+            imagesList.push(list.kafka);
+            imagesList.push(list.zookeeper);
+        }
+        if (part === 'TEST_MINIO=\'true\'') {
+            imagesList.push(list.minio);
+        }
+        if (part === 'TEST_OPENSEARCH=\'true\'') {
+            if (scriptArr[scriptIdx + 1].startsWith('OPENSEARCH_VERSION=\'2')) {
+                imagesList.push(list.opensearch2);
+            } else {
+                imagesList.push(list.opensearch1);
+            }
+        }
+        if (part === 'TEST_ELASTICSEARCH=\'true\'') {
+            if (scriptArr[scriptIdx + 1].startsWith('ELASTICSEARCH_VERSION=\'7')) {
+                imagesList.push(list.elasticsearch7);
+            } else {
+                imagesList.push(list.elasticsearch6);
+            }
+        }
+    });
+    return imagesList;
+}
+
+/**
+ * Load the docker images required by a script from the cache specified
+ * @param {string} cachePath Path to a cache of docker images in tar.gz format
+ * @param {string} directory Directory where the package.json to search lives
+ * @param {string} script Test script from Github actions workflow
+ */
 async function loadImagesFromCache(
     cachePath: string,
     directory: string,
     script: string
 ): Promise<void> {
-    console.log('@@@@ script: ', script);
-    console.log('@@@@ directory: ', directory);
-
     const list = {
         '18.19.1': 'terascope/node-base:18.19.1',
         '20.11.1': 'terascope/node-base:20.11.1',
@@ -67,40 +105,15 @@ async function loadImagesFromCache(
     };
 
     const directoryPackageInfo = fse.readJSONSync(path.join(getRootDir(), `${directory}`, 'package.json'));
-    console.log('@@@@ directoryPackageInfo.scripts: ', directoryPackageInfo.scripts['test:elasticsearch6']);
 
     try {
         const imagesList: string[] = [];
+
         script.split(' ').forEach((string, idx, arr) => {
             if (string.startsWith('test:')) {
-                console.log('@@@@ string: ', string);
-                // find all images called for in the package.json
+                // find all images called for in the package.json script
                 const scriptValue: string = directoryPackageInfo.scripts[string.trim()];
-                console.log('@@@@ scriptValue: ', scriptValue);
-
-                scriptValue.split(' ').forEach((part, scriptIdx, scriptArr) => {
-                    if (part === 'TEST_KAFKA=\'true\'') {
-                        imagesList.push(list.kafka);
-                        imagesList.push(list.zookeeper);
-                    }
-                    if (part === 'TEST_MINIO=\'true\'') {
-                        imagesList.push(list.minio);
-                    }
-                    if (part === 'TEST_OPENSEARCH=\'true\'') {
-                        if (scriptArr[scriptIdx + 1].startsWith('OPENSEARCH_VERSION=\'2')) {
-                            imagesList.push(list.opensearch2);
-                        } else {
-                            imagesList.push(list.opensearch1);
-                        }
-                    }
-                    if (part === 'TEST_ELASTICSEARCH=\'true\'') {
-                        if (scriptArr[scriptIdx + 1].startsWith('ELASTICSEARCH_VERSION=\'7')) {
-                            imagesList.push(list.elasticsearch7);
-                        } else {
-                            imagesList.push(list.elasticsearch6);
-                        }
-                    }
-                });
+                imagesList.push(...parseTestScript(scriptValue, list));
             }
             if (string === '--node-version') {
                 // load the base-docker-image with the called for node version
@@ -108,10 +121,7 @@ async function loadImagesFromCache(
                     imagesList.push(list[arr[idx + 1]]);
                 }
             }
-            return '';
         });
-
-        console.log('@@@@ imageList: ', imagesList);
 
         const promiseArray = imagesList.map(async (imageName) => {
             const fileName = imageName.replace(/[/:]/g, '_');
@@ -119,8 +129,8 @@ async function loadImagesFromCache(
             if (!fse.existsSync(filePath)) {
                 throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
             }
-            execa.command(`gunzip -c ${filePath} | docker load`);
-            fse.removeSync(filePath.slice(0, -3));
+            execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+            fse.removeSync(filePath);
         });
 
         await Promise.all(promiseArray);

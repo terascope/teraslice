@@ -12,7 +12,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Helper function related to docker images.',
     builder(yargs) {
         return yargs
-            .example('$0 images list', 'Get the list of images needed for a test.')
+            .example('$0 images list', 'Get the list of docker images needed for a test.')
             .example('$0 images load --directory \'./e2e\' --script \'yarn test:elasticsearch7\'', 'Load the docker images needed for a test.')
             .example('$0 images save', 'Save the docker images needed for a test.')
             .option('directory', {
