@@ -33,6 +33,7 @@
         "test:elasticsearch7": "NODE_OPTIONS='--experimental-vm-modules' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:k8s": "NODE_OPTIONS='--experimental-vm-modules' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' KAFKA_VERSION='3.1' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e --",
         "test:k8sNoBuild": "NODE_OPTIONS='--experimental-vm-modules' SKIP_DOCKER_BUILD_IN_E2E='true' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' KAFKA_VERSION='3.1' TEST_KAFKA='true' TEST_PLATFORM='kubernetes' ts-scripts test --suite e2e --",
+        "test:k8sV2": "NODE_OPTIONS='--experimental-vm-modules' TEST_ELASTICSEARCH='true' ELASTICSEARCH_VERSION='7.9.3' KAFKA_VERSION='3.1' TEST_KAFKA='true' TEST_PLATFORM='kubernetesV2' ts-scripts test --suite e2e --",
         "test:opensearch1": "NODE_OPTIONS='--experimental-vm-modules' TEST_OPENSEARCH='true' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:opensearch2": "NODE_OPTIONS='--experimental-vm-modules' TEST_OPENSEARCH='true' OPENSEARCH_VERSION='2.8.0' TEST_KAFKA='true' ts-scripts test --suite e2e --",
         "test:s3AssetStorage": "NODE_OPTIONS='--experimental-vm-modules' TEST_OPENSEARCH='true' TEST_KAFKA='true' TEST_MINIO='true' ASSET_STORAGE_CONNECTION_TYPE='s3' ASSET_STORAGE_CONNECTION='default' ts-scripts test --suite e2e --",

@@ -71,7 +71,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         await k8s.createNamespace('services-ns.yaml', 'services');
     } catch (err) {
         signale.fatal(err);
-        await kind.destroyCluster();
+        if (!options.keepOpen) {
+            await kind.destroyCluster();
+        }
         process.exit(1);
     }
 
@@ -79,7 +81,9 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         await buildAndTagTerasliceImage(options);
     } catch (err) {
         signale.fatal(err);
-        await kind.destroyCluster();
+        if (!options.keepOpen) {
+            await kind.destroyCluster();
+        }
         process.exit(1);
     }
 
@@ -96,15 +100,22 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         reportCoverage: false,
         useExistingServices: false,
         ignoreMount: false,
-        testPlatform: 'kubernetes',
-        kindClusterName: options.kindClusterName
+        testPlatform: options.clusteringType
     });
 
     try {
-        await k8s.deployK8sTeraslice(true, options);
+        await k8s.deployK8sTeraslice(
+            options.clusteringType,
+            true,
+            options.dev,
+            options.assetStorage
+        );
     } catch (err) {
-        signale.fatal('Error deploying Teraslice. Shutting down k8s cluster: ', err);
-        await kind.destroyCluster();
+        signale.fatal('Error deploying Teraslice: ', err);
+        if (!options.keepOpen) {
+            signale.warn('Shutting down k8s cluster');
+            await kind.destroyCluster();
+        }
         process.exit(1);
     }
     signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\nDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
@@ -141,7 +152,12 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     }
 
     try {
-        await k8s.deployK8sTeraslice(true, options);
+        await k8s.deployK8sTeraslice(
+            options.clusteringType,
+            true,
+            options.dev,
+            options.assetStorage
+        );
     } catch (err) {
         signale.error('Error re-deploying Teraslice: ', err);
         process.exit(1);

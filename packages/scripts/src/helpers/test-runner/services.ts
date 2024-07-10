@@ -801,7 +801,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         const kind = new Kind(options.k8sVersion, options.kindClusterName);
         await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);

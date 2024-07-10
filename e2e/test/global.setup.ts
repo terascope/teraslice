@@ -34,10 +34,10 @@ export default async () => {
         fse.ensureDir(CONFIG_PATH),
     ]);
 
-    if (TEST_PLATFORM === 'kubernetes') {
+    if (TEST_PLATFORM === 'kubernetes' || TEST_PLATFORM === 'kubernetesV2') {
         await downloadAssets();
         const k8s = new K8s(TERASLICE_PORT, KIND_CLUSTER);
-        await k8s.deployK8sTeraslice(true);
+        await k8s.deployK8sTeraslice(TEST_PLATFORM, true, false);
         await teraslice.waitForTeraslice();
         await setAlias(TERASLICE_PORT);
     } else {

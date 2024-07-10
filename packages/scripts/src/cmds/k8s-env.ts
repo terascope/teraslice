@@ -14,6 +14,7 @@ const cmd: CommandModule = {
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --teraslice-image=terascope/teraslice:v0.91.0-nodev18.18.2', 'Start a kind kubernetes cluster running teraslice from a specific docker image and elasticsearch.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' TEST_KAFKA=\'true\' KAFKA_PORT=\'9092\' $0 k8s-env', 'Start a kind kubernetes cluster running teraslice, elasticsearch, kafka, and zookeeper.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --skip-build', 'Start a kind kubernetes cluster, but skip building a new teraslice docker image.')
+            .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --keep-open', 'Start a kind kubernetes cluster, preserving the kind cluster on failure.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild', 'Stop teraslice, rebuild docker image, and restart teraslice.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild -reset-store', 'Rebuild and also clear the elasticsearch store.')
             .example('TEST_ELASTICSEARCH=\'true\' ELASTICSEARCH_PORT=\'9200\' $0 k8s-env --rebuild -skip-build', 'Restart teraslice without rebuilding docker image.')
@@ -94,6 +95,17 @@ const cmd: CommandModule = {
                 default: 'elasticsearch-next',
                 choices: ['elasticsearch-next', 's3'],
             })
+            .option('clustering-type', {
+                description: 'Clustering version teraslice will use',
+                type: 'string',
+                default: config.CLUSTERING_TYPE,
+                choices: ['kubernetes', 'kubernetesV2']
+            })
+            .option('keep-open', {
+                description: 'This will cause the kind cluster to remain open after a failure (so it can be debugged).',
+                type: 'boolean',
+                default: false,
+            })
             .option('dev', {
                 description: 'Mounts local teraslice to k8s resources for faster development.',
                 type: 'boolean',
@@ -125,7 +137,9 @@ const cmd: CommandModule = {
             k8sVersion: argv['k8s-version'] as string,
             terasliceImage: argv['teraslice-image'] as string,
             assetStorage: argv['asset-storage'] as string,
-            dev: Boolean(argv.dev)
+            dev: Boolean(argv.dev),
+            clusteringType: argv['clustering-type'] as 'kubernetes' | 'kubernetesV2',
+            keepOpen: Boolean(argv['keep-open']),
         };
 
         if (Boolean(argv.rebuild) === true) {

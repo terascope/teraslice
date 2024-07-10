@@ -197,7 +197,7 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -252,7 +252,7 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (options.testPlatform === 'kubernetes' && kind) {
+    if (kind && (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')) {
         try {
             await kind.loadTerasliceImage(e2eImage);
         } catch (err) {
@@ -308,7 +308,8 @@ async function runE2ETest(
         }
     }
 
-    if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {
+    if ((options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')
+        && !options.keepOpen && kind) {
         await kind.destroyCluster();
     }
 }

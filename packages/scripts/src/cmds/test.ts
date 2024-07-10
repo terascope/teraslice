@@ -136,6 +136,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'Clustering platform for e2e tests',
                 type: 'string',
                 default: config.TEST_PLATFORM,
+                choices: ['native', 'kubernetes', 'kubernetesV2']
             })
             .option('k8s-version', {
                 description: 'Version of kubernetes to use in the kind cluster.',
@@ -171,8 +172,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const nodeVersion = hoistJestArg(argv, 'node-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
         const ignoreMount = hoistJestArg(argv, 'ignore-mount', 'boolean');
-        const testPlatform = hoistJestArg(argv, 'test-platform', 'string');
-        const kindClusterName = testPlatform === 'kubernetes' ? 'k8s-e2e' : 'default';
+        const testPlatform = hoistJestArg(argv, 'test-platform', 'string') as 'native'|'kubernetes'|'kubernetesV2';
+        const kindClusterName = testPlatform === 'native' ? 'default' : 'k8s-e2e';
         const k8sVersion = hoistJestArg(argv, 'k8s-version', 'string');
 
         if (debug && watch) {

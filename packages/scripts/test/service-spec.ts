@@ -1,9 +1,10 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import * as services from '../src/helpers/test-runner/services';
+import { TestOptions } from '../src/helpers/test-runner/interfaces';
 
 describe('services', () => {
-    const options = {
+    const options: TestOptions = {
         bail: false,
         debug: false,
         watch: false,
@@ -13,7 +14,6 @@ describe('services', () => {
         reportCoverage: false,
         useExistingServices: false,
         elasticsearchVersion: 'bad-version',
-        elasticsearchAPIVersion: '6.8',
         kafkaVersion: 'very-bad-version',
         kafkaImageVersion: 'very-bad-version',
         zookeeperVersion: 'very-bad-version',
