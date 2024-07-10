@@ -192,7 +192,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Test ${{ matrix.search-version }}
         run: ${{ env.TEST_SCRIPT }}
@@ -252,7 +252,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Test ${{ matrix.search-version }}
         run: ${{ env.TEST_SCRIPT }}
@@ -312,7 +312,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Test ${{ matrix.search-version }}
         run: ${{ env.TEST_SCRIPT }}
@@ -372,7 +372,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Compile e2e code
         run: yarn build
@@ -557,7 +557,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Compile e2e code
         run: yarn build
@@ -620,7 +620,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+        run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
 
       - name: Install mkcert
         run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && sudo chmod 777 mkcert-v*-linux-amd64 && sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
