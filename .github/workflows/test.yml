@@ -148,6 +148,10 @@ jobs:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    env:
+      WORKING_DIRECTORY: ./packages/teraslice
+      TEST_SCRIPT: yarn --silent test:${{ matrix.search-version }}
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -190,20 +194,20 @@ jobs:
           # restore-keys: |
           #   docker-images-
 
-      # - name: Decompress and load Docker images from cache
-      #   if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-      #   run: yarn docker:loadImages --images
-
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
+
+      # - name: Decompress and load Docker images from cache
+      #   if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
+      #   run: |
+      #     for tar_gz in /tmp/docker_cache/*.tar.gz; do
+      #       gzip -dc "$tar_gz" | docker load
+      #     done
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/teraslice
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit after Test
         env:
@@ -220,6 +224,9 @@ jobs:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    env:
+      WORKING_DIRECTORY: ./packages/elasticsearch-store
+      TEST_SCRIPT: yarn --silent test:${{ matrix.search-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -256,14 +263,11 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/elasticsearch-store
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit end of job
         env:
@@ -280,6 +284,9 @@ jobs:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    env:
+      WORKING_DIRECTORY: ./packages/elasticsearch-api
+      TEST_SCRIPT: yarn --silent test:${{ matrix.search-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -316,14 +323,11 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }}
-        working-directory: ./packages/elasticsearch-api
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY}}
 
       - name: Check docker.hub limit end of job
         env:
@@ -340,6 +344,9 @@ jobs:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    env:
+      WORKING_DIRECTORY: ./e2e
+      TEST_SCRIPT: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -376,18 +383,15 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
 
       - name: Compile e2e code
         run: yarn build
         working-directory: ./e2e
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
-        working-directory: ./e2e
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit end of job
         env:
@@ -403,6 +407,9 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
+    env:
+      WORKING_DIRECTORY: ./e2e
+      TEST_SCRIPT: yarn --silent test:k8s --node-version ${{ matrix.node-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -439,7 +446,7 @@ jobs:
 
       - name: Compile e2e code
         run: yarn build
-        working-directory: ./e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Install Kind and Kubectl
         uses: helm/kind-action@v1.8.0
@@ -447,8 +454,8 @@ jobs:
           install_only: "true"
 
       - name: Test k8s elasticsearch7
-        run: yarn --silent test:k8s --node-version ${{ matrix.node-version }}
-        working-directory: ./e2e
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit end of job
         env:
@@ -506,6 +513,9 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18.19.1]
+    env:
+      WORKING_DIRECTORY: ./e2e
+      TEST_SCRIPT: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -542,18 +552,15 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
 
       - name: Compile e2e code
         run: yarn build
-        working-directory: ./e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Test external Asset Storage opensearch1
-        run: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
-        working-directory: ./e2e
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit end of job
         env:
@@ -569,6 +576,9 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18.19.1]
+    env:
+      WORKING_DIRECTORY: ./e2e
+      TEST_SCRIPT: ENCRYPT_MINIO=true yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -605,10 +615,7 @@ jobs:
 
       - name: Decompress and load Docker images from cache
         if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-        run: |
-          for tar_gz in /tmp/docker_cache/*.tar.gz; do
-            gzip -dc "$tar_gz" | docker load
-          done
+        run: yarn docker:loadImages --directory ${{ env.WORKING_DIRECTORY }} --script ${{ env.TEST_SCRIPT }}
 
       - name: Install mkcert
         run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && sudo chmod 777 mkcert-v*-linux-amd64 && sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
@@ -624,11 +631,11 @@ jobs:
 
       - name: Compile e2e code
         run: yarn build
-        working-directory: ./e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Test external Asset Storage opensearch1
-        run: ENCRYPT_MINIO=true yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
-        working-directory: ./e2e
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Check docker.hub limit end of job
         env:
