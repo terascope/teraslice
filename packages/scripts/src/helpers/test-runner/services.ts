@@ -212,7 +212,8 @@ export async function loadCachedServiceImage(suite: string, options: TestOptions
             if (!fs.existsSync(filePath)) {
                 throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
             }
-            execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+            const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+            signale.info('Result: ', result);
             fs.removeSync(filePath);
             signale.timeEnd(`unzip and load ${imageName}`);
         }));
