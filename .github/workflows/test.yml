@@ -459,6 +459,9 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18.19.1, 20.11.1]
+    env:
+      WORKING_DIRECTORY: ./e2e
+      TEST_SCRIPT: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -481,9 +484,21 @@ jobs:
         env:
           YARN_SETUP_ARGS: "--prod=false --silent"
 
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
       - name: Compile e2e code
         run: yarn build
-        working-directory: ./e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Install Kind and Kubectl
         uses: helm/kind-action@v1.8.0
@@ -491,8 +506,8 @@ jobs:
           install_only: "true"
 
       - name: Test k8s V2 elasticsearch7
-        run: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
-        working-directory: ./e2e
+        run: ${{ env.TEST_SCRIPT }}
+        working-directory:  ${{ env.WORKING_DIRECTORY }}
 
   e2e-external-storage-tests:
     runs-on: ubuntu-latest
