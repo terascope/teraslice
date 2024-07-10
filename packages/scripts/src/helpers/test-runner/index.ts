@@ -6,7 +6,7 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
-import { ensureServices } from './services';
+import { ensureServices, loadCachedServiceImage } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
@@ -103,6 +103,11 @@ async function runTestSuite(
     tracker: TestTracker,
 ): Promise<void> {
     if (suite === 'e2e') return;
+
+    if (isCI) {
+        // load the services from cache in CI
+        await loadCachedServiceImage(suite, options);
+    }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
@@ -228,6 +233,11 @@ async function runE2ETest(
 
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
+
+    if (isCI) {
+        // load the services from cache in CI
+        await loadCachedServiceImage(suite, options);
+    }
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {

@@ -8,7 +8,7 @@ import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale';
 import { getE2eK8sDir } from '../helpers/packages';
 import { KindCluster, TsVolumeSet } from './interfaces';
-import { TERASLICE_PORT } from './config';
+import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config';
 
 export class Kind {
     clusterName: string;
@@ -84,12 +84,11 @@ export class Kind {
     ): Promise<void> {
         try {
             let subprocess;
-            const cachePath = '/tmp/docker_cache';
             if (isCI) {
                 // In CI we load images directly from the github docker image cache
                 // Without this we run out of disk space
                 const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
-                const filePath = path.join(cachePath, `${fileName}.tar.gz`);
+                const filePath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
