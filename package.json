@@ -23,6 +23,7 @@
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
         "docker:loadImages": "ts-scripts images load",
+        "docker:saveImages": "ts-scripts images save",
         "docs": "ts-scripts docs",
         "k8s": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 ts-scripts k8s-env",
         "k8s:kafka": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 TEST_KAFKA=true KAFKA_PORT=9092 ts-scripts k8s-env",

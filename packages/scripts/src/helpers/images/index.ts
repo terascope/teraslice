@@ -1,6 +1,5 @@
 import fse from 'fs-extra';
-import execa = require('execa');
-// import { Gzip } from 'node:zlib';
+import execa from 'execa';
 import path from 'node:path';
 import * as config from '../config';
 import { ImagesAction } from './interfaces';
@@ -15,7 +14,7 @@ export async function images(action: ImagesAction): Promise<void> {
     }
 
     if (action === ImagesAction.Save) {
-        // return saveImages('/tmp/docker_cache/');
+        return saveImages('/tmp/docker_cache/', './images');
     }
 }
 
@@ -33,7 +32,7 @@ async function createImageList(imagesPath: string): Promise<void> {
                + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
                + `${config.KAFKA_DOCKER_IMAGE}:7.1.9\n`
                + `${config.ZOOKEEPER_DOCKER_IMAGE}:7.1.9\n`
-               + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`;
+               + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z`;
     if (!fse.existsSync(imagesPath)) {
         await fse.emptyDir(imagesPath);
     }
@@ -53,19 +52,37 @@ async function loadImages(imagesPath: string): Promise<void> {
     }
 }
 
-// async function saveImages(imageSavePath: string): Promise<void> {
+async function saveAndZip(imageName:string, imageSavePath: string) {
+    const fileName = imageName.replace(/[/:]/g, '_');
+    const filePath = path.join(imageSavePath, `${fileName}.tar`);
+    const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
+    await execa.command(command, { shell: true });
+}
 
-// }
+async function saveImages(imageSavePath: string, imageTxtPath: string): Promise<void> {
+    try {
+        if (fse.existsSync(imageSavePath)) {
+            fse.rmSync(imageSavePath, { recursive: true, force: true });
+        }
+        fse.mkdirSync(imageSavePath);
+        const imagesString = fse.readFileSync(path.join(imageTxtPath, 'image-list.txt'), 'utf-8');
+        const imagesArray = imagesString.split('\n');
+        const pullPromises = imagesArray.map(async (imageName) => {
+            await execa.command(`docker pull ${imageName}`);
+        });
+        await Promise.all(pullPromises);
 
-// const list = {
-//     baseDockerImageNode18: 'terascope/node-base:18.19.1',
-//     baseDockerImageNode20: 'terascope/node-base:20.11.1',
-//     baseDockerImageNode22: 'terascope/node-base:22.2.0',
-//     elasticsearch6: `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6`,
-//     elasticsearch7: `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3`,
-//     opensearch: `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10`,
-//     opensearch2: `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0`,
-//     kafka: `${config.KAFKA_DOCKER_IMAGE}:3.1`,
-//     zookeeper: `${config.ZOOKEEPER_DOCKER_IMAGE}:3.1`,
-//     minio: `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z`,
-// };
+        for (let i = 0; i < imagesArray.length; i += 2) {
+            if (typeof imagesArray[i + 1] === 'string') {
+                await Promise.all([
+                    saveAndZip(imagesArray[i], imageSavePath),
+                    saveAndZip(imagesArray[i + 1], imageSavePath)
+                ]);
+            } else {
+                await saveAndZip(imagesArray[i], imageSavePath);
+            }
+        }
+    } catch (err) {
+        throw new Error(`Unable to pull and save images due to error: ${err}`);
+    }
+}

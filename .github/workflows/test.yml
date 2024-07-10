@@ -75,14 +75,7 @@ jobs:
 
     - name: Pull and save Docker images
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-      # run: yarn docker:pullAndSaveImages
-      run: |
-        mkdir -p /tmp/docker_cache
-        while IFS= read -r image; do
-          echo "pulling image: $image"
-          docker pull "$image"
-          docker save "$image" | gzip > "/tmp/docker_cache/$(echo $image | tr '/:' '__').tar.gz"
-        done < ./images/image-list.txt
+      run: yarn docker:saveImages
 
     - name: Update Docker image cache
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
@@ -207,13 +200,6 @@ jobs:
           for tar_gz in /tmp/docker_cache/*.tar.gz; do
             gzip -dc "$tar_gz" | docker load
           done
-
-      - name: Pull Docker images if cache is not hit
-        if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-        run: |
-          while IFS= read -r image; do
-            docker pull "$image"
-          done < image-list.txt
 
       - name: Test ${{ matrix.search-version }}
         run: yarn --silent test:${{ matrix.search-version }}
