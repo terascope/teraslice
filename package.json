@@ -22,7 +22,6 @@
         "bump": "ts-scripts bump",
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
-        "docker:loadImages": "ts-scripts images load",
         "docker:saveImages": "ts-scripts images save",
         "docs": "ts-scripts docs",
         "k8s": "TEST_ELASTICSEARCH=true ELASTICSEARCH_PORT=9200 ts-scripts k8s-env",

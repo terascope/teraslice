@@ -485,7 +485,7 @@ jobs:
 
       - name: Test k8s V2 elasticsearch7
         run: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
-        working-directory:  ./e2e
+        working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
         env:

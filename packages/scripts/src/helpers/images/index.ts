@@ -7,11 +7,11 @@ import signale from '../signale';
 
 export async function images(action: ImagesAction): Promise<void> {
     if (action === ImagesAction.List) {
-        return createImageList('./images');
+        return createImageList(config.DOCKER_IMAGES_PATH);
     }
 
     if (action === ImagesAction.Save) {
-        return saveImages(config.DOCKER_CACHE_PATH, './images');
+        return saveImages(config.DOCKER_CACHE_PATH, config.DOCKER_IMAGES_PATH);
     }
 }
 
@@ -19,8 +19,10 @@ export async function images(action: ImagesAction): Promise<void> {
  * Builds a list of all docker images needed for the teraslice CI pipeline
  * @returns Record<string, string>
  */
-async function createImageList(imagesPath: string): Promise<void> {
-    signale.info(`Creating Docker image list at ${imagesPath}/image-list.txt`);
+async function createImageList(imagesTxtPath: string): Promise<void> {
+    const filePath = path.join(imagesTxtPath, `${config.DOCKER_LIST_FILE_NAME}`);
+
+    signale.info(`Creating Docker image list at ${filePath}`);
 
     const list = 'terascope/node-base:18.19.1\n'
                + 'terascope/node-base:20.11.1\n'
@@ -33,10 +35,11 @@ async function createImageList(imagesPath: string): Promise<void> {
                + `${config.ZOOKEEPER_DOCKER_IMAGE}:7.1.9\n`
                + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`
                + 'kindest/node:v1.30.0';
-    if (!fse.existsSync(imagesPath)) {
-        await fse.emptyDir(imagesPath);
+
+    if (!fse.existsSync(imagesTxtPath)) {
+        await fse.emptyDir(imagesTxtPath);
     }
-    fse.writeFileSync(path.join(imagesPath, 'image-list.txt'), list);
+    fse.writeFileSync(filePath, list);
 }
 
 async function saveAndZip(imageName:string, imageSavePath: string) {
@@ -52,7 +55,7 @@ async function saveImages(imageSavePath: string, imageTxtPath: string): Promise<
             fse.rmSync(imageSavePath, { recursive: true, force: true });
         }
         fse.mkdirSync(imageSavePath);
-        const imagesString = fse.readFileSync(path.join(imageTxtPath, 'image-list.txt'), 'utf-8');
+        const imagesString = fse.readFileSync(path.join(imageTxtPath, config.DOCKER_LIST_FILE_NAME), 'utf-8');
         const imagesArray = imagesString.split('\n');
         const pullPromises = imagesArray.map(async (imageName) => {
             signale.info(`Pulling Docker image ${imageName}`);
