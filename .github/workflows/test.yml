@@ -33,17 +33,17 @@ jobs:
     needs: verify-build
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 18.19.1
         cache: 'yarn'
 
     # we login to docker to avoid docker pull limit rates
     - name: Login to Docker Hub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
@@ -66,10 +66,11 @@ jobs:
 
     - name: Restore Docker image cache
       id: docker-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+        lookup-only: true
 
     - name: Pull and save Docker images
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
@@ -77,7 +78,7 @@ jobs:
 
     - name: Update Docker image cache
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
@@ -136,248 +137,192 @@ jobs:
         env:
           NODE_OPTIONS: '--experimental-vm-modules'
 
-  # teraslice-elasticsearch-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1] #, 20.11.1, 22.2.0]
-  #       search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Check docker.hub limit start
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
-
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
-
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn --silent test:${{ matrix.search-version }}
-  #       working-directory: ./packages/teraslice
-
-  #     - name: Check docker.hub limit after Test
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  # elasticsearch-store-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1] #, 20.11.1, 22.2.0]
-  #       search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Check docker.hub limit start
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
-
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
-
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn --silent test:${{ matrix.search-version }}
-  #       working-directory: ./packages/elasticsearch-store
-
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  # elasticsearch-api-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1] #, 20.11.1, 22.2.0]
-  #       search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Check docker.hub limit start
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
-
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
-
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn --silent test:${{ matrix.search-version }}
-  #       working-directory: ./packages/elasticsearch-api
-
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  # e2e-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1] #, 20.11.1, 22.2.0]
-  #       search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
-
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
-
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
-
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
-  #       working-directory: ./e2e
-
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
-
-  e2e-k8s-tests:
+  teraslice-elasticsearch-tests:
     runs-on: ubuntu-latest
     needs: cache-docker-images
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1] #, 20.11.1, 22.2.0]
+        node-version: [18.19.1, 20.11.1, 22.2.0]
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Check docker.hub limit start
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
+
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
+      - name: Test ${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }}
+        working-directory: ./packages/teraslice
+
+      - name: Check docker.hub limit after Test
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+  elasticsearch-store-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1, 20.11.1, 22.2.0]
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Check docker.hub limit start
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
+
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
+      - name: Test ${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }}
+        working-directory: ./packages/elasticsearch-store
+
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+  elasticsearch-api-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1, 20.11.1, 22.2.0]
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Check docker.hub limit start
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
+
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
+      - name: Test ${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }}
+        working-directory: ./packages/elasticsearch-api
+
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1, 20.11.1, 22.2.0]
+        search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -407,7 +352,63 @@ jobs:
 
       - name: Restore Docker image cache
         id: docker-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
+
+      - name: Test ${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
+        working-directory: ./e2e
+
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
+
+  e2e-k8s-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1, 20.11.1, 22.2.0]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
+
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
+
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
         with:
           path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
@@ -431,198 +432,187 @@ jobs:
           PASS: ${{ secrets.DOCKER_PASSWORD }}
         run: npm run docker:limit
 
-  # e2e-k8s-v2-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1, 20.11.1]
-  #   env:
-  #     WORKING_DIRECTORY: ./e2e
-  #     TEST_SCRIPT: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v3
+  e2e-k8s-v2-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1, 20.11.1]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Install Kind and Kubectl
-  #       uses: helm/kind-action@v1.8.0
-  #       with:
-  #         install_only: "true"
+      - name: Install Kind and Kubectl
+        uses: helm/kind-action@v1.8.0
+        with:
+          install_only: "true"
 
-  #     - name: Test k8s V2 elasticsearch7
-  #       run: ${{ env.TEST_SCRIPT }}
-  #       working-directory:  ${{ env.WORKING_DIRECTORY }}
+      - name: Test k8s V2 elasticsearch7
+        run: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
+        working-directory:  ./e2e
 
-  # e2e-external-storage-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1]
-  #   env:
-  #     WORKING_DIRECTORY: ./e2e
-  #     TEST_SCRIPT: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+  e2e-external-storage-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Decompress and load Docker images from cache
-  #       if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-  #       run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Test external Asset Storage opensearch1
-  #       run: ${{ env.TEST_SCRIPT }}
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
+      - name: Test external Asset Storage opensearch1
+        run: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
+        working-directory: ./e2e
 
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
 
-  # e2e-external-storage-tests-encrypted:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1]
-  #   env:
-  #     WORKING_DIRECTORY: ./e2e
-  #     TEST_SCRIPT: ENCRYPT_MINIO=true yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-external-storage-tests-encrypted:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  #     - name: Decompress and load Docker images from cache
-  #       if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-  #       run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
+      - name: Install mkcert
+        run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && sudo chmod 777 mkcert-v*-linux-amd64 && sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
 
-  #     - name: Install mkcert
-  #       run: curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && sudo chmod 777 mkcert-v*-linux-amd64 && sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+      - name: Install grep
+        run: sudo apt update && sudo apt install grep
 
-  #     - name: Install grep
-  #       run: sudo apt update && sudo apt install grep
+      - name: Check mkcert
+        run: command -v mkcert
 
-  #     - name: Check mkcert
-  #       run: command -v mkcert
+      - name: Check grep
+        run: command -v grep
 
-  #     - name: Check grep
-  #       run: command -v grep
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
+      - name: Test external Asset Storage opensearch1
+        run: ENCRYPT_MINIO=true yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
+        working-directory: ./e2e
 
-  #     - name: Test external Asset Storage opensearch1
-  #       run: ${{ env.TEST_SCRIPT }}
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
