@@ -13,7 +13,8 @@ import {
     getContainerInfo,
     dockerStop,
     k8sStartService,
-    k8sStopService
+    k8sStopService,
+    loadThenDeleteImageFromCache
 } from '../scripts';
 import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
@@ -206,16 +207,7 @@ export async function loadCachedServiceImage(suite: string, options: TestOptions
         }
 
         await Promise.all(images.map(async (imageName) => {
-            signale.time(`unzip and load ${imageName}`);
-            const fileName = imageName.replace(/[/:]/g, '_');
-            const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
-            if (!fs.existsSync(filePath)) {
-                throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
-            }
-            const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
-            signale.info('Result: ', result);
-            fs.removeSync(filePath);
-            signale.timeEnd(`unzip and load ${imageName}`);
+            await loadThenDeleteImageFromCache(imageName);
         }));
 
         fs.removeSync(config.DOCKER_CACHE_PATH);

@@ -13,7 +13,8 @@ import {
     runJest,
     dockerTag,
     isKindInstalled,
-    isKubectlInstalled
+    isKubectlInstalled,
+    loadThenDeleteImageFromCache
 } from '../scripts';
 import { Kind } from '../kind';
 import {
@@ -237,6 +238,8 @@ async function runE2ETest(
     if (isCI) {
         // load the services from cache in CI
         await loadCachedServiceImage(suite, options);
+        // load the base docker image
+        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
     }
 
     try {
