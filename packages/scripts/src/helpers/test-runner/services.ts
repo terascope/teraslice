@@ -209,8 +209,6 @@ export async function loadCachedServiceImage(suite: string, options: TestOptions
         await Promise.all(images.map(async (imageName) => {
             await loadThenDeleteImageFromCache(imageName);
         }));
-
-        fs.removeSync(config.DOCKER_CACHE_PATH);
     } catch (err) {
         throw new ts.TSError(err, {
             message: `Failed to pull services for test suite "${suite}", ${err.message}`

@@ -14,7 +14,8 @@ import {
     dockerTag,
     isKindInstalled,
     isKubectlInstalled,
-    loadThenDeleteImageFromCache
+    loadThenDeleteImageFromCache,
+    deleteDockerImageCache
 } from '../scripts';
 import { Kind } from '../kind';
 import {
@@ -240,6 +241,7 @@ async function runE2ETest(
         await loadCachedServiceImage(suite, options);
         // load the base docker image
         await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
+        await deleteDockerImageCache();
     }
 
     try {

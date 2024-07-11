@@ -55,6 +55,7 @@ async function saveImages(imageSavePath: string, imageTxtPath: string): Promise<
         const imagesString = fse.readFileSync(path.join(imageTxtPath, 'image-list.txt'), 'utf-8');
         const imagesArray = imagesString.split('\n');
         const pullPromises = imagesArray.map(async (imageName) => {
+            signale.info(`Pulling Docker image ${imageName}`);
             await execa.command(`docker pull ${imageName}`);
         });
         await Promise.all(pullPromises);
