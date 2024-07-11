@@ -393,7 +393,7 @@ export async function dockerBuild(
     tag: string,
     cacheFrom?: string[],
     target?: string,
-    buildArg?: string,
+    buildArgs?: string[],
     useDevFile?: boolean
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
@@ -403,7 +403,9 @@ export async function dockerBuild(
     });
 
     const targetArgs: string[] = target ? ['--target', target] : [];
-    const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
+    const buildsArgs: string[] = buildArgs
+        ? ['--build-arg', ...buildArgs.join(',--build-arg,').split(',')]
+        : [];
     const dockerFilePath = useDevFile ? ['-f', 'Dockerfile.dev', '.'] : ['.'];
 
     await fork({
