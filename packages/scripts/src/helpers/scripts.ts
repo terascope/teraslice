@@ -425,6 +425,30 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
+    signale.time(`unzip and load ${imageName}`);
+    const fileName = imageName.trim().replace(/[/:]/g, '_');
+    const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+    if (!fs.existsSync(filePath)) {
+        signale.error(`No file found at ${filePath}. Have you restored the cache?`);
+        return false;
+    }
+    const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+    signale.info('Result: ', result);
+    if (result.exitCode !== 0) {
+        signale.error(`Error loading ${filePath} to docker`);
+        return false;
+    }
+    fs.rmSync(filePath);
+    signale.timeEnd(`unzip and load ${imageName}`);
+    return true;
+}
+
+export async function deleteDockerImageCache() {
+    signale.info(`Deleting Docker image cache at ${config.DOCKER_CACHE_PATH}`);
+    fse.removeSync(config.DOCKER_CACHE_PATH);
+}
+
 export async function pgrep(name: string): Promise<string> {
     const result = await exec({ cmd: 'ps', args: ['aux'] }, false);
     if (!result) {

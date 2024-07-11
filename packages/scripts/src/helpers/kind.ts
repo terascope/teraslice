@@ -3,12 +3,12 @@ import os from 'os';
 import path from 'path';
 import execa from 'execa';
 import yaml from 'js-yaml';
-import { Logger, debugLogger } from '@terascope/utils';
+import { Logger, debugLogger, isCI } from '@terascope/utils';
 import type { V1Volume, V1VolumeMount } from '@kubernetes/client-node';
 import signale from './signale';
 import { getE2eK8sDir } from '../helpers/packages';
 import { KindCluster, TsVolumeSet } from './interfaces';
-import { TERASLICE_PORT } from './config';
+import { DOCKER_CACHE_PATH, TERASLICE_PORT } from './config';
 
 export class Kind {
     clusterName: string;
@@ -83,7 +83,19 @@ export class Kind {
         serviceName: string, serviceImage: string, version: string
     ): Promise<void> {
         try {
-            const subprocess = await execa.command(`kind load docker-image ${serviceImage}:${version} --name ${this.clusterName}`);
+            let subprocess;
+            if (isCI) {
+                // In CI we load images directly from the github docker image cache
+                // Without this we run out of disk space
+                const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
+                const filePath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+                if (!fs.existsSync(filePath)) {
+                    throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
+                }
+                subprocess = await execa.command(`kind --name ${this.clusterName} load image-archive <(gunzip -c ${filePath})`);
+            } else {
+                subprocess = await execa.command(`kind --name ${this.clusterName} load docker-image ${serviceImage}:${version}`);
+            }
             this.logger.debug(subprocess.stderr);
         } catch (err) {
             this.logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);

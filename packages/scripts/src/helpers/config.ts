@@ -183,3 +183,7 @@ export const {
     K8S_VERSION = undefined,
     TERASLICE_IMAGE = undefined
 } = process.env;
+
+export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
+export const DOCKER_IMAGES_PATH = './images';
+export const DOCKER_LIST_FILE_NAME = 'image-list.txt';

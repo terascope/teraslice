@@ -6,14 +6,16 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
-import { ensureServices, pullServices } from './services';
+import { ensureServices, loadOrPullServiceImages } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
     runJest,
     dockerTag,
     isKindInstalled,
-    isKubectlInstalled
+    isKubectlInstalled,
+    loadThenDeleteImageFromCache,
+    deleteDockerImageCache
 } from '../scripts';
 import { Kind } from '../kind';
 import {
@@ -103,6 +105,11 @@ async function runTestSuite(
     tracker: TestTracker,
 ): Promise<void> {
     if (suite === 'e2e') return;
+
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(suite, options);
+    }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
@@ -229,9 +236,22 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    if (isCI && options.testPlatform === 'native') {
-        // pull the services first in CI
-        await pullServices(suite, options);
+    if (isCI) {
+        const promises = [];
+
+        // load the services from cache or pull if not found
+        promises.push(loadOrPullServiceImages(suite, options));
+
+        // load the base docker image
+        promises.push(loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`));
+
+        // load kind if using k8s
+        if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
+            promises.push(loadThenDeleteImageFromCache('kindest/node:v1.30.0'));
+        }
+
+        await Promise.all([...promises]);
+        await deleteDockerImageCache();
     }
 
     try {
