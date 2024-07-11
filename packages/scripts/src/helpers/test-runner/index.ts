@@ -237,10 +237,19 @@ async function runE2ETest(
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
     if (isCI) {
+        const promises = [];
+
         // load the services from cache in CI
-        await loadCachedServiceImage(suite, options);
+        promises.push(loadCachedServiceImage(suite, options));
+
         // load the base docker image
-        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
+        promises.push(loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`));
+
+        if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
+            promises.push(loadThenDeleteImageFromCache('kindest/node:v1.30.0'));
+        }
+
+        await Promise.all([...promises]);
         await deleteDockerImageCache();
     }
 

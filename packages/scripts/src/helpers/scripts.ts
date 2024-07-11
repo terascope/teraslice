@@ -439,6 +439,7 @@ export async function loadThenDeleteImageFromCache(imageName: string) {
 }
 
 export async function deleteDockerImageCache() {
+    signale.info(`Deleting Docker image cache at ${config.DOCKER_CACHE_PATH}`);
     fse.removeSync(config.DOCKER_CACHE_PATH);
 }
 
