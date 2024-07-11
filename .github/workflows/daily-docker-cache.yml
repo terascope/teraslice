@@ -1,0 +1,69 @@
+name: Daily Docker Cache
+
+on:
+  schedule:
+    - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
+  push:
+    branches:
+      - master
+
+jobs:
+  cache-docker-images:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.19.1
+        cache: 'yarn'
+
+    # we login to docker to avoid docker pull limit rates
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Check docker.hub limit start of job
+      env:
+        USER: ${{ secrets.DOCKER_USERNAME }}
+        PASS: ${{ secrets.DOCKER_PASSWORD }}
+      run: yarn docker:limit
+
+    - name: Install and build packages
+      run: yarn setup
+      env:
+        YARN_SETUP_ARGS: "--prod=false --silent"
+
+    - name: Create Docker Image List
+      run: |
+        yarn docker:listImages
+        cat ./images/image-list.txt
+
+    - name: Restore Docker image cache
+      id: docker-cache
+      uses: actions/cache@v4
+      with:
+        path: /tmp/docker_cache
+        key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+        lookup-only: true
+
+    - name: Pull and save Docker images
+      if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
+      run: yarn docker:saveImages
+
+    - name: Update Docker image cache
+      if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
+      uses: actions/cache@v4
+      with:
+        path: /tmp/docker_cache
+        key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+
+    - name: Check docker.hub limit end of job
+      env:
+        USER: ${{ secrets.DOCKER_USERNAME }}
+        PASS: ${{ secrets.DOCKER_PASSWORD }}
+      run: npm run docker:limit
