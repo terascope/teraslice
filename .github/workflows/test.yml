@@ -145,7 +145,6 @@ jobs:
       matrix:
         node-version: [18.19.1] #, 20.11.1, 22.2.0]
         search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -205,7 +204,6 @@ jobs:
       matrix:
         node-version: [18.19.1] #, 20.11.1, 22.2.0]
         search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -265,7 +263,6 @@ jobs:
       matrix:
         node-version: [18.19.1] #, 20.11.1, 22.2.0]
         search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -316,69 +313,62 @@ jobs:
           PASS: ${{ secrets.DOCKER_PASSWORD }}
         run: npm run docker:limit
 
-  # e2e-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-docker-images
-  #   strategy:
-  #     # opensearch is finiky, keep testing others if it fails
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: [18.19.1, 20.11.1, 22.2.0]
-  #       search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
-  #   env:
-  #     WORKING_DIRECTORY: ./e2e
-  #     TEST_SCRIPT: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v4
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: cache-docker-images
+    strategy:
+      # opensearch is finiky, keep testing others if it fails
+      fail-fast: false
+      matrix:
+        node-version: [18.19.1] #, 20.11.1, 22.2.0]
+        search-version: [elasticsearch6] #, elasticsearch7, opensearch1, opensearch2]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     # we login to docker to avoid docker pull limit rates
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
+      # we login to docker to avoid docker pull limit rates
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-  #     - name: Install and build packages
-  #       run: yarn setup
-  #       env:
-  #         YARN_SETUP_ARGS: "--prod=false --silent"
+      - name: Install and build packages
+        run: yarn setup
+        env:
+          YARN_SETUP_ARGS: "--prod=false --silent"
 
-  #     - name: Create Docker Image List
-  #       run: |
-  #         yarn docker:listImages
-  #         cat ./images/image-list.txt
+      - name: Create Docker Image List
+        run: |
+          yarn docker:listImages
+          cat ./images/image-list.txt
 
-  #     - name: Restore Docker image cache
-  #       id: docker-cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/docker_cache
-  #         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
+      - name: Restore Docker image cache
+        id: docker-cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/docker_cache
+          key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
-  #     - name: Decompress and load Docker images from cache
-  #       if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
-  #       run: yarn docker:loadImages --directory '${{ env.WORKING_DIRECTORY }}' --script '${{ env.TEST_SCRIPT }}'
+      - name: Compile e2e code
+        run: yarn build
+        working-directory: ./e2e
 
-  #     - name: Compile e2e code
-  #       run: yarn build
-  #       working-directory: ./e2e
+      - name: Test ${{ matrix.search-version }}
+        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
+        working-directory: ./e2e
 
-  #     - name: Test ${{ matrix.search-version }}
-  #       run: ${{ env.TEST_SCRIPT }}
-  #       working-directory: ${{ env.WORKING_DIRECTORY }}
-
-  #     - name: Check docker.hub limit end of job
-  #       env:
-  #         USER: ${{ secrets.DOCKER_USERNAME }}
-  #         PASS: ${{ secrets.DOCKER_PASSWORD }}
-  #       run: npm run docker:limit
+      - name: Check docker.hub limit end of job
+        env:
+          USER: ${{ secrets.DOCKER_USERNAME }}
+          PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: npm run docker:limit
 
   # e2e-k8s-tests:
   #   runs-on: ubuntu-latest
