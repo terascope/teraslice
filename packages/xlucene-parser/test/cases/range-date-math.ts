@@ -2,7 +2,7 @@ import { xLuceneFieldType } from '@terascope/types';
 import subDays from 'date-fns/subDays';
 import addDays from 'date-fns/addDays';
 import { NodeType, Node } from '../../src';
-import { TestCase } from './interfaces';
+import { TestCase } from './interfaces.js';
 
 export const dateMath = [
     [

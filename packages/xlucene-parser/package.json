@@ -11,6 +11,7 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "sideEffects": false,
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
@@ -36,8 +37,8 @@
     "devDependencies": {
         "@turf/invariant": "^6.2.0",
         "@turf/random": "^6.4.0",
-        "peggy": "~2.0.1",
-        "ts-pegjs": "^2.1.0"
+        "peggy": "~4.0.3",
+        "ts-pegjs": "^4.2.1"
     },
     "engines": {
         "node": ">=14.17.0",

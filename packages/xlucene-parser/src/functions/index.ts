@@ -1,9 +1,9 @@
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
-import geoBoxFn from './geo/box';
-import geoDistanceFn from './geo/distance';
-import geoPolygonFn from './geo/polygon';
-import geoContainsPointFn from './geo/contains-point';
-import { FunctionDefinition, FunctionMethods, FunctionNode } from '../interfaces';
+import geoBoxFn from './geo/box.js';
+import geoDistanceFn from './geo/distance.js';
+import geoPolygonFn from './geo/polygon.js';
+import geoContainsPointFn from './geo/contains-point.js';
+import { FunctionDefinition, FunctionMethods, FunctionNode } from '../interfaces.js';
 
 export enum xLuceneFunction {
     geoDistance = 'geoDistance',

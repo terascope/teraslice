@@ -1,7 +1,7 @@
 import { AnyQuery, xLuceneVariables } from '@terascope/types';
 import { parseGeoPoint, inGeoBoundingBoxFP } from '@terascope/utils';
-import * as i from '../../interfaces';
-import { getFieldValue, logger } from '../../utils';
+import * as i from '../../interfaces.js';
+import { getFieldValue, logger } from '../../utils.js';
 
 function validate(params: i.Term[], variables: xLuceneVariables) {
     const topLeftParam = params.find((node) => node.field === 'top_left');

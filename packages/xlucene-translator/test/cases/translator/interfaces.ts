@@ -1,7 +1,7 @@
 import {
     AnyQuery, ElasticsearchDSLResult, ElasticsearchDSLOptions
 } from '@terascope/types';
-import { TranslatorOptions } from '../../../src/translator/interfaces';
+import { TranslatorOptions } from '../../../src/translator/interfaces.js';
 
 export type TestCase = [
     // when given %s
