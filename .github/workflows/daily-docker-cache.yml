@@ -3,11 +3,14 @@ name: Daily Docker Cache
 on:
   schedule:
     - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
-  workflow_dispatch:
 
 jobs:
   cache-docker-images:
     runs-on: ubuntu-latest
+
+    # # final check to make sure it runs only on master branch
+    if: github.ref == 'refs/heads/master'
+
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -55,25 +58,26 @@ jobs:
         gh extension install actions/gh-actions-cache
 
         echo "Fetching list of cache key"
-        cacheKeysForPR=$(gh actions-cache list -R $REPO -L 100 | cut -f 1 )
+        cacheKeysForPR=$(gh actions-cache list --key "docker-images-" -R $REPO -B $BRANCH -L 100 | cut -f 1 )
 
         ## Setting this to not fail the workflow while deleting cache keys.
         set +e
         echo "Deleting caches..."
         for cacheKey in $cacheKeysForPR
         do
-            gh actions-cache delete docker-images-* -R $REPO --confirm
+            gh actions-cache delete $cacheKey -R $REPO --confirm
         done
         echo "Done"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
+        BRANCH: refs/heads/master
 
     - name: Pull and save Docker images
       run: yarn docker:saveImages
 
     - name: Update Docker image cache
-      uses: actions/cache@v4
+      uses: actions/cache/save@v4
       with:
         path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
