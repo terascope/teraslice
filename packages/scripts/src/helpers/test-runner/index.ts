@@ -239,16 +239,15 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    if (isCI && options.testPlatform === 'native') {
-        const promises = [];
-
-        // load the services from cache or pull if not found
-        promises.push(loadOrPullServiceImages(suite, options));
-
+    if (isCI) {
         // load the base docker image
-        promises.push(loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`));
+        loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
 
-        await Promise.all([...promises]);
+        // load service if in native. In k8s services will be loaded directly to kind
+        if (options.testPlatform === 'native') {
+            loadOrPullServiceImages(suite, options);
+        }
+
         await deleteDockerImageCache();
     }
 
