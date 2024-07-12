@@ -67,7 +67,7 @@ jobs:
       id: docker-cache
       uses: actions/cache@v4
       with:
-        path: tmp/docker_cache
+        path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
         lookup-only: true
 
@@ -79,7 +79,7 @@ jobs:
       if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
       uses: actions/cache/save@v4
       with:
-        path: tmp/docker_cache
+        path: /tmp/docker_cache
         key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
     - name: Check docker.hub limit end of job
@@ -182,7 +182,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
@@ -241,7 +241,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
@@ -300,7 +300,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Test ${{ matrix.search-version }}
@@ -359,7 +359,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Compile e2e code
@@ -421,7 +421,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Compile e2e code
@@ -488,7 +488,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Compile e2e code
@@ -555,7 +555,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Compile e2e code
@@ -617,7 +617,7 @@ jobs:
         id: docker-cache
         uses: actions/cache@v4
         with:
-          path: tmp/docker_cache
+          path: /tmp/docker_cache
           key: docker-images-${{ hashFiles('./images/image-list.txt') }}
 
       - name: Install mkcert
