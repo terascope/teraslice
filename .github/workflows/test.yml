@@ -90,6 +90,7 @@ jobs:
 
   linux-unit-tests:
     runs-on: ubuntu-latest
+    needs: verify-build
     strategy:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
@@ -113,6 +114,7 @@ jobs:
 
   linux-unit-esm-tests:
     runs-on: ubuntu-latest
+    needs: verify-build
     strategy:
       matrix:
         node-version: [18.19.1, 20.11.1, 22.2.0]
@@ -197,7 +199,7 @@ jobs:
 
   elasticsearch-store-tests:
     runs-on: ubuntu-latest
-    needs: cache-docker-images
+    needs: [verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -256,7 +258,7 @@ jobs:
 
   elasticsearch-api-tests:
     runs-on: ubuntu-latest
-    needs: cache-docker-images
+    needs: [verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -445,7 +447,7 @@ jobs:
 
   e2e-k8s-v2-tests:
     runs-on: ubuntu-latest
-    needs: cache-docker-images
+    needs: [verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -512,7 +514,7 @@ jobs:
 
   e2e-external-storage-tests:
     runs-on: ubuntu-latest
-    needs: cache-docker-images
+    needs: [verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
@@ -574,7 +576,7 @@ jobs:
 
   e2e-external-storage-tests-encrypted:
     runs-on: ubuntu-latest
-    needs: cache-docker-images
+    needs: [verify-build, cache-docker-images]
     strategy:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false

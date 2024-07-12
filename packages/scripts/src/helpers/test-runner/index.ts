@@ -285,6 +285,8 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
+    await deleteDockerImageCache();
+
     if (!tracker.hasErrors()) {
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
