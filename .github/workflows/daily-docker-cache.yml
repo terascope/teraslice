@@ -54,6 +54,10 @@ jobs:
 
     - name: Clear old docker cache
       if: ${{steps.docker-cache.outputs.cache-hit == 'true'}}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+        BRANCH: refs/heads/master
       run: |
         gh extension install actions/gh-actions-cache
 
@@ -68,10 +72,6 @@ jobs:
             gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
         done
         echo "Done"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        REPO: ${{ github.repository }}
-        BRANCH: refs/heads/master
 
     - name: Pull and save Docker images
       run: yarn docker:saveImages
