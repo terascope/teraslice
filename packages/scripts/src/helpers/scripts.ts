@@ -425,6 +425,12 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+/**
+ * Unzips and loads a Docker image from a Docker cache
+ * If successful the image will be deleted from the cache
+ * @param {string} imageName Name of the image to load
+ * @returns {Promise<boolean>} Whether or not the image loaded successfully
+ */
 export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
     signale.time(`unzip and load ${imageName}`);
     const fileName = imageName.trim().replace(/[/:]/g, '_');
