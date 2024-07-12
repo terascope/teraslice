@@ -241,14 +241,13 @@ async function runE2ETest(
 
     if (isCI) {
         // load the base docker image
-        loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
+        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
 
         // load service if in native. In k8s services will be loaded directly to kind
         if (options.testPlatform === 'native') {
-            loadOrPullServiceImages(suite, options);
+            await loadOrPullServiceImages(suite, options);
+            await deleteDockerImageCache();
         }
-
-        await deleteDockerImageCache();
     }
 
     try {

@@ -15,7 +15,8 @@ import {
     k8sStartService,
     k8sStopService,
     loadThenDeleteImageFromCache,
-    dockerPull
+    dockerPull,
+    deleteDockerImageCache
 } from '../scripts';
 import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
@@ -819,6 +820,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         const kind = new Kind(options.k8sVersion, options.kindClusterName);
         await kind.loadServiceImage(service, services[service].image, version);
+        await deleteDockerImageCache();
         await k8sStopService(service);
         await k8sStartService(service, services[service].image, version, kind);
         return () => { };
