@@ -82,23 +82,26 @@ export class Kind {
     async loadServiceImage(
         serviceName: string, serviceImage: string, version: string
     ): Promise<void> {
+        let subprocess;
         try {
-            let subprocess;
             if (isCI) {
                 // In CI we load images directly from the github docker image cache
-                // Without this we run out of disk space
                 const fileName = `${serviceImage}_${version}`.replace(/[/:]/g, '_');
                 const filePath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+                const tarPath = path.join(DOCKER_CACHE_PATH, `${fileName}.tar`);
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
-                subprocess = await execa.command(`kind --name ${this.clusterName} load image-archive <(gunzip -c ${filePath})`);
+                execa.command(`gunzip -d ${filePath}`);
+                subprocess = await execa.command(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
+                fs.rmSync(tarPath);
             } else {
-                subprocess = await execa.command(`kind --name ${this.clusterName} load docker-image ${serviceImage}:${version}`);
+                subprocess = await execa.command(`kind load --name ${this.clusterName} docker-image ${serviceImage}:${version}`);
             }
-            this.logger.debug(subprocess.stderr);
+            signale.info(`${subprocess.command}: successful`);
         } catch (err) {
-            this.logger.debug(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
+            signale.info(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
+            signale.info(`Error: ${subprocess?.stderr}`);
         }
     }
 

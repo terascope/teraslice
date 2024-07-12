@@ -220,6 +220,9 @@ async function runE2ETest(
 
             kind = new Kind(options.k8sVersion, options.kindClusterName);
             try {
+                if (isCI) {
+                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0');
+                }
                 await kind.createCluster();
             } catch (err) {
                 signale.error(err);
@@ -236,7 +239,7 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    if (isCI) {
+    if (isCI && options.testPlatform === 'native') {
         const promises = [];
 
         // load the services from cache or pull if not found
@@ -244,11 +247,6 @@ async function runE2ETest(
 
         // load the base docker image
         promises.push(loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`));
-
-        // load kind if using k8s
-        if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
-            promises.push(loadThenDeleteImageFromCache('kindest/node:v1.30.0'));
-        }
 
         await Promise.all([...promises]);
         await deleteDockerImageCache();
