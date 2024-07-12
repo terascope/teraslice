@@ -23,6 +23,7 @@
     ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
+        "postinstall": "./scripts/fix-deps.js",
         "prebuild": "./scripts/generate-engine.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
