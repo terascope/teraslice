@@ -15,8 +15,7 @@ import {
     k8sStartService,
     k8sStopService,
     loadThenDeleteImageFromCache,
-    dockerPull,
-    deleteDockerImageCache
+    dockerPull
 } from '../scripts';
 import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
