@@ -1,7 +1,7 @@
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
-import { PostProcessConfig } from '../../../interfaces';
-import TransformOpBase from './base';
+import { PostProcessConfig } from '../../../interfaces.js';
+import TransformOpBase from './base.js';
 
 export default class Sha2Encode extends TransformOpBase {
     hash: string;

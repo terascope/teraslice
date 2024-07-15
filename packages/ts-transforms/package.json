@@ -15,6 +15,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
+    "type": "module",
     "bin": {
         "ts-match": "./bin/ts-transform.js",
         "ts-transform": "./bin/ts-transform.js"

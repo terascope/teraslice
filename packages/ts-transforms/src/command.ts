@@ -1,12 +1,12 @@
 import yargs from 'yargs';
-import path from 'path';
-import fs from 'fs';
-import readline from 'readline';
+import path from 'node:path';
+import fs from 'node:fs';
+import readline from 'node:readline';
 import {
     DataEntity, debugLogger, parseList, AnyObject, get
 } from '@terascope/utils';
-import { PhaseManager } from './index';
-import { PhaseConfig } from './interfaces';
+import { PhaseManager } from './index.js';
+import { PhaseConfig } from './interfaces.js';
 
 const logger = debugLogger('ts-transform-cli');
 // change pathing due to /dist/src issues

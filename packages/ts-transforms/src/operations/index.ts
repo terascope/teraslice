@@ -2,45 +2,45 @@
 
 import { deprecate } from 'util';
 
-import OperationBase from './lib/base';
-import TransformOpBase from './lib/transforms/base';
-import ValidationOpBase from './lib/validations/base';
+import OperationBase from './lib/base.js';
+import TransformOpBase from './lib/transforms/base.js';
+import ValidationOpBase from './lib/validations/base.js';
 
-import Join from './lib/transforms/join';
-import Selector from './lib/transforms/selector';
-import Extraction from './lib/transforms/extraction';
-import Base64Decode from './lib/transforms/base64decode';
-import UrlDecode from './lib/transforms/urldecode';
-import HexDecode from './lib/transforms/hexdecode';
-import JsonParse from './lib/transforms/jsonparse';
-import Lowercase from './lib/transforms/lowercase';
-import Uppercase from './lib/transforms/uppercase';
-import MakeArray from './lib/transforms/array';
-import Dedup from './lib/transforms/dedup';
-import Trim from './lib/transforms/trim';
-import Base64Encode from './lib/transforms/base64encode';
-import UrlEncode from './lib/transforms/urlencode';
-import HexEncode from './lib/transforms/hexencode';
-import Md5Encode from './lib/transforms/md5encode';
-import Sha1Encode from './lib/transforms/sha1encode';
-import Sha2Encode from './lib/transforms/sha2encode';
+import Join from './lib/transforms/join.js';
+import Selector from './lib/transforms/selector.js';
+import Extraction from './lib/transforms/extraction.js';
+import Base64Decode from './lib/transforms/base64decode.js';
+import UrlDecode from './lib/transforms/urldecode.js';
+import HexDecode from './lib/transforms/hexdecode.js';
+import JsonParse from './lib/transforms/jsonparse.js';
+import Lowercase from './lib/transforms/lowercase.js';
+import Uppercase from './lib/transforms/uppercase.js';
+import MakeArray from './lib/transforms/array.js';
+import Dedup from './lib/transforms/dedup.js';
+import Trim from './lib/transforms/trim.js';
+import Base64Encode from './lib/transforms/base64encode.js';
+import UrlEncode from './lib/transforms/urlencode.js';
+import HexEncode from './lib/transforms/hexencode.js';
+import Md5Encode from './lib/transforms/md5encode.js';
+import Sha1Encode from './lib/transforms/sha1encode.js';
+import Sha2Encode from './lib/transforms/sha2encode.js';
 
-import Geolocation from './lib/validations/geolocation';
-import StringValidation from './lib/validations/string';
-import NumberValidation from './lib/validations/number';
-import BooleanValidation from './lib/validations/boolean';
-import Url from './lib/validations/url';
-import Email from './lib/validations/email';
-import Ip from './lib/validations/ip';
-import MacAddress from './lib/validations/mac-address';
-import Uuid from './lib/validations/uuid';
-import ISDN from './lib/validations/isdn';
-import { Validator, ValidatorPlugins } from './plugins/validator';
-import dataMapePlugin from './plugins/data-mate';
+import Geolocation from './lib/validations/geolocation.js';
+import StringValidation from './lib/validations/string.js';
+import NumberValidation from './lib/validations/number.js';
+import BooleanValidation from './lib/validations/boolean.js';
+import Url from './lib/validations/url.js';
+import Email from './lib/validations/email.js';
+import Ip from './lib/validations/ip.js';
+import MacAddress from './lib/validations/mac-address.js';
+import Uuid from './lib/validations/uuid.js';
+import ISDN from './lib/validations/isdn.js';
+import { Validator, ValidatorPlugins } from './plugins/validator/index.js';
+import dataMapePlugin from './plugins/data-mate/index.js';
 
 import {
     OperationsDict, PluginClassType, BaseOperationClass, PluginList
-} from '../interfaces';
+} from '../interfaces.js';
 
 class CorePlugins implements PluginClassType {
     init(): OperationsDict {
