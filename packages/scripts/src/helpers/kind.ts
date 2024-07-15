@@ -92,7 +92,8 @@ export class Kind {
                 if (!fs.existsSync(filePath)) {
                     throw new Error(`No file found at ${filePath}. Have you restored the cache?`);
                 }
-                execa.command(`gunzip -d ${filePath}`);
+                subprocess = await execa.command(`gunzip -d ${filePath}`);
+                signale.info(`${subprocess.command}: successful`);
                 subprocess = await execa.command(`kind load --name ${this.clusterName} image-archive ${tarPath}`);
                 fs.rmSync(tarPath);
             } else {
@@ -101,7 +102,7 @@ export class Kind {
             signale.info(`${subprocess.command}: successful`);
         } catch (err) {
             signale.info(`The ${serviceName} docker image ${serviceImage}:${version} could not be loaded. It may not be present locally.`);
-            signale.info(`Error: ${subprocess?.stderr}`);
+            signale.info('Error: ', err);
         }
     }
 
