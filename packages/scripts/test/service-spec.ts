@@ -27,6 +27,13 @@ describe('services', () => {
         kindClusterName: 'default'
     };
 
+    describe('loadOrPullServiceImages', () => {
+        it('should throw error if service image is invalid', async () => {
+            await expect(services.loadOrPullServiceImages('_for_testing_', options))
+                .rejects.toThrowWithMessage(TSError, /w*Failed to pull services for test suite*\w/);
+        });
+    });
+
     describe('ensureServices', () => {
         it('should throw if service has an incorrect setting', async () => {
             await expect(services.ensureServices('_for_testing_', options))
