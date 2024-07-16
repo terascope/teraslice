@@ -1,9 +1,8 @@
 import fse from 'fs-extra';
-import execa from 'execa';
-import path from 'node:path';
 import * as config from '../config';
 import { ImagesAction } from './interfaces';
 import signale from '../signale';
+import { dockerPull, saveAndZip } from '../scripts';
 
 export async function images(action: ImagesAction): Promise<void> {
     if (action === ImagesAction.List) {
@@ -19,7 +18,7 @@ export async function images(action: ImagesAction): Promise<void> {
  * Builds a list of all docker images needed for the teraslice CI pipeline
  * @returns Promise<void>
  */
-async function createImageList(): Promise<void> {
+export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
 
     const list = 'terascope/node-base:18.19.1\n'
@@ -41,25 +40,11 @@ async function createImageList(): Promise<void> {
 }
 
 /**
- * Save a docker image as a tar.gz to a local directory
- * @param {string} imageName Name of image to pull and save
- * @param {string} imageSavePath Location where image will be saved and compressed.
- * @returns void
- */
-async function saveAndZip(imageName:string, imageSavePath: string) {
-    signale.info(`Saving Docker image: ${imageName}`);
-    const fileName = imageName.replace(/[/:]/g, '_');
-    const filePath = path.join(imageSavePath, `${fileName}.tar`);
-    const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
-    await execa.command(command, { shell: true });
-}
-
-/**
  * Pulls all docker images from the list at config.DOCKER_IMAGE_LIST_PATH
  * then saves and zips them to config.DOCKER_CACHE_PATH in batches of 2.
  * @returns Promise<void>
  */
-async function saveImages(): Promise<void> {
+export async function saveImages(): Promise<void> {
     try {
         if (fse.existsSync(config.DOCKER_CACHE_PATH)) {
             fse.rmSync(config.DOCKER_CACHE_PATH, { recursive: true, force: true });
@@ -69,7 +54,7 @@ async function saveImages(): Promise<void> {
         const imagesArray = imagesString.split('\n');
         const pullPromises = imagesArray.map(async (imageName) => {
             signale.info(`Pulling Docker image: ${imageName}`);
-            await execa.command(`docker pull ${imageName}`);
+            await dockerPull(imageName);
         });
         await Promise.all(pullPromises);
 
