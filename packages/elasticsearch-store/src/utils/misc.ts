@@ -1,12 +1,12 @@
-import * as ts from '@terascope/utils';
-import { TimeSeriesFormat } from '../interfaces';
+import { get, trim } from '@terascope/utils';
+import { TimeSeriesFormat } from '../interfaces.js';
 
 export function getRolloverFrequency(config: unknown): TimeSeriesFormat {
-    return ts.get(config, ['index_schema', 'rollover_frequency'], 'monthly');
+    return get(config, ['index_schema', 'rollover_frequency'], 'monthly');
 }
 
 export function getSchemaVersion(config: unknown): number {
-    return ts.get(config, ['index_schema', 'version'], 1);
+    return get(config, ['index_schema', 'version'], 1);
 }
 
 export function getSchemaVersionStr(config: unknown): string {
@@ -14,7 +14,7 @@ export function getSchemaVersionStr(config: unknown): string {
 }
 
 export function getDataVersion(config: unknown): number {
-    return ts.get(config, ['version'], 1);
+    return get(config, ['version'], 1);
 }
 
 export function getDataVersionStr(config: unknown): string {
@@ -22,5 +22,5 @@ export function getDataVersionStr(config: unknown): string {
 }
 
 export function formatIndexName(strs: (string | undefined)[]): string {
-    return strs.map((val) => ts.trim(val)).filter(Boolean).join('-');
+    return strs.map((val) => trim(val)).filter(Boolean).join('-');
 }

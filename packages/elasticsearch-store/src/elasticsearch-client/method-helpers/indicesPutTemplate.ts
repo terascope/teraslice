@@ -1,7 +1,6 @@
 import { ElasticsearchDistribution, ClientParams, ClientMetadata } from '@terascope/types';
 import { get, isNumber } from '@terascope/utils';
-
-import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils';
+import { ensureNoTypeInMapping, ensureTypeInMapping } from './helper-utils.js';
 
 export function convertIndicesPutTemplateParams(
     params: ClientParams.IndicesPutTemplateParams,

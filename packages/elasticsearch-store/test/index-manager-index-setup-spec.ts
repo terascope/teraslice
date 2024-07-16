@@ -1,11 +1,11 @@
 import 'jest-extended';
 import { debugLogger, get } from '@terascope/utils';
-import * as simple from './helpers/simple-index';
-import * as template from './helpers/template-index';
+import * as simple from './helpers/simple-index.js';
+import * as template from './helpers/template-index.js';
 import {
     IndexManager, timeSeriesIndex, IndexConfig, getESVersion,
     __timeSeriesTest, ElasticsearchTestHelpers
-} from '../src';
+} from '../src/index.js';
 
 const {
     makeClient, cleanupIndex, TEST_INDEX_PREFIX,

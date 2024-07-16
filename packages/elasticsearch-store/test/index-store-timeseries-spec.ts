@@ -1,16 +1,16 @@
 import 'jest-extended';
 import {
-    times, pDelay, DataEntity, TSError, debugLogger,
-    get
+    times, pDelay, DataEntity,
+    TSError, debugLogger, get
 } from '@terascope/utils';
 import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType
-} from './helpers/simple-index';
+} from './helpers/simple-index.js';
 import {
     IndexStore, IndexConfig, __timeSeriesTest,
     ElasticsearchTestHelpers
-} from '../src';
+} from '../src/index.js';
 
 const {
     makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,

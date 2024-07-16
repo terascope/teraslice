@@ -13,6 +13,7 @@
     "sideEffects": false,
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
+    "type": "module",
     "files": [
         "dist/src/**/*"
     ],

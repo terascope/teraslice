@@ -1,5 +1,5 @@
 import { ClientParams, ClientResponse, ClientMetadata } from '@terascope/types';
-import * as methods from './method-helpers';
+import * as methods from './method-helpers/index.js';
 
 export class Client {
     private client: any;

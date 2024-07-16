@@ -1,40 +1,44 @@
 import Ajv from 'ajv';
-import * as ts from '@terascope/utils';
-import { Client } from '../../src';
-import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
-import { throwValidationError, getErrorMessages } from './errors';
+import {
+    isString, TSError, uniq,
+    castArray, Logger, getTypeOf,
+    isInteger, get, has
+} from '@terascope/utils';
+import type { Client } from '../elasticsearch-client/index.js';
+import { IndexConfig, IndexSchema, DataSchema } from '../interfaces.js';
+import { throwValidationError, getErrorMessages } from './errors.js';
 
 export function isValidName(name: string): boolean {
-    return Boolean(ts.isString(name) && name && !name.includes('-'));
+    return Boolean(isString(name) && name && !name.includes('-'));
 }
 
 export function validateId(id: unknown, action: string, throwError = true): id is string {
     if (!id) {
         if (!throwError) return false;
-        throw new ts.TSError(`Missing required ID for ${action}`, {
+        throw new TSError(`Missing required ID for ${action}`, {
             statusCode: 400
         });
     }
 
-    if (ts.isString(id)) return true;
+    if (isString(id)) return true;
     if (!throwError) return false;
 
-    throw new ts.TSError(`Invalid ID given to ${action}, expected string, got ${ts.getTypeOf(id)}`, {
+    throw new TSError(`Invalid ID given to ${action}, expected string, got ${getTypeOf(id)}`, {
         statusCode: 400
     });
 }
 
 export function validateIds(ids: unknown, action: string): string[] {
-    return ts.uniq(ts.castArray(ids)).filter((id) => validateId(id, action, false)) as string[];
+    return uniq(castArray(ids)).filter((id) => validateId(id, action, false)) as string[];
 }
 
 export function isValidNamespace(namespace: string): boolean {
     if (namespace == null) return true;
-    return Boolean(ts.isString(namespace) && namespace && !namespace.includes('-'));
+    return Boolean(isString(namespace) && namespace && !namespace.includes('-'));
 }
 
 export function makeDataValidator(
-    dataSchema: DataSchema, logger: ts.Logger
+    dataSchema: DataSchema, logger: Logger
 ): (input: any, critical: boolean) => any {
     const {
         all_formatters: allFormatters,
@@ -88,12 +92,12 @@ export function validateIndexConfig(config: Record<string, any>): config is Inde
         version = 1
     } = config || {};
 
-    if (!ts.isInteger(indexSchema.version)) {
-        errors.push(`Index Version must a Integer, got "${ts.getTypeOf(indexSchema.version)}"`);
+    if (!isInteger(indexSchema.version)) {
+        errors.push(`Index Version must a Integer, got "${getTypeOf(indexSchema.version)}"`);
     }
 
-    if (!ts.isInteger(version)) {
-        errors.push(`Data Version must a Integer, got "${ts.getTypeOf(version)}"`);
+    if (!isInteger(version)) {
+        errors.push(`Data Version must a Integer, got "${getTypeOf(version)}"`);
     }
 
     if (indexSchema.version < 1) {
@@ -121,9 +125,9 @@ export function isValidClient(input: unknown): input is Client {
 }
 
 export function isTemplatedIndex(config?: IndexSchema): boolean {
-    return ts.has(config, 'mapping') || ts.get(config, 'template') === true;
+    return has(config, 'mapping') || get(config, 'template') === true;
 }
 
 export function isTimeSeriesIndex(config?: IndexSchema): boolean {
-    return isTemplatedIndex(config) && ts.get(config, 'timeseries') === true;
+    return isTemplatedIndex(config) && get(config, 'timeseries') === true;
 }

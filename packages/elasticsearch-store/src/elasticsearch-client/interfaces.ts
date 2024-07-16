@@ -1,4 +1,4 @@
-import { ConnectionOptions } from 'tls';
+import { ConnectionOptions } from 'node:tls';
 
 export type Semver = [number, number, number];
 
