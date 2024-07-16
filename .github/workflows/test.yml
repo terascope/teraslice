@@ -385,7 +385,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1, 22.2.0]
+        node-version: [18.19.1, 22.2.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -452,7 +452,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18.19.1, 20.11.1]
+        node-version: [18.19.1, 22.2.0]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
