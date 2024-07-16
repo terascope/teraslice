@@ -425,6 +425,12 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+/**
+ * Unzips and loads a Docker image from a Docker cache
+ * If successful the image will be deleted from the cache
+ * @param {string} imageName Name of the image to load
+ * @returns {Promise<boolean>} Whether or not the image loaded successfully
+ */
 export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
     signale.time(`unzip and load ${imageName}`);
     const fileName = imageName.trim().replace(/[/:]/g, '_');
@@ -463,6 +469,20 @@ export async function pgrep(name: string): Promise<string> {
         return found;
     }
     return '';
+}
+
+/**
+ * Save a docker image as a tar.gz to a local directory
+ * @param {string} imageName Name of image to pull and save
+ * @param {string} imageSavePath Location where image will be saved and compressed.
+ * @returns void
+ */
+export async function saveAndZip(imageName:string, imageSavePath: string) {
+    signale.info(`Saving Docker image: ${imageName}`);
+    const fileName = imageName.replace(/[/:]/g, '_');
+    const filePath = path.join(imageSavePath, `${fileName}.tar`);
+    const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
+    await execa.command(command, { shell: true });
 }
 
 export async function getCommitHash(): Promise<string> {

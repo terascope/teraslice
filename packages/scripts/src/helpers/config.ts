@@ -184,6 +184,6 @@ export const {
     TERASLICE_IMAGE = undefined
 } = process.env;
 
-export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
 export const DOCKER_IMAGES_PATH = './images';
-export const DOCKER_LIST_FILE_NAME = 'image-list.txt';
+export const DOCKER_IMAGE_LIST_PATH = `${DOCKER_IMAGES_PATH}/image-list.txt`;
+export const DOCKER_CACHE_PATH = '/tmp/docker_cache';
