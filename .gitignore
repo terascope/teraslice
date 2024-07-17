@@ -67,7 +67,8 @@ packages/**/dist
 packages/**/build
 
 # documentation website
-website/translated_docs
+website/.docusaurus
+webiste/.cache-loader
 website/build/
 website/node_modules
 website/i18n/*
