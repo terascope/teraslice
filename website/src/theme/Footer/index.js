@@ -17,7 +17,7 @@ function Footer() {
     <FooterLayout
       style={style}
       links={links && links.length > 0 && <FooterLinks links={links} />}
-    //   logo={logo && <FooterLogo logo={logo} />}
+      //   logo={logo && <FooterLogo logo={logo} />}
       copyright={copyright && <FooterCopyright copyright={copyright} />}
     />
   );

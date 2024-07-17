@@ -131,10 +131,6 @@ module.exports = {
                 light: 'default',
                 dark: 'dark'
             },
-            // options: {
-            //     primaryColor: '#777',
-            //     fontFamily: 'cursive'
-            // }
         }
     }
 };

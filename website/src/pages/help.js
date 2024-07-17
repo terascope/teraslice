@@ -27,7 +27,6 @@ function Help() {
 
   const supportLinks = [
     {
-    //   content: `Learn more using the <a href="${docUrl('overview.html')}">documentation on this site.</a>`,
       content: `Learn more using the [documentation on this site.](${docUrl(
         'overview.html',
       )})`,

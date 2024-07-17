@@ -8,7 +8,7 @@ body {
 
 .homeContainer .homeWrapper {
     padding: 2em 10px;
-  }
+}
 
 .homeContainer .homeWrapper .projectLogo {
     position: relative;
@@ -57,7 +57,7 @@ body {
     line-height: 1em;
 }
 
-.projectTitle > small {
+.projectTitle>small {
     display: block;
     font-weight: normal;
     font-size: 50%;
@@ -122,12 +122,10 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
-  }
-
-/* your custom css */
-
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
+
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
 
 @media only screen and (min-width: 480px) {
     .homeContainer .homeWrapper {
@@ -143,7 +141,7 @@ body {
 
 @media only screen and (min-width: 736px) {
     .homeContainer .homeWrapper {
-      position: relative;
+        position: relative;
     }
 }
 
@@ -155,7 +153,7 @@ body {
         width: 100%;
     }
 
-    .docMainWrapper > * {
+    .docMainWrapper>* {
         margin: 0 24px;
         margin-right: 24px;
         margin-left: 24px;
@@ -171,11 +169,11 @@ body {
         min-width: 0;
     }
 
-    .docMainWrapper > :first-child {
+    .docMainWrapper> :first-child {
         margin-left: 0;
     }
 
-    .docMainWrapper > :last-child {
+    .docMainWrapper> :last-child {
         margin-right: 0;
     }
 
@@ -184,8 +182,7 @@ body {
     }
 }
 
-@media only screen and (max-width: 1023px) {
-}
+@media only screen and (max-width: 1023px) {}
 
 @media only screen and (min-width: 1200px) {
     .homeContainer .homeWrapper .projectLogo {
@@ -195,10 +192,9 @@ body {
         justify-content: center;
         left: 0;
         padding: 2em 100px 4em;
-        /* position: absolute; */
         right: 0;
         top: 0;
-      }
+    }
 }
 
 @media only screen and (min-width: 1500px) {
