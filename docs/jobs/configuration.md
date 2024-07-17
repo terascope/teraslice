@@ -8,7 +8,7 @@ A job configuration is the main way a Teraslice user describes the processing th
 
 Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array.
 
-The first operation in the [operations](#operations) list, reads from a particular source, [see "Reader"](./types-of-operations.md#readers). The "Reader" will creates [Slices](../packages/job-components/api/interfaces/slice.md) which goes through the pipeline of operations specified on the job.
+The first operation in the [operations](#operations) list, reads from a particular source, [see "Reader"](./types-of-operations.md#readers). The "Reader" will creates [Slices](./slices.md) which goes through the pipeline of operations specified on the job.
 
 | Configuration         | Description                                                                                                                                                                                                         | Type                    | Notes                                                                                                                                                                                                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

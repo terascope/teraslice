@@ -45,7 +45,7 @@ the opportunity to track the slices completed by the execution controller
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
 
-See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/sliceroperationlifecycle.md) API for more details.
+See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/interfaces_operation_lifecycle.SlicerOperationLifeCycle.md) API for more details.
 
 ## Worker Lifecycle Events
 
@@ -94,7 +94,7 @@ any additional in-memory state. See [Flushing](#flushing).
 Called to notify the processors that the slice is finished being flushed
 (shutdown will likely be called immediately afterwards). See [Flushing](#flushing).
 
-See [WorkerOperationLifeCycle](../packages/job-components/api/interfaces/workeroperationlifecycle.md) API for more details.
+See [WorkerOperationLifeCycle](../packages/job-components/api/interfaces/interfaces_operation_lifecycle.WorkerOperationLifeCycle.md) API for more details.
 
 ## Flushing
 

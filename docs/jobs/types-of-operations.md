@@ -80,7 +80,7 @@ Check out the [API docs](../packages/job-components/api/modules/operations_paral
 
 ## Fetchers
 
-A `Fetcher` runs on a Worker and its primary process [Slices](./slices.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md.FixMe) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
+A `Fetcher` runs on a Worker and its primary process [Slices](./slices.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/interfaces_operations.SliceRequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->

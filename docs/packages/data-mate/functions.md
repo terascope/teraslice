@@ -5959,7 +5959,7 @@ acosh()
 0
 ```
 
-Since this function doesn't work with numbers <=0, null will be returned
+Since this function doesn't work with numbers {'<=0'}, null will be returned
 
 **# Example (2)**
 

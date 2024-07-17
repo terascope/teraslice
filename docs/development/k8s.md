@@ -356,20 +356,20 @@ The `PromMetrics` class lives within `packages/terafoundation/src/api/prom-metri
 
 | Name             | Description                                                                                                                             | Type                                                                                               |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| init | initialize the API and create exporter server | (config: PromMetricsInitConfig) => Promise<boolean> |
-| set | set the value of a gauge | (name: string, labels: Record<string, string>, value: number) => void |
-| inc | increment the value of a counter or gauge | (name: string, labelValues: Record<string, string>, value: number) => void |
-| dec | decrement the value of a gauge | (name: string, labelValues: Record<string, string>, value: number) => void |
-| observe | observe a histogram or summary | (name: string, labelValues: Record<string, string>, value: number) => void |
-| addGauge | add a gauge metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Gauge>) => Promise<void\> |
-| addCounter | add a counter metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Counter>) => Promise<void\> |
-| addHistogram | add a histogram metric | (name: string, help: string, labelNames: Array<string\>, collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void\> |
-| addSummary | add a summary metric | (name: string, help: string, labelNames: Array<string\>,       collectFn?: CollectFunction<Summary\>, maxAgeSeconds?: number, ageBuckets?: number, percentiles?: Array<number>) => Promise<void\> |
-| hasMetric | check if a metric exists | (name: string) => boolean |
-| deleteMetric | delete a metric from the metric list | (name: string) => Promise<boolean\> |
-| verifyAPI | verfiy that the API is running | () => boolean |
-| shutdown | disable API and shutdown exporter server | () => Promise<void\> |
-| getDefaultLabels | retrieve the default labels set at init | () => Record<string, string> |
+| init | initialize the API and create exporter server | `(config: PromMetricsInitConfig) => Promise<boolean>` |
+| set | set the value of a gauge | `(name: string, labels: Record<string, string>, value: number) => void` |
+| inc | increment the value of a counter or gauge | `(name: string, labelValues: Record<string, string>, value: number) => void` |
+| dec | decrement the value of a gauge | `(name: string, labelValues: Record<string, string>, value: number) => void` |
+| observe | observe a histogram or summary | `(name: string, labelValues: Record<string, string>, value: number) => void` |
+| addGauge | add a gauge metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Gauge>) => Promise<void>` |
+| addCounter | add a counter metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Counter>) => Promise<void>` |
+| addHistogram | add a histogram metric | `(name: string, help: string, labelNames: Array<string>, collectFn?: CollectFunction<Histogram>, buckets?: Array<number>) => Promise<void>` |
+| addSummary | add a summary metric | `(name: string, help: string, labelNames: Array<string>,       collectFn?: CollectFunction<Summary>, maxAgeSeconds?: number, ageBuckets?: number, percentiles?: Array<number>) => Promise<void>` |
+| hasMetric | check if a metric exists | `(name: string) => boolean` |
+| deleteMetric | delete a metric from the metric list | `(name: string) => Promise<boolean>` |
+| verifyAPI | verfiy that the API is running | `() => boolean` |
+| shutdown | disable API and shutdown exporter server | `() => Promise<void>` |
+| getDefaultLabels | retrieve the default labels set at init | `() => Record<string, string>` |
 
 Example init:
 ```typescript
@@ -439,4 +439,4 @@ The label names as well as the metric name must match when using `inc`, `dec`, `
 A Teraslice job in Kubernetes is comprised of the following Kubernetes
 resources:
 
-![Teraslice Kubernetes Job Structure](/teraslice/docs/assets/Teraslice-K8s-Job.png)
+![Teraslice Kubernetes Job Structure](/assets/Teraslice-K8s-Job.png)

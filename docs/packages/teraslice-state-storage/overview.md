@@ -95,7 +95,7 @@ this.state.get('456def'); // undefined
 ```
 
 ### mset
-mset([{ key: KEY1, data: VALUE1}, { key: KEY2, data: VALUE2 }, etc ...] - Sets multiple key, value pairs.  Requires an array of { key: key, data: value } objects
+`mset([{ key: KEY1, data: VALUE1}, { key: KEY2, data: VALUE2 }, etc ...])` - Sets multiple key, value pairs.  Requires an array of `{ key: key, data: value }` objects
 
 ```javascript
 this.state.mset([{ key: 1, data: { name: 'foo' } }, { key: 'abc123', data: { name: 'bar' } }]);
