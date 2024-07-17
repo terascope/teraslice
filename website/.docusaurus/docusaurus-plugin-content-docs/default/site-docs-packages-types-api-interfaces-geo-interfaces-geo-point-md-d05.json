@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/geo_interfaces.GeoPoint",
+  "title": "Types: `Geo Interfaces Geo Point`",
+  "description": "geo-interfaces.GeoPoint",
+  "source": "@site/../docs/packages/types/api/interfaces/geo_interfaces.GeoPoint.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/geo_interfaces.GeoPoint",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/geo_interfaces.GeoPoint",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Geo Interfaces Geo Point`",
+    "sidebar_label": "Geo Interfaces Geo Point"
+  }
+}

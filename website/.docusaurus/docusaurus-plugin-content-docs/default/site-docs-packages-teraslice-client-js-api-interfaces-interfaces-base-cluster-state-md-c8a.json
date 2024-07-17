@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-client-js/api/interfaces/interfaces.BaseClusterState",
+  "title": "Teraslice Client (JavaScript): `Interfaces Base Cluster State`",
+  "description": "interfaces.BaseClusterState",
+  "source": "@site/../docs/packages/teraslice-client-js/api/interfaces/interfaces.BaseClusterState.md",
+  "sourceDirName": "packages/teraslice-client-js/api/interfaces",
+  "slug": "/packages/teraslice-client-js/api/interfaces/interfaces.BaseClusterState",
+  "permalink": "/teraslice/docs/packages/teraslice-client-js/api/interfaces/interfaces.BaseClusterState",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Client (JavaScript): `Interfaces Base Cluster State`",
+    "sidebar_label": "Interfaces Base Cluster State"
+  }
+}

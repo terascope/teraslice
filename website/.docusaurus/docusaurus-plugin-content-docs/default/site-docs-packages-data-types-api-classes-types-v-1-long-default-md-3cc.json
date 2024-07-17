@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-types/api/classes/types_v1_long.default",
+  "title": "Data Types: `Types V 1 Long Default`",
+  "description": "types/v1/long.default",
+  "source": "@site/../docs/packages/data-types/api/classes/types_v1_long.default.md",
+  "sourceDirName": "packages/data-types/api/classes",
+  "slug": "/packages/data-types/api/classes/types_v1_long.default",
+  "permalink": "/teraslice/docs/packages/data-types/api/classes/types_v1_long.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data Types: `Types V 1 Long Default`",
+    "sidebar_label": "Types V 1 Long Default"
+  }
+}

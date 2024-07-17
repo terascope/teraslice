@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-types/api/modules/types_v1_ip",
+  "title": "Data Types: `Types V 1 Ip`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-types/api/modules/types_v1_ip.md",
+  "sourceDirName": "packages/data-types/api/modules",
+  "slug": "/packages/data-types/api/modules/types_v1_ip",
+  "permalink": "/teraslice/docs/packages/data-types/api/modules/types_v1_ip",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data Types: `Types V 1 Ip`",
+    "sidebar_label": "Types V 1 Ip"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/classes/queue_node.default",
+  "title": "Utils: `Queue Node Default`",
+  "description": "queue/node.default",
+  "source": "@site/../docs/packages/utils/api/classes/queue_node.default.md",
+  "sourceDirName": "packages/utils/api/classes",
+  "slug": "/packages/utils/api/classes/queue_node.default",
+  "permalink": "/teraslice/docs/packages/utils/api/classes/queue_node.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `Queue Node Default`",
+    "sidebar_label": "Queue Node Default"
+  }
+}

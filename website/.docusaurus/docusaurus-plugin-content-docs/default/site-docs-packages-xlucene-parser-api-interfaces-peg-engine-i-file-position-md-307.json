@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-parser/api/interfaces/peg_engine.IFilePosition",
+  "title": "xLucene Parser: `Peg Engine I File Position`",
+  "description": "peg-engine.IFilePosition",
+  "source": "@site/../docs/packages/xlucene-parser/api/interfaces/peg_engine.IFilePosition.md",
+  "sourceDirName": "packages/xlucene-parser/api/interfaces",
+  "slug": "/packages/xlucene-parser/api/interfaces/peg_engine.IFilePosition",
+  "permalink": "/teraslice/docs/packages/xlucene-parser/api/interfaces/peg_engine.IFilePosition",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Parser: `Peg Engine I File Position`",
+    "sidebar_label": "Peg Engine I File Position"
+  }
+}

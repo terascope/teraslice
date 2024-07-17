@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/modules/elasticsearch_interfaces",
+  "title": "Types: `elasticsearch-interfaces`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/types/api/modules/elasticsearch_interfaces.md",
+  "sourceDirName": "packages/types/api/modules",
+  "slug": "/packages/types/api/modules/elasticsearch_interfaces",
+  "permalink": "/teraslice/docs/packages/types/api/modules/elasticsearch_interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `elasticsearch-interfaces`",
+    "sidebar_label": "elasticsearch-interfaces"
+  }
+}

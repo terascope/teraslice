@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/modules/event_loop",
+  "title": "Utils: `event-loop`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/utils/api/modules/event_loop.md",
+  "sourceDirName": "packages/utils/api/modules",
+  "slug": "/packages/utils/api/modules/event_loop",
+  "permalink": "/teraslice/docs/packages/utils/api/modules/event_loop",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `event-loop`",
+    "sidebar_label": "event-loop"
+  }
+}

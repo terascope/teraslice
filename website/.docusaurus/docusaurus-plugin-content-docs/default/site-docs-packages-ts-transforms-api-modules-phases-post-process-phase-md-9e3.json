@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/modules/phases_post_process_phase",
+  "title": "TS Transforms: `Phases Post Process Phase`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/ts-transforms/api/modules/phases_post_process_phase.md",
+  "sourceDirName": "packages/ts-transforms/api/modules",
+  "slug": "/packages/ts-transforms/api/modules/phases_post_process_phase",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/modules/phases_post_process_phase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Phases Post Process Phase`",
+    "sidebar_label": "Phases Post Process Phase"
+  }
+}

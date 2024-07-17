@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-translator/api/interfaces/query_access_interfaces.QueryAccessOptions",
+  "title": "xLucene Translator: `Query Access Interfaces Query Access Options`",
+  "description": "query-access/interfaces.QueryAccessOptions",
+  "source": "@site/../docs/packages/xlucene-translator/api/interfaces/query_access_interfaces.QueryAccessOptions.md",
+  "sourceDirName": "packages/xlucene-translator/api/interfaces",
+  "slug": "/packages/xlucene-translator/api/interfaces/query_access_interfaces.QueryAccessOptions",
+  "permalink": "/teraslice/docs/packages/xlucene-translator/api/interfaces/query_access_interfaces.QueryAccessOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Translator: `Query Access Interfaces Query Access Options`",
+    "sidebar_label": "Query Access Interfaces Query Access Options"
+  }
+}

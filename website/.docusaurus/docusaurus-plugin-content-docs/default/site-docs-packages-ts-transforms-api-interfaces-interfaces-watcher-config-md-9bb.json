@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/interfaces/interfaces.WatcherConfig",
+  "title": "TS Transforms: `Interfaces Watcher Config`",
+  "description": "interfaces.WatcherConfig",
+  "source": "@site/../docs/packages/ts-transforms/api/interfaces/interfaces.WatcherConfig.md",
+  "sourceDirName": "packages/ts-transforms/api/interfaces",
+  "slug": "/packages/ts-transforms/api/interfaces/interfaces.WatcherConfig",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/interfaces/interfaces.WatcherConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Interfaces Watcher Config`",
+    "sidebar_label": "Interfaces Watcher Config"
+  }
+}

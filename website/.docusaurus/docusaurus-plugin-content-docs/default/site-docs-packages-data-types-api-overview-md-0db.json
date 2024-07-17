@@ -1,0 +1,28 @@
+{
+  "id": "packages/data-types/api/overview",
+  "title": "Data Types API Overview",
+  "description": "-   command",
+  "source": "@site/../docs/packages/data-types/api/overview.md",
+  "sourceDirName": "packages/data-types/api",
+  "slug": "/packages/data-types/api/overview",
+  "permalink": "/teraslice/docs/packages/data-types/api/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data Types API Overview",
+    "sidebar_label": "API"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/data-types/overview"
+  },
+  "next": {
+    "title": "Data-Mate",
+    "permalink": "/teraslice/docs/packages/data-mate/overview"
+  }
+}

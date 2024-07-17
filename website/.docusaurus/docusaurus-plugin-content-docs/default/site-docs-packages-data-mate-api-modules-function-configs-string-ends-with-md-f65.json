@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string_endsWith",
+  "title": "Data-Mate: `Function Configs String Ends With`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string_endsWith.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string_endsWith",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string_endsWith",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Ends With`",
+    "sidebar_label": "Function Configs String Ends With"
+  }
+}

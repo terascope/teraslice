@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/xlucene_interfaces.xLuceneTypeConfig",
+  "title": "Types: `Xlucene Interfaces X Lucene Type Config`",
+  "description": "xlucene-interfaces.xLuceneTypeConfig",
+  "source": "@site/../docs/packages/types/api/interfaces/xlucene_interfaces.xLuceneTypeConfig.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/xlucene_interfaces.xLuceneTypeConfig",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/xlucene_interfaces.xLuceneTypeConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Xlucene Interfaces X Lucene Type Config`",
+    "sidebar_label": "Xlucene Interfaces X Lucene Type Config"
+  }
+}

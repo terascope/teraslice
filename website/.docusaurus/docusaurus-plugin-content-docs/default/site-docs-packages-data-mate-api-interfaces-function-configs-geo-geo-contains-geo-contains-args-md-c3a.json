@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_geo_geoContains.GeoContainsArgs",
+  "title": "Data-Mate: `Function Configs Geo Geo Contains Geo Contains Args`",
+  "description": "function-configs/geo/geoContains.GeoContainsArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_geo_geoContains.GeoContainsArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_geo_geoContains.GeoContainsArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_geo_geoContains.GeoContainsArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Geo Geo Contains Geo Contains Args`",
+    "sidebar_label": "Function Configs Geo Geo Contains Geo Contains Args"
+  }
+}

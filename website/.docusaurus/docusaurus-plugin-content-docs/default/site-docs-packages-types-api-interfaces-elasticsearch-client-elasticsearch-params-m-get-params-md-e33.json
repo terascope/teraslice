@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_params.MGetParams",
+  "title": "Types: `Elasticsearch Client Elasticsearch Params M Get Params`",
+  "description": "elasticsearch-client/elasticsearch-params.MGetParams",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_params.MGetParams.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_params.MGetParams",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_params.MGetParams",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Params M Get Params`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Params M Get Params"
+  }
+}

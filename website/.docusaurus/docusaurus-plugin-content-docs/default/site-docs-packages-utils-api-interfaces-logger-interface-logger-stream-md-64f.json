@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/interfaces/logger_interface.Logger.Stream",
+  "title": "Utils: `Logger Interface Logger Stream`",
+  "description": "logger-interface.Logger.Stream",
+  "source": "@site/../docs/packages/utils/api/interfaces/logger_interface.Logger.Stream.md",
+  "sourceDirName": "packages/utils/api/interfaces",
+  "slug": "/packages/utils/api/interfaces/logger_interface.Logger.Stream",
+  "permalink": "/teraslice/docs/packages/utils/api/interfaces/logger_interface.Logger.Stream",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `Logger Interface Logger Stream`",
+    "sidebar_label": "Logger Interface Logger Stream"
+  }
+}

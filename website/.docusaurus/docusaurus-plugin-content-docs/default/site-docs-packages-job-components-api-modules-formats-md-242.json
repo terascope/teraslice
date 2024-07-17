@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/modules/formats",
+  "title": "Job Components: `formats`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/job-components/api/modules/formats.md",
+  "sourceDirName": "packages/job-components/api/modules",
+  "slug": "/packages/job-components/api/modules/formats",
+  "permalink": "/teraslice/docs/packages/job-components/api/modules/formats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `formats`",
+    "sidebar_label": "formats"
+  }
+}

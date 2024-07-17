@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_response.IndicesGetResponse",
+  "title": "Types: `Elasticsearch Client Elasticsearch Response Indices Get Response`",
+  "description": "elasticsearch-client/elasticsearch-response.IndicesGetResponse",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_response.IndicesGetResponse.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_response.IndicesGetResponse",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_response.IndicesGetResponse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Response Indices Get Response`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Response Indices Get Response"
+  }
+}

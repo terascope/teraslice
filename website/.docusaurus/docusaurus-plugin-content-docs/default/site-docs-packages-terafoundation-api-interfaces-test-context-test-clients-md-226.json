@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/interfaces/test_context.TestClients",
+  "title": "Terafoundation: `Test Context Test Clients`",
+  "description": "test-context.TestClients",
+  "source": "@site/../docs/packages/terafoundation/api/interfaces/test_context.TestClients.md",
+  "sourceDirName": "packages/terafoundation/api/interfaces",
+  "slug": "/packages/terafoundation/api/interfaces/test_context.TestClients",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/interfaces/test_context.TestClients",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `Test Context Test Clients`",
+    "sidebar_label": "Test Context Test Clients"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_numeric_add.AddArgs",
+  "title": "Data-Mate: `Function Configs Numeric Add Add Args`",
+  "description": "function-configs/numeric/add.AddArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_numeric_add.AddArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_numeric_add.AddArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_numeric_add.AddArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Numeric Add Add Args`",
+    "sidebar_label": "Function Configs Numeric Add Add Args"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_date_toTimeZone.toTimeZoneArgs",
+  "title": "Data-Mate: `Function Configs Date To Time Zone To Time Zone Args`",
+  "description": "function-configs/date/toTimeZone.toTimeZoneArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_date_toTimeZone.toTimeZoneArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_date_toTimeZone.toTimeZoneArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_date_toTimeZone.toTimeZoneArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Date To Time Zone To Time Zone Args`",
+    "sidebar_label": "Function Configs Date To Time Zone To Time Zone Args"
+  }
+}

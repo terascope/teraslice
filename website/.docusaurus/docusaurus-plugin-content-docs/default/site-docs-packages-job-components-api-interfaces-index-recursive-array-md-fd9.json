@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/index.RecursiveArray",
+  "title": "Job Components: `Index Recursive Array`",
+  "description": "index.RecursiveArray",
+  "source": "@site/../docs/packages/job-components/api/interfaces/index.RecursiveArray.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/index.RecursiveArray",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/index.RecursiveArray",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Index Recursive Array`",
+    "sidebar_label": "Index Recursive Array"
+  }
+}

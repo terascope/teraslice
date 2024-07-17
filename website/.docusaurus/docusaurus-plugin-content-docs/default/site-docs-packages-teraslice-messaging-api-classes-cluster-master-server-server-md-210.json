@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-messaging/api/classes/cluster_master_server.Server",
+  "title": "Teraslice Messaging: `Cluster Master Server Server`",
+  "description": "cluster-master/server.Server",
+  "source": "@site/../docs/packages/teraslice-messaging/api/classes/cluster_master_server.Server.md",
+  "sourceDirName": "packages/teraslice-messaging/api/classes",
+  "slug": "/packages/teraslice-messaging/api/classes/cluster_master_server.Server",
+  "permalink": "/teraslice/docs/packages/teraslice-messaging/api/classes/cluster_master_server.Server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Messaging: `Cluster Master Server Server`",
+    "sidebar_label": "Cluster Master Server Server"
+  }
+}

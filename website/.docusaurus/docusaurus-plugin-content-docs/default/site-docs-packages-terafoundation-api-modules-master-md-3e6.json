@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/modules/master",
+  "title": "Terafoundation: `master`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/terafoundation/api/modules/master.md",
+  "sourceDirName": "packages/terafoundation/api/modules",
+  "slug": "/packages/terafoundation/api/modules/master",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/modules/master",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `master`",
+    "sidebar_label": "master"
+  }
+}

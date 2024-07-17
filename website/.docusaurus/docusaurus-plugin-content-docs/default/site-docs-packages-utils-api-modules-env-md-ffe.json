@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/modules/env",
+  "title": "Utils: `env`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/utils/api/modules/env.md",
+  "sourceDirName": "packages/utils/api/modules",
+  "slug": "/packages/utils/api/modules/env",
+  "permalink": "/teraslice/docs/packages/utils/api/modules/env",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `env`",
+    "sidebar_label": "env"
+  }
+}

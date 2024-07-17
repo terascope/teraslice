@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-client-js/api/interfaces/interfaces.SlicerStats",
+  "title": "Teraslice Client (JavaScript): `Interfaces Slicer Stats`",
+  "description": "interfaces.SlicerStats",
+  "source": "@site/../docs/packages/teraslice-client-js/api/interfaces/interfaces.SlicerStats.md",
+  "sourceDirName": "packages/teraslice-client-js/api/interfaces",
+  "slug": "/packages/teraslice-client-js/api/interfaces/interfaces.SlicerStats",
+  "permalink": "/teraslice/docs/packages/teraslice-client-js/api/interfaces/interfaces.SlicerStats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Client (JavaScript): `Interfaces Slicer Stats`",
+    "sidebar_label": "Interfaces Slicer Stats"
+  }
+}

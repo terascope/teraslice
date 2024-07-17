@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/interfaces/test_context.CachedClients",
+  "title": "Terafoundation: `Test Context Cached Clients`",
+  "description": "test-context.CachedClients",
+  "source": "@site/../docs/packages/terafoundation/api/interfaces/test_context.CachedClients.md",
+  "sourceDirName": "packages/terafoundation/api/interfaces",
+  "slug": "/packages/terafoundation/api/interfaces/test_context.CachedClients",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/interfaces/test_context.CachedClients",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `Test Context Cached Clients`",
+    "sidebar_label": "Test Context Cached Clients"
+  }
+}

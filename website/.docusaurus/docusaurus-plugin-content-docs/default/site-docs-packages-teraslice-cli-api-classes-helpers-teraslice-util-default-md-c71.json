@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-cli/api/classes/helpers_teraslice_util.default",
+  "title": "Teraslice CLI: `Helpers Teraslice Util Default`",
+  "description": "helpers/teraslice-util.default",
+  "source": "@site/../docs/packages/teraslice-cli/api/classes/helpers_teraslice_util.default.md",
+  "sourceDirName": "packages/teraslice-cli/api/classes",
+  "slug": "/packages/teraslice-cli/api/classes/helpers_teraslice_util.default",
+  "permalink": "/teraslice/docs/packages/teraslice-cli/api/classes/helpers_teraslice_util.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice CLI: `Helpers Teraslice Util Default`",
+    "sidebar_label": "Helpers Teraslice Util Default"
+  }
+}

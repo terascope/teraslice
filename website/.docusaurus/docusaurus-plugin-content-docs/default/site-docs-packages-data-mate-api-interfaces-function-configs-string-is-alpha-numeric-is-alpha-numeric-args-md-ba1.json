@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_string_isAlphaNumeric.IsAlphaNumericArgs",
+  "title": "Data-Mate: `Function Configs String Is Alpha Numeric Is Alpha Numeric Args`",
+  "description": "function-configs/string/isAlphaNumeric.IsAlphaNumericArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_string_isAlphaNumeric.IsAlphaNumericArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_string_isAlphaNumeric.IsAlphaNumericArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_string_isAlphaNumeric.IsAlphaNumericArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Is Alpha Numeric Is Alpha Numeric Args`",
+    "sidebar_label": "Function Configs String Is Alpha Numeric Is Alpha Numeric Args"
+  }
+}

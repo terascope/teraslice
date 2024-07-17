@@ -1,0 +1,19 @@
+{
+  "id": "packages/xpressions/api/modules/transform",
+  "title": "Xpressions: `transform`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/xpressions/api/modules/transform.md",
+  "sourceDirName": "packages/xpressions/api/modules",
+  "slug": "/packages/xpressions/api/modules/transform",
+  "permalink": "/teraslice/docs/packages/xpressions/api/modules/transform",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Xpressions: `transform`",
+    "sidebar_label": "transform"
+  }
+}

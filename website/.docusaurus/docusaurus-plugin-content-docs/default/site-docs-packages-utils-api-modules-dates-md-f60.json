@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/modules/dates",
+  "title": "Utils: `dates`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/utils/api/modules/dates.md",
+  "sourceDirName": "packages/utils/api/modules",
+  "slug": "/packages/utils/api/modules/dates",
+  "permalink": "/teraslice/docs/packages/utils/api/modules/dates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `dates`",
+    "sidebar_label": "dates"
+  }
+}

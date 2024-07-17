@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string",
+  "title": "Data-Mate: `Function Configs String`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String`",
+    "sidebar_label": "Function Configs String"
+  }
+}

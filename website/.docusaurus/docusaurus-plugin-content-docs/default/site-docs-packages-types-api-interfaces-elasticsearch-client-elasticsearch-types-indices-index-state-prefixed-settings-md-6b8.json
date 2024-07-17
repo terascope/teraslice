@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexStatePrefixedSettings",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index State Prefixed Settings`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesIndexStatePrefixedSettings",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexStatePrefixedSettings.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexStatePrefixedSettings",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexStatePrefixedSettings",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index State Prefixed Settings`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Index State Prefixed Settings"
+  }
+}

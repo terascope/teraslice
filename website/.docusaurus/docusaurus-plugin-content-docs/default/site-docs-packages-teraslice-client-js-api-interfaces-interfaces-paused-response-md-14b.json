@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-client-js/api/interfaces/interfaces.PausedResponse",
+  "title": "Teraslice Client (JavaScript): `Interfaces Paused Response`",
+  "description": "interfaces.PausedResponse",
+  "source": "@site/../docs/packages/teraslice-client-js/api/interfaces/interfaces.PausedResponse.md",
+  "sourceDirName": "packages/teraslice-client-js/api/interfaces",
+  "slug": "/packages/teraslice-client-js/api/interfaces/interfaces.PausedResponse",
+  "permalink": "/teraslice/docs/packages/teraslice-client-js/api/interfaces/interfaces.PausedResponse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Client (JavaScript): `Interfaces Paused Response`",
+    "sidebar_label": "Interfaces Paused Response"
+  }
+}

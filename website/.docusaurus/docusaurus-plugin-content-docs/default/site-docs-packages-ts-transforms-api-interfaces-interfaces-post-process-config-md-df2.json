@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/interfaces/interfaces.PostProcessConfig",
+  "title": "TS Transforms: `Interfaces Post Process Config`",
+  "description": "interfaces.PostProcessConfig",
+  "source": "@site/../docs/packages/ts-transforms/api/interfaces/interfaces.PostProcessConfig.md",
+  "sourceDirName": "packages/ts-transforms/api/interfaces",
+  "slug": "/packages/ts-transforms/api/interfaces/interfaces.PostProcessConfig",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/interfaces/interfaces.PostProcessConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Interfaces Post Process Config`",
+    "sidebar_label": "Interfaces Post Process Config"
+  }
+}

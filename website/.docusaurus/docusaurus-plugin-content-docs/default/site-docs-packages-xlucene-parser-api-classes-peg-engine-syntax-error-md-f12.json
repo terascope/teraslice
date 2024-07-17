@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-parser/api/classes/peg_engine.SyntaxError",
+  "title": "xLucene Parser: `Peg Engine Syntax Error`",
+  "description": "peg-engine.SyntaxError",
+  "source": "@site/../docs/packages/xlucene-parser/api/classes/peg_engine.SyntaxError.md",
+  "sourceDirName": "packages/xlucene-parser/api/classes",
+  "slug": "/packages/xlucene-parser/api/classes/peg_engine.SyntaxError",
+  "permalink": "/teraslice/docs/packages/xlucene-parser/api/classes/peg_engine.SyntaxError",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Parser: `Peg Engine Syntax Error`",
+    "sidebar_label": "Peg Engine Syntax Error"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/classes/operations_core_api_core.default",
+  "title": "Job Components: `Operations Core Api Core Default`",
+  "description": "operations/core/api-core.default",
+  "source": "@site/../docs/packages/job-components/api/classes/operations_core_api_core.default.md",
+  "sourceDirName": "packages/job-components/api/classes",
+  "slug": "/packages/job-components/api/classes/operations_core_api_core.default",
+  "permalink": "/teraslice/docs/packages/job-components/api/classes/operations_core_api_core.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Operations Core Api Core Default`",
+    "sidebar_label": "Operations Core Api Core Default"
+  }
+}

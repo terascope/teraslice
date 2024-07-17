@@ -1,0 +1,16 @@
+{
+  "id": "packages/teraslice-cli/api/modules/cmds_tjm_await",
+  "title": "cmds_tjm_await",
+  "description": "title Cmds Tjm Await",
+  "source": "@site/../docs/packages/teraslice-cli/api/modules/cmds_tjm_await.md",
+  "sourceDirName": "packages/teraslice-cli/api/modules",
+  "slug": "/packages/teraslice-cli/api/modules/cmds_tjm_await",
+  "permalink": "/teraslice/docs/packages/teraslice-cli/api/modules/cmds_tjm_await",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {}
+}

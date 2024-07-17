@@ -1,0 +1,28 @@
+{
+  "id": "packages/scripts/overview",
+  "title": "Scripts",
+  "description": "A collection of terascope monorepo scripts",
+  "source": "@site/../docs/packages/scripts/overview.md",
+  "sourceDirName": "packages/scripts",
+  "slug": "/packages/scripts/overview",
+  "permalink": "/teraslice/docs/packages/scripts/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Scripts",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/types/api/overview"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/teraslice-state-storage/overview"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "configuration/clustering-native",
+  "title": "Native Clustering",
+  "description": "Native Clustering provides a basic clustering mechanism suitable for single node deployment or smaller clustered deployments. When running Teraslice in it's most simple form, on a single computer, you're using a single node native cluster.",
+  "source": "@site/../docs/configuration/clustering-native.md",
+  "sourceDirName": "configuration",
+  "slug": "/configuration/clustering-native",
+  "permalink": "/teraslice/docs/configuration/clustering-native",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Native Clustering",
+    "sidebar_label": "Native Clustering"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/configuration/overview"
+  },
+  "next": {
+    "title": "Kubernetes Clustering",
+    "permalink": "/teraslice/docs/configuration/clustering-k8s"
+  }
+}

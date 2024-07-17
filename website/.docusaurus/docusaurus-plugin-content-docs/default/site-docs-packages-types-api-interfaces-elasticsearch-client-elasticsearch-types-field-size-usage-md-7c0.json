@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.FieldSizeUsage",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Field Size Usage`",
+  "description": "elasticsearch-client/elasticsearch-types.FieldSizeUsage",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.FieldSizeUsage.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.FieldSizeUsage",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.FieldSizeUsage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Field Size Usage`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Field Size Usage"
+  }
+}

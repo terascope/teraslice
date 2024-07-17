@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-messaging/api/interfaces/messenger_interfaces.ServerOptions",
+  "title": "Teraslice Messaging: `Messenger Interfaces Server Options`",
+  "description": "messenger/interfaces.ServerOptions",
+  "source": "@site/../docs/packages/teraslice-messaging/api/interfaces/messenger_interfaces.ServerOptions.md",
+  "sourceDirName": "packages/teraslice-messaging/api/interfaces",
+  "slug": "/packages/teraslice-messaging/api/interfaces/messenger_interfaces.ServerOptions",
+  "permalink": "/teraslice/docs/packages/teraslice-messaging/api/interfaces/messenger_interfaces.ServerOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Messaging: `Messenger Interfaces Server Options`",
+    "sidebar_label": "Messenger Interfaces Server Options"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_interfaces.FieldValidateConfig",
+  "title": "Data-Mate: `Function Configs Interfaces Field Validate Config`",
+  "description": "function-configs/interfaces.FieldValidateConfig",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_interfaces.FieldValidateConfig.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_interfaces.FieldValidateConfig",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_interfaces.FieldValidateConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Interfaces Field Validate Config`",
+    "sidebar_label": "Function Configs Interfaces Field Validate Config"
+  }
+}

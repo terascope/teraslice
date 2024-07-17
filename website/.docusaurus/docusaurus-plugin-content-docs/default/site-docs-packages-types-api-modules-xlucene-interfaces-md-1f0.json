@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/modules/xlucene_interfaces",
+  "title": "Types: `xlucene-interfaces`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/types/api/modules/xlucene_interfaces.md",
+  "sourceDirName": "packages/types/api/modules",
+  "slug": "/packages/types/api/modules/xlucene_interfaces",
+  "permalink": "/teraslice/docs/packages/types/api/modules/xlucene_interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `xlucene-interfaces`",
+    "sidebar_label": "xlucene-interfaces"
+  }
+}

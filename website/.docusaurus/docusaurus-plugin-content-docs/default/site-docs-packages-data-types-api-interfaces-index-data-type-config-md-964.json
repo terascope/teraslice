@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-types/api/interfaces/index.DataTypeConfig",
+  "title": "Data Types: `Index Data Type Config`",
+  "description": "index.DataTypeConfig",
+  "source": "@site/../docs/packages/data-types/api/interfaces/index.DataTypeConfig.md",
+  "sourceDirName": "packages/data-types/api/interfaces",
+  "slug": "/packages/data-types/api/interfaces/index.DataTypeConfig",
+  "permalink": "/teraslice/docs/packages/data-types/api/interfaces/index.DataTypeConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data Types: `Index Data Type Config`",
+    "sidebar_label": "Index Data Type Config"
+  }
+}

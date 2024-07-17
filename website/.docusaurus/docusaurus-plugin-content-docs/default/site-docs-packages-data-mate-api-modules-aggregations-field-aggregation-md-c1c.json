@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/aggregations_field_aggregation",
+  "title": "Data-Mate: `Aggregations Field Aggregation`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/aggregations_field_aggregation.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/aggregations_field_aggregation",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/aggregations_field_aggregation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Aggregations Field Aggregation`",
+    "sidebar_label": "Aggregations Field Aggregation"
+  }
+}

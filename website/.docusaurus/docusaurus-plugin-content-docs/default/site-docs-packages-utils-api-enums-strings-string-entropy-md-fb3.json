@@ -1,0 +1,19 @@
+{
+  "id": "packages/utils/api/enums/strings.StringEntropy",
+  "title": "Utils: `Strings String Entropy`",
+  "description": "strings.StringEntropy",
+  "source": "@site/../docs/packages/utils/api/enums/strings.StringEntropy.md",
+  "sourceDirName": "packages/utils/api/enums",
+  "slug": "/packages/utils/api/enums/strings.StringEntropy",
+  "permalink": "/teraslice/docs/packages/utils/api/enums/strings.StringEntropy",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Utils: `Strings String Entropy`",
+    "sidebar_label": "Strings String Entropy"
+  }
+}

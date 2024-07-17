@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-client-js/api/interfaces/interfaces.KubernetesProcess",
+  "title": "Teraslice Client (JavaScript): `Interfaces Kubernetes Process`",
+  "description": "interfaces.KubernetesProcess",
+  "source": "@site/../docs/packages/teraslice-client-js/api/interfaces/interfaces.KubernetesProcess.md",
+  "sourceDirName": "packages/teraslice-client-js/api/interfaces",
+  "slug": "/packages/teraslice-client-js/api/interfaces/interfaces.KubernetesProcess",
+  "permalink": "/teraslice/docs/packages/teraslice-client-js/api/interfaces/interfaces.KubernetesProcess",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Client (JavaScript): `Interfaces Kubernetes Process`",
+    "sidebar_label": "Interfaces Kubernetes Process"
+  }
+}

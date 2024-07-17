@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-cli/api/classes/helpers_aliases.default",
+  "title": "Teraslice CLI: `Helpers Aliases Default`",
+  "description": "helpers/aliases.default",
+  "source": "@site/../docs/packages/teraslice-cli/api/classes/helpers_aliases.default.md",
+  "sourceDirName": "packages/teraslice-cli/api/classes",
+  "slug": "/packages/teraslice-cli/api/classes/helpers_aliases.default",
+  "permalink": "/teraslice/docs/packages/teraslice-cli/api/classes/helpers_aliases.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice CLI: `Helpers Aliases Default`",
+    "sidebar_label": "Helpers Aliases Default"
+  }
+}

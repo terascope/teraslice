@@ -1,0 +1,28 @@
+{
+  "id": "packages/generator-teraslice/overview",
+  "title": "Teraslice Generator",
+  "description": "Generate teraslice related packages and code",
+  "source": "@site/../docs/packages/generator-teraslice/overview.md",
+  "sourceDirName": "packages/generator-teraslice",
+  "slug": "/packages/generator-teraslice/overview",
+  "permalink": "/teraslice/docs/packages/generator-teraslice/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Generator",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/docker-compose-js/api/overview"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/teraslice-messaging/overview"
+  }
+}

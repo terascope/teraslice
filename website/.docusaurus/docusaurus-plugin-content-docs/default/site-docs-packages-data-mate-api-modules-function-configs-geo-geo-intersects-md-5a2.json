@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_geo_geoIntersects",
+  "title": "Data-Mate: `Function Configs Geo Geo Intersects`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_geo_geoIntersects.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_geo_geoIntersects",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_geo_geoIntersects",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Geo Geo Intersects`",
+    "sidebar_label": "Function Configs Geo Geo Intersects"
+  }
+}

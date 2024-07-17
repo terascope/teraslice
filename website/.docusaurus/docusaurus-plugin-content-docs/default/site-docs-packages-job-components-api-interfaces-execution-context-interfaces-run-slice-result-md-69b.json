@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/execution_context_interfaces.RunSliceResult",
+  "title": "Job Components: `Execution Context Interfaces Run Slice Result`",
+  "description": "execution-context/interfaces.RunSliceResult",
+  "source": "@site/../docs/packages/job-components/api/interfaces/execution_context_interfaces.RunSliceResult.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/execution_context_interfaces.RunSliceResult",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/execution_context_interfaces.RunSliceResult",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Execution Context Interfaces Run Slice Result`",
+    "sidebar_label": "Execution Context Interfaces Run Slice Result"
+  }
+}

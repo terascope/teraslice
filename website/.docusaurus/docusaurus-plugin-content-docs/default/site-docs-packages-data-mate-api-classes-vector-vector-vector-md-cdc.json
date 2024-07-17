@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/classes/vector_Vector.Vector",
+  "title": "Data-Mate: `Vector Vector Vector`",
+  "description": "vector/Vector.Vector",
+  "source": "@site/../docs/packages/data-mate/api/classes/vector_Vector.Vector.md",
+  "sourceDirName": "packages/data-mate/api/classes",
+  "slug": "/packages/data-mate/api/classes/vector_Vector.Vector",
+  "permalink": "/teraslice/docs/packages/data-mate/api/classes/vector_Vector.Vector",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Vector Vector Vector`",
+    "sidebar_label": "Vector Vector Vector"
+  }
+}

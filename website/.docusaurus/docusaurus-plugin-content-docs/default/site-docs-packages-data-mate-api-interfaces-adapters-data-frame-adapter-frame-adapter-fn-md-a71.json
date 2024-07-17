@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/adapters_data_frame_adapter.FrameAdapterFn",
+  "title": "Data-Mate: `Adapters Data Frame Adapter Frame Adapter Fn`",
+  "description": "adapters/data-frame-adapter.FrameAdapterFn",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/adapters_data_frame_adapter.FrameAdapterFn.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/adapters_data_frame_adapter.FrameAdapterFn",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/adapters_data_frame_adapter.FrameAdapterFn",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Adapters Data Frame Adapter Frame Adapter Fn`",
+    "sidebar_label": "Adapters Data Frame Adapter Frame Adapter Fn"
+  }
+}

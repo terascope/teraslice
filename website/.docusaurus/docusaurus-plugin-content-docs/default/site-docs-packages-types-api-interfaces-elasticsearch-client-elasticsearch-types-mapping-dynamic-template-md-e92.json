@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingDynamicTemplate",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Dynamic Template`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingDynamicTemplate",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingDynamicTemplate.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingDynamicTemplate",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingDynamicTemplate",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Dynamic Template`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Dynamic Template"
+  }
+}

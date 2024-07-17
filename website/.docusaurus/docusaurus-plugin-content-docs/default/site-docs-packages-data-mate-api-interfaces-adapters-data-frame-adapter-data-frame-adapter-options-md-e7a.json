@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/adapters_data_frame_adapter.DataFrameAdapterOptions",
+  "title": "Data-Mate: `Adapters Data Frame Adapter Data Frame Adapter Options`",
+  "description": "adapters/data-frame-adapter.DataFrameAdapterOptions",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/adapters_data_frame_adapter.DataFrameAdapterOptions.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/adapters_data_frame_adapter.DataFrameAdapterOptions",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/adapters_data_frame_adapter.DataFrameAdapterOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Adapters Data Frame Adapter Data Frame Adapter Options`",
+    "sidebar_label": "Adapters Data Frame Adapter Data Frame Adapter Options"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingCorePropertyBase",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Core Property Base`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingCorePropertyBase",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingCorePropertyBase.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingCorePropertyBase",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingCorePropertyBase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Core Property Base`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Core Property Base"
+  }
+}

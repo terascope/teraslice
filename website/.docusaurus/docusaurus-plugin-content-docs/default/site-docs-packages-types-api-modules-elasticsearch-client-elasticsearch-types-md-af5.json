@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/modules/elasticsearch_client_elasticsearch_types",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/types/api/modules/elasticsearch_client_elasticsearch_types.md",
+  "sourceDirName": "packages/types/api/modules",
+  "slug": "/packages/types/api/modules/elasticsearch_client_elasticsearch_types",
+  "permalink": "/teraslice/docs/packages/types/api/modules/elasticsearch_client_elasticsearch_types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types"
+  }
+}

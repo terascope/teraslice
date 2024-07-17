@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/interfaces/interfaces.FoundationWorker",
+  "title": "Terafoundation: `Interfaces Foundation Worker`",
+  "description": "interfaces.FoundationWorker",
+  "source": "@site/../docs/packages/terafoundation/api/interfaces/interfaces.FoundationWorker.md",
+  "sourceDirName": "packages/terafoundation/api/interfaces",
+  "slug": "/packages/terafoundation/api/interfaces/interfaces.FoundationWorker",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/interfaces/interfaces.FoundationWorker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `Interfaces Foundation Worker`",
+    "sidebar_label": "Interfaces Foundation Worker"
+  }
+}

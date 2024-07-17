@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_interfaces.DynamicFunctionContext",
+  "title": "Data-Mate: `Function Configs Interfaces Dynamic Function Context`",
+  "description": "function-configs/interfaces.DynamicFunctionContext",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_interfaces.DynamicFunctionContext.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_interfaces.DynamicFunctionContext",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_interfaces.DynamicFunctionContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Interfaces Dynamic Function Context`",
+    "sidebar_label": "Function Configs Interfaces Dynamic Function Context"
+  }
+}

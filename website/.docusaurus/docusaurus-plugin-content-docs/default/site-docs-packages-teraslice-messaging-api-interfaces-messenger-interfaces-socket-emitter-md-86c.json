@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-messaging/api/interfaces/messenger_interfaces.SocketEmitter",
+  "title": "Teraslice Messaging: `Messenger Interfaces Socket Emitter`",
+  "description": "messenger/interfaces.SocketEmitter",
+  "source": "@site/../docs/packages/teraslice-messaging/api/interfaces/messenger_interfaces.SocketEmitter.md",
+  "sourceDirName": "packages/teraslice-messaging/api/interfaces",
+  "slug": "/packages/teraslice-messaging/api/interfaces/messenger_interfaces.SocketEmitter",
+  "permalink": "/teraslice/docs/packages/teraslice-messaging/api/interfaces/messenger_interfaces.SocketEmitter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Messaging: `Messenger Interfaces Socket Emitter`",
+    "sidebar_label": "Messenger Interfaces Socket Emitter"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string_reverse",
+  "title": "Data-Mate: `Function Configs String Reverse`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string_reverse.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string_reverse",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string_reverse",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Reverse`",
+    "sidebar_label": "Function Configs String Reverse"
+  }
+}

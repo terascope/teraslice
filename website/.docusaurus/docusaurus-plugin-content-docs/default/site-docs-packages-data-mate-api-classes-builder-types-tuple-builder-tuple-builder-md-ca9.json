@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/classes/builder_types_TupleBuilder.TupleBuilder",
+  "title": "Data-Mate: `Builder Types Tuple Builder Tuple Builder`",
+  "description": "builder/types/TupleBuilder.TupleBuilder",
+  "source": "@site/../docs/packages/data-mate/api/classes/builder_types_TupleBuilder.TupleBuilder.md",
+  "sourceDirName": "packages/data-mate/api/classes",
+  "slug": "/packages/data-mate/api/classes/builder_types_TupleBuilder.TupleBuilder",
+  "permalink": "/teraslice/docs/packages/data-mate/api/classes/builder_types_TupleBuilder.TupleBuilder",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Builder Types Tuple Builder Tuple Builder`",
+    "sidebar_label": "Builder Types Tuple Builder Tuple Builder"
+  }
+}

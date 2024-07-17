@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/classes/operations_plugins_validator.ValidatorPlugins",
+  "title": "TS Transforms: `Operations Plugins Validator Validator Plugins`",
+  "description": "operations/plugins/validator.ValidatorPlugins",
+  "source": "@site/../docs/packages/ts-transforms/api/classes/operations_plugins_validator.ValidatorPlugins.md",
+  "sourceDirName": "packages/ts-transforms/api/classes",
+  "slug": "/packages/ts-transforms/api/classes/operations_plugins_validator.ValidatorPlugins",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/classes/operations_plugins_validator.ValidatorPlugins",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Operations Plugins Validator Validator Plugins`",
+    "sidebar_label": "Operations Plugins Validator Validator Plugins"
+  }
+}

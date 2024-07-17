@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesStatsShardStats",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Stats Shard Stats`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesStatsShardStats",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesStatsShardStats.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesStatsShardStats",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesStatsShardStats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Stats Shard Stats`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Stats Shard Stats"
+  }
+}

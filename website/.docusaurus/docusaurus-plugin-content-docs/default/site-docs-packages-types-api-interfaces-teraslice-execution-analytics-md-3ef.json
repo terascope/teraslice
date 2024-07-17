@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/teraslice.ExecutionAnalytics",
+  "title": "Types: `Teraslice Execution Analytics`",
+  "description": "teraslice.ExecutionAnalytics",
+  "source": "@site/../docs/packages/types/api/interfaces/teraslice.ExecutionAnalytics.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/teraslice.ExecutionAnalytics",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/teraslice.ExecutionAnalytics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Teraslice Execution Analytics`",
+    "sidebar_label": "Teraslice Execution Analytics"
+  }
+}

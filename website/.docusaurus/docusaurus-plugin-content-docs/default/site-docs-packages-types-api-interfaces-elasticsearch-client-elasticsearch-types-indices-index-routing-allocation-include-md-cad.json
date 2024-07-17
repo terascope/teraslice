@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingAllocationInclude",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Routing Allocation Include`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesIndexRoutingAllocationInclude",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingAllocationInclude.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingAllocationInclude",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingAllocationInclude",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Routing Allocation Include`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Index Routing Allocation Include"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_geo_geoPointWithinRange.GeoPointWithinRangeArgs",
+  "title": "Data-Mate: `Function Configs Geo Geo Point Within Range Geo Point Within Range Args`",
+  "description": "function-configs/geo/geoPointWithinRange.GeoPointWithinRangeArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_geo_geoPointWithinRange.GeoPointWithinRangeArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_geo_geoPointWithinRange.GeoPointWithinRangeArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_geo_geoPointWithinRange.GeoPointWithinRangeArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Geo Geo Point Within Range Geo Point Within Range Args`",
+    "sidebar_label": "Function Configs Geo Geo Point Within Range Geo Point Within Range Args"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string_toPascalCase",
+  "title": "Data-Mate: `Function Configs String To Pascal Case`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string_toPascalCase.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string_toPascalCase",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string_toPascalCase",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String To Pascal Case`",
+    "sidebar_label": "Function Configs String To Pascal Case"
+  }
+}

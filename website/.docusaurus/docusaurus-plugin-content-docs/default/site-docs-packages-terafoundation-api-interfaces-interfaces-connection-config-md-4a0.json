@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/interfaces/interfaces.ConnectionConfig",
+  "title": "Terafoundation: `Interfaces Connection Config`",
+  "description": "interfaces.ConnectionConfig",
+  "source": "@site/../docs/packages/terafoundation/api/interfaces/interfaces.ConnectionConfig.md",
+  "sourceDirName": "packages/terafoundation/api/interfaces",
+  "slug": "/packages/terafoundation/api/interfaces/interfaces.ConnectionConfig",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/interfaces/interfaces.ConnectionConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `Interfaces Connection Config`",
+    "sidebar_label": "Interfaces Connection Config"
+  }
+}

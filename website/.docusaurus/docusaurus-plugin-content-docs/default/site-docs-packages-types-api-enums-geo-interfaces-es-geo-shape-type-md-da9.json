@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/enums/geo_interfaces.ESGeoShapeType",
+  "title": "Types: `Geo Interfaces ES Geo Shape Type`",
+  "description": "geo-interfaces.ESGeoShapeType",
+  "source": "@site/../docs/packages/types/api/enums/geo_interfaces.ESGeoShapeType.md",
+  "sourceDirName": "packages/types/api/enums",
+  "slug": "/packages/types/api/enums/geo_interfaces.ESGeoShapeType",
+  "permalink": "/teraslice/docs/packages/types/api/enums/geo_interfaces.ESGeoShapeType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Geo Interfaces ES Geo Shape Type`",
+    "sidebar_label": "Geo Interfaces ES Geo Shape Type"
+  }
+}

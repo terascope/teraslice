@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongNumberProperty",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Long Number Property`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingLongNumberProperty",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongNumberProperty.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongNumberProperty",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongNumberProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Long Number Property`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Long Number Property"
+  }
+}

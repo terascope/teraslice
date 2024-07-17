@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-client-js/api/modules/client",
+  "title": "Teraslice Client (JavaScript): `client`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/teraslice-client-js/api/modules/client.md",
+  "sourceDirName": "packages/teraslice-client-js/api/modules",
+  "slug": "/packages/teraslice-client-js/api/modules/client",
+  "permalink": "/teraslice/docs/packages/teraslice-client-js/api/modules/client",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Client (JavaScript): `client`",
+    "sidebar_label": "client"
+  }
+}

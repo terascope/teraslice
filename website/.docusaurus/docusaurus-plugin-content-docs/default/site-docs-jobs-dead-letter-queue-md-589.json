@@ -1,0 +1,27 @@
+{
+  "id": "jobs/dead-letter-queue",
+  "title": "Dead Letter Queue",
+  "description": "This API available to any operation running in the WorkerContext for putting invalid records or data. This API is useful for placing records that were not formatted correctly or were unserializable.",
+  "source": "@site/../docs/jobs/dead-letter-queue.md",
+  "sourceDirName": "jobs",
+  "slug": "/jobs/dead-letter-queue",
+  "permalink": "/teraslice/docs/jobs/dead-letter-queue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Dead Letter Queue"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Data Entities",
+    "permalink": "/teraslice/docs/jobs/data-entities"
+  },
+  "next": {
+    "title": "Development",
+    "permalink": "/teraslice/docs/jobs/development"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "asset-bundles",
+  "title": "Assets",
+  "description": "Asset bundles are collection of processors or files that can be loaded and used within a Job.",
+  "source": "@site/../docs/asset-bundles.md",
+  "sourceDirName": ".",
+  "slug": "/asset-bundles",
+  "permalink": "/teraslice/docs/asset-bundles",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Assets",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "assets-bundles",
+  "next": {
+    "title": "Development",
+    "permalink": "/teraslice/docs/asset-bundles/development"
+  }
+}

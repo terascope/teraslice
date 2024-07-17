@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoShapeProperty",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Geo Shape Property`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingGeoShapeProperty",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoShapeProperty.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoShapeProperty",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoShapeProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Geo Shape Property`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Geo Shape Property"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/vector_types_GeoBoundaryVector",
+  "title": "Data-Mate: `Vector Types Geo Boundary Vector`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/vector_types_GeoBoundaryVector.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/vector_types_GeoBoundaryVector",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/vector_types_GeoBoundaryVector",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Vector Types Geo Boundary Vector`",
+    "sidebar_label": "Vector Types Geo Boundary Vector"
+  }
+}

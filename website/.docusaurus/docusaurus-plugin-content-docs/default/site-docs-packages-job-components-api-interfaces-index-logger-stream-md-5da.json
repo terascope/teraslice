@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/index.Logger.Stream",
+  "title": "Job Components: `Index Logger Stream`",
+  "description": "index.Logger.Stream",
+  "source": "@site/../docs/packages/job-components/api/interfaces/index.Logger.Stream.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/index.Logger.Stream",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/index.Logger.Stream",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Index Logger Stream`",
+    "sidebar_label": "Index Logger Stream"
+  }
+}

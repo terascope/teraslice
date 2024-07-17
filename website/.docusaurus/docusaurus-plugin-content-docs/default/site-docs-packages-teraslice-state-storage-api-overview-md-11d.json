@@ -1,0 +1,28 @@
+{
+  "id": "packages/teraslice-state-storage/api/overview",
+  "title": "Teraslice State Storage API Overview",
+  "description": "-   cached-state-storage",
+  "source": "@site/../docs/packages/teraslice-state-storage/api/overview.md",
+  "sourceDirName": "packages/teraslice-state-storage/api",
+  "slug": "/packages/teraslice-state-storage/api/overview",
+  "permalink": "/teraslice/docs/packages/teraslice-state-storage/api/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice State Storage API Overview",
+    "sidebar_label": "API"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/teraslice-state-storage/overview"
+  },
+  "next": {
+    "title": "overview",
+    "permalink": "/teraslice/docs/packages/xpressions/overview"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/modules/phases_base",
+  "title": "TS Transforms: `Phases Base`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/ts-transforms/api/modules/phases_base.md",
+  "sourceDirName": "packages/ts-transforms/api/modules",
+  "slug": "/packages/ts-transforms/api/modules/phases_base",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/modules/phases_base",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Phases Base`",
+    "sidebar_label": "Phases Base"
+  }
+}

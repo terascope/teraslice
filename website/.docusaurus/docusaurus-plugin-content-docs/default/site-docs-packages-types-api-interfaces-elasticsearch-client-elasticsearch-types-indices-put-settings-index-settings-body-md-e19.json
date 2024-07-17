@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesPutSettingsIndexSettingsBody",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Put Settings Index Settings Body`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesPutSettingsIndexSettingsBody",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesPutSettingsIndexSettingsBody.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesPutSettingsIndexSettingsBody",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesPutSettingsIndexSettingsBody",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Put Settings Index Settings Body`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Put Settings Index Settings Body"
+  }
+}

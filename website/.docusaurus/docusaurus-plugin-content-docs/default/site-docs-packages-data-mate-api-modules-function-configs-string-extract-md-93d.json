@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string_extract",
+  "title": "Data-Mate: `Function Configs String Extract`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string_extract.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string_extract",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string_extract",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Extract`",
+    "sidebar_label": "Function Configs String Extract"
+  }
+}

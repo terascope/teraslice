@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.QueryDslThreeDimensionalPoint",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Query Dsl Three Dimensional Point`",
+  "description": "elasticsearch-client/elasticsearch-types.QueryDslThreeDimensionalPoint",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.QueryDslThreeDimensionalPoint.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.QueryDslThreeDimensionalPoint",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.QueryDslThreeDimensionalPoint",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Query Dsl Three Dimensional Point`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Query Dsl Three Dimensional Point"
+  }
+}

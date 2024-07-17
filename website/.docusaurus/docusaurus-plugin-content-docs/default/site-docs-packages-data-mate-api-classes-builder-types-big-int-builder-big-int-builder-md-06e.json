@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/classes/builder_types_BigIntBuilder.BigIntBuilder",
+  "title": "Data-Mate: `Builder Types Big Int Builder Big Int Builder`",
+  "description": "builder/types/BigIntBuilder.BigIntBuilder",
+  "source": "@site/../docs/packages/data-mate/api/classes/builder_types_BigIntBuilder.BigIntBuilder.md",
+  "sourceDirName": "packages/data-mate/api/classes",
+  "slug": "/packages/data-mate/api/classes/builder_types_BigIntBuilder.BigIntBuilder",
+  "permalink": "/teraslice/docs/packages/data-mate/api/classes/builder_types_BigIntBuilder.BigIntBuilder",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Builder Types Big Int Builder Big Int Builder`",
+    "sidebar_label": "Builder Types Big Int Builder Big Int Builder"
+  }
+}

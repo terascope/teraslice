@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/teraslice.ExecutionRecord",
+  "title": "Types: `Teraslice Execution Record`",
+  "description": "teraslice.ExecutionRecord",
+  "source": "@site/../docs/packages/types/api/interfaces/teraslice.ExecutionRecord.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/teraslice.ExecutionRecord",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/teraslice.ExecutionRecord",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Teraslice Execution Record`",
+    "sidebar_label": "Teraslice Execution Record"
+  }
+}

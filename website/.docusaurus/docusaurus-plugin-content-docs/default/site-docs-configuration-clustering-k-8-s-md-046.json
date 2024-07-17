@@ -1,0 +1,28 @@
+{
+  "id": "configuration/clustering-k8s",
+  "title": "Kubernetes Clustering",
+  "description": "Teraslice supports the use of Kubernetes as a cluster manager. The following",
+  "source": "@site/../docs/configuration/clustering-k8s.md",
+  "sourceDirName": "configuration",
+  "slug": "/configuration/clustering-k8s",
+  "permalink": "/teraslice/docs/configuration/clustering-k8s",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Kubernetes Clustering",
+    "sidebar_label": "Kubernetes Clustering"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Native Clustering",
+    "permalink": "/teraslice/docs/configuration/clustering-native"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/management-apis/overview"
+  }
+}

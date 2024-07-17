@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/classes/operations.CorePlugins",
+  "title": "TS Transforms: `Operations Core Plugins`",
+  "description": "operations.CorePlugins",
+  "source": "@site/../docs/packages/ts-transforms/api/classes/operations.CorePlugins.md",
+  "sourceDirName": "packages/ts-transforms/api/classes",
+  "slug": "/packages/ts-transforms/api/classes/operations.CorePlugins",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/classes/operations.CorePlugins",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Operations Core Plugins`",
+    "sidebar_label": "Operations Core Plugins"
+  }
+}

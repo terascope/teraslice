@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexSettingBlocks",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Setting Blocks`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesIndexSettingBlocks",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexSettingBlocks.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexSettingBlocks",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexSettingBlocks",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Setting Blocks`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Index Setting Blocks"
+  }
+}

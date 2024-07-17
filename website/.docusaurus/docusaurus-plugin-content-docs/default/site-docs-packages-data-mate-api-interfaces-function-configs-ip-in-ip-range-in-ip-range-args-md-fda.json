@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_ip_inIPRange.InIPRangeArgs",
+  "title": "Data-Mate: `Function Configs Ip In IP Range In IP Range Args`",
+  "description": "function-configs/ip/inIPRange.InIPRangeArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_ip_inIPRange.InIPRangeArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_ip_inIPRange.InIPRangeArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_ip_inIPRange.InIPRangeArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Ip In IP Range In IP Range Args`",
+    "sidebar_label": "Function Configs Ip In IP Range In IP Range Args"
+  }
+}

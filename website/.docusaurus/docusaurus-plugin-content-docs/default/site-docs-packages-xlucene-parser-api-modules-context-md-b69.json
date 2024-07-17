@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-parser/api/modules/context",
+  "title": "xLucene Parser: `context`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/xlucene-parser/api/modules/context.md",
+  "sourceDirName": "packages/xlucene-parser/api/modules",
+  "slug": "/packages/xlucene-parser/api/modules/context",
+  "permalink": "/teraslice/docs/packages/xlucene-parser/api/modules/context",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Parser: `context`",
+    "sidebar_label": "context"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/operation_loader_interfaces.FindOperationResults",
+  "title": "Job Components: `Operation Loader Interfaces Find Operation Results`",
+  "description": "operation-loader/interfaces.FindOperationResults",
+  "source": "@site/../docs/packages/job-components/api/interfaces/operation_loader_interfaces.FindOperationResults.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/operation_loader_interfaces.FindOperationResults",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/operation_loader_interfaces.FindOperationResults",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Operation Loader Interfaces Find Operation Results`",
+    "sidebar_label": "Operation Loader Interfaces Find Operation Results"
+  }
+}

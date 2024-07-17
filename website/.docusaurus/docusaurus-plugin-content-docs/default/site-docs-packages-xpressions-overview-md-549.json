@@ -1,0 +1,28 @@
+{
+  "id": "packages/xpressions/overview",
+  "title": "Xpressions",
+  "description": "Variable expressions with date-math support",
+  "source": "@site/../docs/packages/xpressions/overview.md",
+  "sourceDirName": "packages/xpressions",
+  "slug": "/packages/xpressions/overview",
+  "permalink": "/teraslice/docs/packages/xpressions/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Xpressions",
+    "sidebar_label": "overview"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/teraslice-state-storage/api/overview"
+  },
+  "next": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/xpressions/api/overview"
+  }
+}

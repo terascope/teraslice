@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/builder_types_AnyBuilder",
+  "title": "Data-Mate: `Builder Types Any Builder`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/builder_types_AnyBuilder.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/builder_types_AnyBuilder",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/builder_types_AnyBuilder",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Builder Types Any Builder`",
+    "sidebar_label": "Builder Types Any Builder"
+  }
+}

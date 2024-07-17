@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryFileDetails",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Recovery File Details`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesRecoveryFileDetails",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryFileDetails.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryFileDetails",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryFileDetails",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Recovery File Details`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Recovery File Details"
+  }
+}

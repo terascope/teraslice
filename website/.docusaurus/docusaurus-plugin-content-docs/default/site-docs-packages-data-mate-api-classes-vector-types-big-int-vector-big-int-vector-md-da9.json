@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/classes/vector_types_BigIntVector.BigIntVector",
+  "title": "Data-Mate: `Vector Types Big Int Vector Big Int Vector`",
+  "description": "vector/types/BigIntVector.BigIntVector",
+  "source": "@site/../docs/packages/data-mate/api/classes/vector_types_BigIntVector.BigIntVector.md",
+  "sourceDirName": "packages/data-mate/api/classes",
+  "slug": "/packages/data-mate/api/classes/vector_types_BigIntVector.BigIntVector",
+  "permalink": "/teraslice/docs/packages/data-mate/api/classes/vector_types_BigIntVector.BigIntVector",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Vector Types Big Int Vector Big Int Vector`",
+    "sidebar_label": "Vector Types Big Int Vector Big Int Vector"
+  }
+}

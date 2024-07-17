@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_interfaces.OutputType",
+  "title": "Data-Mate: `Function Configs Interfaces Output Type`",
+  "description": "function-configs/interfaces.OutputType",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_interfaces.OutputType.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_interfaces.OutputType",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_interfaces.OutputType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Interfaces Output Type`",
+    "sidebar_label": "Function Configs Interfaces Output Type"
+  }
+}

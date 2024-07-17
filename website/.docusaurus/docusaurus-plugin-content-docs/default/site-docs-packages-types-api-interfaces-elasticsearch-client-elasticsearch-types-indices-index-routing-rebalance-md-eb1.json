@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingRebalance",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Routing Rebalance`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesIndexRoutingRebalance",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingRebalance.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingRebalance",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesIndexRoutingRebalance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Index Routing Rebalance`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Index Routing Rebalance"
+  }
+}

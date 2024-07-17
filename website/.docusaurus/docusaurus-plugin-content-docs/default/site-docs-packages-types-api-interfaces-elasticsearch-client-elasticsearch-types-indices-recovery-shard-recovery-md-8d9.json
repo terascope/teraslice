@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryShardRecovery",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Recovery Shard Recovery`",
+  "description": "elasticsearch-client/elasticsearch-types.IndicesRecoveryShardRecovery",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryShardRecovery.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryShardRecovery",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.IndicesRecoveryShardRecovery",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Indices Recovery Shard Recovery`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Indices Recovery Shard Recovery"
+  }
+}

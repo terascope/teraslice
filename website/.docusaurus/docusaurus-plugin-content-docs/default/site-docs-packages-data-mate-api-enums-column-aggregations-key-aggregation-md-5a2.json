@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/enums/column_aggregations.KeyAggregation",
+  "title": "Data-Mate: `Column Aggregations Key Aggregation`",
+  "description": "column/aggregations.KeyAggregation",
+  "source": "@site/../docs/packages/data-mate/api/enums/column_aggregations.KeyAggregation.md",
+  "sourceDirName": "packages/data-mate/api/enums",
+  "slug": "/packages/data-mate/api/enums/column_aggregations.KeyAggregation",
+  "permalink": "/teraslice/docs/packages/data-mate/api/enums/column_aggregations.KeyAggregation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Column Aggregations Key Aggregation`",
+    "sidebar_label": "Column Aggregations Key Aggregation"
+  }
+}

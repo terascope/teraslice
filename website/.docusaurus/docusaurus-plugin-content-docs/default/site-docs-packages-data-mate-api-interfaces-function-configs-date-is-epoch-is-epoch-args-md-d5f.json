@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_date_isEpoch.IsEpochArgs",
+  "title": "Data-Mate: `Function Configs Date Is Epoch Is Epoch Args`",
+  "description": "function-configs/date/isEpoch.IsEpochArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_date_isEpoch.IsEpochArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_date_isEpoch.IsEpochArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_date_isEpoch.IsEpochArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Date Is Epoch Is Epoch Args`",
+    "sidebar_label": "Function Configs Date Is Epoch Is Epoch Args"
+  }
+}

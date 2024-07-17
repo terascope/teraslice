@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/operations_interfaces.ProcessorModule",
+  "title": "Job Components: `Operations Interfaces Processor Module`",
+  "description": "operations/interfaces.ProcessorModule",
+  "source": "@site/../docs/packages/job-components/api/interfaces/operations_interfaces.ProcessorModule.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/operations_interfaces.ProcessorModule",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/operations_interfaces.ProcessorModule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Operations Interfaces Processor Module`",
+    "sidebar_label": "Operations Interfaces Processor Module"
+  }
+}

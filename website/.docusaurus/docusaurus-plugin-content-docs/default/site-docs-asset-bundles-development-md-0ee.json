@@ -1,0 +1,28 @@
+{
+  "id": "asset-bundles/development",
+  "title": "Asset Development",
+  "description": "It is possible to implement custom operations (slicers, readers, and processors)",
+  "source": "@site/../docs/asset-bundles/development.md",
+  "sourceDirName": "asset-bundles",
+  "slug": "/asset-bundles/development",
+  "permalink": "/teraslice/docs/asset-bundles/development",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Asset Development",
+    "sidebar_label": "Development"
+  },
+  "sidebar": "assets-bundles",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/asset-bundles"
+  },
+  "next": {
+    "title": "Elasticsearch",
+    "permalink": "/teraslice/docs/asset-bundles/elasticsearch-assets/overview"
+  }
+}

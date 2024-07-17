@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_interfaces.MatchPhraseQuery",
+  "title": "Types: `Elasticsearch Interfaces Match Phrase Query`",
+  "description": "elasticsearch-interfaces.MatchPhraseQuery",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_interfaces.MatchPhraseQuery.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_interfaces.MatchPhraseQuery",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_interfaces.MatchPhraseQuery",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Interfaces Match Phrase Query`",
+    "sidebar_label": "Elasticsearch Interfaces Match Phrase Query"
+  }
+}

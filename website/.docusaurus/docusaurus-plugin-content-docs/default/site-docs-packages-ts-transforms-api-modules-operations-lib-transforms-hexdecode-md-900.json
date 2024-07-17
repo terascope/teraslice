@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/modules/operations_lib_transforms_hexdecode",
+  "title": "TS Transforms: `Operations Lib Transforms Hexdecode`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/ts-transforms/api/modules/operations_lib_transforms_hexdecode.md",
+  "sourceDirName": "packages/ts-transforms/api/modules",
+  "slug": "/packages/ts-transforms/api/modules/operations_lib_transforms_hexdecode",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/modules/operations_lib_transforms_hexdecode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Operations Lib Transforms Hexdecode`",
+    "sidebar_label": "Operations Lib Transforms Hexdecode"
+  }
+}

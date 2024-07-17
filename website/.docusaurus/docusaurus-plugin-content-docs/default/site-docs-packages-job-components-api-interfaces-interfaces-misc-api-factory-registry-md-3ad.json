@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/interfaces_misc.APIFactoryRegistry",
+  "title": "Job Components: `Interfaces Misc API Factory Registry`",
+  "description": "interfaces/misc.APIFactoryRegistry",
+  "source": "@site/../docs/packages/job-components/api/interfaces/interfaces_misc.APIFactoryRegistry.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/interfaces_misc.APIFactoryRegistry",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/interfaces_misc.APIFactoryRegistry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Interfaces Misc API Factory Registry`",
+    "sidebar_label": "Interfaces Misc API Factory Registry"
+  }
+}

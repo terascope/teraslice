@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-parser/api/interfaces/interfaces.AnyDataType",
+  "title": "xLucene Parser: `Interfaces Any Data Type`",
+  "description": "interfaces.AnyDataType",
+  "source": "@site/../docs/packages/xlucene-parser/api/interfaces/interfaces.AnyDataType.md",
+  "sourceDirName": "packages/xlucene-parser/api/interfaces",
+  "slug": "/packages/xlucene-parser/api/interfaces/interfaces.AnyDataType",
+  "permalink": "/teraslice/docs/packages/xlucene-parser/api/interfaces/interfaces.AnyDataType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Parser: `Interfaces Any Data Type`",
+    "sidebar_label": "Interfaces Any Data Type"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/function_configs_string_isLength",
+  "title": "Data-Mate: `Function Configs String Is Length`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/function_configs_string_isLength.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/function_configs_string_isLength",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/function_configs_string_isLength",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Is Length`",
+    "sidebar_label": "Function Configs String Is Length"
+  }
+}

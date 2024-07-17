@@ -1,0 +1,27 @@
+{
+  "id": "jobs/development",
+  "title": "Development",
+  "description": "When developing on an operation you'll need to be aware of three packages.",
+  "source": "@site/../docs/jobs/development.md",
+  "sourceDirName": "jobs",
+  "slug": "/jobs/development",
+  "permalink": "/teraslice/docs/jobs/development",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Development"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Dead Letter Queue",
+    "permalink": "/teraslice/docs/jobs/dead-letter-queue"
+  },
+  "next": {
+    "title": "Testing",
+    "permalink": "/teraslice/docs/jobs/testing"
+  }
+}

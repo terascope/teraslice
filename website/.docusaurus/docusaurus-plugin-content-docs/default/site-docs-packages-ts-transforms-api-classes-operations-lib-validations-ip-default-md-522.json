@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/classes/operations_lib_validations_ip.default",
+  "title": "TS Transforms: `Operations Lib Validations Ip Default`",
+  "description": "operations/lib/validations/ip.default",
+  "source": "@site/../docs/packages/ts-transforms/api/classes/operations_lib_validations_ip.default.md",
+  "sourceDirName": "packages/ts-transforms/api/classes",
+  "slug": "/packages/ts-transforms/api/classes/operations_lib_validations_ip.default",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/classes/operations_lib_validations_ip.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Operations Lib Validations Ip Default`",
+    "sidebar_label": "Operations Lib Validations Ip Default"
+  }
+}

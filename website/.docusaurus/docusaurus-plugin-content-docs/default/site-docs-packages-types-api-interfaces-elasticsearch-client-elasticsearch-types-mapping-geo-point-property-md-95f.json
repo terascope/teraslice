@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoPointProperty",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Geo Point Property`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingGeoPointProperty",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoPointProperty.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoPointProperty",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingGeoPointProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Geo Point Property`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Geo Point Property"
+  }
+}

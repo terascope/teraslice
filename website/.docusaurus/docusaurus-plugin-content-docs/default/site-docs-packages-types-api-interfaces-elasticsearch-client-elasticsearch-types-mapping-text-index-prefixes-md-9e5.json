@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingTextIndexPrefixes",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Text Index Prefixes`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingTextIndexPrefixes",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingTextIndexPrefixes.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingTextIndexPrefixes",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingTextIndexPrefixes",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Text Index Prefixes`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Text Index Prefixes"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/interfaces_context.ConnectionConfig",
+  "title": "Job Components: `Interfaces Context Connection Config`",
+  "description": "interfaces/context.ConnectionConfig",
+  "source": "@site/../docs/packages/job-components/api/interfaces/interfaces_context.ConnectionConfig.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/interfaces_context.ConnectionConfig",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/interfaces_context.ConnectionConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Interfaces Context Connection Config`",
+    "sidebar_label": "Interfaces Context Connection Config"
+  }
+}

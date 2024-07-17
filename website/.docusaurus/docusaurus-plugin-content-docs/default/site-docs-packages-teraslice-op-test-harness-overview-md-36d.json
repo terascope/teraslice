@@ -1,0 +1,28 @@
+{
+  "id": "packages/teraslice-op-test-harness/overview",
+  "title": "Teraslice Op Test Harness",
+  "description": "A testing harness to simplify testing Teraslice processors and operations.",
+  "source": "@site/../docs/packages/teraslice-op-test-harness/overview.md",
+  "sourceDirName": "packages/teraslice-op-test-harness",
+  "slug": "/packages/teraslice-op-test-harness/overview",
+  "permalink": "/teraslice/docs/packages/teraslice-op-test-harness/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice Op Test Harness",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/xpressions/api/overview"
+  },
+  "next": {
+    "title": "docker-compose-js",
+    "permalink": "/teraslice/docs/packages/docker-compose-js/overview"
+  }
+}

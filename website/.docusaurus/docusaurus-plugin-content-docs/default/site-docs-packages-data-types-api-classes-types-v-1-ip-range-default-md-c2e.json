@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-types/api/classes/types_v1_ip_range.default",
+  "title": "Data Types: `Types V 1 Ip Range Default`",
+  "description": "types/v1/ip-range.default",
+  "source": "@site/../docs/packages/data-types/api/classes/types_v1_ip_range.default.md",
+  "sourceDirName": "packages/data-types/api/classes",
+  "slug": "/packages/data-types/api/classes/types_v1_ip_range.default",
+  "permalink": "/teraslice/docs/packages/data-types/api/classes/types_v1_ip_range.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data Types: `Types V 1 Ip Range Default`",
+    "sidebar_label": "Types V 1 Ip Range Default"
+  }
+}

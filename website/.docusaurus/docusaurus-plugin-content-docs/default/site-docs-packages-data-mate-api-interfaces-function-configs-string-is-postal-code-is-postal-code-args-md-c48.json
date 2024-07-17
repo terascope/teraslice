@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_string_isPostalCode.IsPostalCodeArgs",
+  "title": "Data-Mate: `Function Configs String Is Postal Code Is Postal Code Args`",
+  "description": "function-configs/string/isPostalCode.IsPostalCodeArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_string_isPostalCode.IsPostalCodeArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_string_isPostalCode.IsPostalCodeArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_string_isPostalCode.IsPostalCodeArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs String Is Postal Code Is Postal Code Args`",
+    "sidebar_label": "Function Configs String Is Postal Code Is Postal Code Args"
+  }
+}

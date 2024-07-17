@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_numeric_isLessThanOrEqualTo.LessThanOrEqualToArgs",
+  "title": "Data-Mate: `Function Configs Numeric Is Less Than Or Equal To Less Than Or Equal To Args`",
+  "description": "function-configs/numeric/isLessThanOrEqualTo.LessThanOrEqualToArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_numeric_isLessThanOrEqualTo.LessThanOrEqualToArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_numeric_isLessThanOrEqualTo.LessThanOrEqualToArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_numeric_isLessThanOrEqualTo.LessThanOrEqualToArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Numeric Is Less Than Or Equal To Less Than Or Equal To Args`",
+    "sidebar_label": "Function Configs Numeric Is Less Than Or Equal To Less Than Or Equal To Args"
+  }
+}

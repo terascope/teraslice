@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/interfaces_jobs.LegacyExecutionContext",
+  "title": "Job Components: `Interfaces Jobs Legacy Execution Context`",
+  "description": "interfaces/jobs.LegacyExecutionContext",
+  "source": "@site/../docs/packages/job-components/api/interfaces/interfaces_jobs.LegacyExecutionContext.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/interfaces_jobs.LegacyExecutionContext",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/interfaces_jobs.LegacyExecutionContext",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Interfaces Jobs Legacy Execution Context`",
+    "sidebar_label": "Interfaces Jobs Legacy Execution Context"
+  }
+}

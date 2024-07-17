@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/interfaces_context.ContextApis-1",
+  "title": "Job Components: `Interfaces Context Context Apis 1`",
+  "description": "interfaces/context.ContextApis",
+  "source": "@site/../docs/packages/job-components/api/interfaces/interfaces_context.ContextApis-1.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/interfaces_context.ContextApis-1",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/interfaces_context.ContextApis-1",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Interfaces Context Context Apis 1`",
+    "sidebar_label": "Interfaces Context Context Apis 1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "getting-started",
+  "title": "Getting Started",
+  "description": "Teraslice is written in Node.js and has been tested on Linux and Mac OS X.",
+  "source": "@site/../docs/getting-started.md",
+  "sourceDirName": ".",
+  "slug": "/getting-started",
+  "permalink": "/teraslice/docs/getting-started",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Getting Started"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/overview"
+  },
+  "next": {
+    "title": "Terminology",
+    "permalink": "/teraslice/docs/terminology"
+  }
+}

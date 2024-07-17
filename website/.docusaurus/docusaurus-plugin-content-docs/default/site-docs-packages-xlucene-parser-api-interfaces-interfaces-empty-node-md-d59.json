@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-parser/api/interfaces/interfaces.EmptyNode",
+  "title": "xLucene Parser: `Interfaces Empty Node`",
+  "description": "interfaces.EmptyNode",
+  "source": "@site/../docs/packages/xlucene-parser/api/interfaces/interfaces.EmptyNode.md",
+  "sourceDirName": "packages/xlucene-parser/api/interfaces",
+  "slug": "/packages/xlucene-parser/api/interfaces/interfaces.EmptyNode",
+  "permalink": "/teraslice/docs/packages/xlucene-parser/api/interfaces/interfaces.EmptyNode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Parser: `Interfaces Empty Node`",
+    "sidebar_label": "Interfaces Empty Node"
+  }
+}

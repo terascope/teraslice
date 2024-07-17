@@ -1,0 +1,19 @@
+{
+  "id": "packages/elasticsearch-store/api/modules/elasticsearch_client_method_helpers_indicesRecovery",
+  "title": "Elasticsearch Store: `Elasticsearch Client Method Helpers Indices Recovery`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/elasticsearch-store/api/modules/elasticsearch_client_method_helpers_indicesRecovery.md",
+  "sourceDirName": "packages/elasticsearch-store/api/modules",
+  "slug": "/packages/elasticsearch-store/api/modules/elasticsearch_client_method_helpers_indicesRecovery",
+  "permalink": "/teraslice/docs/packages/elasticsearch-store/api/modules/elasticsearch_client_method_helpers_indicesRecovery",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Elasticsearch Store: `Elasticsearch Client Method Helpers Indices Recovery`",
+    "sidebar_label": "Elasticsearch Client Method Helpers Indices Recovery"
+  }
+}

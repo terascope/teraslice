@@ -1,0 +1,28 @@
+{
+  "id": "packages/utils/overview",
+  "title": "Terascope Utils",
+  "description": "A collection of Teraslice Utilities, including DataEntity.",
+  "source": "@site/../docs/packages/utils/overview.md",
+  "sourceDirName": "packages/utils",
+  "slug": "/packages/utils/overview",
+  "permalink": "/teraslice/docs/packages/utils/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terascope Utils",
+    "sidebar_label": "Overview"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/xlucene-translator/api/overview"
+  },
+  "next": {
+    "title": "API",
+    "permalink": "/teraslice/docs/packages/utils/api/overview"
+  }
+}

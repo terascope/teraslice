@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_interfaces.RecordValidationConfig",
+  "title": "Data-Mate: `Function Configs Interfaces Record Validation Config`",
+  "description": "function-configs/interfaces.RecordValidationConfig",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_interfaces.RecordValidationConfig.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_interfaces.RecordValidationConfig",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_interfaces.RecordValidationConfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Interfaces Record Validation Config`",
+    "sidebar_label": "Function Configs Interfaces Record Validation Config"
+  }
+}

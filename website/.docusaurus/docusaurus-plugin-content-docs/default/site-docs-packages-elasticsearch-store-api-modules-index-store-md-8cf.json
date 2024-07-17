@@ -1,0 +1,19 @@
+{
+  "id": "packages/elasticsearch-store/api/modules/index_store",
+  "title": "Elasticsearch Store: `index-store`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/elasticsearch-store/api/modules/index_store.md",
+  "sourceDirName": "packages/elasticsearch-store/api/modules",
+  "slug": "/packages/elasticsearch-store/api/modules/index_store",
+  "permalink": "/teraslice/docs/packages/elasticsearch-store/api/modules/index_store",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Elasticsearch Store: `index-store`",
+    "sidebar_label": "index-store"
+  }
+}

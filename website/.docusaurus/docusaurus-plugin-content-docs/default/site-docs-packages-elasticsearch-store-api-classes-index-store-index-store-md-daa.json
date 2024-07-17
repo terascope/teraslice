@@ -1,0 +1,19 @@
+{
+  "id": "packages/elasticsearch-store/api/classes/index_store.IndexStore",
+  "title": "Elasticsearch Store: `Index Store Index Store`",
+  "description": "index-store.IndexStore",
+  "source": "@site/../docs/packages/elasticsearch-store/api/classes/index_store.IndexStore.md",
+  "sourceDirName": "packages/elasticsearch-store/api/classes",
+  "slug": "/packages/elasticsearch-store/api/classes/index_store.IndexStore",
+  "permalink": "/teraslice/docs/packages/elasticsearch-store/api/classes/index_store.IndexStore",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Elasticsearch Store: `Index Store Index Store`",
+    "sidebar_label": "Index Store Index Store"
+  }
+}

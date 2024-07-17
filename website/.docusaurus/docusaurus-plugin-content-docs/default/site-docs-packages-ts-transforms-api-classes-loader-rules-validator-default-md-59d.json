@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/classes/loader_rules_validator.default",
+  "title": "TS Transforms: `Loader Rules Validator Default`",
+  "description": "loader/rules-validator.default",
+  "source": "@site/../docs/packages/ts-transforms/api/classes/loader_rules_validator.default.md",
+  "sourceDirName": "packages/ts-transforms/api/classes",
+  "slug": "/packages/ts-transforms/api/classes/loader_rules_validator.default",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/classes/loader_rules_validator.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Loader Rules Validator Default`",
+    "sidebar_label": "Loader Rules Validator Default"
+  }
+}

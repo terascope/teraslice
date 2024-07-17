@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/interfaces/function_configs_date_setSeconds.SetSecondsArgs",
+  "title": "Data-Mate: `Function Configs Date Set Seconds Set Seconds Args`",
+  "description": "function-configs/date/setSeconds.SetSecondsArgs",
+  "source": "@site/../docs/packages/data-mate/api/interfaces/function_configs_date_setSeconds.SetSecondsArgs.md",
+  "sourceDirName": "packages/data-mate/api/interfaces",
+  "slug": "/packages/data-mate/api/interfaces/function_configs_date_setSeconds.SetSecondsArgs",
+  "permalink": "/teraslice/docs/packages/data-mate/api/interfaces/function_configs_date_setSeconds.SetSecondsArgs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Function Configs Date Set Seconds Set Seconds Args`",
+    "sidebar_label": "Function Configs Date Set Seconds Set Seconds Args"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "overview",
+  "title": "Overview",
+  "description": "Teraslice provides scalable data processing pipelines implemented using components written in JavaScript. It uses a distributed model to spread work across a cluster of computers and can easily process millions of records per second.",
+  "source": "@site/../docs/overview.md",
+  "sourceDirName": ".",
+  "slug": "/overview",
+  "permalink": "/teraslice/docs/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Overview"
+  },
+  "sidebar": "docs",
+  "next": {
+    "title": "Getting Started",
+    "permalink": "/teraslice/docs/getting-started"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-cli/api/classes/generators_new_processor.default",
+  "title": "Teraslice CLI: `Generators New Processor Default`",
+  "description": "generators/new-processor.default",
+  "source": "@site/../docs/packages/teraslice-cli/api/classes/generators_new_processor.default.md",
+  "sourceDirName": "packages/teraslice-cli/api/classes",
+  "slug": "/packages/teraslice-cli/api/classes/generators_new_processor.default",
+  "permalink": "/teraslice/docs/packages/teraslice-cli/api/classes/generators_new_processor.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice CLI: `Generators New Processor Default`",
+    "sidebar_label": "Generators New Processor Default"
+  }
+}

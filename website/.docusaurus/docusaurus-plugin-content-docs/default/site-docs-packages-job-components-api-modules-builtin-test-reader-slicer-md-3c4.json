@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/modules/builtin_test_reader_slicer",
+  "title": "Job Components: `Builtin Test Reader Slicer`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/job-components/api/modules/builtin_test_reader_slicer.md",
+  "sourceDirName": "packages/job-components/api/modules",
+  "slug": "/packages/job-components/api/modules/builtin_test_reader_slicer",
+  "permalink": "/teraslice/docs/packages/job-components/api/modules/builtin_test_reader_slicer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Builtin Test Reader Slicer`",
+    "sidebar_label": "Builtin Test Reader Slicer"
+  }
+}

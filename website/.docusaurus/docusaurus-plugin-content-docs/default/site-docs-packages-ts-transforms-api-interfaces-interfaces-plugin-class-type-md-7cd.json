@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/interfaces/interfaces.PluginClassType",
+  "title": "TS Transforms: `Interfaces Plugin Class Type`",
+  "description": "interfaces.PluginClassType",
+  "source": "@site/../docs/packages/ts-transforms/api/interfaces/interfaces.PluginClassType.md",
+  "sourceDirName": "packages/ts-transforms/api/interfaces",
+  "slug": "/packages/ts-transforms/api/interfaces/interfaces.PluginClassType",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/interfaces/interfaces.PluginClassType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Interfaces Plugin Class Type`",
+    "sidebar_label": "Interfaces Plugin Class Type"
+  }
+}

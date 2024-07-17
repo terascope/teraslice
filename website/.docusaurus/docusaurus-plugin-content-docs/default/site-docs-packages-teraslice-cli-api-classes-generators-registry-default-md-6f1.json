@@ -1,0 +1,19 @@
+{
+  "id": "packages/teraslice-cli/api/classes/generators_registry.default",
+  "title": "Teraslice CLI: `Generators Registry Default`",
+  "description": "generators/registry.default",
+  "source": "@site/../docs/packages/teraslice-cli/api/classes/generators_registry.default.md",
+  "sourceDirName": "packages/teraslice-cli/api/classes",
+  "slug": "/packages/teraslice-cli/api/classes/generators_registry.default",
+  "permalink": "/teraslice/docs/packages/teraslice-cli/api/classes/generators_registry.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Teraslice CLI: `Generators Registry Default`",
+    "sidebar_label": "Generators Registry Default"
+  }
+}

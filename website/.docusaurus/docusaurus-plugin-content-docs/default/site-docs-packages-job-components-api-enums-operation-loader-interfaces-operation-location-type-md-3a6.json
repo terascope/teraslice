@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/enums/operation_loader_interfaces.OperationLocationType",
+  "title": "Job Components: `Operation Loader Interfaces Operation Location Type`",
+  "description": "operation-loader/interfaces.OperationLocationType",
+  "source": "@site/../docs/packages/job-components/api/enums/operation_loader_interfaces.OperationLocationType.md",
+  "sourceDirName": "packages/job-components/api/enums",
+  "slug": "/packages/job-components/api/enums/operation_loader_interfaces.OperationLocationType",
+  "permalink": "/teraslice/docs/packages/job-components/api/enums/operation_loader_interfaces.OperationLocationType",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Operation Loader Interfaces Operation Location Type`",
+    "sidebar_label": "Operation Loader Interfaces Operation Location Type"
+  }
+}

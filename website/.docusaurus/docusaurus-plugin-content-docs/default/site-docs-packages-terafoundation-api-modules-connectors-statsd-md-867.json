@@ -1,0 +1,19 @@
+{
+  "id": "packages/terafoundation/api/modules/connectors_statsd",
+  "title": "Terafoundation: `Connectors Statsd`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/terafoundation/api/modules/connectors_statsd.md",
+  "sourceDirName": "packages/terafoundation/api/modules",
+  "slug": "/packages/terafoundation/api/modules/connectors_statsd",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/modules/connectors_statsd",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation: `Connectors Statsd`",
+    "sidebar_label": "Connectors Statsd"
+  }
+}

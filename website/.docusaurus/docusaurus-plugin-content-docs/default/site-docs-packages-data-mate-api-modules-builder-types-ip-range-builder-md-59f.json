@@ -1,0 +1,19 @@
+{
+  "id": "packages/data-mate/api/modules/builder_types_IPRangeBuilder",
+  "title": "Data-Mate: `Builder Types IP Range Builder`",
+  "description": "Table of contents",
+  "source": "@site/../docs/packages/data-mate/api/modules/builder_types_IPRangeBuilder.md",
+  "sourceDirName": "packages/data-mate/api/modules",
+  "slug": "/packages/data-mate/api/modules/builder_types_IPRangeBuilder",
+  "permalink": "/teraslice/docs/packages/data-mate/api/modules/builder_types_IPRangeBuilder",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Data-Mate: `Builder Types IP Range Builder`",
+    "sidebar_label": "Builder Types IP Range Builder"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/ts-transforms/api/classes/operations_lib_transforms_base.default",
+  "title": "TS Transforms: `Operations Lib Transforms Base Default`",
+  "description": "operations/lib/transforms/base.default",
+  "source": "@site/../docs/packages/ts-transforms/api/classes/operations_lib_transforms_base.default.md",
+  "sourceDirName": "packages/ts-transforms/api/classes",
+  "slug": "/packages/ts-transforms/api/classes/operations_lib_transforms_base.default",
+  "permalink": "/teraslice/docs/packages/ts-transforms/api/classes/operations_lib_transforms_base.default",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "TS Transforms: `Operations Lib Transforms Base Default`",
+    "sidebar_label": "Operations Lib Transforms Base Default"
+  }
+}

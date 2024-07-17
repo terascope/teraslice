@@ -1,0 +1,19 @@
+{
+  "id": "packages/xlucene-translator/api/interfaces/translator_interfaces.TranslatorOptions",
+  "title": "xLucene Translator: `Translator Interfaces Translator Options`",
+  "description": "translator/interfaces.TranslatorOptions",
+  "source": "@site/../docs/packages/xlucene-translator/api/interfaces/translator_interfaces.TranslatorOptions.md",
+  "sourceDirName": "packages/xlucene-translator/api/interfaces",
+  "slug": "/packages/xlucene-translator/api/interfaces/translator_interfaces.TranslatorOptions",
+  "permalink": "/teraslice/docs/packages/xlucene-translator/api/interfaces/translator_interfaces.TranslatorOptions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "xLucene Translator: `Translator Interfaces Translator Options`",
+    "sidebar_label": "Translator Interfaces Translator Options"
+  }
+}

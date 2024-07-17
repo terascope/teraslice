@@ -1,0 +1,19 @@
+{
+  "id": "packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongRangeProperty",
+  "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Long Range Property`",
+  "description": "elasticsearch-client/elasticsearch-types.MappingLongRangeProperty",
+  "source": "@site/../docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongRangeProperty.md",
+  "sourceDirName": "packages/types/api/interfaces",
+  "slug": "/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongRangeProperty",
+  "permalink": "/teraslice/docs/packages/types/api/interfaces/elasticsearch_client_elasticsearch_types.MappingLongRangeProperty",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Types: `Elasticsearch Client Elasticsearch Types Mapping Long Range Property`",
+    "sidebar_label": "Elasticsearch Client Elasticsearch Types Mapping Long Range Property"
+  }
+}

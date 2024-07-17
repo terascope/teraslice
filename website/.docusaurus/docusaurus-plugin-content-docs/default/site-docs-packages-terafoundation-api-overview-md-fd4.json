@@ -1,0 +1,28 @@
+{
+  "id": "packages/terafoundation/api/overview",
+  "title": "Terafoundation API Overview",
+  "description": "-   api",
+  "source": "@site/../docs/packages/terafoundation/api/overview.md",
+  "sourceDirName": "packages/terafoundation/api",
+  "slug": "/packages/terafoundation/api/overview",
+  "permalink": "/teraslice/docs/packages/terafoundation/api/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Terafoundation API Overview",
+    "sidebar_label": "API"
+  },
+  "sidebar": "packages",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/terafoundation/overview"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/teraslice/docs/packages/teraslice/overview"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "packages/job-components/api/interfaces/operation_loader_interfaces.AssetRepository",
+  "title": "Job Components: `Operation Loader Interfaces Asset Repository`",
+  "description": "operation-loader/interfaces.AssetRepository",
+  "source": "@site/../docs/packages/job-components/api/interfaces/operation_loader_interfaces.AssetRepository.md",
+  "sourceDirName": "packages/job-components/api/interfaces",
+  "slug": "/packages/job-components/api/interfaces/operation_loader_interfaces.AssetRepository",
+  "permalink": "/teraslice/docs/packages/job-components/api/interfaces/operation_loader_interfaces.AssetRepository",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {
+    "title": "Job Components: `Operation Loader Interfaces Asset Repository`",
+    "sidebar_label": "Operation Loader Interfaces Asset Repository"
+  }
+}
