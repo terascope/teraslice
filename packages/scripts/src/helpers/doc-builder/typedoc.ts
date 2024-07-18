@@ -114,6 +114,16 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
         app.options.setValue('membersWithOwnFile', ['Class', 'Enum', 'Interface']);
         app.options.setValue('useHTMLAnchors', true);
         app.options.setValue('sanitizeComments', true);
+        app.options.setValue('indexFormat', 'table');
+        app.options.setValue('parametersFormat', 'table');
+
+        // this option causes errors with mdx
+        // app.options.setValue('enumMembersFormat', 'table');
+
+        // try these when we upgrade to version 4.1.0
+        // app.options.setValue('interfacePropertiesFormat', 'table');
+        // app.options.setValue('classPropertiesFormat', 'table');
+        // app.options.setValue('propertyMembersFormat', 'table');
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);
