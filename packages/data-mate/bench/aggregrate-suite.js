@@ -1,11 +1,9 @@
-'use strict';
-
-const { FieldType } = require('@terascope/types');
-const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/data.json');
-const {
+import { FieldType } from '@terascope/types';
+import { Suite } from './helpers.js';
+import { config, data } from './fixtures/data.json';
+import {
     DataFrame, isNumberLike, ValueAggregation, KeyAggregation
-} = require('./src');
+} from '../dist/src/index.js';
 
 const run = async () => {
     const suite = Suite('Aggregate');
@@ -49,6 +47,7 @@ const run = async () => {
         maxTime: 20,
     });
 };
+
 if (require.main === module) {
     run().then((suite) => {
         suite.on('complete', () => {});

@@ -1,10 +1,8 @@
-'use strict';
-
 // See: https://github.com/funkia/list/blob/master/test/bench/default-suite.js
 
 /* eslint-disable no-console, no-param-reassign */
 
-const benchmark = require('benchmark');
+import benchmark from 'benchmark';
 
 function Suite(name) {
     return new benchmark.Suite(name)

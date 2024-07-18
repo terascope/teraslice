@@ -1,8 +1,6 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/data.json');
-const { DataFrame } = require('./src');
+import { Suite } from './helpers.js';
+import { config, data } from './fixtures/data.json';
+import { DataFrame } from '../dist/src/index.js';
 
 const run = async () => {
     const suite = Suite('DataFrame->limit');
