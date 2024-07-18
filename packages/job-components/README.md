@@ -4,7 +4,7 @@
 
 > A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs
 
-This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/job-components/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fjob-components) associated with this package
+This is a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/job-components/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fjob-components) associated with this package
 
 ## Contributing
 
