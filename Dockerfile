@@ -44,6 +44,7 @@ EXPOSE 5678
 
 # set up the volumes
 VOLUME /app/config /app/logs /app/assets
+
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
 LABEL org.opencontainers.image.version="$TERASLICE_VERSION" \
