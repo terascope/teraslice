@@ -30,7 +30,8 @@ export default {
         let header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
         const format = `${cliConfig.args.output}Horizontal`;
 
-        if (await teraslice.type() === 'kubernetes') {
+        const clusterType = await teraslice.type();
+        if (clusterType === 'kubernetes' || clusterType === 'kubernetesV2') {
             // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version'];
         }

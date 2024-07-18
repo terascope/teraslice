@@ -12,9 +12,10 @@ import {
     DockerRunOptions,
     getContainerInfo,
     dockerStop,
-    dockerPull,
     k8sStartService,
-    k8sStopService
+    k8sStopService,
+    loadThenDeleteImageFromCache,
+    dockerPull
 } from '../scripts';
 import { Kind } from '../kind';
 import { TestOptions } from './interfaces';
@@ -160,11 +161,12 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
-export async function pullServices(suite: string, options: TestOptions): Promise<void> {
+export async function loadOrPullServiceImages(suite: string, options: TestOptions): Promise<void> {
     const launchServices = getServicesForSuite(suite);
 
     try {
         const images: string[] = [];
+        const loadFailedList: string[] = [];
 
         if (launchServices.includes(Service.Elasticsearch)) {
             const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
@@ -206,12 +208,25 @@ export async function pullServices(suite: string, options: TestOptions): Promise
             images.push(image);
         }
 
-        await Promise.all(images.map(async (image) => {
-            const label = `docker pull ${image}`;
-            signale.time(label);
-            await dockerPull(image);
-            signale.timeEnd(label);
-        }));
+        if (fs.existsSync(config.DOCKER_CACHE_PATH)) {
+            await Promise.all(images.map(async (imageName) => {
+                const success = await loadThenDeleteImageFromCache(imageName);
+                if (!success) {
+                    loadFailedList.push(imageName);
+                }
+            }));
+        } else {
+            loadFailedList.push(...images);
+        }
+
+        if (loadFailedList.length > 0) {
+            await Promise.all(loadFailedList.map(async (image) => {
+                const label = `docker pull ${image}`;
+                signale.time(label);
+                await dockerPull(image);
+                signale.timeEnd(label);
+            }));
+        }
     } catch (err) {
         throw new ts.TSError(err, {
             message: `Failed to pull services for test suite "${suite}", ${err.message}`
@@ -801,7 +816,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => { };
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         const kind = new Kind(options.k8sVersion, options.kindClusterName);
         await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);

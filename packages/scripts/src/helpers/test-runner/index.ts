@@ -6,14 +6,16 @@ import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
 } from '../misc';
-import { ensureServices, pullServices } from './services';
+import { ensureServices, loadOrPullServiceImages } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import {
     runJest,
     dockerTag,
     isKindInstalled,
-    isKubectlInstalled
+    isKubectlInstalled,
+    loadThenDeleteImageFromCache,
+    deleteDockerImageCache
 } from '../scripts';
 import { Kind } from '../kind';
 import {
@@ -103,6 +105,11 @@ async function runTestSuite(
     tracker: TestTracker,
 ): Promise<void> {
     if (suite === 'e2e') return;
+
+    if (isCI) {
+        // load the services from cache in CI
+        await loadOrPullServiceImages(suite, options);
+    }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
 
@@ -197,7 +204,7 @@ async function runE2ETest(
         throw new Error('Missing e2e test directory');
     }
 
-    if (options.testPlatform === 'kubernetes') {
+    if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
         try {
             const kindInstalled = await isKindInstalled();
             if (!kindInstalled && !isCI) {
@@ -213,6 +220,9 @@ async function runE2ETest(
 
             kind = new Kind(options.k8sVersion, options.kindClusterName);
             try {
+                if (isCI) {
+                    await loadThenDeleteImageFromCache('kindest/node:v1.30.0');
+                }
                 await kind.createCluster();
             } catch (err) {
                 signale.error(err);
@@ -229,9 +239,15 @@ async function runE2ETest(
     const rootInfo = getRootInfo();
     const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
 
-    if (isCI && options.testPlatform === 'native') {
-        // pull the services first in CI
-        await pullServices(suite, options);
+    if (isCI) {
+        // load service if in native. In k8s services will be loaded directly to kind
+        if (options.testPlatform === 'native') {
+            await loadOrPullServiceImages(suite, options);
+            await deleteDockerImageCache();
+        }
+
+        // load the base docker image
+        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
     }
 
     try {
@@ -252,7 +268,7 @@ async function runE2ETest(
         tracker.addError(err);
     }
 
-    if (options.testPlatform === 'kubernetes' && kind) {
+    if (kind && (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')) {
         try {
             await kind.loadTerasliceImage(e2eImage);
         } catch (err) {
@@ -268,6 +284,8 @@ async function runE2ETest(
     } catch (err) {
         tracker.addError(err);
     }
+
+    await deleteDockerImageCache();
 
     if (!tracker.hasErrors()) {
         const timeLabel = `test suite "${suite}"`;
@@ -308,7 +326,8 @@ async function runE2ETest(
         }
     }
 
-    if (options.testPlatform === 'kubernetes' && !options.keepOpen && kind) {
+    if ((options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2')
+        && !options.keepOpen && kind) {
         await kind.destroyCluster();
     }
 }

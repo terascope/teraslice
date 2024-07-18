@@ -1,9 +1,10 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import * as services from '../src/helpers/test-runner/services';
+import { TestOptions } from '../src/helpers/test-runner/interfaces';
 
 describe('services', () => {
-    const options = {
+    const options: TestOptions = {
         bail: false,
         debug: false,
         watch: false,
@@ -13,7 +14,6 @@ describe('services', () => {
         reportCoverage: false,
         useExistingServices: false,
         elasticsearchVersion: 'bad-version',
-        elasticsearchAPIVersion: '6.8',
         kafkaVersion: 'very-bad-version',
         kafkaImageVersion: 'very-bad-version',
         zookeeperVersion: 'very-bad-version',
@@ -27,9 +27,9 @@ describe('services', () => {
         kindClusterName: 'default'
     };
 
-    describe('pullServices', () => {
+    describe('loadOrPullServiceImages', () => {
         it('should throw error if service image is invalid', async () => {
-            await expect(services.pullServices('_for_testing_', options))
+            await expect(services.loadOrPullServiceImages('_for_testing_', options))
                 .rejects.toThrowWithMessage(TSError, /w*Failed to pull services for test suite*\w/);
         });
     });

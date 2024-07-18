@@ -393,7 +393,7 @@ export async function dockerBuild(
     tag: string,
     cacheFrom?: string[],
     target?: string,
-    buildArg?: string,
+    buildArgs?: string[],
     useDevFile?: boolean
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
@@ -403,7 +403,9 @@ export async function dockerBuild(
     });
 
     const targetArgs: string[] = target ? ['--target', target] : [];
-    const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
+    const buildsArgs: string[] = buildArgs
+        ? ['--build-arg', ...buildArgs.join(',--build-arg,').split(',')]
+        : [];
     const dockerFilePath = useDevFile ? ['-f', 'Dockerfile.dev', '.'] : ['.'];
 
     await fork({
@@ -423,6 +425,36 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+/**
+ * Unzips and loads a Docker image from a Docker cache
+ * If successful the image will be deleted from the cache
+ * @param {string} imageName Name of the image to load
+ * @returns {Promise<boolean>} Whether or not the image loaded successfully
+ */
+export async function loadThenDeleteImageFromCache(imageName: string): Promise<boolean> {
+    signale.time(`unzip and load ${imageName}`);
+    const fileName = imageName.trim().replace(/[/:]/g, '_');
+    const filePath = path.join(config.DOCKER_CACHE_PATH, `${fileName}.tar.gz`);
+    if (!fs.existsSync(filePath)) {
+        signale.error(`No file found at ${filePath}. Have you restored the cache?`);
+        return false;
+    }
+    const result = await execa.command(`gunzip -c ${filePath} | docker load`, { shell: true });
+    signale.info('Result: ', result);
+    if (result.exitCode !== 0) {
+        signale.error(`Error loading ${filePath} to docker`);
+        return false;
+    }
+    fs.rmSync(filePath);
+    signale.timeEnd(`unzip and load ${imageName}`);
+    return true;
+}
+
+export async function deleteDockerImageCache() {
+    signale.info(`Deleting Docker image cache at ${config.DOCKER_CACHE_PATH}`);
+    fse.removeSync(config.DOCKER_CACHE_PATH);
+}
+
 export async function pgrep(name: string): Promise<string> {
     const result = await exec({ cmd: 'ps', args: ['aux'] }, false);
     if (!result) {
@@ -437,6 +469,20 @@ export async function pgrep(name: string): Promise<string> {
         return found;
     }
     return '';
+}
+
+/**
+ * Save a docker image as a tar.gz to a local directory
+ * @param {string} imageName Name of image to pull and save
+ * @param {string} imageSavePath Location where image will be saved and compressed.
+ * @returns void
+ */
+export async function saveAndZip(imageName:string, imageSavePath: string) {
+    signale.info(`Saving Docker image: ${imageName}`);
+    const fileName = imageName.replace(/[/:]/g, '_');
+    const filePath = path.join(imageSavePath, `${fileName}.tar`);
+    const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
+    await execa.command(command, { shell: true });
 }
 
 export async function getCommitHash(): Promise<string> {

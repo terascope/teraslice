@@ -138,7 +138,14 @@ async function publishToDocker(options: PublishOptions) {
         }
         signale.debug(`building docker image ${imageToBuild}`);
 
-        await dockerBuild(imageToBuild, [devImage], undefined, `NODE_VERSION=${options.nodeVersion}`);
+        const buildTimestamp = new Date().toISOString();
+        const sha = process.env.GITHUB_SHA;
+        const { version } = getRootInfo();
+        await dockerBuild(imageToBuild,
+            [devImage],
+            undefined,
+            [`NODE_VERSION=${options.nodeVersion}`, `TERASLICE_VERSION=${version}`, `BUILD_TIMESTAMP=${buildTimestamp}`, `GITHUB_SHA=${sha}`]
+        );
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);

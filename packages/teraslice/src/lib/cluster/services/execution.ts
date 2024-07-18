@@ -479,7 +479,9 @@ export class ExecutionService {
                     }));
                 }
 
-                if (this.context.sysconfig.teraslice.cluster_manager_type === 'kubernetes') {
+                const clusteringType = this.context.sysconfig.teraslice.cluster_manager_type;
+                if (clusteringType === 'kubernetes' || clusteringType === 'kubernetesV2'
+                ) {
                     // Since this condition is only hit in cases where the pods
                     // are never scheduled, all this call to stopExecution
                     // accomplishes is to delete the k8s resources, which is
