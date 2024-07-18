@@ -7,7 +7,7 @@ import {
     DataTypeFieldAndChildren,
     FunctionDefinitionCategory,
     FunctionDefinitionExample,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface ExtractArgs {
     regex?: string;

@@ -3,7 +3,7 @@ import { isString, isEmpty } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory, FunctionDefinitionExample
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface EmptyArgs {
     /** Trims string input */

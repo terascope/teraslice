@@ -1,8 +1,9 @@
 import { FieldType } from '@terascope/types';
 import { getMonth } from '@terascope/utils';
 import {
-    ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory, FieldTransformConfig
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory,
+} from '../interfaces.js';
 
 export const getMonthConfig: FieldTransformConfig = {
     name: 'getMonth',

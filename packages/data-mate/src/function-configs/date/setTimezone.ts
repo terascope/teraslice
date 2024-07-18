@@ -1,15 +1,12 @@
 import { FieldType } from '@terascope/types';
 import {
-    isNumber,
-    isString,
-    setTimezoneFP,
-    timezoneToOffset,
-    toISO8601
+    isNumber, isString, setTimezoneFP,
+    timezoneToOffset, toISO8601
 } from '@terascope/utils';
 import {
     ProcessMode, FunctionDefinitionType, FunctionDefinitionCategory,
     FieldTransformConfig
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface SetTimezoneArgs {
     timezone: number | string

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { FieldTransform } from '../src';
+import { FieldTransform } from '../src/index.js';
 
 function encodeBase64(input: any) {
     return Buffer.from(input).toString('base64');

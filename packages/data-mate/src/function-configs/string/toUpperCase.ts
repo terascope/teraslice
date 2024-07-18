@@ -4,7 +4,7 @@ import {
     ProcessMode,
     FunctionDefinitionType,
     FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 function _toUpperCase(input: unknown): string {
     return String(input).toUpperCase();

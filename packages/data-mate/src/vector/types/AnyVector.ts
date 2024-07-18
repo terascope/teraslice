@@ -1,6 +1,6 @@
 import { toJSONCompatibleValue as toJSONCompatValue, isNil } from '@terascope/utils';
-import { Vector, VectorOptions } from '../Vector';
-import { VectorType, DataBuckets, SerializeOptions } from '../interfaces';
+import { Vector, VectorOptions } from '../Vector.js';
+import { VectorType, DataBuckets, SerializeOptions } from '../interfaces.js';
 
 export class AnyVector extends Vector<any> {
     getComparableValue = undefined;

@@ -1,5 +1,4 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import { AnyObject } from '@terascope/utils';
 
 export type ArgSchema = Config & { description?: string };
 
@@ -27,7 +26,7 @@ interface Config {
     [key: string]: DataTypeFieldConfig;
 }
 
-export type RecordInput = AnyObject | AnyObject[];
+export type RecordInput = Record<string, any> | Record<string, any>[];
 
 export interface ExtractFieldConfig {
     regex?: string;

@@ -2,7 +2,7 @@ import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionExample, FunctionDefinitionCategory,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface SplitArgs {
     delimiter?: string;

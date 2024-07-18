@@ -13,7 +13,7 @@ import {
     xLuceneFieldType,
     GeoShapeRelation
 } from '@terascope/types';
-import { isGeoShapePoint } from '../validations/field-validator';
+import { isGeoShapePoint } from '../validations/field-validator.js';
 
 // TODO: move these
 export type JoinBy = 'AND'|'OR';

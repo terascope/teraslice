@@ -3,7 +3,7 @@ import { isBetween, isValidDate } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsBetweenArgs {
     start: string | number | Date | DateTuple;

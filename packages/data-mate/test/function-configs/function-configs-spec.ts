@@ -1,12 +1,12 @@
 import 'jest-extended';
-import { promises as fsp } from 'fs';
-import path from 'path';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
 import { uniq } from '@terascope/utils';
 import {
     functionConfigRepository,
     FunctionDefinitionConfig,
-} from '../../src';
-import { functionTestHarness } from './functionTestHarness';
+} from '../../src/index.js';
+import { functionTestHarness } from './functionTestHarness.js';
 
 describe('function configs', () => {
     Object.entries(functionConfigRepository).forEach(([key, fnDef]) => {

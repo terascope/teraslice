@@ -3,7 +3,7 @@ import { startsWithFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface StartsWithArgs {
     value: string

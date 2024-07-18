@@ -3,7 +3,7 @@ import { isUnixTimeFP } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsEpochArgs {
     allowBefore1970?: boolean;

@@ -1,11 +1,9 @@
 import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import isIP from 'is-ip';
-import {
-    isInfiniteMin, isInfiniteMax, ParsedRange
-} from 'xlucene-parser';
+import { isInfiniteMin, isInfiniteMax, ParsedRange } from 'xlucene-parser';
 import { isString, isNonZeroCidr } from '@terascope/utils';
-import { BooleanCB } from '../interfaces';
+import { BooleanCB } from '../interfaces.js';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';

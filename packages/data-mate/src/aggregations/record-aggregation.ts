@@ -1,8 +1,13 @@
-import * as ts from '@terascope/utils';
+import {
+    get, isNil, isString, getTypeOf, uniq,
+    isPlainObject, isNumber, isBoolean,
+    isEmpty, mapValues, filterObject,
+    toString
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
-import { BatchConfig, ValidatedBatchConfig } from './interfaces';
-import { Repository, InputType, ArgSchema } from '../interfaces';
-import { isArray } from '../validations/field-validator';
+import { BatchConfig, ValidatedBatchConfig } from './interfaces.js';
+import { Repository, InputType, ArgSchema } from '../interfaces.js';
+import { isArray } from '../validations/field-validator.js';
 
 const batchConfigSchema: ArgSchema = {
     keys: {
@@ -57,11 +62,11 @@ export const repository: Repository = {
 };
 
 function validateConfig(config: BatchConfig): ValidatedBatchConfig {
-    if (!ts.isPlainObject(config)) throw new Error('Paramter config must be provided and be an object');
-    if (!ts.isString(config.source)) throw new Error(`Parameter source must be provided and be a string, received ${ts.getTypeOf(config.source)}`);
-    if (config.target && !ts.isString(config.target)) throw new Error(`Parameter target must be a string, received ${ts.getTypeOf(config.target)}`);
+    if (!isPlainObject(config)) throw new Error('Paramter config must be provided and be an object');
+    if (!isString(config.source)) throw new Error(`Parameter source must be provided and be a string, received ${getTypeOf(config.source)}`);
+    if (config.target && !isString(config.target)) throw new Error(`Parameter target must be a string, received ${getTypeOf(config.target)}`);
 
-    if (ts.isNil(config.target)) config.target = config.source;
+    if (isNil(config.target)) config.target = config.source;
     // TODO: should we enforce keys are strings? maps and sets can have non string keys
     const keys = config.keys || [];
     config.keys = keys;
@@ -70,8 +75,8 @@ function validateConfig(config: BatchConfig): ValidatedBatchConfig {
 }
 
 function _getNumbers(input: any) {
-    if (ts.isNumber(input)) return [input];
-    if (isArray(input)) return input.filter(ts.isNumber);
+    if (isNumber(input)) return [input];
+    if (isArray(input)) return input.filter(isNumber);
 
     return [];
 }
@@ -85,12 +90,12 @@ function _filterValues(input: any) {
 }
 
 function _isValueNotEmpty(data: any): boolean {
-    return ts.isNumber(data) || ts.isBoolean(data) || !ts.isEmpty(data);
+    return isNumber(data) || isBoolean(data) || !isEmpty(data);
 }
 
 interface AggregationResults {
     data: AggregationData;
-    keyRecord: ts.AnyObject;
+    keyRecord: Record<string, any>;
 }
 
 interface AggregationData {
@@ -107,7 +112,7 @@ function _iterateBatch(batch: Batch, fn: any) {
     const results: any[] = [];
 
     for (const aggregationConfig of batch.values()) {
-        const aggResults = ts.mapValues(aggregationConfig.data, fn);
+        const aggResults = mapValues(aggregationConfig.data, fn);
         const aggregation = Object.assign({}, aggregationConfig.keyRecord, aggResults);
         results.push(aggregation);
     }
@@ -126,14 +131,14 @@ function batchByKeys(input: any, config: ValidatedBatchConfig, filterFn: FilterF
     // we batch based of target key since it will be collapsed
 
     for (const record of data) {
-        const rawFieldData = ts.get(record, source);
+        const rawFieldData = get(record, source);
         const fieldData = filterFn(rawFieldData);
 
-        if (ts.isNil(fieldData)) continue;
+        if (isNil(fieldData)) continue;
 
-        const keyRecord = hasKeys ? ts.filterObject(record, filterConfig) : { [target]: true };
+        const keyRecord = hasKeys ? filterObject(record, filterConfig) : { [target]: true };
         const key = Object.keys(keyRecord)
-            .map((objKey) => `${objKey}-${ts.toString(keyRecord[objKey])}`)
+            .map((objKey) => `${objKey}-${toString(keyRecord[objKey])}`)
             .join(':');
 
         if (batch.has(key)) {
@@ -155,17 +160,17 @@ export function unique(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
 ): any[] | null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _filterValues);
-    return _iterateBatch(batchData, ts.uniq);
+    return _iterateBatch(batchData, uniq);
 }
 
 export function count(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
 ): any[]|null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _filterValues);
     const results = _iterateBatch(batchData, _length);
@@ -179,7 +184,7 @@ function _length(val: any[]) {
 
 export function sum(input: unknown, _parentContext: unknown, batchConfig: BatchConfig): any[]|null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _getNumbers);
     return _iterateBatch(batchData, _sum);
@@ -193,7 +198,7 @@ export function avg(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
 ): any[]|null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _getNumbers);
     return _iterateBatch(batchData, _avg);
@@ -208,7 +213,7 @@ export function min(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
 ): any[]|null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _getNumbers);
     return _iterateBatch(batchData, (num: number[]) => Math.min.apply(null, num));
@@ -218,7 +223,7 @@ export function max(
     input: unknown, _parentContext: unknown, batchConfig: BatchConfig
 ): any[]|null {
     const config = validateConfig(batchConfig);
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _getNumbers);
     return _iterateBatch(batchData, (num: number[]) => Math.max.apply(null, num));

@@ -9,7 +9,7 @@ import {
     Column,
     FunctionDefinitionExample,
     getDataTypeFieldAndChildren,
-} from '../../src';
+} from '../../src/index.js';
 
 /**
  * This tests a function config

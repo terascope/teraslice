@@ -3,7 +3,7 @@ import { toTimeZoneUsingLocationFP } from '@terascope/utils';
 import {
     FieldTransformConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface toTimeZoneUsingLocationArgs {
     location: GeoInput;

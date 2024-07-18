@@ -3,7 +3,7 @@ import { FieldType } from '@terascope/types';
 import {
     functionConfigRepository, Column, dataFrameAdapter, DataFrame,
     IsLengthArgs, GetTimezoneOffsetArgs,
-} from '../../src';
+} from '../../src/index.js';
 
 const isLengthConfig = functionConfigRepository.isLength;
 const getTimezoneOffsetConfig = functionConfigRepository.getTimezoneOffset;

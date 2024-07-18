@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { DataTypeFieldAndChildren } from '../interfaces';
+import { DataTypeFieldAndChildren } from '../interfaces.js';
 
 export function isIS8601FieldConfig(inputConfig: DataTypeFieldAndChildren|undefined): boolean {
     if (inputConfig?.field_config?.type !== FieldType.Date) return false;

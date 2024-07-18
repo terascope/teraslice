@@ -1,11 +1,9 @@
 import { DateFormat, FieldType } from '@terascope/types';
 import { parseDateValue, toISO8601 } from '@terascope/utils';
 import {
-    FieldTransformConfig,
-    ProcessMode,
-    FunctionDefinitionType,
-    FunctionDefinitionCategory,
-} from '../interfaces';
+    FieldTransformConfig, ProcessMode, FunctionDefinitionType,
+    FunctionDefinitionCategory
+} from '../interfaces.js';
 
 export interface ToDateArgs {
     format?: string|DateFormat;

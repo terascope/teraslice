@@ -1,19 +1,17 @@
+import { DataTypeFields, FieldType } from '@terascope/types';
 import {
-    DataTypeFields,
-    FieldType
-} from '@terascope/types';
-import {
-    isNumber, isBigInt, getTypeOf, isArrayLike, TSError, ipToInt, isIP
+    isNumber, isBigInt, getTypeOf, isArrayLike,
+    TSError, ipToInt, isIP
 } from '@terascope/utils';
-import { ListVector } from './ListVector';
+import { ListVector } from './ListVector.js';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
     ObjectVector, StringVector, IPVector, IPRangeVector,
     TupleVector, GeoBoundaryVector,
-} from './types';
-import { Vector, VectorOptions } from './Vector';
-import { DataBuckets } from './interfaces';
+} from './types/index.js';
+import { Vector, VectorOptions } from './Vector.js';
+import { DataBuckets } from './interfaces.js';
 
 export function _newVector<T>(
     data: DataBuckets<any>,

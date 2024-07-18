@@ -3,10 +3,8 @@ import isEqual from 'date-fns/isEqual';
 import subMilliseconds from 'date-fns/subMilliseconds';
 import addMilliseconds from 'date-fns/addMilliseconds';
 import { getValidDate } from '@terascope/utils';
-import {
-    isInfiniteMax, isInfiniteMin, ParsedRange
-} from 'xlucene-parser';
-import { BooleanCB } from '../interfaces';
+import { isInfiniteMax, isInfiniteMin, ParsedRange } from 'xlucene-parser';
+import { BooleanCB } from '../interfaces.js';
 
 // TODO: handle datemath
 

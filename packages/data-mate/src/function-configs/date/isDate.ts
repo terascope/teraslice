@@ -4,7 +4,7 @@ import { isValidDate, primitiveToString } from '@terascope/utils';
 import {
     FieldValidateConfig, ProcessMode, FunctionDefinitionType,
     FunctionDefinitionCategory
-} from '../interfaces';
+} from '../interfaces.js';
 
 export interface IsDateArgs {
     format?: string|DateFormat;

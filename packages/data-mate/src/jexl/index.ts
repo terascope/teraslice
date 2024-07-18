@@ -1,19 +1,23 @@
 import jexlCore from 'jexl';
-import * as ts from '@terascope/utils';
-import { FieldType } from '@terascope/types';
-import { FieldTransform } from '../transforms';
-import { FieldValidator, RecordValidator } from '../validations';
 import {
-    Repository, InputType, RepoConfig, ExtractFieldConfig, RecordInput
-} from '../interfaces';
+    isNil, matchAll, isNotNil,
+    isObjectEntity, TSError
+} from '@terascope/utils';
+import { FieldType } from '@terascope/types';
+import { FieldTransform } from '../transforms/index.js';
+import { FieldValidator, RecordValidator } from '../validations/index.js';
+import {
+    Repository, InputType, RepoConfig,
+    ExtractFieldConfig, RecordInput
+} from '../interfaces.js';
 
 class Jexl extends jexlCore.Jexl {
     _context = {};
 
-    evalSync(expression: string, _context: ts.AnyObject | undefined) {
+    evalSync(expression: string, _context: Record<string, any> | undefined) {
         let context;
 
-        if (ts.isNil(_context)) {
+        if (isNil(_context)) {
             context = this._context;
         } else {
             context = _context;
@@ -33,11 +37,11 @@ const bridgeToJexl = (fn: any) => {
     // @ts-expect-error
     const jexlInstance = this ? this.jexl : undefined;
 
-    return (value: any, _context: ts.AnyObject | undefined, _config: any) => {
+    return (value: any, _context: Record<string, any> | undefined, _config: any) => {
         let config;
         let context;
 
-        if (ts.isNil(config) && jexlInstance) {
+        if (isNil(config) && jexlInstance) {
             context = jexlInstance._context;
             config = _context;
         } else {
@@ -79,12 +83,12 @@ export const extractConfig: RepoConfig = {
 
 export function extract(
     input: any,
-    parentContext: ts.AnyObject,
+    parentContext: Record<string, any>,
     {
         regex, isMultiValue = true, jexlExp, start, end
     }: ExtractFieldConfig
 ): RecordInput|null {
-    if (ts.isNil(input)) return null;
+    if (isNil(input)) return null;
 
     function getSubslice() {
         const indexStart = input.indexOf(start);
@@ -131,7 +135,7 @@ export function extract(
     }
 
     function matchRegex() {
-        const results = ts.matchAll(regex as string, input);
+        const results = matchAll(regex as string, input);
         if (isMultiValue) return results;
         return results ? results[0] : results;
     }
@@ -140,7 +144,7 @@ export function extract(
         try {
             return jexl.evalSync(jexlExp as string, parentContext);
         } catch (err) {
-            throw new ts.TSError(err, {
+            throw new TSError(err, {
                 message: `Invalid jexl expression: ${jexlExp}`
             });
         }
@@ -183,25 +187,25 @@ export function transformRecord(
     parentContext: RecordInput,
     args: { jexlExp: string; field: string }
 ): RecordInput|null {
-    if (ts.isNil(input)) return null;
-    if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
+    if (isNil(input)) return null;
+    if (isNil(args)) throw new Error('Argument parameters must be provided');
     if (!FieldValidator.isString(args.jexlExp) || !FieldValidator.isLength(args.jexlExp, parentContext, { min: 1 })) throw new Error('Argument parameter jexlExp must must be provided and be a string value');
     if (!FieldValidator.isString(args.field) || !FieldValidator.isLength(args.field, parentContext, { min: 1 })) throw new Error('Argument parameter field must must be provided and be a string value');
 
     if (FieldValidator.isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectEntity(data)) return null;
+                if (!isObjectEntity(data)) return null;
                 const value = jexl.evalSync(args.jexlExp, data);
-                if (ts.isNotNil(value)) data[args.field] = value;
+                if (isNotNil(value)) data[args.field] = value;
                 return data;
             })
-            .filter(ts.isNotNil);
+            .filter(isNotNil);
     }
 
-    if (!ts.isObjectEntity(input)) return null;
+    if (!isObjectEntity(input)) return null;
 
     const value = jexl.evalSync(args.jexlExp, input);
-    if (ts.isNotNil(value)) input[args.field] = value;
+    if (isNotNil(value)) input[args.field] = value;
     return input;
 }

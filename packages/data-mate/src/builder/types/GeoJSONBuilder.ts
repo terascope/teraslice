@@ -1,8 +1,8 @@
 import { GeoShape } from '@terascope/types';
 import { coerceToType } from '@terascope/utils';
-import { WritableData } from '../../core';
-import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../Builder';
+import { WritableData } from '../../core/index.js';
+import { VectorType } from '../../vector/index.js';
+import { Builder, BuilderOptions } from '../Builder.js';
 
 export class GeoJSONBuilder extends Builder<GeoShape> {
     _valueFrom = coerceToType<GeoShape>(this.config, this.childConfig);
