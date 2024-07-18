@@ -24,7 +24,7 @@ async function writeDocFile(
     // fix path
     contents = contents
         // eslint-disable-next-line no-useless-escape
-        .replace(/(\]\([\w\.\/]*)README\.md/g, '$1overview.md');
+        .replace(/(\]\([\w\.\/\-]*)README\.md/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
@@ -78,6 +78,10 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
             title: `${displayName}: \`${component}\``,
             sidebarLabel: component,
         });
+        if (fileName === 'README') {
+            const pathOnly = path.dirname(filePath);
+            await fse.rename(filePath, path.join(pathOnly, 'overview.md'));
+        }
     });
 
     await Promise.all(promises);
@@ -104,6 +108,12 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
             },
             [new TSConfigReader()]
         );
+
+        // typedoc-plugin-markdown specific options
+        app.options.setValue('outputFileStrategy', 'members');
+        app.options.setValue('membersWithOwnFile', ['Class', 'Enum', 'Interface']);
+        app.options.setValue('useHTMLAnchors', true);
+        app.options.setValue('sanitizeComments', true);
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);
