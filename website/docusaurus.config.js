@@ -45,6 +45,25 @@ module.exports = {
     plugins: [],
     markdown: {
         mermaid: true,
+        parseFrontMatter: async (params) => {
+            // Wrap title value in double quotes if it has illegal character ':'
+            if (params?.fileContent.startsWith('---\n' + 'title: ')) {
+                const lines = params.fileContent.split('\n');
+                const titleLine = lines[1];
+                const lineParts = titleLine.split(':');
+                if (lineParts.length > 2) { // there are 2 or more colons
+                    let lineValue = titleLine.slice(7);
+                    if (lineValue && lineValue.includes(':')) {
+                        lineValue = `"${lineValue}"`;
+                        lines[1] = `${lineParts[0]}: ${lineValue}`;
+                        params.fileContent = lines.join('\n');
+                    }
+                }
+            }
+            const result = await params.defaultParseFrontMatter(params);
+            return result;
+        }
+
     },
     themes: ['@docusaurus/theme-mermaid'],
     themeConfig: {
