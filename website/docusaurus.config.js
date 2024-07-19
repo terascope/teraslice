@@ -135,7 +135,7 @@ module.exports = {
                     ],
                 },
             ],
-            copyright: 'Copyright © 2024 Terascope, LLC',
+            copyright: `Copyright © ${new Date().getFullYear()} Terascope, LLC`,
             logo: {
                 src: 'img/logo.png'
             }
@@ -143,7 +143,7 @@ module.exports = {
         algolia: {
             appId: 'KD1DQTOI4M',
             apiKey: '39a27eca4d31c921b2b412344351996e',
-            indexName: 'terascope_teraslice.tmp'
+            indexName: 'terascope_teraslice'
         },
         mermaid: {
             theme: {
