@@ -232,7 +232,7 @@ $ curl 'localhost:5678/v1/jobs'
 ]
 ```
 
-## GET /v1/jobs/{jobId};
+## GET /v1/jobs/&#123;jobId&#125;
 
 Returns the job that matches given job id.
 
