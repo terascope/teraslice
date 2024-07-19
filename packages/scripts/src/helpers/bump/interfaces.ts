@@ -1,5 +1,5 @@
 import { ReleaseType } from 'semver';
-import { PackageInfo } from '../interfaces';
+import { PackageInfo } from '../interfaces.js';
 
 export interface BumpAssetOnlyOptions {
     preId?: string;

@@ -1,12 +1,12 @@
 import { ReleaseType } from 'semver';
 import { CommandModule } from 'yargs';
 import { castArray } from '@terascope/utils';
-import { coercePkgArg } from '../helpers/args';
-import { bumpPackages } from '../helpers/bump';
-import { PackageInfo } from '../helpers/interfaces';
-import { syncAll } from '../helpers/sync';
-import { getRootInfo } from '../helpers/misc';
-import signale from '../helpers/signale';
+import { coercePkgArg } from '../helpers/args.js';
+import { bumpPackages } from '../helpers/bump/index.js';
+import { PackageInfo } from '../helpers/interfaces.js';
+import { syncAll } from '../helpers/sync/index.js';
+import { getRootInfo } from '../helpers/misc.js';
+import signale from '../helpers/signale.js';
 
 const releaseChoices: readonly ReleaseType[] = [
     'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
@@ -112,4 +112,4 @@ function getRelease(argv: any): ReleaseType {
     return found[0];
 }
 
-export = cmd;
+export default cmd;

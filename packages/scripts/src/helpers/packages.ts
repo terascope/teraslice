@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import fse from 'fs-extra';
 import semver from 'semver';
 import globby from 'globby';
@@ -10,8 +10,11 @@ import toposort from 'toposort';
 import MultiMap from 'mnemonist/multi-map';
 import packageJson from 'package-json';
 import sortPackageJson from 'sort-package-json';
-import * as misc from './misc';
-import * as i from './interfaces';
+import {
+    getRootDir, getRootInfo, getName,
+    writeIfChanged
+} from './misc.js';
+import * as i from './interfaces.js';
 
 let _packages: i.PackageInfo[] = [];
 let _e2eDir: string|undefined;
@@ -20,8 +23,8 @@ let _e2e_k8s_dir: string|undefined;
 export function getE2EDir(): string|undefined {
     if (_e2eDir) return _e2eDir;
 
-    if (fs.existsSync(path.join(misc.getRootDir(), 'e2e'))) {
-        _e2eDir = path.join(misc.getRootDir(), 'e2e');
+    if (fs.existsSync(path.join(getRootDir(), 'e2e'))) {
+        _e2eDir = path.join(getRootDir(), 'e2e');
         return _e2eDir;
     }
 
@@ -31,8 +34,8 @@ export function getE2EDir(): string|undefined {
 export function getE2eK8sDir(): string|undefined {
     if (_e2e_k8s_dir) return _e2e_k8s_dir;
 
-    if (fs.existsSync(path.join(misc.getRootDir(), 'e2e/k8s'))) {
-        _e2e_k8s_dir = path.join(misc.getRootDir(), 'e2e/k8s');
+    if (fs.existsSync(path.join(getRootDir(), 'e2e/k8s'))) {
+        _e2e_k8s_dir = path.join(getRootDir(), 'e2e/k8s');
         return _e2e_k8s_dir;
     }
 
@@ -67,7 +70,7 @@ export function listPackages(
 ): i.PackageInfo[] {
     if (!ignoreCache && _packages && _packages.length) return _packages.slice();
 
-    const rootPkg = misc.getRootInfo();
+    const rootPkg = getRootInfo();
     if (!rootPkg.workspaces) return [];
 
     const workspaces = (
@@ -82,7 +85,7 @@ export function listPackages(
     if (!hasE2E) {
         workspaces.push('e2e');
     }
-    const workspacePaths = _resolveWorkspaces(workspaces, misc.getRootDir());
+    const workspacePaths = _resolveWorkspaces(workspaces, getRootDir());
     const packages = workspacePaths
         .map(_loadPackage)
         .filter((pkg): pkg is i.PackageInfo => pkg?.name != null);
@@ -151,7 +154,7 @@ function getSortedPackages(packages: i.PackageInfo[]): readonly string[] {
 }
 
 export function getWorkspaceNames(): string[] {
-    const rootDir = misc.getRootDir();
+    const rootDir = getRootDir();
     const rootName = path.basename(rootDir);
     return uniq(
         listPackages()
@@ -183,7 +186,7 @@ export function isMainPackage(pkgInfo: i.PackageInfo): boolean {
 export function readPackageInfo(folderPath: string): i.PackageInfo {
     const dir = path.isAbsolute(folderPath)
         ? path.join(folderPath)
-        : path.join(misc.getRootDir(), folderPath);
+        : path.join(getRootDir(), folderPath);
 
     const pkgJSONPath = path.join(dir, 'package.json');
     const pkgJSON = getSortedPkgJSON(fse.readJSONSync(pkgJSONPath));
@@ -223,7 +226,7 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
         pkgInfo.terascope.enableTypedoc = false;
     }
 
-    const rootInfo = misc.getRootInfo();
+    const rootInfo = getRootInfo();
 
     if (!pkgInfo.private && !pkgInfo.terascope.asset) {
         if (!pkgInfo.publishConfig) {
@@ -245,7 +248,7 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
     pkgInfo.relativeDir = path.relative(rootInfo.dir, pkgInfo.dir);
 
     if (!pkgInfo.displayName) {
-        pkgInfo.displayName = misc.getName(pkgInfo.folderName);
+        pkgInfo.displayName = getName(pkgInfo.folderName);
     }
 
     if (!pkgInfo.license) {
@@ -268,7 +271,7 @@ export function updatePkgJSON(
     delete pkgJSON.terascope?.asset;
     delete pkgJSON.dir;
     delete pkgJSON.relativeDir;
-    return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
+    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
 }

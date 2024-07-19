@@ -1,20 +1,17 @@
 import execa from 'execa';
 import {
-    dockerTag,
-    isKindInstalled,
-    isKubectlInstalled,
-    k8sStartService,
-    k8sStopService,
-} from '../scripts';
-import { Kind } from '../kind';
-import { K8sEnvOptions } from './interfaces';
-import signale from '../signale';
-import { getDevDockerImage, getRootInfo } from '../misc';
-import { buildDevDockerImage } from '../publish/utils';
-import { PublishOptions, PublishType } from '../publish/interfaces';
-import * as config from '../config';
-import { ensureServices } from '../test-runner/services';
-import { K8s } from './k8s';
+    dockerTag, isKindInstalled, isKubectlInstalled,
+    k8sStartService, k8sStopService,
+} from '../scripts.js';
+import { Kind } from '../kind.js';
+import { K8sEnvOptions } from './interfaces.js';
+import signale from '../signale.js';
+import { getDevDockerImage, getRootInfo } from '../misc.js';
+import { buildDevDockerImage } from '../publish/utils.js';
+import { PublishOptions, PublishType } from '../publish/interfaces.js';
+import * as config from '../config.js';
+import { ensureServices } from '../test-runner/services.js';
+import { K8s } from './k8s.js';
 
 const rootInfo = getRootInfo();
 const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;

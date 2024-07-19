@@ -5,32 +5,27 @@ import {
 import {
     writePkgHeader, writeHeader, getRootDir,
     getRootInfo, getAvailableTestSuites, getDevDockerImage,
-} from '../misc';
-import { ensureServices, loadOrPullServiceImages } from './services';
-import { PackageInfo } from '../interfaces';
-import { TestOptions } from './interfaces';
+} from '../misc.js';
+import { ensureServices, loadOrPullServiceImages } from './services.js';
+import { PackageInfo } from '../interfaces.js';
+import { TestOptions } from './interfaces.js';
 import {
-    runJest,
-    dockerTag,
-    isKindInstalled,
-    isKubectlInstalled,
-    loadThenDeleteImageFromCache,
+    runJest, dockerTag, isKindInstalled,
+    isKubectlInstalled, loadThenDeleteImageFromCache,
     deleteDockerImageCache
-} from '../scripts';
-import { Kind } from '../kind';
+} from '../scripts.js';
+import { Kind } from '../kind.js';
 import {
     getArgs, filterBySuite, reportCoverage,
     logE2E, getEnv, groupBySuite
-} from './utils';
-import signale from '../signale';
-import {
-    getE2EDir, readPackageInfo, listPackages
-} from '../packages';
-import { buildDevDockerImage } from '../publish/utils';
-import { PublishOptions, PublishType } from '../publish/interfaces';
-import { TestTracker } from './tracker';
-import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config';
-import { K8s } from '../k8s-env/k8s';
+} from './utils.js';
+import signale from '../signale.js';
+import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
+import { buildDevDockerImage } from '../publish/utils.js';
+import { PublishOptions, PublishType } from '../publish/interfaces.js';
+import { TestTracker } from './tracker.js';
+import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config.js';
+import { K8s } from '../k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 

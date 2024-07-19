@@ -9,6 +9,7 @@
     },
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
+    "type": "module",
     "author": "Terascope, LLC <info@terascope.io>",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",

@@ -2,26 +2,21 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import * as ts from '@terascope/utils';
 import { Kafka } from 'kafkajs';
 import execa from 'execa';
-import { getServicesForSuite, getRootDir } from '../misc';
+import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
-    dockerRun,
-    DockerRunOptions,
-    getContainerInfo,
-    dockerStop,
-    k8sStartService,
-    k8sStopService,
-    loadThenDeleteImageFromCache,
-    dockerPull
-} from '../scripts';
-import { Kind } from '../kind';
-import { TestOptions } from './interfaces';
-import { Service } from '../interfaces';
-import * as config from '../config';
-import signale from '../signale';
+    dockerRun, DockerRunOptions, getContainerInfo,
+    dockerStop, k8sStartService, k8sStopService,
+    loadThenDeleteImageFromCache, dockerPull
+} from '../scripts.js';
+import { Kind } from '../kind.js';
+import { TestOptions } from './interfaces.js';
+import { Service } from '../interfaces.js';
+import * as config from '../config.js';
+import signale from '../signale.js';
 
 const logger = ts.debugLogger('ts-scripts:cmd:test');
 

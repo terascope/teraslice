@@ -1,7 +1,7 @@
 import { CommandModule } from 'yargs';
 import { isCI } from '@terascope/utils';
-import { syncAll } from '../helpers/sync';
-import { GlobalCMDOptions } from '../helpers/interfaces';
+import { syncAll } from '../helpers/sync/index.js';
+import { GlobalCMDOptions } from '../helpers/interfaces.js';
 
 type Options = {
     verify: boolean;
@@ -40,4 +40,4 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
-export = cmd;
+export default cmd;

@@ -1,7 +1,7 @@
-import path from 'path';
-import { Hook } from './interfaces';
-import { getRootInfo } from './misc';
-import signale from './signale';
+import path from 'node:path';
+import { Hook } from './interfaces.js';
+import { getRootInfo } from './misc.js';
+import signale from './signale.js';
 
 /**
  * If the terascope.hook_file is set in the root package.json

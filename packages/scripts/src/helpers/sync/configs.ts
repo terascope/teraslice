@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { isString } from '@terascope/utils';
-import { getRootInfo, writeIfChanged } from '../misc';
-import { PackageInfo } from '../interfaces';
+import { getRootInfo, writeIfChanged } from '../misc.js';
+import { PackageInfo } from '../interfaces.js';
 
 export async function generateTSConfig(
     pkgInfos: PackageInfo[], log: boolean
