@@ -1,5 +1,5 @@
 ---
-title: Files (file-assets)
+title: "Files (file-assets)"
 sidebar_label: Files
 ---
 

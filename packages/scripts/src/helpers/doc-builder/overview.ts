@@ -24,7 +24,7 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
 
 > ${pkgInfo.description}
 
-This a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
+This is a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
     rootInfo.documentation
 }/${isGithub ? docsPath : `${docsPath}.md`}) for more information or the [issues](${issuesUrl}) associated with this package
 

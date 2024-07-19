@@ -267,7 +267,7 @@ zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description
 ```
 
-## GET /txt/assets/{assetName}
+## GET /txt/assets/&#123;assetName&#125;
 
 Returns a text table of all assets by the given name, sorted by the most recent at the top.
 
@@ -308,7 +308,7 @@ zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 ```
 
-## GET /txt/assets/{assetName}/{version}
+## GET /txt/assets/&#123;assetName&#125;/&#123;version&#125;
 
 Returns a text table of all assets by a given name and version, sorted by the most recent at the top.
 
