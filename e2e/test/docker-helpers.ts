@@ -36,15 +36,41 @@ export async function dockerUp() {
     });
     signale.success('Docker environment is good to go', getElapsed(startTime));
 
-    let e2eNodeVersion = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
-    signale.info('Teraslice node version: ', e2eNodeVersion);
+    const e2eNodeVersion = await compose.runCmd('exec', undefined, 'teraslice-master', 'node', '--version');
+    const scriptsNodeVersion = semver.coerce(NODE_VERSION);
     const parsedVersion = semver.parse(e2eNodeVersion);
-    if (parsedVersion?.version) {
-        e2eNodeVersion = parsedVersion.version;
-    }
-    if (e2eNodeVersion !== NODE_VERSION) {
-        signale.error(`Expected node version(${NODE_VERSION}) does not match teraslice node version(${e2eNodeVersion})`);
-        process.exit(1);
+    signale.info('Teraslice node version: ', parsedVersion?.version);
+
+    // Check env NODE_VERSION for how many "." are present
+    switch (NODE_VERSION?.replace(/[^.]/g, '').length) {
+        case 0:
+            if (parsedVersion?.major !== scriptsNodeVersion?.major) {
+                const scriptV = `${scriptsNodeVersion?.major}`;
+                const imageV = `${parsedVersion?.major}`;
+                signale.error(`Expected node version(${scriptV}) does not match teraslice node version(${imageV})`);
+                process.exit(1);
+            }
+            break;
+        case 1:
+            if (
+                parsedVersion?.major !== scriptsNodeVersion?.major
+                || parsedVersion?.minor !== scriptsNodeVersion?.minor
+            ) {
+                const scriptV = `${scriptsNodeVersion?.major}.${scriptsNodeVersion?.minor}`;
+                const imageV = `${parsedVersion?.major}.${parsedVersion?.minor}`;
+                signale.error(`Expected node version(${scriptV}) does not match teraslice node version(${imageV})`);
+                process.exit(1);
+            }
+            break;
+        case 2:
+            if (parsedVersion?.version !== scriptsNodeVersion?.version) {
+                signale.error(`Expected node version(${scriptsNodeVersion?.version}) does not match teraslice node version(${parsedVersion?.version})`);
+                process.exit(1);
+            }
+            break;
+        default:
+            signale.error(`Invalid env variable NODE_VERSION. Got ${NODE_VERSION}`);
+            process.exit(1);
     }
 }
 

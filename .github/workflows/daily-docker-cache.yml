@@ -3,6 +3,7 @@ name: Daily Docker Cache
 on:
   schedule:
     - cron: '0 12 * * 1-5' # Monday - Friday at 5am Arizona Time
+  workflow_dispatch:
 
 jobs:
   cache-docker-images:
@@ -18,7 +19,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: 18.19.1
+        node-version: 18
         cache: 'yarn'
 
     # we login to docker to avoid docker pull limit rates

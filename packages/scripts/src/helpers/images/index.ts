@@ -21,9 +21,9 @@ export async function images(action: ImagesAction): Promise<void> {
 export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
 
-    const list = 'terascope/node-base:18.19.1\n'
-               + 'terascope/node-base:20.11.1\n'
-               + 'terascope/node-base:22.2.0\n'
+    const list = 'terascope/node-base:18\n'
+               + 'terascope/node-base:20\n'
+               + 'terascope/node-base:22\n'
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
