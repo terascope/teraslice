@@ -1,9 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-    AssetJsonInfo,
-    BumpAssetOnlyOptions,
-    BumpPkgInfo,
+    AssetJsonInfo, BumpAssetOnlyOptions, BumpPkgInfo,
     BumpPackageOptions
 } from './interfaces.js';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages.js';
