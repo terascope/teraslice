@@ -21,7 +21,9 @@ export async function images(action: ImagesAction): Promise<void> {
 export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
 
-    const baseImages: string = config.TEST_NODE_VERSIONS.reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version.toString()}\n`, '');
+    const baseImages: string = config.TEST_NODE_VERSIONS
+        .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
+
     const list = `${baseImages}`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH6_VERSION}\n`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH7_VERSION}\n`
