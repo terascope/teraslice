@@ -911,18 +911,26 @@ describe('field validators', () => {
         it('should return true for base64 strings', () => {
             expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
             expect(FieldValidator.isBase64('YW55IGNhcm5hbCBwbGVhc3Vy')).toBe(true);
+            expect(FieldValidator.isBase64('manufacturerUrl7')).toBe(true);
+            expect(FieldValidator.isBase64('dHM_X2QlM0Qx')).toBe(false);
+            expect(FieldValidator.isBase64('dHM_X2Q9MQo=')).toBe(false);
+            expect(FieldValidator.isBase64('dHM/X2QlM0Qx')).toBe(true);
+        });
+        it('should return true for base64 strings with binary content', () => {
+            // command to create base64 from a binary: echo 'test' | gzip | base64
+            expect(FieldValidator.isBase64('H4sIAIb0jmYAAytJLS7hAgDGNbk7BQAAAA==')).toBe(true);
         });
 
         it('should return false for non-base64 strings', () => {
             expect(FieldValidator.isBase64('thisisjustastring')).toBe(false);
-            expect(FieldValidator.isBase64('manufacturerUrl7')).toBe(false);
             expect(FieldValidator.isBase64(true)).toBe(false);
             expect(FieldValidator.isBase64([])).toBe(false);
             expect(FieldValidator.isBase64(123345)).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isBase64(['YW55IGNhcm5hbCBwbGVhc3Vy', undefined])).toBe(true);
+            expect(FieldValidator.isBase64(['H4sIAI4Mj2YAAytJLS4x5AIAGzdZfAYAAAA=', 'H4sIAJEMj2YAAytJLS4x4gIA2GR0VwYAAAA='])).toBe(true);
+            expect(FieldValidator.isBase64(['H4sIAEMFj2YAAytJLS4x5AIAGzdZfAYAAAA=', undefined])).toBe(true);
         });
     });
 
