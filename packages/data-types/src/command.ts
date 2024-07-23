@@ -1,19 +1,25 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import {
     TSError, get, set, toNumber
 } from '@terascope/utils';
 import { ElasticsearchDistribution, ESMapping } from '@terascope/types';
-import { DataType, DataTypeConfig } from './index';
-import { validateDataTypeConfig } from './utils';
+import { DataType, DataTypeConfig } from './index.js';
+import { validateDataTypeConfig } from './utils.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // change pathing due to /dist/src issues
-const packagePath = path.join(__dirname, '../../package.json');
+const packagePath = path.join(dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
-// eslint-disable-next-line
-yargs
+const yargsInstance = yargs(hideBin(process.argv));
+
+// eslint-disable-next-line no-unused-expressions
+yargsInstance
     .command({
         command: 'es-mapping',
         aliases: ['es'],
@@ -86,7 +92,7 @@ yargs
     .version(version)
     .strict()
     .showHelpOnFail(false, 'Specify --help for available options')
-    .wrap(yargs.terminalWidth()).argv;
+    .wrap(yargsInstance.terminalWidth()).argv;
 
 interface ESData {
     _source: Record<string, any>;

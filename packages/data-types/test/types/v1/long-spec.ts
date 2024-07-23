@@ -1,5 +1,5 @@
 import { xLuceneFieldType, DataTypeFieldConfig, FieldType } from '@terascope/types';
-import LongType from '../../../src/types/v1/long';
+import LongType from '../../../src/types/v1/long.js';
 
 describe('Long V1', () => {
     const field = 'someField';
