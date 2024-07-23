@@ -147,7 +147,7 @@ export async function rebuildTeraslice(options: K8sEnvOptions) {
     if (options.resetStore) {
         signale.pending('Resetting the elasticsearch service');
         await k8sStopService('elasticsearch');
-        await k8sStartService('elasticsearch', config.ELASTICSEARCH_DOCKER_IMAGE, config.ELASTICSEARCH_VERSION, kind);
+        await k8sStartService('elasticsearch', config.ELASTICSEARCH_DOCKER_IMAGE, options.elasticsearchVersion, kind);
         signale.success('elasticsearch service reset');
     }
 

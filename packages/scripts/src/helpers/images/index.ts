@@ -21,17 +21,16 @@ export async function images(action: ImagesAction): Promise<void> {
 export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
 
-    const list = 'terascope/node-base:18\n'
-               + 'terascope/node-base:20\n'
-               + 'terascope/node-base:22\n'
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
-               + `${config.KAFKA_DOCKER_IMAGE}:7.1.9\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:7.1.9\n`
-               + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`
-               + 'kindest/node:v1.30.0';
+    const baseImages: string = config.TEST_NODE_VERSIONS.reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version.toString()}\n`, '');
+    const list = `${baseImages}`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH6_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH7_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH1_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH2_VERSION}\n`
+               + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+               + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
 
     if (!fse.existsSync(config.DOCKER_IMAGES_PATH)) {
         await fse.emptyDir(config.DOCKER_IMAGES_PATH);

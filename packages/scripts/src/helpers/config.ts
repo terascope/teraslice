@@ -12,6 +12,11 @@ export const FORCE_COLOR = toBoolean(forceColor)
 /** The timeout for how long a service has to stand up */
 export const SERVICE_UP_TIMEOUT = process.env.SERVICE_UP_TIMEOUT ?? '2m';
 
+export const ELASTICSEARCH6_VERSION = '6.8.6';
+export const ELASTICSEARCH7_VERSION = '7.9.3';
+export const OPENSEARCH1_VERSION = '1.3.10';
+export const OPENSEARCH2_VERSION = '2.8.0';
+
 export const TERASLICE_PORT = '45678';
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
@@ -24,7 +29,7 @@ export const ELASTICSEARCH_NAME = process.env.ELASTICSEARCH_NAME || 'elasticsear
 export const ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || HOST_IP;
 export const ELASTICSEARCH_PORT = process.env.ELASTICSEARCH_PORT || '49200';
 export const ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}`;
-export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || '6.8.6';
+export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || ELASTICSEARCH6_VERSION;
 export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'elasticsearch';
 
 export const RESTRAINED_ELASTICSEARCH_PORT = process.env.RESTRAINED_ELASTICSEARCH_PORT || '49202';
@@ -78,12 +83,17 @@ export const OPENSEARCH_HOSTNAME = process.env.OPENSEARCH_HOSTNAME || HOST_IP;
 export const OPENSEARCH_PORT = process.env.OPENSEARCH_PORT || '49210';
 export const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
 export const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
-export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || '1.3.10';
+export const OPENSEARCH_VERSION = process.env.OPENSEARCH_VERSION || OPENSEARCH1_VERSION;
 export const OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${OPENSEARCH_PORT}`;
 export const OPENSEARCH_DOCKER_IMAGE = process.env.OPENSEARCH_DOCKER_IMAGE || 'opensearchproject/opensearch';
 
 export const RESTRAINED_OPENSEARCH_PORT = process.env.RESTRAINED_OPENSEARCH_PORT || '49206';
 export const RESTRAINED_OPENSEARCH_HOST = `http://${OPENSEARCH_USER}:${OPENSEARCH_PASSWORD}@${OPENSEARCH_HOSTNAME}:${RESTRAINED_OPENSEARCH_PORT}`;
+
+export const KIND_DOCKER_IMAGE = 'kindest/node';
+export const KIND_VERSION = 'v1.30.0';
+
+export const BASE_DOCKER_IMAGE = 'terascope/node-base';
 /**
  * When set this will skip git commands. This is useful for Dockerfile when git is not
  * available or does not work
@@ -173,9 +183,10 @@ if (testElasticsearch) {
 
 export const SEARCH_TEST_HOST = testHost;
 
-const defaultNodeVersion = '18';
+export const TEST_NODE_VERSIONS = ['18', '20', '22'];
+export const DEFAULT_NODE_VERSION = TEST_NODE_VERSIONS[0];
 // This overrides the value in the Dockerfile
-export const NODE_VERSION = process.env.NODE_VERSION || defaultNodeVersion;
+export const NODE_VERSION = process.env.NODE_VERSION || DEFAULT_NODE_VERSION;
 
 export const {
     CLUSTERING_TYPE = 'kubernetes',

@@ -11,13 +11,13 @@ describe('images', () => {
             expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
             const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
             expect(fileContents).toBeString();
-            expect(fileContents).toContain('terascope/node-base');
-            expect(fileContents).toContain('elasticsearch');
-            expect(fileContents).toContain('opensearch');
-            expect(fileContents).toContain('kafka');
-            expect(fileContents).toContain('zookeeper');
-            expect(fileContents).toContain('minio');
-            expect(fileContents).toContain('kindest');
+            expect(fileContents).toContain(config.BASE_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.ELASTICSEARCH_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.OPENSEARCH_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.KAFKA_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.ZOOKEEPER_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.MINIO_DOCKER_IMAGE);
+            expect(fileContents).toContain(config.KIND_DOCKER_IMAGE);
         });
     });
 

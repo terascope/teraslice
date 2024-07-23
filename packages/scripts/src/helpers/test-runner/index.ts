@@ -29,7 +29,9 @@ import {
 import { buildDevDockerImage } from '../publish/utils';
 import { PublishOptions, PublishType } from '../publish/interfaces';
 import { TestTracker } from './tracker';
-import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config';
+import {
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT, BASE_DOCKER_IMAGE
+} from '../config';
 import { K8s } from '../k8s-env/k8s';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -247,7 +249,7 @@ async function runE2ETest(
         }
 
         // load the base docker image
-        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
+        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${options.nodeVersion}`);
     }
 
     try {
