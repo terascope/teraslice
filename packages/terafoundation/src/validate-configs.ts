@@ -41,12 +41,12 @@ function validateConfig(
     }
 }
 
-function extractSchema<S>(
+async function extractSchema<S>(
     fn: any,
     sysconfig: PartialDeep<Terafoundation.SysConfig<S>>
-): Terafoundation.Schema<Record<string, any>> {
+): Promise<Terafoundation.Schema<Record<string, any>>> {
     if (isFunction(fn)) {
-        const result = fn(sysconfig);
+        const result = await fn(sysconfig);
         if (result.schema) {
             return result.schema;
         }
@@ -99,7 +99,7 @@ export default async function validateConfigs<
     }
 
     const listOfValidations: Record<string, Terafoundation.ValidationObj<S>> = {};
-    const schema = extractSchema(config.config_schema, sysconfig);
+    const schema = await extractSchema(config.config_schema, sysconfig);
 
     schema.terafoundation = foundationSchema();
 
