@@ -5,6 +5,12 @@ import * as scripts from '../src/helpers/scripts';
 import * as config from '../src/helpers/config';
 
 describe('images', () => {
+    afterEach(() => {
+        if (fs.existsSync(config.DOCKER_IMAGES_PATH)) {
+            fs.rmSync(config.DOCKER_IMAGES_PATH, { recursive: true, force: true });
+        }
+    });
+
     describe('list', () => {
         it('should create a txt file containing a list of images for teraslice testing', async () => {
             await createImageList('teraslice');
@@ -56,6 +62,7 @@ describe('images', () => {
         });
 
         it('should call dockerPull and saveAndZip for all images from DOCKER_IMAGE_LIST_PATH', async () => {
+            await createImageList('teraslice');
             await saveImages();
             expect(fs.existsSync(config.DOCKER_CACHE_PATH)).toBe(true);
             expect(scripts.dockerPull).toHaveBeenCalledTimes(11);
