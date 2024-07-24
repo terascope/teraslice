@@ -25,10 +25,10 @@ export async function createImageList(): Promise<void> {
         .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
     const list = `${baseImages}`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH6_VERSION}\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH7_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH1_VERSION}\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH2_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`
                + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
                + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
                + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
