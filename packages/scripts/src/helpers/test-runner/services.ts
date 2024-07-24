@@ -161,7 +161,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     }
 };
 
-export async function loadOrPullServiceImages(suite: string, options: TestOptions): Promise<void> {
+export async function loadOrPullServiceImages(suite: string): Promise<void> {
     const launchServices = getServicesForSuite(suite);
 
     try {
@@ -169,37 +169,37 @@ export async function loadOrPullServiceImages(suite: string, options: TestOption
         const loadFailedList: string[] = [];
 
         if (launchServices.includes(Service.Elasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Opensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.RestrainedOpensearch)) {
-            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${options.opensearchVersion}`;
+            const image = `${config.OPENSEARCH_DOCKER_IMAGE}:${config.OPENSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.RestrainedElasticsearch)) {
-            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.ELASTICSEARCH_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Kafka)) {
-            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaImageVersion}`;
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Zookeeper)) {
-            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${options.zookeeperVersion}`;
+            const image = `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.ZOOKEEPER_VERSION}`;
             images.push(image);
         }
 
         if (launchServices.includes(Service.Minio)) {
-            const image = `${config.MINIO_DOCKER_IMAGE}:${options.minioVersion}`;
+            const image = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
             images.push(image);
         }
 
@@ -421,7 +421,7 @@ async function checkRestrainedOpensearch(
             }
 
             const actual: string = body.version.number;
-            const expected = options.opensearchVersion;
+            const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
@@ -488,7 +488,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             }
 
             const actual: string = body.version.number;
-            const expected = options.opensearchVersion;
+            const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
@@ -552,7 +552,7 @@ async function checkRestrainedElasticsearch(
             }
 
             const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
+            const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
@@ -614,7 +614,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             }
 
             const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
+            const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
                 const took = ts.toHumanTime(Date.now() - startTime);
@@ -785,7 +785,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
         }
         throw new Error(err.message);
     }
-    signale.success(`kafka@${options.kafkaVersion} is running at ${config.KAFKA_BROKER}, took ${took}`);
+    signale.success(`kafka@${config.KAFKA_VERSION} is running at ${config.KAFKA_BROKER}, took ${took}`);
 }
 
 async function checkZookeeper(options: TestOptions, startTime: number) {
@@ -805,10 +805,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
     let version:string;
     if (serviceName === 'kafka') {
-        version = options[`${serviceName}ImageVersion`] as string;
-        signale.pending(`starting ${service}@${options.kafkaVersion} service...`);
+        version = config[`${serviceName.toUpperCase()}_IMAGE_VERSION`] as string;
+        signale.pending(`starting ${service}@${config.KAFKA_VERSION} service...`);
     } else {
-        version = options[`${serviceName}Version`] as string;
+        version = config[`${serviceName.toUpperCase()}_VERSION`] as string;
         signale.pending(`starting ${service}@${version} service...`);
     }
     if (options.useExistingServices) {
@@ -817,7 +817,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     }
 
     if (options.testPlatform === 'kubernetes' || options.testPlatform === 'kubernetesV2') {
-        const kind = new Kind(options.k8sVersion, options.kindClusterName);
+        const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
         await kind.loadServiceImage(service, services[service].image, version);
         await k8sStopService(service);
         await k8sStartService(service, services[service].image, version, kind);
