@@ -59,6 +59,9 @@ export class AssetLoader {
                 if (getBackendConfig(this.context, this.logger).assetConnectionType === 's3') {
                     buff = assetRecord.blob as Buffer;
                 } else {
+                    if (!assetRecord.blob) {
+                        throw new Error(`No asset blob found in elasticsearch index for asset identifier: ${assetIdentifier}`);
+                    }
                     buff = Buffer.from(assetRecord.blob as string, 'base64');
                 }
 
