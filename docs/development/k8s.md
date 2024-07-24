@@ -42,7 +42,7 @@ cd e2e
 # use the default version of nodejs
 yarn test:k8s
 # test against a specific version of nodejs
-yarn test:k8s --node-version 18.18.2
+NODE_VERSION=18.18.2 yarn test:k8s
 # run the tests using an existing dev Teraslice image (handy for working on
 # ts-scripts)
 yarn test:k8sNoBuild

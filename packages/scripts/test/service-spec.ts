@@ -3,6 +3,17 @@ import { TSError } from '@terascope/utils';
 import * as services from '../src/helpers/test-runner/services';
 import { TestOptions } from '../src/helpers/test-runner/interfaces';
 
+jest.mock('../src/helpers/config', () => ({
+    ...jest.requireActual('../src/helpers/config'),
+    ELASTICSEARCH_VERSION: 'bad-version',
+    KAFKA_VERSION: 'very-bad-version',
+    KAFKA_IMAGE_VERSION: 'very-bad-version',
+    ZOOKEEPER_VERSION: 'very-bad-version',
+    MINIO_VERSION: 'very-bad-version',
+    RABBITMQ_VERSION: 'very-bad-version',
+    OPENSEARCH_VERSION: 'very-bad-version',
+}));
+
 describe('services', () => {
     const options: TestOptions = {
         bail: false,
@@ -13,15 +24,7 @@ describe('services', () => {
         keepOpen: false,
         reportCoverage: false,
         useExistingServices: false,
-        elasticsearchVersion: 'bad-version',
-        kafkaVersion: 'very-bad-version',
-        kafkaImageVersion: 'very-bad-version',
-        zookeeperVersion: 'very-bad-version',
-        minioVersion: 'very-bad-version',
         encryptMinio: false,
-        rabbitmqVersion: 'very-bad-version',
-        opensearchVersion: 'very-bad-version',
-        nodeVersion: 'very-bad-version',
         ignoreMount: false,
         testPlatform: 'native',
         kindClusterName: 'default'
@@ -29,7 +32,7 @@ describe('services', () => {
 
     describe('loadOrPullServiceImages', () => {
         it('should throw error if service image is invalid', async () => {
-            await expect(services.loadOrPullServiceImages('_for_testing_', options))
+            await expect(services.loadOrPullServiceImages('_for_testing_'))
                 .rejects.toThrowWithMessage(TSError, /w*Failed to pull services for test suite*\w/);
         });
     });
