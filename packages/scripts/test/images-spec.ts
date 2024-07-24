@@ -28,6 +28,23 @@ describe('images', () => {
             expect(fileContents).toContain('elasticsearch');
             expect(fileContents).toContain('opensearch');
         });
+
+        it('should create a txt file containing a list of images for kafka assets testing', async () => {
+            await createImageList('kafka');
+            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
+            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
+            expect(fileContents).toBeString();
+            expect(fileContents).toContain('kafka');
+            expect(fileContents).toContain('zookeeper');
+        });
+
+        it('should create a txt file containing a list of images for file assets testing', async () => {
+            await createImageList('file');
+            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
+            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
+            expect(fileContents).toBeString();
+            expect(fileContents).toContain('minio');
+        });
     });
 
     describe('save', () => {
