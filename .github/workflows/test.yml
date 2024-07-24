@@ -367,7 +367,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test ${{ matrix.search-version }}
-        run: yarn --silent test:${{ matrix.search-version }} --node-version ${{ matrix.node-version }}
+        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:${{ matrix.search-version }}
         working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
@@ -434,7 +434,7 @@ jobs:
           install_only: "true"
 
       - name: Test k8s elasticsearch7
-        run: yarn --silent test:k8s --node-version ${{ matrix.node-version }}
+        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8s
         working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
@@ -501,7 +501,7 @@ jobs:
           install_only: "true"
 
       - name: Test k8s V2 elasticsearch7
-        run: yarn --silent test:k8sV2 --node-version ${{ matrix.node-version }}
+        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8sV2
         working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
@@ -563,7 +563,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test external Asset Storage opensearch1
-        run: yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
+        run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
         working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
@@ -637,7 +637,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Test external Asset Storage opensearch1
-        run: ENCRYPT_MINIO=true yarn --silent test:s3AssetStorage --node-version ${{ matrix.node-version }}
+        run: ENCRYPT_MINIO=true NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
         working-directory: ./e2e
 
       - name: Check docker.hub limit end of job
