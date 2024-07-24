@@ -63,8 +63,8 @@ export class AssetLoader {
                 } else {
                     if (!assetRecord.blob) {
                         throw new Error(`No asset blob found in elasticsearch index for asset identifier: ${assetIdentifier}.\n`
-                            + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}`
-                            + 'Then try deleting and redeploying the asset\n.'
+                            + `Confirm that "teraslice.ASSET_STORAGE_CONNECTION_TYPE" should be ${connectionType}.\n`
+                            + 'Then try deleting and redeploying the asset.'
                         );
                     }
                     buff = Buffer.from(assetRecord.blob as string, 'base64');
