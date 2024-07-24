@@ -14,6 +14,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         return yargs
             .example('$0 images list', 'Get the list of docker images needed for a test.')
             .example('$0 images save', 'Save the docker images needed for a test.')
+            .option('repo', {
+                description: 'Create a repository specific image list',
+                type: 'string',
+                default: 'teraslice'
+            })
             .positional('action', {
                 description: 'The action to take',
                 choices: Object.values(ImagesAction),
@@ -25,7 +30,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
     async handler(argv) {
         if (argv.action) {
-            await images(argv.action);
+            await images(argv.action, argv.repo as string);
         }
     },
 };

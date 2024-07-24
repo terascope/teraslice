@@ -6,8 +6,8 @@ import * as config from '../src/helpers/config';
 
 describe('images', () => {
     describe('list', () => {
-        it('should create a txt file containing a list of images', async () => {
-            await createImageList();
+        it('should create a txt file containing a list of images for teraslice testing', async () => {
+            await createImageList('teraslice');
             expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
             const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
             expect(fileContents).toBeString();
@@ -18,6 +18,15 @@ describe('images', () => {
             expect(fileContents).toContain(config.ZOOKEEPER_DOCKER_IMAGE);
             expect(fileContents).toContain(config.MINIO_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KIND_DOCKER_IMAGE);
+        });
+
+        it('should create a txt file containing a list of images for elasticsearch assets testing', async () => {
+            await createImageList('elasticsearch');
+            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
+            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
+            expect(fileContents).toBeString();
+            expect(fileContents).toContain('elasticsearch');
+            expect(fileContents).toContain('opensearch');
         });
     });
 

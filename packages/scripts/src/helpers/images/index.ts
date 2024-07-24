@@ -4,9 +4,9 @@ import { ImagesAction } from './interfaces';
 import signale from '../signale';
 import { dockerPull, saveAndZip } from '../scripts';
 
-export async function images(action: ImagesAction): Promise<void> {
+export async function images(action: ImagesAction, repo: string): Promise<void> {
     if (action === ImagesAction.List) {
-        return createImageList();
+        return createImageList(repo);
     }
 
     if (action === ImagesAction.Save) {
@@ -18,13 +18,25 @@ export async function images(action: ImagesAction): Promise<void> {
  * Builds a list of all docker images needed for the teraslice CI pipeline
  * @returns Promise<void>
  */
-export async function createImageList(): Promise<void> {
+export async function createImageList(repo: string): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
 
-    const baseImages: string = config.TEST_NODE_VERSIONS
-        .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
+    let list;
+    if (repo === 'elasticsearch') {
+        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}`;
+    } else if (repo === 'kafka') {
+        list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
+    } else if (repo === 'file') {
+        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
+    } else if (repo === 'teraslice') {
+        const baseImages: string = config.TEST_NODE_VERSIONS
+            .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
-    const list = `${baseImages}`
+        list = `${baseImages}`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
@@ -33,6 +45,9 @@ export async function createImageList(): Promise<void> {
                + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
                + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
                + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
+    } else {
+        throw new Error(`Repo ${repo} is not supported.`);
+    }
 
     if (!fse.existsSync(config.DOCKER_IMAGES_PATH)) {
         await fse.emptyDir(config.DOCKER_IMAGES_PATH);
