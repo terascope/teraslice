@@ -36,23 +36,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
-    // If --dev is true, we must run yarn setup before creating resources
-    // We need a local node_modules folder built to add it as a volume
-    if (options.dev) {
-        if (process.version.substring(1) !== config.NODE_VERSION) {
-            throw new Error(`The node version this process is running on (${process.version}) does not match
-            the --node-version set in k8s-env (v${config.NODE_VERSION}). Check your version by running "node -v"`);
-        }
-        signale.info(`Running yarn setup with node ${process.version}...`);
-        try {
-            execa.commandSync('yarn setup');
-        } catch (err) {
-            signale.fatal(err);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
-    }
-
     signale.pending('Creating kind cluster');
     try {
         await kind.createCluster(options.tsPort, options.dev);
@@ -85,6 +68,30 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             await kind.destroyCluster();
         }
         process.exit(1);
+    }
+
+    // If --dev is true, we must run yarn setup before creating resources
+    // We need a local node_modules folder built to add it as a volume
+    if (options.dev) {
+        let imageVersion:string;
+        try {
+            const { stdout } = await execa('docker', ['run', e2eImage, 'node', '-v']);
+            imageVersion = stdout;
+        } catch (err) {
+            throw new Error(`Problem running docker command to check node version: ${err}`);
+        }
+        if (process.version !== imageVersion) {
+            throw new Error(`The node version this process is running on (${process.version}) does not match
+            the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
+        }
+        signale.info(`Running yarn setup with node ${process.version}...`);
+        try {
+            execa.commandSync('yarn setup');
+        } catch (err) {
+            signale.fatal(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
     }
 
     await kind.loadTerasliceImage(e2eImage);
