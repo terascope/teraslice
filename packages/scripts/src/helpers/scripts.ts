@@ -208,6 +208,18 @@ export async function dockerTag(from: string, to: string): Promise<void> {
     signale.success(`Image ${from} re-tagged as ${to}`);
 }
 
+export async function getNodeVersionFromImage(image: string): Promise<string> {
+    try {
+        const { stdout } = await execa(
+            'docker',
+            ['run', image, 'node', '-v']
+        );
+        return stdout;
+    } catch (err) {
+        throw new Error(`Unable to get node version from image due to Error: ${err}`);
+    }
+}
+
 export async function getContainerInfo(name: string): Promise<any> {
     const result = await exec({
         cmd: 'docker',

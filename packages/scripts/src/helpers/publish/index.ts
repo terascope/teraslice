@@ -16,7 +16,8 @@ import {
     remoteDockerImageExists,
     dockerBuild,
     dockerPush,
-    yarnPublishV2
+    yarnPublishV2,
+    getNodeVersionFromImage
 } from '../scripts';
 import { getRootInfo, getDevDockerImage, formatList } from '../misc';
 import signale from '../signale';
@@ -94,7 +95,10 @@ async function publishToDocker(options: PublishOptions) {
     let err: any|undefined;
     for (const registry of registries) {
         let imageToBuild = '';
-        const nodeVersionSuffix = `nodev${options.nodeVersion}`;
+
+        /// NOTE: When publishing images, we always want the full node semver version
+        /// on the tag
+        const nodeVersionSuffix = `node${await getNodeVersionFromImage(devImage)}`;
 
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest-${nodeVersionSuffix}`;
