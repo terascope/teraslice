@@ -96,6 +96,8 @@ async function publishToDocker(options: PublishOptions) {
     for (const registry of registries) {
         let imageToBuild = '';
 
+        /// NOTE: When publishing images, we always want the full node semver version
+        /// on the tag
         const nodeVersionSuffix = `node${await getNodeVersionFromImage(devImage)}`;
 
         if (options.type === PublishType.Latest) {
