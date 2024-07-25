@@ -78,11 +78,14 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             const { stdout } = await execa('docker', ['run', e2eImage, 'node', '-v']);
             imageVersion = stdout;
         } catch (err) {
+            await kind.destroyCluster();
             throw new Error(`Problem running docker command to check node version: ${err}`);
         }
         if (process.version !== imageVersion) {
-            throw new Error(`The node version this process is running on (${process.version}) does not match
+            signale.fatal(`The node version this process is running on (${process.version}) does not match
             the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
+            await kind.destroyCluster();
+            process.exit(1);
         }
         signale.info(`Running yarn setup with node ${process.version}...`);
         try {
