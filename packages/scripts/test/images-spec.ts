@@ -13,7 +13,7 @@ describe('images', () => {
 
     describe('list', () => {
         it('should create a txt file containing a list of images for teraslice testing', async () => {
-            await createImageList('teraslice');
+            await createImageList();
             expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
             const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
             expect(fileContents).toBeString();
@@ -24,32 +24,6 @@ describe('images', () => {
             expect(fileContents).toContain(config.ZOOKEEPER_DOCKER_IMAGE);
             expect(fileContents).toContain(config.MINIO_DOCKER_IMAGE);
             expect(fileContents).toContain(config.KIND_DOCKER_IMAGE);
-        });
-
-        it('should create a txt file containing a list of images for elasticsearch assets testing', async () => {
-            await createImageList('elasticsearch');
-            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
-            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
-            expect(fileContents).toBeString();
-            expect(fileContents).toContain('elasticsearch');
-            expect(fileContents).toContain('opensearch');
-        });
-
-        it('should create a txt file containing a list of images for kafka assets testing', async () => {
-            await createImageList('kafka');
-            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
-            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
-            expect(fileContents).toBeString();
-            expect(fileContents).toContain('kafka');
-            expect(fileContents).toContain('zookeeper');
-        });
-
-        it('should create a txt file containing a list of images for file assets testing', async () => {
-            await createImageList('file');
-            expect(fs.existsSync(config.DOCKER_IMAGE_LIST_PATH)).toBe(true);
-            const fileContents = fs.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
-            expect(fileContents).toBeString();
-            expect(fileContents).toContain('minio');
         });
     });
 
@@ -62,7 +36,7 @@ describe('images', () => {
         });
 
         it('should call dockerPull and saveAndZip for all images from DOCKER_IMAGE_LIST_PATH', async () => {
-            await createImageList('teraslice');
+            await createImageList();
             await saveImages();
             expect(fs.existsSync(config.DOCKER_CACHE_PATH)).toBe(true);
             expect(scripts.dockerPull).toHaveBeenCalledTimes(11);

@@ -3,10 +3,11 @@ import * as config from '../config';
 import { ImagesAction } from './interfaces';
 import signale from '../signale';
 import { dockerPull, saveAndZip } from '../scripts';
+import { getRootInfo } from '../misc';
 
-export async function images(action: ImagesAction, repo: string): Promise<void> {
+export async function images(action: ImagesAction): Promise<void> {
     if (action === ImagesAction.List) {
-        return createImageList(repo);
+        return createImageList();
     }
 
     if (action === ImagesAction.Save) {
@@ -18,21 +19,21 @@ export async function images(action: ImagesAction, repo: string): Promise<void> 
  * Builds a list of all docker images needed for the teraslice CI pipeline
  * @returns Promise<void>
  */
-export async function createImageList(repo: string): Promise<void> {
+export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
-
+    const repo = getRootInfo().name;
     let list;
-    if (repo === 'elasticsearch') {
+    if (repo === 'elasticsearch-assets') {
         list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
                + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
                + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}`;
-    } else if (repo === 'kafka') {
+    } else if (repo === 'kafka-asset-bundle') {
         list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
                + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
-    } else if (repo === 'file') {
+    } else if (repo === 'file-assets-bundle') {
         list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
-    } else if (repo === 'teraslice') {
+    } else if (repo === 'teraslice-workspace') {
         const baseImages: string = config.TEST_NODE_VERSIONS
             .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
