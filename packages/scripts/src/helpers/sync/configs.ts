@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { isString } from '@terascope/utils';
-import { getRootInfo, writeIfChanged } from '../misc';
+import { getRootInfo, getRootTsConfig, writeIfChanged } from '../misc';
 import { PackageInfo } from '../interfaces';
 
 export async function generateTSConfig(
@@ -19,57 +18,7 @@ export async function generateTSConfig(
         }));
 
     const tsconfig = {
-        compilerOptions: {
-            baseUrl: '.',
-            module: 'commonjs',
-            moduleResolution: 'node',
-            target: rootInfo.terascope.target,
-            skipLibCheck: true,
-            experimentalDecorators: true,
-            strict: true,
-            // FIXME we should enable this someday
-            useUnknownInCatchVariables: false,
-            noFallthroughCasesInSwitch: true,
-            preserveConstEnums: true,
-            esModuleInterop: true,
-            resolveJsonModule: true,
-            forceConsistentCasingInFileNames: true,
-            suppressImplicitAnyIndexErrors: true,
-            ignoreDeprecations: '5.0',
-
-            // Require project settings
-            composite: true,
-            declaration: true,
-            declarationMap: true,
-            sourceMap: true,
-            isolatedModules: true,
-            // https://www.typescriptlang.org/tsconfig#disableReferencedProjectLoad
-            disableReferencedProjectLoad: true,
-            ...(rootInfo.terascope.version !== 2 ? {
-                typeRoots: [
-                    fs.existsSync(path.join(rootInfo.dir, './types'))
-                        ? './types'
-                        : undefined,
-                    fs.existsSync('./node_modules/@types')
-                        ? './node_modules/@types'
-                        : undefined
-                ].filter(isString),
-                paths: {
-                    '*': ['*', './types/*']
-                }
-            } : {}),
-            ...rootInfo.terascope.compilerOptions
-        },
-        include: [],
-        exclude: [
-            fs.existsSync('./node_modules')
-                ? '**/node_modules'
-                : undefined,
-            '**/.*/',
-            rootInfo.terascope.version === 2 ? '.yarn/releases/*' : undefined,
-            '**/build/**/*'
-        ].filter(isString),
-        // these project references should be ordered by dependents first
+        ...getRootTsConfig(),
         references
     };
 
