@@ -5,6 +5,7 @@ import {
     isKubectlInstalled,
     k8sStartService,
     k8sStopService,
+    getNodeVersionFromImage
 } from '../scripts';
 import { Kind } from '../kind';
 import { K8sEnvOptions } from './interfaces';
@@ -75,8 +76,7 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (options.dev) {
         let imageVersion:string;
         try {
-            const { stdout } = await execa('docker', ['run', e2eImage, 'node', '-v']);
-            imageVersion = stdout;
+            imageVersion = await getNodeVersionFromImage(e2eImage);
         } catch (err) {
             await kind.destroyCluster();
             throw new Error(`Problem running docker command to check node version: ${err}`);
