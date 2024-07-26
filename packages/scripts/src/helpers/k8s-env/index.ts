@@ -5,6 +5,7 @@ import {
     isKubectlInstalled,
     k8sStartService,
     k8sStopService,
+    getNodeVersionFromImage
 } from '../scripts';
 import { Kind } from '../kind';
 import { K8sEnvOptions } from './interfaces';
@@ -34,23 +35,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (!kubectlInstalled) {
         signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
         process.exit(1);
-    }
-
-    // If --dev is true, we must run yarn setup before creating resources
-    // We need a local node_modules folder built to add it as a volume
-    if (options.dev) {
-        if (process.version.substring(1) !== config.NODE_VERSION) {
-            throw new Error(`The node version this process is running on (${process.version}) does not match
-            the --node-version set in k8s-env (v${config.NODE_VERSION}). Check your version by running "node -v"`);
-        }
-        signale.info(`Running yarn setup with node ${process.version}...`);
-        try {
-            execa.commandSync('yarn setup');
-        } catch (err) {
-            signale.fatal(err);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
     }
 
     signale.pending('Creating kind cluster');
@@ -85,6 +69,32 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
             await kind.destroyCluster();
         }
         process.exit(1);
+    }
+
+    // If --dev is true, we must run yarn setup before creating resources
+    // We need a local node_modules folder built to add it as a volume
+    if (options.dev) {
+        let imageVersion:string;
+        try {
+            imageVersion = await getNodeVersionFromImage(e2eImage);
+        } catch (err) {
+            await kind.destroyCluster();
+            throw new Error(`Problem running docker command to check node version: ${err}`);
+        }
+        if (process.version !== imageVersion) {
+            signale.fatal(`The node version this process is running on (${process.version}) does not match
+            the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+        signale.info(`Running yarn setup with node ${process.version}...`);
+        try {
+            execa.commandSync('yarn setup');
+        } catch (err) {
+            signale.fatal(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
     }
 
     await kind.loadTerasliceImage(e2eImage);
