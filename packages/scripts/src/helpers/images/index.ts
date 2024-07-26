@@ -47,7 +47,7 @@ export async function createImageList(): Promise<void> {
                + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
                + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
     } else {
-        throw new Error(`Repo ${repo} is not supported.`);
+        list = '';
     }
 
     if (!fse.existsSync(config.DOCKER_IMAGES_PATH)) {
@@ -68,7 +68,7 @@ export async function saveImages(): Promise<void> {
         }
         fse.mkdirSync(config.DOCKER_CACHE_PATH);
         const imagesString = fse.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
-        const imagesArray = imagesString.split('\n');
+        const imagesArray = imagesString.split('\n').filter((imageName) => imageName !== '');
         const pullPromises = imagesArray.map(async (imageName) => {
             signale.info(`Pulling Docker image: ${imageName}`);
             await dockerPull(imageName);
