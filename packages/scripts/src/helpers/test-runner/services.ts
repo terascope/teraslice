@@ -132,7 +132,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.MINIO_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/data']
+            ? ['/data:rw,size=256M']
             : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
         mount: config.ENCRYPT_MINIO

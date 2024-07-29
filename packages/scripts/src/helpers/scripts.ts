@@ -318,6 +318,7 @@ export async function dockerRun(
     }
 
     const subprocess = execa('docker', args);
+    signale.info(`COMMAND: docker ${args}`);
 
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
