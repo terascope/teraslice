@@ -683,7 +683,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`MinIO is running at ${host}, took ${took}`);
                 const minioContainerId = execa.commandSync(
-                    'docker ps -q  --filter ancestor=minio/minio:RELEASE.2022-02-05T04-40-59Z'
+                    'docker ps -q  --filter ancestor=minio/minio:RELEASE.2024-07-29T22-14-52Z'
                 ).stdout;
                 signale.info(`minioContainerId: ${minioContainerId}`);
                 const minioLogs = execa.commandSync(
