@@ -141,7 +141,9 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
-            MINIO_LOGGER_CONSOLE: 'on'
+            MINIO_LOGGER_CONSOLE: 'on',
+            MINIO_LOG_LEVEL: 'debug',
+            MINIO_DEBUG: 'on'
         },
         network: config.DOCKER_NETWORK_NAME,
         args: config.ENCRYPT_MINIO
