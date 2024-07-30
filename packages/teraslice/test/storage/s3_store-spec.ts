@@ -8,19 +8,19 @@ import { S3Store } from '../../src/lib/storage/backends/s3_store';
 import { TEST_INDEX_PREFIX } from '../test.config';
 
 describe('S3 backend test', () => {
-    const minioContainerId = execa.commandSync(
-        'docker ps -q  --filter ancestor=minio/minio:RELEASE.2022-06-11T19-55-32Z'
-    ).stdout;
-    signale.info(`minioContainerId2: ${minioContainerId}`);
-    const minioLogs = execa.commandSync(
-        `docker logs ${minioContainerId}`
-    ).stdout;
-    signale.info(`Minio Logs2: ${minioLogs}`);
-    const stats = execa.commandSync(
-        'docker stats --no-stream'
-    ).stdout;
-    signale.info('Here are the stats2.');
-    signale.info(stats);
+    // const minioContainerId = execa.commandSync(
+    //     'docker ps -q  --filter ancestor=minio/minio:RELEASE.2022-06-11T19-55-32Z'
+    // ).stdout;
+    // signale.info(`minioContainerId2: ${minioContainerId}`);
+    // const minioLogs = execa.commandSync(
+    //     `docker logs ${minioContainerId}`
+    // ).stdout;
+    // signale.info(`Minio Logs2: ${minioLogs}`);
+    // const stats = execa.commandSync(
+    //     'docker stats --no-stream'
+    // ).stdout;
+    // signale.info('Here are the stats2.');
+    // signale.info(stats);
     let s3Backend: S3Store;
     const contextOptions: TestContextOptions = {
         // assignment: 'assets_service',
