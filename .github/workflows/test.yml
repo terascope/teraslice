@@ -4,8 +4,8 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  NODE_VERSION_MAIN: '18'
   NODE_VERSIONS: '[18, 20, 22]'
+  NODE_VERSION_MAIN: '18'
   NODE_VERSIONS_K8S: '[18, 22]'
   NODE_VERSIONS_EXT_STORAGE: '[18]'
 
@@ -309,7 +309,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_K8S) }}
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_EXT_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -364,7 +364,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_K8S) }}
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_EXT_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
