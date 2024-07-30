@@ -6,6 +6,7 @@ on:
 env:
   NODE_VERSION_MAIN: '18'
   NODE_VERSIONS: '[18, 20, 22]'
+  NODE_VERSIONS_K8S: '[18, 22]'
   NODE_VERSIONS_EXT_STORAGE: '[18]'
 
 jobs:
@@ -14,13 +15,16 @@ jobs:
     outputs:
       NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
       NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
-      NODE_VERSIONS_EXT_STORAGE: ${{ steps.step3.outputs.NODE_VERSIONS_EXT_STORAGE }}
+      NODE_VERSIONS_EXT_K8S: ${{ steps.step3.outputs.NODE_VERSIONS_K8S }}
+      NODE_VERSIONS_EXT_STORAGE: ${{ steps.step4.outputs.NODE_VERSIONS_EXT_STORAGE }}
     steps:
       - id: step1
         run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
       - id: step2
         run: echo "NODE_VERSION_MAIN=${{ env.NODE_VERSION_MAIN }}" >> $GITHUB_OUTPUT
       - id: step3
+        run: echo "NODE_VERSIONS_K8S=${{ env.NODE_VERSIONS_K8S }}" >> $GITHUB_OUTPUT
+      - id: step4
         run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
 
   verify-build:
@@ -305,7 +309,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -360,7 +364,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_K8S) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
