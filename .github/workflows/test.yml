@@ -3,8 +3,26 @@ name: Teraslice CI Tests
 on:
   pull_request:
     branches: [ master ]
+env:
+  NODE_VERSION_MAIN: '18'
+  NODE_VERSIONS: '[18, 20, 22]'
+  NODE_VERSIONS_EXT_STORAGE: '[18]'
 
 jobs:
+  compute:
+    runs-on: ubuntu-latest
+    outputs:
+      NODE_VERSIONS: ${{ steps.step1.outputs.NODE_VERSIONS }}
+      NODE_VERSION_MAIN: ${{ steps.step2.outputs.NODE_VERSION_MAIN }}
+      NODE_VERSIONS_EXT_STORAGE: ${{ steps.step3.outputs.NODE_VERSIONS_EXT_STORAGE }}
+    steps:
+      - id: step1
+        run: echo "NODE_VERSIONS=${{ env.NODE_VERSIONS }}" >> $GITHUB_OUTPUT
+      - id: step2
+        run: echo "NODE_VERSION_MAIN=${{ env.NODE_VERSION_MAIN }}" >> $GITHUB_OUTPUT
+      - id: step3
+        run: echo "NODE_VERSIONS_EXT_STORAGE=${{ env.NODE_VERSIONS_EXT_STORAGE }}" >> $GITHUB_OUTPUT
+
   verify-build:
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +32,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSION_MAIN) }}
         cache: 'yarn'
 
     - name: Install and build packages
@@ -28,71 +46,20 @@ jobs:
     - name: Sync codebase
       run: yarn sync --verify
 
+  check-docker-limit-before:
+   uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+   secrets: inherit
+
   cache-docker-images:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-        cache: 'yarn'
-
-    # we login to docker to avoid docker pull limit rates
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Check docker.hub limit start of job
-      env:
-        USER: ${{ secrets.DOCKER_USERNAME }}
-        PASS: ${{ secrets.DOCKER_PASSWORD }}
-      run: yarn docker:limit
-
-    - name: Install and build packages
-      run: yarn setup
-      env:
-        YARN_SETUP_ARGS: "--prod=false --silent"
-
-    - name: Create Docker Image List
-      run: |
-        yarn docker:listImages
-        cat ./images/image-list.txt
-
-    - name: Restore Docker image cache
-      id: docker-cache
-      uses: actions/cache@v4
-      with:
-        path: /tmp/docker_cache
-        key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-        lookup-only: true
-
-    - name: Pull and save Docker images
-      if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-      run: yarn docker:saveImages
-
-    - name: Update Docker image cache
-      if: ${{steps.docker-cache.outputs.cache-hit != 'true'}}
-      uses: actions/cache/save@v4
-      with:
-        path: /tmp/docker_cache
-        key: docker-images-${{ hashFiles('./images/image-list.txt') }}
-
-    - name: Check docker.hub limit end of job
-      env:
-        USER: ${{ secrets.DOCKER_USERNAME }}
-        PASS: ${{ secrets.DOCKER_PASSWORD }}
-      run: npm run docker:limit
+    needs: check-docker-limit-before
+    uses: terascope/workflows/.github/workflows/cache-docker-images.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    secrets: inherit
 
   linux-unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -115,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -143,7 +110,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -161,12 +128,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -189,12 +150,6 @@ jobs:
         run: yarn --silent test:${{ matrix.search-version }}
         working-directory: ./packages/teraslice
 
-      - name: Check docker.hub limit after Test
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   elasticsearch-store-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -202,7 +157,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -220,12 +175,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -248,12 +197,6 @@ jobs:
         run: yarn --silent test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-store
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   elasticsearch-api-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -261,7 +204,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -279,12 +222,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -307,12 +244,6 @@ jobs:
         run: yarn --silent test:${{ matrix.search-version }}
         working-directory: ./packages/elasticsearch-api
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   e2e-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -320,7 +251,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
         search-version: [elasticsearch6, elasticsearch7, opensearch1, opensearch2]
     steps:
       - name: Check out code
@@ -338,12 +269,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -370,12 +295,6 @@ jobs:
         run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:${{ matrix.search-version }}
         working-directory: ./e2e
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   e2e-k8s-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -383,7 +302,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -400,12 +319,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -437,12 +350,6 @@ jobs:
         run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8s
         working-directory: ./e2e
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   e2e-k8s-v2-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -450,7 +357,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18, 22]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -467,12 +374,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -504,12 +405,6 @@ jobs:
         run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:k8sV2
         working-directory: ./e2e
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   e2e-external-storage-tests:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -517,7 +412,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -534,12 +429,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -566,12 +455,6 @@ jobs:
         run: NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
         working-directory: ./e2e
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
-
   e2e-external-storage-tests-encrypted:
     runs-on: ubuntu-latest
     needs: [verify-build, cache-docker-images]
@@ -579,7 +462,7 @@ jobs:
       # opensearch is finiky, keep testing others if it fails
       fail-fast: false
       matrix:
-        node-version: [18]
+        node-version: ${{ fromJSON(needs.compute.outputs.NODE_VERSIONS_EXT_STORAGE) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -596,12 +479,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Check docker.hub limit start
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
 
       - name: Install and build packages
         run: yarn setup
@@ -640,8 +517,16 @@ jobs:
         run: ENCRYPT_MINIO=true NODE_VERSION=${{ matrix.node-version }} yarn --silent test:s3AssetStorage
         working-directory: ./e2e
 
-      - name: Check docker.hub limit end of job
-        env:
-          USER: ${{ secrets.DOCKER_USERNAME }}
-          PASS: ${{ secrets.DOCKER_PASSWORD }}
-        run: npm run docker:limit
+  check-docker-limit-after:
+    needs: [
+      e2e-external-storage-tests-encrypted,
+      e2e-external-storage-tests,
+      e2e-k8s-v2-tests,
+      e2e-k8s-tests,
+      e2e-tests,
+      elasticsearch-api-tests,
+      elasticsearch-store-tests,
+      teraslice-elasticsearch-tests
+    ]
+    uses: terascope/workflows/.github/workflows/check-docker-limit.yml@f5e098fa861fe7744fa61842e82124f806364be9
+    secrets: inherit
