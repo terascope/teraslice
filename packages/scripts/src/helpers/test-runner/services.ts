@@ -705,11 +705,11 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 ).stdout;
                 signale.info('Data Permissions!!');
                 signale.info(dataPerms);
-                const dockerVersion = execa.commandSync(
-                    'docker version'
+                const oDirect = execa.commandSync(
+                    `docker exec ${minioContainerId} dd if=/dev/zero of=/data/testfile bs=512 count=1 oflag=direct`
                 ).stdout;
-                signale.info('dockerVersion!!');
-                signale.info(dockerVersion);
+                signale.info('odirect check!!');
+                signale.info(oDirect);
 
                 return true;
             }
