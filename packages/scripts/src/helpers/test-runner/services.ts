@@ -131,13 +131,13 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Minio]: {
         image: config.MINIO_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/data:rw,size=256M']
-            : undefined,
+        // tmpfs: config.SERVICES_USE_TMPFS
+        //     ? ['/data:rw,size=256M']
+        //     : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
         mount: config.ENCRYPT_MINIO
             ? `type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`
-            : '',
+            : 'type=bind,source=/tmp/minio,target=/data',
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
@@ -323,6 +323,10 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
         signale.success('Successfully created new certificates for minio');
     }
     const startTime = Date.now();
+    if (fs.existsSync('/tmp/minio')) {
+        fs.rmSync('/tmp/minio', { recursive: true, force: true });
+    }
+    fs.mkdirSync('/tmp/minio');
     fn = await startService(options, Service.Minio);
     await checkMinio(options, startTime);
     return fn;
@@ -683,7 +687,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 const took = ts.toHumanTime(Date.now() - startTime);
                 signale.success(`MinIO is running at ${host}, took ${took}`);
                 const minioContainerId = execa.commandSync(
-                    'docker ps -q  --filter ancestor=minio/minio:RELEASE.2024-07-29T22-14-52Z'
+                    'docker ps -q  --filter ancestor=minio/minio:RELEASE.2022-06-11T19-55-32Z'
                 ).stdout;
                 signale.info(`minioContainerId: ${minioContainerId}`);
                 const minioLogs = execa.commandSync(
