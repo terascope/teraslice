@@ -1,16 +1,14 @@
-'use strict';
+import rules from './rules/index.js';
 
-const rules = require('./rules');
+let hasTypescript = false;;
 
-let hasTypescript;
 try {
     require.resolve('typescript');
     hasTypescript = true;
-} catch (err) {
-    hasTypescript = false;
-}
+} catch (err) {}
 
 const overrides = [];
+
 if (hasTypescript) {
     overrides.push(
         {

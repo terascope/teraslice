@@ -1,10 +1,7 @@
-'use strict';
-
 /* eslint-disable no-unused-expressions */
-
-const { Suite } = require('./helpers');
-const FakeDataEntity = require('./fixtures/fake-data-entity');
-const { DataEntity, times, fastCloneDeep } = require('../dist/src');
+import { Suite } from './helpers.js';
+import FakeDataEntity from './fixtures/fake-data-entity.js';
+import { DataEntity, times, fastCloneDeep } from '../dist/src/index.js';
 
 const data = {};
 

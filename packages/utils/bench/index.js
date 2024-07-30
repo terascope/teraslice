@@ -1,11 +1,9 @@
-'use strict';
-
 // See: https://github.com/funkia/list/blob/master/test/bench/index.js
 /* eslint-disable no-console */
 
-const fs = require('fs');
-const path = require('path');
-const { printHeader } = require('./helpers');
+import fs from 'node:fs';
+import path from 'node:path';
+import { printHeader } from './helpers.js';
 
 function start(name, dir) {
     const benchmarks = fs.readdirSync(dir).filter((filename) => filename.match(/-suite\.js$/));

@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { BigMap } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { BigMap } from '../dist/src/index.js';
 
 const iterationsPer = 1000;
 

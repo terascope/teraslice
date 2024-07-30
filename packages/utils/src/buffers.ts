@@ -1,4 +1,4 @@
-import { getTypeOf } from './deps';
+import { getTypeOf } from './deps.js';
 
 /**
  * Convert an input to a Buffer if possible

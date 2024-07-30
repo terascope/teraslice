@@ -1,8 +1,9 @@
 import 'jest-extended';
-import { TSError } from '../src/errors';
+import { TSError } from '../src/errors.js';
 import {
-    waterfall, pWhile, pRetry, PRetryConfig, getBackoffDelay, PWhileOptions
-} from '../src/promises';
+    waterfall, pWhile, pRetry, PRetryConfig,
+    getBackoffDelay, PWhileOptions
+} from '../src/promises.js';
 
 describe('Utils', () => {
     describe('waterfall', () => {

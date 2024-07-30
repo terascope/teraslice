@@ -1,18 +1,13 @@
-import 'jest-extended'; // require for type definitions
+import 'jest-extended';
 import addDays from 'date-fns/addDays';
 import {
-    DataEntity,
-    DataEncoding,
-    __IS_DATAENTITY_KEY,
-    __ENTITY_METADATA_KEY,
-    DataEntityMetadata,
-} from '../src/entities';
+    DataEntity, DataEncoding, __IS_DATAENTITY_KEY,
+    __ENTITY_METADATA_KEY, DataEntityMetadata,
+} from '../src/entities/index.js';
 import {
-    parseJSON,
-    cloneDeep,
-    fastCloneDeep,
+    parseJSON, cloneDeep, fastCloneDeep,
     firstToLower,
-} from '../src';
+} from '../src/index.js';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [

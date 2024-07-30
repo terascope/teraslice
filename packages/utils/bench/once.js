@@ -1,7 +1,5 @@
-'use strict';
-
-const { Suite } = require('./helpers');
-const { once } = require('../dist/src');
+import { Suite } from './helpers.js';
+import { once } from '../dist/src/index.js';
 
 let hi = 1;
 let hello = 1;
