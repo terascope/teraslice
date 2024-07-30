@@ -687,6 +687,11 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                     `docker logs ${minioContainerId}`
                 ).stdout;
                 signale.info(`Minio Logs: ${minioLogs}`);
+                const stats = execa.commandSync(
+                    'docker stats --no-stream'
+                ).stdout;
+                signale.info('Here are the stats.');
+                signale.info(stats);
                 return true;
             }
             return false;

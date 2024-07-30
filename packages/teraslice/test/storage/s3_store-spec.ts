@@ -16,6 +16,11 @@ describe('S3 backend test', () => {
         `docker logs ${minioContainerId}`
     ).stdout;
     signale.info(`Minio Logs2: ${minioLogs}`);
+    const stats = execa.commandSync(
+        'docker stats --no-stream'
+    ).stdout;
+    signale.info('Here are the stats2.');
+    signale.info(stats);
     let s3Backend: S3Store;
     const contextOptions: TestContextOptions = {
         // assignment: 'assets_service',
