@@ -703,6 +703,11 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 ).stdout;
                 signale.info('Data Permissions!!');
                 signale.info(dataPerms);
+                const dockerVersion = execa.commandSync(
+                    'docker version'
+                ).stdout;
+                signale.info('dockerVersion!!');
+                signale.info(dockerVersion);
 
                 return true;
             }
