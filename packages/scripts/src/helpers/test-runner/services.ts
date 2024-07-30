@@ -141,6 +141,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
+            MINIO_LOGGER_CONSOLE: 'on'
         },
         network: config.DOCKER_NETWORK_NAME,
         args: config.ENCRYPT_MINIO
@@ -692,6 +693,15 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 ).stdout;
                 signale.info('Here are the stats.');
                 signale.info(stats);
+                const dataCheck = execa.commandSync(
+                    `docker exec ${minioContainerId} df -h | grep /data`
+                ).stdout;
+                signale.info(dataCheck);
+                const dataPerms = execa.commandSync(
+                    `docker exec ${minioContainerId} ls -ld /data`
+                ).stdout;
+                signale.info(dataPerms);
+
                 return true;
             }
             return false;
