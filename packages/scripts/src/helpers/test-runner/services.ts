@@ -694,12 +694,14 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 signale.info('Here are the stats.');
                 signale.info(stats);
                 const dataCheck = execa.commandSync(
-                    `docker exec ${minioContainerId} df -h | grep /data`
+                    `docker exec ${minioContainerId} df -h`
                 ).stdout;
+                signale.info('Data check!!');
                 signale.info(dataCheck);
                 const dataPerms = execa.commandSync(
                     `docker exec ${minioContainerId} ls -ld /data`
                 ).stdout;
+                signale.info('Data Permissions!!');
                 signale.info(dataPerms);
 
                 return true;
