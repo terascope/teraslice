@@ -1,5 +1,7 @@
 import { address } from 'ip';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {
     toBoolean, toSafeString, isCI, toIntegerOrThrow
 } from '@terascope/utils';
@@ -71,7 +73,7 @@ export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2022-06-11T19
 export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio';
 export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
-export const MINIO_VOLUME = fs.mkdtempSync('minio');
+export const MINIO_VOLUME = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-minio'));
 
 export const RABBITMQ_VERSION = process.env.RABBITMQ_VERSION || '3.8.16-management-alpine';
 export const RABBITMQ_DOCKER_IMAGE = process.env.RABBITMQ_DOCKER_IMAGE || 'rabbitmq';
