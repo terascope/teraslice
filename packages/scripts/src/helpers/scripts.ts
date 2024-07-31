@@ -255,7 +255,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
     network?: string;
     args?: string[];
-    mount?: string
+    mount?: string[]
 };
 
 export async function dockerRun(
@@ -271,7 +271,9 @@ export async function dockerRun(
     }
 
     if (opt.mount && !ignoreMount) {
-        args.push('--mount', opt.mount);
+        for (const mount of opt.mount) {
+            args.push('--mount', mount);
+        }
     }
 
     if (opt.ports && opt.ports.length) {

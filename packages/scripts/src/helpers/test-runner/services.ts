@@ -54,7 +54,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.RestrainedElasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        mount: `type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`,
+        mount: [`type=bind,source=${restrainedElasticsearchConfigPath},target=/usr/share/elasticsearch/config/elasticsearch.yml`],
         ports: [`${config.RESTRAINED_ELASTICSEARCH_PORT}:${config.RESTRAINED_ELASTICSEARCH_PORT}`],
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -131,13 +131,17 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Minio]: {
         image: config.MINIO_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
-        tmpfs: config.SERVICES_USE_TMPFS
-            ? ['/data']
-            : undefined,
+        /// We will be able to go back and use this on a later version of minio
+        /// Minio issue ref: https://github.com/minio/minio/issues/15733
+        // tmpfs: config.SERVICES_USE_TMPFS
+        //     ? ['/data']
+        //     : undefined,
         ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
         mount: config.ENCRYPT_MINIO
-            ? `type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`
-            : '',
+            ? [`type=bind,source=${path.join(getRootDir(), '/e2e/test/certs')},target=/opt/certs`,
+                `type=bind,source=${config.MINIO_VOLUME},target=/data`
+            ]
+            : [`type=bind,source=${config.MINIO_VOLUME},target=/data`],
         env: {
             MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
             MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
@@ -151,7 +155,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.RABBITMQ_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.RABBITMQ_NAME}`,
         ports: [`${config.RABBITMQ_MANAGEMENT_PORT}:15672`, `${config.RABBITMQ_PORT}:5672`],
-        mount: `type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`,
+        mount: [`type=bind,source=${rabbitConfigPath},target=/etc/rabbitmq/rabbitmq.conf`],
         env: {
             RABBITMQ_HOSTNAME: '0.0.0.0',
             RABBITMQ_USER: config.RABBITMQ_USER,
