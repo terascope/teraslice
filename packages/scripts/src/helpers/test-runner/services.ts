@@ -132,6 +132,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
         image: config.MINIO_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
         /// We will be able to go back and use this on a later version of minio
+        /// Minio issue ref: https://github.com/minio/minio/issues/15733
         // tmpfs: config.SERVICES_USE_TMPFS
         //     ? ['/data']
         //     : undefined,
