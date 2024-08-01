@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-export const isCI = process.env.CI === 'true';
+const isCI = process.env.CI === 'true';
 
 module.exports = (projectDir) => {
     let parentFolder;
