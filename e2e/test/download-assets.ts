@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import semver from 'semver';
-import { downloadRelease } from '@terascope/fetch-github-release';
+import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
+import { pDelay } from '@terascope/utils';
 import signale from './signale.js';
 import { AUTOLOAD_PATH } from './config.js';
 
@@ -177,19 +178,108 @@ function logAssets() {
 }
 
 /**
+ * Parse the got HTTPError response headers for custom Github fields
+ * to determine how long to wait before retrying a request
+ * @param {HTTPError} err The error returned from got
+ * @param {number} defaultDelay The default delay in milliseconds
+ * @returns {number} milliseconds to wait
+ */
+function getMSUntilRetry(err: HTTPError, defaultDelay: number): number {
+    const retryAfterSec = err.response.headers['retry-after'];
+    const remaining = err.response.headers['x-ratelimit-remaining'];
+    const resetTime = err.response.headers['x-ratelimit-reset'];
+    let delay = defaultDelay;
+    if (retryAfterSec) {
+        delay = Number(retryAfterSec) * 1000;
+    }
+    if (resetTime && remaining && Number(remaining) === 0) {
+        delay = (Number(resetTime) * 1000) - Date.now();
+    }
+    signale.info(`retry-after: ${retryAfterSec}, x-ratelimit-remaining: ${remaining}, x-ratelimit-reset: ${resetTime}`);
+    signale.info(`Will retry download in ${delay} MS.`);
+    return delay;
+}
+
+/**
+ * If a Got HTTPError, calculate the delay based on the headers on first
+ * retry or throw error if delay is longer than MAX_WAIT_MS.
+ * Double the delay on subsequent retries.
+ * If any other err, start with default delay and double each retry.
+ * @param {any} err The response error
+ * @param {number|undefined} previousDelay Delay from previous retry
+ * @returns {number} Delay in milliseconds
+ */
+function calculateDelay(err: any, previousDelay: number|undefined): number {
+    const BACKOFF_MULTIPLIER = 2;
+    const DEFAULT_DELAY_MS = 250;
+    const RATE_LIMIT_DELAY_MS = 60_000;
+    const MAX_WAIT_MS = 180_000;
+    if (previousDelay) {
+        return previousDelay * BACKOFF_MULTIPLIER;
+    }
+    if (err instanceof HTTPError) {
+        const { statusCode } = err.response;
+        if (statusCode === 403 || statusCode === 429) {
+            const delay = getMSUntilRetry(err, RATE_LIMIT_DELAY_MS);
+            if (delay <= MAX_WAIT_MS) {
+                return delay;
+            }
+            throw new Error('Github actions rate-limit exceeded. Will not retry because\n'
+                + `retry-after(${delay / 1000} seconds) exceeds max wait time(${MAX_WAIT_MS / 1000} seconds).`, err);
+        }
+    }
+    return DEFAULT_DELAY_MS;
+}
+
+/**
+ * Runs a download function, retrying on err. If the error is a
+ * Got HTTPError the headers will be parsed to determine the wait
+ * time before retrying.
+ * @param {function} downloadFunc A function that returns a promise
+ * @param {number} retries Number of times to retry download
+ * @returns {Promise<T>}
+ */
+const downloadWithDelayedRetry = async <T>(
+    downloadFunc: () => Promise<T>,
+    retries: number
+): Promise<T> => {
+    let delay: number | undefined;
+    for (let i = 0; i <= retries; i++) {
+        try {
+            return await downloadFunc();
+        } catch (err) {
+            signale.warn('Asset download unsuccessful: ', err.message);
+            if (i < retries) {
+                delay = calculateDelay(err, delay);
+                await pDelay(delay);
+                signale.info(`Retrying download... (${i + 1}/${retries})`);
+            } else {
+                throw err; // Throw the error if no retries left
+            }
+        }
+    }
+    throw new Error('Asset download failed');
+};
+
+/**
  * Download all bundled assets described in the
  * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
-    await Promise.all(defaultAssetBundles.map(({ repo }) => downloadRelease(
-        'terascope',
-        repo,
-        AUTOLOAD_PATH,
-        filterRelease,
-        filterAsset,
-        leaveZipped,
-        disableLogging
-    )));
+    const MAX_RETRIES = 3;
+    const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
+        () => downloadRelease(
+            'terascope',
+            repo,
+            AUTOLOAD_PATH,
+            filterRelease,
+            filterAsset,
+            leaveZipped,
+            disableLogging
+        ),
+        MAX_RETRIES)
+    );
+    await Promise.all(promises);
 
     deleteAssetsWithWrongNodeVersions();
     deleteOlderAssets();
