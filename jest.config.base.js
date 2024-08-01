@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { isCI } = require('@terascope/utils');
-const { getJestAliases } = require('@terascope/scripts');
+
+export const isCI = process.env.CI === 'true';
 
 module.exports = (projectDir) => {
     let parentFolder;
@@ -51,9 +51,7 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: {
-            ...getJestAliases(),
-        },
+        moduleNameMapper: {},
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs', 'mjs'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
