@@ -1,6 +1,6 @@
+import type { Logger } from '@terascope/types';
 import { toHumanTime } from './dates.js';
 import { debugLogger } from './logger.js';
-import { Logger } from './logger-interface.js';
 import { pImmediate } from './promises.js';
 
 let _eventLoop: EventLoop|undefined;

@@ -1,4 +1,4 @@
-import isMatch from 'date-fns/isMatch';
+import { isMatch } from 'date-fns';
 import { FieldType, DateFormat } from '@terascope/types';
 import { isValidDate, primitiveToString } from '@terascope/utils';
 import {

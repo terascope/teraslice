@@ -67,6 +67,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite":  "unit-esm"
     }
 }

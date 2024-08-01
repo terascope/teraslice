@@ -1,10 +1,18 @@
+import { cloneDeep } from '@terascope/utils';
 import { DataFrame } from './data-frame/index.js';
 import {
     jexl, extract, extractConfig,
     transformRecord, transformRecordConfig
 } from './jexl/index.js';
-import { FieldTransform, RecordTransform } from './transforms/index.js';
+import {
+    FieldTransform as FTransform,
+    RecordTransform as RTransform
+} from './transforms/index.js';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame.js';
+
+// import are immutable, so we rename and clone to alter methods
+const FieldTransform = cloneDeep(FTransform);
+const RecordTransform = cloneDeep(RTransform);
 
 FieldTransform.repository.extract = extractConfig;
 FieldTransform.extract = extract;

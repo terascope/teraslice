@@ -1,11 +1,16 @@
+import fs from 'node:fs';
 import { FieldType } from '@terascope/types';
+import { isExecutedFile } from '@terascope/utils';
 import { Suite } from './helpers.js';
-import { config, data } from './fixtures/data.json';
 import {
-    DataFrame, isNumberLike, ValueAggregation, KeyAggregation
+    DataFrame, isNumberLike, ValueAggregation,
+    KeyAggregation
 } from '../dist/src/index.js';
 
-const run = async () => {
+const json = fs.readFileSync(path.join('.', './fixtures/data.json'));
+const { config, data } = JSON.parse(json)
+
+export default run = async () => {
     const suite = Suite('Aggregate');
 
     const dataFrame = DataFrame.fromJSON(config, data);
@@ -48,7 +53,7 @@ const run = async () => {
     });
 };
 
-if (require.main === module) {
+if (isExecutedFile()) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });

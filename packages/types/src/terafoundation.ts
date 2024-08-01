@@ -7,8 +7,8 @@ import {
     CollectFunction, Counter, Gauge,
     Histogram, Summary
 } from 'prom-client';
-import type { Overwrite } from './utility';
-import type { Logger } from './logger';
+import type { Overwrite } from './utility.js';
+import type { Logger } from './logger.js';
 
 interface Format {
     name?: string | undefined;

@@ -39,7 +39,7 @@
     },
     "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit",
+        "testSuite":  "unit-esm",
         "enableTypedoc": true
     }
 }
