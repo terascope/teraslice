@@ -110,6 +110,12 @@ export function getRootInfo(): RootPackageInfo {
     return _rootInfo;
 }
 
+export function getRootTsConfig(): Record<string, any> {
+    const rootTsConfig = path.join(getRootDir(), 'tsconfig.json');
+    if (!fse.existsSync(rootTsConfig)) return { };
+    return fse.readJSONSync(rootTsConfig);
+}
+
 export function getAvailableTestSuites(): string[] {
     return Object.keys(getRootInfo().terascope.tests.suites);
 }

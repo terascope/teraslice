@@ -1011,12 +1011,14 @@ export function isASCII(input: unknown, _parentContext?: unknown): boolean {
 }
 
 /**
- * Validates that the input is a base64 encoded string or a list of base64 encoded strings
+ * Validates that the input is a base64 encoded string or a list of base64
+ * encoded strings of string or binary data
  *
  * @example
- * FieldValidator.isBase64('ZWFzdXJlLg=='); // true
+ * FieldValidator.isBase64('H4sIADYPj2YAAytJLS4x4gIA2GR0VwYAAAA='); // true
  * FieldValidator.isBase64('not base 64'); // false\
- * FieldValidator.isBase64(['ZWFzdXJlLg==', 'ZWFzdXJlLg==']); // true
+ * FieldValidator.isBase64(['H4sIADYPj2YAAytJLS4x4gIA2GR0VwYAAAA=',
+ *                                'H4sIAFIPj2YAAytJLS4x5AIAGzdZfAYAAAA=']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1036,11 +1038,13 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
 function _validBase64(input: unknown): boolean {
     if (ts.isString(input)) {
         const validatorValid = validator.isBase64(input);
-
-        if (validatorValid) {
-            const decode = Buffer.from(input, 'base64').toString('utf8');
-            const encode = Buffer.from(decode, 'utf8').toString('base64');
-
+        const validatorValidUrl = validator.isBase64(input, { urlSafe: true });
+        // validator does not include pad char(=)
+        const base64URLPaddedRegex = /^[A-Z0-9_\-=]*$/i;
+        const validatorValidUrlPadded = base64URLPaddedRegex.test(input);
+        if (validatorValid || validatorValidUrl || validatorValidUrlPadded) {
+            const decode = Buffer.from(input, 'base64');
+            const encode = Buffer.from(decode).toString('base64');
             return input === encode;
         }
     }

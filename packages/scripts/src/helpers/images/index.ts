@@ -3,6 +3,7 @@ import * as config from '../config.js';
 import { ImagesAction } from './interfaces.js';
 import signale from '../signale.js';
 import { dockerPull, saveAndZip } from '../scripts.js';
+import { getRootInfo } from '../misc.js';
 
 export async function images(action: ImagesAction): Promise<void> {
     if (action === ImagesAction.List) {
@@ -20,18 +21,34 @@ export async function images(action: ImagesAction): Promise<void> {
  */
 export async function createImageList(): Promise<void> {
     signale.info(`Creating Docker image list at ${config.DOCKER_IMAGE_LIST_PATH}`);
+    const repo = getRootInfo().name;
+    let list;
+    if (repo === 'elasticsearch-assets') {
+        list = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}`;
+    } else if (repo === 'kafka-asset-bundle') {
+        list = `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}`;
+    } else if (repo === 'file-assets-bundle') {
+        list = `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}`;
+    } else if (repo === 'teraslice-workspace') {
+        const baseImages: string = config.TEST_NODE_VERSIONS
+            .reduce((acc: string, version: string) => `${acc}${config.BASE_DOCKER_IMAGE}:${version}\n`, '');
 
-    const list = 'terascope/node-base:18.19.1\n'
-               + 'terascope/node-base:20.11.1\n'
-               + 'terascope/node-base:22.2.0\n'
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:6.8.6\n`
-               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:7.9.3\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:1.3.10\n`
-               + `${config.OPENSEARCH_DOCKER_IMAGE}:2.8.0\n`
-               + `${config.KAFKA_DOCKER_IMAGE}:7.1.9\n`
-               + `${config.ZOOKEEPER_DOCKER_IMAGE}:7.1.9\n`
-               + `${config.MINIO_DOCKER_IMAGE}:RELEASE.2020-02-07T23-28-16Z\n`
-               + 'kindest/node:v1.30.0';
+        list = `${baseImages}`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH6_VERSION}\n`
+               + `${config.ELASTICSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_ELASTICSEARCH7_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH1_VERSION}\n`
+               + `${config.OPENSEARCH_DOCKER_IMAGE}:${config.__DEFAULT_OPENSEARCH2_VERSION}\n`
+               + `${config.KAFKA_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.ZOOKEEPER_DOCKER_IMAGE}:${config.KAFKA_IMAGE_VERSION}\n`
+               + `${config.MINIO_DOCKER_IMAGE}:${config.MINIO_VERSION}\n`
+               + `${config.KIND_DOCKER_IMAGE}:${config.KIND_VERSION}`;
+    } else {
+        list = '';
+    }
 
     if (!fse.existsSync(config.DOCKER_IMAGES_PATH)) {
         await fse.emptyDir(config.DOCKER_IMAGES_PATH);
@@ -51,7 +68,7 @@ export async function saveImages(): Promise<void> {
         }
         fse.mkdirSync(config.DOCKER_CACHE_PATH);
         const imagesString = fse.readFileSync(config.DOCKER_IMAGE_LIST_PATH, 'utf-8');
-        const imagesArray = imagesString.split('\n');
+        const imagesArray = imagesString.split('\n').filter((imageName) => imageName !== '');
         const pullPromises = imagesArray.map(async (imageName) => {
             signale.info(`Pulling Docker image: ${imageName}`);
             await dockerPull(imageName);

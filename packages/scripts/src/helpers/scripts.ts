@@ -204,6 +204,18 @@ export async function dockerTag(from: string, to: string): Promise<void> {
     signale.success(`Image ${from} re-tagged as ${to}`);
 }
 
+export async function getNodeVersionFromImage(image: string): Promise<string> {
+    try {
+        const { stdout } = await execa(
+            'docker',
+            ['run', image, 'node', '-v']
+        );
+        return stdout;
+    } catch (err) {
+        throw new Error(`Unable to get node version from image due to Error: ${err}`);
+    }
+}
+
 export async function getContainerInfo(name: string): Promise<any> {
     const result = await exec({
         cmd: 'docker',
@@ -239,7 +251,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
     network?: string;
     args?: string[];
-    mount?: string
+    mount?: string[]
 };
 
 export async function dockerRun(
@@ -255,7 +267,9 @@ export async function dockerRun(
     }
 
     if (opt.mount && !ignoreMount) {
-        args.push('--mount', opt.mount);
+        for (const mount of opt.mount) {
+            args.push('--mount', mount);
+        }
     }
 
     if (opt.ports && opt.ports.length) {

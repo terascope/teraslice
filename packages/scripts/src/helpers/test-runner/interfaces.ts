@@ -11,20 +11,11 @@ export type TestOptions = {
     forceSuite?: string;
     suite?: string[];
     useExistingServices: boolean;
-    elasticsearchVersion: string;
-    kafkaVersion: string;
-    kafkaImageVersion: any;
-    zookeeperVersion: string;
-    minioVersion: string;
     encryptMinio: boolean;
-    rabbitmqVersion: string;
-    opensearchVersion: string;
-    nodeVersion: string;
     jestArgs?: string[];
     ignoreMount: boolean;
     testPlatform: 'native'|'kubernetes'|'kubernetesV2';
     kindClusterName: string;
-    k8sVersion?: string;
 };
 
 export type GroupedPackages = {

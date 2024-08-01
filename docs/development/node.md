@@ -13,6 +13,15 @@ Start by modifying the CI YAML files in the base-docker-image repository.
 
 https://github.com/terascope/base-docker-image
 
+### Note on how tags and node versions work in the base image
+
+The workflow for the base image tags is closely linked to the Node.js version used in the image. Here's a simple breakdown of how it works:
+
+**Major Version Tag:** The base image will either grab the latest available version of a specific major Node.js release from the node alpine image(e.g., Node 18) or it will be pinned to the latest node version that is compatible with the base image. This image is tagged with the major version number (e.g., 18). So in some cases this version will be pinned and not completely up to date with a node release. This tag is always overwritten on release.
+
+**Major-Minor Version Tag:** Next, it will retag and include both the major and minor version numbers (e.g., 18.14). This tag is updated to reflect the latest minor release within the specified major version. This tag will get overwritten in the case of a node-base change or if a new patch is relased for this minor version of node.
+
+**Major-Minor-Patch Version Tag:** Finally, the image will be re-tagged again with the complete version number, including the major, minor, and patch versions (e.g., 18.14.2). This tag points to a specific version of the Node.js release. This image only gets overwritten on a change to the node-base image that isn't node version related.
 
 #### Modify CI YAML Files
 

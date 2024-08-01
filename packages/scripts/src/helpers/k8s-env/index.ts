@@ -1,7 +1,7 @@
 import execa from 'execa';
 import {
     dockerTag, isKindInstalled, isKubectlInstalled,
-    k8sStartService, k8sStopService,
+    k8sStartService, k8sStopService, getNodeVersionFromImage
 } from '../scripts.js';
 import { Kind } from '../kind.js';
 import { K8sEnvOptions } from './interfaces.js';
@@ -18,7 +18,7 @@ const e2eImage = `${rootInfo.name}:e2e-nodev${config.NODE_VERSION}`;
 
 export async function launchK8sEnv(options: K8sEnvOptions) {
     signale.pending('Starting k8s environment with the following options: ', options);
-    const kind = new Kind(options.k8sVersion, options.kindClusterName);
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     // TODO: create a kind class
     const kindInstalled = await isKindInstalled();
     if (!kindInstalled) {
@@ -31,23 +31,6 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
     if (!kubectlInstalled) {
         signale.error('Please install kubectl before launching a k8s dev environment. https://kubernetes.io/docs/tasks/tools/');
         process.exit(1);
-    }
-
-    // If --dev is true, we must run yarn setup before creating resources
-    // We need a local node_modules folder built to add it as a volume
-    if (options.dev) {
-        if (process.version.substring(1) !== options.nodeVersion) {
-            throw new Error(`The node version this process is running on (${process.version}) does not match
-            the --node-version set in k8s-env (v${options.nodeVersion}). Check your version by running "node -v"`);
-        }
-        signale.info(`Running yarn setup with node ${process.version}...`);
-        try {
-            execa.commandSync('yarn setup');
-        } catch (err) {
-            signale.fatal(err);
-            await kind.destroyCluster();
-            process.exit(1);
-        }
     }
 
     signale.pending('Creating kind cluster');
@@ -84,6 +67,32 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         process.exit(1);
     }
 
+    // If --dev is true, we must run yarn setup before creating resources
+    // We need a local node_modules folder built to add it as a volume
+    if (options.dev) {
+        let imageVersion:string;
+        try {
+            imageVersion = await getNodeVersionFromImage(e2eImage);
+        } catch (err) {
+            await kind.destroyCluster();
+            throw new Error(`Problem running docker command to check node version: ${err}`);
+        }
+        if (process.version !== imageVersion) {
+            signale.fatal(`The node version this process is running on (${process.version}) does not match
+            the version set in k8s-env image (${imageVersion}). Check your version by running "node -v"`);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+        signale.info(`Running yarn setup with node ${process.version}...`);
+        try {
+            execa.commandSync('yarn setup');
+        } catch (err) {
+            signale.fatal(err);
+            await kind.destroyCluster();
+            process.exit(1);
+        }
+    }
+
     await kind.loadTerasliceImage(e2eImage);
 
     await ensureServices('k8s-env', {
@@ -115,11 +124,11 @@ export async function launchK8sEnv(options: K8sEnvOptions) {
         }
         process.exit(1);
     }
-    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\nDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
+    signale.success('k8s environment ready.\nNext steps:\n\tAdd alias: teraslice-cli aliases add <cluster-alias> http://localhost:5678\n\t\tExample: teraslice-cli aliases add cluster1 http://localhost:5678\n\tLoad assets: teraslice-cli assets deploy <cluster-alias> <user/repo-name>\n\t\tExample: teraslice-cli assets deploy cluster1 terascope/elasticsearch-assets\n\tRegister a job: teraslice-cli tjm register <cluster-alias> <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm reg cluster1 JOB.JSON\n\tStart a job: teraslice-cli tjm start <path/to/job/file.json>\n\t\tExample: teraslice-cli tjm start JOB.JSON\n\tDelete the kind k8s cluster: kind delete cluster --name <clusterName>\n\t\tExample: kind delete cluster --name k8s-env\n\tSee the docs for more options: https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview');
 }
 
 export async function rebuildTeraslice(options: K8sEnvOptions) {
-    const kind = new Kind(options.k8sVersion, options.kindClusterName);
+    const kind = new Kind(config.K8S_VERSION, options.kindClusterName);
     let k8s: K8s;
     try {
         k8s = new K8s(options.tsPort, options.kindClusterName);
@@ -167,13 +176,13 @@ async function buildAndTagTerasliceImage(options:K8sEnvOptions) {
     if (options.terasliceImage) {
         runImage = options.terasliceImage;
     } else if (options.skipBuild) {
-        runImage = getDevDockerImage(options.nodeVersion);
+        runImage = getDevDockerImage(config.NODE_VERSION);
     } else {
         try {
             const publishOptions: PublishOptions = {
                 dryRun: true,
                 nodeSuffix: true,
-                nodeVersion: options.nodeVersion,
+                nodeVersion: config.NODE_VERSION,
                 type: PublishType.Dev,
                 useDevFile: options.dev
             };

@@ -1,22 +1,204 @@
+body {
+    text-rendering: optimizeLegibility;
+}
+
+.homeContainer {
+    text-align: center;
+}
+
+.homeContainer .homeWrapper {
+    padding: 2em 10px;
+}
+
 .homeContainer .homeWrapper .projectLogo {
-    justify-content: space-around;
     position: relative;
     min-width: 100%;
+    pointer-events: none;
 }
 
-/* your custom css */
-
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+.homeContainer .homeWrapper .projectLogo img {
+    height: 100%;
+    max-height: 250px;
 }
+
+.mainContainer {
+    flex: 1 1 0%;
+    max-width: 100%;
+    padding: 40px 0;
+}
+
+.mainContainer .wrapper {
+    text-align: left;
+}
+
+.mainContainer .wrapper .post {
+    position: relative;
+}
+
+.mainContainer .wrapper .post .postHeader {
+    margin-bottom: 16px;
+}
+
+.docMainWrapper .wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 10px;
+}
+
+.wrapper {
+    margin: 0px auto;
+    max-width: 1100px;
+    padding: 0 20px;
+}
+
+.projectTitle {
+    color: #2D898B;
+    font-size: 250%;
+    line-height: 1em;
+}
+
+.projectTitle>small {
+    display: block;
+    font-weight: normal;
+    font-size: 50%;
+    line-height: 1em;
+    margin: 0.7em 0 1.3em;
+}
+
+.promoSection {
+    display: flex;
+    flex-flow: column wrap;
+    font-size: 125%;
+    line-height: 1.6em;
+    position: relative;
+    z-index: 99;
+}
+
+.promoSection .promoRow {
+    padding: 10px 0;
+}
+
+.promoSection .promoRow .pluginRowBlock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 -2px;
+}
+
+.promoSection .promoRow .pluginRowBlock .pluginWrapper {
+    padding: 0 2px;
+}
+
+.promoSection .promoRow .pluginWrapper {
+    display: block;
+}
+
+.button {
+    border: 1px solid #2D898B;
+    border-radius: 3px;
+    color: #2D898B;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2em;
+    padding: 10px;
+    text-decoration: none !important;
+    text-transform: uppercase;
+    transition: background 0.3s, color 0.3s;
+}
+
+.footer__col {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.footer__item {
+    text-align: center;
+}
+
+.threeColumn {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
+
+@media only screen and (min-width: 480px) {
+    .homeContainer .homeWrapper {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .projectTitle {
+        font-size: 300%;
+        margin: 0.3em 0;
+    }
+}
+
+@media only screen and (min-width: 736px) {
+    .homeContainer .homeWrapper {
+        position: relative;
+    }
+}
+
 
 @media only screen and (min-width: 1024px) {
+    .docMainWrapper {
+        display: flex;
+        flex-flow: row nowrap;
+        width: 100%;
+    }
+
+    .docMainWrapper>* {
+        margin: 0 24px;
+        margin-right: 24px;
+        margin-left: 24px;
+    }
+
+    .docMainWrapper .wrapper {
+        padding-top: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .docMainWrapper .mainContainer {
+        min-width: 0;
+    }
+
+    .docMainWrapper> :first-child {
+        margin-left: 0;
+    }
+
+    .docMainWrapper> :last-child {
+        margin-right: 0;
+    }
+
+    .mainContainer .wrapper .post {
+        display: block;
+    }
 }
 
-@media only screen and (max-width: 1023px) {
-}
+@media only screen and (max-width: 1023px) {}
 
-@media only screen and (min-width: 1400px) {
+@media only screen and (min-width: 1200px) {
+    .homeContainer .homeWrapper .projectLogo {
+        align-items: center;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        left: 0;
+        padding: 2em 100px 4em;
+        right: 0;
+        top: 0;
+    }
 }
 
 @media only screen and (min-width: 1500px) {
+    .wrapper {
+        max-width: 1400px;
+    }
 }

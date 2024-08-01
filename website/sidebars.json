@@ -55,17 +55,17 @@
         ],
         "Packages": [
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "data-types",
-                "ids": [
+                "items": [
                     "packages/data-types/overview",
                     "packages/data-types/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "data-mate",
-                "ids": [
+                "items": [
                     "packages/data-mate/overview",
                     "packages/data-mate/functions",
                     "packages/data-mate/data-frame",
@@ -73,71 +73,71 @@
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "elasticsearch-store",
-                "ids": [
+                "items": [
                     "packages/elasticsearch-store/overview",
                     "packages/elasticsearch-store/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "elasticsearch-api",
-                "ids": [
+                "items": [
                     "packages/elasticsearch-api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "job-components",
-                "ids": [
+                "items": [
                     "packages/job-components/overview",
                     "packages/job-components/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "terafoundation",
-                "ids": [
+                "items": [
                     "packages/terafoundation/overview",
                     "packages/terafoundation/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice",
-                "ids": [
+                "items": [
                     "packages/teraslice/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice-cli",
-                "ids": [
+                "items": [
                     "packages/teraslice-cli/overview",
                     "packages/teraslice-cli/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice-client-js",
-                "ids": [
+                "items": [
                     "packages/teraslice-client-js/overview",
                     "packages/teraslice-client-js/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice-test-harness",
-                "ids": [
+                "items": [
                     "packages/teraslice-test-harness/overview",
                     "packages/teraslice-test-harness/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "ts-transforms",
-                "ids": [
+                "items": [
                     "packages/ts-transforms/plugins",
                     "packages/ts-transforms/overview",
                     "packages/ts-transforms/operations",
@@ -145,63 +145,63 @@
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "xlucene-parser",
-                "ids": [
+                "items": [
                     "packages/xlucene-parser/overview",
                     "packages/xlucene-parser/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "xlucene-translator",
-                "ids": [
+                "items": [
                     "packages/xlucene-translator/overview",
                     "packages/xlucene-translator/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "utils",
-                "ids": [
+                "items": [
                     "packages/utils/overview",
                     "packages/utils/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "eslint-config",
-                "ids": [
+                "items": [
                     "packages/eslint-config/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "types",
-                "ids": [
+                "items": [
                     "packages/types/overview",
                     "packages/types/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "scripts",
-                "ids": [
+                "items": [
                     "packages/scripts/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice-state-storage",
-                "ids": [
+                "items": [
                     "packages/teraslice-state-storage/overview",
                     "packages/teraslice-state-storage/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "xpressions",
-                "ids": [
+                "items": [
                     "packages/xpressions/overview",
                     "packages/xpressions/api/overview"
                 ]
@@ -209,24 +209,24 @@
         ],
         "Internal": [
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "docker-compose-js",
-                "ids": [
+                "items": [
                     "packages/docker-compose-js/overview",
                     "packages/docker-compose-js/api/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "generator-teraslice",
-                "ids": [
+                "items": [
                     "packages/generator-teraslice/overview"
                 ]
             },
             {
-                "type": "subcategory",
+                "type": "category",
                 "label": "teraslice-messaging",
-                "ids": [
+                "items": [
                     "packages/teraslice-messaging/overview",
                     "packages/teraslice-messaging/api/overview"
                 ]

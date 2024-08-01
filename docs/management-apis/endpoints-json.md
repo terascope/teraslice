@@ -232,7 +232,7 @@ $ curl 'localhost:5678/v1/jobs'
 ]
 ```
 
-## GET /v1/jobs/{jobId}
+## GET /v1/jobs/&#123;jobId&#125;
 
 Returns the job that matches given job id.
 
@@ -259,7 +259,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
 **NOTE:** Jobs without the `active` property are treated the same as jobs with
 the `active` property set to `true`.
 
-## PUT /v1/jobs/{jobId}
+## PUT /v1/jobs/&#123;jobId&#125;
 
 Updates a stored job that has the given job id.
 
@@ -283,7 +283,7 @@ $ curl -XPUT 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd' -d@jo
 }
 ```
 
-## GET /v1/jobs/{jobId}/ex
+## GET /v1/jobs/&#123;jobId&#125;/ex
 
 Returns the current or latest job execution context that matches given job id.
 
@@ -333,7 +333,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/ex'
 }
 ```
 
-## POST /v1/jobs/{jobId}/_start
+## POST /v1/jobs/&#123;jobId&#125;/_start
 
 Issues a start command, this will start a fresh new job associated with the job id.
 
@@ -347,7 +347,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_star
 }
 ```
 
-## POST /v1/jobs/{jobId}/_stop
+## POST /v1/jobs/&#123;jobId&#125;/_stop
 
 Issues a stop command which will shutdown execution controller and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetchers take to exit will vary. In a Kubernetes environment the force option will immediately kill all jobs, deployments, execution controllers and workers associated with the job.
 
@@ -377,7 +377,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop
 }
 ```
 
-## POST /v1/jobs/{jobId}/_pause
+## POST /v1/jobs/&#123;jobId&#125;/_pause
 
 Issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused.
 
@@ -390,7 +390,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_paus
 }
 ```
 
-## POST /v1/jobs/{jobId}/_resume
+## POST /v1/jobs/&#123;jobId&#125;/_resume
 
 Issues a resume command, this allows the execution controller to continue invoking slicers and allocating work if they were in a paused state, marks the job execution context as running.
 
@@ -403,7 +403,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_resu
 }
 ```
 
-## POST /v1/jobs/{jobId}/_recover
+## POST /v1/jobs/&#123;jobId&#125;/_recover
 
 **IMPORTANT** When recovering an job, the last execution ran will be recovered but any changes applied to the job since the recovery will be applied.
 
@@ -423,7 +423,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_reco
 }
 ```
 
-## POST /v1/jobs/{jobId}/_workers
+## POST /v1/jobs/&#123;jobId&#125;/_workers
 
 You can dynamically change the amount of workers that are allocated for a specific job execution.
 
@@ -442,7 +442,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_work
 "5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 ```
 
-## POST /v1/jobs/{jobId}/_active
+## POST /v1/jobs/&#123;jobId&#125;/_active
 
 Sets the `active` property on the specified job as `true`.
 
@@ -471,7 +471,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_acti
 }
 ```
 
-## POST /v1/jobs/{jobId}/_inactive
+## POST /v1/jobs/&#123;jobId&#125;/_inactive
 
 Sets the `active` property on the specified job as `false`.
 
@@ -500,7 +500,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_inac
 }
 ```
 
-## GET /v1/jobs/{jobId}/controller
+## GET /v1/jobs/&#123;jobId&#125;/controller
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given job_id.
 
@@ -530,7 +530,7 @@ $ curl 'localhost:5678/v1/jobs/a8e2be53-fe17-4727-9336-c9f09db9485f/controller'
 ]
 ```
 
-## GET /v1/jobs/{jobId}/errors
+## GET /v1/jobs/&#123;jobId&#125;/errors
 
 This endpoint will return an array of all errors from all executions from oldest to newest.
 
@@ -624,7 +624,7 @@ $ curl 'localhost:5678/v1/ex?status=running&size=10'
 ]
 ```
 
-## GET /v1/ex/{exId}
+## GET /v1/ex/&#123;exId&#125;
 
 Returns the job execution context that matches given execution context id.
 
@@ -705,7 +705,7 @@ $ curl 'localhost:5678/v1/ex/errors'
 ]
 ```
 
-## GET /v1/ex/{jobId}/errors/{exId}
+## GET /v1/ex/&#123;jobId&#125;/errors/&#123;exId&#125;
 
 This endpoint will return an array of all errors from the specified execution from oldest to newest.
 
@@ -738,7 +738,7 @@ $ curl 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/errors'
 ]
 ```
 
-## POST /v1/ex/{exId}/_stop
+## POST /v1/ex/&#123;exId&#125;/_stop
 
 Issues a stop command which will shutdown execution controller and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/fetchers take to exit will vary. In a Kubernetes environment the force option will immediately kill all jobs, deployments, execution controllers and workers associated with the job.
 
@@ -768,7 +768,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop?f
 }
 ```
 
-## POST /v1/ex/{exId}/_pause
+## POST /v1/ex/&#123;exId&#125;/_pause
 
 Issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused.
 
@@ -781,7 +781,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_pause'
 }
 ```
 
-## POST /v1/ex/{exId}/_resume
+## POST /v1/ex/&#123;exId&#125;/_resume
 
 Issues a resume command, this allows the execution controller to continue invoking slicers and allocating work if they were in a paused state, marks the job execution context as running.
 
@@ -794,7 +794,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume
 }
 ```
 
-## POST /v1/ex/{exId}/_recover
+## POST /v1/ex/&#123;exId&#125;/_recover
 
 **IMPORTANT** When recovering an execution, the configuration from is copied from that execution and any changes added to the job will not be applied. Additionally, recovering an execution that is not the last ran execution for a job should be used with caution. For these reasons it is recommended to [recover a job](#post-v1jobsjobid_recover) unless you need the above recommendations.
 
@@ -814,7 +814,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/d3ce31bd-db5f-41cc-922a-64e1b0cb05c4/_recove
 }
 ```
 
-## POST /v1/ex/{exId}/_workers
+## POST /v1/ex/&#123;exId&#125;/_workers
 
 You can dynamically change the amount of workers that are allocated for a specific job execution.
 
@@ -833,7 +833,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_worker
 "5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 ```
 
-## GET /v1/ex/{exId}/controller
+## GET /v1/ex/&#123;exId&#125;/controller
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given execution context id.
 

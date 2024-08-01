@@ -24,7 +24,10 @@ import { getE2EDir, readPackageInfo, listPackages } from '../packages.js';
 import { buildDevDockerImage } from '../publish/utils.js';
 import { PublishOptions, PublishType } from '../publish/interfaces.js';
 import { TestTracker } from './tracker.js';
-import { MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT } from '../config.js';
+import {
+    MAX_PROJECTS_PER_BATCH, SKIP_DOCKER_BUILD_IN_E2E, TERASLICE_PORT,
+    BASE_DOCKER_IMAGE, K8S_VERSION, NODE_VERSION
+} from '../config.js';
 import { K8s } from '../k8s-env/k8s.js';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -103,7 +106,7 @@ async function runTestSuite(
 
     if (isCI) {
         // load the services from cache in CI
-        await loadOrPullServiceImages(suite, options);
+        await loadOrPullServiceImages(suite);
     }
 
     const CHUNK_SIZE = options.debug ? 1 : MAX_PROJECTS_PER_BATCH;
@@ -213,7 +216,7 @@ async function runE2ETest(
                 process.exit(1);
             }
 
-            kind = new Kind(options.k8sVersion, options.kindClusterName);
+            kind = new Kind(K8S_VERSION, options.kindClusterName);
             try {
                 if (isCI) {
                     await loadThenDeleteImageFromCache('kindest/node:v1.30.0');
@@ -232,28 +235,28 @@ async function runE2ETest(
     }
 
     const rootInfo = getRootInfo();
-    const e2eImage = `${rootInfo.name}:e2e-nodev${options.nodeVersion}`;
+    const e2eImage = `${rootInfo.name}:e2e-nodev${NODE_VERSION}`;
 
     if (isCI) {
         // load service if in native. In k8s services will be loaded directly to kind
         if (options.testPlatform === 'native') {
-            await loadOrPullServiceImages(suite, options);
+            await loadOrPullServiceImages(suite);
             await deleteDockerImageCache();
         }
 
         // load the base docker image
-        await loadThenDeleteImageFromCache(`terascope/node-base:${options.nodeVersion}`);
+        await loadThenDeleteImageFromCache(`${BASE_DOCKER_IMAGE}:${NODE_VERSION}`);
     }
 
     try {
         if (SKIP_DOCKER_BUILD_IN_E2E) {
-            const devImage = getDevDockerImage(options.nodeVersion);
+            const devImage = getDevDockerImage(NODE_VERSION);
             await dockerTag(devImage, e2eImage);
         } else {
             const publishOptions: PublishOptions = {
                 dryRun: true,
                 nodeSuffix: true,
-                nodeVersion: options.nodeVersion,
+                nodeVersion: NODE_VERSION,
                 type: PublishType.Dev
             };
             const devImage = await buildDevDockerImage(publishOptions);

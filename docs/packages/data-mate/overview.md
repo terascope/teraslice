@@ -135,7 +135,7 @@ all functions take as a second parameter a context? value. Some transforms and v
 
 > Field validation functions accept an input and return a Boolean.  If additional arguments are needed then an object containing parameters is passed in.
 
-functionName(input, context, { arg1: 'ARG1', arg2: 'ARG2', etc... })
+functionName(input, context, &#123;arg1: 'ARG1', arg2: 'ARG2', etc... &#125;)
 
 ### isString
 
@@ -327,7 +327,7 @@ FieldValidator.isGeoShapeMultiPolygon([multiPolygon, point]); // false
 
 inNumberRange(input, context, args) - returns true if input is a Number within the min and max boundaries, or that the array on numbers are between the values
 
-args: { min: Number, max: Number, inclusive?: Boolean }
+args: &#123; min: Number, max: Number, inclusive?: Boolean &#125;
 note that second parameter is parent object, if there is not any just pass an empty object
 
 ```javascript
@@ -342,7 +342,7 @@ FieldValidator.inNumberRange(42, {}, { min: 0, max: 42, inclusive: true }); // t
 ### isEmpty
 isEmpty(input, context, args) - returns true for an empty string, array, or object
 
-args: { ignoreWhitespace?: Boolean }
+args: &#123; ignoreWhitespace?: Boolean &#125;
 
 set ignoreWhitespace to true if you want the value to be trimmed
 
@@ -361,7 +361,7 @@ FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true }); // true
 
 contains(input, context, args) - returns true if input contains args value, or the list of inputs contains args value
 
- args: { value: String }
+ args: &#123; value: String &#125;
 
 ```javascript
 FieldValidator.contains('hello', {}, { value: 'hello' }); // true
@@ -375,7 +375,7 @@ FieldValidator.contains('12345', {}, { value: '45' }); // true
 
 equals(input, context, args) - Validates that the input matches the value, of that the input array matches the value provided
 
-args: { value: 'String' }
+args: &#123; value: \'String\' &#125;
 
 ```javascript
 FieldValidator.equals('hello', { value: 'hello' }); // true
@@ -387,7 +387,7 @@ FieldValidator.equals('hello', { value: 'ello' }); // false
 
 isLength(input, context, args) - Check to see if input is a string with given length ranges, or a list of valid string lengths
 
-Optional args: { length: Number, min: Number, max: Number }
+Optional args: &#123; length: Number, min: Number, max: Number &#125;
 
 ```javascript
 FieldValidator.isLength('astring', { size: 7 }); // true
@@ -400,7 +400,7 @@ FieldValidator.isLength(['astring', 'stuff', 'other'], { min: 3, max: 10 }); // 
 ### isAlpha
 isAlpha(input, context?, args?) - Validates that the input is alpha or a list of alpha values
 
-arg: { locale?: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US
+arg: &#123; locale?: ANY LOCALE OPTION DEFINED BELOW &#125;, default locale is en-US
 
 Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
@@ -415,7 +415,7 @@ FieldValidator.isAlpha(['validString', 'more']); // true
 
 isAlphanumeric(input, context?, args?) - Validates that the input is alphanumeric or a list of alphanumeric values
 
-Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US
+Optional arg: &#123; locale: ANY LOCALE OPTION DEFINED BELOW &#125;, default locale is en-US
 
 Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
@@ -517,7 +517,7 @@ FieldValidator.isEmail(['email@example.com', 'ha3ke5@pawnage.com']); // true
 
 isFQDN(input, context?, args) - Validate that the input is a valid domain name, or a list of domain names
 
-args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }
+args: &#123; require_tld = true, allow_underscores = false, allow_trailing_dot = false &#125;
 
 ```javascript
 FieldValidator.isFQDN('example.com.uk'); // true
@@ -599,7 +599,7 @@ FieldValidator.isCIDR(['8.8.0.0/12', '2001::1234:5678/128']); // true
 
 inIPRange(input, context, args) - Validates if the input IP is within a given range of IP's, or that a list of inputs IP are in range
 
-Optional args: { min?: IP_ADDRESS, max?: IP_ADDRESS, cidr?: IP_ADDRESS/CIDR }
+Optional args: &#123; min?: IP_ADDRESS, max?: IP_ADDRESS, cidr?: IP_ADDRESS/CIDR &#125;
  default values:
  -   MIN_IPV4_IP = '0.0.0.0';
  -   MAX_IPV4_IP = '255.255.255.255';
@@ -634,7 +634,7 @@ FieldValidator.isISDN(['46707123456', '1-808-915-6800']); // true
 
 isMACAddress(input, context?, args?) - Validates that the input is a MACAddress, or a list of MACAddressess
 
-Optional args { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']
+Optional args &#123; delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any'] &#125;
 
 delimiter can be a string of one delimiter or an array of multiple delimiters
 
@@ -674,7 +674,7 @@ FieldValidator.isUUID([
 
 isHash(input, context, args) - Validates that the input is a hash, or a list of hashes
 
-arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}
+arg: &#123; algo: 'ANY HASH OPTION DEFINED BELOW'&#125;
 
 Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b
 
@@ -715,7 +715,7 @@ FieldValidator.isMIMEType(['application/graphql', 'application/javascript']); //
 
 isISSN(input, context?, args?) - returns true if input is a valid international standard serial Number or a list of valid ISSN's
 
-args: { require_hyphen = false, case_sensitive = false }
+args: &#123; require_hyphen = false, case_sensitive = false &#125;
 
 ```javascript
 FieldValidator.isISSN('0378-5955'); // true
@@ -757,7 +757,7 @@ FieldValidator.isArray([]); // true
 
 some(input, context, args) - Validates that the function specified returns true at least once on the list of values
 
-args: { fn: String, options: Any }
+args: &#123; fn: String, options: Any &#125;
 
 fn - must be a function name from FieldValidator
 options - any additional parameters necessary for the fn being evoked
@@ -772,7 +772,7 @@ FieldValidator.some(mixedArray, mixedArray, { fn: 'isBoolean' }); // false
 
 every(input, context?, args) - Validates that the function specified returns true for every single value in the list
 
-args: { fn: String, options: Any }
+args: &#123; fn: String, options: Any &#125;
 
 fn must be a function name from FieldValidator
 
@@ -788,7 +788,7 @@ FieldValidator.every(strArray, strArray, { fn: 'isString' }); // true
 
 isPostalCode(input, context?, args?) - Validates that input is a valid postal code or a list of postal codes
 
-Optional arg: { locale?: 'ANY OF THE DEFINED LOCATIONS BELOW' }
+Optional arg: &#123; locale?: \'ANY OF THE DEFINED LOCATIONS BELOW\' &#125;
 
 locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM
 
@@ -832,7 +832,7 @@ FieldTransform.toString([true, undefined, false]); // ['true', 'false'];
 
 toNumber(input, context?, args?) - Converts a value to a number if possible
 
-args: { booleanLike: Boolean }
+args: &#123; booleanLike: Boolean &#125;
 
 if given an array it will convert everything in the array excluding null/undefined values
 
@@ -950,7 +950,7 @@ FieldTransform.toKebabCase(array); // ['Happy Birthday', 'What Is This'];
 
 trim(input, context?, args?) - Will trim the input, if given an array it will convert everything in the array excluding null/undefined values
 
-args: { char?: String }
+args: &#123; char?: String &#125;
 
 char - if provided, are the chars/words to be cut out
 
@@ -972,7 +972,7 @@ FieldTransform.trim(['right    ', '   left']); // ['right', 'left'];
 trimStart(input, context?, args) - Will trim the beginning of the input
 if given an array it will convert everything in the array excluding null/undefined values
 
-args: { char?: String }
+args: &#123; char?: String &#125;
 
 char - if provided, are the chars/words to be cut out
 
@@ -989,7 +989,7 @@ FieldTransform.trimStart(['    Hello Bob    ', 'right    ']); // ['Hello Bob    
 trimEnd(input, context?, args) - Will trim the end of the input
 if given an array it will convert everything in the array excluding null/undefined values
 
-args: { char?: String }
+args: &#123; char?: String &#125;
 
 char - if provided, are the chars/words to be cut out
 
@@ -1005,7 +1005,7 @@ FieldTransform.trimEnd(['    Hello Bob    ', 'right    ']); // ['    Hello Bob',
 
 truncate(input, context?, args) - Will truncate the input to the length of the size given. If given an array it will convert everything in the array excluding null/undefined values
 
-args: { size: Number }
+args: &#123; size: Number &#125;
 
 size - the size that values should be truncated
 
@@ -1090,7 +1090,7 @@ const arrayOfEncodedValues = FieldTransform.encodeMD5([source]);
 encodeSHA(input, context?, args) - SHA encodes the input to the hash specified
 if given an array it will convert everything in the array excluding null/undefined values
 
-args { hash = 'sha256', digest = 'hex' }
+args &#123; hash = 'sha256', digest = 'hex' &#125;
 
  hash - what ever is available on your node server, defaults to sha256
 possible digest values (defaults to hex):
@@ -1226,13 +1226,13 @@ results === [{ lon: 40, lat: 60 },{ lon: 50, lat: 60 }];
 
 extract(input, context, args) - Can extract values from a string input. You may either specify a regex, a jexl expression, or specify the start and end from which the extraction will take all values inbetween, if given an array it will convert everything in the array excluding null/undefined values
 
-args - {
+args - &#123;
     regex?: String,
     isMultiValue = true,
     jexlExp?: String,
     start?: String,
     end?: String
-  }
+  &#125;
 
 
 If regex is specified, it will run the regex against the value.
@@ -1268,12 +1268,12 @@ results; // ['hello', 'world'];
 
 replaceRegex(input, context, args) - This function replaces chars in a string based off the regex value provided
 
-args - {
+args - &#123;
     regex: String,
     replace: String,
     ignoreCase = false,
     global = false
-  }
+  &#125;
 
 returns null if input is null/undefined
 
@@ -1303,7 +1303,7 @@ results === 'soWesWring'
 
 replaceLiteral(input, context, args) - This function replaces the searched value with the replace value
 
-args - { search: String, replace: String }
+args - &#123; search: String, replace: String &#125;
 
 search is the word that is to be changed to the value specified with the parameter replace
 
@@ -1322,7 +1322,7 @@ FieldTransform.replaceLiteral(data, {}, config) // ['Hi mel', 'hello mel'];
 
 splitString(input, context?, args?) - Converts a string to an array of characters split by the delimiter provided
 
-args - { delimiter?: String }
+args - &#123; delimiter?: String &#125;
 
 delimiter defaults to an empty string
 
@@ -1344,7 +1344,7 @@ results // [['a', 'stri', 'ng'], ['hello', 'world']];
 
 toUnixTime(input, context?, args) - Converts a given date to its time in milliseconds or seconds
 ?
-args - { ms = false }
+args - &#123; ms = false &#125;
 set ms to true if you want time in milliseconds
 returns null if input is null/undefined
 
@@ -1364,7 +1364,7 @@ FieldTransform.toUnixTime(['Jan 1, 2020 UTC', '2020 Jan, 1 UTC']); // [157783680
 
 toISO8601(input, context?, args) - Converts a date string or number to an ISO date
 
-args - { resolution?: String }
+args - &#123; resolution?: String &#125;
 resolution value: ['seconds', 'milliseconds'], defaults to seconds
 
 returns null if input is null/undefined
@@ -1383,7 +1383,7 @@ FieldTransform.toISO8601(data); // ['2020-01-01T00:00:00.000Z', '2020-01-02T00:0
 
 formatDate(input, context, args) - Function that will format a number or date string to a given date format provided
 
-args - { format: String, resolution?: String }
+args - &#123; format: String, resolution?: String &#125;
 format is the shape that the date will be ie(M/d/yyyy)
 resolution value: ['seconds', 'milliseconds'], defaults to seconds, is only needed when input is a number
 
@@ -1409,7 +1409,7 @@ results // ['2020-02-06']);
 
 parseDate(input, context?, args) - Will use date-fns parse against the input and return a date object
 
-args - { format: String }
+args - &#123; format: String &#125;
 
 format is the shape that the date will be ie(M/d/yyyy)
 
@@ -1440,7 +1440,7 @@ result === [new Date('2020-02-06T21:52:30.000Z'), new Date('2020-02-06T21:52:30.
 
 setDefault(input, context?, args) - This function is used to set a value if input is null or undefined, otherwise the input value is returned
 
-args: { value: Any }
+args: &#123; value: Any &#125;
 
 value is what will be given when input is null/undefined
 
@@ -1453,7 +1453,7 @@ results === 'someValue';
 
 map(input, context?, args) - This function is used to map an array of values with any FieldTransform method
 
-args: { fn: String, options: Any }
+args: &#123; fn: String, options: Any &#125;
 
 returns null if input is null/undefined
 
@@ -1472,7 +1472,7 @@ options are any additional parameters necessary for the fn being evoked
 
 required(input, context, args) - This function will return false if input record does not have all specified keys
 
-args - { fields: string[] }
+args - &#123; fields: string[] &#125;
 
 ```javascript
 const obj1 = { foo: 'hello', bar: 'stuff' };
@@ -1490,11 +1490,11 @@ results2; // false;
 
 select(input, context, args) - Will return true if an object matches the xLucene expression
 
-args - {
+args - &#123;
     query: xLuceneQuery,
     type_config?: xLuceneTypeConfig,
     variables?: xLuceneVariables
-  }
+  &#125;
 
 
 ```javascript
@@ -1513,11 +1513,11 @@ results2; // false;
 
 reject(input, context, args) - Will return true if an object DOES NOT match the xLucene expression
 
-args - {
+args - &#123;
     query: xLuceneQuery,
     type_config?: xLuceneTypeConfig,
     variables?: xLuceneVariables
-  }
+  &#125;
 `
 
 ```javascript
@@ -1538,7 +1538,7 @@ results2; // true;
 
 renameField(input, context, args) - This will migrate a fields value to a new field name
 
-args - { from: string; to: string }
+args - &#123; from: string; to: string &#125;
 
 ```javascript
 const obj = { hello: 'world' };
@@ -1551,7 +1551,7 @@ results === { goodbye: 'world' };
 
 setField(input, context, args) - Sets a field on a record with the given value
 
-args - { field: string; value: Any }
+args - &#123; field: string; value: Any &#125;
 
 ```javascript
 const obj = { hello: 'world' };
@@ -1564,7 +1564,7 @@ results === { hello: 'world', other: 'stuff' };
 
 dropFields(input, context, args) - removes fields from a record
 
-args - { fields: string[] }
+args - &#123; fields: string[] &#125;
 
 ```javascript
 
@@ -1578,7 +1578,7 @@ results ===  { hello: 'world' };
 
 copyField(input, context, args) - Will copy a field to another field
 
-args - { from: string; to: string }
+args - &#123; from: string; to: string &#125;
 
 ```javascript
 const obj = { hello: 'world', other: 'stuff' };
@@ -1591,7 +1591,7 @@ results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 
 transformRecord(input, context, args) - Will execute a jexl expression. Can use data-mate functions inside the jexl expression. You do not need to specify the parent context argument as that is automatically the document used as to call it.
 
-args - { jexlExp: string; field: string }
+args - &#123; jexlExp: string; field: string &#125;
 
 ```javascript
 const obj = { num: 1234 };

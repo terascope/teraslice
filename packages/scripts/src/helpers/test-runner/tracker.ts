@@ -113,7 +113,8 @@ export class TestTracker {
             process.stderr.write('\n');
             signale.fatal(`${errorMsg}`);
             process.stderr.write('\n');
-            const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
+            const codeNum = Number(process.exitCode);
+            const exitCode = (codeNum || 0) > 0 ? codeNum : 1;
             process.exit(exitCode);
         }
 

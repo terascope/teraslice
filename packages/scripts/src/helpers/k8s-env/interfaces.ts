@@ -1,17 +1,8 @@
 export interface K8sEnvOptions {
-    elasticsearchVersion: string;
-    kafkaVersion: string;
-    kafkaImageVersion: string,
-    zookeeperVersion: string,
-    minioVersion: string;
     encryptMinio: boolean;
-    rabbitmqVersion: string;
-    opensearchVersion: string;
-    nodeVersion: string;
     skipBuild: boolean;
     tsPort: string;
     kindClusterName: string;
-    k8sVersion: string;
     assetStorage: string;
     terasliceImage?: string;
     resetStore?: boolean;

@@ -1,5 +1,5 @@
 ---
-title: Kafka (kafka-assets)
+title: "Kafka (kafka-assets)"
 sidebar_label: Kafka
 ---
 
