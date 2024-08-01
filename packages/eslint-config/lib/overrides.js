@@ -1,4 +1,7 @@
+import { createRequire } from 'node:module';
 import rules from './rules/index.js';
+
+const require = createRequire(import.meta.url);
 
 let hasTypescript = false;;
 
@@ -79,4 +82,4 @@ if (hasTypescript) {
     );
 }
 
-module.exports = overrides;
+export default overrides;

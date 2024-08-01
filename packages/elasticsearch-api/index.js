@@ -2,6 +2,7 @@
 
 // polyfill because opensearch has references to an api that won't exist
 // on the client side, should be able to remove in the future
+import('setimmediate');
 import Promise from 'bluebird';
 import {
     isTest, TSError, isFatalError,
@@ -13,7 +14,6 @@ import {
 } from '@terascope/utils';
 import { ElasticsearchDistribution } from '@terascope/types';
 
-import('setimmediate');
 
 const DOCUMENT_EXISTS = 409;
 const TOO_MANY_REQUESTS = 429;
