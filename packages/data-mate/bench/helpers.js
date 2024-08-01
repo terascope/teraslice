@@ -4,7 +4,7 @@
 
 import benchmark from 'benchmark';
 
-function Suite(name) {
+export function Suite(name) {
     return new benchmark.Suite(name)
         .on('cycle', (e) => {
             const t = e.target;
@@ -60,8 +60,6 @@ function banner(n, s, c = '-') {
     return s;
 }
 
-function printHeader(msg, sep) {
+export function printHeader(msg, sep) {
     process.stdout.write(` \n${banner(100, msg, sep)}\n \n`);
 }
-
-module.exports = { Suite, printHeader };

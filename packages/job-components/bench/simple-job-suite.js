@@ -147,10 +147,10 @@ const run = async () => {
         });
 };
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

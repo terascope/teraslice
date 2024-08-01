@@ -47,10 +47,10 @@ const run = async () => Suite('Map vs BigMap')
         maxTime: 5
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

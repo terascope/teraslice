@@ -85,10 +85,10 @@ const run = async () => Suite('Parser')
         maxTime: 10,
     });
 
-if (require.main === module) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isExecutedFile } from '@terascope/utils';
 import { printHeader } from './helpers.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,8 +36,8 @@ function start(name, dir) {
         });
 }
 
-if (require.main === module) {
+export default start;
+
+if (isExecutedFile(import.meta.url)) {
     start('@terascope/data-mate', dirname);
-} else {
-    module.exports = start;
 }

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import { FieldType } from '@terascope/types';
 import { isExecutedFile } from '@terascope/utils';
 import { Suite } from './helpers.js';
@@ -10,7 +11,7 @@ import {
 const json = fs.readFileSync(path.join('.', './fixtures/data.json'));
 const { config, data } = JSON.parse(json)
 
-export default run = async () => {
+const run = async () => {
     const suite = Suite('Aggregate');
 
     const dataFrame = DataFrame.fromJSON(config, data);
@@ -53,10 +54,10 @@ export default run = async () => {
     });
 };
 
-if (isExecutedFile()) {
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

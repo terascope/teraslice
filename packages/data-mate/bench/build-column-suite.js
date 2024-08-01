@@ -1,4 +1,5 @@
 import { getGroupedFields } from '@terascope/data-types';
+import { isExecutedFile } from '@terascope/utils';
 import { Suite } from './helpers.js';
 import { config, data } from './fixtures/data.json';
 import { Column } from '../dist/src/index.js';
@@ -24,10 +25,11 @@ const run = async () => {
         maxTime: 20,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }

@@ -1,4 +1,4 @@
-import { timesIter } from '@terascope/utils';
+import { timesIter, isExecutedFile } from '@terascope/utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,10 +44,11 @@ const run = async () => {
         maxTime: 30,
     });
 };
-if (require.main === module) {
+
+export default run;
+
+if (isExecutedFile(import.meta.url)) {
     run().then((suite) => {
         suite.on('complete', () => {});
     });
-} else {
-    module.exports = run;
 }
