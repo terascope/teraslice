@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import { TSError } from '../src/errors.js';
 import {
     waterfall, pWhile, pRetry, PRetryConfig,
@@ -8,7 +9,8 @@ import {
 describe('Utils', () => {
     describe('waterfall', () => {
         it('should call all methods and return the correct value', async () => {
-            const queue = [jest.fn().mockResolvedValue('hello'), jest.fn().mockResolvedValue('hi'), jest.fn().mockResolvedValue('howdy')];
+            // @ts-expect-error
+            const queue = [jest.fn().mockResolvedValue('hello'), jest.fn().mockResolvedValue('hi'), jest.fn().mockResolvedValue('howdy')] as any[];
 
             const result = await waterfall('greetings', queue);
             expect(result).toEqual('howdy');
@@ -20,10 +22,10 @@ describe('Utils', () => {
 
         it('should handle errors correctly', async () => {
             const queue = [
-                jest.fn().mockResolvedValue('hello'),
-                jest.fn().mockRejectedValue(new Error('Uh oh!')),
-                jest.fn().mockResolvedValue('howdy'),
-            ];
+                jest.fn<() => Promise<string>>().mockResolvedValue('hello'),
+                jest.fn<() => Promise<Error>>().mockRejectedValue(new Error('Uh oh!')),
+                jest.fn<() => Promise<string>>().mockResolvedValue('howdy'),
+            ] as any[];
 
             try {
                 const results = await waterfall('greetings', queue);
@@ -46,15 +48,14 @@ describe('Utils', () => {
         };
 
         it('should be able to resolve on the first try', async () => {
-            const fn = jest.fn().mockResolvedValue('hello');
-
+            const fn = jest.fn<() => Promise<string>>().mockResolvedValue('hello');
             expect(await pRetry(fn, config)).toEqual('hello');
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
 
         it('should be able to resolve on the second try', async () => {
-            const fn = jest.fn();
+            const fn = jest.fn<() => Promise<any>>();
             fn.mockRejectedValueOnce(new Error('Uh oh'));
             fn.mockResolvedValue('hi');
 
@@ -64,7 +65,7 @@ describe('Utils', () => {
         });
 
         it('should be able to resolve on the third try', async () => {
-            const fn = jest.fn();
+            const fn = jest.fn<() => Promise<any>>();
             fn.mockRejectedValueOnce(new Error('Uh oh'));
             fn.mockRejectedValueOnce(new Error('Uh oh'));
             fn.mockResolvedValue('howdy');
@@ -75,7 +76,7 @@ describe('Utils', () => {
         });
 
         it('should be able to reject on the fourth try', async () => {
-            const fn = jest.fn();
+            const fn = jest.fn<() => Promise<any>>();
             fn.mockRejectedValueOnce(new Error('Uh oh'));
             fn.mockRejectedValueOnce(new Error('Uh oh'));
             fn.mockRejectedValueOnce(new Error('Fail!'));
@@ -91,7 +92,7 @@ describe('Utils', () => {
                 fatalError: true,
             });
 
-            const fn = jest.fn();
+            const fn = jest.fn<() => Promise<any>>();
             fn.mockRejectedValueOnce(error);
             fn.mockResolvedValue('howdy');
 
@@ -105,7 +106,7 @@ describe('Utils', () => {
                 retryable: false,
             });
 
-            const fn = jest.fn();
+            const fn = jest.fn<() => Promise<any>>();
             fn.mockRejectedValueOnce(error);
             fn.mockResolvedValue('howdy');
 

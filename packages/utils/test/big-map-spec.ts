@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { jest } from '@jest/globals';
 import { BigMap } from '../src/big-map.js';
 
 describe('BigMap', () => {

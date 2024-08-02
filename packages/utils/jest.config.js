@@ -15,6 +15,26 @@ config.moduleNameMapper = {
 config.testTimeout = 60 * 1000;
 config.transform = {};
 
-config.transform['^.+\\.(t|j)sx?$'] = '@swc/jest';
+config.transform['^.+\\.(t|j)sx?$'] = ['@swc/jest', {
+    jsc: {
+        loose: true,
+        parser: {
+            syntax: 'typescript',
+            tsx: false,
+            decorators: true
+        },
+        transform: {
+            legacyDecorator: true,
+            decoratorMetadata: true
+        },
+        target: 'esnext'
+    },
+    module: {
+        type: 'es6',
+        strictMode: false,
+        noInterop: false,
+        ignoreDynamic: true
+    }
+}];
 
 export default config;
