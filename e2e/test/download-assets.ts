@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import semver from 'semver';
 import { downloadRelease, HTTPError } from '@terascope/fetch-github-release';
-import { pDelay } from '@terascope/utils';
+import { pRetry } from '@terascope/utils';
 import signale from './signale.js';
 import { AUTOLOAD_PATH } from './config.js';
 
@@ -201,21 +201,15 @@ function getMSUntilRetry(err: HTTPError): number {
 }
 
 /**
- * If a Got HTTPError, calculate the delay based on the headers on first
- * retry or throw error if delay is longer than MAX_WAIT_MS.
- * Double the delay on subsequent retries.
- * If any other error, start with default delay and double each retry.
+ * If a Got HTTPError, calculate the delay based on the headers of the
+ * initial response or throw error if delay is longer than MAX_WAIT_MS.
+ * If any other error return undefined.
  * @param {any} err The response error
- * @param {number|undefined} previousDelay Delay from previous retry
- * @returns {number} Delay in milliseconds
+ * @returns {number|undefined} Delay in milliseconds or undefined
  */
-function calculateDelay(err: any, previousDelay: number|undefined): number {
-    const BACKOFF_MULTIPLIER = 2;
-    const DEFAULT_DELAY_MS = 250;
+function calculateDelay(err: any): number|undefined {
     const MAX_WAIT_MS = 180_000;
-    if (previousDelay) {
-        return previousDelay * BACKOFF_MULTIPLIER;
-    }
+
     if (err instanceof HTTPError) {
         const { statusCode } = err.response;
         if (statusCode === 403 || statusCode === 429) {
@@ -227,7 +221,7 @@ function calculateDelay(err: any, previousDelay: number|undefined): number {
                 + `retry-after(${delay / 1000} seconds) exceeds max wait time(${MAX_WAIT_MS / 1000} seconds).`, err);
         }
     }
-    return DEFAULT_DELAY_MS;
+    return undefined;
 }
 
 /**
@@ -235,29 +229,22 @@ function calculateDelay(err: any, previousDelay: number|undefined): number {
  * Got HTTPError the headers will be parsed to determine the wait
  * time before retrying.
  * @param {function} downloadFunc A function that returns a promise
- * @param {number} retries Number of times to retry download
  * @returns {Promise<T>}
  */
 const downloadWithDelayedRetry = async <T>(
     downloadFunc: () => Promise<T>,
-    retries: number
 ): Promise<T> => {
-    let delay: number | undefined;
-    for (let i = 0; i <= retries; i++) {
-        try {
-            return await downloadFunc();
-        } catch (err) {
-            signale.warn('Asset download unsuccessful: ', err.message);
-            if (i < retries) {
-                delay = calculateDelay(err, delay);
-                await pDelay(delay);
-                signale.info(`Retrying download... (${i + 1}/${retries})`);
-            } else {
-                throw err; // Throw the error if no retries left
-            }
-        }
+    try {
+        return await downloadFunc();
+    } catch (err) {
+        signale.warn('Asset download unsuccessful: ', err.message);
+        const rateLimitDelay = calculateDelay(err);
+        return pRetry(() => downloadFunc(), {
+            retries: 2,
+            delay: rateLimitDelay || 500,
+            maxDelay: 360_000
+        });
     }
-    throw new Error('Asset download failed');
 };
 
 /**
@@ -265,7 +252,6 @@ const downloadWithDelayedRetry = async <T>(
  * defaultAssetBundles array to the autoload directory
 */
 export async function downloadAssets() {
-    const MAX_RETRIES = 3;
     const promises = defaultAssetBundles.map(({ repo }) => downloadWithDelayedRetry(
         () => downloadRelease(
             'terascope',
@@ -275,8 +261,7 @@ export async function downloadAssets() {
             filterAsset,
             leaveZipped,
             disableLogging
-        ),
-        MAX_RETRIES)
+        ))
     );
     await Promise.all(promises);
 
