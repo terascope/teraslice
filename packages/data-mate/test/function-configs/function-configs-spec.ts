@@ -1,12 +1,12 @@
 import 'jest-extended';
 import { promises as fsp } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { uniq } from '@terascope/utils';
-import {
-    functionConfigRepository,
-    FunctionDefinitionConfig,
-} from '../../src/index.js';
+import { functionConfigRepository, FunctionDefinitionConfig} from '../../src/index.js';
 import { functionTestHarness } from './functionTestHarness.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('function configs', () => {
     Object.entries(functionConfigRepository).forEach(([key, fnDef]) => {
@@ -28,7 +28,7 @@ describe('function configs', () => {
 
 describe('function registries', () => {
     it('should ensure that each config file is exported', async () => {
-        const dirPath = path.join(__dirname, '..', '..', 'src', 'function-configs');
+        const dirPath = path.join(dirname, '..', '..', 'src', 'function-configs');
         const configDirs = await fsp.readdir(dirPath);
 
         for (const item of configDirs) {

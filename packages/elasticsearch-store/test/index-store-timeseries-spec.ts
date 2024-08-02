@@ -3,6 +3,7 @@ import {
     times, pDelay, DataEntity,
     TSError, debugLogger, get
 } from '@terascope/utils';
+import { fileURLToPath } from 'node:url';
 import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType
@@ -11,6 +12,8 @@ import {
     IndexStore, IndexConfig, __timeSeriesTest,
     ElasticsearchTestHelpers
 } from '../src/index.js';
+
+const filename = fileURLToPath(import.meta.url);
 
 const {
     makeClient, cleanupIndexStore, TEST_INDEX_PREFIX,
@@ -32,7 +35,7 @@ function expectedStoreType(store: IndexStore<any>): undefined | string {
 }
 
 describe('IndexStore (timeseries)', () => {
-    const logger = debugLogger(__filename);
+    const logger = debugLogger(filename);
 
     describe.each([0, 1])('when %d days pass', (numDays) => {
         const ONE_HOUR = 60 * 60 * 1000;

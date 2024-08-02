@@ -1,13 +1,12 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { isExecutedFile } from '@terascope/utils';
+import { printHeader } from './helpers.js';
 
-// See: https://github.com/funkia/list/blob/master/test/bench/index.js
-/* eslint-disable no-console */
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const fs = require('fs');
-const path = require('path');
-const { printHeader } = require('./helpers');
-
-function start(name, dir) {
+export default function start(name, dir) {
     const benchmarks = fs.readdirSync(dir).filter((filename) => filename.match(/-suite\.js$/));
 
     printHeader(`(${benchmarks.length}) ${name} benchmarks found`, '*');
@@ -34,8 +33,6 @@ function start(name, dir) {
         });
 }
 
-if (require.main === module) {
-    start('xlucene-parser', __dirname);
-} else {
-    module.exports = start;
+if (isExecutedFile(import.meta.url)) {
+    start('xlucene-parser', dirname);
 }
