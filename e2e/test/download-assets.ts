@@ -181,14 +181,14 @@ function logAssets() {
  * Parse the got HTTPError response headers for custom Github fields
  * to determine how long to wait before retrying a request
  * @param {HTTPError} err The error returned from got
- * @param {number} defaultDelay The default delay in milliseconds
  * @returns {number} milliseconds to wait
  */
-function getMSUntilRetry(err: HTTPError, defaultDelay: number): number {
+function getMSUntilRetry(err: HTTPError): number {
+    const RATE_LIMIT_DELAY_MS = 60_000;
     const retryAfterSec = err.response.headers['retry-after'];
     const remaining = err.response.headers['x-ratelimit-remaining'];
     const resetTime = err.response.headers['x-ratelimit-reset'];
-    let delay = defaultDelay;
+    let delay = RATE_LIMIT_DELAY_MS;
     if (retryAfterSec) {
         delay = Number(retryAfterSec) * 1000;
     }
@@ -204,7 +204,7 @@ function getMSUntilRetry(err: HTTPError, defaultDelay: number): number {
  * If a Got HTTPError, calculate the delay based on the headers on first
  * retry or throw error if delay is longer than MAX_WAIT_MS.
  * Double the delay on subsequent retries.
- * If any other err, start with default delay and double each retry.
+ * If any other error, start with default delay and double each retry.
  * @param {any} err The response error
  * @param {number|undefined} previousDelay Delay from previous retry
  * @returns {number} Delay in milliseconds
@@ -212,7 +212,6 @@ function getMSUntilRetry(err: HTTPError, defaultDelay: number): number {
 function calculateDelay(err: any, previousDelay: number|undefined): number {
     const BACKOFF_MULTIPLIER = 2;
     const DEFAULT_DELAY_MS = 250;
-    const RATE_LIMIT_DELAY_MS = 60_000;
     const MAX_WAIT_MS = 180_000;
     if (previousDelay) {
         return previousDelay * BACKOFF_MULTIPLIER;
@@ -220,7 +219,7 @@ function calculateDelay(err: any, previousDelay: number|undefined): number {
     if (err instanceof HTTPError) {
         const { statusCode } = err.response;
         if (statusCode === 403 || statusCode === 429) {
-            const delay = getMSUntilRetry(err, RATE_LIMIT_DELAY_MS);
+            const delay = getMSUntilRetry(err);
             if (delay <= MAX_WAIT_MS) {
                 return delay;
             }
