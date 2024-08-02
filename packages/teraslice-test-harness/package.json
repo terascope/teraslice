@@ -31,7 +31,7 @@
         "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/fetch-github-release": "^0.8.10",
+        "@terascope/fetch-github-release": "^1.0.0",
         "decompress": "^4.2.1",
         "fs-extra": "^11.2.0"
     },
