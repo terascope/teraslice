@@ -3,6 +3,9 @@ import {
     has, toString, pDelay, pMap,
 } from '@terascope/utils';
 import { Teraslice } from '@terascope/types';
+import chalk from 'chalk';
+import * as diff from 'diff';
+import path from 'node:path';
 import { Job } from 'teraslice-client-js';
 import TerasliceUtil from './teraslice-util.js';
 import Display from './display.js';
@@ -669,6 +672,65 @@ export default class Jobs {
         }
     }
 
+    formatJobConfig(jobConfig: any) {
+        const finalJobConfig: any = {};
+        Object.keys(jobConfig).forEach((key) => {
+            if (key === '__metadata') {
+                finalJobConfig.job_id = jobConfig[key].cli.job_id;
+                finalJobConfig._updated = jobConfig[key].cli.updated;
+            } else {
+                finalJobConfig[key] = jobConfig[key];
+            }
+        });
+        return finalJobConfig;
+    }
+
+    getLocalJSONConfigs(srcDir: string, files: string[]) {
+        const localJobConfigs = {};
+        for (const file of files) {
+            const filePath = path.join(srcDir, file);
+            const jobConfig = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+            const formatedJobConfig = this.formatJobConfig(jobConfig);
+            localJobConfigs[formatedJobConfig.job_id] = formatedJobConfig;
+        }
+        return localJobConfigs;
+    }
+
+    printDiff(diffResult: Diff.Change[]) {
+        diffResult.forEach((part) => {
+            let color: chalk.Chalk;
+            let symbol: string;
+            if (part.added) {
+                color = chalk.green;
+                symbol = '+';
+            } else if (part.removed) {
+                color = chalk.red;
+                symbol = '-';
+            } else {
+                color = chalk.grey;
+                symbol = ' ';
+            }
+            const lines = part.value.split('\n');
+            lines.forEach((line) => {
+                /// These fields aren't in the job file so don't compare in diff
+                if (line.includes('"_created":') || line.includes('"_context":')) {
+                    process.stdout.write(chalk.grey(` ${line}\n`));
+                } else if (line.length !== 0) {
+                    process.stdout.write(color(`${symbol} ${line}\n`));
+                }
+            });
+        });
+    }
+
+    getJobDiff(job: JobMetadata) {
+        const localJobConfigs = this.getLocalJSONConfigs(
+            this.config.args.srcDir,
+            this.config.args.jobFile
+        );
+        const diffObject = diff.diffJson(job.config, localJobConfigs[job.id]);
+        this.printDiff(diffObject);
+    }
+
     /**
      * @param args action and final property, final indicates if it is part of a series of commands
      * @param job job metadata
@@ -692,7 +754,11 @@ export default class Jobs {
             ({ message, final } = this.getUpdateMessage(action, job));
         }
 
-        reply.yellow(`> ${message}`);
+        if (this.config.args.diff && action === 'view') {
+            this.getJobDiff(job);
+        } else {
+            reply.yellow(`> ${message}`);
+        }
 
         if (final) {
             reply.green(`${jobInfoString}`);
