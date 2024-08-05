@@ -326,6 +326,7 @@ describe('Teraslice Job', () => {
                 job_id: 'some-job-id',
                 _created: 'hello',
                 _updated: 'hello',
+                _deleted: false,
             };
 
             beforeEach(() => {
@@ -361,6 +362,7 @@ describe('Teraslice Job', () => {
                 job_id: 'some-job-id',
                 _created: 'hello',
                 _updated: 'hello',
+                _deleted: false,
             };
 
             const expected = {

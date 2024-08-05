@@ -60,7 +60,8 @@ export class JobsStorage {
             job_id: uuid(),
             _context: this.jobType,
             _created: date,
-            _updated: date
+            _updated: date,
+            _deleted: false,
         });
 
         try {
