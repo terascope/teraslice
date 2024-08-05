@@ -395,6 +395,16 @@ export class ExecutionService {
         }
     }
 
+    async deleteExecutionContext(exId: string): Promise<ExecutionConfig> {
+        const exIds = await this.getRunningExecutions(exId);
+        if (exIds.length > 0) {
+            throw new TSError(`Execution ${exId} is currently running, cannot delete a running execution.`, {
+                statusCode: 409
+            });
+        }
+        return this.executionStorage.delete(exId);
+    }
+
     async getRunningExecutions(exId: string | undefined) {
         let query = this.executionStorage.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
 

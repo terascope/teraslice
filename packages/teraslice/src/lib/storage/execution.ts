@@ -101,6 +101,7 @@ export class ExecutionStorage {
             _context: this.jobType,
             _created: date,
             _updated: date,
+            _deleted: false,
             _has_errors: false,
             _slicer_stats: {},
             _failureReason: ''
@@ -258,6 +259,24 @@ export class ExecutionStorage {
             throw new TSError(err, {
                 statusCode: 422,
                 reason: `Unable to set execution ${exId} status code to ${status}`
+            });
+        }
+    }
+
+    async delete(exId: string) {
+        try {
+            return await this.updatePartial(
+                exId,
+                async (existing) => Object.assign(existing, {
+                    _deleted: true,
+                    _deleted_on: makeISODate(),
+                    _updated: makeISODate()
+                })
+            );
+        } catch (err) {
+            throw new TSError(err, {
+                statusCode: 422,
+                reason: `Unable to set execution ${exId} _deleted to true`
             });
         }
     }
