@@ -14,8 +14,10 @@ export default {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));
+        yargs.option('diff', yargsOptions.buildOption('diff'));
         yargs
             .example('$0 tjm view JOB_FILE.json', 'displays job config on job cluster')
+            .example('$0 tjm view JOB_FILE.json --diff', 'displays diff between job config on job cluster and the local json file')
             .example('$0 tjm view JOB_FILE1.json JOB_FILE2.json', 'displays config for multiple job files');
         return yargs;
     },
