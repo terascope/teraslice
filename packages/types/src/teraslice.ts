@@ -68,6 +68,8 @@ export interface JobConfig extends ValidatedJobConfig {
     _context: 'job';
     _created: string | Date;
     _updated: string | Date;
+    _deleted: boolean;
+    _deleted_on?: string | Date;
 }
 
 export enum RecoveryCleanupType {
@@ -76,12 +78,20 @@ export enum RecoveryCleanupType {
     pending = 'pending'
 }
 
+export enum ListDeletedOption {
+    exclude = 'exclude',
+    include = 'include',
+    only = 'only',
+}
+
 export interface ExecutionConfig extends ValidatedJobConfig {
     job_id: string;
     ex_id: string;
     _context: 'ex';
     _created: string | Date;
     _updated: string | Date;
+    _deleted: boolean;
+    _deleted_on?: string | Date;
     // TODO: fix this
     metadata: Record<string, any>;
     recovered_execution?: string;
