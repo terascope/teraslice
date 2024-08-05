@@ -2,7 +2,7 @@ import defaultsDeep from 'lodash/defaultsDeep.js';
 import {
     TSError, uniq, cloneDeep,
     isEmpty, getTypeOf, isString,
-    Logger
+    Logger, makeISODate
 } from '@terascope/utils';
 import {
     JobConfigParams, JobValidator, RecoveryCleanupType,
@@ -114,10 +114,15 @@ export class JobsService {
     }
 
     async updateJob(jobId: string, jobSpec: Partial<JobConfig | JobConfigParams>) {
-        await this._validateJobSpec(jobSpec);
+        await this._validateJobSpec(jobSpec); // FIXME: ask Jared about this
 
         const originalJob = await this.jobsStorage.get(jobId);
 
+        if (originalJob._deleted === true) {
+            throw new TSError(`Job ${jobId} has been deleted and cannot be updated.`, {
+                statusCode: 404 // FIXME: or 409, 410???
+            });
+        }
         // If job is switching from active to inactive job validation is skipped
         // This allows for old jobs that are missing required resources to be marked inactive
         if (originalJob.active !== false && jobSpec.active === false) {
@@ -164,6 +169,13 @@ export class JobsService {
         }
 
         const jobSpec = await this.jobsStorage.get(jobId);
+
+        if (jobSpec._deleted === true) {
+            throw new TSError(`Job ${jobId} has been deleted and cannot be started.`, {
+                statusCode: 404 // FIXME: or 409, 410???
+            });
+        }
+
         const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
 
         if (validJob.autorecover) {
@@ -218,6 +230,13 @@ export class JobsService {
     async recoverJob(jobId: string, cleanupType: RecoveryCleanupType) {
         // we need to do validations since the job config could change between recovery
         const jobSpec = await this.jobsStorage.get(jobId);
+
+        if (jobSpec._deleted === true) {
+            throw new TSError(`Job ${jobId} has been deleted and cannot be recovered.`, {
+                statusCode: 404 // FIXME: or 409, 410???
+            });
+        }
+
         const validJob = await this._validateJobSpec(jobSpec) as JobConfig;
 
         return this._recoverValidJob(validJob, cleanupType);
@@ -233,13 +252,90 @@ export class JobsService {
         return this.executionService.resumeExecution(exId);
     }
 
+    async deleteJob(jobId: string) {
+        const activeExecution = await this._getActiveExecution(jobId, true);
+
+        // searching for an active execution, if there is then we reject
+        if (activeExecution) {
+            throw new TSError(`Job ${jobId} is currently running, cannot delete a running job.`, {
+                statusCode: 409
+            });
+        }
+
+        let currentResources = await this.executionService.listResourcesForJobId(jobId);
+
+        if (currentResources.length > 0) {
+            currentResources = currentResources.flat();
+            const exIdsSet = new Set<string>();
+            for (const resource of currentResources) {
+                exIdsSet.add(resource.metadata.labels['teraslice.terascope.io/exId']);
+            }
+            const exIdsArr = Array.from(exIdsSet);
+            const exIdsString = exIdsArr.join(', ');
+            // FIXME: we could alternatively throw an error here and make the user force remove
+            // resources manually as we do with 'startJob'
+            this.logger.info(`There are orphaned resources for job: ${jobId}, exId: ${exIdsString}.\n`
+                 + 'Removing resources before job deletion.');
+            await Promise.all(exIdsArr
+                .map((exId) => this.executionService.stopExecution(exId, { force: true }))
+            );
+        }
+
+        const jobSpec = await this.jobsStorage.get(jobId);
+
+        if (jobSpec._deleted === true) {
+            throw new TSError(`Job ${jobId} has already been deleted.`, {
+                statusCode: 404 // FIXME: or 409, 410???
+            });
+        }
+
+        jobSpec._deleted = true;
+        jobSpec._deleted_on = makeISODate();
+        jobSpec.active = false;
+        const executions = await this.getAllExecutions(jobId, undefined, true);
+        for (const execution of executions) {
+            await this.executionService.deleteExecutionContext(execution.ex_id);
+        }
+        return this.jobsStorage.update(jobId, jobSpec);
+    }
+
+    /**
+     * Get all executions realted to a jobId
+     *
+     * @param {string} jobId
+     * @param {string} [query]
+     * @param {boolean=false} [allowZeroResults]
+     * @returns {Promise<import('@terascope/types').ExecutionConfig[]>}
+     */
+    async getAllExecutions(
+        jobId: string,
+        query?: string,
+        allowZeroResults = false
+    ): Promise<ExecutionConfig[]> {
+        if (!jobId || !isString(jobId)) {
+            throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
+        }
+
+        const executions = await this.executionStorage.search(
+            query || `job_id: "${jobId}"`, undefined, undefined, '_created:desc'
+        ) as ExecutionConfig[];
+
+        if (!allowZeroResults && !executions.length) {
+            throw new TSError(`No execution was found for job ${jobId}`, {
+                statusCode: 404
+            });
+        }
+
+        return executions;
+    }
+
     /**
      * Get the latest execution
      *
      * @param {string} jobId
      * @param {string} [query]
      * @param {boolean=false} [allowZeroResults]
-     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+     * @returns {Promise<import('@terascope/types').ExecutionConfig>}
     */
     async getLatestExecution(
         jobId: string,
@@ -268,7 +364,7 @@ export class JobsService {
      *
      * @param {string} jobId
      * @param {boolean} [allowZeroResults]
-     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+     * @returns {Promise<import('@terascope/types').ExecutionConfig>}
     */
     private async _getActiveExecution(jobId: string, allowZeroResults?: boolean) {
         const statuses = this.executionStorage
@@ -285,8 +381,7 @@ export class JobsService {
      * Get the active execution
      *
      * @param {string} jobId
-     * @param {boolean} [allowZeroResults]
-     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+     * @returns {Promise<string>}
     */
     private async _getActiveExecutionId(jobId: string): Promise<string> {
         const { ex_id } = await this._getActiveExecution(jobId);
