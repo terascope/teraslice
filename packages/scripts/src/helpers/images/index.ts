@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import * as config from '../config';
 import { ImagesAction } from './interfaces';
 import signale from '../signale';
-import { dockerPull, saveAndZip } from '../scripts';
+import { dockerImageRm, dockerPull, saveAndZip } from '../scripts';
 import { getRootInfo } from '../misc';
 
 export async function images(action: ImagesAction): Promise<void> {
@@ -59,6 +59,7 @@ export async function createImageList(): Promise<void> {
 /**
  * Pulls all docker images from the list at config.DOCKER_IMAGE_LIST_PATH
  * then saves and zips them to config.DOCKER_CACHE_PATH in batches of 2.
+ * Then the pulled images are deleted to save disk space.
  * @returns Promise<void>
  */
 export async function saveImages(): Promise<void> {
@@ -81,8 +82,11 @@ export async function saveImages(): Promise<void> {
                     saveAndZip(imagesArray[i], config.DOCKER_CACHE_PATH),
                     saveAndZip(imagesArray[i + 1], config.DOCKER_CACHE_PATH)
                 ]);
+                await dockerImageRm(imagesArray[i]);
+                await dockerImageRm(imagesArray[i + 1]);
             } else {
                 await saveAndZip(imagesArray[i], config.DOCKER_CACHE_PATH);
+                await dockerImageRm(imagesArray[i]);
             }
         }
     } catch (err) {

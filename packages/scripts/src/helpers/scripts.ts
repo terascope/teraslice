@@ -439,6 +439,17 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
+export async function dockerImageRm(image: string): Promise<void> {
+    const subprocess = await execa.command(
+        `docker image rm ${image}`,
+        { reject: false }
+    );
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Unable to remove docker image ${image}, ${subprocess.stderr}`);
+    }
+}
+
 /**
  * Unzips and loads a Docker image from a Docker cache
  * If successful the image will be deleted from the cache
