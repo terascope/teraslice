@@ -690,8 +690,8 @@ export default class Jobs {
         for (const file of files) {
             const filePath = path.join(srcDir, file);
             const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
-            const formatedJobConfig = this.formatJobConfig(jobConfig);
-            localJobConfigs[formatedJobConfig.job_id as string] = formatedJobConfig;
+            const formattedJobConfig = this.formatJobConfig(jobConfig);
+            localJobConfigs[formatedJobConfig.job_id as string] = formattedJobConfig;
         }
         return localJobConfigs;
     }
