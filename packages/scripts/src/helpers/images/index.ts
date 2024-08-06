@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import * as config from '../config';
 import { ImagesAction } from './interfaces';
 import signale from '../signale';
-import { dockerImageRm, dockerPull, saveAndZip } from '../scripts';
+import { dockerPull, saveAndZip } from '../scripts';
 import { getRootInfo } from '../misc';
 
 export async function images(action: ImagesAction): Promise<void> {
@@ -82,11 +82,8 @@ export async function saveImages(): Promise<void> {
                     saveAndZip(imagesArray[i], config.DOCKER_CACHE_PATH),
                     saveAndZip(imagesArray[i + 1], config.DOCKER_CACHE_PATH)
                 ]);
-                await dockerImageRm(imagesArray[i]);
-                await dockerImageRm(imagesArray[i + 1]);
             } else {
                 await saveAndZip(imagesArray[i], config.DOCKER_CACHE_PATH);
-                await dockerImageRm(imagesArray[i]);
             }
         }
     } catch (err) {

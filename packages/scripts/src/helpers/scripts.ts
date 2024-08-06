@@ -439,7 +439,7 @@ export async function dockerPush(image: string): Promise<void> {
     }
 }
 
-export async function dockerImageRm(image: string): Promise<void> {
+async function dockerImageRm(image: string): Promise<void> {
     const subprocess = await execa.command(
         `docker image rm ${image}`,
         { reject: false }
@@ -508,6 +508,7 @@ export async function saveAndZip(imageName:string, imageSavePath: string) {
     const filePath = path.join(imageSavePath, `${fileName}.tar`);
     const command = `docker save ${imageName} | gzip > ${filePath}.gz`;
     await execa.command(command, { shell: true });
+    await dockerImageRm(imageName);
 }
 
 export async function getCommitHash(): Promise<string> {

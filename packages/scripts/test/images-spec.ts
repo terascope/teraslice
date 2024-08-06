@@ -31,10 +31,8 @@ describe('images', () => {
         beforeAll(() => {
             const dockerPullMock = jest.spyOn(scripts, 'dockerPull');
             const saveAndZipMock = jest.spyOn(scripts, 'saveAndZip');
-            const dockerImageRmMock = jest.spyOn(scripts, 'dockerImageRm');
             dockerPullMock.mockImplementation(async () => {});
             saveAndZipMock.mockImplementation(async () => {});
-            dockerImageRmMock.mockImplementation(async () => {});
         });
 
         it('should call dockerPull and saveAndZip for all images from DOCKER_IMAGE_LIST_PATH', async () => {
@@ -43,7 +41,6 @@ describe('images', () => {
             expect(fs.existsSync(config.DOCKER_CACHE_PATH)).toBe(true);
             expect(scripts.dockerPull).toHaveBeenCalledTimes(11);
             expect(scripts.saveAndZip).toHaveBeenCalledTimes(11);
-            expect(scripts.dockerImageRm).toHaveBeenCalledTimes(11);
         });
     });
 });
