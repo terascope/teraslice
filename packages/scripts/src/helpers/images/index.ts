@@ -59,7 +59,6 @@ export async function createImageList(): Promise<void> {
 /**
  * Pulls all docker images from the list at config.DOCKER_IMAGE_LIST_PATH
  * then saves and zips them to config.DOCKER_CACHE_PATH in batches of 2.
- * Then the pulled images are deleted to save disk space.
  * @returns Promise<void>
  */
 export async function saveImages(): Promise<void> {

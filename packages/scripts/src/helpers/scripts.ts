@@ -497,7 +497,8 @@ export async function pgrep(name: string): Promise<string> {
 }
 
 /**
- * Save a docker image as a tar.gz to a local directory
+ * Save a docker image as a tar.gz to a local directory.
+ * Then remove the image from docker
  * @param {string} imageName Name of image to pull and save
  * @param {string} imageSavePath Location where image will be saved and compressed.
  * @returns void
