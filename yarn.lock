@@ -2321,10 +2321,10 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@terascope/fetch-github-release@^0.8.10":
-  version "0.8.10"
-  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.8.10.tgz#243b8a50f963f4c2c5771689e2b94e94265db179"
-  integrity sha512-bTLmiEotEca8YTi+PcvznisIHMEKYLU0Uj322rkbMJlr6LqXFvIKv2dzuwMhSADO7eUeKlC4mXUs8Nt2ftpdWA==
+"@terascope/fetch-github-release@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-1.0.0.tgz#72a19cda75c389081f48646a86595087ade348bc"
+  integrity sha512-4I89IyfaL74Ssk60VfAl4dtCS5qdUstIW8fd7x8BD2BJpiw12PYhC6Q8rMmxjPohKWuk6TC/A76TfkkjZJxiOw==
   dependencies:
     extract-zip "^2.0.1"
     got "^11.4.0"
