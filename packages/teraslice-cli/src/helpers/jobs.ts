@@ -672,8 +672,8 @@ export default class Jobs {
         }
     }
 
-    formatJobConfig(jobConfig: any) {
-        const finalJobConfig: any = {};
+    formatJobConfig(jobConfig: JobConfigFile) {
+        const finalJobConfig: Partial<Teraslice.JobConfig> = {};
         Object.keys(jobConfig).forEach((key) => {
             if (key === '__metadata') {
                 finalJobConfig.job_id = jobConfig[key].cli.job_id;
@@ -689,9 +689,9 @@ export default class Jobs {
         const localJobConfigs = {};
         for (const file of files) {
             const filePath = path.join(srcDir, file);
-            const jobConfig = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+            const jobConfig: JobConfigFile = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
             const formatedJobConfig = this.formatJobConfig(jobConfig);
-            localJobConfigs[formatedJobConfig.job_id] = formatedJobConfig;
+            localJobConfigs[formatedJobConfig.job_id as string] = formatedJobConfig;
         }
         return localJobConfigs;
     }
