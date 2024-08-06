@@ -33,16 +33,13 @@ class Jexl extends jexlCore.Jexl {
 
 const jexl = new Jexl();
 
-const bridgeToJexl = (fn: any) => {
-    // @ts-expect-error
-    const jexlInstance = this ? this.jexl : undefined;
-
+function bridgeToJexl(jexl: Jexl, fn: any) {
     return (value: any, _context: Record<string, any> | undefined, _config: any) => {
         let config;
         let context;
 
-        if (isNil(config) && jexlInstance) {
-            context = jexlInstance._context;
+        if (isNil(config)) {
+            context = jexl._context;
             config = _context;
         } else {
             config = _config;
@@ -55,7 +52,7 @@ const bridgeToJexl = (fn: any) => {
 
 function setup(operationClass: any) {
     for (const config of Object.values(operationClass.repository as Repository)) {
-        jexl.addTransform(config.fn.name, bridgeToJexl(config.fn));
+        jexl.addTransform(config.fn.name, bridgeToJexl(jexl, config.fn));
     }
 }
 
@@ -63,8 +60,8 @@ setup(FieldTransform);
 setup(FieldValidator);
 setup(RecordValidator);
 
-jexl.addTransform(extract.name, bridgeToJexl(extract));
-jexl.addTransform(transformRecord.name, bridgeToJexl(transformRecord));
+jexl.addTransform(extract.name, bridgeToJexl(jexl, extract));
+jexl.addTransform(transformRecord.name, bridgeToJexl(jexl, transformRecord));
 
 export { jexl };
 
@@ -86,12 +83,13 @@ export function extract(
     parentContext: Record<string, any>,
     {
         regex, isMultiValue = true, jexlExp, start, end
-    }: ExtractFieldConfig
+    }: ExtractFieldConfig = {}
 ): RecordInput|null {
     if (isNil(input)) return null;
 
     function getSubslice() {
         const indexStart = input.indexOf(start);
+
         if (indexStart !== -1) {
             const sliceStart = indexStart + start.length;
             let endInd = input.indexOf(end, sliceStart);
@@ -152,7 +150,7 @@ export function extract(
 
     function extractValue() {
         let extractedResult;
-
+        console.log('start', start)
         if (regex) {
             extractedResult = extractField(input, matchRegex);
         } else if (start && end) {

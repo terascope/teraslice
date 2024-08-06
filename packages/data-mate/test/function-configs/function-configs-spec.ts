@@ -38,7 +38,6 @@ describe('function registries', () => {
             const functionPath = path.join(dirPath, item);
 
             const imports = await parseIndexFile(path.join(functionPath, 'index.ts'));
-
             const configFiles = await fsp.readdir(functionPath);
 
             for (const f of configFiles.filter((i) => !(i.endsWith('utils.ts') || i === 'index.ts'))) {
@@ -48,12 +47,17 @@ describe('function registries', () => {
     });
 });
 
+function sanitize(file: string) {
+    return file.replace('.js','').replace(/\W/g, '');
+}
+
 async function parseIndexFile(indexPath: string): Promise<string[]> {
     const indexFile = await fsp.readFile(indexPath, 'utf-8');
 
     return indexFile.split('\n').reduce((imports: string[], line) => {
         if (line.includes('import')) {
-            imports.push(line.split('from', 2)[1].replace(/\W/g, ''));
+            const sourceFile = line.split('from', 2)[1];
+            imports.push(sanitize(sourceFile));
         }
 
         return imports;
