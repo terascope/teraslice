@@ -95,6 +95,7 @@ describe('Teraslice Job', () => {
             metadata: {},
             _created: date,
             _updated: date,
+            _deleted: false,
             _context: 'ex',
             _status: Teraslice.ExecutionStatusEnum.running,
             ex_id: '123456789',
