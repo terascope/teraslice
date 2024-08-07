@@ -400,8 +400,9 @@ export class ApiService {
             });
         });
 
-        v1routes.post(['/jobs/:jobId/_delete'], (req, res) => {
+        v1routes.post('/jobs/:jobId/_delete', (req, res) => {
             const { jobId } = req.params;
+            // @ts-expect-error
             const requestHandler = handleTerasliceRequest(req as TerasliceRequest, res, 'Could not delete job');
             requestHandler(async () => jobsService.deleteJob(jobId));
         });
