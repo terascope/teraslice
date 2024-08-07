@@ -386,6 +386,21 @@ describe('Teraslice Job', () => {
         });
     });
 
+    describe('->softDelete', () => {
+        describe('when called', () => {
+            beforeEach(() => {
+                scope.post('/jobs/some-other-job-id/_delete')
+                    .reply(200, { job_id: 'some-other-job-id', _deleted: true });
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const job = new Job({ baseUrl }, 'some-other-job-id');
+                const results = await job.softDelete();
+                expect(results).toEqual({ job_id: 'some-other-job-id', _deleted: true });
+            });
+        });
+    });
+
     describe('->exId', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
