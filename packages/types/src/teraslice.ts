@@ -27,14 +27,11 @@ export interface AssetUploadQuery {
 }
 
 export interface JobSearchParams extends APISearchParams {
-    status: SearchJobStatus;
+    deleted?: 'exclude' | 'include' | 'only';
+    active?: boolean;
 }
 
 export type SearchQuery = APISearchParams & Record<string, any>;
-
-export type JobListStatusQuery = SearchJobStatus | JobSearchParams;
-
-export type SearchJobStatus = '*' | ExecutionStatus;
 
 export interface APISearchParams {
     size?: number;
