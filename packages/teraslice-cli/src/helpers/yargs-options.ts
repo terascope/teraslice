@@ -232,6 +232,15 @@ export default class Options {
             describe: 'Shows diff on a job in a cluster and a job file',
             default: false,
             type: 'boolean'
+        }),
+        'active-job': () => ({
+            describe: 'List active jobs',
+            choices: ['true', 'false']
+        }),
+        'show-deleted': () => ({
+            describe: 'List deleted records',
+            choices: ['exclude', 'include', 'only'],
+            default: 'exclude'
         })
     };
 

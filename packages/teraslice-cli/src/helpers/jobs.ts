@@ -493,6 +493,37 @@ export default class Jobs {
         }
     }
 
+    async delete(): Promise<void> {
+        if (this.jobs.length === 1 && this.config.args.yes !== true) {
+            const prompt = await display.showPrompt(
+                this.config.args._action,
+                `job ${this.jobs[0].id} on ${this.config.args.clusterAlias}`
+            );
+            if (!prompt) return;
+        }
+
+        await pMap(
+            this.jobs,
+            (job) => this.deleteOne(job),
+            { concurrency: this.concurrency }
+        );
+    }
+
+    async deleteOne(job: JobMetadata) {
+        if (!this.inTerminalStatus(job)) {
+            this.commandFailed(`Job is in non-terminal status ${job.status}, cannot delete`, job);
+            return;
+        }
+
+        try {
+            await job.api.softDelete();
+        } catch (e) {
+            this.commandFailed(e.message, job);
+        }
+
+        this.logUpdate({ action: 'deleted', job });
+    }
+
     private inTerminalStatus(job: JobMetadata): boolean {
         return this.terminalStatuses.includes(job.status);
     }
@@ -551,11 +582,13 @@ export default class Jobs {
 
     private async getAllJobs() {
         if (await this.prompt()) {
+            const { _action, clusterAlias } = this.config.args;
             // if action is start and not from a restart
+            // or if action is delete
             // then need to get job ids from saved state
-            if (this.config.args._action === 'start') {
+            if (_action === 'start' || _action === 'delete') {
                 if (fs.pathExistsSync(this.config.jobStateFile) === false) {
-                    reply.fatal(`Could not find job state file for ${this.config.args.clusterAlias}, this is required to start all jobs`);
+                    reply.fatal(`Could not find job state file for ${clusterAlias}, this is required to ${_action} all jobs`);
                 }
 
                 return this.getJobIdsFromSavedState();
@@ -859,6 +892,10 @@ export default class Jobs {
             cannot_stop: {
                 message: `No need to stop, job is already in terminal status ${status}`,
                 final: this.finalAction(action)
+            },
+            deleted: {
+                message: `${name} has been deleted`,
+                final: true
             }
         };
 
