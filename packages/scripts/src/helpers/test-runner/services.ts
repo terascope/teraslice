@@ -3,9 +3,12 @@ import got from 'got';
 import semver from 'semver';
 import fs from 'fs-extra';
 import path from 'node:path';
-import * as ts from '@terascope/utils';
 import { Kafka } from 'kafkajs';
 import execa from 'execa';
+import {
+    pWhile, TSError, debugLogger,
+    toHumanTime, getErrorStatusCode
+ } from '@terascope/utils';
 import { getServicesForSuite, getRootDir } from '../misc.js';
 import {
     dockerRun, DockerRunOptions, getContainerInfo,
@@ -18,7 +21,7 @@ import { Service } from '../interfaces.js';
 import * as config from '../config.js';
 import signale from '../signale.js';
 
-const logger = ts.debugLogger('ts-scripts:cmd:test');
+const logger = debugLogger('ts-scripts:cmd:test');
 
 const serviceUpTimeout = ms(config.SERVICE_UP_TIMEOUT);
 
@@ -162,7 +165,7 @@ const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
 
 export async function loadOrPullServiceImages(suite: string): Promise<void> {
     const launchServices = getServicesForSuite(suite);
-
+    console.log('here', config.ELASTICSEARCH_VERSION)
     try {
         const images: string[] = [];
         const loadFailedList: string[] = [];
@@ -227,7 +230,7 @@ export async function loadOrPullServiceImages(suite: string): Promise<void> {
             }));
         }
     } catch (err) {
-        throw new ts.TSError(err, {
+        throw new TSError(err, {
             message: `Failed to pull services for test suite "${suite}", ${err.message}`
         });
     }
@@ -314,7 +317,7 @@ export async function ensureMinio(options: TestOptions): Promise<() => void> {
             const scriptLocation = path.join(getRootDir(), '/scripts/generate-cert.sh');
             await execa(scriptLocation, ['localhost', 'minio', config.MINIO_HOSTNAME]);
         } catch (err) {
-            throw new ts.TSError(`Error generating ca-certificates for minio: ${err.message}`);
+            throw new TSError(`Error generating ca-certificates for minio: ${err.message}`);
         }
         signale.success('Successfully created new certificates for minio');
     }
@@ -372,7 +375,7 @@ async function stopService(service: Service) {
     const startTime = Date.now();
     signale.pending(`stopping service ${service}`);
     await dockerStop(name);
-    signale.success(`stopped service ${service}, took ${ts.toHumanTime(Date.now() - startTime)}`);
+    signale.success(`stopped service ${service}, took ${toHumanTime(Date.now() - startTime)}`);
 }
 
 async function checkRestrainedOpensearch(
@@ -386,7 +389,7 @@ async function checkRestrainedOpensearch(
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking restrained opensearch at ${host}`);
@@ -423,12 +426,12 @@ async function checkRestrainedOpensearch(
             const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`restrained opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `restrained opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -453,7 +456,7 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
     if (dockerGateways.includes(config.OPENSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking opensearch at ${host}`);
@@ -490,12 +493,12 @@ async function checkOpensearch(options: TestOptions, startTime: number): Promise
             const expected = config.OPENSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`opensearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Opensearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -520,7 +523,7 @@ async function checkRestrainedElasticsearch(
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking restrained elasticsearch at ${host}`);
@@ -554,12 +557,12 @@ async function checkRestrainedElasticsearch(
             const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Restrained Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -582,7 +585,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking elasticsearch at ${host}`);
@@ -616,12 +619,12 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const expected = config.ELASTICSEARCH_VERSION;
 
             if (semver.satisfies(actual, `^${expected}`)) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
-            throw new ts.TSError(
+            throw new TSError(
                 `Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
@@ -644,7 +647,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
     if (dockerGateways.includes(config.MINIO_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking MinIO at ${host}`);
@@ -666,7 +669,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
                 }));
             } catch (err) {
                 error = err.message;
-                statusCode = ts.getErrorStatusCode(err);
+                statusCode = getErrorStatusCode(err);
             }
 
             if (options.trace) {
@@ -676,7 +679,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
             }
 
             if (statusCode === 200) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`MinIO is running at ${host}, took ${took}`);
                 return true;
             }
@@ -698,7 +701,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
     if (dockerGateways.includes(config.RABBITMQ_HOSTNAME)) return;
 
     let error = '';
-    await ts.pWhile(
+    await pWhile(
         async () => {
             if (options.trace) {
                 signale.debug(`checking RabbitMQ at ${managementEndpoint}`);
@@ -719,7 +722,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
                 }));
             } catch (err) {
                 error = err.message;
-                statusCode = ts.getErrorStatusCode(err);
+                statusCode = getErrorStatusCode(err);
             }
 
             if (options.trace) {
@@ -729,7 +732,7 @@ async function checkRabbitMQ(options: TestOptions, startTime: number): Promise<v
             }
 
             if (statusCode === 200) {
-                const took = ts.toHumanTime(Date.now() - startTime);
+                const took = toHumanTime(Date.now() - startTime);
                 signale.success(`RabbitMQ is running at ${managementEndpoint}, took ${took}`);
                 return true;
             }
@@ -773,7 +776,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
         }
     });
     const producer = kafka.producer();
-    const took = ts.toHumanTime(Date.now() - startTime);
+    const took = toHumanTime(Date.now() - startTime);
     try {
         await producer.connect();
     } catch (err) {
@@ -788,7 +791,7 @@ async function checkKafka(options: TestOptions, startTime: number) {
 }
 
 async function checkZookeeper(options: TestOptions, startTime: number) {
-    const took = ts.toHumanTime(Date.now() - startTime);
+    const took = toHumanTime(Date.now() - startTime);
     signale.success(` zookeeper*might* be running, took ${took}`);
 }
 
@@ -837,7 +840,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             fn();
         } catch (err) {
             signale.error(
-                new ts.TSError(err, {
+                new TSError(err, {
                     reason: `Failed to stop ${service}@${version} service`,
                 })
             );
