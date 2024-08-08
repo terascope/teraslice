@@ -114,13 +114,11 @@ export class JobsService {
     }
 
     async updateJob(jobId: string, jobSpec: Partial<JobConfig | JobConfigParams>) {
-        await this._validateJobSpec(jobSpec); // FIXME: ask Jared about this
-
         const originalJob = await this.jobsStorage.get(jobId);
 
         if (originalJob._deleted === true) {
             throw new TSError(`Job ${jobId} has been deleted and cannot be updated.`, {
-                statusCode: 404 // FIXME: or 409, 410???
+                statusCode: 410
             });
         }
         // If job is switching from active to inactive job validation is skipped
@@ -172,7 +170,7 @@ export class JobsService {
 
         if (jobSpec._deleted === true) {
             throw new TSError(`Job ${jobId} has been deleted and cannot be started.`, {
-                statusCode: 404 // FIXME: or 409, 410???
+                statusCode: 410
             });
         }
 
@@ -233,7 +231,7 @@ export class JobsService {
 
         if (jobSpec._deleted === true) {
             throw new TSError(`Job ${jobId} has been deleted and cannot be recovered.`, {
-                statusCode: 404 // FIXME: or 409, 410???
+                statusCode: 410
             });
         }
 
@@ -285,7 +283,7 @@ export class JobsService {
 
         if (jobSpec._deleted === true) {
             throw new TSError(`Job ${jobId} has already been deleted.`, {
-                statusCode: 404 // FIXME: or 409, 410???
+                statusCode: 410
             });
         }
 
